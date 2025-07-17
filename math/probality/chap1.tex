@@ -1,0 +1,287 @@
+\section{随机事件及其概率}
+\subsection{随机事件}
+
+\begin{mydef}{随机试验}{random experiment}
+    随机试验满足一下三个条件：
+    \begin{enumerate}
+        \item 可以在相同的条件下重复进行；
+        \item 每次试验的结果不确定；
+        \item 所有可能的结果都明确可知且不止一个。
+    \end{enumerate}
+\end{mydef}
+
+\begin{mydef}{样本空间}{sample space}
+    样本空间是指随机试验所有可能结果的集合，通常用 $\Omega$ 表示。
+\end{mydef}
+
+\begin{mydef}{随机事件}{random event}
+    随机事件是样本空间的一个子集，通常用大写字母表示，如 $A, B, C$ 等。事件可以是单个结果，也可以是多个结果的集合。
+    \newline
+    \newline
+    每次试验中必定发生的事件称为必然事件，记作 $\Omega$；不可能发生的事件称为不可能事件，记作 $\emptyset$。
+\end{mydef}
+
+\subsection{事件的关系与运算}
+%使用无标题表格
+\begin{tablebox}{事件的关系与运算}
+\centering
+\begin{tabular}{|c|c|p{10cm}|}
+\hline
+事件 & 记号 & 说明 \\
+\hline
+并集 & $A \cup B$ & 至少发生事件 $A$ 或事件 $B$ \\
+\hline
+交集 & $A \cap B$ & 同时发生事件 $A$ 和事件 $B$ \\
+\hline
+差集 & $A - B$ & 发生事件 $A$ 但不发生事件 $B$ \\
+\hline
+对立 & $A^c$ & 事件 $A$ 的补集，即
+不发生事件 $A$ \\
+\hline
+包含 & $A \subseteq B$ & 事件 $A$ 是事件 $B$ 的子集，即 $A$ 的发生包含在 $B$ 的发生中 \\
+\hline
+相等 & $A = B$ & 事件 $A$ 和事件 $B
+$ 完全相同，即它们包含的结果完全一致 \\
+\hline
+互斥 & $A \cap B = \emptyset$ & 事件 $A$ 和事件 $B$ 不能同时发生，即它们没有共同的结果 \\
+\hline
+完备 & $\cup_{i=1}^n A_i = \Omega$ & 事件 $A_1, A_2, \ldots, A_n$ 的并集等于样本空间 $\Omega$，即这些事件的发生覆盖了所有可能的结果 \\
+\hline
+\end{tabular}
+\label{tab:event_operations}
+\end{tablebox}
+
+\subsection{事件的运算法则}
+\begin{formula}{事件的运算法则}{laws of event operations}
+    \begin{enumerate}
+        \item 交换律：$A \cup B = B \cup A$，$A \cap B = B \cap A$
+        \item 结合律：$A \cup (B \cup C) = (A \cup B) \cup C$，$A \cap (B \cap C) = (A \cap B) \cap C$
+        \item 分配律：$A \cup (B \cap C) = (A \cup B) \cap (A \cup C)$，$A \cap (B \cup C) = (A \cap B) \cup (A \cap C)$
+        \item 德摩根定律：$(A \cup B)^c = A^c \cap B^c$，$(A \cap B)^c = A^c \cup B^c$
+        \item 吸收律 ：$\text{若} A \subset B,\text{则} A \cup B = B$，$A \cap B = A$
+        \item 对立律：$A \cup A^c = \Omega$，$A \cap A^c = \emptyset$
+        \item 蕴涵律：$A \cap B = \emptyset \Rightarrow A \subset B^c$，$B \subset A^{c}$
+        \item 差积律：$A - B = A \cap B^c = A - (A \cap B)$
+    \end{enumerate}
+\end{formula}
+
+\subsection{概率的定义}
+\begin{mydef}{概率的描述性定义}{descriptive definition of probability}
+    概率是指在大量重复的随机试验中，某事件发生的频率趋近于一个固定值，这个固定值即为该事件的概率。
+\end{mydef}
+
+\begin{mydef}{概率的公理化定义}{axiomatic definition of probability}
+    概率是一个函数 $P$，定义在样本空间 $\Omega$ 的子集上，满足以下公理：
+    \begin{enumerate}
+        \item 非负性：对于任意事件 $A$，$P(A) \geq 0$。
+        \item 归一性：$P(\Omega) = 1$。
+        \item 可列可加性：对于任意互不相交的事件序列 $\{A_i\}$，有 $P(\cup_{i=1}^{\infty} A_i) = \sum_{i=1}^{\infty} P(A_i)$。
+    \end{enumerate}
+\end{mydef}
+
+\begin{mydef}{概率的统计定义}{statistical definition of probability}
+    概率是指在大量重复的随机试验中，某事件发生的相对频率趋近于一个固定值，这个固定值即为该事件的概率。
+\end{mydef}
+
+\begin{mydef}{概率的几何定义}{geometric definition of probability}
+    在几何空间中，概率可以通过测度来定义。对于一个事件 $A$，其概率可以表示为事件 $A$ 在样本空间 $\Omega$ 中的测度与样本空间 $\Omega$ 的测度之比，即 $P(A) = \frac{m(A)}{m(\Omega)}$，其中 $m$ 表示测度。
+\end{mydef}
+
+\begin{mydef}{古典概型}{classical probability model}
+    古典概型是指在有限样本空间中，每个基本事件发生的概率相等的情况。设样本空间 $\Omega$ 包含 $n$ 个基本事件，事件 $A$ 包含 $m$ 个基本事件，则事件 $A$ 的概率为：
+    \[
+    P(A) = \frac{m}{n}
+    \]
+\end{mydef}
+
+\begin{formula}{古典概型的计算方法}{classical probability calculation}
+    \begin{enumerate}
+        \item 随机分配问题
+        \newline
+       一共有 $N$ 种物品，每种物品有 $n$ 个可选项。每个物品可以独立选择一个可选项，因此总共有 $N^n$ 种选择方式。
+        从 $n$ 个物品中选择 $k$ 个物品的方式有 $C_{n}^{k}$ 种，选择的 $k$ 个物品可以任意排列，因此有 $k!$ 种排列方式。
+        剩余的 $n-k$ 个物品可以从 $N-k$ 个剩余物品中选择，因此有 $(N-k)^{n-k}$ 种选择方式。
+        因此得到公式：
+        \[
+        P(C) = \frac{C_{n}^{k}k!(N-k)^{n-k}}{N^{n}} =
+\frac{n!(N-k)^{n-k}}{(n-k)!N^{n}}
+        \] 
+        \item 简单随机抽样问题
+        \newline
+        $\Omega$ 包含 $N$ 个元素，如果各元素被选中的概率相等，则 $\Omega$ 的抽样被称作简单随机抽样。
+        \newline
+        \begin{tablebox}
+        {简单随机抽样的计算方法}
+        \centering
+        \begin{tabular}{|c|c|p{4cm}|}
+        \hline
+        抽样方式 & 公式 & 说明 \\
+        \hline
+        有放回抽样 & $P_{N}^{n} = N^n$ & 每次抽样后元素仍然可选，选择 $n$ 个元素 \\
+        \hline
+        无放回抽样 & $P_{N}^{n} = \frac{N!}{(N-n)!}$ & 每次抽样后元素不再可选，选择 $n$ 个元素 \\
+        \hline
+        无放回抽样（组合） & $C_{N}^{n} = \frac{N!}{n!(N-n)!}$ & 每次抽样后元素不再可选，选择 $n$ 个元素且不考虑顺序 \\
+        \hline
+        \end{tabular}
+        \label{tab:simple_random_sampling}
+        \end{tablebox}
+        \item 其他方法
+        \newline
+        如果只是一些简单的抽样的话不需要考虑这么复杂的公式
+        \begin{enumerate}
+            \item 直接列举法：对于小规模的样本空间，可以直接列举所有可能的事件。
+            \item 排列组合法：对于有序或无序的事件，可以使用排列组合的方法来计算概率。
+            \item 容斥原理：对于多个事件的并集，可以使用容斥原理来计算概率。
+        \end{enumerate}
+        \item \boxed{\textbf{例}}
+        将 $n$ 个不同的物品放入 $m$ 个不同的盒子中，每个盒子可以放任意数量的物品
+        \begin{enumerate}
+            \item 有放回抽样：每个物品可以放入任意盒子，因此总共有 $m^n$ 种放法。
+            \item 无放回抽样：每个物品只能放入一个盒子，因此总共有 $P_{m}^{n} = \frac{m!}{(m-n)!}$ 种放法。
+            \item 无放回抽样（组合）：每个物品只能放入一个盒子，且不考虑顺序，因此总共有 $C_{m}^{n} = \frac{m!}{n!(m-n)!}$ 种放法。
+        \end{enumerate}
+    \end{enumerate}
+\end{formula}
+
+\begin{mydef}
+{几何概型}{geometric probability}
+    几何概型是指在几何空间中，事件的概率通过测度来定义。通常用于处理连续样本空间中的事件。
+\end{mydef}
+
+\begin{formula}{几何概型的计算方法}{geometric probability calculation}
+    在几何空间中，概率可以通过测度来定义。设样本空间 $\Omega$ 的测度为 $m(\Omega)$，事件 $A$ 的测度为 $m(A)$，则事件 $A$ 的概率为：
+    \[
+    P(A) = \frac{m(A)}{m(\Omega)}
+    \]
+    其中，$m(A)$ 和 $m(\Omega)$ 分别表示事件 $A$ 和样本空间 $\Omega$ 的测度。
+
+    \boxed{
+        \textbf{
+            落到计算上，就是长度、面积或体积的比值。
+            这可以和高数结合起来
+        }
+    }
+
+\end{formula}
+
+\subsection{概率论性质与公式}
+
+\begin{conclusion}{概率论的性质}{properties of probability theory}
+    \begin{enumerate}
+        \item 有界性\\
+        对于任一事件 $A$，有 $0 \leq P(A) \leq 1$，且 $P(\emptyset) = 0, P(\Omega) = 1$。
+        \item 单调性\\
+        如果 $A \subset B$，则 $P(B-A) = P(B) - P(A)$，且 $P(B) \geq P(A)$。
+    \end{enumerate}
+\end{conclusion}
+
+\begin{formula}{概率论的公式}{formulas of probability theory}
+    \begin{enumerate}
+        \item 加法公式\\
+        如果 $A_1, A_2, \ldots, A_n$ 是互斥的事件，则 $P(A_1 \cup A_2 \cup \ldots \cup A_n) = P(A_1) + P(A_2) + \ldots + P(A_n)$。
+        \item 求逆公式\\
+        如果 $A$ 是事件 $B$ 的子集，则 $P(\bar{A}) = 1 - P(A)$。
+        \item 减法公式 \\
+        如果 $A$ 是事件 $B$ 的子集，则 $P(B-A) = P(B) - P(A)$。
+        \item 乘法公式 \\
+        如果 $A_1, A_2, \ldots, A_n$ 是独立的事件，则 $P(A_1 \cap A_2 \cap \ldots \cap A_n) = P(A_1) \times P(A_2) \times \ldots \times P(A_n)$。
+        \item 条件概率公式 \\
+        如果 $A$ 是事件 $B$ 的子集，则 $P(A|B) = \frac{P(A \cap B)}{P(B)}$。
+        \item 全概率公式 \\
+        如果 $A_1, A_2, \ldots, A_n$ 是互斥的事件，则 $P(A) = P(A_1) + P(A_2) + \ldots + P(A_n)$。
+        \item 贝叶斯公式 \\
+        如果 $A_1, A_2, \ldots, A_n$ 是互斥的事件，则\\
+        $P(B_{k} | A) =  \frac{P(B_{k})P(A|B_{k})}{P(A)}$
+        \item n重伯努利试验 \\
+        $P_{n}(A = k) = C_{n}^{k}p^{k}(1-p)^{n-k}$
+    \end{enumerate}
+\end{formula}
+
+\subsection{事件的独立性}
+
+\begin{mydef}{事件的独立性}{independence of events}
+    如果 $A$ 和 $B$ 是事件，且 $P(A \cap B) = P(A)P(B)$，则称 $A$ 和 $B$ 是独立的。
+    A与B相互独立的含义是A与B在概率上互不影响。A事件发生的概率不影响B事件发生的概率。
+\end{mydef}
+
+\begin{conclusion}{互不相容}{mutually exclusive}
+    如果 $A$ 和 $B$ 是事件，且 $A \cap B = \emptyset$，则称 $A$ 和 $B$ 是互不相容的。
+    A与B互不相容的含义是A与B在概率上不相关。两件事不会同时发生。
+\end{conclusion}
+
+\begin{mydef}{独立与不相容的联系}{independence and mutually exclusive}
+    $P(A) > 0, P(B) > 0, A\textrm{与}B\textrm{独立} \Rightarrow A\textrm{与}B\textrm{相容}$ \\
+    $A\textrm{与}B\textrm{互不相容},P(A) >0, P(B) > 0 \Rightarrow A \textrm{与}B\textrm{不互相独立}$
+\end{mydef}
+
+\begin{conclusion}{四对事件}{four in}
+    若$A$与$B$, $\bar{A}$与$B$,$A$与$\bar{B}$,$\bar{A}$与$\bar{B}$有一对相互独立，
+    则其他三对相互独立
+    
+\end{conclusion}
+
+\begin{conclusion}{事件A与B相互独立的充要条件}{necessary and sufficient conditions for independence}
+    %在左边
+    % \vspace{
+    % $A\textrm{与}B\textrm{独立} \Leftrightarrow$
+    % }
+    % %在右边
+    % \[
+    % \begin{cases}
+    %     P(AB) = P(A)P(B) \\
+    %     P(B|A) = P(B),\quad P(A) > 0 \\
+    %     P(A | B) = P(A),\quad P(B) > 0 \\
+    %     P(B|A) = P(B | \hat{A}),\quad 0 < P(A) < 1
+    % \end{cases}
+    % \]
+    \[
+% 左边文本
+\parbox{6.5em}{% 调整宽度使文本垂直居中
+    $A$与$B$独立 $\Leftrightarrow$
+}
+% 右边条件组
+\quad
+\begin{cases}
+    1.P(AB) = P(A)P(B) \\
+    2.P(B|A) = P(B),\quad P(A) > 0 \\
+    P(A | B) = P(A),\quad P(B) > 0 \\
+    3.P(B|A) = P(B | \bar{A}),\quad 0 < P(A) < 1\\
+    4.P(B|A) + P(\bar{B}|\bar{A}) = 1,\quad 0 < P(A) < 1
+\end{cases}
+\]
+\end{conclusion}
+
+\begin{conclusion}{事件A,B,C相互独立的条件}{necessary and sufficient conditions for independence2}
+    $$
+    \begin{cases}
+       P(AB) = P(A)P(B) \\
+       P(AC) = P(A)P(C) \\
+       P(BC) = P(B)P(C) \\
+       P(ABC) = P(A)P(B)P(C) \\
+    \end{cases}
+    \Rightarrow A,B,C\textrm{相互独立}
+    $$
+\end{conclusion}
+
+\begin{conclusion}{n个独立事件的概率}{probability of n independent events}
+    $
+    P(A_1,A_2,\ldots,A_n) = P(A_1)P(A_2)\ldots P(A_n) 
+    $
+    \\
+    $
+    P(\cup_{i=1}^{n}A_{i}) = 1 - \Pi_{i=1}^{n}[1-P(A_{i})]
+    $
+\end{conclusion}
+
+\begin{conclusion}{独立的性质}{properties of independence}
+   若$A_1,A_2,\ldots,A_n$独立，则
+   由$A_{i1},A_{i2},\ldots,A_{in}$经过运算后所得事件$\sigma_{1}(
+    A_{i1},A_{i2},\ldots,A_{in}
+   )$
+   与$A_{ik+1},A_{ik+2},\ldots,A_{in}$经过运算后所得事件$\sigma_{2}(
+    A_{ik+1},A_{ik+2},\ldots,A_{in}
+   )$也独立, $i1,i2,\ldots,in$为$1,2,\ldots,n$的任何一个排列。
+   \\
+   即原本独立的事件，各自经过运算后所得事件也独立\\
+\end{conclusion}

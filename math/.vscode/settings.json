@@ -1,0 +1,37 @@
+{
+    "latex-workshop.latex.tools": [
+        {
+            "name": "xelatex",
+            "command": "xelatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-output-directory=./out",
+                "%DOC%"
+            ]
+        }
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "xelatex",
+            "tools": ["xelatex"]
+        }
+    ],
+    "latex-workshop.latex.autoBuild.run": "onFileChange",
+    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.latex.clean.fileTypes": [
+        "aux",
+        "bbl",
+        "blg",
+        "log",
+        "out",
+        "toc",
+        "fls",
+        "fdb_latexmk"
+    ],
+    "latex-workshop.latex.clean.enabled": true,
+    "latex-workshop.latex.outDir": "./out",
+    //自动展示新的pdf
+    "latex-workshop.view.pdf.autoShow": true
+}

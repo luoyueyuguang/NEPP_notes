@@ -1,0 +1,150 @@
+% GEE Math Notes Main File
+\documentclass[a4paper,oneside]{ctexbook}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath}   % 数学公式
+\usepackage{amsfonts}  % 数学字体
+\usepackage{amstext}   % 数学文本
+\usepackage{amsthm}    % 定理环境
+\usepackage{amssymb}   % 更多公式符号
+\usepackage{graphicx}  % 插图
+% \usepackage{mathrsfs}  % 数学字体
+\usepackage{enumitem}  % 列表
+\usepackage{fancyhdr}  % 页眉页脚
+\usepackage{geometry}  % 页面调整
+\usepackage{bookmark}  % 书签
+\usepackage{hyperref}
+\usepackage{cases}
+%导入一系列tikz包
+\usepackage{tikz}      % 绘图
+\usepackage{tikz-cd}   % 交换图
+\usepackage{tikzsymbols} % 符号
+\usepackage{tikz-qtree} % 树形图
+\usepackage{tikz-dependency} % 依赖图
+\usepackage{tikz-3dplot} % 3D 绘图
+\usepackage[compat=1.1.0]{tikz-feynman} % Feynman 图
+\usepackage{tikz-network} % 网络图
+\usepackage{times}
+\usepackage{fontspec}  % 字体设置
+\usepackage{tabularx} % 表格
+\usepackage[fontsize=14pt]{fontsize}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue
+}
+\newtheorem{definition}{定义}
+\tikzfeynmanset{warn luatex=false} % 禁用 LuaTeX 警告
+
+%加入画文本框的包
+\usepackage{tcolorbox} % 文本框
+\usepackage{fancybox}  % 花式文本框
+\tcbuselibrary{skins, breakable, theorems, most,breakable}
+
+\usepackage{caption} % 用于计数器管理
+\usepackage{chngcntr} % 用于计数器与章节关联
+
+% 设置页眉页脚
+% 仅在中间显示页码
+\pagestyle{fancy}
+%去掉页眉
+\fancyhead{}
+%去掉页脚
+\fancyfoot{}
+
+\renewcommand{\headrulewidth}{0pt} % 去掉页眉横线
+\renewcommand{\footrulewidth}{0pt} % 去掉页脚横线
+
+
+\ctexset{
+	section={
+		name={,},
+		number={\arabic{section}},
+		format=\Large\bfseries,
+		beforeskip=1.5ex plus .2ex minus .2ex,
+		afterskip=1.5ex plus .2ex minus .2ex
+	},
+	subsection={
+		name={,},
+		number={\arabic{section}.\arabic{subsection}},
+		format=\large\bfseries,
+		beforeskip=1.5ex plus .2ex minus .2ex,
+		afterskip=1.5ex plus .2ex minus .2ex
+	}
+}
+
+\setmainfont{Times New Roman} % 设置主字体
+% 中文主字体已由 ctexbook 设置为 SimSun，无需重复设置
+% \setCJKmainfont{SimSun}[BoldFont=SimHei] % 推荐使用 SimHei 作为粗体，避免警告
+% 设置中文主字体为宋体，避免请求未定义的粗体
+\setCJKmainfont{SimSun}[BoldFont=SimSun] % 推荐使用 SimHei 作为粗体，避免警告
+% 修改textbf的粗体字体为蓝底黑体
+\renewcommand{\textbf}[1]{\textcolor{blue}{\textsf{#1}}} % 修改粗体字体为黑体
+
+% 修正 fancyhdr 的 headheight
+\setlength{\headheight}{13pt}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm} % 页面边距
+\setlength{\parindent}{2em} % 段落缩进
+\setlength{\parskip}{0.5em} % 段落间距
+\setlength{\parskip}{0.5em} % 段落间距
+
+\title{luoyue's Math Notes}
+\author{luoyue}
+\date{}
+
+%mydef走自己的counter
+\newtcbtheorem[number within=definition]{mydef}{定义}%
+  {colback=blue!5,colframe=cyan!60!blue,fonttitle=\bfseries
+
+  }{th}
+
+%加入粉蓝色的公式theorem
+\newtcbtheorem[number within=arabic{section}]{formula}{公式}%
+{
+	colback=blue!5,colframe=white!30!pink,fonttitle=\bfseries,
+	coltitle=cyan!30!black,
+	  breakable,
+}{fo}
+
+%加入结论box
+\newtcbtheorem[number within=arabic{subsection}]{conclusion}{结论}%
+{
+	colback=blue!5,colframe=blue!50!black,fonttitle=\bfseries,
+	  breakable,
+}{cu}
+
+%重置 mydef 的计数器
+\setcounter{definition}{1}
+
+% \counterwithin{table}{section} % 表格计数器随章节重置
+\setcounter{table}{1} % 设置表格计数器从1开始
+% 定义蓝绿色标题样式
+\newtcolorbox{tablebox}[2][]{
+  enhanced,
+  arc=1mm,                    % 圆角
+  boxrule=0.5pt,              % 边框粗细
+  colback=white,              % 表格背景色
+  colframe=teal!50!black,     % 边框颜色（深蓝绿色）
+  fonttitle=\bfseries\sffamily\centering, % 标题字体
+  colbacktitle=blue!40!cyan,  % 标题背景色（蓝偏绿）
+  coltitle=white,             % 标题文字颜色
+  title={\tablename~\arabic{table}: #2},               % 标题内容
+  boxed title style={         % 标题样式
+    sharp corners,            % 直角标题
+    rounded corners=northeast % 仅右上角圆角
+  },
+  #1, % 可选参数
+  breakable, % 允许自动换行
+}
+
+
+
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+% 导入概率论章节
+\part{概率论}
+\input{probality/probality.tex}
+\end{document}

@@ -1,0 +1,10 @@
+\contentsline {part}{第一部分\hspace {1em}概率论}{2}{part.1}%
+\contentsline {section}{\numberline {1}随机事件及其概率}{3}{section.0.1}%
+\contentsline {subsection}{\numberline {1.1}随机事件}{3}{subsection.0.1.1}%
+\contentsline {subsection}{\numberline {1.2}事件的关系与运算}{3}{subsection.0.1.2}%
+\contentsline {subsection}{\numberline {1.3}事件的运算法则}{4}{subsection.0.1.3}%
+\contentsline {subsection}{\numberline {1.4}概率的定义}{5}{subsection.0.1.4}%
+\contentsline {subsection}{\numberline {1.5}概率论性质与公式}{8}{subsection.0.1.5}%
+\contentsline {subsection}{\numberline {1.6}事件的独立性}{9}{subsection.0.1.6}%
+\contentsline {section}{\numberline {2}多维随机变量的函数分布}{10}{section.0.2}%
+\contentsline {subsection}{\numberline {2.1}多维随机变量的函数分布}{10}{subsection.0.2.1}%
