@@ -1,0 +1,66 @@
+\section{一维随机变量及其分布}
+\subsection{随机变量与分布函数的概念}
+\begin{mydef}{随机变量}{random variable}
+随机变量是随机试验的结果，是一个随机试验的函数。
+设随机试验E的样本空间为$\Omega, \omega \in R$若对任意实数$x$,事件
+$
+\{X \leq x\} = \{\omega | X(\omega) \leq x \}
+$
+\end{mydef}
+
+\begin{mydef}{分布函数}{distribution function}
+$X$是随机变量,$x$是任意实数,$F(X) = P(X \leq x)$是随机变量$X$的
+分布函数。称$X$服从$F(X)$分布或$X \sim F(X)$
+\end{mydef}
+
+\begin{conclusion}{分布函数的性质}{distribution function properties}
+\begin{enumerate}
+    \item 分布函数是单调不减函数。
+    \item $0 \leq F(X) \leq 1$。$F(-\infty) = 0, F(\infty) = 1$。
+    \item $F(X)$是右连续函数。$x_{0} \in R$时，$F(x_{0})$存在，且有
+    $$
+    \lim_{x \to {x_{0}^{+}}} F(x) = F(x_{0} + 0) = F(x_{0})
+    $$
+    \item 对任意$x_{1} < x_{2}, P\{x_{1} \leq X \leq x_{2}\} = F(x_{2}) - F(x_{1})$
+    \item 对任意$x_{0} \in R$, $P(X = x_{0}) = F(x_{0}) - F(x_{0} - 0)$
+    \item 设$x_{1} < x_{2}$,且$F(X)$在$x_{1},x_{2}$处连续，$P\{x_{1} \leq X \leq x_{2}\} = F(x_{2}) - F(x_{1})$
+\end{enumerate}
+\end{conclusion}
+
+\subsection{离散型随机变量及连续型随机变量}
+\begin{mydef}{离散型随机变量}{discrete random variable}
+    如果随机变量$X$只可能取有限个或无限个离散的值，则为离散型随机变量。
+    $X$的概率分布(或分布律，分布列)可表示为
+    $$
+    P(X = x_{i}) = p_{i}, i = 1,2,...,n
+    $$
+    或表格形式
+    \begin{tabular}{cc}
+\toprule
+$x$ & $P(X=x)$ \\
+\midrule
+0 & 0.3 \\
+1 & 0.5 \\
+2 & 0.2 \\
+\bottomrule
+\end{tabular}
+\end{mydef}
+
+\begin{mydef}{连续型随机变量}{continuous random variable}
+    
+\end{mydef}
+
+\subsection{离散型随机变量及其分布}
+\begin{mydef}{离散型随机变量的分布函数}{distribution function of discrete random variable}
+    设$X$是离散型随机变量，$x_{1},x_{2},...,x_{n}$是$X$的可能取值，
+    $P(X = x_{i})$是$X$取$x_{i}$的概率，$F(X)$是$X$的分布函数，
+    则有
+    $$
+    F(X) = P(X \leq x) = P(X = x_{1}) + P(X = x_{2}) + ... + P(X = x_{n})
+    $$
+\end{mydef}
+
+\subsection{连续型随机变量及其分布}
+
+\subsection{一维随机变量函数的分布}
+

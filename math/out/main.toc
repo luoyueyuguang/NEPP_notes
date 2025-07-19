@@ -6,5 +6,11 @@
 \contentsline {subsection}{\numberline {1.4}概率的定义}{5}{subsection.0.1.4}%
 \contentsline {subsection}{\numberline {1.5}概率论性质与公式}{8}{subsection.0.1.5}%
 \contentsline {subsection}{\numberline {1.6}事件的独立性}{9}{subsection.0.1.6}%
-\contentsline {section}{\numberline {2}多维随机变量的函数分布}{10}{section.0.2}%
-\contentsline {subsection}{\numberline {2.1}多维随机变量的函数分布}{10}{subsection.0.2.1}%
+\contentsline {section}{\numberline {2}一维随机变量及其分布}{11}{section.0.2}%
+\contentsline {subsection}{\numberline {2.1}随机变量与分布函数的概念}{11}{subsection.0.2.1}%
+\contentsline {subsection}{\numberline {2.2}离散型随机变量及连续型随机变量}{12}{subsection.0.2.2}%
+\contentsline {subsection}{\numberline {2.3}离散型随机变量及其分布}{12}{subsection.0.2.3}%
+\contentsline {subsection}{\numberline {2.4}连续型随机变量及其分布}{12}{subsection.0.2.4}%
+\contentsline {subsection}{\numberline {2.5}一维随机变量函数的分布}{12}{subsection.0.2.5}%
+\contentsline {section}{\numberline {3}多维随机变量的函数分布}{13}{section.0.3}%
+\contentsline {subsection}{\numberline {3.1}多维随机变量的函数分布}{13}{subsection.0.3.1}%
