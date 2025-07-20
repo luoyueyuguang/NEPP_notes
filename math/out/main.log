@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (MiKTeX 24.1) (preloaded format=xelatex 2025.7.14)  19 JUL 2025 22:39
+This is XeTeX, Version 3.141592653-2.6-0.999995 (MiKTeX 24.1) (preloaded format=xelatex 2025.7.14)  20 JUL 2025 22:22
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1697,94 +1697,93 @@ Package fontspec Info: Font family 'SimSun(1)' created for font 'SimSun' with
 \c@tcb@cnt@mydef=\count522
 \c@tcb@cnt@formula=\count523
 \c@tcb@cnt@conclusion=\count524
-(d:\project\GEE\math\out\main.aux)
+No file main.aux.
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 145.
-LaTeX Font Info:    ... okay on input line 145.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 145.
-LaTeX Font Info:    ... okay on input line 145.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 145.
-LaTeX Font Info:    ... okay on input line 145.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 145.
-LaTeX Font Info:    ... okay on input line 145.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 145.
-LaTeX Font Info:    ... okay on input line 145.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 145.
-LaTeX Font Info:    ... okay on input line 145.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 145.
-LaTeX Font Info:    ... okay on input line 145.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 145.
-LaTeX Font Info:    ... okay on input line 145.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 145.
-LaTeX Font Info:    ... okay on input line 145.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 145.
-LaTeX Font Info:    ... okay on input line 145.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
 
 Package fontspec Info: Adjusting the maths setup (use [no-math] to avoid
 (fontspec)             this).
 
 \symlegacymaths=\mathgroup6
 LaTeX Font Info:    Overwriting symbol font `legacymaths' in version `bold'
-(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 145.
-LaTeX Font Info:    Redeclaring math accent \acute on input line 145.
-LaTeX Font Info:    Redeclaring math accent \grave on input line 145.
-LaTeX Font Info:    Redeclaring math accent \ddot on input line 145.
-LaTeX Font Info:    Redeclaring math accent \tilde on input line 145.
-LaTeX Font Info:    Redeclaring math accent \bar on input line 145.
-LaTeX Font Info:    Redeclaring math accent \breve on input line 145.
-LaTeX Font Info:    Redeclaring math accent \check on input line 145.
-LaTeX Font Info:    Redeclaring math accent \hat on input line 145.
-LaTeX Font Info:    Redeclaring math accent \dot on input line 145.
-LaTeX Font Info:    Redeclaring math accent \mathring on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Delta on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Theta on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Xi on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Pi on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Phi on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Psi on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \Omega on input line 145.
-LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 145.
-LaTeX Font Info:    Redeclaring symbol font `operators' on input line 145.
+(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 148.
+LaTeX Font Info:    Redeclaring math accent \acute on input line 148.
+LaTeX Font Info:    Redeclaring math accent \grave on input line 148.
+LaTeX Font Info:    Redeclaring math accent \ddot on input line 148.
+LaTeX Font Info:    Redeclaring math accent \tilde on input line 148.
+LaTeX Font Info:    Redeclaring math accent \bar on input line 148.
+LaTeX Font Info:    Redeclaring math accent \breve on input line 148.
+LaTeX Font Info:    Redeclaring math accent \check on input line 148.
+LaTeX Font Info:    Redeclaring math accent \hat on input line 148.
+LaTeX Font Info:    Redeclaring math accent \dot on input line 148.
+LaTeX Font Info:    Redeclaring math accent \mathring on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Delta on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Theta on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Xi on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Pi on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Phi on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Psi on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \Omega on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 148.
+LaTeX Font Info:    Redeclaring symbol font `operators' on input line 148.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 145.
+(Font)              `operators' in the math version `normal' on input line 148.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> TU/TimesNewRoman(0)/m/n on input line 1
-45.
+48.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 145.
+(Font)              `operators' in the math version `bold' on input line 148.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
 (Font)                  OT1/cmr/bx/n --> TU/TimesNewRoman(0)/m/n on input line 
-145.
+148.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  TU/TimesNewRoman(0)/m/n --> TU/TimesNewRoman(0)/m/n on 
-input line 145.
+input line 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
 (Font)                  OT1/cmr/m/it --> TU/TimesNewRoman(0)/m/it on input line
- 145.
+ 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
 (Font)                  OT1/cmr/bx/n --> TU/TimesNewRoman(0)/b/n on input line 
-145.
+148.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> TU/phv/m/n on input line 145.
+(Font)                  OT1/cmss/m/n --> TU/phv/m/n on input line 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> TU/pcr/m/n on input line 145.
+(Font)                  OT1/cmtt/m/n --> TU/pcr/m/n on input line 148.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
 (Font)                  TU/TimesNewRoman(0)/m/n --> TU/TimesNewRoman(0)/b/n on 
-input line 145.
+input line 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 (Font)                  OT1/cmr/bx/it --> TU/TimesNewRoman(0)/b/it on input lin
-e 145.
+e 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> TU/phv/b/n on input line 145.
+(Font)                  OT1/cmss/bx/n --> TU/phv/b/n on input line 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> TU/pcr/b/n on input line 145.
-
+(Font)                  OT1/cmtt/m/n --> TU/pcr/b/n on input line 148.
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
 *geometry* verbose mode - [ preamble ] result:
@@ -1819,18 +1818,21 @@ LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring ON on input line 145.
+Package hyperref Info: Link coloring ON on input line 148.
+
+Package hyperref Warning: Rerun to get /PageLabels entry.
+
 \c@lstlisting=\count525
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Calculating math sizes for size <16.79996> on input line 14
-7.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 147
+LaTeX Font Info:    Calculating math sizes for size <16.79996> on input line 15
+0.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 150
 .
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 147
+LaTeX Font Info:    Trying to load font information for U+msb on input line 150
 .
 
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
@@ -1839,18 +1841,18 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 [1
 
 
-] (d:\project\GEE\math\out\main.toc
-LaTeX Font Info:    Calculating math sizes for size <14> on input line 2.
-)
+]
+No file main.toc.
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
- [1
+[1
 
 ] [2
 
-] (probality/probality.tex
-(probality/chap1.tex
+] (probality/probality.tex (probality/chap1.tex
+LaTeX Font Info:    Calculating math sizes for size <14> on input line 14.
+
 Underfull \hbox (badness 10000) in paragraph at lines 18--22
 
  []
@@ -1909,8 +1911,8 @@ Overfull \hbox (7.41782pt too wide) in paragraph at lines 164--165
 
 [7] [8] [9]
 Underfull \hbox (badness 1281) in paragraph at lines 278--287
-[]\TU/SimSun(1)/b/n/14 若 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/b/
-n/14 独 立，|  则 由 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/b/n/14 经 过 
+[]\TU/SimSun(1)/m/n/14 若 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/m/
+n/14 独 立，|  则 由 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/m/n/14 经 过 
 运 算 后 所 得 事
  []
 
@@ -1919,8 +1921,49 @@ Underfull \hbox (badness 10000) in paragraph at lines 278--287
 
  []
 
-) [10] (probality/chap2.tex [11]) [12] (probality/chap3.tex)) [13]
-(d:\project\GEE\math\out\main.aux)
+) [10] (probality/chap2.tex [11]
+Underfull \hbox (badness 10000) in paragraph at lines 69--73
+
+ []
+
+
+Underfull \hbox (badness 1117) in paragraph at lines 69--73
+[] \TU/SimSun(1)/m/n/14 随 机 变 量 的 取 值 并 不 可 列，|  转 换 为 \TU/TimesNewRoman(0)/m/n
+/14 F(X) \TU/SimSun(1)/m/n/14 求 得 是 落 入 某 一 区
+ []
+
+
+probality/chap2.tex:89: Package array Error:  Illegal pream-token (\text): `c' 
+used.
+
+See the array package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.89         \text
+                  {名字} & 符号 & 概率分布
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+probality/chap2.tex:89: Extra alignment tab has been changed to \cr.
+<recently read> \endtemplate 
+                             
+l.89         \text{名字} &
+                         符号 & 概率分布
+You have given more \span or & marks than there were
+in the preamble to the \halign or \valign now in progress.
+So I'll assume that you meant to type \cr instead.
+
+probality/chap2.tex:89: Extra alignment tab has been changed to \cr.
+<recently read> \endtemplate 
+                             
+l.89         \text{名字} & 符号 &
+                              概率分布
+You have given more \span or & marks than there were
+in the preamble to the \halign or \valign now in progress.
+So I'll assume that you meant to type \cr instead.
+
+[12]) [13] (probality/chap3.tex)) [14] (d:\project\GEE\math\out\main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2022/08/05>
@@ -1929,14 +1972,17 @@ L3 programming layer <2022/08/05>
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
  49781 strings out of 409617
- 1157820 string characters out of 5773810
+ 1157879 string characters out of 5773810
  1948191 words of memory out of 5000000
- 71094 multiletter control sequences out of 15000+600000
+ 71098 multiletter control sequences out of 15000+600000
  568922 words of font info for 132 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 93i,13n,117p,1218b,1610s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 93i,15n,117p,1218b,1610s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on d:\project\GEE\math\out\main.pdf (14 pages).
+Output written on d:\project\GEE\math\out\main.pdf (15 pages).

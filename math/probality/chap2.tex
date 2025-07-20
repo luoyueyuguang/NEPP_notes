@@ -35,19 +35,43 @@ $X$是随机变量,$x$是任意实数,$F(X) = P(X \leq x)$是随机变量$X$的
     P(X = x_{i}) = p_{i}, i = 1,2,...,n
     $$
     或表格形式
-    \begin{tabular}{cc}
-\toprule
-$x$ & $P(X=x)$ \\
-\midrule
-0 & 0.3 \\
-1 & 0.5 \\
-2 & 0.2 \\
-\bottomrule
-\end{tabular}
+    $$
+    \begin{tabular}{c|c}
+% \toprule
+\hline
+$X$ & $x_{1} \quad x_{2} \quad x_{3} \quad \ldots \quad x_{n}$ \\
+% \midrule
+\hline
+$P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
+% \bottomrule
+\hline
+    \end{tabular}
+    $$
+    或
+    $$
+    \begin{aligned}
+        X \sim
+        %大圆括号
+        \left(
+            \begin{array}{llll}
+                x_{1} & x_{2} & \ldots & x_{n} \\
+                p_{1} & p_{2} & \ldots & p_{n} \\
+            \end{array}
+        \right)
+    \end{aligned}
+    $$
 \end{mydef}
 
 \begin{mydef}{连续型随机变量}{continuous random variable}
-    
+    若随机变量$X$的分布函数$F(X)$，存在非负可积函数$f(x)$，使得
+    $$
+    F(x) = P(X \leq x) = \int_{-\infty}^{x} f(t) dt
+    $$
+    则称$X$为连续型随机变量，$f(x)$为$X$的概率密度函数。\\
+    \\
+    \boxed{\textbf{注}} 随机变量的取值并不可列，转换为F(X)求得是落入某一区间的概率。$f(x)$是密度值，而不是概率值
+
+
 \end{mydef}
 
 \subsection{离散型随机变量及其分布}
@@ -60,7 +84,22 @@ $x$ & $P(X=x)$ \\
     $$
 \end{mydef}
 
+\begin{tablebox}{常见离散型随机变量分布}
+    \begin{tabular}
+        \text{名字} & 符号 & 概率分布
+    \end{tabular}
+    
+\end{tablebox}
+
+
 \subsection{连续型随机变量及其分布}
+\begin{mydef}{连续型随机变量的分布函数}{distribution function of continuous random variable}
+    设$X$是连续型随机变量，$f(x)$是$X$的概率密度函数，$F(X)$是$X$的分布函数，
+    则有
+    $$
+    F(X) = P(X \leq x) = \int_{-\infty}^{x} f(t) dt
+    $$
+\end{mydef}
 
 \subsection{一维随机变量函数的分布}
 
