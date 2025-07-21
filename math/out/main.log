@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (MiKTeX 24.1) (preloaded format=xelatex 2025.7.14)  20 JUL 2025 22:22
+This is XeTeX, Version 3.141592653-2.6-0.999995 (MiKTeX 24.1) (preloaded format=xelatex 2025.7.14)  21 JUL 2025 21:33
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1697,7 +1697,7 @@ Package fontspec Info: Font family 'SimSun(1)' created for font 'SimSun' with
 \c@tcb@cnt@mydef=\count522
 \c@tcb@cnt@formula=\count523
 \c@tcb@cnt@conclusion=\count524
-No file main.aux.
+(d:\project\GEE\math\out\main.aux)
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 148.
@@ -1784,6 +1784,7 @@ LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
 (Font)                  OT1/cmss/bx/n --> TU/phv/b/n on input line 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 (Font)                  OT1/cmtt/m/n --> TU/pcr/b/n on input line 148.
+
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
 *geometry* verbose mode - [ preamble ] result:
@@ -1819,9 +1820,6 @@ LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 Package hyperref Info: Link coloring ON on input line 148.
-
-Package hyperref Warning: Rerun to get /PageLabels entry.
-
 \c@lstlisting=\count525
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
@@ -1841,18 +1839,18 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 [1
 
 
-]
-No file main.toc.
+] (d:\project\GEE\math\out\main.toc
+LaTeX Font Info:    Calculating math sizes for size <14> on input line 2.
+)
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
-[1
+ [1
 
 ] [2
 
-] (probality/probality.tex (probality/chap1.tex
-LaTeX Font Info:    Calculating math sizes for size <14> on input line 14.
-
+] (probality/probality.tex
+(probality/chap1.tex
 Underfull \hbox (badness 10000) in paragraph at lines 18--22
 
  []
@@ -1911,8 +1909,8 @@ Overfull \hbox (7.41782pt too wide) in paragraph at lines 164--165
 
 [7] [8] [9]
 Underfull \hbox (badness 1281) in paragraph at lines 278--287
-[]\TU/SimSun(1)/m/n/14 若 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/m/
-n/14 独 立，|  则 由 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/m/n/14 经 过 
+[]\TU/SimSun(1)/b/n/14 若 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/b/
+n/14 独 立，|  则 由 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/b/n/14 经 过 
 运 算 后 所 得 事
  []
 
@@ -1928,42 +1926,41 @@ Underfull \hbox (badness 10000) in paragraph at lines 69--73
 
 
 Underfull \hbox (badness 1117) in paragraph at lines 69--73
-[] \TU/SimSun(1)/m/n/14 随 机 变 量 的 取 值 并 不 可 列，|  转 换 为 \TU/TimesNewRoman(0)/m/n
-/14 F(X) \TU/SimSun(1)/m/n/14 求 得 是 落 入 某 一 区
+[] \TU/SimSun(1)/b/n/14 随 机 变 量 的 取 值 并 不 可 列，|  转 换 为 \TU/TimesNewRoman(0)/m/n
+/14 F(X) \TU/SimSun(1)/b/n/14 求 得 是 落 入 某 一 区
+ []
+
+[12]
+Underfull \hbox (badness 10000) in paragraph at lines 169--169
+[]|\TU/SimSun(1)/b/n/14 均 匀
  []
 
 
-probality/chap2.tex:89: Package array Error:  Illegal pream-token (\text): `c' 
-used.
+Underfull \hbox (badness 10000) in paragraph at lines 169--169
+[]|\TU/SimSun(1)/b/n/14 指 数
+ []
 
-See the array package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.89         \text
-                  {名字} & 符号 & 概率分布
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
 
-probality/chap2.tex:89: Extra alignment tab has been changed to \cr.
-<recently read> \endtemplate 
-                             
-l.89         \text{名字} &
-                         符号 & 概率分布
-You have given more \span or & marks than there were
-in the preamble to the \halign or \valign now in progress.
-So I'll assume that you meant to type \cr instead.
+Underfull \hbox (badness 10000) in paragraph at lines 169--169
+[]|\TU/SimSun(1)/b/n/14 正 态
+ []
 
-probality/chap2.tex:89: Extra alignment tab has been changed to \cr.
-<recently read> \endtemplate 
-                             
-l.89         \text{名字} & 符号 &
-                              概率分布
-You have given more \span or & marks than there were
-in the preamble to the \halign or \valign now in progress.
-So I'll assume that you meant to type \cr instead.
 
-[12]) [13] (probality/chap3.tex)) [14] (d:\project\GEE\math\out\main.aux)
+Overfull \hbox (8.78983pt too wide) in paragraph at lines 169--171
+ [][] 
+ []
+
+[13]
+Underfull \hbox (badness 10000) in paragraph at lines 193--194
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 237--239
+
+ []
+
+[14]) [15] (probality/chap3.tex)) [16] (d:\project\GEE\math\out\main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2022/08/05>
@@ -1972,17 +1969,14 @@ L3 programming layer <2022/08/05>
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
  ) 
 Here is how much of TeX's memory you used:
- 49781 strings out of 409617
- 1157879 string characters out of 5773810
+ 49800 strings out of 409617
+ 1158371 string characters out of 5773810
  1948191 words of memory out of 5000000
- 71098 multiletter control sequences out of 15000+600000
+ 71113 multiletter control sequences out of 15000+600000
  568922 words of font info for 132 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 93i,15n,117p,1218b,1610s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 93i,18n,117p,1218b,1610s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on d:\project\GEE\math\out\main.pdf (15 pages).
+Output written on d:\project\GEE\math\out\main.pdf (17 pages).

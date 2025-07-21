@@ -85,10 +85,25 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
 \end{mydef}
 
 \begin{tablebox}{常见离散型随机变量分布}
-    \begin{tabular}
-        \text{名字} & 符号 & 概率分布
+    \centering
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \text{名字} & 符号 & 概率分布 \\
+        \hline
+        0-1分布 & $P(X = 0)$ & $P(X = 0) = 1 - P(X = 1)$ \\
+        \hline
+        二项分布 & $B(n,p)$ & $P(X = k) = C_{n}^{k} p^{k} (1 - p)^{n - k}$ \\
+        \hline
+        泊松分布 & $P(\lambda)$ & $P(X = k) = \frac{\lambda^{k} e^{-\lambda}}{k!}$ \\
+        \hline
+        几何分布 & $G(p)$ & $P(X = k) = p (1 - p)^{k - 1}$ \\
+        \hline
+        超几何分布 & $H(M,N,n)$ & $P(X = k) = \frac{C_{k}^{n} C_{M - k}^{N - n}}{C_{M}^{N}}$ \\
+        \hline
     \end{tabular}
-    
+    }
+    \label{tab:discrete_random_variable}
 \end{tablebox}
 
 
@@ -101,5 +116,141 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
     $$
 \end{mydef}
 
+\begin{tablebox}{常见连续型随机变量分布}
+    %对齐左边
+    % \raggedleft
+    \centering
+    \scalebox{0.94}{
+    \begin{tabular}{|p{1.2cm}|c|c|c|}
+        \hline
+        \text{名字} & 符号 & 分布函数 & 概率密度函数 \\
+        \hline
+        均匀分布 & 
+        $
+        U(a,b)$ & $F(x) = \begin{cases}
+            0, & x < a \\
+            \frac{x - a}{b - a}, & a \leq x \leq b \\
+            1, & x > b \\
+        \end{cases}
+        $ 
+        & 
+        $
+        f(x) = \begin{cases}
+            \frac{1}{b - a}, & a < x < b \\
+            0, & \text{其他}
+        \end{cases}
+        $ \\
+        \hline
+        指数分布 & 
+        $
+        \begin{aligned}
+            & ~~ E(\lambda)  \\
+            &(\lambda > 0) \\
+        \end{aligned}
+        $
+        & $F(X) = \begin{cases}
+
+            1 - \mathrm{e}^{-\lambda x},& x \geq 0 \\
+            0, & x < 0 \\
+        \end{cases}$ & $f(x) = \begin{cases}
+            \lambda \mathrm{e}^{-\lambda x}, & x > 0 \\
+            0, & \text{其他}
+        \end{cases}$ \\
+        \hline
+        正态分布 & $N(\mu,\sigma)$ & & 
+        $
+        \begin{aligned}
+            &f(x) = \frac{1}{\sigma \sqrt{2\pi}} \mathrm{e}^{-\frac{(x - \mu)^{2}}{2 \sigma^{2}}} \\
+            &\quad (-\infty < x < \infty)
+        \end{aligned}
+        $ \\
+        \hline
+    \end{tabular}
+    }
+    \label{tab:continuous_random_variable}
+\end{tablebox}
+
+\begin{conclusion}{标准正态分布}{standard normal distribution}
+    标准正态分布是正态分布的标准化，即$N(0,1)$，概率密度函数为
+    $$
+    \phi(x) = \frac{1}{\sqrt{2\pi}} \mathrm{e}^{-\frac{x^{2}}{2}}
+    $$
+    其分布函数为
+    $$
+    \Phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}{x}\mathrm{e}^{-\frac{t^2}{2}}\mathrm{d}t
+    $$
+    $\phi(x)$为偶函数，则$\Phi(0) = 0.5$, $\Phi(-x) = 1 - \Phi(x)$
+    当$a > 0$时，
+    $$
+    \begin{aligned}
+        P(a < X < b) &= \Phi(b) - \Phi(a) \\
+        P(|x| \le a) &= 2\Phi(a) -1
+    \end{aligned}
+    $$
+\end{conclusion}
+
+\begin{conclusion}{正态分布的标准化}{standardlize normal distribution}
+    设$X$为正态分布，$X \sim N(\mu, \sigma^{2})$, $Y = \frac{X - \mu}{\sigma}$，则$Y$为标准正态分布。\\
+    $$
+    % \begin{aligned}
+        P(a < X < b) = P(\frac{a - \mu}{\sigma} < Y < \frac{b - \mu}{\sigma})
+        =\Phi(\frac{b - \mu}{\sigma}) - \Phi(\frac{a - \mu}{\sigma})
+    % \end{aligned}
+    $$
+\end{conclusion}
+
 \subsection{一维随机变量函数的分布}
+\begin{mydef}{随机变量的函数}{function of random variable}
+    设$X$为随机变量，$Y = f(X)$为$X$的函数，$Y$也为随机变量，$Y$的分布函数为$F(Y)$，
+    则有
+    $$
+    F(Y) = P(Y \leq y) = P(f(X) \leq y) = P(X \leq f^{-1}(y))
+    $$
+\end{mydef}
+
+\begin{conclusion}{离散型随机变量函数的分布}{distribution of discrete random variable function}
+    设$X$为离散型随机变量，$Y = f(X)$为$X$的函数，$Y$也为离散型随机变量，
+    求$X$的分布律的步骤为
+    \begin{enumerate}
+        \item 求$Y=g(X)$的所有可能的取值$a_{1}, a_{2}, \cdots, a_{n}$ 
+        \item 计算$P(Y = a_{i})$，若$a_{i}$相同，合并其概率值
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{连续型随机变量函数的分布}{distribution of continuous random variable function}
+    设$X$为连续型随机变量，$Y = f(X)$为$X$的函数，$Y$也为连续型随机变量，
+    求$X$的分布律有两种方法
+    \begin{enumerate}
+        \item 定义法(分布函数法)\\
+        设$Y = f(X)$的分布函数为$F(Y)$，则有
+        $$
+        \begin{aligned}
+        F(Y) &= P(Y \leq y) \\
+        &= P(f(X) \leq y) = P(X \leq f^{-1}(y))\\
+        &= \int_{g(x) \leq y}^{} f_{X}x\mathrm{d}x \\
+        \end{aligned}
+        $$
+        $Y = f(X)$的概率密度函数为$f(y)$为
+        $$
+        f(y) = \frac{\mathrm{d}F_{Y}(y)}{\mathrm{d}y}
+        $$
+        \item 若$g^{'}(x) \ne 0$,$y=g(x)$与其反函数$x=h(y)$单调性一致。\\
+        故 \\ 
+        $$
+        \begin{aligned}
+        F_{Y}(y) = P(Y \leq y) &= P(g(x) \leq y) = P(X \geq h(y)) \\
+        f_{Y}(y) &= F^{'}_{Y}(y) = f_{X}(h(y))|h^{'}(y)|
+        \end{aligned}
+        $$
+        $$
+        f_{Y}(y) = 
+        \begin{cases}
+            f_{X}(h(y))|h^{'}(y)|, & \alpha < y < \beta \\
+            0, & \text{其他}
+        \end{cases}
+        $$
+
+    \end{enumerate}
+
+\end{conclusion}
 
