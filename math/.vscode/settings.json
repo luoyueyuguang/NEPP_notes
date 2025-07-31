@@ -33,5 +33,6 @@
     "latex-workshop.latex.clean.enabled": true,
     "latex-workshop.latex.outDir": "./out",
     //自动展示新的pdf
-    "latex-workshop.view.pdf.autoShow": true
+    "latex-workshop.formatting.latex": "tex-fmt",
+    "latex-workshop.view.pdf.autoShow": true,
 }

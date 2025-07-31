@@ -1,10 +1,10 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (MiKTeX 24.1) (preloaded format=xelatex 2025.7.14)  21 JUL 2025 21:33
+This is XeTeX, Version 3.141592653-2.6-0.999995 (MiKTeX 24.1) (preloaded format=xelatex 2025.7.14)  31 JUL 2025 20:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**d:/project/GEE/math/main.tex
-(d:/project/GEE/math/main.tex
+**d:/project/NEPP/math/main.tex
+(d:/project/NEPP/math/main.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/ctex\ctexbook.cls
@@ -1387,6 +1387,118 @@ File: datatool-utf8.ldf 2025/04/25 v3.4.1 (NLCT)
 )
 \c@LayerCounter=\count494
 )
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/pgfplots\pgfplots.sty
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplots.re
+vision.tex)
+Package: pgfplots 2021/05/15 v1.18.1 Data Visualization (1.18.1)
+
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplots.co
+de.tex
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplotscor
+e.code.tex
+\t@pgfplots@toka=\toks69
+\t@pgfplots@tokb=\toks70
+\t@pgfplots@tokc=\toks71
+\pgfplots@tmpa=\dimen344
+\c@pgfplots@coordindex=\count495
+\c@pgfplots@scanlineindex=\count496
+
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/sys\pgfplot
+ssysgeneric.code.tex))
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/libs\pgfplo
+tslibrary.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/oldpgfcompa
+tib\pgfplotsoldpgfsupp_loader.code.tex
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries\pgflib
+raryfpu.code.tex)
+Package pgfplots: loading complementary utilities for your pgf version...
+\t@pgf@toka=\toks72
+\t@pgf@tokb=\toks73
+\t@pgf@tokc=\toks74
+
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/oldpgfcompa
+tib\pgfplotsoldpgfsupp_pgfutil-common-lists.tex))
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/util\pgfplo
+tsutil.code.tex
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/liststructu
+re\pgfplotsliststructure.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/liststructu
+re\pgfplotsliststructureext.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/liststructu
+re\pgfplotsarray.code.tex
+\c@pgfplotsarray@tmp=\count497
+)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/liststructu
+re\pgfplotsmatrix.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/numtable\pg
+fplotstableshared.code.tex
+\c@pgfplotstable@counta=\count498
+\t@pgfplotstable@a=\toks75
+)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/liststructu
+re\pgfplotsdeque.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/util\pgfplo
+tsbinary.code.tex
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/util\pgfplo
+tsbinary.data.code.tex))
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/util\pgfplo
+tsutil.verb.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/libs\pgflib
+rarypgfplots.surfshading.code.tex
+\c@pgfplotslibrarysurf@no=\count499
+
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/sys\pgflibr
+arypgfplots.surfshading.pgfsys-xetex.def
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/sys\pgflibr
+arypgfplots.surfshading.pgfsys-dvipdfmx.def
+\c@pgfplotslibrarysurf@streamlen=\count500
+))))
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/util\pgfplo
+tscolormap.code.tex
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/util\pgfplo
+tscolor.code.tex))
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplotssta
+ckedplots.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplotsplo
+thandlers.code.tex
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplotsmes
+hplothandler.code.tex
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplotsmes
+hplotimage.code.tex)))
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplots.sc
+aling.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplotscoo
+rdprocessing.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplots.er
+rorbars.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplots.ma
+rkers.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplotstic
+ks.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots\pgfplots.pa
+ths.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/libs\tikzli
+brarypgfplots.contourlua.code.tex)
+\pgfplots@numplots=\count501
+\pgfplots@xmin@reg=\dimen345
+\pgfplots@xmax@reg=\dimen346
+\pgfplots@ymin@reg=\dimen347
+\pgfplots@ymax@reg=\dimen348
+\pgfplots@zmin@reg=\dimen349
+\pgfplots@zmax@reg=\dimen350
+)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/ti
+kz/libraries\tikzlibraryplotmarks.code.tex
+File: tikzlibraryplotmarks.code.tex 2023-01-15 v3.1.10 (3.1.10)
+
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries\pgflib
+raryplotmarks.code.tex
+File: pgflibraryplotmarks.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)))
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/libs\tikzli
+brarypgfplots.colormaps.code.tex)
+(C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/generic/pgfplots/libs\tikzli
+brarypgfplots.patchplots.code.tex)
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\times.sty
 Package: times 2020/03/25 PSNFSS-v9.3 (SPQR) 
 )
@@ -1395,21 +1507,21 @@ Package: tabularx 2023/07/08 v2.11c `tabularx' package (DPC)
 
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
 Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
-\col@sep=\dimen344
+\col@sep=\dimen351
 \ar@mcellbox=\box97
-\extrarowheight=\dimen345
-\NC@list=\toks69
+\extrarowheight=\dimen352
+\NC@list=\toks76
 \extratabsurround=\skip90
 \backup@length=\skip91
 \ar@cellbox=\box98
 )
-\TX@col@width=\dimen346
-\TX@old@table=\dimen347
-\TX@old@col=\dimen348
-\TX@target=\dimen349
-\TX@delta=\dimen350
-\TX@cols=\count495
-\TX@ftn=\toks70
+\TX@col@width=\dimen353
+\TX@old@table=\dimen354
+\TX@old@col=\dimen355
+\TX@target=\dimen356
+\TX@delta=\dimen357
+\TX@cols=\count502
+\TX@ftn=\toks77
 )
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/fontsize\fontsize.sty
 Package: fontsize 2021/08/04 v0.8.5 'fontsize' package. Set main font sizes (Iv
@@ -1418,27 +1530,27 @@ an Valbusa)
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xfp\xfp.sty
 Package: xfp 2023-10-10 L3 Floating point unit
 ))
-Package hyperref Info: Option `colorlinks' set `true' on input line 33.
-\c@definition=\count496
+Package hyperref Info: Option `colorlinks' set `true' on input line 40.
+\c@definition=\count503
 
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/tcolorbox\tcolorbox.st
 y
 Package: tcolorbox 2024/01/10 version 6.2.0 text color boxes
  (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/tools\verbatim.sty
 Package: verbatim 2023-11-06 v1.5v LaTeX2e package for verbatim enhancements
-\every@verbatim=\toks71
-\verbatim@line=\toks72
+\every@verbatim=\toks78
+\verbatim@line=\toks79
 \verbatim@in@stream=\read3
 )
 \tcb@titlebox=\box99
 \tcb@upperbox=\box100
 \tcb@lowerbox=\box101
 \tcb@phantombox=\box102
-\c@tcbbreakpart=\count497
-\c@tcblayer=\count498
-\c@tcolorbox@number=\count499
+\c@tcbbreakpart=\count504
+\c@tcblayer=\count505
+\c@tcolorbox@number=\count506
 \l__tcobox_tmpa_box=\box103
-\l__tcobox_tmpa_dim=\dimen351
+\l__tcobox_tmpa_dim=\dimen358
 \tcb@temp=\box104
 \tcb@temp=\box105
 \tcb@temp=\box106
@@ -1448,12 +1560,12 @@ y
 Package: fancybox 2010/05/15 1.4
 Style option: `fancybox' v1.4 <2010/05/15> (tvz)
 \@fancybox=\box108
-\shadowsize=\dimen352
+\shadowsize=\dimen359
 \@Sbox=\box109
-\do@VerbBox=\toks73
-\the@fancyput=\toks74
-\this@fancyput=\toks75
-\EndVerbatimTokens=\toks76
+\do@VerbBox=\toks80
+\the@fancyput=\toks81
+\this@fancyput=\toks82
+\EndVerbatimTokens=\toks83
 \Verbatim@Outfile=\write4
 \Verbatim@Infile=\read4
 )
@@ -1497,10 +1609,10 @@ Library (tcolorbox): 'tcbtheorems.code.tex' version '6.2.0'
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/tcolorbox\tcbraster.co
 de.tex
 Library (tcolorbox): 'tcbraster.code.tex' version '6.2.0'
-\c@tcbrastercolumn=\count500
-\c@tcbrasterrow=\count501
-\c@tcbrasternum=\count502
-\c@tcbraster=\count503
+\c@tcbrastercolumn=\count507
+\c@tcbrasterrow=\count508
+\c@tcbrasternum=\count509
+\c@tcbraster=\count510
 )
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/tcolorbox\tcbhooks.cod
 e.tex
@@ -1509,10 +1621,10 @@ Library (tcolorbox): 'tcbhooks.code.tex' version '6.2.0'
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/tcolorbox\tcbfitting.c
 ode.tex
 Library (tcolorbox): 'tcbfitting.code.tex' version '6.2.0'
-\tcbfitdim=\dimen353
-\tcb@lowerfitdim=\dimen354
-\tcb@upperfitdim=\dimen355
-\tcb@cur@hbadness=\count504
+\tcbfitdim=\dimen360
+\tcb@lowerfitdim=\dimen361
+\tcb@upperfitdim=\dimen362
+\tcb@cur@hbadness=\count511
 )
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/tcolorbox\tcblistingsu
 tf8.code.tex
@@ -1522,23 +1634,23 @@ Library (tcolorbox): 'tcblistingsutf8.code.tex' version '6.2.0'
 code.tex
 Library (tcolorbox): 'tcblistings.code.tex' version '6.2.0'
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
-\lst@mode=\count505
+\lst@mode=\count512
 \lst@gtempboxa=\box114
-\lst@token=\toks77
-\lst@length=\count506
-\lst@currlwidth=\dimen356
-\lst@column=\count507
-\lst@pos=\count508
-\lst@lostspace=\dimen357
-\lst@width=\dimen358
-\lst@newlines=\count509
-\lst@lineno=\count510
-\lst@maxwidth=\dimen359
+\lst@token=\toks84
+\lst@length=\count513
+\lst@currlwidth=\dimen363
+\lst@column=\count514
+\lst@pos=\count515
+\lst@lostspace=\dimen364
+\lst@width=\dimen365
+\lst@newlines=\count516
+\lst@lineno=\count517
+\lst@maxwidth=\dimen366
 
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
 File: lstmisc.sty 2023/02/27 1.9 (Carsten Heinz)
-\c@lstnumber=\count511
-\lst@skipnumbers=\count512
+\c@lstnumber=\count518
+\lst@skipnumbers=\count519
 \lst@framebox=\box115
 )
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
@@ -1549,8 +1661,8 @@ Package: listings 2023/02/27 1.9 (Carsten Heinz)
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/xelatex/xecjk\xeCJK-listings
 .sty
 Package: xeCJK-listings 2022/08/05 v3.9.1 xeCJK patch file for listings
-\l__xeCJK_listings_max_char_int=\count513
-\l__xeCJK_listings_flag_int=\count514
+\l__xeCJK_listings_max_char_int=\count520
+\l__xeCJK_listings_flag_int=\count521
 )
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/tcolorbox\tcblistingsc
 ore.code.tex
@@ -1560,7 +1672,7 @@ Library (tcolorbox): 'tcblistingscore.code.tex' version '6.2.0'
 g.code.tex
 Library (tcolorbox): 'tcbprocessing.code.tex' version '6.2.0'
 )
-\c@tcblisting=\count515
+\c@tcblisting=\count522
 ))
 Package tcolorbox Info: Library `listingsutf8' is compatible with pdftex only. 
 Library `listings` is loaded instead. on input line 29.
@@ -1593,18 +1705,18 @@ Package: caption 2023/08/05 v3.6o Customizing captions (AR)
 
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty
 Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
-\caption@tempdima=\dimen360
-\captionmargin=\dimen361
-\caption@leftmargin=\dimen362
-\caption@rightmargin=\dimen363
-\caption@width=\dimen364
-\caption@indent=\dimen365
-\caption@parindent=\dimen366
-\caption@hangindent=\dimen367
+\caption@tempdima=\dimen367
+\captionmargin=\dimen368
+\caption@leftmargin=\dimen369
+\caption@rightmargin=\dimen370
+\caption@width=\dimen371
+\caption@indent=\dimen372
+\caption@parindent=\dimen373
+\caption@hangindent=\dimen374
 Package caption Info: Standard document class detected.
 )
-\c@caption@flags=\count516
-\c@continuedfloat=\count517
+\c@caption@flags=\count523
+\c@continuedfloat=\count524
 Package caption Info: hyperref package is loaded.
 Package caption Info: listings package is loaded.
 ) (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/chngcntr\chngcntr.st
@@ -1615,23 +1727,23 @@ Package chngcntr Info: \counterwithout already defined.
 )
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
-\heavyrulewidth=\dimen368
-\lightrulewidth=\dimen369
-\cmidrulewidth=\dimen370
-\belowrulesep=\dimen371
-\belowbottomsep=\dimen372
-\aboverulesep=\dimen373
-\abovetopsep=\dimen374
-\cmidrulesep=\dimen375
-\cmidrulekern=\dimen376
-\defaultaddspace=\dimen377
-\@cmidla=\count518
-\@cmidlb=\count519
-\@aboverulesep=\dimen378
-\@belowrulesep=\dimen379
-\@thisruleclass=\count520
-\@lastruleclass=\count521
-\@thisrulewidth=\dimen380
+\heavyrulewidth=\dimen375
+\lightrulewidth=\dimen376
+\cmidrulewidth=\dimen377
+\belowrulesep=\dimen378
+\belowbottomsep=\dimen379
+\aboverulesep=\dimen380
+\abovetopsep=\dimen381
+\cmidrulesep=\dimen382
+\cmidrulekern=\dimen383
+\defaultaddspace=\dimen384
+\@cmidla=\count525
+\@cmidlb=\count526
+\@aboverulesep=\dimen385
+\@belowrulesep=\dimen386
+\@thisruleclass=\count527
+\@lastruleclass=\count528
+\@thisrulewidth=\dimen387
 )
 
 Package fontspec Info: Font family 'TimesNewRoman(0)' created for font 'Times
@@ -1694,96 +1806,96 @@ Package fontspec Info: Font family 'SimSun(1)' created for font 'SimSun' with
 (fontspec)             <->"SimSun/OT:script=hani;language=dflt;"
 (fontspec)             - 'bold small caps'  (b/sc) with NFSS spec.: 
 
-\c@tcb@cnt@mydef=\count522
-\c@tcb@cnt@formula=\count523
-\c@tcb@cnt@conclusion=\count524
-(d:\project\GEE\math\out\main.aux)
+\c@tcb@cnt@mydef=\count529
+\c@tcb@cnt@formula=\count530
+\c@tcb@cnt@conclusion=\count531
+(main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 148.
-LaTeX Font Info:    ... okay on input line 148.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 148.
-LaTeX Font Info:    ... okay on input line 148.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 148.
-LaTeX Font Info:    ... okay on input line 148.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 148.
-LaTeX Font Info:    ... okay on input line 148.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 148.
-LaTeX Font Info:    ... okay on input line 148.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 148.
-LaTeX Font Info:    ... okay on input line 148.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 148.
-LaTeX Font Info:    ... okay on input line 148.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 148.
-LaTeX Font Info:    ... okay on input line 148.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 148.
-LaTeX Font Info:    ... okay on input line 148.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 148.
-LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 155.
+LaTeX Font Info:    ... okay on input line 155.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 155.
+LaTeX Font Info:    ... okay on input line 155.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 155.
+LaTeX Font Info:    ... okay on input line 155.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 155.
+LaTeX Font Info:    ... okay on input line 155.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 155.
+LaTeX Font Info:    ... okay on input line 155.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 155.
+LaTeX Font Info:    ... okay on input line 155.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 155.
+LaTeX Font Info:    ... okay on input line 155.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 155.
+LaTeX Font Info:    ... okay on input line 155.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 155.
+LaTeX Font Info:    ... okay on input line 155.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 155.
+LaTeX Font Info:    ... okay on input line 155.
 
 Package fontspec Info: Adjusting the maths setup (use [no-math] to avoid
 (fontspec)             this).
 
 \symlegacymaths=\mathgroup6
 LaTeX Font Info:    Overwriting symbol font `legacymaths' in version `bold'
-(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 148.
-LaTeX Font Info:    Redeclaring math accent \acute on input line 148.
-LaTeX Font Info:    Redeclaring math accent \grave on input line 148.
-LaTeX Font Info:    Redeclaring math accent \ddot on input line 148.
-LaTeX Font Info:    Redeclaring math accent \tilde on input line 148.
-LaTeX Font Info:    Redeclaring math accent \bar on input line 148.
-LaTeX Font Info:    Redeclaring math accent \breve on input line 148.
-LaTeX Font Info:    Redeclaring math accent \check on input line 148.
-LaTeX Font Info:    Redeclaring math accent \hat on input line 148.
-LaTeX Font Info:    Redeclaring math accent \dot on input line 148.
-LaTeX Font Info:    Redeclaring math accent \mathring on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Delta on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Theta on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Xi on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Pi on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Phi on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Psi on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \Omega on input line 148.
-LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 148.
-LaTeX Font Info:    Redeclaring symbol font `operators' on input line 148.
+(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 155.
+LaTeX Font Info:    Redeclaring math accent \acute on input line 155.
+LaTeX Font Info:    Redeclaring math accent \grave on input line 155.
+LaTeX Font Info:    Redeclaring math accent \ddot on input line 155.
+LaTeX Font Info:    Redeclaring math accent \tilde on input line 155.
+LaTeX Font Info:    Redeclaring math accent \bar on input line 155.
+LaTeX Font Info:    Redeclaring math accent \breve on input line 155.
+LaTeX Font Info:    Redeclaring math accent \check on input line 155.
+LaTeX Font Info:    Redeclaring math accent \hat on input line 155.
+LaTeX Font Info:    Redeclaring math accent \dot on input line 155.
+LaTeX Font Info:    Redeclaring math accent \mathring on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Delta on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Theta on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Xi on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Pi on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Phi on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Psi on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \Omega on input line 155.
+LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 155.
+LaTeX Font Info:    Redeclaring symbol font `operators' on input line 155.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 148.
+(Font)              `operators' in the math version `normal' on input line 155.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> TU/TimesNewRoman(0)/m/n on input line 1
-48.
+55.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 148.
+(Font)              `operators' in the math version `bold' on input line 155.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
 (Font)                  OT1/cmr/bx/n --> TU/TimesNewRoman(0)/m/n on input line 
-148.
+155.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  TU/TimesNewRoman(0)/m/n --> TU/TimesNewRoman(0)/m/n on 
-input line 148.
+input line 155.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
 (Font)                  OT1/cmr/m/it --> TU/TimesNewRoman(0)/m/it on input line
- 148.
+ 155.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
 (Font)                  OT1/cmr/bx/n --> TU/TimesNewRoman(0)/b/n on input line 
-148.
+155.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> TU/phv/m/n on input line 148.
+(Font)                  OT1/cmss/m/n --> TU/phv/m/n on input line 155.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> TU/pcr/m/n on input line 148.
+(Font)                  OT1/cmtt/m/n --> TU/pcr/m/n on input line 155.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
 (Font)                  TU/TimesNewRoman(0)/m/n --> TU/TimesNewRoman(0)/b/n on 
-input line 148.
+input line 155.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 (Font)                  OT1/cmr/bx/it --> TU/TimesNewRoman(0)/b/it on input lin
-e 148.
+e 155.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> TU/phv/b/n on input line 148.
+(Font)                  OT1/cmss/bx/n --> TU/phv/b/n on input line 155.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> TU/pcr/b/n on input line 148.
+(Font)                  OT1/cmtt/m/n --> TU/pcr/b/n on input line 155.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
@@ -1819,18 +1931,24 @@ LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring ON on input line 148.
-\c@lstlisting=\count525
+Package hyperref Info: Link coloring ON on input line 155.
+
+Package hyperref Warning: Rerun to get /PageLabels entry.
+
+Package pgfplots notification 'compat/show suggested version=true': document ha
+s been generated with the most recent feature set (\pgfplotsset{compat=1.18}).
+
+\c@lstlisting=\count532
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
 LaTeX Font Info:    Calculating math sizes for size <16.79996> on input line 15
-0.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 150
+7.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 157
 .
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 150
+LaTeX Font Info:    Trying to load font information for U+msb on input line 157
 .
 
 (C:\Users\luoyue\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
@@ -1839,9 +1957,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 [1
 
 
-] (d:\project\GEE\math\out\main.toc
-LaTeX Font Info:    Calculating math sizes for size <14> on input line 2.
-)
+] (d:\project\NEPP\math\out\main.toc)
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
@@ -1849,8 +1965,12 @@ LaTeX Font Info:    Calculating math sizes for size <14> on input line 2.
 
 ] [2
 
-] (probality/probality.tex
-(probality/chap1.tex
+] (calculus/calculus.tex)
+[3
+
+] (probality/probality.tex (probality/chap1.tex
+LaTeX Font Info:    Calculating math sizes for size <14> on input line 14.
+
 Underfull \hbox (badness 10000) in paragraph at lines 18--22
 
  []
@@ -1888,12 +2008,12 @@ Package fontspec Info: Font family 'MicrosoftYaHei(0)' created for font
 (fontspec)             YaHei/BI/OT:script=hani;language=dflt;"
 (fontspec)             - 'bold italic small caps'  (b/scit) with NFSS spec.: 
 
-[3]
+[4]
 
 Package tcolorbox Warning: Using nobreak failed. Try to enlarge `lines before b
 reak' or set page breaks manually on input line 52.
 
-[4]
+[5]
 Underfull \hbox (badness 10000) in paragraph at lines 109--128
 
  []
@@ -1902,15 +2022,15 @@ Underfull \hbox (badness 10000) in paragraph at lines 109--128
 LaTeX Font Warning: Font shape `TU/phv/m/n' undefined
 (Font)              using `TU/lmr/m/n' instead on input line 137.
 
-[5] [6]
+[6] [7]
 Overfull \hbox (7.41782pt too wide) in paragraph at lines 164--165
 [][] 
  []
 
-[7] [8] [9]
+[8] [9] [10]
 Underfull \hbox (badness 1281) in paragraph at lines 278--287
-[]\TU/SimSun(1)/b/n/14 若 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/b/
-n/14 独 立，|  则 由 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/b/n/14 经 过 
+[]\TU/SimSun(1)/m/n/14 若 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/m/
+n/14 独 立，|  则 由 $\OML/cmm/m/it/14 A[]; A[]; [] ; A[]$ \TU/SimSun(1)/m/n/14 经 过 
 运 算 后 所 得 事
  []
 
@@ -1919,30 +2039,30 @@ Underfull \hbox (badness 10000) in paragraph at lines 278--287
 
  []
 
-) [10] (probality/chap2.tex [11]
+) [11] (probality/chap2.tex [12]
 Underfull \hbox (badness 10000) in paragraph at lines 69--73
 
  []
 
 
 Underfull \hbox (badness 1117) in paragraph at lines 69--73
-[] \TU/SimSun(1)/b/n/14 随 机 变 量 的 取 值 并 不 可 列，|  转 换 为 \TU/TimesNewRoman(0)/m/n
-/14 F(X) \TU/SimSun(1)/b/n/14 求 得 是 落 入 某 一 区
+[] \TU/SimSun(1)/m/n/14 随 机 变 量 的 取 值 并 不 可 列，|  转 换 为 \TU/TimesNewRoman(0)/m/n
+/14 F(X) \TU/SimSun(1)/m/n/14 求 得 是 落 入 某 一 区
  []
 
-[12]
+[13]
 Underfull \hbox (badness 10000) in paragraph at lines 169--169
-[]|\TU/SimSun(1)/b/n/14 均 匀
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 169--169
-[]|\TU/SimSun(1)/b/n/14 指 数
+[]|\TU/SimSun(1)/m/n/14 均 匀
  []
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 169--169
-[]|\TU/SimSun(1)/b/n/14 正 态
+[]|\TU/SimSun(1)/m/n/14 指 数
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 169--169
+[]|\TU/SimSun(1)/m/n/14 正 态
  []
 
 
@@ -1950,7 +2070,7 @@ Overfull \hbox (8.78983pt too wide) in paragraph at lines 169--171
  [][] 
  []
 
-[13]
+[14]
 Underfull \hbox (badness 10000) in paragraph at lines 193--194
 
  []
@@ -1960,7 +2080,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 237--239
 
  []
 
-[14]) [15] (probality/chap3.tex)) [16] (d:\project\GEE\math\out\main.aux)
+[15]) [16] (probality/chap3.tex) [17] (probality/chap4.tex)) [18] (main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2022/08/05>
@@ -1971,12 +2091,12 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 49800 strings out of 409617
- 1158371 string characters out of 5773810
- 1948191 words of memory out of 5000000
- 71113 multiletter control sequences out of 15000+600000
+ 59768 strings out of 409617
+ 1493477 string characters out of 5773810
+ 2194511 words of memory out of 5000000
+ 80956 multiletter control sequences out of 15000+600000
  568922 words of font info for 132 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 93i,18n,117p,1218b,1610s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 93i,18n,117p,1219b,1622s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on d:\project\GEE\math\out\main.pdf (17 pages).
+Output written on d:\project\NEPP\math\out\main.pdf (19 pages).

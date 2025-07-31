@@ -1,4 +1,5 @@
-% GEE Math Notes Main File
+% !TeX extra_mem_top = 50000000
+% !TeX extra_mem_bot = 10000000
 \documentclass[a4paper,oneside]{ctexbook}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{amsmath}   % 数学公式
@@ -23,6 +24,12 @@
 \usepackage{tikz-3dplot} % 3D 绘图
 \usepackage[compat=1.1.0]{tikz-feynman} % Feynman 图
 \usepackage{tikz-network} % 网络图
+\usepackage{pgfplots} % 绘图
+\usepgfplotslibrary{colormaps} % 颜色映射
+\usepgfplotslibrary{patchplots} % 补丁图
+%使用pdfplots的axis
+\pgfplotsset{compat=1.18}
+
 \usepackage{times}
 \usepackage{fontspec}  % 字体设置
 \usepackage{tabularx} % 表格
@@ -148,6 +155,9 @@
 \begin{document}
 \maketitle
 \tableofcontents
+
+\part{高等数学}
+\input{calculus/calculus.tex}
 
 % 导入概率论章节
 \part{概率论}

@@ -1,0 +1,409 @@
+\section{一些技巧}
+\subsection{如何画图}
+\begin{enumerate}
+  \item 二重积分 \\
+  对称性+取特殊点 \\
+  \item 平面 \\
+    三点式画图法：\\
+    画出在$x$轴,$y$轴,$z$轴的截距。\\
+    \begin{tikzpicture}
+      \begin{axis}[
+          axis lines=center,
+          xlabel=$x$, ylabel=$y$, zlabel=$z$,
+          xmin=0, xmax=1.2,
+          ymin=0, ymax=1.2,
+          zmin=0, zmax=1.2,
+          xtick={0,1},
+          ytick={0,1},
+          ztick={0,1},
+          ticklabel style={font=\small},
+          view={120}{30},
+          clip=false,
+          width=8cm,
+          height=8cm
+        ]
+        % 绘制平面 x+y+z=1 使用fill between技术
+        \addplot3 [fill=blue!30, opacity=0.7, draw=blue] coordinates {
+          (1,0,0) (0,1,0) (0,0,1) (1,0,0)
+        };
+
+        % 标记截距点
+        \node[circle,fill=red,inner sep=1.5pt,label={above
+        right:$(1,0,0)$}] at (axis cs:1,0,0) {};
+        \node[circle,fill=red,inner sep=1.5pt,label={above
+        left:$(0,1,0)$}] at (axis cs:0,1,0) {};
+        \node[circle,fill=red,inner
+        sep=1.5pt,label={above:$(0,0,1)$}] at (axis cs:0,0,1) {};
+
+        % % 添加坐标轴标签
+        % \node at (axis cs:1.3,0,0) {$x$};
+        % \node at (axis cs:0,1.3,0) {$y$};
+        % \node at (axis cs:0,0,1.3) {$z$};
+        \node at (axis cs:0,0,0) [below left] {$O$};
+      \end{axis}
+    \end{tikzpicture} \\
+  \item 柱面 \\
+    只含两个变量,在另外一个轴上平行。\\
+    % 第一个柱面: x² + y² = 1
+    \boxed{\text{例1：}x^2+y^2=1}\\
+    \\
+    \begin{tikzpicture}
+      \begin{axis}[
+          axis lines=center,
+          xlabel=$x$, ylabel=$y$, zlabel=$z$,
+          xmin=-5, xmax=5,
+          ymin=-5, ymax=5,
+          zmin=-3, zmax=3,  % 减小z轴范围
+          xtick={-1,0,1},
+          ytick={-1,0,1},
+          ztick={-1,0,1},
+          view={120}{30},
+          width=10cm,            % 减小画布尺寸
+          height=10cm,
+          ticklabel style={font=\small},
+          clip=false,
+        ]
+        % 优化后的圆柱面绘制 - 大幅减少采样点
+        \addplot3[
+          mesh,
+          draw=blue!60,
+          fill=blue!20,
+          fill opacity=0.5,
+          % samples=20,        % 减少采样点
+          % samples y=10,      % 减少垂直采样
+          domain=0:360,      % 角度范围
+          y domain=-1.2:1.2, % 高度范围
+          z buffer=sort
+        ] ({cos(x)}, {sin(x)}, {y});
+
+        % 添加坐标轴标签
+        \node[fill=white, inner sep=1pt] at (axis cs:1.5,0,0) {$x$};
+        \node[fill=white, inner sep=1pt] at (axis cs:0,1.5,0) {$y$};
+        \node[fill=white, inner sep=1pt] at (axis cs:0,0,1.5) {$z$};
+
+        % 原点标记
+        % \node at (axis cs:0,0,0) [below left] {$O$};
+      \end{axis}
+    \end{tikzpicture}
+    \\
+    \newpage
+    % 第二个柱面: y² = x
+    \boxed{\text{例2：}y^2=x}\\
+    \\
+    \begin{tikzpicture}
+      \begin{axis}[
+          axis lines=center,
+          xlabel=$x$, ylabel=$y$, zlabel=$z$,
+          xmin=0, xmax=2.5,
+          ymin=-2.5, ymax=2.5,
+          zmin=-2.5, zmax=2.5,
+          xtick={0,1,2},
+          ytick={-1,0,1},
+          ztick={-1,0,1},
+          view={120}{30},
+          width=8cm,
+          height=8cm,
+          title style={font=\small}
+        ]
+        % 高效绘制抛物线柱面
+        \foreach \z in {-1.5,-1.4,...,1.5} {
+          \addplot3[
+            thick,
+            blue!60,
+            samples=10,
+            domain=0:1.2
+          ] ({\x}, {sqrt(\x)}, {\z});
+          \addplot3[
+            thick,
+            blue!60,
+            samples=10,
+            domain=0:1.2,
+          ] ({\x}, {-sqrt(\x)}, {\z});
+        }
+
+        % 添加坐标轴标签
+        \node at (axis cs:2.5,0,0) [right] {$x$};
+        \node at (axis cs:0,1.5,0) [above] {$y$};
+        \node at (axis cs:0,0,1.5) [above] {$z$};
+        \node at (axis cs:0,0,0) [below left] {$O$};
+      \end{axis}
+    \end{tikzpicture} \\
+    \\
+    % 第三个柱面: z = 1 - x²
+    \boxed{\text{例3：}z=1-x^2}\\
+    \\
+    \begin{tikzpicture}
+      \begin{axis}[
+          axis lines=center,
+          xlabel=$x$, ylabel=$y$, zlabel=$z$,
+          xmin=-1.5, xmax=1.5,
+          ymin=-2, ymax=2,
+          zmin=-1.5, zmax=1.5,
+          xtick={-1,0,1},
+          ytick={-2,-1,0,1,2},
+          ztick={-1,0,1},
+          view={120}{30},
+          width=10cm,
+          height=8cm,
+          title style={font=\small, yshift=2ex}
+        ]
+        % 高效绘制抛物柱面 - 使用线框模式
+        \addplot3[
+          mesh,
+          samples=25,
+          samples y=15,
+          domain=-1.5:1.5,
+          y domain=-2:2,
+          % colormap={cool}{},
+          draw=blue,
+          line width=0.4pt
+        ] {1 - x^2};
+
+        % 添加关键曲线
+        \addplot3[
+          very thick,
+          red,
+          samples=50,
+          domain=-1.5:1.5,
+        ] (x, 0, {1 - x^2});
+
+        % 添加坐标轴标签
+        \node at (axis cs:1.6,0,0) [above] {$x$};
+        \node at (axis cs:0,2.2,0) [right] {$y$};
+        \node at (axis cs:0,0,1.6) [left] {$z$};
+        \node at (axis cs:0,0,0) [below left] {$O$};
+
+        % 标记顶点和特征点
+        \node[circle,fill=red,inner sep=1.5pt] at (axis cs:0,0,1) {};
+        \node[below right] at (axis cs:0,0,1) {$(0,0,1)$};
+
+        \node[circle,fill=green,inner sep=1.5pt] at (axis cs:1,0,0) {};
+        \node[above left] at (axis cs:1,0,0) {$(1,0,0)$};
+
+        \node[circle,fill=green,inner sep=1.5pt] at (axis cs:-1,0,0) {};
+        \node[above right] at (axis cs:-1,0,0) {$(-1,0,0)$};
+
+        % % 添加方程标签
+        % \node[fill=white, inner sep=2pt, rounded corners] at (axis
+        % cs:0,-1.5,1.2)
+        %     {$z = 1 - x^2$};
+      \end{axis}
+    \end{tikzpicture}
+  \item 旋转曲面 \\
+    含两个曲面的平方和，旋转轴为另一变量对应的轴 \\
+    \boxed{\text{例1：}z=x^2+y^2} \\
+    先关注$z=y^{2}$,然后绕$z$轴旋转 \\
+    \\
+    %画出z=y^{2}， x=0的图像
+    \begin{tikzpicture}
+      \begin{axis}[
+          axis lines=center,
+          xlabel=$x$, ylabel=$y$, zlabel=$z$,
+          xmin=-0.5, xmax=0.5,
+          ymin=-1.5, ymax=1.5,
+          zmin=-0.5, zmax=2.5,
+          xtick={0},
+          ytick={-1,0,1},
+          ztick={0,1,2},
+          view={120}{30},
+          width=8cm,
+          height=8cm,
+          title style={font=\small},
+          title={Step 1: 先关注$z=y^{2}$}
+        ]
+        % 绘制抛物线曲线 (x=0, z=y^2)
+        \addplot3[
+          thick,
+          red,
+          samples=20,
+          domain=-1.5:1.5,
+        ] (0, x, {x^2});
+
+        % 标记关键点
+        \node[circle,fill=blue,inner sep=1.5pt,label={above
+        left:$(0,0,0)$}] at (axis cs:0,0,0) {};
+        \node[circle,fill=blue,inner
+        sep=1.5pt,label={above:$(0,1,1)$}] at (axis cs:0,1,1) {};
+        \node[circle,fill=blue,inner
+        sep=1.5pt,label={below:$(0,-1,1)$}] at (axis cs:0,-1,1) {};
+        \node[circle,fill=blue,inner
+        sep=1.5pt,label={left:$(0,0,0)$}] at (axis cs:0,0,0) {};
+
+        % 添加坐标轴标签
+        \node at (axis cs:0.5,0,0) [right] {$x$};
+        \node at (axis cs:0,1.6,0) [above] {$y$};
+        \node at (axis cs:0,0,2.6) [left] {$z$};
+
+        % 添加平面指示
+        \draw[blue!30, fill=blue!10, opacity=0.5] (axis cs:0,-1.5,0)
+        -- (axis cs:0,1.5,0) -- (axis cs:0,1.5,2.5) -- (axis
+        cs:0,-1.5,2.5) -- cycle;
+        \node[blue!80] at (axis cs:0,0.5,2) {$x=0$};
+
+      \end{axis}
+    \end{tikzpicture} \\
+    之后绕$z$轴旋转，即可得到$z=x^2+y^2$的图像 \\
+    %椭圆抛物面
+    % \begin{tikzpicture}
+    % \begin{axis}[tick label style={font=\tiny},view={120}{30},
+    % axis lines =center, mark=none, axis on top, xmax=1.5, ymax=1.5,
+    % zmax=0.8, width=8cm, height=8cm]
+    % \addplot3 [colormap/winter, surf, z buffer=sort,
+    % samples=30,domain=0:1, y domain=0:2*pi,]
+    % ({x* cos(deg(y))},{x* sin(deg(y))},0.5*x^2);
+
+    %   \node at (axis cs: 1.0,0,0) {$x$};
+    %   \node at (axis cs: 0,1.0,0) {$y$};
+    %   \node at (axis cs: 0,0,0.8) {$z$};
+    % \end{axis}
+    % \end{tikzpicture}
+    \begin{tikzpicture}
+      \begin{axis}[
+          axis lines=center,
+          xlabel=$x$, ylabel=$y$, zlabel=$z$,
+          xmin=-2, xmax=2, ymin=-2, ymax=2, zmin=0, zmax=4.5,
+          view={120}{30},
+          % colormap={viridis}{},
+          width=8cm, height=8cm,
+          title={Step 2:绕$z$轴旋转得到 $z = x^2 + y^2$},
+          title style={font=\small}
+        ]
+
+        % 原始抛物线
+        \addplot3[very thick, red, samples=20, domain=-2:2]
+        (0, x, {x^2});
+
+        \addplot3[very thick, red, samples=20, domain=-2:2]
+        (y, 0, {y^2});
+        %画一条从(-1,0,4)到(1,0,4)的线段
+        \draw[very thick, red] (axis cs:-2,0,4) -- (axis cs:2,0,4);
+
+        % 添加坐标轴标签
+        \node at (axis cs:2.3,0,0) [right] {$x$};
+        \node at (axis cs:0,2.3,0) [above] {$y$};
+        \node at (axis cs:0,0,4.8) [left] {$z$};
+
+        % 标记关键点和轨迹
+        \node[circle,fill=blue,inner sep=1.5pt] at (axis cs:0,1,1) {};
+        \addplot3[thick, blue, samples=20, domain=0:360]
+        ({cos(x)}, {sin(x)}, 1);
+
+        \node[circle,fill=green,inner sep=1.5pt] at (axis cs:0,1.5,2.25) {};
+        \addplot3[thick, green, samples=20, domain=0:360]
+        ({1.5 * cos(x)}, {1.5 * sin(x)}, 2.25);
+
+        \node[circle,fill=red,inner sep=1.5pt] at (axis cs:0,2,4) {};
+        \addplot3[thick, red, samples=20, domain=0:360]
+        ({2*cos(x)}, {2*sin(x)}, 4);
+
+        % % 添加旋转说明
+        % \draw[->, thick, green] (axis cs:0,1,1) to [bend right]
+        %     node[midway, above, sloped] {rotate} (axis cs:0.7,0.7,1);
+      \end{axis}
+    \end{tikzpicture}
+
+    \boxed{\text{例2：}x^2+y^2+z^2=a^2} \\
+    %先关注x^2+z^2=a^2
+    \begin{tikzpicture}
+      \begin{axis}[
+          axis lines=center,
+          xlabel=$x$, ylabel=$y$, zlabel=$z$,
+          xmin=-3, xmax=3, ymin=-3, ymax=3, zmin=-3,zmax=3,
+          view={120}{30},
+          title={Step 1:关注$x^2+y^2=a^2$,示例中$a$为$2$},
+          title style={font=\small}
+        ]
+
+        \addplot3[thick, red, samples=20, domain=0:360]
+        ({2*cos(x)}, 0, {2*sin(x)});
+
+      \end{axis}
+    \end{tikzpicture} \\
+
+    %画出x^2+y^2+z^2=2^2,即一个网格球面
+    \begin{tikzpicture}
+        \begin{axis}[
+            axis lines=center,
+            xlabel=$x$, ylabel=$y$, zlabel=$z$,
+            xmin=-3, xmax=3, ymin=-3, ymax=3, zmin=-3,zmax=3,
+            xtick={-2,-1,0,1,2},
+            ytick={-2,-1,0,1,2},
+            ztick={-2,-1,0,1,2},
+            view={120}{30},      % 方位角45°, 仰角30°
+            % width=10cm, 
+            % height=10cm,
+            title={Step 2:绕$z$轴旋转得到球面},
+            title style={font=\small},
+        ]
+            % ===== 绘制球面 =====
+            \addplot3[
+                surf,
+                % thick,
+                red,
+                opacity=0.8,    % 半透明效果
+                samples=30,     % 经度方向采样点
+                samples y=30,   % 纬度方向采样点
+                domain=0:360,   % 经度范围 (0° 到 360°)
+                y domain=0:180, % 纬度范围 (0° 到 180°)
+                z buffer=sort
+            ] ({2*sin(y)*cos(x)}, {2*sin(y)*sin(x)}, {2*cos(y)});
+            
+            % ===== 标记关键点 =====
+            \node[circle,fill=red,inner sep=1.5pt,label={above right:$(2,0,0)$}] at (axis cs:2,0,0) {};
+            \node[circle,fill=red,inner sep=1.5pt,label={above left:$(-2,0,0)$}] at (axis cs:-2,0,0) {};
+            \node[circle,fill=red,inner sep=1.5pt,label={left:$(0,2,0)$}] at (axis cs:0,2,0) {};
+            \node[circle,fill=red,inner sep=1.5pt,label={right:$(0,-2,0)$}] at (axis cs:0,-2,0) {};
+            \node[circle,fill=red,inner sep=1.5pt,label={above:$(0,0,2)$}] at (axis cs:0,0,2) {};
+            \node[circle,fill=red,inner sep=1.5pt,label={below:$(0,0,-2)$}] at (axis cs:0,0,-2) {};
+        \end{axis}
+    \end{tikzpicture}
+
+  \item 一般二次曲面 \\
+    其画图方法为寻找平方和，找到平方和后化简将其当作旋转曲面对待，画出草图，再纠结具体形状 \\
+    \boxed{z=\frac{x^2}{3}+\frac{y^2}{4}}\\
+    如旋转曲面画法，当成$z=x^2+y^2$的旋转曲面，绕$z$轴旋转即可 \\
+    最后因为是椭圆，图会扁不少\\
+    \boxed{
+      \frac{z^2}{2} - \frac{x^2}{3} - \frac{y^2}{4} = 0
+    }
+    \\
+    化为\\
+    \boxed{
+      \frac{z^2}{2} - (\frac{1}{3}x^2 + \frac{1}{4}y^2) = 0
+    }
+    \\
+    计算(使用例1的方法计算) \\
+    \boxed{
+      \frac{z^2}{2} - \frac{1}{4}y^2 = 0;
+    }\\
+    然后绕$z$轴旋转，即可。
+
+  \item 其他二次曲面 \\
+    \boxed{z=xy} \\
+    马鞍面，可以直接记 \\
+    %画出z=xy
+    \begin{tikzpicture}
+      \begin{axis}[
+        axis lines=center,
+        xlabel=$x$, ylabel=$y$, zlabel=$z$,
+        xmin=-3, xmax=3, ymin=-3, ymax=3, zmin=-3,zmax=3,
+        view={60}{30},
+        title={$z=xy$},
+        title style={font=\small},
+        grid=major,
+        grid style={dashed, gray!30}
+      ]
+        \addplot3[
+        surf,
+        opacity=0.85,   % 半透明效果
+        samples=35,     % x方向采样点
+        samples y=35,   % y方向采样点
+        domain=-2:2,    % x范围
+        y domain=-2:2,  % y范围
+        % shader=interp   % 平滑着色
+    ] {x*y};
+      \end{axis}
+    \end{tikzpicture}
+
+
+\end{enumerate}
