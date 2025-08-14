@@ -1,0 +1,330 @@
+\section{函数与数列的极限}
+\subsection{极限}
+\begin{mydef}{数列极限的定义}{definition of limit}
+    \(\lim\limits_{n \to \infty} x_{n} = A ~
+    \Leftrightarrow ~ \forall   \bold \varepsilon > 0
+    ,\exists ~ \text{正整数}N,
+    \text{使得当} n ~>~ N \text{时}
+    \lvert x_{n} - A \rvert <  \bold \varepsilon.\) \\
+    若数列\(\{x_{n}\}\)存在极限，又称数列\({x_{n}}\)收敛，
+    否则数列\(\{x_{n}\}\)发散。
+\end{mydef}
+
+\begin{mydef}{函数极限的定义}{definition of limit}
+    \(\lim\limits_{x \to \infty} f(x) = A ~
+    \Leftrightarrow ~ \forall  \bold \varepsilon > 0
+    ,\exists ~ \text{正数}X
+    \text{使得当} \lvert x \rvert  >  X \text{时}
+    \lvert f(x) - A \rvert <  \bold \varepsilon.\) \\
+    单侧极限：\\
+    \(\lim\limits_{x \to +\infty} f(x) = A ~
+    \Leftrightarrow ~ \forall  \bold \varepsilon > 0
+    ,\exists ~ \text{正数}X
+    \text{使得当} x > X \text{时}
+    \lvert f(x) - A \rvert <  \bold \varepsilon.\) \\
+    \(\lim\limits_{x \to -\infty} f(x) = A ~
+    \Leftrightarrow ~ \forall  \bold \varepsilon > 0
+    ,\exists ~ \text{正数}X
+    \text{使得当} x < -X \text{时}
+    \lvert f(x) - A \rvert <  \bold \varepsilon.\)
+\end{mydef}
+
+\begin{mydef}{函数极限的定义}{definition of limit2}
+    \(\lim\limits_{x \to x_0} f(x) = A ~
+    \Leftrightarrow ~ \forall  \bold \varepsilon > 0
+    ,\exists ~ \text{正数} \delta
+    \text{使得当} 0 < \lvert x - x_0 \rvert  <  \delta \text{时},
+    \lvert f(x) - A \rvert <  \bold \varepsilon.\)
+    类似可定义左极限与右极限。
+\end{mydef}
+
+\begin{conclusion}{数列极限的基本性质}{conclusion of limit}
+    \begin{enumerate}
+        \item 数列极限的不等式 \\
+        设\(\lim\limits_{n \to \infty} x_{n} = A\)，
+        \(\lim\limits_{n \to \infty} y_{n} = B\) \\
+        若\(a > b \)，\( \exists N\), 当\(n > N\)时有
+        \(x_{n} > y_{n}\); \\ 若\(n > N\)时有
+        \(x_{n} < y_{n}\),则\(a \geq b\)。
+        \item 收敛数列的有界性 \\
+        设\(\{x_{n}\}\)是收敛数列，
+        \(\lim\limits_{n \to \infty} x_{n} = A\)，
+        则\(\{x_{n}\}\)有界。
+    \end{enumerate}
+\end{conclusion}
+\newpage
+\begin{conclusion}{函数极限的基本性质}{conclusion of limit2}
+    \begin{enumerate}
+        \item 函数极限的不等式 \\
+        设\(\lim\limits_{x \to x_0} f(x) = A\)，
+        \(\lim\limits_{x \to x_0} g(x) = B\) \\
+        若\(A > B \)，\( \exists \delta > 0,
+        \text{使得当} 0 < \lvert x - x_0 \rvert  <  \delta \text{时}
+        \text{有} f(x) > g(x),\)\\
+        若\(\exists \delta > 0,
+        \text{使得当} 0 < \lvert x - x_0 \rvert  <  \delta \text{时}
+        \text{有} f(x) \geq g(x)\), 则\(A \geq B\). \\
+        \(\text{若}f(x) > g(x),\text{仍然为}A \geq B\) \\
+        函数极限的保号性 \\
+        设\(\lim\limits_{x \to x_0} f(x) = A\)， \\ 
+        若\(A > 0\),则\(\exists \delta > 0,
+        \text{使得当} 0 < \lvert x - x_0 \rvert  <  \delta \text{时}
+        \text{有} f(x) > 0\). \\
+        若\(\exists \delta > 0,
+        \text{使得当} 0 < \lvert x - x_0 \rvert  <  \delta \text{时}
+        \text{有} f(x) \geq 0\), 则\(A \geq 0\).
+        \item 存在极限的函数的局部有界性 \\
+        设\(\lim\limits_{x \to x_0} f(x) = A\)，
+        则\(f(x)\)在\(x_0\)的某空心邻域\(\bigcup_{0}(x_0, \delta) =
+        \{x | 0 < |x - x_0| < \delta\}\text{内有界，即}
+        \exists \delta > 0 \text{与} M > 0,\text{使得}
+        \text{当} 0 < \lvert x - x_0 \rvert  <  \delta \text{时}
+        \text{有} \lvert f(x) \rvert  \leq  M\).
+    \end{enumerate}
+\end{conclusion}
+
+\begin{formula}{重要的极限}{important limit}
+    \[
+        \begin{aligned}
+        &\lim\limits_{x \to 0} \frac{sinx}{x} = 1,\\
+        &\lim\limits_{x \to 0} (1+x)^{\frac{1}{x}} = e \text{或} \\
+        &\lim\limits_{x \to \infty} (1+\frac{1}{x})^{x} = e, \\
+        &\lim\limits_{x \to 0} \frac{ln(1+x)}{x} = 1
+        \end{aligned}
+    \]
+\end{formula}
+
+\begin{conclusion}{夹逼定理}{bracket theorem}
+    \begin{enumerate}
+        \item 数列
+        \(\exists N\), 当\(n > N\)时有\(y_n \leq x_n \leq z_n\)，
+        \(\lim\limits_{n \to \infty} y_{n} = a\)，
+        \(\lim\limits_{n \to \infty} z_{n} = a\)，
+        则
+        \(\lim\limits_{n \to \infty} x_{n} = a\)。
+        \item 函数
+        \(\exists \delta > 0\), 当\(0 < \lvert x - x_0 \rvert  <  \delta\)时有
+        \(h(x) \leq f(x) \leq g(x)\),又\(\lim\limits_{x \to x_0} h(x) = A\),
+        \(\lim\limits_{x \to x_0} g(x) = A\)，
+        则\(\lim\limits_{x \to x_0} f(x) = A\)。
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{单调有界数列必收敛定理}{monotone and bounded sequence must converge}
+    若数列\(\{x_n\}\)单调上升有上界，即\(x_{n+1} \geq x_n\)且\(\exists M\), 当\(n > N\)时有\(x_n \leq M\)，即
+    存在一个数\(a\),
+    使得\(\lim\limits_{n \to \infty} x_n = a\)，且\(x_n \leq a\). \\
+    若数列\(\{x_n\}\)单调下降有下界，即\(x_{n+1} \leq x_n\)且\(\exists M\), 当\(n > N\)时有\(x_n \geq M\)，即
+    存在一个数\(a\),
+    使得\(\lim\limits_{n \to \infty} x_n = a\)，且\(x_n \geq a\).
+\end{conclusion}
+
+\begin{conclusion}{极限存在的充要条件}{limit exists if and only if}
+    \begin{enumerate}
+        \item 函数极限 \\
+        \(\lim\limits_{x \to x_0} f(x) = A \Leftrightarrow
+        \lim\limits_{x \to x_0^-} f(x) = A =
+        \lim\limits_{x \to x_0^+} f(x) = A\) \\
+        即左右极限都存在且相等。
+        \item 数列极限 \\
+        \(\lim\limits_{n \to \infty} x_{n} = A \Leftrightarrow
+        \lim\limits_{n \to \infty} x_{2n} = A = 
+        \lim\limits_{n \to \infty} x_{2n-1} = A = 
+        \cdots\) \\
+        即数列的任意子列极限都等于原数列的极限。
+    \end{enumerate}
+\end{conclusion}
+
+\begin{formula}{证明极限不存在的常用方法}{proof of limit not existing}
+    \begin{enumerate}
+        \item \(x \to x_0\)时，左右极限不相等则极限不存在 \\
+        \(x \to \infty\)时，\(-\infty \text{与} +\infty\)极限不相等，则极限不存在
+        \item \(\exists x_n \to x_0\)，但\(\lim\limits_{n \to \infty} x_{n} \neq A\)，则极限不存在。\\
+        \(x_n \to x_0, y_n \to y_0\)，但\(\lim\limits_{n \to \infty} x_{n} \neq \lim\limits_{n \to \infty} y_{n}\),则
+        \(\lim\limits_{x \to x_0} f(x)\)不存在
+        \item 利用结论， \(\lim\limits_{x \to x_0} f(x) = A\),\(\lim\limits_{x \to x_0} g(x)\)不存在。
+        则\(\lim\limits_{x \to x_0} [f(x) + g(x)]\)不存在。若\(A\)不为零，
+        则\(\lim\limits_{x \to x_0} [f(x)\cdot g(x)]\)不存在。
+    \end{enumerate}
+\end{formula}
+
+\subsection{求极限的方法}
+
+\begin{conclusion}{极限的四则运算法则}{limit of sum and product}
+    \begin{enumerate}
+        \item \(\lim\limits_{x \to x_0} [f(x) \pm g(x)] = \lim\limits_{x \to x_0} f(x) \pm \lim\limits_{x \to x_0} g(x)\)
+        \item \(\lim\limits_{x \to x_0} [f(x)\cdot g(x)] = \lim\limits_{x \to x_0} f(x) \cdot \lim\limits_{x \to x_0} g(x)\)
+        \item \(\lim\limits_{x \to x_0} \frac{f(x)}{g(x)} = \frac{\lim\limits_{x \to x_0} f(x)}{\lim\limits_{x \to x_0} g(x)}\)
+    \end{enumerate}
+    \boxed{\text{注}}
+    若运算中\([f(x)\)\textbf{或}\(g(x)]\)不存在或为\(\infty\)，则\(\lim\limits_{x \to x_0}[f(x) \pm g(x)]\)不存在或为\(\infty\)。
+    若存在的极限不为\(0\)，则\(\lim\limits_{x \to x_0} \frac{f(x)}{g(x)}\)与\(\lim\limits_{x \to x_0} f(x)\cdot g(x)\)均
+    不存在或为\(\infty\)。 \\
+    若运算中\([f(x)\)\textbf{且}\(g(x)]\)均不存在或为\(\infty\)，则\(f(x) \pm g(x),~
+    f(x)\cdot g(x),~
+    \frac{f(x)}{g(x)}\)的极限需作具体分析
+\end{conclusion}
+
+\begin{conclusion}{幂指数函数的极限运算法则}{limit of power and exponential function}
+    \(\lim\limits_{x \to x_0} [f(x)] = A, 
+    \lim\limits_{x \to x_0} [g(x)] = B,
+    \lim\limits_{x \to x_0} [f(x)]^{[g(x)]} = A^B\)
+
+    \begin{enumerate}
+        \item \(A > 0\)且\(A \neq 1\text{或}\infty\), \(B = +\infty\) \\
+        \[
+        \begin{aligned}
+            \lim\limits_{x \to x_0} [f(x)]^{[g(x)]} &= 
+            \begin{cases}
+                0, & 0 < A < 1 \\
+                +\infty, & A > 1 \\
+            \end{cases}
+        \end{aligned}
+        \]
+        \item  \(A > 0, f(x) > 0,~0 < \lvert x -a \rvert < \delta, B \neq 0\)
+        \[
+            \begin{aligned}
+                \lim\limits_{x \to x_0} [f(x)]^{[g(x)]} &=
+                \begin{cases}
+                    0,B > 0 \\
+                    +\infty,B < 0 \\
+                \end{cases}
+            \end{aligned}
+        \]
+        \item \(A = +\infty, B\neq 0\)
+        \[
+            \begin{aligned}
+                \lim\limits_{x \to x_0} [f(x)]^{[g(x)]} &=
+                \begin{cases}
+                    +\infty,&B > 0 \\
+                    0,&B < 0 \\
+                \end{cases}
+            \end{aligned}
+        \]
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{运算法则不适用的未定式}{limit of undefined function}
+    \(\frac{0}{0}, \frac{\infty}{\infty}, 0 \cdot \infty, \infty - \infty,
+    0^0, \infty^0, 1^\infty\)
+\end{conclusion}
+
+\begin{conclusion}{利用函数的连续性求极限}{limit of function by continuity}
+    \(\lim\limits_{x \to x_0} f(x) = A\)，若\(f(x)\)在\(x_0\)处连续，则\(f(x)\)在\(x_0\)处的极限为\(A = f(x_0)\)。
+\end{conclusion}
+
+\begin{conclusion}{利用变量替换法求极限}{limit of function by substitution}
+    \begin{enumerate}
+    \item \(\lim\limits_{x \to +\infty} \varphi(x) = +\infty \text{且} \lim\limits_{u \to \infty} f(u) = A\), \\
+    则 \(\lim\limits_{x \to +\infty} f[\varphi(x)] \xlongequal{x= \varphi(x)}
+    \lim\limits_{u \to \infty} f(u) = A.\)
+    \item \(\lim\limits_{x \to x_0} \varphi(x) = u_0\)且\(f(u)\)在\(u_0\)处连续， \\
+    则\(\lim\limits_{x \to x_0} f[\varphi(x)] \underset{x \to x_0, u \to u_0}{\xlongequal{u= \varphi(x)}}
+    \lim\limits_{u \to u_0} f(u) = A.\)
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{利用等价无穷小代换求极限}{limit of function by substitution}
+    若\(x \to a\)时有,无穷小\(\alpha(x) \sim \alpha^*(x), \beta(x) \sim \beta^*(x)\)， \\
+    则\(\lim\limits_{x \to a} \frac{\alpha(x)u(x)}{\beta{x}v(x)} = 
+    \lim\limits_{x \to a} \frac{\alpha^*(x)u(x)}{\beta^*(x)v(x)} = 
+    \frac{\lim\limits_{x \to a} \alpha^*(x) \lim\limits_{x \to a} u(x)}{\lim\limits_{x \to a} \beta^*(x) \lim\limits_{x \to a} v(x)} = 
+    \frac{\alpha^*(a)u(a)}{\beta^*(a)v(a)}\)
+\end{conclusion}
+
+\begin{conclusion}{利用洛必达法则求极限}{limit of function by l'hospital rule}
+    适用于\(\frac{0}{0}, \frac{\infty}{\infty}, \lim\limits_{x \to a} \frac{f(x)}{g(x)} = \lim\limits_{x \to a} \frac{f^\prime(x)}{g^\prime(x)} = A\)
+\end{conclusion}
+
+\begin{conclusion}{求数列极限的方法}{limit of sequence}
+    \begin{enumerate}
+        \item 利用函数极限求数列极限,将所求数列\(\{y_n\}\)看作函数\(f(x)\)在数列\(\{x_n\}\)上的取值,
+        则\(\lim\limits_{n \to \infty} y_n = \lim\limits_{n \to \infty} f(x_n) = \lim\limits_{x \to +\infty} f(x) = A\)
+        \item 使用放缩法,处理余项
+        \item 利用递归方法，若所求数列\(\{y_n\}\)满足\(y_{n+1} = f(y_n)\),则设\(\lim\limits_{n \to \infty} y_n = A\),求
+        \(A = f(A)\)即可
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{其他求极限的方法}{other methods to calculate limit}
+    \begin{enumerate}
+        \item 利用导数定义求极限
+        \item 利用泰勒公式求极限
+        \item 利用定积分求极限
+    \end{enumerate}
+\end{conclusion}
+
+\subsection{无穷小}
+\begin{mydef}{无穷小的定义}{infinitesimal}
+    \begin{enumerate}
+        \item 数列
+        若\(\lim\limits_{n \to \infty} x_n = 0,\)则称数列\({x_n}\)为无穷小，记为\(x_n = o(1)(n \to \infty)\)
+        \item 函数
+        若\(\lim\limits_{x \to x_0} f(x) = 0,\)则称函数\(f(x)\)在\(x_0\)处为无穷小，记为\(f(x) = o(1)(x \to x_0)\)
+    \end{enumerate}
+\end{mydef}
+
+\begin{mydef}{无穷大的定义}{infinite}
+    \begin{enumerate}
+        \item 数列 \\
+        若\(\forall M > 0, \exists N, \forall n > N, |x_n| > M\),则称数列\({x_n}\)为无穷大，记为\(\lim\limits_{x_n \to \infty} x_n = \infty\)
+        \item 函数 \\
+        若\(\forall M > 0, \exists X > 0, \forall |x| > X, |f(x)| > M\),则称\(x \to \infty\)时\(f(x)\)为无穷大量，记为\(\lim\limits_{x \to \infty} f(x) = \infty\) \\
+        若\(\forall M > 0, \exists \delta > 0, 0 < |x - x_0| < \delta\)时有\(|f(x)| > M\),则称\(x \to x_0\)时\(f(x)\)为无穷大量，记为\(\lim\limits_{x \to x_0} f(x) = \infty\)
+    \end{enumerate}
+\end{mydef}
+
+\begin{conclusion}{无穷小的关系}{infinitesimal relation}
+    \begin{enumerate}
+        \item 与极限的关系 \\
+        \(\lim\limits_{x \to x_0} f(x) = A \Leftrightarrow f(x) = A + \alpha(x),
+        \lim\limits_{x \to x_0} \alpha(x) = 0\)
+        \item 与无穷大的关系
+        若\(f(x)\)为无穷小，若\(f(x) \neq 0\),则\(\frac{1}{x}\)为无穷大，反之亦成立。
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{无穷小的运算性质}{infinitesimal properties}
+    \begin{enumerate}
+        \item 有限个无穷小的代数和仍为无穷小
+        \item 有限个无穷小的代数积仍为无穷小
+        \item 有界变量与无穷小的乘积仍为无穷小
+    \end{enumerate}
+\end{conclusion}
+
+\begin{mydef}{无穷小阶的定义}{infinitesimal order}
+    若\(f(x) = o(1)(x \to x_0)\),则称\(f(x)\)为无穷小阶，记为\(f(x) = o(1)(x \to x_0)\)
+\end{mydef}
+
+\begin{formula}{常见的等价无穷小}{common infinitesimal}
+    当\(x \to 0\)时，有
+    \begin{enumerate}
+        \item \(\mathrm{sin}x \sim x\)
+        \item \(\mathrm{tan}x \sim x\)
+        \item \(\mathrm{arcsin}x \sim x\)
+        \item \(\mathrm{arctan}x \sim x\)
+        \item \(1 - \mathrm{cos}x \sim \frac{1}{2}x^2\)
+        \item \(\mathrm{e}^x - 1 \sim x\)
+        \item \(\mathrm{ln}(1 + x) \sim x\)
+        \item \(a^x-1 \sim x\ln{a}(a > 0, a \neq 1)\)
+        \item \({(1 + \beta x)}^\alpha -1 \sim \alpha \beta x\)
+        \item \(\log_a{(1 + x)} \sim \frac{1}{\ln a}x(a > 0, a \neq 1)\)
+        \item \(\sqrt[n]{1+x} - 1 \sim \frac{1}{n}x\)
+    \end{enumerate}
+\end{formula}
+
+\begin{conclusion}{等价无穷小的重要性质}{important infinitesimal properties}
+\end{conclusion}
+
+\begin{conclusion}{确定无穷小阶的方法}{method to determine infinitesimal order}
+
+\end{conclusion}
+
+
+
+
+
+
+
+
+

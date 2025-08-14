@@ -1,0 +1,102 @@
+\section{一元函数微分学}
+\subsection{一元函数的导数与微分}
+\begin{mydef}{导数的定义}{derivative}
+    设函数\(f(x)\)在\(x_0\)的某邻域有定义，若极限
+    \[
+        \lim_{\triangle{x} \to 0} \frac{\triangle{y}}{\triangle{x}} =
+        \lim_{\triangle{x} \to 0} \frac{f(x_0 + \triangle{x}) - f(x_0)}{\triangle{x}}
+    \]
+    存在，则称\(f(x)\)在\(x_0\)处可导，并称此极限为\(f(x)\)在\(x_0\)处的导数，记为
+    \[
+        f'(x_0) = y'(x_0) = \left. {\frac{\mathrm{d}y}{\mathrm{d}x}} \right|_{x = x_0} 
+        = \left. {\frac{\mathrm{d}f(x)}{\mathrm{d}x}} \right|_{x = x_0}
+        = \lim_{x \to x_0} \frac{f(x) - f(x_0)}{x - x_0}
+    \]
+    即令\(x=x_0 + \triangle{x}\)则定义式为
+    \[
+        \lim_{x \to x_0} \frac{f(x) - f(x_0)}{x - x_0}
+    \]
+\end{mydef}
+
+\begin{mydef}{单侧导数的定义}{left-sided-derivative}
+    左右导数为
+    \[
+        \begin{aligned}
+        {f'}_{-}(x_0) = \lim_{\triangle{x} \to 0^-} \frac{\triangle{y}}{\triangle{x}} =&
+        \lim_{\triangle{x} \to 0^-} \frac{f(x_0 + \triangle{x}) - f(x_0)}{\triangle{x}} \\
+        {f'}_{+}(x_0) = \lim_{\triangle{x} \to 0^+} \frac{\triangle{y}}{\triangle{x}} =&
+        \lim_{\triangle{x} \to 0^+} \frac{f(x_0 + \triangle{x}) - f(x_0)}{\triangle{x}}
+        \end{aligned}
+    \]
+\end{mydef}
+
+\begin{conclusion}{导数的几何意义与力学意义}{derivative-geometry-physics}
+    导数的几何意义为函数在\(x_0\)处的切线的斜率，即函数在\(x_0\)处的变化率。\\
+    导数的力学意义为质点作直线运动，\(x=x(t)\)，\(x^\prime(t)\)为\(x\)的速度，\(x^{\prime\prime}(t)\)为\(x\)的加速度。
+\end{conclusion}
+
+\begin{conclusion}{单侧可导与双侧可导的关系}{left-sided-derivative-relation}
+    \(f(x)\)在\(x_0\)处可导\(\Leftrightarrow\)\(f(x)\)在\(x_0\)处左右导数均存在且相等，即
+    \[
+        f'(x_0) = {f'}_{-}(x_0) = {f'}_{+}(x_0)
+    \]
+\end{conclusion}
+
+\begin{mydef}{可微的定义}{differentiable}
+    设函数\(f(x)\)在\(x_0\)的邻域内有定义，当自变量\(x=x_0\)有增量\(\triangle{x}\)时，若存在与\(\triangle{x}\)无关的常数
+    \(A(x_0)\)，使得函数的增量\(\triangle{y} = f(x_0+\triangle{x}) - f(x_0)\)可表为
+    \[
+        \triangle{y} = A(x_0) \triangle{x} + o(\triangle{x})(\triangle{x} \to 0)
+    \]
+    则称\(f(x)\)在\(x_0\)处可微，并称\(A(x_0)\)为\(f(x)\)在\(x_0\)处的微分，记为
+    \[
+        \left. \mathrm{d}y \right|_{x = x_0} = A(x_0)\triangle{x}\text{或}
+        \left. \mathrm{d}f(x) \right|_{x = x_0} = A(x_0)\triangle{x}
+    \]
+    其中\(o(\triangle{x})\)是该函数在\(x=x_0\)处函数增量的线性主要部分(简称线性主部)
+\end{mydef}
+
+\begin{mydef}{微分的几何意义}{differential-geometry}
+    \(\triangle{y} = f(x_0 + \triangle{x}) - f(x_0) = A(x_0) \triangle{x} + o(\triangle{x})\)是曲线
+    \(y = f(x)\)在\(x_0\)相应于自变量增量\(x\)的纵坐标\(f(x_0)\)的增量
+\end{mydef}
+
+\begin{conclusion}{可微、可导与连续的关系}{differentiable-continuous-relation}
+    \(f(x)\)在\(x_0\)处可导\(\Leftrightarrow\)\(f(x)\)在点\(x_0\)处可微
+    \(\stackrel{\Rightarrow}{\nLeftarrow}
+    \)函数\(f(x)\)在\(x_0\)处连续。
+
+\end{conclusion}
+
+\begin{conclusion}{函数在区间上的可导性}{differentiable-on-interval}
+    \(\forall x \in (a,b),f(x)\)可导，则称\(f(x)\)在开区间\((a,b)\)内可导，\\
+    若\(f(x)\)在\((a, b)\)内可导,
+    且\(f(x)\)既在\(x=a\)处右可导，又在\(x=b\)处左可导，则称\(f(x)\)在闭区间\([a,b]\)可导
+\end{conclusion}
+
+\begin{mydef}{导函数的定义}{derivative-function}
+    设函数\(f(x)\)在区间\(I\)可导，则\(\forall x \in I\)都对应着\(f(x)\)的一个确定的函数值\(f^\prime(x)\)，这就构成了一个新的函数
+    称此函数为\(f(x)\)的导函数，或\(f(x)\)的一次导数。
+\end{mydef}
+
+\begin{mydef}{二阶导数及高阶导数的定义}{second-order-derivative}
+    导函数\(f'(x)\)的导数为二阶导数，记为\(y^{\prime\prime},f^{\prime\prime}(x),
+    \frac{\mathrm{d}^2{y}}{\mathrm{d}x^2},\frac{\mathrm{d}}{\mathrm{dx}}(\frac{\mathrm{d}y}{\mathrm{d}x})\)，
+    \(y=f(x)\)的\(n-1\)阶导函数\(f^{n-1}(x)\)的导数称为\(y=f(x)\)的\(n\)阶导数,记作\(y^{(n)},f^{(n)}(x),\frac{\mathrm{d}^ny}{\mathrm{d}x^n}\)
+    其表达式为
+    \[
+        \begin{aligned}
+            f^{\prime\prime}(x_0) &= \lim_{\triangle{x} \to 0} \frac{f^{\prime}(x_0 + \triangle{x}) - f^{\prime}(x_0)}{\triangle{x}} \\
+            f^{(n)}(x_0) &= \lim_{\triangle{x} \to 0} \frac{f^{(n-1)}(x_0 + \triangle{x}) - f^{(n-1)}(x_0)}{\triangle{x}}
+        \end{aligned}
+    \]
+\end{mydef}
+
+\begin{conclusion}{奇偶函数与周期函数的导数性质}{odd-even-periodic-derivative}
+    设函数\(f(x)\)在\(I\)上可导,则在I上 \\
+    若\(f(x)\)为奇函数\(\Rightarrow\)则\(f^\prime(x)\)为偶函数；\\
+    若\(f(x)\)为偶函数\(\Rightarrow\)则\(f^\prime(x)\)为奇函数；\\
+    若\(f(x)\)为周期函数,以\(T\)为周期\(\Rightarrow\)则\(f^\prime(x)\)为周期函数，以\(T\)为周期
+\end{conclusion}
+\subsection{求导方法}
+

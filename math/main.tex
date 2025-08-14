@@ -50,6 +50,7 @@
 \usepackage{chngcntr} % 用于计数器与章节关联
 
 \usepackage{booktabs}
+\usepackage{extarrows} %用于长等号
 
 % 设置页眉页脚
 % 仅在中间显示页码
@@ -62,6 +63,22 @@
 \renewcommand{\headrulewidth}{0pt} % 去掉页眉横线
 \renewcommand{\footrulewidth}{0pt} % 去掉页脚横线
 
+
+\setmainfont{Times New Roman} % 设置主字体
+% 中文主字体已由 ctexbook 设置为 SimSun，无需重复设置
+% \setCJKmainfont{SimSun}[BoldFont=SimHei] % 推荐使用 SimHei 作为粗体，避免警告
+% 设置中文主字体为宋体，避免请求未定义的粗体
+\setCJKmainfont{SimSun}[BoldFont=SimSun] % 推荐使用 SimHei 作为粗体，避免警告
+% 修改textbf的粗体字体为蓝底黑体
+\renewcommand{\textbf}[1]{\textcolor{blue}{\textsf{#1}}} % 修改粗体字体为黑体
+
+% 修正 fancyhdr 的 headheight
+\setlength{\headheight}{13pt}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm} % 页面边距
+\setlength{\parindent}{2em} % 段落缩进
+\setlength{\parskip}{0.5em} % 段落间距
+\setlength{\parskip}{0.5em} % 段落间距
 
 \ctexset{
 	section={
@@ -80,21 +97,7 @@
 	}
 }
 
-\setmainfont{Times New Roman} % 设置主字体
-% 中文主字体已由 ctexbook 设置为 SimSun，无需重复设置
-% \setCJKmainfont{SimSun}[BoldFont=SimHei] % 推荐使用 SimHei 作为粗体，避免警告
-% 设置中文主字体为宋体，避免请求未定义的粗体
-\setCJKmainfont{SimSun}[BoldFont=SimSun] % 推荐使用 SimHei 作为粗体，避免警告
-% 修改textbf的粗体字体为蓝底黑体
-\renewcommand{\textbf}[1]{\textcolor{blue}{\textsf{#1}}} % 修改粗体字体为黑体
-
-% 修正 fancyhdr 的 headheight
-\setlength{\headheight}{13pt}
-
-\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm} % 页面边距
-\setlength{\parindent}{2em} % 段落缩进
-\setlength{\parskip}{0.5em} % 段落间距
-\setlength{\parskip}{0.5em} % 段落间距
+\counterwithin{section}{part}
 
 \title{luoyue's Math Notes}
 \author{luoyue \\
@@ -149,14 +152,11 @@
 }
 
 
-
-
-
 \begin{document}
 \maketitle
-\tableofcontents
 
 \part{高等数学}
+%给出这个part的目录
 \input{calculus/calculus.tex}
 
 % 导入概率论章节
