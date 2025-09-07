@@ -157,10 +157,12 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
             0, & \text{其他}
         \end{cases}$ \\
         \hline
-        正态分布 & $N(\mu,\sigma)$ & & 
+        正态分布 & $N(\mu,\sigma)$ & 
+         $\Phi(X)$
+        & 
         $
         \begin{aligned}
-            &f(x) = \frac{1}{\sigma \sqrt{2\pi}} \mathrm{e}^{-\frac{(x - \mu)^{2}}{2 \sigma^{2}}} \\
+            \phi(x)&=f(x) = \frac{1}{\sigma \sqrt{2\pi}} \mathrm{e}^{-\frac{(x - \mu)^{2}}{2 \sigma^{2}}} \\
             &\quad (-\infty < x < \infty)
         \end{aligned}
         $ \\
@@ -252,5 +254,19 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
 
     \end{enumerate}
 
+\end{conclusion}
+
+\subsection{一些其他技巧}
+\begin{conclusion}{泊松积分}{poisson integral}
+$$
+    \int_{-\infty}^{\infty} \mathrm{e}^{-t^2} = \sqrt{\pi}
+$$
+\end{conclusion}
+
+\begin{conclusion}{泊松分布下的比例问题}
+    设$X \sim P(\lambda)$，则$P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}$ \\
+    在$X$中发生$Y$的比例为$\alpha$，\\
+    $Y$的分布为$P(\alpha \lambda)$ ,   
+    则$P(Y = k) = \frac{(\lambda \alpha)^k e^{-\lambda \alpha}}{k!}$
 \end{conclusion}
 

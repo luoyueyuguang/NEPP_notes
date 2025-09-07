@@ -1,2 +1,313 @@
 \section{多维随机变量的函数分布}
-\subsection{多维随机变量的函数分布}
+\subsection{二维随机变量联合分布函数与边缘分布函数}
+
+\begin{mydef}{二维随机变量}{two-dim random conditionable}
+    设$X = X(\omega)$，$Y = Y(\omega)$是定义在样本空间$\Omega$上的随机变量，
+    则称向量$(X, Y)$是二维随机变量。
+\end{mydef}
+
+\begin{mydef}{二维随机变量的联合分布函数}{joint distribution function}
+    \[
+        \begin{aligned}
+            F(x, y)& = P((X \leq x) \cap P(Y \leq y)) \\
+        & = P(X \leq x, Y \leq y)(-\infty \leq x,y \leq +\infty)
+        \end{aligned}
+    \]
+    为二维随机变量$(X,Y)$的分布函数，也称为对随机变量$X$,$Y$的联合分布函数
+\end{mydef}
+
+\begin{conclusion}{二维随机变量的联合分布函数的性质}{joint distribution function property}
+\begin{enumerate}
+    \item $0 \leq F(x,y) \leq 1$,且对$x,y$单调不减
+    \item \[
+        \begin{aligned}
+            &F(-\infty, y) = \lim\limits_{x \to -\infty} F(x, y) = 0 \\
+            &F(x, -+\infty) = \lim\limits_{y \to -\infty} F(x, y) = 0 \\
+            &F(-\infty, -\infty) = \lim\limits_{x,y \to -\infty} F(x, y) = 0 \\
+            &F(+\infty, +\infty) = \lim\limits_{x,y \to +\infty} F(x, y) = 1 
+        \end{aligned}
+    \]
+    \item F(x,y)关于$x,y$右连续，即
+    \(
+        \begin{aligned}
+            &F(x+0,y) = F(x,y) \\
+            &F(x,y+0) = F(x,y)
+        \end{aligned}
+    \)
+    \item 区域$D = \{(x,y) | x_1 < X \leq x_2, y_1 < Y \leq y_2\}$
+    上的概率为
+    \[
+    \begin{aligned}
+        P\{(X,Y) \in D\}& = P\{
+            x_1 < X \leq x_2, y_1 < Y \leq y_2
+        \} \\
+        & = F(x_2, y_2) - F(x_2, y_1) - F(x_1, y_2) + F(x_1, y_1)
+    \end{aligned}
+    \]
+\end{enumerate}
+\end{conclusion}
+
+\begin{mydef}{二维随机变量的边缘分布函数}{marginal distribution function}
+设二维随机变量的分布函数为
+\[
+    F(x,y) = P(X \leq x, Y \leq y)
+\]
+
+其中$X$的分布函数为
+\[
+\begin{aligned}
+    F_X(x) &= P(X \leq x)\\
+    & = P(X\leq x, Y < +\infty)\\
+    & = F(x, +\infty) \\
+    &= \lim\limits_{y \to +\infty}F(x,y)
+\end{aligned}
+\]
+    
+
+其中$Y$的分布函数为
+\[
+    \begin{aligned}
+        & F_Y(y) = P(Y \leq y)\\
+        & = P(X < +\infty, Y \leq y)\\
+        & = F(+\infty, y) \\
+        &= \lim\limits_{x \to +\infty}F(x,y)
+    \end{aligned}
+\]
+称为二维随机变量$(X,Y)$关于$X$和$Y$的边缘分布函数
+\end{mydef}
+
+\subsection{二维离散型随机变量}
+\begin{mydef}{二维离散型随机变量的联合概率分布}{joint probability distribution}
+二维随机变量$(X,Y)$可取有限或无穷可列个取值$(x_{i}, y_{i})$，
+则称$P(X=x_{i}, Y=y_{i}) = p_{ij}$为二维随机变量$(X,Y)$的概率分布，
+或随机变量$X$和$Y$的联合概率分布
+\end{mydef}
+
+\begin{conclusion}{二维离散型随机变量的联合概率分布的性质}{joint probability distribution property}
+    \begin{enumerate}
+        \item 对所有$i,j$，$p_{ij} \geq 0$
+        \item \(
+            \sum_{i=1}^{\infty} \sum_{j=1}^{\infty} p_{ij} = 1
+        \)
+    \end{enumerate}
+\end{conclusion}
+
+\begin{mydef}{二维离散型随机变量的边缘概率分布}{marginal probability distribution}
+    设二维随机变量的联合概率分布为
+    \[
+        p_{ij} = P(X=x_{i}, Y=y_{j})
+    \]
+    则$p_{ij}$关于$i$的和为
+    \[
+        p_{i, \cdot} = P(X=x_{i})
+        = \sum_{j=1}^{\infty} p_{ij}
+    \]
+    关于$j$的和为
+    \[
+        p_{ \cdot, j} = P(Y=y_{j})
+        = \sum_{i=1}^{\infty} p_{ij}
+    \]
+    分别称为$X$的边缘概率分布和$Y$的边缘概率分布。
+\end{mydef}
+
+\begin{mydef}{二维离散型随机变量的条件概率分布}{conditional probability distribution}
+    设二维随机变量的联合概率分布为
+    \[
+        p_{ij} = P(X=x_{i}, Y=y_{j})
+    \]
+    在$X = x_i$的条件下，$Y$的概率分布为
+    \[
+        P(Y=y_j | X=x_i) = 
+        \frac{P(X= x_i, Y=y_j)}{P(X = x_i)} =
+        \frac{p_{ij}}{p_{i, \cdot}}
+    \]
+    在$Y = y_j$的条件下，$X$的概率分布为
+    \[
+        P(X=x_i | Y=y_j) = 
+        \frac{P(X= x_i, Y=y_j)}{P(Y = y_j)} =
+        \frac{p_{ij}}{p_{ \cdot, j}}
+    \]
+\end{mydef}
+
+\begin{conclusion}{二维离散型随机变量的条件概率分布的独立性}{conditional probability distribution independence}
+    若$p_{ij} = p_{i.}p{.j} =P(X=x_i, Y=y_j) = P(X=x_i)P(Y=y_j)$，
+    则称$X$和$Y$独立。
+
+\end{conclusion}
+
+\subsection{二维连续型随机变量}
+\begin{mydef}{二维连续型随机变量的联合概率密度}{joint probability density}
+    设二维随机变量分布函数$F(x,y)$,如果存在非负的可积函数$f(x,y)$，
+    使得
+    \[
+        F(x,y) = \int_{-\infty}^{x} \int_{-\infty}^{y} f(u,v) du dv
+    \]
+    则称$f(x,y)$为二维随机变量$(X,Y)$的概率密度,为随机变量$X$和$Y$的联合概率密度。
+\end{mydef}
+\begin{conclusion}{二维连续型随机变量的联合概率密度的性质}{joint probability density property}
+    \begin{enumerate}
+        \item $f(x,y) \geq 0$
+        \item $F(x,y) = \int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} f(x,y) dx dy = F(+\infty, +\infty) = 1$
+        \item $(X, Y)$落在平面区域$D$上的概率为 
+        \[
+            P\{(X,Y) \in D\} = \iint_{D} f(x,y) dx dy
+        \] 
+        可用来计算不等式 
+        \[
+            P\{Y \leq X\} = P\{(X,Y) \in D\} = {\iint}_{D}f(x,y) dx dy
+        \]
+        \item 若$f(x,y)$在$(x,y)$处连续，则有
+        $f(x,y) = \frac{\partial F(x,y)}{\partial x} = \frac{\partial^2 F(x,y)}{\partial x \partial y}$
+    \end{enumerate}
+
+\end{conclusion}
+
+\begin{mydef}{二维连续型随机变量的边缘概率密度}{marginal probability density}
+    设二维随机变量$(X,Y)$的联合概率密度为$f(x, y)$，
+    由
+    \[
+        F_{X}(x) = F(x, +\infty) = \int_{-\infty}^{x}[\int_{-\infty}^{+\infty}f(x,y)dy]dx
+    \]
+    推得$X$的边缘概率密度为
+    \[
+        f_{X}(x) = \int_{-\infty}^{+\infty} f(x,y) dy
+    \]
+    $Y$的边缘概率密度为
+    \[
+        f_{Y}(y) = \int_{-\infty}^{+\infty} f(x,y) dx
+    \]
+
+
+\end{mydef}
+\begin{conclusion}{二维连续型随机变量的条件概率密度}{conditional probability density}
+    设二维随机变量$(X,Y)$的联合概率密度为$f(x, y)$，边缘概率密度$f_{X}(x)$和$f_{Y}(y)$连续且
+    恒大于$0$，则称$\frac{f(x,y)}{f_{Y}(y)}$为在条件$Y=y$下$X$的条件概率密度，
+    称$\frac{f(x,y)}{f_{X}(x)}$为在条件$X=x$下$Y$的条件概率密度，
+    即
+    \[
+    \begin{aligned}
+        f_{X|Y}(x|y) &= \frac{f(x,y)}{f_{Y}(y)} \\
+        f_{Y|X}(y|x) &= \frac{f(x,y)}{f_{X}(x)}
+    \end{aligned}
+    \]
+    对于$(X, Y)$的条件分布函数，有
+    \[
+    \begin{aligned}
+        F_{X|Y}(x|y) &= \int_{-\infty}^{x} \frac{f(t,y)}{f_{Y}(y)} dt \\
+        F_{Y|X}(y|x) &= \int_{-\infty}^{y} \frac{f(x,t)}{f_{X}(x)} dt
+    \end{aligned}
+    \]
+
+\end{conclusion}
+
+\begin{formula}{密度乘法公式}{density multiplication formula}
+    \[
+    \begin{aligned}
+        f(x, y) &= f_{X}(x)f_{Y|X}(y|x) \qquad(f_{X}(x) > 0) \\
+        &= f_{Y}(y)f_{X|Y}(x|y) \qquad(f_{Y}(y) > 0)
+    \end{aligned}
+    \]
+\end{formula}
+
+\subsection{二维随机变量的独立性}
+\begin{mydef}{独立性}{independence}
+    设二维随机变量$(X,Y)$的分布函数及边缘分布函数$F(x,y), F_{X}(x), F_{Y}(y)$\\
+    \newline
+    若
+    $
+    \begin{aligned}
+        &P(X \leq x, Y \leq y) = P(X \leq x)P(Y \leq y) \\
+        &F(x,y) = F_{X}(x)F_{Y}(y)
+    \end{aligned}
+    $，则称$X$和$Y$相互独立。
+\end{mydef}
+
+\begin{mydef}{相互独立的充分必要条件}{independence sufficient necessary condition}
+    \begin{enumerate}
+        \item 二维离散型随机变量 \\
+        \(P(X = x_i, Y = y_j) = P(X = x_i)P(Y = y_j)\)，
+        即
+        \(p_{ij} = p_{i.}p{.j}(i,j=1,2,\dots) \Leftrightarrow \)
+        $X$和$Y$相互独立。
+        \item 二维连续型随机变量 \\
+        \(f(x,y)=f_{X}(x)f_{Y}(y)\),其中\((x,y)\)为\(f(x,y),f_{X}(x),f_{Y}(y)\)的连续点
+        \(\Leftrightarrow\)  $X$和$Y$相互独立。
+    \end{enumerate}
+    \boxed{\text{注}}两两独立并不等于相互独立,如对于三个事件\(A,B,C\)，两两独立仅能保证
+    \(
+        \begin{aligned}
+            P(A,B) &= P(A)P(B) \\
+            P(A,C) &= P(A)P(C) \\
+            P(B,C) &= P(B)P(C)
+        \end{aligned}
+    \) \\
+    \newline
+    而相互独立则要求 \\
+    \qquad
+    \(
+        P(A,B,C) = P(A)P(B)P(C)
+    \)
+\end{mydef}
+
+\begin{conclusion}{相互独立的性质}{independence property}
+    \begin{enumerate}
+        \item 若随机变量\(X_1, X_2, \dots, X_n\)相互独立，则其中任意\(k(2 \leq k \leq n)\)个随机
+        变量也相互独立
+        \item 若随机变量\(X_1, X_2, \dots, X_n\)相互独立，则它们的函数\(g_{1}(X_1) , g_{2}(X_2),\dots,g_n(X_n)\)也相互独立
+        也相互独立。
+        \item 若两个随机变量独立，则一个关于另一个的条件分布就是其无条件分布，即：对于二维离散型
+        随机变量\((X,Y)\)，若$X$与$Y$独立，则条件分布等于其边缘分布，对于二维连续型随机变量$(X,Y)$,若$X$
+        与$Y$独立，则条件密度等于其概率密度
+        \[
+        \begin{aligned}
+            P(X=x|Y=y) &= P(X=x) \\
+            f_{Y|X}(y|x) &= f_{Y}(y) \\
+            P(Y=y|X=x) &= P(Y=y) \\
+            f_{X|Y}(x|y) &= f_{X}(x)
+        \end{aligned}
+        \]
+    \end{enumerate}
+\end{conclusion}
+\subsection{一些常见的多维随机变量函数分布}
+\begin{mydef}{二维均匀分布的概念}{uniform distribution}
+
+\end{mydef}
+\begin{conclusion}{二维均匀分布的性质}{uniform distribution property}
+\end{conclusion}
+\begin{mydef}{二维正态分布}{normal distribution}
+
+\end{mydef}
+
+\begin{conclusion}{二维正态分布的性质}{normal distribution property}
+\end{conclusion}
+\subsection{二维随机变量的函数分布的求法}
+\begin{conclusion}{一般公式}{general formula}
+
+\end{conclusion}
+
+\begin{conclusion}{二维离散型随机变量函数分布的求法}{discrete random variable function distribution}
+
+\end{conclusion}
+
+\begin{conclusion}{二维连续型随机变量函数分布的求法}{continuous random variable function distribution}
+
+\end{conclusion}
+
+\begin{tablebox}{几个简单二维连续型随机变量函数的分布的卷积公式}
+
+\end{tablebox}
+
+\begin{conclusion}{二重换元法}{double substitution method}
+
+\end{conclusion}
+
+\begin{conclusion}{分布的可加性}{additivity of distribution}
+    \(X\)与\(Y\)相互独立
+    \begin{enumerate}
+        \item \(X \sim B(n, p), Y \sim B(m, p),X+Y \sim B(n+m, p)\)
+        \item \(X \sim N(\mu_1, {\sigma_{1}}^2), Y \sim N(\mu_2, {\sigma_{2}}^2), X+Y \sim N(\mu_1 + \mu_2, {\sigma_{1}}^2 + {\sigma_{2}}^2)\)
+        \item \(X \sim P(\lambda_1), Y \sim P(\lambda_2), X+Y \sim P(\lambda_1 + \lambda_2)\)
+        \item \(X \sim \chi^2(n), Y \sim \chi^2(m), X + Y \sim \chi^2(n + m)\)
+    \end{enumerate}
+    上述结论对$n$个变量也成立
+\end{conclusion}
