@@ -270,34 +270,242 @@
 \end{conclusion}
 \subsection{一些常见的多维随机变量函数分布}
 \begin{mydef}{二维均匀分布的概念}{uniform distribution}
+    设\(G\)是平面上的有界区域，其面积为\(A\),若二维随机变量\(X, Y\)具有联合概率密度
+    \[
+        f(x,y) = \begin{cases}
+            \frac{1}{A}, & (x,y) \in G \\
+            0, & (x,y) \notin G
+        \end{cases}
+    \]
+    其中\(c\)为常数，则称\(X, Y\)服从二维均匀分布。
 
 \end{mydef}
 \begin{conclusion}{二维均匀分布的性质}{uniform distribution property}
+    \begin{enumerate}
+        \item \[
+            P\{(X,Y) \in D\} = \iint_{D}f(x, y)\mathrm{dx}\mathrm{dy}
+            = \iint_{D}\frac{1}{A}S_{D}\mathrm{dx}\mathrm{dy}
+            = \frac{1}{A}S_{D}
+        \]
+        即在\(G\)内，\((X,Y)\)落在子区域\(D\)的取值仅与\(S_{D}\)有关
+        \item 二维均匀分布的边缘分布，条件分布，数字特征都与区域\(D\)的形状密切相关
+        圆形区域边缘分布不是均匀分布，矩形区域的边缘分布是均匀分布
+
+    \end{enumerate}
 \end{conclusion}
 \begin{mydef}{二维正态分布}{normal distribution}
-
+    如果\((X, Y)\)的联合概率密度为
+    \[
+        f(x,y) = \frac{1}{2\pi\sigma_{1}\sigma_{2}}e^{
+        -\frac{1}{2(1 - \rho^2)}[
+            (\frac{x - \mu_{1}}{\sigma_{1}})^2
+            + (\frac{y - \mu_{2}}{\sigma_{2}})^2
+            - 2\rho\frac{x - \mu_{1}}{\sigma_{1}}\frac{y - \mu_{2}}{\sigma_{2}}
+        ]
+        }
+    \]
+    则称\(X, Y\)服从二维正态分布。也称\(X, Y\)是二维正态变量
+    记为\((X, Y) \sim N(\mu_1, \mu_2;\sigma_{1}^2,\sigma_{2}^2;\rho)\)\\
+    其中\(\mu_1 = E(X), \mu_2 = E(Y), \sigma_{1}^2 = D(X), \sigma_{2}^2 = D(Y), \rho = \frac{Cov(X, Y)}{\sigma_1\sigma_2}\)
+    
 \end{mydef}
 
 \begin{conclusion}{二维正态分布的性质}{normal distribution property}
+    若\(X,Y\)服从二维正态分布，则
+    \begin{enumerate}
+        \item \(X \sim N(\mu_1, \sigma_{1}^2), Y \sim N(\mu_2, \sigma_{2}^2)\),逆命题不成立
+        \item \(X\)与\(Y\)相互独立的充要条件是\(\rho = 0\),即若\(X\)与\(Y\)独立，则\(X\)与\(Y\)不相关
+        \item 两个二维正态分布的随机变量\(X, Y\)的线性组合也服从正态分布 \\
+        \(aX + bY \sim N(a\mu_1 + b\mu_2, a^2\sigma_{1}^2 + b^2\sigma_{2}^2 + 2ab\rho\sigma_1\sigma_2)\)
+    \end{enumerate}
 \end{conclusion}
 \subsection{二维随机变量的函数分布的求法}
 \begin{conclusion}{一般公式}{general formula}
+    设\(X, Y\)为随机变量，\(g(x, y)\)为二元函数，则\(U=g(X, Y)\)为随机变量\((X, Y)\)的函数。
+    \[
+    F_U(u) = P(g(X, Y) \leq u) =
+    \begin{cases}
+        \sum_{g(x_{i}, y_{i}) \leq u} p_{ij}\\
+        \iint_{g(x,y) \leq u} f(x,y)\mathrm{dx}\mathrm{dy}
+    \end{cases}
+    \]
+    当\(X, Y\)独立时 \\
+    \[
+    F_U(u) = P(g(X, Y) \leq u) =
+    \begin{cases}
+        \sum_{g(x_{i}, y_{j}) \leq u} p_{i.}p_{.j}\\
+        \iint_{g(x,y) \leq u} f_{X}(x) f_{Y}(y)\mathrm{dx}\mathrm{dy}
+    \end{cases}
+    \]
 
 \end{conclusion}
 
 \begin{conclusion}{二维离散型随机变量函数分布的求法}{discrete random variable function distribution}
-
+    \(U = g(X, Y)\)是连续型随机变量，其分布律为\(P(U = g(x_{i}, y_{i})) = P(X = x_{i}, Y = y_{i}) = p_{ij}\)
+    \[U \sim \begin{pmatrix}
+        g(x_{i}, y_{j}) & i = 1, 2, \cdots, n;j = 1, 2, \cdots, m \\
+        p_{ij} & i = 1, 2, \cdots, n;j = 1, 2, \cdots, m \\
+    \end{pmatrix}
+    \]
+    对于不同的\(x_{i}, x_{j}\)，如果取相同的\(g(x, y)\)，则合并同类项\\
+    \newline
+    \newline
+    如果\(U = g_{1}(X, Y), V = g_{2}(X, Y)\),求\(U, V\)的分布律，有\\
+    \[
+        P(U = u, V = v) = \sum_{i = 1}^{n}\sum_{j = 1}^{m}P(X = x_{i}, Y = y_{j})
+    \]
+    也可以先求\((U, V)\)的边缘分布，再求\((U,V)\)的边缘分布，最后求\((U, V)\)的联合分布
+    也可以通过条件分布求\((U, V)\)的联合分布
 \end{conclusion}
 
 \begin{conclusion}{二维连续型随机变量函数分布的求法}{continuous random variable function distribution}
-
+    设\(X, Y\)为二维连续型随机变量，\(U = g(X, Y)\)为随机变量\((X, Y)\)的函数。\((X, Y)\)的联合密度函数为\(f(x, y)\)
+    \begin{enumerate}
+        \item 若\(U = g(X, Y)\)为离散型随机变量，则
+        \[
+        P(U = u_{i}) = \iint_{D} f(x, y) \mathrm{dx}\mathrm{dy}\quad (i = 1,2,\cdots)
+        \]
+        其中\(D = \{(x, y) | g(x, y) = u_{i}\}\)
+        \item 若\(U = g(X, Y)\)为连续型随机变量，则
+        先求分布函数
+        \(
+        F_U(u) = P(U \leq u) 
+        \),再求其密度函数\(f_U(u)\)
+        \item 如果\(X\)为连续型随机变量，\(Y\)为离散型随机变量，则
+        \[
+        \begin{aligned}
+            F_U(u) = P(U \leq u) &= P(g(X, Y) \leq u) 
+            \\
+            &= \sum_{i}P(X = x_i)P(g(X, Y) \leq u | X = x_i) \\
+            &= \sum_{i} p_{i} P(g(X, Y) \leq u | X = x_i)
+        \end{aligned}
+        \]
+    \end{enumerate}
+    若\(U = g_{1}(X, Y), V = g_{2}(X, Y)\),求\(U, V\)的分布律，有\\
+    \begin{enumerate}
+        \item \[
+        \begin{aligned}
+            F_{Z}(z) &= P(g_{1}(X, Y) \leq u, g_{2}(X, Y) \leq v) \\
+            &= 
+            \iint_{g_{1}(x,y) \leq u, g_{2}(x,y) \leq v} f(x,y)\mathrm{dx}\mathrm{dy}
+        \end{aligned}
+        \]
+        \item (U, V)为离散型随机变量
+        \[
+        \begin{aligned}
+            P(U = u, V = v) &= P(g_{1}(X, Y) = u_{i}, g_{2}(X, Y) = v_{j}) \\
+            &=
+            P((X, Y) \in D) = \iint_{D} f(x, y) \mathrm{dx}\mathrm{dy}\\
+        \end{aligned}
+        \]
+        \(D = \{(x, y) | g_{1}(x, y) = u_{i}, g_{2}(x, y) = v_{j}\}\)
+        或利用边缘分布与联合分布求\((U,V)\)的分布
+    \end{enumerate}
 \end{conclusion}
 
 \begin{tablebox}{几个简单二维连续型随机变量函数的分布的卷积公式}
+    \begin{tabular}{|c|c|}
+        \hline
+        函数 & 卷积公式 \\
+        \hline
+        \(Z = X + Y\) & 
+        \(
+        \begin{aligned}
+            f_{Z}(z) &= f_{X} * f_{Y}\\
+            & = \int_{-\infty}^{\infty} f(z - y, y)dy = \int_{-\infty}^{\infty} f(x, z - x)dy\\
+            &= \int_{-\infty}^{\infty} f_{X}(z - y) f_{Y}(y) \mathrm{dx}\mathrm{dy}
+            \\
+            &= \int_{-\infty}^{\infty} f_{Y}(z - x) f_{X}(x) \mathrm{dx}\mathrm{dy}
+        \end{aligned}
+        \)\\
+        \hline
+        \(Z = X - Y\) & 
+        \(
+        \begin{aligned}
+            f_{Z}(z) &= f_{X} * f_{Y}\\
+            &=
+            \int_{-\infty}^{\infty} f(x, x - z)dx\\
+            &= \int_{-\infty}^{\infty} f(x+z, x)dx\\
+            &= \int_{-\infty}^{\infty} f_{X}(x+z) f_{Y}(x) \mathrm{dx}\mathrm{dy}(X, Y\text{独立})
+        \end{aligned}
+        \)\\
+        \hline
+        \(Z = XY\) & 
+        \(
+        \begin{aligned}
+            f_{XY}(z) &= f_{X} * f_{Y}\\
+            &= \int_{-\infty}^{\infty} \frac{1}{|x|}f(x, \frac{z}{x}) \mathrm{dx} \\
+            &= \int_{-\infty}^{\infty} \frac{1}{|y|}f(\frac{z}{y}, y) \mathrm{dy}
+        \end{aligned}
+        \)\\
+        \hline
+        \(Z = \frac{X}{Y}\) & 
+        \(
+        \begin{aligned}
+            f_{Z}(z) &= f_{X} * f_{Y}\\
+            &= \int_{-\infty}^{\infty} |y|f(yz, y)\mathrm{dy}
+        \end{aligned}
+        \)\\
+        \hline
+        \(Z = max(X, Y)\) & 
+        \(
+        \begin{aligned}
+            F_{max}(z) &= P(max(X, Y) \leq z) \\
+            &= P(X \leq z, Y \leq z) \\
+            &= F_{X}(z) \cdot  F_{Y}(z)(X,Y\text{相互独立时}) \\
+            f_{max}(z) &= \frac{dF_{Z}(z)}{dz}
+        \end{aligned}
+        \)\\
+        \hline
+        \(Z = min(X, Y)\) & 
+        \(
+        \begin{aligned}
+            F_{min}(z) &= P(min(X, Y) \leq z) \\
+            &=1 -  P(X \geq z, Y \geq z) \\
+            &= 1 - (1 - P(X \leq z))(1 - P(Y \leq z)) \\
+            & = 1 - (1 - F_{X}(z))(1 - F_{Y}(z))
+        \end{aligned}
+        \)\\
+        \hline
+    \end{tabular}
+
 
 \end{tablebox}
 
 \begin{conclusion}{二重换元法}{double substitution method}
+    若\((X, Y) \sim f(x, y)\),若\(\begin{cases}
+        u = u(x, y)
+        v = v(x, y)
+    \end{cases}\)具有一阶连续偏导数，且存在唯一的反函数\(\begin{cases}
+        x = x(u, v)
+        y = y(u, v)
+    \end{cases}\)
+    又
+    \[
+        J = \frac{\partial(x, y)}{\partial(u , v)} = 
+        \begin{vmatrix}
+            \frac{\partial x}{\partial u} & \frac{\partial x}{\partial v} \\
+            \frac{\partial y}{\partial u} & \frac{\partial y}{\partial v} \\
+        \end{vmatrix} 
+        \neq 0
+    \]
+    则\((X, Y)\)的函数\(
+        \begin{cases}
+            U = u(x, y)
+            V = v(x, y)
+        \end{cases}
+    \)的联合概率密度为
+    \[
+        f_{U, V}(u, v) = f[x(u, v), y(u, v)] \cdot |J|
+    \]
+    U的概率密度为
+    \[
+        f_{U}(u) = \int_{-\infty}^{\infty} f_{U, V}(u, v) \mathrm{dv}
+    \]
+    V的概率密度为
+    \[
+        f_{V}(v) = \int_{-\infty}^{\infty} f_{U, V}(u, v) \mathrm{du}
+    \]
 
 \end{conclusion}
 
@@ -311,3 +519,13 @@
     \end{enumerate}
     上述结论对$n$个变量也成立
 \end{conclusion}
+
+\subsection{一些其他技巧}
+\begin{mydef}{\(min\)与\(max\)的经典形式}{min max classic form}
+    \[
+        \begin{aligned}
+            max(X, Y) &= \frac{1}{2}(X + Y + |X - Y|) \\
+            min(X, Y) &= \frac{1}{2}(X + Y - |X - Y|)
+        \end{aligned}
+    \]
+\end{mydef}

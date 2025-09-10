@@ -120,7 +120,7 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
     %对齐左边
     % \raggedleft
     \centering
-    \scalebox{0.94}{
+    \scalebox{0.92}{
     \begin{tabular}{|p{1.2cm}|c|c|c|}
         \hline
         \text{名字} & 符号 & 分布函数 & 概率密度函数 \\
@@ -167,6 +167,7 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
         \end{aligned}
         $ \\
         \hline
+
     \end{tabular}
     }
     \label{tab:continuous_random_variable}
@@ -251,6 +252,17 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
             0, & \text{其他}
         \end{cases}
         $$
+        其中$\alpha$为$Y$的下限，$\beta$为$Y$的上限。 \\
+        \(
+        \alpha = \mathrm{min}\{\lim\limits_{x \to a^{+}}g(x),
+        \lim\limits_{x \to b^{-}}g(x)
+        \}
+        \),
+        \(
+        \beta = \mathrm{max}\{\lim\limits_{x \to a^{-}}g(x),
+        \lim\limits_{x \to b^{+}}g(x)
+        \}
+        \)
 
     \end{enumerate}
 
@@ -268,5 +280,26 @@ $$
     在$X$中发生$Y$的比例为$\alpha$，\\
     $Y$的分布为$P(\alpha \lambda)$ ,   
     则$P(Y = k) = \frac{(\lambda \alpha)^k e^{-\lambda \alpha}}{k!}$
+\end{conclusion}
+
+\begin{conclusion}{标准柯西分布}{standard cauchy distribution}
+\(X \sim \mathrm{Cauchy}(0, 1)\)\\
+\(F(x) = \frac{1}{\pi} \arctan x\)\\
+\(f(x) = \frac{1}{\pi (1 + x^2)}\)
+标准柯西分布即是自由度为1的t分布,\(X \sim t(1)\),其\(EX,DX\)均不存在
+\end{conclusion}
+
+\begin{conclusion}{几何分布与指数分布的无记忆性}{geometric distribution and exponential distribution without memory}
+即无论等待了多久，下一个瞬间事件发生的概率（或等待时间）和从头开始等待是完全一样的。过去的等待不会给未来带来任何“积累”或“优势”。\\
+\(P(X > m + n | X > m) = P(X > n)\)
+\end{conclusion}
+
+\begin{conclusion}{两个变换}{two transform}
+\begin{enumerate}
+    \item \(F_{X}(x)\)在\(X\)的正概率密度区间上严格单调递增，若\(X \sim F_{X}(x)\),则
+    \(F_{X}(x) \sim U(0,1)\)
+    \item 设随机变量\(X\)的分布函数\(F_{X}(x)\)连续，且\(F_{X}(x)\)在\(X\)的正概率密度区间上严格单调且
+    \(Y = -\ln[1 - F_{X}(x)]\),随机变量\(Y\)服从指数分布\(E(1)\)
+\end{enumerate}
 \end{conclusion}
 

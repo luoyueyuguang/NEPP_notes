@@ -1,15 +1,82 @@
 \section{随机变量的数字特征}
 \subsection{随机变量的期望与方差}
 \begin{mydef}{随机变量的数学期望}{expectation of random variable}
+    \begin{enumerate}
+        \item 离散型随机变量 \\
+        设随机变量\(X\)的概率分布为
+        \[
+        P(X = x_{i}) = p_{i}, i = 1, 2, \cdots, n
+        \]
+        则\(X\)的数学期望为
+        \[
+        E(X) = \sum_{i=1}^{n} x_{i} p_{i}
+        \]
+        其中无穷级数\(\sum_{i=1}^{n} x_{i} p_{i}\)绝对收敛
+
+
+        \item 连续型随机变量 \\
+        设随机变量\(X\)的概率密度函数为\(f(x)\),
+        则\(X\)的数学期望为
+        \[
+        E(X) = \int_{-\infty}^{+\infty} x f(x) \mathrm{dx}
+        \]
+        其中积分\(\int_{-\infty}^{+\infty} x f(x) \mathrm{dx}\)绝对收敛
+    \end{enumerate}
+    \(E(X)\)是一个实数且完全由\(X\)的概率分布来确定
 \end{mydef}
 \begin{conclusion}{随机变量的数学期望的性质}{expectation of random variable properties}
+    \begin{enumerate}
+        \item \(C\)为常数，\(E(C) = C\)
+        \item \(C\)为常数，\(E(CX) = CE(X)\)
+        \item \(E(X \pm Y) = E(X) \pm E(Y)\)
+        \item 若\(X,Y\)相互独立，\(E(XY) = E(X)E(Y)\)
+    \end{enumerate}
 
 \end{conclusion}
 \begin{mydef}{随机变量函数的数学期望}{expectation of random variable function}
+    \begin{enumerate}
+        \item \(Y = g(X)\)为随机变量\(X\)的函数\\
+        设\(X\)是离散型随机变量，\(g(x)\)是一个连续函数，则\(Y = g(X)\)的数学期望为
+        \[
+        E(Y) =E(g(X)) \sum_{i=1}^{n} g(x_{i}) p_{i}
+        \]
+        设\(X\)为连续型随机变量，\(f(x)\)为随机变量\(X\)的概率密度函数，\(Y = g(X)\)的数学期望为
+        \[
+        E(Y) = E(g(X)) = \int_{-\infty}^{+\infty} g(x) f(x) \mathrm{dx}
+        \]
+        其中积分\(\int_{-\infty}^{+\infty} g(x) f(x) \mathrm{dx}\)绝对收敛
+        \item \(Z=g(X, Y)\)为\((X, Y)\)的随机变量函数 \\
+        \((X, Y)\)为二维离散型随机变量，\(g(x, y)\)是一个连续函数，则\(Z=g(X, Y)\)的数学期望为
+        \[
+        E(Z) = E(g(X, Y)) = \sum_{i=1}^{n} \sum_{j=1}^{m} g(x_{i}, y_{j}) p_{i, j}
+        \]
+        其中无穷级数\(\sum_{j=1}^{m} g(x_{i}, y_{j}) p_{i, j}\)收敛 \\
+        \((X, Y)\)为二维连续型随机变量，\(g(x, y)\)是一个连续函数，则\(Z=g(X, Y)\)的数学期望为
+        \[
+        E(Z) = E(g(X, Y)) = \int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} g(x, y) f(x, y) \mathrm{dx} \mathrm{dy}
+        \]
+        其中积分\(\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} g(x, y) f(x, y) \mathrm{dx} \mathrm{dy}\)绝对收敛
+    \end{enumerate}
 \end{mydef}
 
 \begin{mydef}{方差与标准差}{variance and standard deviation}
-
+    \begin{enumerate}
+        \item 方差 \\
+        设随机变量\(X\)的数学期望为\(E(X)\),
+        则\(X\)的方差为
+        \[
+        D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
+        \]
+        \item 标准差 \\
+        方差的算术平方根为标准差或均方差
+        \[
+        \sigma(X) = \sqrt{D(X)}
+        \]
+        记作\(\sigma(X)\)
+    \end{enumerate}
+    称\(X^{*} = \frac{X - E[X]}{\sigma(X)}\)为随机变量\(X\)的标准化随机变量\\
+    \(E(X^*) = 0\),
+    \(D(X^*) = 1\)
 \end{mydef}
 
 \begin{formula}{方差公式}{variance formula}
@@ -19,15 +86,49 @@ D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
 \end{formula}
 
 \begin{conclusion}{方差性质}{variance properties}
-
+    \begin{enumerate}
+        \item \(C\)为常数，\(D(C) = 0\), \(D(X) = 0\)的充分必要条件是\(X\)以概率\(1\)取
+        常数\(C\),即\(P(X = C) = 1, C = E(X)\)
+        \item \(C\)为常数，\(D(CX) = C^2D(X)\)
+        \item \(C\)为常数，\(D(X + C) = D(X)\)
+        \item \(D(X \pm Y) = D(X) + D(Y) \pm 2\mathrm{Cov}(X, Y)\) \\
+        若\(X,Y\)相互独立，\(D(X \pm Y) = D(X) + D(Y)\)
+    \end{enumerate}
 \end{conclusion}
 
 \begin{tablebox}{常见随机变量的数学期望与方差}
+    \scalebox{1.15}{
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        分布 & 符号 & 期望 & 方差 & 标准差 \\
+        \hline
+        \(0-1\)分布 & \(X \sim (0, 1)\) & \(p\) & \(p(1 - p)\) & \(\sqrt{p(1 - p)}\) \\
+        \hline
+        二项分布
+        & \(X \sim B(n, p)\) & \(np\) & \(np(1 - p)\) & \(\sqrt{np(1 - p)}\) \\
+        \hline
+        泊松分布 & \(X \sim P(\lambda)\) & \(\lambda\) & \(\lambda\) & \(\sqrt{\lambda}\) \\
+        \hline
+        几何分布 & \(X \sim G(p)\) & \(\frac{1}{p}\) & \(\frac{1 - p}{p^2}\) & \(\sqrt{\frac{1 - p}{p^2}}\) \\
+        \hline
+        均匀分布 & \(X \sim U(a, b)\) & \(\frac{a + b}{2}\) & \(\frac{(b - a)^2}{12}\) & \(\frac{b - a}{\sqrt{12}}\) \\
+        \hline
+        指数分布 & \(X \sim E(\lambda)\) & \(\frac{1}{\lambda}\) & \(\frac{1}{\lambda^2}\) & \(\frac{1}{\lambda}\) \\
+        \hline
+        正态分布 & \(X \sim N(\mu, \sigma^2)\) & \(\mu\) & \(\sigma^2\) & \(\sigma\) \\
+        \hline
+    \end{tabular}
+    }
+
 \end{tablebox}
 
 \subsection{协方差与相关系数}
 \begin{mydef}{协方差}{covariance}
-
+设\(X,Y\)是二维随机变量，如果\(E[E(X - E(X))(Y - E(Y))]\)存在，则称它为
+随机变量\(X\)与\(Y\)的协方差,记作
+\[
+\mathrm{Cov}(X, Y) = E[(X - E[X])(Y - E[Y])] = E(XY) - E(X)E(Y) 
+\]
 \end{mydef}
 
 \begin{formula}{协方差公式}{covariance formula}
@@ -42,28 +143,133 @@ D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
 \end{formula}
 
 \begin{conclusion}{协方差的性质}{covariance properties}
-
+    \begin{enumerate}
+        \item \(\mathrm{Cov}(X, Y) = \mathrm{Cov}(Y, X)\)
+        \item \(\mathrm{Cov}(X, X) = D(X)\)
+        \item \(\mathrm{Cov}(aX, bY) = a b \mathrm{Cov}(X, Y)\)
+        \item \(\mathrm{Cov}(X + Y, Z) = \mathrm{Cov}(X, Z) + \mathrm{Cov}(Y, Z)\)
+        \item \(\mathrm{Cov}(X, Y) = 0\)的充分必要条件是\(X\)与\(Y\)相互独立
+    \end{enumerate}
 \end{conclusion}
 
 \begin{mydef}{相关系数}{correlation coefficient}
-
+    如果\(X, Y\)的方差都存在且不为零，
+    则
+    \[
+    \rho(X, Y) = \frac{\mathrm{Cov}(X, Y)}{\sqrt{D(X)D(Y)}}
+    \]
+    为随机变量\(X\)与\(Y\)的相关系数.
 \end{mydef}
 
 \begin{conclusion}{相关系数的性质}{correlation coefficient properties}
-
+\begin{enumerate}
+    \item \(|\rho(X, Y)| \leq 1\)
+    \item \(\rho(X, Y) = 1\)的充分必要条件是存在常数\(a,b\),\\使得\(P(Y = aX + b) = 1\)
+\end{enumerate}
 \end{conclusion}
 
 \begin{conclusion}{\(X\)与\(Y\)不相关的结论}{conclusion of X and Y are uncorrelated}
-
+    若\(\rho(X, Y) = 0\quad(\text{即}\mathrm{Cov(X, Y) = 0})\),则\(X\)与\(Y\)不相关.
+    \begin{enumerate}
+        \item 若随机变量\(X\)与\(Y\)独立，则\(X\)与\(Y\)一定不相关，若\(X\)与\(Y\)不相关，则\(X\)与\(Y\)不一定独立
+        \item 若\((X, Y)\)服从二维正态分布，则\(X\)与\(Y\)独立的充要条件是\(X\)与\(Y\)不相关
+        \item 若\(X\)与\(Y\)服从\(0-1\)分布，则\(X\)与\(Y\)独立的充要条件是\(X\)与\(Y\)不相关
+    \end{enumerate}
+    \[ 
+    \begin{aligned}
+        &X\text{与}Y\text{不相关} \\
+        &\iff \mathrm{Cov}(X, Y) = 0 \\
+        &\iff E(XY) = E(X)E(Y) \\
+        &\iff D(X +Y) = D(X) + D(Y) \\
+     \end{aligned}
+    \]
 \end{conclusion}
 
 \subsection{随机变量的矩}
 \begin{mydef}{随机变量的矩}{moment of random variable}
+    设\((X, Y)\)是二维随机变量,如果\(E(X^kY^l)\)存在，
+    则称\(E(X^k)\)为\(X\)的\(k\)阶原点矩,
+    称\(E(X - EX)^k\)为\(X\)的\(k\)阶中心矩.
+    称\(E(X^kY^l)\)为\(X\)的\(k\)阶\(l\)阶混合原点矩.
+    称\(E[(X - EX)^k(Y - EY)^l]\)为\(X\)与\(Y\)的\(k + l\)阶混合中心矩
+\end{mydef}
+
+\begin{mydef}{矩母函数}{moment generating function}
+    随机变量 X 的矩母函数\(M(t)\) 定义为
+    \[
+    M(t) = E[et^X] = \begin{cases}
+    \int_{-\infty}^{\infty} et^x f(x) dx \\
+    \sum_{x}e^{tx}p(x)
+    \end{cases}
+    \]
+    矩可以通过其导数得到.例如,
+    \[
+    E(X^k) = M'(t)^k
+    \]
 \end{mydef}
 
 \begin{tablebox}{矩母函数}
+    \centering
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|}
+        \hline
+        原分布 & 矩母函数 \\
+        \hline
+        0-1分布 & \(M_X(t) = 1 - p + p\mathrm{e}^t\) \\
+        \hline
+        二项分布 & \(M_X(t) = (1 - p + pe^t)^n\) \\
+        \hline
+        几何分布 & \(M_X(t) = \frac{pe^t}{1 - (1 - p)e^{t}}\) \\
+        \hline
+        泊松分布 & \(M_X(t) = \mathrm{e}^{\lambda(e^t - 1)}\) \\
+        \hline
+        均匀分布 & \(M_X(t) = \frac{1}{b -a} \cdot \frac{e^{tb} - e^{ta}}{t}\) \\
+        \hline
+        指数分布
+        & \(M_X(t) = \frac{\lambda}{\lambda - t}, (t < \lambda)\) \\
+        \hline
+        正态分布 & \(M_X(t) = \mathrm{e}^{\frac{\sigma^2 t^2}{2} + \mu t}\) \\
+        \hline
+    \end{tabular}
+    }
 \end{tablebox}
+
+\subsection{条件期望}
+\begin{formula}{条件期望的定义}{conditional expectation definition}
+    \[
+        E(X | Y = y) = \sum_{i}x_iP(X = x_i | Y = y) = \int_{-\infty}^{\infty} x f(x | y) dx
+    \]
+    \[
+        E(Y | X = x) = \sum_{i}y_iP(Y = y_i | X = x) = \int_{-\infty}^{\infty} y f(y | x) dy
+    \]
+\end{formula}
+
+\begin{formula}{重期望公式}{reduction expectation formula}
+    \[
+        E(X) = E(E(X|Y))
+    \]
+\end{formula}
+
+\begin{conclusion}{条件期望的一些性质}{conditional expectation property}
+    \begin{enumerate}
+        \item \(D(X) = E(D(X|Y)) + D(E(X|Y))\)
+        \item \(E[f(Y)|Y]=f(Y)\)
+        \item \(E[g(X)Y|X] = g(X)E[Y|X]\)
+        \item \(E(XY)=E[X\cdot E(Y|X)]\)
+        \item \(Cov[X,E(Y|X)]=Cov(X,Y)\)
+    \end{enumerate}
+\end{conclusion}
 
 \subsection{一些技巧}
 \begin{conclusion}{对形如\(f(x) = A\mathrm{e}^{-(ax^2 + bx + c)}\)的处理}{some trick about one}
+    尝试着向正态分布靠拢 \\
+    即\(A = \frac{1}{\sqrt{2\pi}\sigma}\) \\
+    \(-(ax^2 + bx + c) = -\frac{(x -\mu)^2}{2\sigma^2}\) \\
+    \(-(ax^2 + bx + c)\)可以配方为\(\frac{1}{2\sigma^2}(x - \mu)^2 + k\) \\
+    即得\\
+    \(
+        \sigma^2 = \frac{1}{2a},
+        \mu = -\frac{b}{2a},
+        k = \frac{b^2}{4a} - c
+    \)
 \end{conclusion}

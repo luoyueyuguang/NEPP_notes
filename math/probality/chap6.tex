@@ -1,0 +1,184 @@
+\section{数理统计概念}
+\subsection{统计量及其数字特征}
+\begin{mydef}{总体与样本}{population and sample}
+    总体是指待研究的对象的集合，样本是指从总体中抽取的部分对象.
+    设总体为\(X\)，与\(X\)同分布的随机变量\(X_1,X_2,\cdots,X_{n}\)称为
+    样本。\(n\)为样本容量。\(x_1,x_2,\cdots,x_n\)分别是\(X_1, X_2, \cdots, X_n\)的
+    观测值，则称\(x_1,x_2,\cdots,x_n\)为样本观测值.
+\end{mydef}
+
+\begin{conclusion}{样本的概率分布}{sample probability distribution}
+    \begin{enumerate}
+        \item 分布函数 \\
+        总体\(X\)分布函数为\(F(x)\)，则样本分布函数为
+        \[
+            F(x_1, x_2, \cdots, x_n) =  \prod \limits_{i = 1}^{n} F(x_{i})
+        \]
+        \item 概率密度函数 \\
+        总体\(X\)概率密度函数为\(f(x)\)，则样本概率密度函数为
+        \[
+            f(x_1, x_2, \cdots, x_n) =  \prod \limits_{i = 1}^{n} f(x_{i})
+        \]
+        \item 联合概率分布 \\
+        总体\(X\)联合概率分布为\(P(X = x_i) = p(x_i)\)，则样本联合概率分布为
+        \[
+            P(X_1 = x_1, X_2 = x_2, \cdots, X_n = x_n) =  \prod \limits_{i = 1}^{n} P(X_i = x_i)
+        \]
+    \end{enumerate}
+\end{conclusion}
+
+\begin{mydef}{统计量}{statistic variable}
+    设\(X_1, X_2, \cdots, X_n\)为样本，\(g(X_1, X_2, \cdots, X_n)\)是
+    \(X_1, X_2, \cdots, X_n\)的函数，则称\(g(X_1, X_2, \cdots, X_n)\)为统计量.其中\(g\)不含任何未知参数
+\end{mydef}
+
+\begin{conclusion}{常用统计量}{common statistic variable}
+    \begin{enumerate}
+        \item 样本均值 \\
+        \(\overline{X} = \frac{1}{n} \sum \limits_{i = 1}^{n} X_i\)
+        \item 样本方差 \\
+        \(S^2= \frac{1}{n - 1} \sum \limits_{i = 1}^{n} (X_i - \overline{X})^2\)
+        \item 样本标准差 \\
+        \(S = \sqrt{\frac{1}{n - 1} \sum \limits_{i = 1}^{n} (X_i - \overline{X})^2}\)
+        \item 样本\(k\)阶原点矩 \\
+        \[
+            A_k = \frac{1}{n} \sum \limits_{i = 1}^{n} X_i^k
+        \]
+        \item 样本\(k\)阶中心矩 \\
+        \[
+            B_k = \frac{1}{n} \sum \limits_{i = 1}^{n} (X_i - \overline{X})^k
+        \]
+        \item 顺序统计量,即 \\
+        样本最大值 ~
+        \(\max(X_1, X_2, \cdots, X_n)\) \\
+        样本最小值 ~
+        \(\min(X_1, X_2, \cdots, X_n)\)
+    \end{enumerate}
+    无论什么分布，期望与方差均存在，则总有
+    \[
+        \begin{aligned}
+        E(\overline{X}) = E(X) = \mu, &D(\overline{X}) = \frac{D(X)}{n} = \frac{\sigma^2}{n} \\
+        E(S^2) =& D(S) = \sigma^2, 
+        \end{aligned}
+    \]
+\end{conclusion}
+
+\subsection{抽样分布}
+\begin{mydef}{\(\chi^2\)分布}{chi2 distribution}
+    设\(X_1, X_2, \cdots, X_n\)为独立随机变量，且均服从标准正态分布，
+    则\(\chi^2\)分布为
+    \[
+        \chi^2 = \sum \limits_{i = 1}^{n} X_i^2
+    \]
+    \(\chi^2(n)\)中的n为自由度
+    对于给定的\(\alpha\),称满足
+    \[
+        P(\chi^2 > \chi^2_{\alpha}(n)) = \alpha
+    \]
+    其中\(\chi^2_{\alpha}\)为\(\chi^2\)分布的上\(\alpha\)分位数.
+\end{mydef}
+
+\begin{conclusion}{\(\chi^2\)分布的性质}{chi2 distribution property}
+    \begin{enumerate}
+        \item \(E(\chi^2) = n, D(\chi^2) = 2n.\) 
+        \item 可加性, \(\chi_1^2 \sim  \chi^2(n_1), \chi_2^2 \sim  \chi^2(n_2)\), ~若\(\chi_{1}^2, \chi_2^2\)相互独立，则\(\chi_1^2 + \chi_2^2 \sim  \chi^2(n_1 + n_2)\)
+    \end{enumerate}
+\end{conclusion}
+
+\begin{mydef}{t分布}{t distribution}
+    设\(X \sim N(0, 1)\), \(Y \sim \chi^2(n)\), 则\(t = \frac{X}{\sqrt{Y/n}}\)服从t分布.记作\(t(n)\),\(t\)分布密度函数关于\(X = 0\)对称，
+    对于给定的\(\alpha\),称满足
+    \[
+        P(t > t_{\alpha}(n)) = \alpha
+    \]
+    其中\(t_{\alpha}(n)\)为\(t(n)\)分布的上\(\alpha\)分位数.因为\(t\)分布密度函数对称,所以\(t_{1 - \alpha}(n) = -t_{\alpha}(n)\)
+\end{mydef}
+
+\begin{conclusion}{t分布的性质}{t distribution property}
+    \begin{enumerate}
+        \item \(E(t) = 0 \),
+        \item \(\lim\limits_{n \to \infty}f(t) = \frac{1}{\sqrt{2\pi}} \mathrm{e}^{-t^2/2}\)
+        \item \(t \sim t(n), t^2 \sim F(1, n)\)
+    \end{enumerate}
+\end{conclusion}
+
+
+\begin{mydef}{F分布}{f distribution}
+    设\(X \sim \chi^2(n_1)\), \(Y \sim \chi^2(n_2)\), 则\(F = \frac{X/n_1}{Y/n_2}\)服从F分布.记作\(F(n_1, n_2)\),
+    其中\(n_1, n_2\)为自由度.\\
+    对于给定的\(\alpha\),称满足
+    \[
+        P(F > F_{\alpha}(n_1, n_2)) = \alpha
+    \]
+    其中\(F_{\alpha}(n_1, n_2)\)为\(F(n_1, n_2)\)分布的上\(\alpha\)分位数.
+\end{mydef}
+
+\begin{conclusion}{F分布的性质}{f distribution property}
+    \begin{enumerate}
+        \item \(F \sim F(n_1, n_2), \frac{1}{F} \sim F(n_2, n_1)\)
+        \item \(F_{1-\alpha}(n_1, n_2) = \frac{1}{F_{\alpha}(n_2, n_1)}\)
+    \end{enumerate}
+\end{conclusion}
+
+\subsection{正态总体的样本均值与方差的分布}
+\begin{conclusion}{单个正态总体}{single normal population sample mean distribution}
+    \begin{enumerate}
+        \item \(\overline{X}\),\text{样本均值} \\
+        \[
+        \begin{aligned}
+            &\overline{X} \sim N(\mu, \frac{\sigma^2}{n}) \\
+            &\frac{\overline{X} - \mu}{\frac{\sigma}{\sqrt{n}}} 
+            = \frac{\sqrt{n}(\overline{X} - \mu)}{\sigma} \sim N(0, 1) \\
+            &\frac{\overline{X} - \mu}{\frac{S}{\sqrt{n}}}\frac{\sqrt{n}(\overline{X} - \mu)}{S} 
+            \sim t(n - 1) \\
+        \end{aligned}
+        \]
+        \item \(\frac{S^2}{\sigma^2}\),\text{样本方差} \\
+        \[
+        \begin{aligned}
+            & \frac{1}{\sigma^2} \sum \limits_{i = 1}^{n} (X_i - \mu)^2 \sim \chi^2(n) \\
+            &\frac{(n-1)S^2}{\sigma^2} \sim \chi^2(n - 1) \\
+        \end{aligned}
+        \]
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{两个正态总体}{two normal population sample mean distribution}
+    \[
+    \begin{aligned}
+        &\overline{X} = \frac{\sum \limits_{i = 1}^{n1} X_i}{n1}, \quad
+        \overline{Y} = \frac{\sum \limits_{i = 1}^{n2} Y_i}{n2} \\
+        &S_X^2 = \frac{\sum \limits_{i = 1}^{n1} (X_i - \overline{X})^2}{n1 - 1}, \quad
+        S_Y^2 = \frac{\sum \limits_{i = 1}^{n2} (Y_i - \overline{Y})^2}{n2 - 1} \\
+        &S_{XY}^2 = \frac{(n_1 -1)S_{X}^2 + (n_2 -1)S_{Y}^2}{n_1 + n_2 -2}
+    \end{aligned}
+    \]
+    \begin{enumerate}
+        \item 样本均值差 \\
+        \[
+        \begin{aligned}
+            &\overline{X} - \overline{Y} \sim N(\mu_1 - \mu_2, \frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}) \\
+            &\frac{\overline{X} - \overline{Y} - (\mu_1 - \mu_2)}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}}
+            \sim N(0, 1) \\
+            &\frac{\overline{X}- \overline{Y}- (\mu_1 - \mu_2)}{S_{XY}\sqrt{\frac{1}{n_1} + \frac{1}{n_2}}} 
+            \sim t(n_1 + n_2 - 2) \quad (\sigma_1^2 = \sigma_2^2)
+        \end{aligned}
+        \]
+        \item 样本方差比 \\
+        \[
+        \begin{aligned}
+            & F = \frac{S_X^2/\sigma_1^2}{S_Y^2/\sigma_2^2} \sim F(n_1 - 1, n_2 - 1) \\
+            &\frac{(n_1 + n_2 - 2)S_{XY}^2}{\sigma^2} \sim \chi^2(n_1 + n_2 -2)
+        \end{aligned}
+        \]
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{\(X(n) = max(X_1, X_2, \cdots , X_{n})\)\\与\(X(n) = min(X_1,X_2,\cdots,X_n)\)}{min and max distribution}
+    \[
+        \begin{aligned}
+            &F_{max}(x)  = P(max(X_1, X_2, \cdots, X_n) \leq x)  = [F(X)]^n \\
+            &F_{min}(x)  = P(min(X_1, X_2, \cdots, X_n) \geq x)  = 1 - [1 - F(X)]^n
+        \end{aligned}
+    \]
+\end{conclusion}

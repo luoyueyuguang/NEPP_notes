@@ -121,7 +121,7 @@
 }{fo}
 
 %加入结论box
-\newtcbtheorem[number within=subection]{conclusion}{结论}%
+\newtcbtheorem[number within=section]{conclusion}{结论}%
 {
 	colback=blue!5,colframe=blue!50!black,fonttitle=\bfseries,
 	  breakable,
@@ -154,14 +154,13 @@
 
 \begin{document}
 \maketitle
-
 \part{微积分}
 %给出这个part的目录
 \input{calculus/calculus.tex}
 
-\part{线性代数}
+% \part{线性代数}
 %给出这个part的目录
-\input{algebra/algebra.tex}
+% \input{algebra/algebra.tex}
 
 
 % 导入概率论章节

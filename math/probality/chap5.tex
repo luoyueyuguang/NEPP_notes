@@ -1,0 +1,96 @@
+\section{大数定律与中心极限定理}
+\subsection{大数定律}
+\begin{mydef}{依概率收敛}{converge as probability}
+    设\(Y_{1}, Y_{2}, \dots\)是随机变量序列，若\(\lim_{n \to \infty} P\{|Y_{n} - a| \leq \varepsilon\} = 1\)，则称\(Y_{1}, Y_{2}, \dots\)依概率收敛于\(a\)，记作\(Y_{n} \overset{p}{\to} a\)。
+    \\
+    若\(X_{n} \overset{p}{\to} a\)，\(Y_{n} \overset{p}{\to} b\),且函数在点\((a, b)\)
+    连续，则\(g(X_n, Y_n) \overset{p}{\to} g(a, b)\)
+\end{mydef}
+
+\begin{mydef}{切比雪夫不等式}{chebyshev inequality}
+    设随机变量\(X\)的数学期望为\(E(X)\)，则对任意\(\varepsilon > 0\)，有
+    \[
+        \begin{aligned}
+        &P\{|X - E(X)| \geq \varepsilon\} \leq \frac{D(X)}{\varepsilon^2} \\
+        &P\{|X - E(X)| \leq \varepsilon\} \geq 1 - \frac{D(X)}{\varepsilon^2}
+        \end{aligned}
+    \]
+\end{mydef}
+
+\begin{mydef}{切比雪夫大数定律}{law of large numbers c}
+若随机变量
+\begin{enumerate}
+    \item 独立
+    \item \(E(X)\)和\(D(X)\)都存在，且\(D(X_i) \leq c\)
+\end{enumerate}
+则有
+\[
+    \lim\limits_{n \to \infty} P(|\frac{1}{n} \sum_{i=1}^{n}X_{i} - \frac{1}{n}\sum_{i}^{n}E(X_i)| < \varepsilon) = 1
+\]
+\end{mydef}
+
+\begin{mydef}{伯努利大数定律}{law of large numbers b}
+    若随机变量\(X_{n}\)服从参数为\(n\)和\(p\)的二项分布，即\(X_{n} \sim B(n, p)\)，
+    \(\mu_{n}\)是\(n\)次试验中事件\(A\)发生的次数，则对任意\(\varepsilon > 0\)，有
+    \[
+        \lim\limits_{n \to \infty} P(|\frac{\mu_{n}}{n} - p| < \varepsilon) = 1
+    \]
+\end{mydef}
+   
+\begin{mydef}{辛钦大数定律}{law of large numbers x}
+    若随机变量
+    \begin{enumerate}
+        \item 独立 
+        \item 期望存在，\(\mu\)为共同的期望
+    \end{enumerate}
+    则对任意\(\varepsilon > 0\)
+    \[
+        \lim\limits_{n \to \infty} P(|\frac{1}{n} \sum_{i=1}^{n}X_{i} - \mu| < \varepsilon) = 1
+    \]
+\end{mydef}
+
+\begin{conclusion}{大数定律的实质}{law of large numbers essence}
+    大数定律实质即\(\overline{X_{n}}\)依概率收敛于\(E(\overline{X_n})\)
+    即
+    \[
+        \overline{X_{n}} \overset{P}{\to} E(\overline{X_{n}})
+    \]
+\end{conclusion}
+\subsection{中心极限定理}
+\begin{mydef}{列维林德伯格定理}{law of large numbers l}
+    若随机变量
+    \begin{enumerate}
+        \item 独立 
+        \item 期望存在，\(\mu\)为共同的期望
+        \item 方差存在，\(\sigma^2\)为共同的方差
+    \end{enumerate}
+    则对任意实数\(x\)，有
+    \[
+        \lim\limits_{n \to \infty} P(\frac{1}{\sigma \sqrt{n}} (\sum_{i=1}^{n}X_{i} - n\mu) \leq x) = \Phi(x) 
+    \]
+    即\(n\)很大时，近似服从正态分布\(N(n\mu, \mu \sigma^2)\)
+\end{mydef}
+
+\begin{mydef}{棣莫夫拉普拉斯定理}{laplace theorem}
+    设随机变量\(Y_n\)服从参数为\(n, p\)的二项分布，即\(Y_n \sim B(n, p)\)，
+    则对任意实数\(x\)，有
+    \[
+        \lim\limits_{n \to \infty} P(\frac{Y_n - np}{\sqrt{np(1-p)}}  \leq x) = \Phi(x)
+    \]
+    即\(n\)很大时，近似服从正态分布\(N(np, np(1-p))\)
+\end{mydef}
+
+\begin{conclusion}{中心极限定理的实质}{central limit theorem essence}
+    大数定律研究的是值的收敛，中心极限定理研究的是分布的收敛，
+    即\(n\)很大时，\(Y_n\)的分布近似服从正态分布.
+    因此我们可以对\(Y_n\)进行标准化，即
+    \[
+        \lim\limits_{n \to \infty} P(\frac{\sum_{i=1}^{n}X_{i} - n\mu}{\sqrt{n} \sigma} \leq x) = \Phi(x)
+    \]
+\end{conclusion}
+
+\subsection{其他事项}
+\begin{conclusion}{大数定律与中心极限定理的一些说明}{law of large numbers and central limit theorem strength}
+    大数定律与中心极限定理都只是一个猜测，如果题目中有更准确的方法能计算出值，则使用更准确的方法.
+    \\以上的大数定律可以说条件由弱到强，条件越来越严格
+\end{conclusion}
