@@ -1,0 +1,801 @@
+\section{微分方程}
+\subsection{基本概念}
+\begin{mydef}{常微分方程}{ODE}
+    含有自变量、自变量的未知函数、未知函数的导数或微分的方程称为微分方程。
+    当未知函数是一元函数时，称为常微分方程。
+\end{mydef}
+
+\begin{mydef}{线性微分方程与非线性微分方程}
+    以未知函数及其各阶导数的线性多项式形式(即幂次为\(1\))出现的微分方程，称为线性微分方程，否则称为非线性微分方程。
+\end{mydef}
+
+\begin{mydef}{微分方程的阶}{ODEOrder}
+    设$F(x,y,y',\cdots,y^{(n)})$为$x,y$及其导数的一个函数，$y=y(x)$为未知函数，则方程
+    \[
+        F(x,y,y',\cdots,y^{(n)})=0
+    \]
+    其中$n$称为该方程的\textbf{阶}。\(F\)是已知的\(n+1\)元函数。
+\end{mydef}
+
+\begin{mydef}{微分方程的解}{ODESolution}
+    若把某函数及其导数代入微分方程后，能使方程成立，则称该函数为该微分方程的一个\textbf{解}。
+    要求解必须在某区间内连续，并且具有与方程阶数相同的连续导数。
+\end{mydef}
+
+\begin{mydef}{微分方程的通解和特解}{ODESolution}
+    含有任意常数的解称为该微分方程的\textbf{通解}，不含任意常数的解称为该微分方程的\textbf{特解}。
+\end{mydef}
+
+\begin{mydef}{微分方程的初值问题}{ODEIVP}
+    能确定通解中的任意常数的条件称为定解条件，初始条件是定解条件的一种，初始条件的形式与方程的阶数有关。\\
+    一般说
+    以\(x\)为自变量，以\(y(x)\)为未知函数的\(n\)阶微分方程的初始条件为
+    \[y|_{x=x_0}=y_0
+    ,y'|_{x=x_0}=y_1,\cdots,y^{(n-1)}|_{x=x_0}=y_{n-1}\]
+    其中\(x_0,y_0,y_1,\cdots,y_{n-1}\)是给定的常数。
+    由微分方程及初始条件所组成的方程组称为该微分方程的\textbf{初值问题}。即联立式
+    \[
+        \begin{cases}
+            F(x,y,y',\cdots,y^{(n)})=0 \\
+            y|_{x=x_0}=y_0,y'|_{x=x_0}=y_1,\cdots ,y^{(n-1)}|_{x=x_0}=y_{n-1}
+        \end{cases}
+    \]
+\end{mydef}
+
+\subsection{一阶微分方程}
+\begin{mydef}{变量可分离的微分方程}{SeparableODE}
+    形如
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x} = f(x)g(y)
+    \]
+    的微分方程称为变量可分离的微分方程。 \\
+\end{mydef}
+\begin{conclusion}{变量可分离的微分方程的解法}{SeparableODESolution}
+   其解法为分离变量法，即将\(y\)的函数与\(\mathrm{d}y\)放在等式一边，\(x\)的函数与\(\mathrm{d}x\)放在等式另一边，然后对两边积分。
+    即
+    \[
+        \begin{aligned}
+        \frac{\mathrm{d}y}{\mathrm{d}x} = f(x)g(y) \Leftrightarrow 
+        \frac{\mathrm{d}y}{g(y)} = f(x) \mathrm{d}x
+        \end{aligned}
+    \]
+    积分得
+    \[
+        \int \frac{\mathrm{d}y}{g(y)} = \int f(x) \mathrm{d}x
+        + C
+    \]
+\end{conclusion}
+
+\begin{mydef}{\(y'+p(x)y=q(x)\)的微分方程}{FirstOrderLinearODE}
+    形如
+    \[
+        y' + p(x)y = q(x)
+    \]
+    的微分方程称为一阶线性微分方程。\\
+    其齐次方程为
+    \[
+        y' + p(x)y = 0
+    \]
+\end{mydef}
+
+\begin{conclusion}{\(y'+p(x)y=q(x)\)的解法}{FirstOrderLinearODESolution}
+    \begin{enumerate}
+        \item 积分因子法\\
+        设\(\mu(x)\)为积分因子，则
+        \[
+            \mu(x)y' + p(x)y = q(x)
+        \]
+        可改写为
+        \[
+            [\mu(x)y]' = q(x)\mu(x)
+        \]
+        积分得
+        \[
+            \mu(x)y = \int \mu(x)q(x) \mathrm{d}x + C
+        \]
+        其中\(\mu(x)\)为积分因子，\(C\)为任意常数。\\
+        一般取\textbf{\(\mu(x)=e^{\int p(x) \mathrm{d}x}\)}。
+        \item 公式法
+        \[
+            y = \mu(x)^{-1} \left( \int \mu(x) q(x) \mathrm{d}x + C \right)
+        \]
+        将\(mu(x)\)换成\(e^{\int p(x) \mathrm{d}x}\)即得
+        \[
+            y = e^{-\int p(x) \mathrm{d}x} \left( \int e^{\int p(x) \mathrm{d}x} q(x) \mathrm{d}x + C \right)
+        \]
+        相应的齐次方程通解为
+        \[
+            y = e^{-\int p(x) \mathrm{d}x} \left( \int e^{\int p(x) \mathrm{d}x} q(x) \mathrm{d}x + C \right)
+        \]
+    \end{enumerate}
+\end{conclusion}
+
+\begin{mydef}{全微分方程}{ALLODEForm}
+    \(P(x, y)dx + Q(x, y)dy = 0\),存在\(u(x,y)\)，使得
+    \(du = P(x,y)dx + Q(x,y)dy\)\\
+    若在考虑的单连通区域上满足\(\frac{\partial Q}{\partial x} = \frac{\partial P}{\partial y}\),则称其
+    为全微分方程。
+\end{mydef}
+
+\begin{conclusion}{全微分方程的解法}{ODESolutionMethod}
+    主要的方法为求原函数法，即求出\(u(x,y)\)，使得
+    \[du = P(x,y)dx + Q(x,y)dy\]
+    则其通解为\(u(x,y) = C\)，其中\(C\)为任意常数。
+    方法主要有以下三种
+    \begin{enumerate}
+        \item 特殊路径积分法
+        \[
+            u(x,y) = \int_{x_0}^{x} P(t,y_0) \mathrm{d}t + \int_{y_0}^{y} Q(x,t) \mathrm{d}t
+        \]
+        \item 不定积分法 \\
+        由\(\frac{\partial u}{\partial x} = P(x,y)\),对\(x\)积分得
+        \[
+            u(x,y) = \int_{x_0}^{x} P(t,y_0) \mathrm{d}t + C
+        \]
+        对\(y\)求导得
+        \[
+            \frac{\partial u}{\partial y} = Q(x,y) = \frac{\partial}{\partial y}
+            \left( \int_{x_0}^{x} P(t,y_0) \mathrm{d}t + C \right) = \frac{\partial}{\partial y}[\int P(x, y)dy] + C'(y)
+        \]
+        由此解的\(C'(y)\)，再对\(y\)积分得\(C(y)\)，从而得出\(u(x,y)\)。
+        \[
+            u(x,y) = \int_{x_0}^{x} P(t,y_0) \mathrm{d}t + C(y)
+        \]
+        \item 凑微分法
+        \[
+            P(x, y)dx + Q(x, y)dy = \cdots = du
+        \]
+    \end{enumerate}
+\end{conclusion}
+\subsection{简单代换可解的方程}
+\begin{conclusion}{齐次方程的代换}{HomogeneousODE}
+    形如
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x} = \varphi\left(\frac{y}{x}\right)
+    \]
+    的微分方程。\\
+    其解法为变量代换法，令\(u = \frac{y}{x}\)，则\(y = ux\)，代入原方程得
+    \[
+        x\frac{\mathrm{d}u}{\mathrm{d}x} = \varphi(u) -u
+    \]
+    其通解为
+    \[
+        \int \frac{\mathrm{d}u}{\varphi(u) - u} = \int \frac{\mathrm{d}x}{x} + C = ln|x| + C
+    \]
+    这是一个变量可分离的微分方程。
+\end{conclusion}
+
+\begin{conclusion}{伯努利方程}{BernoulliODE}
+    形如
+    \[
+        y' + p(x)y = q(x)y^n (n \neq 0,1)
+    \]
+    的微分方程称为伯努利方程。\\
+    其解法为变量代换法，令\(u = y^{1-n}\)，则
+    \[
+        \frac{\mathrm{d}u}{\mathrm{d}x} = (1-n)y^{-n}y'
+    \]
+    代入原方程得
+    \[
+        \frac{1}{1-n} \frac{\mathrm{d}u}{\mathrm{d}x} + p(x)u = q(x)
+    \]
+    这是一个一阶线性微分方程。
+\end{conclusion}
+
+\begin{conclusion}{\(\frac{\mathrm{dy}}{\mathrm{dx}} = \frac{h(y)}{p(y)x + q(y)}\)类似方程的解法}{FirstOrderLinearODE}
+    形如
+    \[
+        \frac{\mathrm{dy}}{\mathrm{dx}} = \frac{h(y)}{p(y)x + q(y)}
+    \]
+    或
+    \[
+        \frac{\mathrm{dy}}{\mathrm{dx}} = \frac{h(y)}{p(y)x + q(y)x^\alpha}(\alpha \neq 0,1)
+    \]
+    的微分方程。\\
+    其解法为自变量和因变量互换，即颠倒翻转，即化为
+    \[
+        \frac{\mathrm{dx}}{\mathrm{dy}} = \frac{p(y)x + q(y)}{h(y)} = \frac{p(y)}{h(y)}x + \frac{q(y)}{h(y)}
+    \]
+    或
+    \[
+        \frac{\mathrm{dx}}{\mathrm{dy}} = \frac{p(y)x + q(y)x^\alpha}{h(y)} = \frac{p(y)}{h(y)}x + \frac{q(y)}{h(y)}x^\alpha
+    \]
+\end{conclusion}
+
+\begin{tablebox}{可降阶的高阶微分方程}
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        方程形式 & 通解求法 \\
+        \hline
+        \(y^{(n)} = f(x)\) & 
+        经过\(n\)次积分得 \[y = \int \cdots \int f(x) \mathrm{d}x + C_1x^{n-1} + C_2x^{n-2} + \cdots + C_n\] \\
+        \hline
+        \(y'' = f(x, y')\) & 令\(p = y'\)，则\(y'' = p'\)，方程变为
+        \[
+            p'' = f(x, p)
+        \]
+        这是一个一阶微分方程，解出\(p\)后再积分得\(y\)。 \\
+        \hline
+        \(y'' = f(y, y')\) & 令\(p = y'\)，原方程变为
+        \[
+            p\frac{\mathrm{d}p}{\mathrm{d}y} = f(y, p)
+        \]
+        \[
+            y'' = \frac{\mathrm{d^2}y}{\mathrm{d}x^2} = \frac{\mathrm{dp}}{\mathrm{d}x} = \frac{\mathrm{dp}}{\mathrm{d}y} \cdot \frac{\mathrm{dy}}{\mathrm{d}x} = p\frac{\mathrm{dp}}{\mathrm{d}y}
+        \]
+        这是一个一阶微分方程，解出\(p\)后再积分得\(y\)。 \\
+        \hline
+    \end{tabularx}
+\end{tablebox}
+
+\begin{conclusion}{含变限积分得方程得求法}{IntegralFormODE}
+    形如
+    \[
+        y' = f(x, y, \int_{x_0}^{x} g(t, y) \mathrm{d}t)
+    \]
+    的微分方程。\\
+    令
+    \[
+        z = \int_{x_0}^{x} g(t, y) \mathrm{d}t
+    \]
+    则
+    \[
+        z' = g(x, y)
+    \]
+    原方程组变为
+    \[
+        \begin{cases}
+            y' = f(x, y, z) \\
+            z' = g(x, y)
+        \end{cases}
+    \]
+    \newline
+    \newline
+    即步骤为
+    \begin{enumerate}
+        \item 对方程两边求导，得到常微分方程
+        \item 根据上下限与初始条件，进行联立求解
+    \end{enumerate}
+    若通过定积分求变限积分，则将定积分转化为含参变限积分的形式
+\end{conclusion}
+
+\subsection{线性微分方程}
+\begin{mydef}{线性微分方程形式}{ODEForm}
+    一阶线性微分方程解的一般形式为
+    \[
+        y' + p(x)y = f(x)
+    \]
+    二阶线性微分方程解的一般形式为
+    \[
+        y'' + p(x)y' + q(x)y = f(x)
+    \]
+    当右端\(f(x) = 0\)时，称为齐次线性微分方程，否则称为非齐次线性微分方程。\\
+\end{mydef}
+
+\begin{conclusion}{解的性质}{ODEProperty}
+    设\(y_1(x), y_2(x)\)分别是线性微分方程的两个解,即
+    \[
+        y' + p(x)y = f_1(x), 
+        y' + p(x)y = f_2(x), 
+    \]
+    或
+    \[
+        y'' + p(x)y' + q(x)y = f_1(x), 
+        y'' + p(x)y' + q(x)y = f_2(x)
+    \]
+    则\(A_1y_1(x) + A_2y_2(x)\)也是
+    方程\(y' + p(x)y = A_1f_1(x) + A_2f_2(x)\)或
+    \(y'' + p(x)y' + q(x)y = A_1f_1(x) + A_2f_2(x)\)的解
+    \\同时具有以下性质
+    \begin{enumerate}
+        \item 若\(y_1(x), y_2(x)\)是方程的两个特解，则\(y_1(x) + y_2(x)\)也是方程的解。
+        \item 若\(y_1(x), y_2(x)\)是方程的两个特解，则\(y_1(x) - y_2(x)\)是对应的齐次方程的解。
+        \item 齐次方程和非齐次方程的解的和是非齐次方程的解。
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{解的结构}{ODEStructure}
+    设\(y^*\)是非齐次线性微分方程的一个特解，\(y_h\)是对应齐次线性微分方程的通解，则非齐次线性微分方程的通解为
+    \[
+        y = y_h + y^*
+    \]
+    其中\(y_h\)是齐次方程的通解，\(y^*\)是非齐次方程的特解。\\
+    \newline
+    若\(y_1, y_2\)是齐次方程的两个线性无关的解，则齐次方程的通解为
+    \[
+        y = c_1y_1(x) + c_2y_2(x)
+    \]
+    其中\(c_1, c_2\)为任意常数。
+    \\
+    \newline
+    若\(y_1, y_2\)是非齐次方程的两个线性无关的解，则非齐次方程的通解为
+    \[
+        y = c_1y_1(x) + c_2y_2(x) + y^*
+    \]
+    其中\(c_1, c_2\)为任意常数。
+    \newline
+    若\(\exists c_0, c_1, c_2, \cdots, c_n, c_i\)使得
+    \(c_0y_0(x) + c_1y_1(x) + c_2y_2(x) + \cdots + c_ny_n(x) \equiv 0\)
+    且不全为零,则称函数组\(\{y_0, y_1, y_2, \cdots, y_n\}\)在区间\(I\)上线性相关，否则称为线性无关。\\
+    \boxed{\text{注}}
+    这里和线性方程组的知识点极为相似
+\end{conclusion}
+
+\begin{mydef}{二阶常数齐次线性微分方程}{SecondOrderHomogeneousODE}
+    其一般形式为
+    \[
+        y'' + p(x)y' + q(x)y = 0
+    \]
+    其特征方程为
+    \[
+        r^2 + p(x)r + q(x) = 0
+    \]
+    根据判别式\(\Delta = p^2 - 4q\)的值，分为三种情况
+    \begin{enumerate}
+        \item \(\Delta > 0\)，有两个不等实根\(r_1, r_2\)，则通解为
+        \[
+            y = C_1e^{r_1x} + C_2e^{r_2x}
+        \]
+        \item \(\Delta = 0\)，有两个相等实根\(r\)，则通解为
+        \[
+            y = (C_1 + C_2x)e^{rx}  
+        \]
+        \item \(\Delta < 0\)，有两个共轭复根\(\alpha \pm \beta i\)，则通解为
+        \[
+            y = e^{\alpha x}(C_1\cos{\beta x} + C_2\sin{\beta x})
+        \]
+    \end{enumerate}
+\end{mydef}
+
+
+\begin{mydef}{n阶常数齐次线性微分方程}{nOrderHomogeneousODE}
+    其一般形式为
+    \[
+        y^{(n)} + a_{n-1}y^{(n-1)} + \cdots + a_1y' + a_0y = 0
+    \]
+    其特征方程为
+    \[
+        r^n + a_{n-1}r^{n-1} + \cdots + a_1r + a_0 = 0
+    \]
+    特征根与通解的关系与二阶类似
+    \begin{enumerate}
+        \item 若特征方程有\(n\)个互不相同的实根\(r_1, r_2, \cdots, r_n\)，则通解为
+        \[
+            y = C_1e^{r_1x} + C_2e^{r_2x} + \cdots + C_ne^{r_nx}
+        \]
+        \item 若特征方程有重根\(r\)，重数为\(m\)，则通解中对应的部分为
+        \[
+            e^{rx}(C_1 + C_2x + C_3x^2 + \cdots + C_mx^{m-1})
+        \]
+        \item 若特征方程有共轭复根\(\alpha \pm \beta i\)，重数为\(m\)，则通解中对应的部分为
+        \[
+            \begin{aligned}
+            &e^{\alpha x}[(A_1 + A_2x + A_3x^2 + \cdots + A_mx^{m-1})\cos{\beta x}  \\
+            &+ (B_1 + B_2x + B_3x^2 + \cdots + B_mx^{m-1})\sin{\beta x}]
+            \end{aligned}
+        \]
+    \end{enumerate}
+    三阶以上的微分方程大多不可求解，能求解的只是一些特殊情形。
+\end{mydef}
+
+\begin{mydef}{二阶非齐次线性微分方程}{nOrderNonHomogeneousODE}
+    其一般形式为
+    \[
+        y'' + p(x)y' + q(x)y = f(x)
+    \]
+\end{mydef}
+
+\begin{tablebox}{二阶常系数非齐次线性微分方程解的形式(待定系数法)}
+    \begin{tabularx}{\textwidth}{|c|X|}
+            \hline
+            $f(x)$ & $y^*$ \\
+            \hline
+            \(f(x) = P_n(x)\) & $\begin{cases}
+                R_n(x), &\text{特征方程无}0\text{根} \\
+                xR_n(x), &\text{特征方程有}0\text{为单重根} \\
+                x^2R_n(x), &\text{特征方程有}0\text{为重根} \\
+            \end{cases}$ \\
+            \hline
+            \(f(x) = e^{\lambda x}\) & $\begin{cases}
+                Ae^{\lambda x}, &\lambda\text{不是特征根} \\
+                Axe^{\lambda x}, &\lambda\text{是单重特征根} \\
+                A x^2 e^{\lambda x}, &\lambda\text{是重特征根} \\
+            \end{cases}$ \\
+            \hline
+            \(
+            \begin{aligned}
+            &e^{\lambda x}\\
+            &[P_n(x)\sin{\omega x} \\
+            &+ Q_m(x)\cos{\omega x}]
+            \end{aligned}
+            \)
+            & $\begin{cases}
+                e^{\lambda x}[R_l(x)\cos{\omega x} + S_l(x)\sin{\omega x}],&\lambda \pm i\omega\text{不是特征根} \\
+                xe^{\lambda x}[R_l(x)\cos{\omega x} + S_l(x)\sin{\omega x}],&\lambda \pm i\omega\text{是单重特征根} \\
+            \end{cases}$ \\
+            \hline
+        \end{tabularx}
+\end{tablebox}
+
+
+\begin{mydef}{欧拉方程}{EulerEquation}
+    形如
+    \[
+        x^ny^{(n)} + a_{n-1}x^{n-1}y^{(n-1)} + \cdots + a_{n-1}xy' + a_{n}y = f(x)
+    \]的方程称为欧拉方程。\\
+    令\(x = e^t\)，则
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x} = \frac{\mathrm{d}y}{\mathrm{d}t} \cdot \frac{\mathrm{d}t}{\mathrm{d}x} = \frac{1}{x}\frac{\mathrm{d}y}{\mathrm{d}t}
+    \]
+    \[
+        \frac{\mathrm{d^2}y}{\mathrm{d}x^2} = \frac{\mathrm{d}}{\mathrm{d}x}\left(\frac{1}{x}\frac{\mathrm{d}y}{\mathrm{d}t}\right) = -\frac{1}{x^2}\frac{\mathrm{d}y}{\mathrm{d}t} + \frac{1}{x^2}\frac{\mathrm{d^2}y}{\mathrm{d}t^2}
+    \]
+    将这些关系代回欧拉方程，得到了\(n\)阶常系数线性微分方程。
+    令\(x = \pm  e^t\),则\(t = \ln|x|\)，则
+    二阶欧拉方程转化为
+    \[
+        \frac{\mathrm{d^2}y}{\mathrm{d}t^2} + (p - 1)\frac{\mathrm{d}y}{\mathrm{d}t} + qy = f(\pm e^t)
+    \]
+\end{mydef}
+
+
+\subsection{微分算子法}
+
+\begin{mydef}{以一个线性的观点看待函数}{LinearViewOfFunction}
+    一个函数$y = f(x)$，它输入$x$，输出$y$，可以看作是一个映射,看作是线性变换，是一个矩阵。
+    如\[
+        f(x) = 1 + x \Leftrightarrow \begin{bmatrix}
+            1 & 1 \\
+            0 & 1
+        \end{bmatrix}\begin{bmatrix}
+            1 \\
+            x
+        \end{bmatrix} = \begin{bmatrix}
+            1 + x \\
+            x
+        \end{bmatrix}
+    \]
+\end{mydef}
+
+\begin{mydef}{什么是线性}{Linear}
+    线性具有叠加性和齐次性
+    \[
+        \lambda f(x) = \lambda(1 + x) = 1 + \lambda x
+    \]
+    线性变换的一个重要性质是，它的复合也是线性变换。
+    \[
+        (g \circ f)(x) = g(f(x)) = g(1 + x) = 1 + g(x)
+    \]
+    从矩阵观点来看，\(f(x)\)和\(g(x)\)分别对应矩阵\(A\)和\(B\)，则\(g \circ f\)对应矩阵\(BA\)
+    \[
+        (g \circ f)(x) = g(f(x)) = g(1 + x) = 1 + g(x) \Leftrightarrow
+        \begin{bmatrix}
+            1 & 1 \\
+            0 & 1
+        \end{bmatrix}\begin{bmatrix}
+            1 & 1 \\
+            0 & 1
+        \end{bmatrix} = \begin{bmatrix}
+            1 & 0 \\
+            0 & 1
+        \end{bmatrix}
+    \]
+    所以函数可以看作是线性变换，微分方程可以看作是线性变换的复合。
+\end{mydef}
+
+\begin{mydef}{以矩阵的形式看求导}{MatrixViewOfDerivative}
+    设\(y = ax^2 + bx + c\)，则\(y' = 2ax + b\),\(y'' = 2a\)，设想一个矩阵\(D\)表示在基\(\{1, x, x^2\}\)下的求导变换
+    \[
+        D = \begin{bmatrix}
+            0 & 1 & 0 \\
+            0 & 0 & 2 \\
+            0 & 0 & 0
+        \end{bmatrix}
+    \]
+    则\(y = ax^2 + bx + c\)的导数为
+    \[
+        y' = D y = \begin{bmatrix}
+            0 & 1 & 0 \\
+            0 & 0 & 2 \\
+            0 & 0 & 0
+        \end{bmatrix}\begin{bmatrix}
+            1 \\
+            b \\
+            a
+        \end{bmatrix} = \begin{bmatrix}
+            b \\
+            2a \\
+            0
+        \end{bmatrix}
+    \]
+    不严谨的讲，这个\(D\)就是微分算子\(\frac{\mathrm{d}}{\mathrm{d}x}\)。但在做题时，我们并不需要特别在意
+    \(D\)是个矩阵，只需知道\(D^{n}\)代表求\(n\)阶导，\(D^{-n}\)代表求\(n\)阶积分。
+\end{mydef}
+
+\begin{conclusion}{幂零性质}{PowerZeroProperty}
+    设\(D\)是一个\(n\)阶矩阵，则\(D^n = 0\)。
+    这说明\(D\)的幂次矩阵的乘积是\(0\)矩阵。
+    将我们的微分算子\(\frac{\mathrm{d}}{\mathrm{d}x}\)推广到\(n\)阶多项式上，则
+    \[
+        D^n = \begin{bmatrix}
+        0  & 2 &  &  \\
+        0  &  & \ddots &  \\
+        0  &  &  & n(n-1) \\
+        0  &  &  &  &  0
+        \end{bmatrix}
+    \]
+    从求导角度看，表明求导多次后，结果为\(0\)。\\
+    我们可以利用幂零性来进行微分方程求解，即\(D^n y = 0\)，则\(y\)是\(n\)阶齐次线性微分方程的解。
+\end{conclusion}
+
+\begin{conclusion}{幂零矩阵求逆}{PowerZeroMatrixInverseProperty}
+    用微分算子，对于微分方程，我们可以表示为
+    \(g(D)y = f(x)\)，其中\(g(D)\)是一个幂零矩阵，\(f(x)\)是一个多项式。
+    则
+    \(
+        y = g(D)^{-1}f(x)
+    \)
+    对于幂零矩阵，由以下关于逆的性质
+    \[
+        A^k = 0 \Rightarrow (I - A)(I + A + A^2 + \cdots + A^{k-1}) = I
+    \]
+    即
+    \[
+        I - A \text{是可逆的},(I - A)^{-1} = I + A + A^2 + \cdots + A^{k-1}
+    \]
+    例如
+    \[
+        y'' - 3y' + 2y = x
+    \]
+    则
+    \[
+        \begin{aligned}
+        &D^2 - 3D + 2I = (D - I)(D - 2I) \\
+        &y = (D - I)^{-1}(D - 2I)^{-1}(x) \\ 
+        &(D - I)^{-1} = I + D \\
+        &(D - 2I)^{-1} = \frac{1}{2} \cdot (I - \frac{D}{2})^{-1} = \frac{1}{2} \cdot 
+        (I + (\frac{D}{2})) \\
+        &(I + \frac{D}{2}) \cdot (I + D) = I + \frac{3D}{2} =
+        \begin{bmatrix}
+            1 & \frac{3}{2} & 0 \\
+            0 & 1 & 0 \\
+            0 & 0 & 1
+        \end{bmatrix}
+        \end{aligned}
+    \]
+\end{conclusion}
+
+\begin{conclusion}{指数型微分方程的微分算子法}{eode}
+    在线性代数中有
+    \[
+        Ax = \lambda x
+    \]
+    联想到
+    \[
+        De^{\lambda x} = \lambda e^{\lambda x}
+    \]
+    所以\(e^{\lambda x}\)是\(D\)的特征向量
+    所以\(D^2e^{\lambda x} = \lambda^2 e^{\lambda x}\)
+    例如
+    \[
+        y'' + 3y' + 2y = e^x
+    \]
+    得到了
+    \[
+        y'' + 3y' + 2y = e^x
+    \]
+    则
+    \[
+        \begin{aligned}
+        (D^2 + 3D + &2I)^{-1}e^{x} = y \\
+        y &= \frac{e^x}{6}
+        \end{aligned}
+    \]
+
+\end{conclusion}
+
+\begin{conclusion}{移位定理}{ShiftTheorem}
+    \[
+        D(e^{ax}f(x)) = a e^{ax}f(x) + e^{ax}f'(x) = e^{ax}(D+a)f(x)
+    \]
+    \[
+        D^{n}(e^{ax}f(x)) = e^{ax}(D+a)^{n} f(x)
+    \]
+     对于多个根的情况，我们则有
+    \[
+        (\prod_{i = 1}^{n}(D - \lambda_i))y = 0
+        \Rightarrow
+        \sum_{i = 1}^{n} \lambda_i^n y = 0
+    \]
+    对于重根的情况，我们有
+    \[
+       (D - \lambda)^{n} y = 0
+       \Rightarrow
+       e^{-\lambda x}(D - \lambda)^{n}y = 0
+       \Rightarrow
+       y = (C_1 + C_2x + \cdots C_nx^{n-1})e^{\lambda x}
+    \]
+\end{conclusion}
+
+
+\begin{formula}{欧拉公式与三角函数}{EulerFormulaAndTrigonometricFunction}
+    \[
+        e^{ix} = \cos x + i\ sin x
+    \]
+    \(\sin x \text{与}\cos x\)均可使用指数函数来表示
+    \[
+        \sin x = \frac{e^{ix} - e^{-ix}}{2i},
+        \cos x = \frac{e^{ix} + e^{-ix}}{2}
+    \]
+    三角函数的积化和差公式也可用欧拉公式推导出来
+    \[
+        \begin{aligned}
+        &\sin (ax) \cos (bx) = \frac{e^{iax} - e^{-iax}}{2i} 
+        \cdot \frac{e^{ibx} + e^{-ibx}}{2} \\
+        &= \frac{1}{2} \cdot \frac{
+            (e^{i(a+b)x} - e^{-i(a+b)x}) + 
+            (e^{i(a-b)x} - e^{-i(a-b)x})
+        }{2i} \\
+        &= \frac{[sin(a+b)x + sin(a -b)x]}{2}
+        \end{aligned}
+    \]
+    其他三角函数公式
+    \[
+        \begin{aligned}
+            &cos ax - cos bx  = \\
+            &-2 \sin (\frac{a-b}{2} x) \sin (\frac{a + b}{2} x) \\
+            &\cos 3x = cos^3x - 3cosxsinx \\
+            &\sin 3x = 3cos^2xsinx - sin^3x 
+        \end{aligned} 
+    \]
+    也可以用欧拉公式推导出来
+\end{formula}
+
+\begin{conclusion}{自由项有三角函数的微分方程}{FreeTermHasTrigonometricFunction}
+    将三角函数和指数函数结合起来，我们可以得到一些微分方程的解。
+    \[
+        \begin{aligned}
+            &e^{(a+bi)x} = e^{ax} (\cos (bx) + i  \sin (bx)) \\
+            &e^{-ax}\cos bx = \Re\{e^{(a+bi)x}\} ,\text{取实部} \\
+             &e^{-ax}\sin bx = \Im\{e^{(a+bi)x}\},\text{取虚 部}  
+        \end{aligned}
+    \]
+    于是，有
+    \[
+        \begin{aligned}
+            D(e^{ax}sinbx) \\
+            &= D(\Im(e^{(a+bi)x})) \\
+            &= \Im(D(e^{(a+bi)x})) \\
+             &= \Im((a+bi)(e^{ax}\cos bx \\
+            & + i e^{ax}\sin bx)) \\
+             &= e^{ax}(a \sin bx + b \cos bx)
+        \end{aligned}
+    \]
+    \[
+        \begin{aligned}
+            D^{-1}(e^ax \sin bx) \\
+            &= D^{-1}(\Im(e^{(a+bi)x})) \\
+            &= \Im(D^{-1}(e^{(a+bi)x})) \\
+             &= \Im(\frac{1}{a+bi}(e^{ax}\cos bx \\
+            & - i e^{ax}\sin bx)) \\
+             &= \frac{1}{a+bi}e^{ax}(a \cos bx - b \sin bx)
+        \end{aligned} 
+    \]
+    \[
+        \begin{aligned}
+        \sum_{k = 0}^{n} cos(kx) &= \sum_{k = 0}^{n} \Re(e^{ikx})  \\
+        &= \Re(\sum_{k = 0}^{n} e^{ikx}) \\
+        &= \Re{
+            \frac{
+                1 - e^{i(n+1)x}
+            }
+            {1 - e^{inx}}
+        } \\
+        &= \Re{ 
+            \frac{
+                e^{i((n+1)/2)x}(
+                    e^{-i((n+1)/2)x} - e^{i((n+1)/2x)}
+                )
+            }
+            {
+                e^i(x/2)(e^{i(x/2)x} - e^{-i(x/2)x})
+            }
+        } \\
+        &= \frac{
+            cos(nx / 2) sin((n+1)x /2 )
+        }{
+            sin(x /2)
+        }
+        \end{aligned}
+    \]
+\end{conclusion}
+
+\begin{conclusion}{多项式微分算子的进一步推广}{PolynomialDifferentialOperator}
+    \[
+        D^n(x^m e^{\lambda x}) = e^{\lambda x}(D + \lambda)^{n} x^{m}\]
+\end{conclusion}
+
+\begin{conclusion}{欧拉方程的微分算子法}{EulerEquationDifferentialOperator}
+    若
+    \[
+        D^2(e^{a\phi(x)}) = a \phi^{'}(x)e^{a\phi(x)}
+    \]
+    转化为
+    \[
+    \frac{1}{\phi^{'}(x)}De^{a\phi(x)} = ae^{a\phi(x)}
+    \]
+    将\(
+        \frac{1}{\phi^{'}(x)}
+    \)视为算子 \\
+    因此欧拉方程的算子为\(xD\),
+    即形如\(
+        xy'' + pxy' + qy = 0
+    \)的方程，其算子方程为
+    \[
+        (xD)^2 + p(xD) + q = 0
+    \]
+\end{conclusion} 
+ 
+\subsection{微分方程的简单应用}
+\begin{mydef}{利用定积分的几何意义列方程}{IntegralFormODEApplication}
+    利用面积，弧长，体积，形心等列方程
+    弧长公式为
+    \[
+        L = \int_{a}^{b} \sqrt{1 + (y')^2} \mathrm{d}x
+    \]
+    体积公式为
+    \[
+        V = \int_{a}^{b} y^2 \mathrm{d}x
+    \]
+    形心公式为
+    \[
+        \bar{x} = \frac{1}{V} \int_{a}^{b} x y^2 \mathrm{d}x
+    \]
+    \[
+        \bar{y} = \frac{1}{V} \int_{a}^{b} y x^2 \mathrm{d}x
+    \]
+
+\end{mydef}
+
+\begin{mydef}{利用导数的几何意义列方程}{DerivativeFormODEApplication}
+    导数的几何意义是函数在点处的切线的斜率。即\(
+        Y = y(x) + y'(x)(x - x_0)
+    \)
+    所以\(y'(x)\)是\(y(x)\)的切线的斜率，即\(y'(x)\)是\(y(x)\)的变化率。
+\end{mydef}
+
+\begin{mydef}{利用变化率满足的条件列方程}{DerivativeFormODEApplication}
+    若函数\(y(x)\)的变化率满足\(y'(x) = f(x)\)，则\(y(x)\)是\(f(x)\)的积分。
+\end{mydef}
+
+\begin{mydef}{利用牛顿第二定律列方程}{NewtonSecondLaw}
+    指点做直线运动，建立坐标系\(t\)时刻的质点的坐标为\(y=y(t)\)，若质点的质量为\(m\),受力为
+    \(f(t,y(t),y'(t))\),则由牛顿第二定律得
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}t} = y'(t) = \frac{1}{m}f(t,y(t),y'(t))
+    \]
+    当满足一下情形时，可进行降阶
+    \begin{enumerate}
+        \item 外力\(f\)只依赖于时间\(t\)于速度\(v = \frac{\mathrm{d}y}{\mathrm{d}t}\),方程变成
+        \[
+            \frac{\mathrm{d}v}{\mathrm{d}t} = f(t,v)
+        \]
+        \item 外力\(f\)只与位移\(y\)及速度\(v\)相关，由于\(
+            \frac{\mathrm{d^2}y}{\mathrm{d}t^2} = \frac{\mathrm{d}v}{\mathrm{d}t} = \frac{\mathrm{dv}}{\mathrm{dy}} \cdot 
+            \frac{\mathrm{d}y}{\mathrm{d}t} = v \frac{\mathrm{d}v}{\mathrm{d}y}
+        \),则\(
+            mv\frac{\mathrm{d}v}{\mathrm{d}y} = f(y, v)
+        \)
+    \end{enumerate}
+\end{mydef}
+
+\begin{mydef}{利用微元法分析或相应的变限积分列方程}{MicroElementAnalysis}
+    由于
+    \[
+        \delta y \approx F(x, y, \delta x)\delta x
+    \]
+    就可以得到微分方程
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x} = f(x, y),\lim_{\delta x \to 0} F(x, y, \delta x) = f(x, y)
+    \]
+\end{mydef}

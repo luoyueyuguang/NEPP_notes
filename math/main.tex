@@ -33,7 +33,7 @@
 \usepackage{times}
 \usepackage{fontspec}  % 字体设置
 \usepackage{tabularx} % 表格
-\usepackage[fontsize=14pt]{fontsize}
+\usepackage[fontsize=13.5pt]{fontsize}
 \hypersetup{
 	colorlinks=true,
 	linkcolor=blue
@@ -69,6 +69,9 @@
 % \setCJKmainfont{SimSun}[BoldFont=SimHei] % 推荐使用 SimHei 作为粗体，避免警告
 % 设置中文主字体为宋体，避免请求未定义的粗体
 \setCJKmainfont{SimSun}[BoldFont=SimSun] % 推荐使用 SimHei 作为粗体，避免警告
+%设置字号
+% \setCJKmainfont{SimSun}[BoldFont=SimSun,FontSize=14pt]
+
 % 修改textbf的粗体字体为蓝底黑体
 \renewcommand{\textbf}[1]{\textcolor{blue}{\textsf{#1}}} % 修改粗体字体为黑体
 
@@ -124,7 +127,7 @@
 \newtcbtheorem[number within=section]{conclusion}{结论}%
 {
 	colback=blue!5,colframe=blue!50!black,fonttitle=\bfseries,
-	  breakable,
+	breakable,
 }{cu}
 
 %重置 mydef 的计数器
@@ -158,9 +161,9 @@
 %给出这个part的目录
 \input{calculus/calculus.tex}
 
-% \part{线性代数}
+\part{线性代数}
 %给出这个part的目录
-% \input{algebra/algebra.tex}
+\input{algebra/algebra.tex}
 
 
 % 导入概率论章节

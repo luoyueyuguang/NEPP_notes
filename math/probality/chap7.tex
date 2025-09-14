@@ -81,7 +81,27 @@
 \end{mydef}
 
 \begin{conclusion}{对区间估计的一些理解}{interval estimate understanding}
-    正态总体均值或方差总体还是依据估计及分布来求，或许可以才这方面入手来推出均值差，方差比的置信区间.
+    正态总体均值或方差总体还是依据估计及分布来求，或许可以才这方面入手来推出均值差，方差比的置信区间.\\
+    总的来说，区间估计本质还是估计，还是根据统计量来求 \\
+    我们根据前文所提的样本统计量来进行区间估计 \\
+    \boxed{例} \\
+    当\(\sigma^2\)已知时，使用统计量
+    \[
+    \frac{\overline{X} - \mu}{\frac{\sigma}{\sqrt{n}}}
+     \sim N(0,1)
+    \]
+    当\(\sigma^2\)未知时，使用统计量
+    \[
+    \frac{\overline{X} - \mu}{s\sqrt{n}}
+    \sim t(n-1)
+    \]
+    设统计量为\(L\)，则根据单边或双边写出矩法方程
+    \[
+    |L| < k \text{或} L > k \text{或} L < k
+    \]
+    其中\(k\)不同情况下的\(\alpha\)分位点 \\
+    下表给出了常见的单正态总体均值方差的置信区间 \\
+    双正态根据前文的双正态总体的统计量来求
 \end{conclusion}
 
 \begin{tablebox}{常见置信区间}
@@ -152,10 +172,12 @@
 \end{conclusion}
 
 \begin{conclusion}{对正态总体均值方差检验的理解}{understand of normal mean and variance}
-    或许可以通过正态总体均值方差的分布推出这些检验的统计量的分布.
+    我们可以看到实际上还是从置信区间的角度来考虑的,即根据\(H_1\)来确定求哪个置信区间即可
+    下表给出了常见的单正态总体均值方差的假设检验的原假设与备择假设, 拒绝域, 检验统计量, p值的计算方法. \\
+    双正态根据前文的双正态总体的统计量来求
 \end{conclusion}
 
-\begin{tablebox}{正态总体均值方差的假设检验}
+\begin{tablebox}{常见正态总体均值方差的假设检验}
     \centering
     \scalebox{0.95}{
     \begin{tabular}{|c|c|c|}
