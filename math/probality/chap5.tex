@@ -85,7 +85,9 @@
     即\(n\)很大时，\(Y_n\)的分布近似服从正态分布.
     因此我们可以对\(Y_n\)进行标准化，即
     \[
-        \lim\limits_{n \to \infty} P(\frac{\sum_{i=1}^{n}X_{i} - n\mu}{\sqrt{n} \sigma} \leq x) = \Phi(x)
+        \lim\limits_{n \to \infty} P(\frac{(\sum_{i=1}^{n}X_{i} - n\mu)/n}{(\sqrt{n} \sigma) / n} \leq x) =
+        \lim\limits_{n \to \infty} P(\frac{\sum_{i=1}^{n}X_{i} - n\mu}{\sqrt{n} \sigma} \leq x) =
+        \Phi(x)
     \]
 \end{conclusion}
 
