@@ -88,85 +88,886 @@
 \end{conclusion}
 \subsection{多元函数的偏导数与全微分}
 \begin{mydef}{偏导数}{partial derivative}
+    设二元函数\(z = f(x, y)\)。若存在
+    \[
+        \frac{\mathrm{d}}{\mathrm{dx}} f(x, y_0) |_{x = x_0}\left(
+            \frac{\mathrm{d}}{\mathrm{dy}}f(x_0, y)|_{y = y_0}
+        \right)
+    \]称它为\(z = f(x, y)\)在点\(f(x, y)\)处对\(x(y)\)的偏导数，记为\\
+    \(
+        \frac{\partial f(x_0, y_0)}{\partial x}, \frac{\partial z}{\partial x} |_{(x_0, y_0)},
+        \frac{\partial f}{\partial x} |_{(x_0, y_0)},z^{'}_{x} |_{(x_0, y_0)},\text{或}f^{'}_{x} |_{(x_0, y_0)}
+    \)\\
+    \(
+        \left(
+            \frac{\partial f(x_0, y_0)}{\partial y}, \frac{\partial z}{\partial y} |_{(x_0, y_0)},
+        \frac{\partial f}{\partial y} |_{(x_0, y_0)},z^{'}_{y} |_{(x_0, y_0)},\text{或}f^{'}_{y} |_{(x_0, y_0)} 
+        \right)\)
+    按定义有
+    \[
+        \begin{aligned}
+            \frac{\partial f(x_0, y_0)}{\partial x} = \lim\limits_{\delta x \to 0} \frac{f(x_0 + \delta x, y_0) - f(x, y_0)}{\delta x}, \\
+            \frac{\partial f(x_0, y_0)}{\partial y} = \lim\limits_{\delta x \to 0} \frac{f(x_0, y_0 + \delta y) - f(x, y_0)}{\delta y}
+        \end{aligned}
+    \]
+    若\(z = f(x, y)\)在区域\(D\)的每一点都有偏导数，一般地说，它们仍是\(x, y\)的函数，称为对\(f(x, y)\)的\textbf{偏导函数}，简称\textbf{偏导数},
+    记为\(
+        \frac{\partial z}{\partial x}, \frac{\partial f}{\partial x},f^{'}_{x}(x, y);
+        \frac{\partial z}{\partial y}, \frac{\partial f}{\partial y},f^{'}_{y}(x, y);
+    \)
+    偏导数本质上是一元函数的导数，在计算时可以代入已知值，减少计算量
 \end{mydef}
+
+
 \begin{conclusion}{偏导数的几何意义}{partial derivative geometric meaning}
+    \(\frac{\partial f(x_0, y_0)}{\partial x}\)即曲面\(z = f(x)\)与平面\(y = y_0\)的交线在点\(M_0(x_0, y_0, f(x_0, y_0))\)处的切线对\(x\)轴的斜率；
+    \(\frac{\partial f(x_0, y_0)}{\partial x}\)即曲面\(z = f(x)\)与平面\(x = x_0\)的交线在点\(M_0(x_0, y_0, f(x_0, y_0))\)处的切线对\(y\)轴的斜率；
 \end{conclusion}
 \begin{conclusion}{偏导数的计算}{partial derivative calculation}
+    求偏导数，归结为求一元函数的导数
+    求\(f(x, y) = \begin{cases}
+            g(x,y), (x, y) \neq (x_0, y_0) \\
+            A, (x, y) = (x_0, y_0)
+        \end{cases}\)
+        在\((x_0, y_0)\)处偏导数的方法
+    \begin{enumerate}
+    \item  按定义
+    \[
+    \begin{aligned}
+        \frac{\partial f(x_0, y_0)}{\partial x} = 
+    \lim\limits_{\varDelta x \to 0} \frac{f(x_0 + \varDelta x, y_0) - f(x_0, y_0)}{\varDelta x} \\
+    = \lim\limits_{\varDelta x \to 0} \frac{g(x_0 + \varDelta x, y_0) - A}{\varDelta x}
+    \end{aligned}
+    \]
+    类似可求偏导数\(\frac{\partial f(x_0, y_0)}{\partial y}\)
+    \item 在连续的条件下求偏导数的极限
+    当\(x  in U_{0}(x_0, \delta)\)时,\(f(x, y)\)存在偏导数\(
+        \frac{\partial f(x, y_0)}{\partial x},f(x_0, y_0)
+    \)对\(x\)在点\(x = x_0\)处连续，\\
+    若\(
+        \lim\limits_{\varDelta x \to 0} g(x_0 + \varDelta x, y_0) = B
+    \),则\(
+        \frac{\partial f(x_0, y_0)}{\partial x} = B
+    \)
+    对\(
+        \frac{\partial f(x_0, y_0)}{\partial y}
+    \)同理可得
+    \end{enumerate}
 \end{conclusion}
 \begin{mydef}{可微性与全微分}{differentiability and total differential}
+    设二元函数\(z = f(x, y)\)在点\((x_0, y_0)\)的某邻域内有定义，如果该函数在点\(M_0(x_0, y_0)\)处的全增量\(
+    \varDelta z = f(x_0 + \varDelta x, y_0 + \varDelta y) - f(x_0, y_0)\),可表示为\[
+        \varDelta z = A \varDelta x + B \varDelta y + o(\sqrt{\varDelta x^2 + \varDelta y^2})
+    \]
+    可以将\(\sqrt{\varDelta x^2 + \varDelta y^2}\)记为\(\rho(\rho \to 0)\)，其中\(A,B\)不依赖于\(
+        \varDelta x \varDelta y,
+    \)而仅与点\((x_0, y_0)\)有关，则称\(z = f(x, y)\)在点\((x_0, y_0)\)处可微,而\(A\varDelta x + B \varDelta y\)称为\(z = f(x, y)\)在点\((x_0, y_0)\)处的全微分，记为\[
+        \mathrm{d}z |_{(x_0, y_0)} = A \varDelta x + B \varDelta y
+    \]
+\end{mydef}
+\begin{conclusion}{\(z = f(x, y)\)在点\((x_0, y_0)\)可微分的必要与充分条件}{all derivative requirement}
+    \begin{enumerate}
+        \item 可微的必要条件 \\
+            若\(f(x, y)\)在点\((x_0, y_0)\)可微，则\(z = f(x, y)\)在点\((x_0, y_0)\)处连续，两个偏导数\(
+                f'_{x}(x_0, y_0), f'_{y}(x_0, y_0)
+            \)都存在,且\(A = f'_{x}(x_0, y_0), B = f'_{y}(x_0, y_0)\)即有
+            \[
+                \mathrm{d}z |_{(x_0, y_0)} = f'_{x}(x_0, y_0) \mathrm{d} x + f'_{y}(x_0, y_0) \mathrm{d} y
+            \]
+            其中\(\mathrm{d}x = \varDelta x, \mathrm{d} y = \varDelta y\)
+        \item 可微的充分条件 \\
+        若\(z = f(x, y)\)在点\((x_0, y_0)\)的某邻域内有存在偏导数\(f'_{x}(x, y), f'_{y}(x, y)\)且在点\((x_0, y_0)\)处连续，则\(z = f(x, y)\)在点\((x_0, y_0)\)处可微
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{偏导数的连续性，函数可微性，可偏导性与函数连续性的关系}{inter relationship}
+    若\(z = f(x, y)\)在点\((x_0, y_0)\)处存在\(f'_{x}(x_0, y_0), f'_{y}(x_0, y_0)\)则称\(f(x, y)\)在点\((x_0, y_0)\)处可偏导。
+    两个偏导数连续，可微，可偏导于二元函数连续的关系为 \\
+    %一个树形的关系
+    \begin{tikzpicture}
+        \node[rectangle, draw] (continuous) {\(f'_{x}(x, y),f'_{y}(x, y)\)在点\((x_0,y_0)\)处连续};
+        \node[rectangle, draw, below = of continuous] (partial) {
+            \(z = f(x, y)\)在点\((x_0,y_0)\)处可微且\(dz = Adx + Bdy\);
+        };
+        \node[rectangle, draw, below = of partial] (continuousf) {
+            \(f(x,y)\)在点\((x_0,y_0)\)处连续
+        };
+        \node[rectangle, draw, below = of continuousf] (derivative) {
+            \(z = f(x, y)\)在点\((x_0,y_0)\)处可偏导且\(f'_{x}(x_0, y_0) = A, f'_{y}(x_0, y_0) = B\)
+        };
+        %连线，线使用\Leftarrow类似的箭头
+        \draw[->] (continuous) -- (partial);
+        %线在左边
+        \draw[->,left] (partial) -- (continuousf);
+        \draw[->] (partial) -- (derivative);
+    \end{tikzpicture}
+\end{conclusion}
+
+\begin{mydef}{高阶偏导数、混合偏导数}{higher order partial derivative and mixed partial derivative}
+    若函数\(z = f(x, y)\)的一阶偏导数\(\frac{\partial z}{\partial x} = f'_{x}, \frac{\partial z}{\partial y} = f'_{y}\)关于\(x,y\)的偏导数仍然存在。
+    则称一阶偏导数的偏导数是\(z = f(x, y)\)的二阶偏导。根据求导顺序的不同有以下四个二阶偏导数
+    \[
+        \begin{aligned}
+            \frac{\partial^2 z}{\partial x^2} = \frac{\partial}{\partial x}\left(\frac{\partial z}{\partial x}\right)  = f''_{xx}(x, y);\quad
+            \frac{\partial^2 z}{\partial x \partial y} = \frac{\partial}{\partial y}\left(\frac{\partial z}{\partial x}\right)  = f'_{xy}(x, y) \\
+             \frac{\partial^2 z}{\partial y^2} = \frac{\partial}{\partial y}\left(\frac{\partial z}{\partial y}\right)  = f''_{yy}(x, y);\quad
+            \frac{\partial^2 z}{\partial y \partial x} = \frac{\partial}{\partial x}\left(\frac{\partial z}{\partial y}\right)  = f'_{yx}(x, y) \\
+        \end{aligned}
+    \]
+    其中\(\)\(f'_{yx}(x, y) = f'_{xy}(x, y)\),称为混合偏导数。
+    同理可得更高阶的偏导数。
 \end{mydef}
 
-\begin{conclusion}{\(z = f(x, y)\)在点\((x_0, y_0)\)可微分的必要与充分条件}{all derivative requirement}
+\begin{conclusion}{高阶偏导数、混合偏导数次序无关}{order irrelevant}
+    若二元函数\(z = f(x, y)\)的两个二阶混合偏导数\(
+         \frac{\partial^2 z}{\partial y \partial x},
+         \frac{\partial^2 z}{\partial x \partial y}
+    \)都在区域\(D\)上连续，则在区域\(D\)内\(
+        \frac{\partial^2 z}{\partial y \partial x} =
+        \frac{\partial^2 z}{\partial x \partial y}
+    \),即二阶混合偏导数与求偏导的先后次序无关。
 \end{conclusion}
 
-\begin{conclusion}{偏导数的连续性，函数可微性，可偏导性与函数连续性的关系}{ inter relationship}
-\end{conclusion}
-
-\begin{conclusion}{高阶偏导数、混合偏导数与求导次序无关}{higher order partial derivative and mixed partial derivative}
-\end{conclusion}
 
 \begin{conclusion}{多元函数为常数的条件}{constant function}
+    \begin{enumerate}
+        \item 设\(f(x, y)\)在区域\(D\)上满足\(\frac{\partial f}{\partial x} = 0, \frac{\partial f}{\partial y} = 0(
+            \forall (x, y) \in D
+        )\),则在区域\(D\)内，\(f(x, y)\)为常数。\\又在区域\(D\)上\(df(x,y) = 0 \Leftrightarrow\)在区域\(D\)上\(
+            \frac{\partial f}{\partial x} = \frac{\partial f}{\partial y} = 0,
+        \)因此也有\\
+        设\(f(x,y)\)在区域\(D\)上满足\(\mathrm{d}f(x, y) = 0\),则\(f(x, y)\)在区域\(D\)为常数
+        \item 设\(z = f(x, y)\)定义在全平面上，若\(\frac{\partial f}{\partial x} = 0\),则\(
+            f(x, y) = \varphi(y);
+        \)同理，若\(\frac{\partial f}{\partial y} = 0\),则\(f(x, y) = \psi(x)\)。\\
+        其中\(\psi(x)\)是\(x\)的函数，\(\varphi(y)\)是\(y\)的函数。二者都是一元函数。
+    \end{enumerate}
 \end{conclusion}
 
-\begin{conclusion}{多元偏导的求法}{multi-variable partial derivative}
-
-\end{conclusion}
-
+\subsection{多元函数的微分法与复合函数求导法则}
 \begin{formula}{全微分四则运算法则}{total differential formula}
+    若\(u = u(x, y), v = v(x, y)\)在点\((x, y)\)处可微，则
+    \[
+        \begin{aligned}
+            &\mathrm{d}(u \pm v) = \mathrm{d}u + \mathrm{d}v;\quad 
+            \mathrm{d}(c \cdot )u = c \cdot \mathrm{d}u;c\text{为常数}\\[1em]
+            &\mathrm{d}(u \cdot v) = u \mathrm{d}v + v \mathrm{d}u; \quad
+            \mathrm{d}\left(\frac{u}{v}\right) = \frac{v\mathrm{d}u  - u \mathrm{d}v}{v^2};
+        \end{aligned}
+    \]
 \end{formula}
-\begin{conclusion}{多元函数的微分法则}{multi-variable function derivative rule}
+\begin{conclusion}{多元复合函数的微分法则}{multi-variable function derivative rule}
+    \begin{enumerate}
+    \item 多元函数与一元函数复合 \\
+    设\(x = x(t), y = y(t), z = z(t)\)在\(t\)可导, \(u = f(x, y, z)\)在对应点\((x, y, z) = 
+    (x(t), y(t), z(t))\)可微，则\(u = f(x(t), y(t), z(t))\)在点\(t\)可导，且
+    \[
+        \frac{\mathrm{d}u}{\mathrm{d}t} = \frac{\partial u}{\partial x}\frac{\mathrm{d}x}{\mathrm{d}t} + 
+        \frac{\partial u}{\partial y}\frac{\mathrm{d}y}{\mathrm{d}t} + 
+        \frac{\partial u}{\partial z}\frac{\mathrm{d}z}{\mathrm{d}t};
+    \]
+    在这里, \(\frac{\mathrm{d}u}{\mathrm{d}t}\)也被称为全导数
+    \item 多元函数与多元函数的复合 \\
+    \begin{enumerate}
+        \item 链式法则 \\
+        设\(u = \phi(x), v = \psi(y)\)在点\((x, y)\)对\(x, y\)可偏导，\(z = f(u, v)\)在对应点\((u, v) = 
+        (\phi(x), \psi(y))\)可微，则\(z = f(\phi(x), \psi(y))\)在点\((x, y)\)处对\(x, y\)可偏导，且
+        \[
+            \frac{\partial z}{\partial x} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial x} + 
+            \frac{\partial f}{\partial v}\frac{\partial v}{\partial y};\quad 
+            \frac{\partial z}{\partial y} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial x} + 
+            \frac{\partial f}{\partial v}\frac{\partial v}{\partial y};
+        \]
+        类似地,设函数\(z = f(u, v, w), u = u(x, y), v = v(x, y), w = w(x, y)\)在点\((x, y)\)对\(x, y\)可偏导，则
+        \[
+            \frac{\partial z}{\partial x} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial x} + 
+            \frac{\partial f}{\partial v}\frac{\partial v}{\partial x} + 
+            \frac{\partial f}{\partial w}\frac{\partial w}{\partial x};\quad 
+            \frac{\partial z}{\partial y} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial y} + 
+            \frac{\partial f}{\partial v}\frac{\partial v}{\partial y} + 
+            \frac{\partial f}{\partial w}\frac{\partial w}{\partial y};
+        \]
+        \\
+        为了方便，我们常用\(f'_{1}\)表示对第一个变量求偏导数,
+        类似地有\(
+           f'_{2} = \frac{\partial f}{\partial v}\)表示对第二个变量求偏导数，\(f'_{3} = \frac{\partial f}{\partial w}\)表示对第三个变量求偏导数。
+           \\
+           同理，\(f'_{11}\)表示对第一个变量求二阶偏导数，\(f'_{22}\)表示对第二个变量求二阶偏导数，\(f'_{33}\)表示对第三个变量求二阶偏导数。\\
+           \\
+           \(f'_(12)\)表示对第一个变量求偏导数，再对第二个变量求偏导数
+        \item 一阶全微分不变性 \\
+        设函数\(z = f(u, v), u = \phi(x, y), v = \psi(x, y)\)在点\((x, y)\)处可微，则
+        可得函数\(z= f(u, v) = f(\phi(x, y), \psi(x, y))\)的全微分为
+        \[
+            \begin{aligned}
+            \mathrm{d}z &= \frac{\partial z}{\partial x} \mathrm{d}x + \frac{\partial z}{\partial y} \mathrm{d}y \\
+            & = \frac{\partial f}{\partial u} \left(
+                \frac{\partial u}{\partial x} \mathrm{d}x + \frac{\partial u}{\partial y} \mathrm{d}y
+            \right)
+            + 
+            \frac{\partial f}{\partial v} \left(
+                \frac{\partial v}{\partial x} \mathrm{d}x + \frac{\partial v}{\partial y} \mathrm{d}y
+                \right)\\
+            &=  
+            \frac{\partial f}{\partial u} \mathrm{d}u + 
+            \frac{\partial f}{\partial v} \mathrm{d}v;
+            \end{aligned}
+        \]
+        这表明当\(f, u, v\)都是可微函数时，尽管\(u, v\)不是自变量,但函数\(
+            z = f(u, v) 
+        \)的一阶全微分也具有与\(u, v\)是自变量时的一阶全微分的相同形式，这种性质称为\textbf{一阶全微分的不变性}。 \\
+        在计算中，可以先求出\(u, v\)的全微分，再代入\(z = f(u, v)\)对\(u,v\)中计算全微分。
+        \\
+    \end{enumerate}
+    \end{enumerate}
 \end{conclusion}
-
 \begin{conclusion}{复合函数求导法则的注意事项}{compound function derivative rule notice}
-\end{conclusion}
-\begin{conclusion}{复合函数的二阶偏导数}{second order partial derivative of compound function}
+    \begin{enumerate}
+        \item 弄清复合函数的结构，分清中间变量与自变量
+        \item 偏导数公式的构成，复合函数对指定自变量的偏导数，求中间变量时不要漏项
+        \item 在复合函数求导公式中，函数对中间变量的偏导数仍是中间变量的函数，如设\(
+            z = f(u, v), u = \phi(x, y), v = \psi(x, y)\)在点\((x, y)\)处可微，则
+            \(
+                \frac{\partial z}{\partial x} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial x} + 
+                \frac{\partial f}{\partial v}\frac{\partial v}{\partial x};
+            \)
+            这里\(\frac{\partial z}{\partial u}\)是中间变量\(u\)的函数，同理\(\frac{\partial z}{\partial v}\)也是中间变量\(v\)的函数。
+            同时也是\(x, y\)的复合函数，对\(\frac{\partial z}{\partial x}\)求偏导数时，仍要考虑中间变量\(u, v\)对自变量的偏导数。
+            \[
+                \frac{\partial}{\partial x}\left(\frac{\partial f}{\partial u}\right) = 
+                \frac{\partial f}{\partial u}\left(
+                    \frac{\partial f}{\partial u}
+                \right)\frac{\partial \varphi}{\partial x}
+                + \frac{\partial f}{\partial v}\left(
+                    \frac{\partial f}{\partial u}
+                \right)\frac{\partial \psi}{x}
+                 = \frac{\partial^2 f}{\partial u^2}\frac{\partial \varphi(x)}{\partial x}
+                 + \frac{\partial^2 f}{\partial v\partial u}\frac{\partial \psi(x)}{\partial x}
+            \]
+            \newline
+            \[
+                \frac{\partial}{\partial x}\left(\frac{\partial f}{\partial v}\right) = 
+                \frac{\partial f}{\partial u}\left(
+                    \frac{\partial f}{\partial v}
+                    \right)\frac{\partial \varphi}{\partial x}
+                    + \frac{\partial f}{\partial v}\left(
+                        \frac{\partial f}{\partial v}
+                        \right)\frac{\partial \psi}{x}
+                = \frac{\partial^2 f}{\partial v\partial u}\frac{\partial \varphi(x)}{\partial x}
+                + \frac{\partial^2 f}{\partial v^2}\frac{\partial \psi(x)}{\partial x}
+            \]
+            \newline
+            \[
+                \frac{\partial^2 z}{\partial x^2} = \frac{\partial}{\partial x}\left(
+                    \frac{\partial f}{\partial u}
+                    \right)\frac{\partial \varphi(x)}{\partial x} + 
+                \frac{\partial f}{\partial u}\frac{\partial^2 \varphi(x)}{\partial x^2} 
+                + \frac{\partial}{\partial x}\left(
+                    \frac{\partial f}{\partial v}
+                    \right)\frac{\partial \psi(x)}{\partial x} + 
+                    \frac{\partial f}{\partial v}\frac{\partial^2 \psi(x)}{\partial x^2}
+            \]\\
+            将\(
+            \frac{\partial}{\partial x}\left(\frac{\partial f}{\partial v}\right)\)
+            与
+            \(
+            \frac{\partial}{\partial x}\left(\frac{\partial f}{\partial u}\right)
+            \)代入上式，可得最后结果
+    \end{enumerate}
 \end{conclusion}
 
-\begin{conclusion}{由一个方程式确定的一元隐函数求导法}{implicit function derivative method}
+\begin{conclusion}{由一个方程式确定的一元隐函数求导法(隐函数存在定理)}{implicit function derivative method}
+    如果二元方程\(F(x, y) = 0\)满足如下三个条件
+    \begin{enumerate}
+        \item 函数\(F(x, y)\)在点\((x_0, y_0)\)某邻域有连续的偏导数
+        \item \(F(x_0, y_0) = 0\)
+        \item \(F'_{y}(x_0, y_0) \neq 0\)，则在点\((x_0, y_0)\)附近，方程\(F(x, y) = 0\)有唯一解\(y=y(x)\)。且
+        \[
+            y' = \frac{\mathrm{d}y}{\mathrm{d}x} = - \frac{F'_x}{F'_y} 
+        \]
+    \end{enumerate}
 \end{conclusion}
 \begin{conclusion}{由一个方程式确定的二元隐函数求导法}{implicit function derivative method}
+    二元隐函数的隐函数存在定理为:
+    如果三元方程\(F(x, y, z) = 0\)满足如下三个条件
+    \begin{enumerate}
+        \item 函数\(F(x, y, z)\)在点\((x_0, y_0, z_0)\)某邻域有连续的偏导数
+        \item \(F(x_0, y_0, z_0) = 0\)
+        \item \(F'_{z}(x_0, y_0, z_0) \neq 0\)，则在点\((x_0, y_0, z_0)\)附近，方程\(F(x, y, z) = 0\)有唯一解，满足
+        \(z_0 = z(x_0, y_0)\)并有连续的偏导数，且有
+        \(
+            \frac{\partial z}{\partial x} = - \frac{F'_x}{F'_z};
+            \frac{\partial z}{\partial y} = - \frac{F'_y}{F'_z},
+        \)
+    \end{enumerate}
+    求二元隐函数的偏导数的方法有
+    \begin{enumerate}
+        \item 求由方程\(F(x, y, z) = 0\)确定的隐函数\(z = z(x, y)\)的一阶偏导数求导方法 \\
+        \begin{enumerate}
+            \item 法一 \\
+            由\(
+                F(x, y, z(x, y)) = 0
+            \)
+            分别对x, y求偏导数，利用复合函数求导法得\(
+                F'_x + F'_z\frac{\partial z}{\partial x};F'_y\frac{\partial z}{\partial y} = 0
+            \)
+            分别解出\(\frac{\partial z}{\partial x}, \frac{\partial z}{\partial y}\)
+            \item 法二 \\
+            利用一阶全微分不变性，对方程\(F(x, y, z) = 0\)两边同时对全微分得到\(
+                \mathrm{d}F(x, y, z) = 0,
+                F'_x\mathrm{d}x + F'_y\mathrm{d}y + F'_z\mathrm{d}z = 0
+            \)
+            从而当\(F'_z \neq 0\)时有\(
+                \mathrm{d}z = - \left(\frac{F'_x}{F'_z}\mathrm{d}x
+                + \frac{F'_y}{F'_z}\mathrm{d}y\right)
+                \)
+            于是有\(
+                \frac{\partial z}{\partial x} = - \frac{F'_x}{F'_z};
+                \frac{\partial z}{\partial y} = - \frac{F'_y}{F'_z},
+            \)
+            \item 法三 \\
+            公式法求出\(
+                \frac{\partial z}{\partial x} = - \frac{F'_x}{F'_z};
+                \frac{\partial z}{\partial y} = - \frac{F'_y}{F'_z},
+            \)
+        \end{enumerate}
+        \item 求由方程\(F(x, y, z) = 0\)确定的隐函数\(z = z(x, y)\)二阶偏导数求导方法 \\
+        若函数\(F(x, y, z)\)具有二阶偏导数，则隐函数\(z = z(x, y)\)的二阶偏导数存在,可求\(z=z(x, y)\)的二阶偏导数，
+        此时\(
+            F'_x, F'_y, F'_z\)仍然是\(x, y, z\)的函数,同时也是\(x, y\)的函数。
+            此处,使用\(F'_1, F'_2, F'_3\)代替\(F'_x, F'_y, F'_z\)。
+        \begin{enumerate}
+            \item 法一 \\
+            将\(F'_x + F'_z\frac{\partial z}{\partial x}\)两边同时对x求偏导数，可得
+            \[
+                \frac{\partial}{\partial x}(F'_1) + \frac{\partial}{\partial x}(F'_3)\frac{\partial z}{\partial x} +
+                F'_3\frac{\partial^2 z}{\partial x^2} = 0
+            \]
+            得
+            \[
+                \frac{\partial^2 z}{\partial x^2} = - \left[
+                    F''_{11} + 2F''_{13}\frac{\partial z}{\partial x} + F''_{33}\left(\frac{\partial z}{\partial x}\right)^2
+                \right] / F'_3
+            \]
+            整理得
+            \[
+                \frac{\partial^2 z}{\partial x^2} = - \left[
+                    2F''_{13}F'{1}F'_{3} - 
+                    F^{''}_{11}{F'_{3}}^2 - 
+                    F^{''}_{33}{F'_{1}}^2
+                    \right] / {F'_{3}}^3
+            \]
+            \item 法二 \\
+            对\(
+                \frac{\partial z}{\partial x} = - \frac{F'_x}{F'_z};
+            \)继续求偏导数，可得
+            \[
+                \frac{\partial^2 z}{\partial x^2} = \left[
+                    \left(F''_{11} + F''_{13}\frac{\partial z}{\partial x}\right)F'_{3} -F'_1 \left(F''_{31} + F''_{33}\frac{\partial z}{\partial x}
+                    \right)\right] / {(F'_{3})}^{2}
+            \]
+            将\(
+            \frac{\partial z}{\partial x} = - \frac{F'_1}{F'_3};
+            \)代入，也可以得到法一的结果
+        \end{enumerate}
+    \end{enumerate}
 \end{conclusion}
 
 \begin{conclusion}{由方程组确定的一元隐函数求导法}{implicit function derivative method}
+    \(
+    \begin{cases}
+        F(x, u, v) = 0 \\
+        G(x, u, v) = 0 \
+    \end{cases}
+    \)其中\(F, G\)有连续偏导数，若在区间\(I\)上存在函数组\(
+        u = u(x), v = v(x)
+    \)满足方程组
+    应用复合函数求导法则，可得
+    \[
+        \begin{cases}
+            F'_{1} + F'_{2}\frac{\partial u}{\partial x} + F'_{3}\frac{\partial v}{\partial x} = 0 \\
+
+            G'_{1} + G'_{2}\frac{\partial u}{\partial x} + G'_{3}\frac{\partial v}{\partial x} = 0 \
+        \end{cases}
+    \]
+    将其看成是以\(\frac{\mathrm{d}u}{\mathrm{d}x}, \frac{\mathrm{d}v}{\mathrm{d}x}\)为未知数的二元一次方程组，利用克莱姆法则可解
 \end{conclusion}
 \begin{conclusion}{由方程组确定的二元隐函数求导法}{implicit function derivative method}
+    设有\(4\)个变量和\(2\)个方程构成的方程组\(
+        \begin{cases}
+            F(x, y, u, v) = 0 \\
+            G(x, y, u, v) = 0 
+        \end{cases}
+    \),确定隐函数\(
+        u = u(x, y), v = v(x, y)
+    \)其中\(F, G\)有连续偏导数，若\(
+        u(x, y), v(x, y)
+    \)可偏导并求出\(
+        \frac{\partial u}{\partial x}, \frac{\partial v}{\partial x}
+    \)或\(\frac{\partial u}{\partial y}, \frac{\partial v}{\partial y}\)
+    对\(F,G\)分别求对\(x, y\)得偏导数，可得
+    \[
+        \begin{cases}
+            F'_{1} + F'_{2}\frac{\partial u}{\partial x} + F'_{3}\frac{\partial v}{\partial x} = 0 \\
+            G'_{1} + G'_{2}\frac{\partial u}{\partial x} + G'_{3}\frac{\partial v}{\partial x} = 0 \
+        \end{cases}
+        \text{或}
+        \begin{cases}
+            F'_{1} + F'_{2}\frac{\partial u}{\partial y} + F'_{3}\frac{\partial v}{\partial y} = 0 \\
+            G'_{1} + G'_{2}\frac{\partial u}{\partial y} + G'_{3}\frac{\partial v}{\partial y} = 0 \
+        \end{cases}
+    \]
+    这颗分别看成是以\(\frac{\partial u}{\partial x}, \frac{\partial v}{\partial x}\)或
+    \(
+        \frac{\partial u}{\partial y}, \frac{\partial v}{\partial y}
+    \)
+    为未知数的二元一次方程组，利用克莱姆法则可解
 \end{conclusion}
 \begin{conclusion}{复合函数求导法则的其他应用}{compound function derivative rule other application}
+    做变量替换时，求函数在新变量下得偏导数，有时通过变量替换可将某些偏微分方程化简
 \end{conclusion}
+\begin{conclusion}{极坐标变换下得拉普拉斯方程}{laplace equation under polar coordinate transformation}
+    在极坐标变换下，拉普拉斯方程
+    \[
+        \frac{\partial^2 u}{\partial x^2} + \frac{\partial^v}{\partial y^2} = 0
+    \]
+    为
+    \[
+        \frac{\partial^2 u}{\partial r^2} + \frac{1}{r}\cdot\frac{\partial u}{\partial r} + \frac{1}{r^2}\cdot\frac{\partial^2 u}{\partial \theta^2} = 0
+    \]
+    其中\(u\)是二元函数。
+\end{conclusion}
+\begin{conclusion}{多元函数问题转化为一元函数问题}{multi-variable function problem to one-variable function}
+    在求二元函数\(z = f(x,y)\)在\(x_0, y_0\)得二阶泰勒公式时，把二元函数得增量\(
+        f(x_0 + \Delta x, y_0 + \Delta y) - f(x_0, y_0)
+    \)看成一元函数\(\Phi(t) = f(x_0 + t\Delta x, y_0)\)在\(t = 1\)处的增量\(
+        \Phi(1) - \Phi(0)
+    \)\\
+    有一元函数得二阶泰勒公式
+    \[
+        \Phi(1) = \Phi(0) + \Phi'(0) + \frac{1}{2}\Phi''(0)
+        + \frac{1}{3!}\Phi'''(0) (0 < \theta < 1)
+    \]
+\end{conclusion}
+
+\begin{formula}{二元函数的泰勒公式}{two-variable function taylor formula}
+    设二元函数\(z = f(x, y)\)在点\(M_0(x_0, y_0)\)处的某邻域\(U(M_0)\)内具有三阶连续偏导数，\(
+        (x_0 + \varDelta x, y_0 + \varDelta y) \in  U(M_0)
+    \),则有二阶泰勒公式为
+    \[
+        \begin{aligned}
+                   & f(x_0 + \varDelta x, y_0 + \varDelta y) - f(x_0, y_0) =  \\
+                    &f(x_0, y_0) + (\frac{\partial}{\partial x}\varDelta x + \frac{\partial}{\partial y}\varDelta y)f(x_0, y_0) \\
+                    &+ \frac{1}{2}\left[
+                        (\frac{\partial^2}{\partial x^2} + \frac{\partial^2}{\partial y^2})f(x_0, y_0)
+                        \right] + R_2 \\ 
+                    &= f(x_0, y_0) + \frac{\partial f(x_0, y_0)}{\partial x} \varDelta x + \frac{\partial f(x_0, y_0)}{\partial y} \varDelta y \\
+                    &+ \frac{1}{2}\left[
+                        \frac{\partial^2 f(x_0, y_0)}{\partial x^2} + \frac{\partial^2 f(x_0, y_0)}{\partial y^2}
+                        + 2\frac{\partial^2 f(x_0, y_0)}{\partial x \partial y} \varDelta x \varDelta y
+                        \right] + R_2
+        \end{aligned}
+    \]
+    这里\(R_2 = \frac{1}{3!}\left(
+            \frac{\partial}{\partial x} \varDelta x + \frac{\partial}{\partial y} \varDelta y
+        \right)^3 f(x_0 + \theta \varDelta x, y_0 + \theta \varDelta y) (0 < \theta < 1)
+\)是拉格朗余项。
+若\(R_2 = o(\rho^2)(\rho = \sqrt{\varDelta x^2 + \varDelta y^2} \to 0)\),称为皮亚诺余项 \\
+\[
+        \left(
+            \frac{\partial}{\partial x} \varDelta x + \frac{\partial}{\partial y} \varDelta y
+        \right)^n f(x_0 + \theta \varDelta x, y_0 + \theta \varDelta y) = 
+        \sum_{k = 1}^{n}\left(\substack{n\\k}\right) \frac{
+            \partial^{n} f(x_0, y_0)
+        }{
+            \partial x^k \partial y^{n - k}
+        }
+\]
+其中
+\(
+    \left(\substack{n\\k}\right) = \frac{n!}{k!(n - k)!}
+\)
+\end{formula}
 \subsection{多元函数的极值与最值问题}
 \begin{mydef}{多元函数极值与驻点}{multi-variable function extremum and stationary point}
+    若\(\exists M_0 (x_0, y_0)\)的某邻域\(U(M_0, \delta)\)使得
+    \[
+        f(x, y) \leq f(x_0, y_0) \qquad  (f(x, y) \geq f(x_0, y_0)), \forall (x, y) \in U(M_0, \delta)
+    \]
+    则称\(
+    f(x, y)\)在\(M_0\)有极大值(极小值)\(f(x_0, y_0)\)。极大值与极小值点统称为极值
+    \(M_0\)称为极值点。\\
+    凡是能使\(f'_{x}(x, y) = 0, f'_{y}(x, y) = 0\)同时成立的点\(x, y\)称为\(
+    z = f(x, y)\)的驻点
 \end{mydef}
 \begin{conclusion}{多元函数取得极值的必要条件与充分条件}{multi-variable function extremum necessary and sufficient condition}
+    \begin{enumerate}
+        \item 必要条件\\
+        设\(f(x, y)\)在点\((x_0, y_0)\)处具有偏导数，且在点\((x_0, y_0)\)处取得极值，则
+        它在该点的偏导数必然为零，即\(
+            f'_{x}(x_0, y_0) = 0, f'_{y}(x_0, y_0) = 0
+        \) \\
+        \boxed{\text{注}} 具有偏导数的极值点必然是驻点，但驻点不一定是极值点。\\
+        \item 充分条件 \\
+        设\(z = f(x, y)\)在点\((x_0, y_0)\)的某邻域内连续且有一阶及二阶连续偏导数，又
+        \(
+        f'_{x}(x_0, y_0) = 0, f'_{y}(x_0, y_0) = 0
+        \),令\(
+            f''_{xx}(x_0, y_0) = \frac{\partial^2 f(x_0, y_0)}{\partial x^2} = A,
+            f''_{yy}(x_0, y_0) = \frac{\partial^2 f(x_0, y_0)}{\partial y^2} = B
+            f''_{xy}(x_0, y_0) = \frac{\partial^2 f(x_0, y_0)}{\partial x\partial y} = C
+        \),则
+        \begin{enumerate}
+            \item 若\(AC - B^2 > 0\),则\((x_0, y_0)\)是\(f(x, y)\)的极值点，且
+            当\(A > 0\)时取得极小值，当\(A < 0\)时取得极大值。
+            \item 若\(AC - B^2 < 0\),则\((x_0, y_0)\)不是\(f(x, y)\)的极值点
+            \item 若\(AC - B^2 = 0\),\(f(x, y)\)在\((x_0, y_0)\)处可能取极值，也可能不取极值，还需
+            另作讨论(一般转到极值定义法)
+        \end{enumerate}
+    \end{enumerate}
 \end{conclusion}
 \begin{conclusion}{求二元函数极值点的步骤}{two-variable function extremum point}
+    若\(z = f(x, y)\)有连续的二阶偏导数，求极值点的步骤如下：
+    \begin{enumerate}
+        \item 求驻点，即解方程组\(
+            \begin{cases}
+                f'_{x}(x, y) = 0 \\
+                f'_{y}(x, y) = 0
+            \end{cases}
+        \)
+        \item 对每个驻点求出二阶导函数的值\(
+            f''_{xx}(x_0, y_0) = A, 
+            f''_{xy}(x_0, y_0) = B,
+            f''_{yy}(x_0, y_0) = C
+        \)
+        \item 判断极值点，即根据\(AC - B^2\)的值来判断是否为极值点，若有，
+        根据\(A\)来判断是极大值还是极小值。
+    \end{enumerate}
 \end{conclusion}
 \begin{conclusion}{条件极值点的必要条件}{condition extremum point necessary condition}
+    设\(f(x, y), \varphi(x, y)\)在点\((x_0, y_0)\)的某邻域内具有一阶连续偏导数，且
+    \(\varphi(x_0, y_0) \neq 0\), 若\(
+        P_0(x_0, y_0)\)是二元函数\(z = f(x, y)\)在条件\(\varphi(x, y) = 0\)下的极值点，则
+    \[
+        \begin{cases}
+            \begin{vmatrix}
+                f'_{x}(P_0) & f'_{y}(P_0) \\
+                \varphi'_{x}(P_0) & \varphi'_{y}(P_0)
+            \end{vmatrix} = 0 \\
+            \varphi(P_0) = 0
+        \end{cases}
+        \Leftrightarrow \quad
+        \begin{cases}
+            f'_{x}(P_0) + \lambda \varphi'_{x}(P_0) = 0 \\
+            f'_{y}(P_0) + \lambda \varphi'_{y}(P_0) = 0 \\
+            \varphi(P_0) = 0
+        \end{cases}
+    \]
 \end{conclusion}
 
 \begin{conclusion}{极值最值问题的提法}{extremum and extremum point}
+    \begin{enumerate}
+        \item 简单极值(最值)问题\\
+        求二元函数\(z = f(x, y)\)在\(
+        Oxy\)平面上某区域\(D\)上的最大值或最小值 \\
+        求三元函数\(u = f(x, y, z)\)在\(
+        Oxyz\)空间中某区域\(\Omega\)上的最大值或最小值
+        \item 条件极值(最值)问题\\
+        求二元函数\(z = f(x, y)\)在条件\(\varphi(x, y) = 0\)下的最大值或最小值 \\
+        求三元函数\(u = f(x, y, z)\)在条件\(\varphi(x, y, z) = 0\)或条件\(
+            \phi(x, y, z) = 0, \psi(x, y, z) = 0
+        \)下的最大值或最小值问题。
+    \end{enumerate}
 \end{conclusion}
 
 \begin{conclusion}{求二元函数与三元函数的简单极值问题}{simple extremum problem}
+    \begin{enumerate}
+        \item 设\(z = f(x, y)\)在平面有界闭区域\(D\)上连续，且\(f(x, y)\)在\(D\)上存在最大值\(M\)与最小值\(m\)，它们
+        或在\(D\)内满足\(
+        \frac{\partial f}{\partial x} = 0, \frac{\partial f}{\partial y} = 0
+        \)的点(即\(f(x, y)\)的驻点)取得，或在\(D\)的边界上取得，或在偏导数不存在的点上取得。
+        或在\(D\)的边界上达到，因此求连续函数\(f(x, y)\)在有界闭区域\(D\)上的最值的步骤为
+        \begin{enumerate}
+            \item 求出\(f(x, y)\)在\(D\)内可能取得极值点(驻点和偏导数不存在的点)的函数值
+            \item 求出\(f(x, y)\)在\(D\)的边界上的最大值与最小值
+            \item 比较上述三个值，其中最大者为\(f(x, y)\)在\(D\)上的最大值，最小者 为\(f(x, y)\)在\(D\)上的最小值。
+        \end{enumerate}
+        \item 设\(z = f(x, y)\)在开区域\(D\)内可偏导,且根据实际问题可知它在\(D\)内有最大值或最小值，只需在满足\(
+            \frac{\partial f}{\partial x} = 0, \frac{\partial f}{\partial y} = 0
+        \)点中找到\(f(x, y)\)的最大值点或最小值点。
+    \end{enumerate}
 \end{conclusion}
 
 \begin{conclusion}{求二元函数与三元函数的条件极值问题}{condition extremum problem}
+    \begin{enumerate}
+        \item 求函数\(z = f(x, y)\)在条件\(\varphi(x, y) = 0\)下的最大值或最小值
+        \begin{enumerate}
+            \item 化为无条件极值(最值),若从条件\(\varphi(x, y) = 0\)处可解出\(y = y(x)\)或\(x = x(y)\),则可将\(z = f(x, y)\)化为一元函数
+            的最值问题
+            \item 转化为拉格朗日函数，首先构造辅助函数(称为拉格朗日函数)\(
+                F(x, y, z) = f(x, y) + \lambda \varphi(x, y)
+            \)然后求方程组\[\begin{cases}
+                \frac{\partial F}{\partial x} = \frac{\partial f}{\partial x} + \lambda \frac{\partial \varphi}{\partial x} = 0 \\
+                \frac{\partial F}{\partial y} = \frac{\partial f}{\partial y} + \lambda \frac{\partial \varphi}{\partial y} = 0 \\
+                \frac{\partial F}{\partial \lambda} = \varphi(x, y) = 0
+            \end{cases}\]的解，解\((x, y, \lambda)\)中的\((x, y)\)是在条件\(\varphi(x, y) = 0\)下的可能的极值点，最后比较这些可能极值点(若曲线\(\varphi(x, y)\)含端点，则还需再靠考察端点)的函数值，得到最大值点和最小值点。
+       \end{enumerate}
+        \item 求函数\(z = f(x, y)\)在条件\(\phi(x, y) = 0, \psi(x, y) = 0\)下的最大值或最小值 \\
+        构造拉格朗日函数\(F(x, y, z, \lambda, \mu) = f(x, y, z) + \lambda \varphi(x, y, z) + \mu \psi(x, y, z)\),然后求方程组\[\begin{cases}
+            \frac{\partial F}{\partial x} = \frac{\partial f}{\partial x} + \lambda \frac{\partial \varphi}{\partial x} + \mu \frac{\partial \psi}{\partial x} = 0 \\
+            \frac{\partial F}{\partial y} = \frac{\partial f}{\partial y} + \lambda \frac{\partial \varphi}{\partial y} + \mu \frac{\partial \psi}{\partial y} = 0 \\
+            \frac{\partial F}{\partial z} = \frac{\partial f}{\partial z} + \lambda \frac{\partial \varphi}{\partial z} + \mu \frac{\partial \psi}{\partial z} = 0 \\
+            \frac{\partial F}{\partial \lambda} = \varphi(x, y, z) = 0 \\
+            \frac{\partial F}{\partial \mu} = \psi(x, y, z) = 0
+            \end{cases}\]的解，解中的\((x, y, z)\)是在条件\(\varphi(x, y, z) = 0, \psi(x, y, z) = 0\)下的可能的极值点，最后比较这些可能
+            极值点(若曲线\(\phi(x, y, z)\)或\(\psi(x, y, z)\)含端点，则还需再考察端点)的函数值，得到最大值点和最小值点。
+    \end{enumerate}
 \end{conclusion}
 \subsection{梯度与方向导数}
 \begin{mydef}{方向导数}{directional derivative}
+    平面上过点\(M_0(x_0, y_)\)以\(l = (\cos \alpha, \cos \beta)\)为方向向量的直线\(L\)的参数方程
+    \[
+        x = x_0 + t \cos \alpha, \quad y = y_0 + t \cos \beta
+    \]
+    \(z =f(x, y)\)限制在直线\(L\)上时,就变化为一元函数
+    \[
+        \varphi(t) = f(x_0 + t \cos \alpha, y_0 + t \cos \beta)
+    \]
+    若存在极限
+    \[
+        \varphi'(0) = \lim_{t \to 0} \frac{
+            f(x_0 + t \cos \alpha, y_0 + t \cos \beta) - f(x_0, y_0)
+        }{t}
+    \]
+    则称此极限为函数\(z = f(x, y)\)在点\(M_0(x_0, y_0)\)沿方向向量\(l\)的方向导数，记作\[
+        \frac{\partial f(x_0, y_0)}{\partial l}  = 
+        \left. \frac{\partial f}{\partial l} \right|_{(x_0, y_0)}
+    \]
 \end{mydef}
 \begin{conclusion}{方向导数的存在性与计算公式}{directional derivative existence and formula}
+    设\(f(x, y)\)在\(M(x_0, y_0)\)处可微，则\(f(x, y)\)在\(M_0\)点中找到任意方向向量\(l = (\cos \alpha, \sin \beta)\)的方向导数存在，且计算公式为\[
+        \left. \frac{\partial f}{\partial l} \right|_{(x_0, y_0)} = 
+        \frac{\partial f(x_0, y_0)}{\partial x} \cos \alpha + 
+        \frac{\partial f(x_0, y_0)}{\partial y} \cos \beta
+    \]
+    若\(\alpha\)和\(\beta\)用极角表示，则有\[
+        \left. \frac{\partial f(x_0, y_0)}{\partial l} \right|_{(x_0, y_0)} = 
+        \frac{\partial f(x_0, y_0)}{\partial x} \cos \theta        + \frac{\partial f}{\partial y} \sin \theta
+    \]
+    对于三元函数的情形，设三元函数\(u = f(x, y, z)\)在点\(M_0(x_0, y_0, z_0)\)处可微，则三元函数\(u = f(x, y, z)\)在点\(M_0\)沿方向向量\(
+    l = (\cos \alpha, \sin \beta, \cos \gamma)\)的方向导数存在，且计算公式为\[
+        \left. \frac{\partial f}{\partial l} \right|_{(x_0, y_0, z_0)} = 
+        \frac{\partial f(x_0, y_0, z_0)}{\partial x} \cos \alpha + 
+        \frac{\partial f(x_0, y_0, z_0)}{\partial y} \cos \beta + 
+        \frac{\partial f(x_0, y_0, z_0)}{\partial z} \cos \gamma
+        \]
 \end{conclusion}
 \begin{conclusion}{梯度(向量)与方向导数的最大值}{gradient and directional derivative maximum}
+    函数\(z = f(x, y)\)在点\(M_0\)的方向导数计算公式可改写为\[
+    \begin{aligned}
+        \left. \frac{\partial f(x_0, y_0)}{\partial l} \right|_{(x_0, y_0)} = 
+        \left(
+            \frac{\partial f(x_0, y_0)}{\partial x}, \frac{\partial f(x_0, y_0)}{\partial y}
+        \right)
+        \cdot (\cos \alpha, cos \beta) \\
+        = \mathbf{grad} f(x_0, y_0) \cdot \mathbf{l}
+        = \left| \mathbf{grad} f(x_0, y_0) \right| \cos <\mathbf{grad} f(x_0, y_0), \mathbf{l}>
+    \end{aligned}
+        \]
+    这里向量\(\mathbf{grad} f(x_0, y_0)\)是函数\(f\)在点\(M_0\)的梯度向量
+    \(\frac{\partial f(x_0, y_0)}{\partial l}\)随\(\mathbf{l}\)的变化而变化，但当
+    \(\mathbf{l} = \dfrac{\mathbf{grad} f(x_0, y_0)}{\left|
+        \mathbf{grad} f(x_0, y_0)
+    \right|} \),即沿梯度方向时，方向导数达到最大值
+    \(\left|
+        \mathbf{grad} f(x_0, y_0)
+    \right|\)
+    因此，函数在某点的梯度是一个向量，它的方向是函数在该店的方向导数的最大的方向，其大小最大方向导数的模。
 \end{conclusion}
 \subsection{多元函数的几何应用}
 \begin{conclusion}{用隐式方程表示的曲面}{implicit equation surface}
+    若空间曲面\(S\)的方程为\(F(x, y, z) = 0\)，\(M_0(x_0, y_0, z_0)\)是\(S\)上的一点，则\(S\)在\(M_0\)点处的切平面方程为
+    \[
+        \frac{\partial F(M_0)}{\partial x} (x - x_0) + 
+        \frac{\partial F(M_0)}{\partial y} (y - y_0) + 
+        \frac{\partial F(M_0)}{\partial z} (z - z_0) = 0
+    \]
+    同理，曲面\(S\)在点\(M_0(x_0, y_0, z_0)\)处的法线向量\(\mathbf{grad} F(M_0)\)
+    是
+    \[
+        \left(
+            \frac{\partial F(M_0)}{\partial x}, 
+            \frac{\partial F(M_0)}{\partial y}, 
+            \frac{\partial F(M_0)}{\partial z}
+            \right)
+    \]
+    法线方程为
+    \[
+        \frac{x - x_0}{\frac{\partial F(M_0)}{\partial x}} = 
+        \frac{y - y_0}{\frac{\partial F(M_0)}{\partial y}} = 
+        \frac{z - z_0}{\frac{\partial F(M_0)}{\partial z}}
+    \] 
+    其中\(F(x, y ,z)\)在\((x_0, y_0, z_0)\)处有连续偏导数且
+    \[
+        \left[\frac{\partial F(M_0)}{\partial x}\right]^{2} + 
+        \left[\frac{\partial F(M_0)}{\partial y}\right]^{2} + 
+        \left[\frac{\partial F(M_0)}{\partial z}\right]^{2} \neq 0
+    \]
 \end{conclusion}
 \begin{conclusion}{用显式方程表示的曲面}{explicit equation surface}
+    若空间曲面\(S\)的方程为\(z = f(x, y)\)，\(M_0(x_0, y_0, z_0) = f(x_0, y_0)\)是曲面上的点，则曲面在点\(M_0\)处的切平面方程为
+    \[
+        z - z_0  = z - f(x_0, y_0)= \frac{\partial f}{\partial x}(x_0, y_0)(x - x_0) + 
+        \frac{\partial f}{\partial y}(x_0, y_0)(y - y_0)
+    \]
+    法线方程为
+    \[
+        \frac{x - x_0}{\frac{\partial f(M_0)}{\partial x}} = 
+        \frac{y - y_0}{\frac{\partial f(M_0)}{\partial y}} = 
+        \frac{z - z_0}{-1}
+    \]
+    其中\(z = f(x, y)\)在\((x_0, y_0)\)处有连续偏导数.这里\(S\)在\(M_0\)的法向量为\(
+        \pm (-f'_{x}(x_0, y_0), -f'_{y}(x_0, y_0), 1)
+    \),
+    单位法向量为\[
+        \mathbf{n} = \dfrac{
+            \pm(-f'_{x}(x_0, y_0), -f'_{y}(x_0, y_0), 1)
+        }{
+            \sqrt{
+                \left[f'_{x}(x_0, y_0)\right]^{2} + 
+                \left[f'_{y}(x_0, y_0)\right]^{2} + 1
+            }
+        } = (
+            \cos \alpha, \cos \beta, \cos \gamma
+        )\]
+        这里\(\alpha, \beta, \gamma\)是\(z = f(x, y)\)在\((x_0, y_0)\)处的切平面与\(x, y, z\)轴正向的夹角，\(\mathbf{n}\)的表达式中正负号的选取取决于\(\gamma\)是锐角还是钝角。
+        即法向量是朝上还是朝下。朝上取正，朝下取负。
 \end{conclusion}
 \begin{conclusion}{用参数方程表示的空间曲线}{parameter equation space curve}
+    若空间曲线\(\Gamma\)的参数方程为\(
+        x = x(t), y = y(t), z = z(t) \quad (\alpha \leq t \leq \beta)
+    \)又\(
+        M_0(x_0, y_0, z_0) = (x(t_0), y(t_0), z(t_0)) \in \Gamma
+    \)是\(\Gamma\)上的一点，则\(\Gamma\)在点\(M_0\)的曲线方程为
+    \[
+        \frac{x - x_0}{x'(t_0)} = \frac{y - y_0}{y'(t_0)} = \frac{z - z_0}{z'(t_0)}
+    \]
+    法平面方程为
+    \[
+        \frac{x - x_0}{x'(t_0)} = \frac{y - y_0}{y'(t_0)} = \frac{z - z_0}{z'(t_0)}
+    \]
+    其中\(x(t), y(t), z(t)\)在\(t_0\)处有连续导数。
+    且
+    \(
+        \left[x'(t_0)\right]^{2} + \left[y'(t_0)\right]^{2} + 
+        \left[z'(t_0)\right]^{2} \neq 0
+    \)
+    其中
+    \(
+        x'(t_0), y'(t_0), z'(t_0)
+    \)是曲线\(\Gamma\)在点\(M_0\)处的切向量.
 \end{conclusion}
-\begin{conclusion}{作为两曲线交线的空间曲线}{intersection of two curves}
+\begin{conclusion}{作为两曲面交线的空间曲线}{intersection of two curves}
+    若空间曲线\(\Gamma\)的一般方程为\(
+        \begin{cases}
+            F(x, y, z) = 0 \\
+            G(x, y, z) = 0
+        \end{cases}
+    \)是\(\Gamma\)上的一点，则\(\Gamma\)在点\(M_0\)处的切线方程为
+    \[
+        \begin{cases}
+            \frac{\partial F(M_0)}{\partial x}(x - x_0) + 
+            \frac{\partial F(M_0)}{\partial y}(y - y_0) + 
+            \frac{\partial F(M_0)}{\partial z}(z - z_0) = 0 \\
+            \frac{\partial G(M_0)}{\partial y}(y - y_0) + 
+            \frac{\partial G(M_0)}{\partial x}(x - x_0) + 
+            \frac{\partial G(M_0)}{\partial z}(z - z_0) = 0
+        \end{cases}
+    \]
+    或
+    \[
+        \frac{x - x_0}{
+            \left.
+                \frac{\partial(F, G)}
+                {\partial(y, z)}
+            \right|_{M_0}
+        }
+        = \frac{y - y_0}{
+            \left.
+                \frac{\partial(F, G)}
+                {\partial(z, x)}
+            \right|_{M_0}
+        }
+        = \frac{z - z_0}{
+            \left.
+                \frac{\partial(F, G)}
+                {\partial(x, y)}
+            \right|_{M_0}
+        }
+    \]
+    这里\(
+        \frac{\partial(F, G)}
+                {\partial(u, v)}
+    \)表示
+    \(
+        \begin{vmatrix}
+            \frac{\partial F}{\partial u} & \frac{\partial F}{\partial v} \\
+            \frac{\partial G}{\partial u} & \frac{\partial G}{\partial v} 
+        \end{vmatrix}
+    \)
+    法平面方程为
+    \[
+        \left.\frac{\partial(F, G)}{\partial(y, z)}\right|_{M_0} \cdot (x - x_0) + 
+        \left.\frac{\partial(F, G)}{\partial(z, x)}\right|_{M_0} \cdot (y - y_0) + 
+        \left.\frac{\partial(F, G)}{\partial(x, y)}\right|_{M_0} \cdot (z - z_0) = 0
+    \]
+    其中\(F(x, y ,z)\)和\(G(x, y ,z)\)在\((x_0, y_0, z_0)\)处有连续偏导数且
+    \(
+        \mathbf{grad}F(M_0) \times \mathbf{grad}G(M_0) \neq \mathbf{0}
+    \)
+    这里\(\Gamma\)在\(M_0\)的切向量是
+    \[
+        \begin{aligned}
+             \mathbf{grad}F(M_0) \times \mathbf{grad}G(M_0)
+        = \begin{vmatrix}
+            \mathbf{i} & \mathbf{j} & \mathbf{k} \\
+
+              \frac{\partial F}{\partial x} 
+            & \frac{\partial F}{\partial y} 
+            & \frac{\partial F}{\partial z} \\
+            \frac{\partial G}{\partial x} 
+            & \frac{\partial G}{\partial y} 
+            & \frac{\partial G}{\partial z} \\
+
+            \end{vmatrix} = \\
+             \left(
+                \left|\frac{\partial(F, G)}{\partial(y, z)}\right|_{M_0}, 
+                \left|\frac{\partial(F, G)}{\partial(z, x)}\right|_{M_0}, 
+                \left|\frac{\partial(F, G)}{\partial(x, y)}\right|_{M_0}
+             \right)
+        \end{aligned}
+    \]
 \end{conclusion}
 \subsection{普适方法与技巧}
 \begin{conclusion}{讨论二元函数\(z = f(x,y)\)可微的常用方法}{common method of differentiability}
+    \begin{enumerate}
+        \item 利用可微的定义，步骤为
+        \begin{enumerate}
+            \item 考察\(f'_{x}(x_0, y_0)\)和\(f'_{y}(x_0, y_0)\)是否存在，若不存在则\(f(x, y)\)在点\((x_0, y_0)\)处不可微。
+            \item 若\(f'_{x}(x_0, y_0)\)和\(f'_{y}(x_0, y_0)\)存在，则考察
+            \(
+                \lim\limits_{\substack{
+                    \varDelta x \to 0\\ \varDelta y \to 0}
+                } \dfrac{
+                    \varDelta z -
+                    \left[f'_{x}(x_0, y_0)\varDelta x - f'_{y}(x_0, y_0)\varDelta y\right]
+                }{\rho} = 0
+            \)是否成立，其中\(\rho\)为\(\sqrt{\varDelta x^2 + \varDelta y^2}\)。\\
+            若极限存在，则\(f(x, y)\)在点\((x_0, y_0)\)处可微。
+            若极限不存在，则\(f(x, y)\)在点\((x_0, y_0)\)处不可微。
+        \end{enumerate}
+        \item 利用可微的必要条件证明\(f(x, y)\)是点\(x_0, y_0\)处不可微的，若能证明
+        \(f(x, y)\)在点\((x_0, y_0)\)处不连续或不偏导,则\(f(x, y)\)在点\((x_0, y_0)\)处不可微。
+        \item 利用可微的充分条件，即证明\(f(x, y)\)在点\((x_0, y_0)\)处连续，则\(f(x, y)\)在点\((x_0, y_0)\)处可微。
+    \end{enumerate}
 \end{conclusion}
