@@ -522,6 +522,20 @@
         \frac{\partial u}{\partial y}, \frac{\partial v}{\partial y}
     \)
     为未知数的二元一次方程组，利用克莱姆法则可解
+    即\[
+        \frac{\partial u}{\partial x} = \frac{
+            \begin{vmatrix}
+                F'_{1} & F'_{2} \\
+                G'_{1} & G'_{2}
+            \end{vmatrix}
+        }{
+            \begin{vmatrix}
+                F'_{3} & F'_{4} \\
+                G'_{3} & G'_{4}
+            \end{vmatrix}
+        }
+    \]
+    同理可得\( \frac{\partial v}{\partial x}\)或\(\frac{\partial v}{\partial y}\)
 \end{conclusion}
 \begin{conclusion}{复合函数求导法则的其他应用}{compound function derivative rule other application}
     做变量替换时，求函数在新变量下得偏导数，有时通过变量替换可将某些偏微分方程化简
@@ -970,4 +984,17 @@
         \(f(x, y)\)在点\((x_0, y_0)\)处不连续或不偏导,则\(f(x, y)\)在点\((x_0, y_0)\)处不可微。
         \item 利用可微的充分条件，即证明\(f(x, y)\)在点\((x_0, y_0)\)处连续，则\(f(x, y)\)在点\((x_0, y_0)\)处可微。
     \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{\(k\)次齐次函数}{homogeneous function}
+    \(k\)次齐次函数是指形如
+    \[
+        f(ax_1, ax_2, \dots , ax_n) = a^k f(x_1, x_2, \dots , x_n)
+    \]
+    的函数，其中\(a\)为常数。
+    \(k\)次齐次函数在点\((x_1, x_2, \dots , x_n)\)处的偏导数存在，则有
+    \[
+        \sum_{i = 1}^{n} \frac{\partial f}{\partial x_i}(x_1, x_2, \dots , x_n)
+        = kf(x_1, x_2, \dots , x_n)
+    \]
 \end{conclusion}
