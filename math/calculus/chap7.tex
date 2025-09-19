@@ -277,6 +277,10 @@
     \begin{enumerate}
         \item 两个不平行的平面相交于一条直线，则选择一般式
         \item 已知平面上一点\(M(x_0, y_0, z_0)\)和它的方向向量\((l, m, n)\)，则选择参数式或标准式
+        \item 投影直线方程\\
+        设直线\(L\)与平面\(\pi\)，过直线\(L\)在\(\pi\)上的投影方程的计算方法为
+        将直线\(L\)换为一般式的形态，用平面束方程求出与\(\pi\)垂直的的平面\(\Pi\)的方程，
+        联立两个方程组，即为投影直线方程
     \end{enumerate}
 \end{conclusion}
 
@@ -398,6 +402,14 @@
     \]
 \end{mydef}
 
+\begin{conclusion}{旋转曲面方程的直角坐标系求法}{RotationalSurfaceEquationInCartesianCoordinateSystem}
+    \begin{enumerate}
+        \item 将旋转的曲线h化成参数方程
+        \item 根据与旋转轴的距离进行联立
+        \item 消去参数\(t\)，得到直角坐标方程。
+    \end{enumerate}
+\end{conclusion}
+
 \begin{conclusion}{柱面}{CylinderSurface}
     \(\Gamma\)是一条空间曲线，直线\(L\)沿\(\Gamma\)平行移动所产生的曲面称为柱面。
     \(\Gamma\)为柱面的准线,\(L\)为柱面的母线。
@@ -480,9 +492,8 @@
                 y = g(t) \\
                 z = 0\
             \end{cases}
-        \)是\(\Gamma\)是在\(xOy\)平面上的投影曲线方程。
+        \)是\(\Gamma\)是在\(xOy\)平面上的投影曲线方程
     \end{enumerate}
-
 \end{conclusion}
 
 \subsection{基本方法与技巧}
@@ -490,8 +501,23 @@
     求平面需注意怎么求法向量
     \begin{enumerate}
         \item 过一定点并与直线垂直的平面，法向量即为直线方向向量。
-        \item 过两直线垂直的平面，法向量即为这两条直线的公垂线。
-        \item 过一定点且与两给定直线平行的平面，法向量即为这两条直线的公垂线。
-        \item 过一定点且通过一条定直线的平面，利用共面求方程
+        \item 过一定点且平行于已知平面方程，法向量即为平面法向量
+        \item 过一定点且与两给定直线平行的平面，法向量同时垂直这两条方向向量,即\(\mathbf{n} = \mathbf{a} \times \mathbf{b}\)
+        \item 过一定点且分别垂直于两个已知平面的方程，法向量即为这两个平面方程的法向量的向量积
+        \item 过一定点，垂直于一条直线和一个平面，法向量即为直线方向向量与平面方程法向量的向量积
+        \item 过一定点且过一定直线，将直线化为对称式方程，求出直线上的点与定点的向量\(\overrightarrow{\mathbf{M_1M_0}}\),
+        进行叉乘得到法向量，即\(\mathbf{n} = \overrightarrow{\mathbf{M_1M_0}} \times \mathbf{a}\)
+        \item 过一两点且垂直于一个平面的直线，其法向量由平面法向量和两点组成的向量叉乘得到。
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{求直线方程的基本方法}{LineEquationBasicMethod}
+    求直线方程需注意怎么求方向向量
+    \begin{enumerate}
+        \item 过一点且平行于一直线的直线，方向向量即为直线方向向量
+        \item 过一点且垂直于平面的直线方程，方向向量即为平面的法向量
+        \item 过一点且垂直于两条直线的直线，方向向量即为两条直线的方向向量的叉乘
+        \item 过一点，且平行于两个平面的直线，方向向量即为两平面法向量的叉乘
+        \item 过一点，且平行于一个平面，垂直于一条直线的直线，方向向量即为平面法向量的叉乘和直线方向向量的叉乘
     \end{enumerate}
 \end{conclusion}
