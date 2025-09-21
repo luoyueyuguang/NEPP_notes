@@ -109,6 +109,7 @@
         对曲面\(z = z(x, y)\),与法向量成锐角的曲面称为内侧，与法向量成钝角的曲面称为外侧。\\
         对曲面\(y = y(x, z)\),曲面\(x = x(y, z)\),同理可得。
         \item 曲面\(\Omega\)的法向量\(\mathbf{n}(\mathbf{M}_i) = ({\cos \alpha}_i, {\cos \beta}_i, {\cos \gamma}_i)\)，若\({\cos \gamma}_i > 0\)，则\((\Delta S_i)_{xy}\)为正值，否则为负值。
+        其他面同理可得。\\
     \end{enumerate}
 \end{conclusion}
 \begin{conclusion}{几种多元函数积分的比较}{integral-compare}
@@ -275,7 +276,7 @@
         y = \psi(t)
     \end{cases}, \alpha < t \beta\)
     则\[
-        \int_{L} f(x, y) \mathrm{d} s = \int_{\alpha}^{\beta} f(\phi(t), \psi(t)) \, \sqrt{(\phi'(t))^2 + (\psi'(t))^2} \, \mathrm{d} t
+        \int_{L} f(x, y) \mathrm{d} s = \int_{\alpha}^{\beta} f(\varphi(t), \psi(t)) \, \sqrt{(\varphi'(t))^2 + (\psi'(t))^2} \, \mathrm{d} t
     \]
     其中\( \phi(t), \psi(t)\)在\(
     [\alpha, \beta]
@@ -411,11 +412,12 @@
         \int_{\alpha}^{\beta} \mathrm{d} z
         \iint_{D(z)} f(x, y, z) \mathrm{d} x \mathrm{d} y
     \]
-    两种方法即先一后二法或先二后一法。针对的分别是曲顶曲底柱长条区域和界面已知的区域。
+    两种方法即先一后二法或先二后一法。针对的分别是曲顶曲底柱长条区域和界面已知的区域。 \\
+    如果被积函数与二重积分部分无关，考虑先二后一法，不展开二重积分，用面积来求。
 \end{conclusion}
 
 \begin{conclusion}{第一类曲面积分化为二重积分}{first-curve-integral-to-two}
-    如果积分曲面\(Omega\)能够表为\(z = z(x, y)\)的形式，并且在\(xOy\)平面
+    如果积分曲面\(\Omega\)能够表为\(z = z(x, y)\)的形式，并且在\(xOy\)平面
     上的投影域为\(D\),那么
     \[
         \iint_{\Omega} f(x, y, z) \mathrm{d} S = 
@@ -432,7 +434,7 @@
                 1 + {z'_{x}}^2 + {z'_{y}}^2
             } \mathrm{d} \sigma
         \)
-        \item 积分区域\(D\)是\(Omega\)在\(xOy\)面上的投影
+        \item 积分区域\(D\)是\(\Omega\)在\(xOy\)面上的投影
     \end{enumerate}
     转化需要注意以下几点
     \begin{enumerate}
@@ -597,7 +599,8 @@
         \]。
         其中\(D'\)是由\(u(x, y)\),\(v(x, y)\)定义的平面有界闭区域，且\(\left|
             \frac{\partial (u, v)}{\partial (x, y)} \right|
-            \)为雅可比行列式。\\    
+            \)为雅可比行列式。
+        三重积分亦同理可得
 \end{conclusion}
 \begin{conclusion}{二重积分的极坐标变换}{two-integral-polar}
     极坐标变换\(
@@ -697,7 +700,7 @@
     在球坐标变换\(
     x = \rho \sin \varphi \cos \theta, y = \rho \sin \varphi \sin \theta, z = \rho \cos \varphi
     \)下有\(
-        \mathrm{d} V = \rho^2 \sin \phi \mathrm{d} \rho \mathrm{d} \theta \mathrm{d} \phi
+        \mathrm{d} V = \rho^2 \sin \varphi \mathrm{d} \rho \mathrm{d} \theta \mathrm{d} \varphi
     \)
     \[
         \iiint\limits_{\Omega} f(x, y, z) \mathrm{d} V = \iiint\limits_{\Omega'} f(\rho \sin \varphi \cos \theta, \rho \sin \varphi \sin \theta, \rho \cos \varphi) \rho^2 \sin \varphi \mathrm{d} \rho \mathrm{d} \theta \mathrm{d} \varphi
@@ -729,7 +732,7 @@
     计算二重积分\(
     \iint f(x, y) \mathrm{d} x \mathrm{d} y
     \)时先对 \(x\) 积分还是先对 \(y\) 积分，既取决于积分区域\(D\)的类型，又取决于被积函数的特点。\\
-    不同的积分顺序会影响计算的繁简程度，有时甚至是能否计算出积分的区别。\\
+    不同的积分顺序会影响计算的繁简程度，有时甚至是能否计算出积分的区别。
 \end{conclusion}
 
 \subsubsection{对称性与奇偶性}
@@ -860,7 +863,54 @@
 \end{conclusion}
 
 \begin{conclusion}{第二类曲线,曲面积分的对称性与奇偶性}{second-curve-integral-symmetry}
+    第二类曲线与曲面积分本质上是向量的积分，所以我们要考虑微元的方向。\\
+    通过微元与函数的点积关系，可以得到类似的结论。\\
+    \begin{enumerate}
+        \item 设\(P(x, y), Q(x, y)\)在分段光滑曲线\(L\)上连续\\
+        \begin{enumerate}
+            \item \(L\)关于\(y\)轴对称，则
+            \[
+                \iint\limits_{L} P \mathrm{d} x  = 
+                \begin{cases}
+                    0, & \text{若} P(x, y) \text{对} x\text{为奇函数},\\
+                    2\iint\limits_{L_1} P \mathrm{d} x, &
+                    \text{对} x\text{为偶函数}
+                \end{cases}
+            \]
+            同时有
+            \[
+                \iint\limits_{L} Q \mathrm{d} y  = 
+                \begin{cases}
+                    0, & \text{若} Q(x, y) \text{对} x \text{为偶函数}
+                    ,\\
+                    2\iint\limits_{L_1} Q \mathrm{d} y, &
+                    \text{对} x \text{为奇函数}
+                \end{cases}
+            \]
+            之所以出现这个原因是因为在\(y\)轴前后，\(x\)方向的微元没有发生变化，所以\(P\)为奇函数的积分结果为0。
+            但\(y\)方向的微元发生了变化，即反方向，所以\(Q\)为偶函数的积分结果才为0。
+            \item \(L\)关于\(x\)轴对称，则
+            \[
+                \iint\limits_{L} P \mathrm{d} y  = 
+                \begin{cases}
+                    0, & \text{若} P \text{对}y\text{为偶函数} ,\\
+                    2\int\limits_{L_1} P \mathrm{d} y, &
+                    \text{对} y \text{为奇函数}
+                \end{cases}
+            \]
+            同时有
+            \[
+                \iint\limits_{L} Q \mathrm{d} x  = 
+                \begin{cases}
+                    0, & \text{若} Q \text{对}y\text{为奇函数} ,\\
+                    2\int\limits_{L_1} Q \mathrm{d} x, &
+                    \text{对} y \text{为偶函数}
+                \end{cases}
+            \]
+            同样可以从微元的方向变化理解。
+        \end{enumerate}
 
+    \end{enumerate}
 \end{conclusion}
 
 \begin{conclusion}{分块积分法}{integral-block}
@@ -922,8 +972,13 @@
 
 \begin{conclusion}{计算曲线、曲面积分时利用曲线或曲面方程}{integral-geometry}
     在计算曲线、曲面积分时，可以利用曲线或曲面方程简化计算。\\
-    特别是将被积函数变为适合方程的形式，或者将方程代入被积函数中简化计算。
+    特别是将被积函数变为适合方程的形式，或者将方程代入被积函数中简化计算。 \\
+    注意，大多数情况下，曲线积分变换为重积分后，就不能代了
 \end{conclusion}
+
+% \begin{conclusion}{形心公式}{moment-formula}
+
+% \end{conclusion}
 
 \begin{conclusion}{计算第二类曲面积分时选择投影方向}{projection-direction}
     在计算第二类曲面积分时，选择合适的投影方向可以简化计算。\\
@@ -1012,15 +1067,19 @@
         若\(\Omega\)的边界不止一张曲面，高斯公式中的右端积分应包括沿区域\(\Omega\)的全部边界上的曲面积分。
         若\(\Omega\)的外边界为闭曲面\(\Sigma\),内边界为闭曲面\(\Sigma_1, \dots ,\Sigma_n\),则
         \[
-            \iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right)
-            = \iint\limits_{\Sigma} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x  + R \mathrm{d} x \mathrm{d} y
-            + \sum_{i} \iint\limits_{\Sigma_i} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x  + R \mathrm{d} x \mathrm{d} y
+            \begin{aligned}
+                &\iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right) \\
+                &= \iint\limits_{\Sigma} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x  + R \mathrm{d} x \mathrm{d} y
+                + \sum_{i} \iint\limits_{\Sigma_i} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x  + R \mathrm{d} x \mathrm{d} y
+            \end{aligned}
         \]
         或
         \[
-            \iiint\limits_{\Omega} \left(\frac{\partial Q}{\partial z} + \frac{\partial R}{\partial y} + \frac{\partial P}{\partial x}\right)
-            = \iint\limits_{\Sigma} \left(P \cos \alpha + Q \cos \beta + R \cos \gamma\right) \mathrm{d} S
-            + \sum_{i} \iint\limits_{\Sigma_i} \left(P \cos \alpha + Q \cos \beta + R \cos \gamma\right) \mathrm{d} S
+            \begin{aligned}
+            &\iiint\limits_{\Omega} \left(\frac{\partial Q}{\partial z} + \frac{\partial R}{\partial y} + \frac{\partial P}{\partial x}\right) \\
+            = &\iint\limits_{\Sigma} \left(P \cos \alpha + Q \cos \beta + R \cos \gamma\right) \mathrm{d} S\\
+            &+ \sum_{i} \iint\limits_{\Sigma_i} \left(P \cos \alpha + Q \cos \beta + R \cos \gamma\right) \mathrm{d} S
+            \end{aligned}
         \]
         \begin{formula}{空间分段光滑闭曲面\(S\)围成的区域\(\Omega\)的体积公式}{region-formula-space}
             \[

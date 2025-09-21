@@ -1,1 +1,249 @@
 \section{中值定理与泰勒公式}
+\subsection{中值定理}
+\begin{mydef}{极值的定义}{definition of extremum}
+    若\(\exists \delta > 0\)，使得\(\forall x \in (x_0 - \delta, x_0 + \delta)\)，均有\(f(x) < f(x_0)(f(x) > f(x_0))\)，则称\(f\)在点\(x_0\)处取得极小值或极大值，简称极值。
+    称点\(x_0\)为\(f\)的极值点。
+\end{mydef}
+
+\begin{mydef}{费马定理及其几何意义}{fermat's theorem and its geometric meaning}
+    若\(y = f(x)\)在点\(x_0\)处可取得极值，则\(f'(x_0) = 0\)。
+    若\(f'(x_0) = 0\)，则\(x_0\)为\(f\)的驻点。若\(f(x)\)在\(x = x_0\)处取得极值并可导，则\(x_0\)为极值点，反之，
+    并不一定。
+    \begin{conclusion}{费马定理的几何意义}{geometric meaning of fermat's theorem}
+    若\(y = f(x)\)在点\(x = x_0\)处取极值且相应的曲线\(y = f(x)\)在点\(x = x_0\)处的切线不垂直于\(x\)轴，则该切线必平行于\(x\)轴。
+    \end{conclusion}
+\end{mydef}
+
+\begin{mydef}{罗尔定理及其几何意义}{roll's theorem and its geometric meaning}
+    若\(y = f(x)\)在区间\([a, b]\)上连续，在\((a, b)\)内可导，且\(f(a) = f(b)\)，则至少存在一点\(\xi \in (a, b)\)，使得\(f'(\xi) = 0\)
+    \begin{conclusion}{罗尔定理的几何意义}{geometric meaning of roll's theorem}
+        若连续曲线\(y = f(x)\)在\(A(a, f(a))和B(b, f(b))\)间至少存在一点\(P(\xi, f(\xi))\)，使得点\(P\)处的切线平行于\(x\)轴。
+    \end{conclusion}
+\end{mydef}
+
+\begin{mydef}{拉格朗日中值定理及其几何意义}{lagrange's mean value theorem and its geometric meaning}
+    设\(f(x)\)在区间\([a, b]\)上连续，在\((a, b)\)内可导，且\(\exists \xi \in (a, b)\),使得
+    \[
+    \begin{aligned}
+        &f(b) - f(a) = f'(\xi) (b - a) \\
+        &f(x) = f(x_0) + f'(\xi) (x - x_0), \xi \in (x_0, x) \\
+        &f(x + \Delta x) = f(x_0) + f'(\xi) (\Delta x) \\
+        &\Delta y = f'(x + \theta \Delta x) \cdot \Delta x (0 \leq \theta \leq 1)
+    \end{aligned}
+    \]
+    这个定理也叫作微分中值定理。上述第四个式称为有限增量公式，拉格朗日中理又称微分中值定理
+    \begin{conclusion}{拉格朗日中值定理的几何意义}{geometric meaning of lagrange's mean value theorem}
+        若\(f(x)\)在\(
+        A(a, f(a)), 
+        B(b, f(b)), 
+        \)两点间的每一点处都有不垂直于\(x\)轴的切线，则存在一点\(P(\xi, f(\xi))\)
+        使得该曲线在点\(P\)处的切线与割线\(\overset{\_\_\_}{AB}\)平行
+    \end{conclusion}
+\end{mydef}
+
+\begin{mydef}{柯西中值定理}{cauchy's mean value theorem}
+    设\(f(x), g(x)\)在区间\([a, b]\)上连续，在\((a, b)\)内可导，且\(g'(x) \neq 0\),则\(\exists \xi \in (a, b)\)，使得
+    \[
+    \frac{f(b) - f(a)}{g(b) - g(a)} = \frac{f'(\xi)}{g'(\xi)}
+    \]
+\end{mydef}
+
+\begin{conclusion}{微分中值定理的重要作用}{important role of differential mean value theorem}
+    微分中值定理建立了函数增量，自变量增量与导数之间的联系。由于函数的许多性质都可以通过函数增量与自变量增量的关系来描述，因此，微分中值定理在函数的分析中起着重要的作用。
+\end{conclusion}
+
+\begin{conclusion}{罗尔定理的辅助函数}{roll's theorem for auxiliary function}
+    \begin{enumerate}
+        \item 证明\(f'(\xi) = 0\)或\(f''(\xi) = 0\) \\
+        应用一次或两次罗尔定理即得
+        \item 证明存在\(\xi \in (a, b)\)，使得\(cf'(\xi) = dg'(\xi)\),其中\(c,d\)为常数
+        \begin{conclusion}{详细过程}{mean detailed process 1}
+            \[
+            \begin{aligned}
+                    &F(x) = cf(x) - dg(x) \\
+                    &F'(x) = c f'(x) - d g'(x)
+            \end{aligned}
+            \]
+        \end{conclusion}
+        \item 证明存在\(\xi \in (a, b)\)，使
+        \[
+            k(\xi) f'(\xi) + h(\xi)f(\xi) = Q(\xi)
+        \]
+        将其作为一阶线性非齐次微分方程来看待，辅助函数为其通解\(F(X)=H(X)\)
+        若\(Q(x) = 0\)，则其为一阶齐次微分方程，其辅助函数为其通解\[
+        F(x) = e^{\int[h(x)/k(x)]\mathrm{d}x} f(x)
+        \]
+        \item 证明存在\(\xi \in (a, b)\)，使得\(
+            f(\xi)g'(\xi) + f'(\xi)g(\xi) = 0
+        \),其辅助函数为\[
+            F(X) = {[f(x)g(x)]}
+        \]
+        \item 证明存在\(\xi \in (a, b)\)，使得\(
+            f(\xi)g'(\xi) - f'(\xi)g(\xi) = 0(g(\xi) \neq 0)
+        \),其辅助函数为\[
+            F(X) = {\left[
+                \frac{f(x)}{g(x)}
+            \right]}
+        \]
+        \item 证明存在\(\xi \in (a, b)\)，使得\(
+            f'(\xi) + g'(\xi)f(\xi) = 0
+        \),其辅助函数为\[
+            F(X) = e^{g(x)} f(x)
+        \]
+        \begin{conclusion}{详细过程}{mean detailed process 2}
+            \[
+                \begin{aligned}
+                    &F'(x) = e^{g(x)} f'(x) + e^{g(x)} g'(x)f(x) \\
+                    &= e^{g(x)} \left[
+                        f'(x) + g'(x)f(x)
+                    \right]
+                \end{aligned}
+            \]
+        \end{conclusion}
+        \item 证明存在\(\xi \in (a, b)\)，使得\(
+            nf(\xi) + \xi f'(\xi) = 0(
+                n \in N^{+}
+            )
+            \)
+            辅助函数为\(F(X) = f(x)e^{n\ln x} = f(x)e^{{\ln x}^{n}} = x^n f(x)\)
+            \begin{conclusion}{详细过程}{mean detailed process 3}
+                \begin{enumerate}
+                    \item 证法一 \\/
+                    \(
+                        f'(\xi) +(n / \xi) f(\xi) = 
+                            {\left. f'(\xi) + (n \ln x)^{'}\right|}_{x = \xi} f(\xi) = 0
+                    \)
+                    \item 证法二
+                    \[
+                    \begin{aligned}
+                        n \xi^{n - 1}f(\xi) + \xi^{n}f'(\xi) = 0
+                    \end{aligned}
+                    \]
+                \end{enumerate}
+            \end{conclusion}
+        \item 证明存在\(\xi in (a, b)\)，使得\(
+            \frac{f(\xi)}{g(\xi)} = \frac{f'(\xi)}{g'(\xi)}
+        \)即\(
+            f(\xi)g''(\xi) - f''(\xi)g(\xi) = 0
+        \),其辅助函数为\[
+            F(X) = f(x)g'(x) - f'(x)g(x)
+        \]
+        \item 证明存在\(\xi \in (a, b)\)，使得\(
+            f(\xi) + g'(\xi)[f(\xi) - b\xi] = b
+        \).其辅助函数为\[
+            F(X) = e^{g(x)} \left[
+                f(x) - bx
+            \right]
+        \]
+    \end{enumerate}
+\end{conclusion}
+
+\subsection{函数性态}
+
+\begin{conclusion}{函数为常数的充要条件}{necessary and sufficient condition for a function to be constant}
+\end{conclusion}
+
+\begin{conclusion}{两个函数差为函数的条件}{condition for the difference of two functions to be a function}
+
+\end{conclusion}
+
+\begin{conclusion}{两个函数恒等的条件}{condition for two functions to be identical}
+\end{conclusion}
+
+\begin{conclusion}{函数单调性判别定理及其几何意义}{judgement theorem of function's monotonicity and its geometric meaning}
+\end{conclusion}
+
+\begin{conclusion}{函数单调性区间的一般求法}{general method for finding the interval of function's monotonicity}
+
+\end{conclusion}
+
+\begin{conclusion}{极值点必要条件}{necessary condition for a point to be an extremum point}
+\end{conclusion}
+
+\begin{mydef}{极值点充分判定定理及几何意义}{sufficient judgement theorem of extremum point and its geometric meaning}
+
+\end{mydef}
+
+\begin{mydef}{凹凸性的定义及几何意义}{definition and geometric meaning of concavity}
+
+\end{mydef}
+
+\begin{conclusion}{凹凸性的判定定理及几何意义}{judgement theorem of concavity and its geometric meaning}
+    若\(f(x)\)在\((a, b)\)内可导，且\(f''(x) > 0\)，则函数曲线在区间\((a, b)\)上是凹的；
+    反之，若\(f''(x) < 0\)，则函数曲线在区间\((a, b)\)上是凸的
+\end{conclusion}
+
+\begin{conclusion}{函数\(f(x)\)的凹凸性区间的求法}{method for finding the interval of concavity of function \(f(x)\)}
+\end{conclusion}
+
+\begin{mydef}{拐点}{extremum point}
+\end{mydef}
+
+\begin{conclusion}{拐点的必要条件}{necessary condition for a point to be a extremum point}
+\end{conclusion}
+
+\begin{conclusion}{拐点的充分判定定理及几何意义}{sufficient judgement theorem of extremum point and its geometric meaning}
+\end{conclusion}
+
+\begin{conclusion}{曲线拐点的求法}{method for finding the extremum points of a function}
+\end{conclusion}
+
+\begin{conclusion}
+{
+    利用导数对给定函数上求单调性区间、极值点区间、凹凸性区间和拐点的求法
+}{method for finding the intervals of monotonicity, extremum points, concavity and extremum points using derivatives}
+\end{conclusion}
+
+\begin{conclusion}{利用导数求渐近线}{method for finding the asymptotic lines using derivatives}
+\end{conclusion}
+
+
+\subsection{函数的最大值与最小值问题}
+
+\begin{conclusion}{闭区间\([a, b] \)上连续函数\(f(x)\)的最值问题}{maximum and minimum problems of continuous function  on closed interval }
+\end{conclusion}
+
+\begin{conclusion}{\(f(x)\)在区间\(I\)可导且仅有两个单调区间的最值问题}{maximum and minimum problems of continuous function  on two interval}
+\end{conclusion}
+
+\begin{conclusion}{其他的最值问题}{maximum and minimum problems of continuous function  on two interval}
+
+\end{conclusion}
+
+
+\subsection{泰勒公式}
+\begin{mydef}{泰勒公式}{taylor formula}
+\end{mydef}
+
+\begin{mydef}{麦克劳林公式}{maclaurin formula}
+\end{mydef}
+
+\begin{formula}{五个基本初等函数的麦克劳林公式}{maclaurin formula of five basic elementary functions}
+\end{formula}
+\subsection{泰勒公式求法}
+\begin{conclusion}{泰勒公式的唯一性}{uniqueness of taylor formula}
+
+\end{conclusion}
+
+\begin{conclusion}{带皮亚诺余项的泰勒公式的求法}{method for finding taylor formula with peano remainder}
+\end{conclusion}
+
+\begin{conclusion}{带拉格朗日余项的泰勒公式的求法}{method for finding taylor formula with lagrange remainder}
+\end{conclusion}
+
+\subsection{带皮亚诺余项的泰勒公式的应用}
+\begin{conclusion}{利用泰勒公式求极限}{application of taylor formula to find limits}
+\end{conclusion}
+
+\begin{conclusion}{利用泰勒公式确定无穷小的阶数}{application of taylor formula to find the order of infinite small}
+\end{conclusion}
+
+\begin{conclusion}{利用泰勒公式求高阶函数的值}{application of taylor formula to find the value of higher order function}
+\end{conclusion}
+\subsection{带拉格朗日余项的泰勒公式的应用}
+\begin{conclusion}{利用泰勒公式证明不等式}{application of taylor formula to prove inequalities}
+\end{conclusion}
+
+\begin{conclusion}{利用泰勒公式证明高阶下的某些特征点}{application of taylor formula to prove some features of higher order}
+\end{conclusion}
+
