@@ -1,37 +1,38 @@
 \section{大数定律与中心极限定理}
+\noindent\textbf{考研定位：}大数定律、中心极限定理及其常规概率近似属于现行考研数学一主线。次序统计量的非退化极限分布与随机阶记号属于拓展内容，不作为主线备考要求。
+
 \subsection{大数定律}
 \begin{mydef}{依概率收敛}{converge as probability}
-    设\(Y_{1}, Y_{2}, \dots\)是随机变量序列，若\(\lim_{n \to \infty} P\{|Y_{n} - a| \leq \varepsilon\} = 1\)，则称\(Y_{1}, Y_{2}, \dots\)依概率收敛于\(a\)，记作\(Y_{n} \overset{p}{\to} a\)。
+    设\(Y_{1}, Y_{2}, \dots\)是随机变量序列，若对任意\(\varepsilon>0\)，\(\lim_{n \to \infty} P\{|Y_{n} - a| < \varepsilon\} = 1\)，则称\(Y_{1}, Y_{2}, \dots\)依概率收敛于\(a\)，记作\(Y_{n} \overset{p}{\to} a\)。
     \\
     若\(X_{n} \overset{p}{\to} a\)，\(Y_{n} \overset{p}{\to} b\),且函数在点\((a, b)\)
     连续，则\(g(X_n, Y_n) \overset{p}{\to} g(a, b)\)
 \end{mydef}
 
 \begin{mydef}{切比雪夫不等式}{chebyshev inequality}
-    设随机变量\(X\)的数学期望为\(E(X)\)，则对任意\(\varepsilon > 0\)，有
+    设随机变量\(X\)的数学期望与有限方差均存在，则对任意\(\varepsilon > 0\)，有
     \[
         \begin{aligned}
         &P\{|X - E(X)| \geq \varepsilon\} \leq \frac{D(X)}{\varepsilon^2} \\
-        &P\{|X - E(X)| \leq \varepsilon\} \geq 1 - \frac{D(X)}{\varepsilon^2}
+        &P\{|X - E(X)| < \varepsilon\} \geq 1 - \frac{D(X)}{\varepsilon^2}
         \end{aligned}
     \]
 \end{mydef}
 
 \begin{mydef}{切比雪夫大数定律}{law of large numbers c}
-若随机变量
+若随机变量序列\(X_1,X_2,\ldots\)满足
 \begin{enumerate}
     \item 独立
-    \item \(E(X)\)和\(D(X)\)都存在，且\(D(X_i) \leq c\)
+    \item 每个\(X_i\)的期望和方差都存在，且存在常数\(c>0\)使\(D(X_i) \leq c\)
 \end{enumerate}
 则有
 \[
-    \lim\limits_{n \to \infty} P(|\frac{1}{n} \sum_{i=1}^{n}X_{i} - \frac{1}{n}\sum_{i}^{n}E(X_i)| < \varepsilon) = 1
+    \lim\limits_{n \to \infty} P(|\frac{1}{n} \sum_{i=1}^{n}X_{i} - \frac{1}{n}\sum_{i=1}^{n}E(X_i)| < \varepsilon) = 1
 \]
 \end{mydef}
 
 \begin{mydef}{伯努利大数定律}{law of large numbers b}
-    若随机变量\(X_{n}\)服从参数为\(n\)和\(p\)的二项分布，即\(X_{n} \sim B(n, p)\)，
-    \(\mu_{n}\)是\(n\)次试验中事件\(A\)发生的次数，则对任意\(\varepsilon > 0\)，有
+    若\(\mu_n\sim B(n,p)\)表示\(n\)次独立重复试验中事件\(A\)发生的次数，则对任意\(\varepsilon > 0\)，有
     \[
         \lim\limits_{n \to \infty} P(|\frac{\mu_{n}}{n} - p| < \varepsilon) = 1
     \]
@@ -40,8 +41,8 @@
 \begin{mydef}{辛钦大数定律}{law of large numbers x}
     若随机变量
     \begin{enumerate}
-        \item 独立 
-        \item 期望存在，\(\mu\)为共同的期望
+        \item 相互独立且同分布；
+        \item 期望存在，\(E(X_i)=\mu\)
     \end{enumerate}
     则对任意\(\varepsilon > 0\)
     \[
@@ -50,29 +51,29 @@
 \end{mydef}
 
 \begin{conclusion}{大数定律的实质}{law of large numbers essence}
-    大数定律实质即\(\overline{X_{n}}\)依概率收敛于\(E(\overline{X_n})\)
-    即
+    大数定律描述大量随机变量平均值的稳定性。切比雪夫型结论可写为中心化平均依概率趋于\(0\)：
     \[
-        \overline{X_{n}} \overset{P}{\to} E(\overline{X_{n}})
+        \frac1n\sum_{i=1}^n\bigl[X_i-E(X_i)\bigr]\overset P\longrightarrow0.
     \]
+    在独立同分布且\(E(X_i)=\mu\)的情形，这就化为样本均值\(\overline X_n\overset P\longrightarrow\mu\)。不能在没有条件时笼统写成\(\overline X_n\to E(\overline X_n)\)。
 \end{conclusion}
 \subsection{中心极限定理}
-\begin{mydef}{列维林德伯格定理}{law of large numbers l}
+\begin{mydef}{林德伯格--莱维中心极限定理}{law of large numbers l}
     若随机变量
     \begin{enumerate}
-        \item 独立 
-        \item 期望存在，\(\mu\)为共同的期望
-        \item 方差存在，\(\sigma^2\)为共同的方差
+        \item 相互独立且同分布；
+        \item 期望存在，\(E(X_i)=\mu\)；
+        \item 方差存在且非零，\(D(X_i)=\sigma^2>0\)
     \end{enumerate}
     则对任意实数\(x\)，有
     \[
         \lim\limits_{n \to \infty} P(\frac{1}{\sigma \sqrt{n}} (\sum_{i=1}^{n}X_{i} - n\mu) \leq x) = \Phi(x) 
     \]
-    即\(n\)很大时，近似服从正态分布\(N(n\mu, \mu \sigma^2)\)
+    即\(n\)很大时，近似服从正态分布\(N(n\mu, n\sigma^2)\)
 \end{mydef}
 
 \begin{mydef}{棣莫夫拉普拉斯定理}{laplace theorem}
-    设随机变量\(Y_n\)服从参数为\(n, p\)的二项分布，即\(Y_n \sim B(n, p)\)，
+    设\(0<p<1\)，随机变量\(Y_n\)服从参数为\(n,p\)的二项分布，即\(Y_n \sim B(n, p)\)，
     则对任意实数\(x\)，有
     \[
         \lim\limits_{n \to \infty} P(\frac{Y_n - np}{\sqrt{np(1-p)}}  \leq x) = \Phi(x)
@@ -93,6 +94,392 @@
 
 \subsection{其他事项}
 \begin{conclusion}{大数定律与中心极限定理的一些说明}{law of large numbers and central limit theorem strength}
-    大数定律与中心极限定理都只是一个猜测，如果题目中有更准确的方法能计算出值，则使用更准确的方法.
-    \\以上的大数定律可以说条件由弱到强，条件越来越严格
+    大数定律与中心极限定理都是在各自条件下成立的严格数学定理。大数定律描述样本均值的概率收敛，中心极限定理描述标准化随机和的分布收敛；把中心极限定理用于有限样本概率计算时，得到的是近似值。若题目存在可直接计算的精确分布，应优先使用精确分布；需要近似时再考虑中心极限定理，并留意离散分布的连续性校正。
+
+    不同大数定律针对的条件与场景不同，不能简单概括为“条件由弱到强”。例如辛钦大数定律要求独立同分布且期望存在，而切比雪夫大数定律允许不同分布，但要求方差一致有界。
 \end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\textbf{1.} \textbf{（计算题）} 掷一枚均匀硬币400次，以$X$表示正面出现的次数。
+\begin{enumerate}[label=(\arabic*)]
+    \item 用切比雪夫不等式估计$P(|X-200|<20)$的下界；
+    \item 用棣莫弗--拉普拉斯中心极限定理近似计算$P(|X-200|<20)$；
+    \item 比较(1)(2)的结果，说明哪个更精确及原因。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+$X\sim B(400,0.5)$，$E(X)=400\times 0.5=200$，$D(X)=400\times 0.5\times 0.5=100$，$\sigma=10$。
+
+(1) 由切比雪夫不等式，取$\varepsilon=20$：
+\[
+P(|X-200|<20)=1-P(|X-200|\geq 20)\geq 1-\frac{D(X)}{\varepsilon^{2}}=1-\frac{100}{400}=0.75.
+\]
+
+(2) 事件 $|X-200|<20$ 等价于 $181\leq X\leq219$。使用连续性修正后，以正态变量近似整数区间 $[181,219]$ 时取边界 $180.5$ 与 $219.5$：
+\[
+\begin{aligned}
+P(|X-200|<20)
+&=P(181\leq X\leq219)\\
+&\approx P\!\left(-1.95<Z<1.95\right)
+=2\Phi(1.95)-1\approx0.9488.
+\end{aligned}
+\]
+
+(3) 带连续性修正的正态近似值 $0.9488$ 远比切比雪夫下界 $0.75$ 精细。原因：切比雪夫不等式对\textbf{任何}具有相同期望和方差的分布都成立，不利用分布的具体形式，因此给出的界非常保守；而中心极限定理利用了独立同分布随机和的结构。
+
+\boxed{\textbf{注}} 精确二项概率为
+$\displaystyle\sum_{k=181}^{219}\binom{400}{k}(0.5)^{400}\approx0.94896$，与带连续性修正的结果接近；若不作修正，则得到 $2\Phi(2)-1=0.9544$。
+
+\vspace{0.5cm}
+
+\textbf{2.} \textbf{（概念辨析题）} 设$X_{1},X_{2},\ldots,X_{n},\ldots$为独立同分布的随机变量序列，$E(X_{i})=\mu$存在，$D(X_{i})=\sigma^{2}>0$存在。$\bar{X}_{n}=\frac{1}{n}\sum_{i=1}^{n}X_{i}$。判断下列命题的真伪并\textbf{简要说明理由}：
+\begin{enumerate}[label=(\arabic*)]
+    \item 由辛钦大数定律，$\bar{X}_{n}\overset{P}{\longrightarrow}\mu$；
+    \item 伯努利大数定律是辛钦大数定律的特例；
+    \item 中心极限定理蕴含大数定律；
+    \item 若方差不存在，辛钦大数定律仍可能成立。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) \textbf{正确。} 辛钦大数定律的条件是：独立同分布且期望存在（不需要方差存在）。题目条件完全满足，故$\bar{X}_{n}\overset{P}{\longrightarrow}\mu$。
+
+(2) \textbf{正确。} 伯努利大数定律研究$n$重伯努利试验的频率$\frac{\mu_{n}}{n}$依概率收敛于$p$。令$X_{i}\sim B(1,p)$为第$i$次试验的示性变量，则$X_{1},\ldots,X_{n}$独立同分布，$E(X_{i})=p$，由辛钦大数定律即得$\frac{1}{n}\sum X_{i}=\frac{\mu_{n}}{n}\overset{P}{\longrightarrow}p$。因此伯努利大数定律确实是辛钦大数定律应用于0-1分布的特例。
+
+(3) \textbf{正确（限于本题条件）。} 在独立同分布且方差有限的条件下，中心极限定理给出
+\[
+Z_n=\frac{\sqrt n(\bar X_n-\mu)}{\sigma}\xrightarrow{d}N(0,1).
+\]
+任给$\varepsilon>0$和$\eta>0$，可先取充分大的常数$M$，使标准正态变量$Z$满足
+$P(|Z|>M)<\eta/2$。由分布收敛，在$n$充分大时有$P(|Z_n|>M)<\eta$；再令$n$充分大使
+$M\sigma/\sqrt n<\varepsilon$，便有
+\[
+P(|\bar X_n-\mu|\geq\varepsilon)
+\leq P(|Z_n|>M)<\eta.
+\]
+故$\bar X_n\overset{P}{\longrightarrow}\mu$。在考研范围内，也可直接用切比雪夫不等式验证：
+\[
+P(|\bar X_n-\mu|\geq\varepsilon)
+\leq\frac{\sigma^2}{n\varepsilon^2}\longrightarrow0.
+\]
+
+\boxed{\textbf{注}} 中心极限定理进一步说明，样本均值随机波动的典型尺度为$n^{-1/2}$；这不是对每个样本都成立的确定性误差上界。
+
+(4) \textbf{正确。} 辛钦大数定律只要求期望存在，不要求方差存在。例如柯西分布期望不存在，故辛钦大数定律不适用；但只要期望存在（即使方差不存在），辛钦大数定律就保证了依概率收敛。
+
+\vspace{0.5cm}
+
+\textbf{3.} \textbf{（计算题）} 设$X_{1},X_{2},\ldots,X_{100}$相互独立，均服从参数为$\lambda=1$的泊松分布$P(1)$。令$S_{100}=\sum_{i=1}^{100}X_{i}$。
+\begin{enumerate}[label=(\arabic*)]
+    \item 写出$S_{100}$的精确分布；
+    \item 用林德伯格--莱维中心极限定理近似计算$P(S_{100}>110)$；
+    \item 用切比雪夫不等式估计$P(S_{100}>110)$的上界，并与(2)比较。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) 独立泊松变量之和仍服从泊松分布：$S_{100}\sim P(100)$。$E(S_{100})=D(S_{100})=100$。
+
+(2) 由林德伯格--莱维中心极限定理，$S_{100}$ 可用 $N(100,100)$ 近似。由于 $S_{100}>110$ 等价于 $S_{100}\geq111$，作连续性修正：
+\[
+\begin{aligned}
+P(S_{100}>110)
+&\approx P\!\left(Z>\frac{110.5-100}{10}\right)\\
+&=1-\Phi(1.05)\approx0.1469.
+\end{aligned}
+\]
+
+(3) 由切比雪夫不等式（单侧）：
+\[
+P(S_{100}>110)=P(S_{100}-100>10)\leq P(|S_{100}-100|\geq 10)\leq\frac{D(S_{100})}{10^{2}}=\frac{100}{100}=1.
+\]
+这个上界是平凡上界，没有实际区分力。切比雪夫不等式由于不利用分布信息，给出的界极为保守；而中心极限定理利用了大样本下的正态近似，给出了有意义的概率估计 $0.1469$。
+
+\boxed{\textbf{注}} 精确泊松尾概率约为 $0.14714$，与上述连续性修正结果接近。
+
+\vspace{0.5cm}
+
+\subsection{综合提高题}
+
+\textbf{4.} \textbf{（计算题）} 设$X\sim B(100,0.4)$。分别用以下方法近似计算$P(35\leq X\leq 45)$：
+\begin{enumerate}[label=(\arabic*)]
+    \item 直接使用棣莫弗--拉普拉斯中心极限定理（不使用连续性校正）；
+    \item 使用连续性校正；
+    \item 说明哪种方法更精确并解释原因。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+$E(X)=100\times 0.4=40$，$D(X)=100\times 0.4\times 0.6=24$，$\sigma=\sqrt{24}\approx 4.899$。
+
+(1) \textbf{不用连续性校正：}
+\[
+\begin{aligned}
+P(35\leq X\leq 45)&=P\left(\frac{35-40}{4.899}\leq\frac{X-40}{4.899}\leq\frac{45-40}{4.899}\right)\\
+&\approx\Phi(1.02)-\Phi(-1.02)=2\Phi(1.02)-1\\
+&=2\times 0.8461-1=0.6922.
+\end{aligned}
+\]
+
+(2) \textbf{使用连续性校正：} 将$[35,45]$扩展为$(34.5,45.5)$。
+\[
+\begin{aligned}
+P(35\leq X\leq 45)&\approx P(34.5<Y<45.5),\qquad Y\sim N(40,24),\\
+&=P\left(-\frac{5.5}{\sqrt{24}}<Z<\frac{5.5}{\sqrt{24}}\right)\\
+&=2\Phi(1.1227)-1\approx0.7384.
+\end{aligned}
+\]
+
+(3) \textbf{连续性校正更精确。} 原因：二项分布是离散分布，其分布函数是阶梯函数；用连续的正态分布去近似离散分布时，在整数点处的概率需要用区间来近似。连续性校正将$P(a\leq X\leq b)$用$P(a-0.5<X<b+0.5)$来近似，能更好地捕捉离散性带来的误差。当$n=100$不够大时，校正的效果尤为明显。
+
+\boxed{\textbf{注}} 精确二项概率为
+$\displaystyle\sum_{k=35}^{45}\binom{100}{k}0.4^k0.6^{100-k}\approx0.73857$。
+若查表时把 $1.1227$ 舍入为 $1.12$，会得到 $0.7372$；使用未舍入端点得到的连续性修正近似约为 $0.7384$。相比不校正的 $0.6922$，连续性修正显著减小了误差。
+
+\vspace{0.5cm}
+
+\textbf{5.} \textbf{（证明题）} 设$X_{1},X_{2},\ldots,X_{n},\ldots$相互独立，$E(X_{i})=\mu_{i}$，且存在常数$C>0$使得$D(X_{i})\leq C$对一切$i$成立。
+\begin{enumerate}[label=(\arabic*)]
+    \item 利用切比雪夫不等式证明：
+    \[
+    \frac{1}{n}\sum_{i=1}^{n}X_{i}-\frac{1}{n}\sum_{i=1}^{n}\mu_{i}\overset{P}{\longrightarrow}0\quad(n\to\infty);
+    \]
+    \item 说明该结论（切比雪夫大数定律）与辛钦大数定律在条件上的异同；
+    \item 举例说明：存在满足辛钦大数定律条件但不满足切比雪夫大数定律条件的随机变量序列。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) 令$\bar{X}_{n}=\frac{1}{n}\sum_{i=1}^{n}X_{i}$，$\bar{\mu}_{n}=\frac{1}{n}\sum_{i=1}^{n}\mu_{i}$。则
+\[
+E(\bar{X}_{n})=\bar{\mu}_{n},\quad D(\bar{X}_{n})=\frac{1}{n^{2}}\sum_{i=1}^{n}D(X_{i})\leq\frac{1}{n^{2}}\cdot nC=\frac{C}{n}.
+\]
+对任意$\varepsilon>0$，由切比雪夫不等式：
+\[
+P(|\bar{X}_{n}-\bar{\mu}_{n}|\geq\varepsilon)\leq\frac{D(\bar{X}_{n})}{\varepsilon^{2}}\leq\frac{C}{n\varepsilon^{2}}\to 0\quad(n\to\infty).
+\]
+故$\bar{X}_{n}-\bar{\mu}_{n}\overset{P}{\longrightarrow}0$。
+
+(2) \textbf{异同比较：}
+\begin{itemize}
+    \item \textbf{相同点：} 都要求随机变量相互独立，都得出样本均值依概率收敛的结论。
+    \item \textbf{不同点：}
+    \begin{itemize}
+        \item 切比雪夫大数定律：不要求同分布，但要求方差存在且\textbf{一致有界}（$D(X_i)\leq C$）；
+        \item 辛钦大数定律：要求\textbf{同分布}，但只要求期望存在，不要求方差存在。
+    \end{itemize}
+\end{itemize}
+简言之，切比雪夫以"方差一致有界"换取"不同分布"，辛钦以"同分布"换取"无需方差"。
+
+(3) 设$X_{i}\stackrel{\text{iid}}{\sim}t(2)$（自由度为2的$t$分布）。$t(2)$的期望存在（$E(X_{i})=0$），但方差不存在（$D(X_{i})=\infty$）。因此该序列满足辛钦大数定律（同分布、期望存在），但不满足切比雪夫大数定律（方差不存在，更谈不上一致有界）。
+
+\boxed{\textbf{注}} 类似地，取$X_{i}\stackrel{\text{iid}}{\sim}Pareto(\alpha)$，其中$1<\alpha\leq 2$时，期望存在但方差不存在。
+
+\vspace{0.5cm}
+
+\textbf{6.} \textbf{（拓展：次序统计量的极限分布）} 设$X_{1},X_{2},\ldots,X_{n}$相互独立，均服从$[0,\theta]$上的均匀分布$U(0,\theta)$，其中$\theta>0$。令$Y_{n}=\max\{X_{1},X_{2},\ldots,X_{n}\}$。
+\begin{enumerate}[label=(\arabic*)]
+    \item 求$Y_{n}$的分布函数$F_{Y_{n}}(y)$和概率密度$f_{Y_{n}}(y)$；
+    \item 证明$Y_{n}\overset{P}{\longrightarrow}\theta$；
+    \item 对任意$\varepsilon>0$，求极限$\displaystyle\lim_{n\to\infty}P(n(\theta-Y_{n})>\varepsilon)$，并由此说明$n(\theta-Y_{n})$的极限分布。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) 对$0<y<\theta$：
+\[
+F_{Y_{n}}(y)=P(Y_{n}\leq y)=P(\max\{X_{1},\ldots,X_{n}\}\leq y)=\prod_{i=1}^{n}P(X_{i}\leq y)=\left(\frac{y}{\theta}\right)^{n}.
+\]
+当$y<0$时$F_{Y_{n}}(y)=0$；当$y\geq\theta$时$F_{Y_{n}}(y)=1$。求导得密度：
+\[
+f_{Y_{n}}(y)=\frac{n}{\theta}\left(\frac{y}{\theta}\right)^{n-1},\quad 0<y<\theta.
+\]
+
+(2) 对任意$\varepsilon>0$（取$\varepsilon<\theta$）：
+\[
+P(|Y_{n}-\theta|\geq\varepsilon)=P(Y_{n}\leq\theta-\varepsilon)=\left(\frac{\theta-\varepsilon}{\theta}\right)^{n}=\left(1-\frac{\varepsilon}{\theta}\right)^{n}\to 0\quad(n\to\infty).
+\]
+故$Y_{n}\overset{P}{\longrightarrow}\theta$。
+
+(3) 对$\varepsilon>0$，当$n$足够大时$\frac{\varepsilon}{n}<\theta$：
+\[
+\begin{aligned}
+P(n(\theta-Y_{n})>\varepsilon)&=P\!\left(Y_{n}<\theta-\frac{\varepsilon}{n}\right)\\
+&=\left(1-\frac{\varepsilon}{n\theta}\right)^{n}\to e^{-\varepsilon/\theta}\quad(n\to\infty).
+\end{aligned}
+\]
+故$n(\theta-Y_{n})$依分布收敛到率参数为 $1/\theta$ 的指数分布，即按本书的率参数记法写作 $E(1/\theta)$，其分布函数为$1-e^{-x/\theta}\ (x>0)$。
+
+\boxed{\textbf{拓展注}} 本题不仅说明最大次序统计量$Y_{n}$依概率收敛于分布上界$\theta$，还给出了误差放大 $n$ 倍后的非退化极限分布。这属于极值理论的入门结论，不作为现行数学一主线要求。
+
+\vspace{0.5cm}
+
+\subsection{真题风格与综合训练}
+
+\textbf{7.}（\boxed{\textbf{真题风格}}） 一生产线生产的产品成箱包装，每箱的重量（单位：kg）是随机变量。假设各箱重量相互独立，每箱的平均重量为50kg，标准差为5kg。现用一辆载重量为5吨的汽车来运载这些箱子。
+\begin{enumerate}[label=(\arabic*)]
+    \item 试用中心极限定理确定最多可以装多少箱，才能保证不超载的概率大于$0.9772$（已知$\Phi(2)=0.9772$）；
+    \item 如果改用载重量为10吨的汽车，最多可装多少箱（相同可靠性要求）？由此说明载重量与装箱数的关系。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) 设装箱数为$n$，第$i$箱重量为$X_{i}$，$E(X_{i})=50$，$D(X_{i})=25$。总重量$S_{n}=\sum_{i=1}^{n}X_{i}$。
+\[
+E(S_{n})=50n,\quad D(S_{n})=25n,\quad \sigma_{S_{n}}=5\sqrt{n}.
+\]
+由林德伯格--莱维CLT：$\dfrac{S_{n}-50n}{5\sqrt{n}}\stackrel{\cdot}{\sim}N(0,1)$。要求：
+\[
+P(S_{n}\leq 5000)\approx\Phi\!\left(\frac{5000-50n}{5\sqrt{n}}\right)>0.9772=\Phi(2).
+\]
+由于$\Phi(\cdot)$单调递增，这等价于
+\[
+\frac{5000-50n}{5\sqrt{n}}\geq 2.
+\]
+即$5000-50n\geq 10\sqrt{n}$，亦即$50n+10\sqrt{n}-5000\leq 0$。
+令$t=\sqrt{n}>0$，则$50t^{2}+10t-5000\leq 0$。
+\[
+\begin{aligned}
+t&=\frac{-10+\sqrt{100+4\times50\times5000}}{100}\\
+&=\frac{-10+\sqrt{1000100}}{100}\approx9.9005.
+\end{aligned}
+\]
+（负根舍去）故$t\leq 9.9005$，$n=t^{2}\leq 98.02$。最多可装\textbf{98箱}。
+
+(2) 载重量10吨即$10000$kg。同理有$\dfrac{10000-50n}{5\sqrt{n}}\geq 2$，即$50n+10\sqrt{n}-10000\leq 0$。
+令$t=\sqrt{n}$：$50t^{2}+10t-10000=0$。
+\[
+t=\frac{-10+\sqrt{100+4\times50\times10000}}{100}
+=\frac{-10+\sqrt{2000100}}{100}\approx14.0425.
+\]
+故$n\leq 197.19$，最多可装\textbf{197箱}。
+
+\textbf{关系分析：} 载重量翻倍（5吨$\to$10吨），装箱数从98增至197，约为原来的2倍而非精确2倍。这是因为标准差$\sigma_{S_{n}}=5\sqrt{n}$使总重量的波动随$n$增加而增大，需要一定的"安全余量"。
+
+\vspace{0.5cm}
+
+\textbf{8.}（\boxed{\textbf{真题风格}}） 设总体$X\sim B(1,p)$（0-1分布），$X_{1},X_{2},\ldots,X_{n}$为来自该总体的简单随机样本，$\bar{X}_{n}=\frac{1}{n}\sum_{i=1}^{n}X_{i}$。
+\begin{enumerate}[label=(\arabic*)]
+    \item 当$p=0.5$，$n=100$时，用中心极限定理近似计算$P(0.45\leq\bar{X}_{n}\leq 0.55)$；
+    \item 欲使$P(|\bar{X}_{n}-p|<0.02)\geq 0.95$，试用中心极限定理估计所需样本量$n$的最小值（取$p=0.5$，已知$z_{0.025}=1.96$）。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) 令 $K=\sum_{i=1}^{100}X_i$，则 $K\sim B(100,0.5)$，且事件 $0.45\leq\bar X_n\leq0.55$ 等价于 $45\leq K\leq55$。作连续性修正：
+\[
+\begin{aligned}
+P(0.45\leq\bar{X}_{n}\leq 0.55)
+&=P(45\leq K\leq55)\\
+&\approx P\!\left(\frac{44.5-50}{5}<Z<\frac{55.5-50}{5}\right)\\
+&=P(|Z|<1.10)\approx2\Phi(1.10)-1\approx0.7286.
+\end{aligned}
+\]
+
+(2) 按常用的大样本样本量公式（不作随 $n$ 改变的格点修正），由中心极限定理：$\dfrac{\bar{X}_{n}-p}{\sqrt{p(1-p)/n}}\stackrel{\cdot}{\sim}N(0,1)$。
+\[
+\begin{aligned}
+P(|\bar{X}_{n}-p|<0.02)&=P\!\left(\frac{|\bar{X}_{n}-p|}{\sqrt{p(1-p)/n}}<\frac{0.02}{\sqrt{0.25/n}}\right)\\
+&\approx 2\Phi(0.04\sqrt{n})-1\geq 0.95.
+\end{aligned}
+\]
+故$\Phi(0.04\sqrt{n})\geq 0.975$，即$0.04\sqrt{n}\geq z_{0.025}=1.96$。
+\[
+\sqrt{n}\geq\frac{1.96}{0.04}=49,\quad n\geq 49^{2}=2401.
+\]
+所需样本量$n\geq 2401$。
+
+\boxed{\textbf{注}} (1) 的精确二项概率约为 $0.72875$，说明连续性修正不可忽略；若直接把样本均值端点标准化而不修正，会得到偏低的 $0.6826$。(2) 中要将误差控制在$\pm 0.02$且置信度达$95\%$，按常用近似需 $n\geq2401$。
+
+\vspace{0.5cm}
+
+\textbf{9.}（\boxed{\textbf{真题风格}}） 设随机变量$X_{1},X_{2},\ldots,X_{n}$独立同分布，均服从区间$[0,2]$上的均匀分布$U(0,2)$。记$S_{n}=\sum_{i=1}^{n}X_{i}$。
+\begin{enumerate}[label=(\arabic*)]
+    \item 求$E(S_{n})$和$D(S_{n})$；
+    \item 利用中心极限定理，求$n=48$时$P(S_{n}>52)$的近似值；
+    \item 求最小的$n$使得$P(|S_{n}/n-1|<0.1)\geq 0.99$（已知$z_{0.005}=2.576$）。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) $X_{i}\sim U(0,2)$，则
+\[
+E(X_{i})=\frac{0+2}{2}=1,\quad D(X_{i})=\frac{(2-0)^{2}}{12}=\frac{4}{12}=\frac{1}{3}.
+\]
+故
+\[
+E(S_{n})=nE(X_{1})=n,\quad D(S_{n})=nD(X_{1})=\frac{n}{3}.
+\]
+
+(2) $n=48$时，$E(S_{48})=48$，$D(S_{48})=48/3=16$，$\sigma_{S_{48}}=4$。
+由林德伯格--莱维CLT：$\dfrac{S_{48}-48}{4}\stackrel{\cdot}{\sim}N(0,1)$。
+\[
+\begin{aligned}
+P(S_{48}>52)&=P\!\left(\frac{S_{48}-48}{4}>\frac{52-48}{4}\right)\\
+&=P(Z>1)\approx 1-\Phi(1)=1-0.8413=0.1587.
+\end{aligned}
+\]
+
+(3) $E(S_{n}/n)=1$，$D(S_{n}/n)=\dfrac{1}{3n}$。由CLT：
+\[
+\begin{aligned}
+P(|S_{n}/n-1|<0.1)&=P\!\left(\frac{|S_{n}/n-1|}{\sqrt{1/(3n)}}<\frac{0.1}{\sqrt{1/(3n)}}\right)\\
+&=P(|Z|<0.1\sqrt{3n})\approx 2\Phi(0.1\sqrt{3n})-1\geq 0.99.
+\end{aligned}
+\]
+故$\Phi(0.1\sqrt{3n})\geq 0.995$，即$0.1\sqrt{3n}\geq z_{0.005}=2.576$。
+\[
+\sqrt{3n}\geq 25.76,\quad 3n\geq 663.58,\quad n\geq 221.19.
+\]
+故$n\geq 222$。
+
+\boxed{\textbf{注}} (2)中$S_{48}>52$意味着样本均值$>52/48\approx 1.083$，超出期望值约$0.083$个均值单位（即$0.083\sqrt{48}/\sqrt{1/3}\approx 1$个标准差），对应标准正态右尾概率约$0.16$。(3)中要求$99\%$置信度，$z_{0.005}=2.576$，比$95\%$的$1.96$严格得多，样本量相应增大。
+
+\vspace{0.5cm}
+
+\textbf{10.}（\boxed{\textbf{真题风格}}）\textbf{（综合题）} 某保险公司有10000名投保人，每人每年出险的概率为$0.005$且相互独立；每名投保人一年内至多出险一次，每次赔付额固定为$8000$元。每人每年缴纳保费$100$元。
+\begin{enumerate}[label=(\arabic*)]
+    \item 用切比雪夫不等式估计公司赔付总额超过保费总收入$60\%$的概率上界；
+    \item 用中心极限定理近似计算公司亏损（即赔付总额超过保费总收入）的概率；
+    \item 若要求亏损概率不超过$0.001$，先按带连续性修正的正态近似估计整数保费，再用精确二项尾概率核对最小值。（已知$\Phi(3.09)=0.999$）
+\end{enumerate}
+
+\boxed{\textbf{解}}
+设出险人数$X\sim B(10000,0.005)$，则$E(X)=50$，$D(X)=10000\times 0.005\times 0.995=49.75$。
+总赔付额$S=8000X$，$E(S)=8000\times 50=4\times 10^{5}$，$D(S)=8000^{2}\times 49.75=3.184\times 10^{9}$。
+保费总收入$R=100\times 10000=10^{6}$元。
+
+(1) 赔付总额超过保费总收入的$60\%$即$S>6\times 10^{5}$。
+\[
+\begin{aligned}
+P(S>6\times10^5)
+&\leq P\bigl(|S-E(S)|\geq2\times10^5\bigr)\\
+&\leq\frac{D(S)}{(2\times10^5)^2}
+=\frac{3.184\times10^9}{4\times10^{10}}=0.0796.
+\end{aligned}
+\]
+
+(2) 公司亏损即$S>10^{6}$，等价于$X>125$，即$X\geq126$。用正态分布近似二项分布并作连续性修正：
+\[
+\frac{X-50}{\sqrt{49.75}}\stackrel{\cdot}{\sim}N(0,1).
+\]
+\[
+P(X\geq126)\approx 1-\Phi\!\left(\frac{125.5-50}{\sqrt{49.75}}\right)
+=1-\Phi(10.70).
+\]
+该近似表示亏损概率极小；但 $10.70$ 属于极端尾部，中心极限定理不能保证高相对精度，如需精确风险值应直接计算二项尾概率。
+
+(3) 设每人保费为整数 $c$ 元，则亏损事件为 $X>1.25c$。先用正态近似筛选相邻整数：
+\[
+\begin{array}{c|c|c}
+c & \text{亏损事件} & \text{连续性修正后的标准化临界值}\\ \hline
+57 & X\geq72 & \dfrac{71.5-50}{\sqrt{49.75}}\approx3.048\\[6pt]
+58 & X\geq73 & \dfrac{72.5-50}{\sqrt{49.75}}\approx3.190
+\end{array}
+\]
+由 $3.048<3.09<3.190$，正态近似给出的最小整数保费为 $58$ 元。
+
+不过本题位于小概率尾部，精确二项计算给出
+\[
+P(X\geq73)\approx0.001307>0.001,\qquad
+P(X\geq74)\approx0.000860<0.001.
+\]
+当 $c=59$ 时 $X>73.75$ 等价于 $X\geq74$，故按“实际概率不超过 $0.001$”的精确要求，最小整数保费应为\textbf{59元}；$58$ 元只是正态近似答案。
+
+\boxed{\textbf{注}} (1) 展示切比雪夫界的保守性；(2)(3) 同时说明，中心极限定理适合估计分布主体和一般尾部，但在千分位级别的偏斜二项尾部，连续性修正后仍可能改变整数决策，最终应以精确二项尾概率为准。

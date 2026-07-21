@@ -3,15 +3,15 @@
 \begin{mydef}{随机变量的数学期望}{expectation of random variable}
     \begin{enumerate}
         \item 离散型随机变量 \\
-        设随机变量\(X\)的概率分布为
+        设离散型随机变量\(X\)的概率分布为
         \[
-        P(X = x_{i}) = p_{i}, i = 1, 2, \cdots, n
+        P(X=x_i)=p_i,\quad i=1,2,\ldots,
         \]
         则\(X\)的数学期望为
         \[
-        E(X) = \sum_{i=1}^{n} x_{i} p_{i}
+        E(X)=\sum_i x_i p_i,
         \]
-        其中无穷级数\(\sum_{i=1}^{n} x_{i} p_{i}\)绝对收敛
+        其中级数绝对收敛；若只有有限个可能取值，求和自然退化为有限和。
 
 
         \item 连续型随机变量 \\
@@ -38,7 +38,7 @@
         \item \(Y = g(X)\)为随机变量\(X\)的函数\\
         设\(X\)是离散型随机变量，\(g(x)\)是一个连续函数，则\(Y = g(X)\)的数学期望为
         \[
-        E(Y) =E(g(X)) \sum_{i=1}^{n} g(x_{i}) p_{i}
+        E(Y)=E(g(X))=\sum_i g(x_i)p_i
         \]
         设\(X\)为连续型随机变量，\(f(x)\)为随机变量\(X\)的概率密度函数，\(Y = g(X)\)的数学期望为
         \[
@@ -74,7 +74,7 @@
         \]
         记作\(\sigma(X)\)
     \end{enumerate}
-    称\(X^{*} = \frac{X - E[X]}{\sigma(X)}\)为随机变量\(X\)的标准化随机变量\\
+    当\(D(X)>0\)时，称\(X^{*} = \frac{X - E[X]}{\sigma(X)}\)为随机变量\(X\)的标准化随机变量\\
     \(E(X^*) = 0\),
     \(D(X^*) = 1\)
 \end{mydef}
@@ -102,7 +102,7 @@ D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
         \hline
         分布 & 符号 & 期望 & 方差 & 标准差 \\
         \hline
-        \(0-1\)分布 & \(X \sim (0, 1)\) & \(p\) & \(p(1 - p)\) & \(\sqrt{p(1 - p)}\) \\
+        \(0-1\)分布 & \(X \sim B(1, p)\) & \(p\) & \(p(1 - p)\) & \(\sqrt{p(1 - p)}\) \\
         \hline
         二项分布
         & \(X \sim B(n, p)\) & \(np\) & \(np(1 - p)\) & \(\sqrt{np(1 - p)}\) \\
@@ -124,7 +124,7 @@ D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
 
 \subsection{协方差与相关系数}
 \begin{mydef}{协方差}{covariance}
-设\(X,Y\)是二维随机变量，如果\(E[E(X - E(X))(Y - E(Y))]\)存在，则称它为
+设\(X,Y\)是二维随机变量，如果\(E[(X-E(X))(Y-E(Y))]\)存在，则称它为
 随机变量\(X\)与\(Y\)的协方差,记作
 \[
 \mathrm{Cov}(X, Y) = E[(X - E[X])(Y - E[Y])] = E(XY) - E(X)E(Y) 
@@ -148,7 +148,7 @@ D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
         \item \(\mathrm{Cov}(X, X) = D(X)\)
         \item \(\mathrm{Cov}(aX, bY) = a b \mathrm{Cov}(X, Y)\)
         \item \(\mathrm{Cov}(X + Y, Z) = \mathrm{Cov}(X, Z) + \mathrm{Cov}(Y, Z)\)
-        \item \(\mathrm{Cov}(X, Y) = 0\)的充分必要条件是\(X\)与\(Y\)相互独立
+        \item 若\(X\)与\(Y\)相互独立，则\(\mathrm{Cov}(X, Y) = 0\)；但\(\mathrm{Cov}(X, Y) = 0\)仅表示\(X\)与\(Y\)不相关(uncorrelated)，并不意味着独立.
     \end{enumerate}
 \end{conclusion}
 
@@ -164,11 +164,12 @@ D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
 \begin{conclusion}{相关系数的性质}{correlation coefficient properties}
 \begin{enumerate}
     \item \(|\rho(X, Y)| \leq 1\)
-    \item \(\rho(X, Y) = 1\)的充分必要条件是存在常数\(a,b\),\\使得\(P(Y = aX + b) = 1\)
+        \item \(\rho(X, Y) = 1\)的充分必要条件是存在常数\(a>0,b\)，使得
+        \(P(Y=aX+b)=1\)。若写成 $|\rho(X,Y)|=1$，则条件为存在 $a\neq0,b$ 使该关系几乎处处成立。
 \end{enumerate}
 \end{conclusion}
 
-\begin{conclusion}{\(X\)与\(Y\)不相关的结论}{conclusion of X and Y are uncorrelated}
+\begin{conclusion}{$X$与$Y$不相关的结论}{conclusion of X and Y are uncorrelated}
     若\(\rho(X, Y) = 0\quad(\text{即}\mathrm{Cov(X, Y) = 0})\),则\(X\)与\(Y\)不相关.
     \begin{enumerate}
         \item 若随机变量\(X\)与\(Y\)独立，则\(X\)与\(Y\)一定不相关，若\(X\)与\(Y\)不相关，则\(X\)与\(Y\)不一定独立
@@ -187,31 +188,34 @@ D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
 
 \subsection{随机变量的矩}
 \begin{mydef}{随机变量的矩}{moment of random variable}
-    设\((X, Y)\)是二维随机变量,如果\(E(X^kY^l)\)存在，
-    则称\(E(X^k)\)为\(X\)的\(k\)阶原点矩,
-    称\(E(X - EX)^k\)为\(X\)的\(k\)阶中心矩.
-    称\(E(X^kY^l)\)为\(X\)的\(k\)阶\(l\)阶混合原点矩.
-    称\(E[(X - EX)^k(Y - EY)^l]\)为\(X\)与\(Y\)的\(k + l\)阶混合中心矩
+    设 \((X,Y)\) 是二维随机变量，以下期望均在相应绝对矩存在时定义：
+    \(E(X^k)\) 称为 \(X\) 的 \(k\) 阶原点矩，
+    \(E[(X-E X)^k]\) 称为 \(X\) 的 \(k\) 阶中心矩；
+    \(E(X^kY^l)\) 称为 \((X,Y)\) 的 \((k,l)\) 阶混合原点矩，
+    \(E[(X-E X)^k(Y-E Y)^l]\) 称为 \((X,Y)\) 的 \((k,l)\) 阶混合中心矩（总阶数为 \(k+l\)）。
 \end{mydef}
 
 \begin{mydef}{矩母函数}{moment generating function}
-    随机变量 X 的矩母函数\(M(t)\) 定义为
+    \textbf{拓展阅读：}矩母函数不作为考研数学一主线要求；相关习题可作为分布与数字特征的补充训练。\\
+    若随机变量 \(X\) 的指数矩在 \(t=0\) 的某个邻域内有限，则称
     \[
-    M(t) = E[et^X] = \begin{cases}
-    \int_{-\infty}^{\infty} et^x f(x) dx \\
-    \sum_{x}e^{tx}p(x)
-    \end{cases}
+    M_X(t)=E(e^{tX})
     \]
-    矩可以通过其导数得到.例如,
+    为 \(X\) 的矩母函数。离散型和连续型情形分别为
     \[
-    E(X^k) = M'(t)^k
+    M_X(t)=\sum_x e^{tx}p_X(x),
+    \qquad
+    M_X(t)=\int_{-\infty}^{\infty}e^{tx}f_X(x)\,\mathrm{d}x.
+    \]
+    在相应阶矩存在且可交换求导与期望时，矩可由矩母函数的导数得到，例如
+    \[
+    E(X^k)=M_X^{(k)}(0).
     \]
 \end{mydef}
 
 \begin{tablebox}{矩母函数}
     \centering
-    \scalebox{1.2}{
-    \begin{tabular}{|c|c|}
+    \begin{tabularx}{\linewidth}{|c|>{\centering\arraybackslash}X|}
         \hline
         原分布 & 矩母函数 \\
         \hline
@@ -219,57 +223,531 @@ D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
         \hline
         二项分布 & \(M_X(t) = (1 - p + pe^t)^n\) \\
         \hline
-        几何分布 & \(M_X(t) = \frac{pe^t}{1 - (1 - p)e^{t}}\) \\
+        几何分布（从 1 开始计数） & \(M_X(t) = \frac{pe^t}{1 - (1 - p)e^{t}},\ (1-p)e^t<1\) \\
         \hline
         泊松分布 & \(M_X(t) = \mathrm{e}^{\lambda(e^t - 1)}\) \\
         \hline
-        均匀分布 & \(M_X(t) = \frac{1}{b -a} \cdot \frac{e^{tb} - e^{ta}}{t}\) \\
+        均匀分布 & \(M_X(t) = \frac{e^{tb}-e^{ta}}{t(b-a)}\ (t\ne0),\quad M_X(0)=1\) \\
         \hline
         指数分布
         & \(M_X(t) = \frac{\lambda}{\lambda - t}, (t < \lambda)\) \\
         \hline
         正态分布 & \(M_X(t) = \mathrm{e}^{\frac{\sigma^2 t^2}{2} + \mu t}\) \\
         \hline
-    \end{tabular}
-    }
+    \end{tabularx}
 \end{tablebox}
 
 \subsection{条件期望}
+\noindent\textbf{拓展阅读：}条件期望及其方差分解不作为考研数学一主线要求。
 \begin{formula}{条件期望的定义}{conditional expectation definition}
+    离散型情形，在 \(P(Y=y)>0\) 时，
     \[
-        E(X | Y = y) = \sum_{i}x_iP(X = x_i | Y = y) = \int_{-\infty}^{\infty} x f(x | y) dx
+        E(X\mid Y=y)=\sum_i x_iP(X=x_i\mid Y=y).
     \]
+    连续型情形，在条件密度 \(f_{X\mid Y}(x\mid y)\) 存在时，
     \[
-        E(Y | X = x) = \sum_{i}y_iP(Y = y_i | X = x) = \int_{-\infty}^{\infty} y f(y | x) dy
+        E(X\mid Y=y)=\int_{-\infty}^{\infty}x f_{X\mid Y}(x\mid y)\,\mathrm{d}x.
     \]
+    交换 \(X,Y\) 即得 \(E(Y\mid X=x)\) 的相应公式。
 \end{formula}
 
 \begin{formula}{重期望公式}{reduction expectation formula}
     \[
-        E(X) = E(E(X|Y))
+        E(X)=E\bigl[E(X\mid Y)\bigr]
     \]
 \end{formula}
 
 \begin{conclusion}{条件期望的一些性质}{conditional expectation property}
     \begin{enumerate}
-        \item \(D(X) = E(D(X|Y)) + D(E(X|Y))\)
-        \item \(E[f(Y)|Y]=f(Y)\)
-        \item \(E[g(X)Y|X] = g(X)E[Y|X]\)
-        \item \(E(XY)=E[X\cdot E(Y|X)]\)
-        \item \(Cov[X,E(Y|X)]=Cov(X,Y)\)
+        \item \(D(X)=E[D(X\mid Y)]+D[E(X\mid Y)]\)；
+        \item \(E[f(Y)\mid Y]=f(Y)\)；
+        \item \(E[g(X)Y\mid X]=g(X)E(Y\mid X)\)；
+        \item \(E(XY)=E\{X E(Y\mid X)\}\)；
+        \item \(\Cov[X,E(Y\mid X)]=\Cov(X,Y)\)。
     \end{enumerate}
 \end{conclusion}
 
 \subsection{一些技巧}
-\begin{conclusion}{对形如\(f(x) = A\mathrm{e}^{-(ax^2 + bx + c)}\)的处理}{some trick about one}
-    尝试着向正态分布靠拢 \\
-    即\(A = \frac{1}{\sqrt{2\pi}\sigma}\) \\
-    \(-(ax^2 + bx + c) = -\frac{(x -\mu)^2}{2\sigma^2}\) \\
-    \(-(ax^2 + bx + c)\)可以配方为\(\frac{1}{2\sigma^2}(x - \mu)^2 + k\) \\
-    即得\\
-    \(
-        \sigma^2 = \frac{1}{2a},
-        \mu = -\frac{b}{2a},
-        k = \frac{b^2}{4a} - c
-    \)
+\begin{conclusion}{对形如$f(x) = A\mathrm{e}^{-(ax^2 + bx + c)}$的处理}{some trick about one}
+    当\(a>0\)时，配方得
+    \[
+    -(ax^2+bx+c)=-a\left(x+\frac{b}{2a}\right)^2+\frac{b^2}{4a}-c.
+    \]
+    因而若它是全实轴上的正态密度，则
+    \[
+        \mu=-\frac{b}{2a},\qquad \sigma^2=\frac{1}{2a},
+    \]
+    且规范化常数必须满足
+    \[
+        A\exp\left(\frac{b^2}{4a}-c\right)
+        =\frac{1}{\sqrt{2\pi}\sigma}=\sqrt{\frac{a}{\pi}}.
+    \]
+    配方产生的常数因子不能直接并入指数后忽略。
 \end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item 设随机变量$X$的分布律为
+\[
+\begin{array}{c|cccc}
+X & -1 & 0 & 1 & 2 \\
+\hline
+P & 0.2 & 0.3 & 0.3 & 0.2
+\end{array}
+\]
+\begin{enumerate}
+    \item[(1)] 求$E(X)$和$D(X)$；
+    \item[(2)] 求$E(3X-2)$和$D(3X-2)$。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1)
+\[
+E(X)=-0.2+0+0.3+0.4=0.5.
+\]
+\[
+E(X^2)=0.2+0+0.3+4\times0.2=1.3.
+\]
+\[
+D(X)=E(X^2)-[E(X)]^2=1.3-0.5^2=1.3-0.25=1.05.
+\]
+
+(2) 由期望与方差的运算性质：
+\[
+E(3X-2)=3E(X)-2=3\times 0.5-2=1.5-2=-0.5.
+\]
+\[
+D(3X-2)=3^2D(X)=9\times 1.05=9.45.
+\]
+
+\textbf{评注：}计算$E(X^2)$时，先平方后取期望，与$[E(X)]^2$区别开来。方差公式$D(X)=E(X^2)-[E(X)]^2$是计算方差最常用的方法。
+
+\vspace{0.4cm}
+
+\item 设二维随机变量$(X,Y)$的联合分布律为
+\[
+\begin{array}{c|cc}
+X\setminus Y & 0 & 1 \\
+\hline
+0 & 0.1 & 0.2 \\
+1 & 0.3 & 0.4
+\end{array}
+\]
+\begin{enumerate}
+    \item[(1)] 求$X,Y$的边缘分布及$E(X),E(Y),D(X),D(Y)$；
+    \item[(2)] 求$\mathrm{Cov}(X,Y)$和相关系数$\rho_{XY}$；
+    \item[(3)] 写出$(X,Y)$的协方差矩阵。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) $X$的边缘分布：$P(X=0)=0.1+0.2=0.3$，$P(X=1)=0.3+0.4=0.7$。
+\[
+E(X)=0\times 0.3+1\times 0.7=0.7,\quad E(X^2)=0^2\times 0.3+1^2\times 0.7=0.7,
+\]
+\[
+D(X)=E(X^2)-[E(X)]^2=0.7-0.49=0.21.
+\]
+
+$Y$的边缘分布：$P(Y=0)=0.1+0.3=0.4$，$P(Y=1)=0.2+0.4=0.6$。
+\[
+E(Y)=0\times 0.4+1\times 0.6=0.6,\quad E(Y^2)=0^2\times 0.4+1^2\times 0.6=0.6,
+\]
+\[
+D(Y)=E(Y^2)-[E(Y)]^2=0.6-0.36=0.24.
+\]
+
+(2)
+\[
+E(XY)=0\cdot 0\cdot 0.1+0\cdot 1\cdot 0.2+1\cdot 0\cdot 0.3+1\cdot 1\cdot 0.4=0.4.
+\]
+\[
+\mathrm{Cov}(X,Y)=E(XY)-E(X)E(Y)=0.4-0.7\times 0.6=0.4-0.42=-0.02.
+\]
+\[
+\rho_{XY}=\frac{\mathrm{Cov}(X,Y)}{\sqrt{D(X)D(Y)}}=\frac{-0.02}{\sqrt{0.21\times 0.24}}=\frac{-0.02}{\sqrt{0.0504}}\approx\frac{-0.02}{0.2245}\approx -0.0891.
+\]
+
+(3) $(X,Y)$的协方差矩阵为
+\[
+\Sigma=\begin{pmatrix}
+D(X) & \mathrm{Cov}(X,Y)\\
+\mathrm{Cov}(Y,X) & D(Y)
+\end{pmatrix}
+=\begin{pmatrix}
+0.21 & -0.02\\
+-0.02 & 0.24
+\end{pmatrix}.
+\]
+
+\textbf{评注：}协方差矩阵是对称矩阵，对角线元素为各分量的方差，非对角线元素为协方差。当$\rho_{XY}$接近$0$时，只能说$X$与$Y$的线性相关程度较弱；不能把随机变量称为“接近线性无关”，也不能据此推出接近独立。
+
+\vspace{0.4cm}
+
+\item 设随机变量$X$的概率密度为
+\[
+f(x)=\begin{cases}
+\dfrac{3}{2}x^2, & -1\leq x\leq 1,\\[6pt]
+0, & \text{其他}.
+\end{cases}
+\]
+\begin{enumerate}
+    \item[(1)] 求$E(X)$和$D(X)$；
+    \item[(2)] 求$P\bigl(|X|\leq\frac{1}{2}\bigr)$；
+    \item[(3)] 令$Y=2X+1$，求$E(Y)$和$D(Y)$。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) 注意到被积函数的奇偶性：
+\[
+E(X)=\int_{-1}^{1}x\cdot\frac{3}{2}x^2\,\mathrm{d}x=\frac{3}{2}\int_{-1}^{1}x^3\,\mathrm{d}x=0\quad(\text{奇函数在对称区间上积分为零}).
+\]
+\[
+E(X^2)=\int_{-1}^{1}x^2\cdot\frac{3}{2}x^2\,\mathrm{d}x=\frac{3}{2}\int_{-1}^{1}x^4\,\mathrm{d}x=\frac{3}{2}\cdot 2\cdot\frac{1}{5}=\frac{3}{5}=0.6.
+\]
+\[
+D(X)=E(X^2)-[E(X)]^2=\frac{3}{5}-0=\frac{3}{5}=0.6.
+\]
+
+(2) 
+\[
+P\Bigl(|X|\leq\frac{1}{2}\Bigr)=\int_{-1/2}^{1/2}\frac{3}{2}x^2\,\mathrm{d}x=\frac{3}{2}\cdot 2\int_{0}^{1/2}x^2\,\mathrm{d}x=3\cdot\Bigl[\frac{x^3}{3}\Bigr]_{0}^{1/2}=3\cdot\frac{1}{24}=\frac{1}{8}=0.125.
+\]
+
+(3) 
+\[
+E(Y)=E(2X+1)=2E(X)+1=2\times 0+1=1.
+\]
+\[
+D(Y)=D(2X+1)=2^2D(X)=4\times\frac{3}{5}=\frac{12}{5}=2.4.
+\]
+
+\textbf{评注：}利用对称区间上奇函数的积分为零可大幅简化计算。$D(X+c)=D(X)$，常数平移不改变方差。
+
+\end{enumerate}
+
+\subsection{综合提高题}
+
+\begin{enumerate}[resume]
+
+\item 设随机变量$X\sim U(0,2)$，令$Y=X^2$。
+\begin{enumerate}
+    \item[(1)] 求$Y$的概率密度$f_Y(y)$；
+    \item[(2)] 分别用$X$的分布和$Y$的分布求$E(Y)$和$D(Y)$，验证两种方法结果一致。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) $X\sim U(0,2)$，密度$f_X(x)=\frac{1}{2}\;(0<x<2)$。
+$Y=X^2$的值域为$(0,4)$。对$0<y<4$：
+\[
+F_Y(y)=P(X^2\leq y)=P(0<X\leq\sqrt{y})=\frac{\sqrt{y}}{2},
+\]
+\[
+f_Y(y)=F_Y'(y)=\frac{1}{4\sqrt{y}},\quad 0<y<4.
+\]
+
+(2) \textbf{方法一（利用$X$的分布）：}
+\[
+E(Y)=E(X^2)=\int_{0}^{2}x^2\cdot\frac{1}{2}\,\mathrm{d}x=\frac{1}{2}\cdot\frac{8}{3}=\frac{4}{3}.
+\]
+\[
+E(Y^2)=E(X^4)=\int_{0}^{2}x^4\cdot\frac{1}{2}\,\mathrm{d}x=\frac{1}{2}\cdot\frac{32}{5}=\frac{16}{5}.
+\]
+\[
+D(Y)=E(Y^2)-[E(Y)]^2=\frac{16}{5}-\frac{16}{9}=\frac{144-80}{45}=\frac{64}{45}.
+\]
+
+\textbf{方法二（利用$Y$的密度）：}
+\[
+E(Y)=\int_{0}^{4}y\cdot\frac{1}{4\sqrt{y}}\,\mathrm{d}y=\frac{1}{4}\int_{0}^{4}\sqrt{y}\,\mathrm{d}y=\frac{1}{4}\cdot\frac{2}{3}\cdot 8=\frac{4}{3}.
+\]
+\[
+E(Y^2)=\int_{0}^{4}y^2\cdot\frac{1}{4\sqrt{y}}\,\mathrm{d}y=\frac{1}{4}\int_{0}^{4}y^{3/2}\,\mathrm{d}y=\frac{1}{4}\cdot\frac{2}{5}\cdot 32=\frac{16}{5}.
+\]
+\[
+D(Y)=\frac{16}{5}-\frac{16}{9}=\frac{64}{45}.
+\]
+两种方法结果一致。$\checkmark$
+
+\textbf{评注：}求随机变量函数的期望时，不需要先求函数的分布，直接用原分布的公式$E[g(X)]=\int g(x)f_X(x)\,\mathrm{d}x$即可，这是本题的核心考点。
+
+\vspace{0.4cm}
+
+\item 设随机变量$X$的期望$E(X)=\mu$，方差$D(X)=\sigma^2$。利用切比雪夫不等式证明：对任意$\varepsilon>0$，
+\[
+P(|X-\mu|<\varepsilon)\geq 1-\frac{\sigma^2}{\varepsilon^2}.
+\]
+若$\sigma^2=4$，欲使$P(|X-\mu|<\varepsilon)\geq 0.95$，$\varepsilon$至少应取多少？
+
+\boxed{\textbf{解}}
+由切比雪夫不等式，对任意$\varepsilon>0$：
+\[
+P(|X-\mu|\geq\varepsilon)\leq\frac{D(X)}{\varepsilon^2}=\frac{\sigma^2}{\varepsilon^2}.
+\]
+因此
+\[
+P(|X-\mu|<\varepsilon)=1-P(|X-\mu|\geq\varepsilon)\geq 1-\frac{\sigma^2}{\varepsilon^2}.
+\]
+证毕。
+
+当$\sigma^2=4$时，要求$1-\dfrac{4}{\varepsilon^2}\geq 0.95$，即
+\[
+\frac{4}{\varepsilon^2}\leq 0.05\Longrightarrow\varepsilon^2\geq\frac{4}{0.05}=80\Longrightarrow\varepsilon\geq\sqrt{80}=4\sqrt{5}\approx 8.944.
+\]
+故$\varepsilon$至少取$4\sqrt{5}$。
+
+\textbf{评注：}切比雪夫不等式给出的是概率的一个上（下）界估计，不依赖于具体分布，因此估计通常比较保守。实际概率往往比切比雪夫界给出的更优。
+
+\vspace{0.4cm}
+
+\item 设随机变量$X\sim B(n,p)$。
+\begin{enumerate}
+    \item[(1)] 求$X$的矩母函数$M_X(t)$；
+    \item[(2)] 利用矩母函数求$E(X)$和$D(X)$。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) $X\sim B(n,p)$，分布律为$P(X=k)=\binom{n}{k}p^k(1-p)^{n-k},\;k=0,1,\ldots,n$。
+\[
+\begin{aligned}
+M_X(t)
+&=E(e^{tX})
+=\sum_{k=0}^{n}e^{tk}\binom{n}{k}p^k(1-p)^{n-k}\\
+&=\sum_{k=0}^{n}\binom{n}{k}(pe^t)^k(1-p)^{n-k}
+=(1-p+pe^t)^n.
+\end{aligned}
+\]
+
+(2) 对矩母函数求导：
+\[
+M_X'(t)=n(1-p+pe^t)^{n-1}\cdot pe^t.
+\]
+\[
+E(X)=M_X'(0)=n\cdot 1^{n-1}\cdot p=np.
+\]
+
+\[
+M_X''(t)=n(n-1)(1-p+pe^t)^{n-2}\cdot (pe^t)^2+n(1-p+pe^t)^{n-1}\cdot pe^t.
+\]
+\[
+E(X^2)=M_X''(0)=n(n-1)p^2+np.
+\]
+\[
+D(X)=E(X^2)-[E(X)]^2=n(n-1)p^2+np-n^2p^2=np(1-p).
+\]
+
+\textbf{评注：}矩母函数的核心性质：$E(X^k)=M_X^{(k)}(0)$。二项分布的矩母函数形式$(1-p+pe^t)^n$体现了$n$个独立$0-1$分布随机变量之和的矩母函数等于各自矩母函数之积。
+
+\vspace{0.4cm}
+
+\item 设随机变量$X$与$Y$相互独立，均服从参数为$\lambda$的指数分布$E(\lambda)$。令$U=\max(X,Y)$，$V=\min(X,Y)$。
+\begin{enumerate}
+    \item[(1)] 求$U$和$V$的概率密度；
+    \item[(2)] 求$E(U)$和$E(V)$；
+    \item[(3)] 验证$E(U)+E(V)=E(X)+E(Y)$。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+$X,Y\sim E(\lambda)$，密度$f(t)=\lambda e^{-\lambda t}\;(t>0)$，分布函数$F(t)=1-e^{-\lambda t}\;(t>0)$。
+
+(1) \textbf{求$V=\min(X,Y)$的分布：}
+\[
+F_V(v)=P(V\leq v)=1-P(X>v)P(Y>v)=1-e^{-\lambda v}\cdot e^{-\lambda v}=1-e^{-2\lambda v},\quad v>0.
+\]
+\[
+f_V(v)=F_V'(v)=2\lambda e^{-2\lambda v},\quad v>0.
+\]
+即$V\sim E(2\lambda)$。
+
+\textbf{求$U=\max(X,Y)$的分布：}
+\[
+F_U(u)=P(U\leq u)=P(X\leq u)P(Y\leq u)=(1-e^{-\lambda u})^2,\quad u>0.
+\]
+\[
+f_U(u)=F_U'(u)=2(1-e^{-\lambda u})\cdot\lambda e^{-\lambda u}=2\lambda(e^{-\lambda u}-e^{-2\lambda u}),\quad u>0.
+\]
+
+(2) 
+\[
+E(V)=\frac{1}{2\lambda}\quad (\text{指数分布$E(2\lambda)$的期望}).
+\]
+\[
+E(U)=\int_{0}^{\infty}u\cdot 2\lambda(e^{-\lambda u}-e^{-2\lambda u})\,\mathrm{d}u
+=2\lambda\Bigl(\int_{0}^{\infty}ue^{-\lambda u}\,\mathrm{d}u-\int_{0}^{\infty}ue^{-2\lambda u}\,\mathrm{d}u\Bigr).
+\]
+利用$\int_{0}^{\infty}ue^{-au}\,\mathrm{d}u=\frac{1}{a^2}$：
+\[
+E(U)=2\lambda\Bigl(\frac{1}{\lambda^2}-\frac{1}{4\lambda^2}\Bigr)=2\lambda\cdot\frac{3}{4\lambda^2}=\frac{3}{2\lambda}.
+\]
+
+(3) 
+\[
+E(U)+E(V)=\frac{3}{2\lambda}+\frac{1}{2\lambda}=\frac{2}{\lambda}=\frac{1}{\lambda}+\frac{1}{\lambda}=E(X)+E(Y).
+\]
+验证完毕。$\checkmark$
+
+\textbf{评注：}$\max(X,Y)+\min(X,Y)=X+Y$恒成立（无论是否独立），两边取期望即得$E(U)+E(V)=E(X)+E(Y)$，这是更简洁的证明。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item（\boxed{\textbf{真题风格}}）设二维随机变量$(X,Y)$的联合概率密度为
+\[
+f(x,y)=\begin{cases}
+2, & 0<x<y<1,\\
+0, & \text{其他}.
+\end{cases}
+\]
+\begin{enumerate}
+    \item[(1)] 求边缘密度$f_X(x)$和$f_Y(y)$；
+    \item[(2)] 求$E(X),E(Y),D(X),D(Y)$；
+    \item[(3)] 求$\mathrm{Cov}(X,Y)$和$\rho_{XY}$；
+    \item[(4)] 判断$X$与$Y$是否独立、是否不相关。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+先验证规范性：$\displaystyle\int_{0}^{1}\int_{x}^{1}2\,\mathrm{d}y\,\mathrm{d}x=\int_{0}^{1}2(1-x)\,\mathrm{d}x=2\Bigl(1-\frac{1}{2}\Bigr)=1$。$\checkmark$
+
+(1) 边缘密度：
+\[
+f_X(x)=\int_{x}^{1}2\,\mathrm{d}y=2(1-x),\quad 0<x<1.
+\]
+\[
+f_Y(y)=\int_{0}^{y}2\,\mathrm{d}x=2y,\quad 0<y<1.
+\]
+
+(2) 期望与方差：
+\[
+E(X)=\int_{0}^{1}x\cdot 2(1-x)\,\mathrm{d}x=2\int_{0}^{1}(x-x^2)\,\mathrm{d}x=2\Bigl(\frac{1}{2}-\frac{1}{3}\Bigr)=\frac{1}{3}.
+\]
+\[
+E(X^2)=\int_{0}^{1}x^2\cdot 2(1-x)\,\mathrm{d}x=2\int_{0}^{1}(x^2-x^3)\,\mathrm{d}x=2\Bigl(\frac{1}{3}-\frac{1}{4}\Bigr)=\frac{1}{6}.
+\]
+\[
+D(X)=E(X^2)-[E(X)]^2=\frac{1}{6}-\frac{1}{9}=\frac{3-2}{18}=\frac{1}{18}.
+\]
+\[
+E(Y)=\int_{0}^{1}y\cdot 2y\,\mathrm{d}y=2\int_{0}^{1}y^2\,\mathrm{d}y=\frac{2}{3}.
+\]
+\[
+E(Y^2)=\int_{0}^{1}y^2\cdot 2y\,\mathrm{d}y=2\int_{0}^{1}y^3\,\mathrm{d}y=\frac{2}{4}=\frac{1}{2}.
+\]
+\[
+D(Y)=E(Y^2)-[E(Y)]^2=\frac{1}{2}-\frac{4}{9}=\frac{9-8}{18}=\frac{1}{18}.
+\]
+
+(3) 协方差与相关系数：
+\[
+\begin{aligned}
+E(XY)
+&=2\int_0^1\int_x^1xy\,\mathrm{d}y\,\mathrm{d}x\\
+&=\int_0^1(x-x^3)\,\mathrm{d}x=\frac14.
+\end{aligned}
+\]
+\[
+\Cov(X,Y)=\frac14-\frac13\cdot\frac23=\frac1{36}.
+\]
+\[
+\rho_{XY}=\frac{1/36}{\sqrt{(1/18)(1/18)}}=\frac12.
+\]
+
+(4) $f_X(x)\cdot f_Y(y)=2(1-x)\cdot 2y=4y(1-x)\neq 2=f(x,y)$（除全平面外），且支撑集$\{0<x<y<1\}$非矩形区域，故$X$与$Y$不独立。
+
+$\rho_{XY}=\frac{1}{2}\neq 0$，故$X$与$Y$相关，从而$X$与$Y$不独立。
+
+\textbf{评注：}本题是考研经典题型。这里联合密度在整个非直积三角区域$\{0<x<y<1\}$上为正，因此$X$与$Y$不独立；不能脱离密度的具体支撑和正值范围，把“定义在三角形区域上”本身当作无条件判据。这里$\rho=1/2$表明存在中等程度的正线性相关。
+
+\vspace{0.4cm}
+
+\item（\boxed{\textbf{真题风格}}）设$X_1,X_2,\ldots,X_n$独立同分布，均服从参数为$\lambda$的泊松分布$P(\lambda)$。令$\displaystyle\bar{X}_n=\frac{1}{n}\sum_{i=1}^{n}X_i$。
+\begin{enumerate}
+    \item[(1)] 求$E(\bar{X}_n)$和$D(\bar{X}_n)$；
+    \item[(2)] 用切比雪夫不等式证明：对任意$\varepsilon>0$，$\displaystyle\lim_{n\to\infty}P(|\bar{X}_n-\lambda|\geq\varepsilon)=0$；
+    \item[(3)] 当$\lambda=2$，$n=100$时，用切比雪夫不等式估计$P(|\bar{X}_n-2|\geq 0.3)$的上界。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) 由$X_i\sim P(\lambda)$，$E(X_i)=\lambda$，$D(X_i)=\lambda$。
+\[
+E(\bar{X}_n)=E\Bigl(\frac{1}{n}\sum_{i=1}^{n}X_i\Bigr)=\frac{1}{n}\sum_{i=1}^{n}E(X_i)=\frac{1}{n}\cdot n\lambda=\lambda.
+\]
+由独立性：
+\[
+D(\bar{X}_n)=D\Bigl(\frac{1}{n}\sum_{i=1}^{n}X_i\Bigr)=\frac{1}{n^2}\sum_{i=1}^{n}D(X_i)=\frac{1}{n^2}\cdot n\lambda=\frac{\lambda}{n}.
+\]
+
+(2) 由切比雪夫不等式：
+\[
+P(|\bar{X}_n-\lambda|\geq\varepsilon)\leq\frac{D(\bar{X}_n)}{\varepsilon^2}=\frac{\lambda}{n\varepsilon^2}.
+\]
+当$n\to\infty$时，$\frac{\lambda}{n\varepsilon^2}\to 0$，故
+\[
+\lim_{n\to\infty}P(|\bar{X}_n-\lambda|\geq\varepsilon)=0.
+\]
+这表明$\bar{X}_n$依概率收敛于$\lambda$，即$\bar{X}_n\xrightarrow{P}\lambda$。
+
+(3) 当$\lambda=2$，$n=100$时，由切比雪夫不等式：
+\[
+P(|\bar{X}_n-2|\geq 0.3)\leq\frac{D(\bar{X}_n)}{0.3^2}=\frac{2/100}{0.09}=\frac{0.02}{0.09}=\frac{2}{9}\approx 0.2222.
+\]
+即$P(|\bar{X}_n-2|\geq 0.3)\leq\frac{2}{9}$。
+
+\textbf{评注：}本题体现了切比雪夫不等式在大数定律证明中的核心作用。注意$D(\bar{X}_n)=\frac{\lambda}{n}$随$n$增大而趋于$0$，说明样本均值越来越集中在总体均值附近。
+
+\vspace{0.4cm}
+
+\item 设随机变量$X\sim N(0,1)$，令$Y=|X|$。
+\begin{enumerate}
+    \item[(1)] 求$Y$的概率密度；
+    \item[(2)] 求$E(Y)$和$D(Y)$；
+    \item[(3)] 求$\mathrm{Cov}(X,Y)$，并判断$X$与$Y$是否不相关、是否独立。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) $X\sim N(0,1)$，密度$\varphi(x)=\frac{1}{\sqrt{2\pi}}e^{-x^2/2}$，分布函数$\Phi(x)$。
+对$y>0$：
+\[
+F_Y(y)=P(|X|\leq y)=P(-y\leq X\leq y)=\Phi(y)-\Phi(-y)=2\Phi(y)-1.
+\]
+\[
+f_Y(y)=F_Y'(y)=2\varphi(y)=\sqrt{\frac{2}{\pi}}\,e^{-y^2/2},\quad y>0.
+\]
+此即半正态分布（Half-normal distribution）。
+
+(2) 
+\[
+E(Y)=\int_{0}^{\infty}y\cdot\sqrt{\frac{2}{\pi}}e^{-y^2/2}\,\mathrm{d}y
+=\sqrt{\frac{2}{\pi}}\int_{0}^{\infty}ye^{-y^2/2}\,\mathrm{d}y
+=\sqrt{\frac{2}{\pi}}\Bigl[-e^{-y^2/2}\Bigr]_{0}^{\infty}
+=\sqrt{\frac{2}{\pi}}.
+\]
+\[
+E(Y^2)=E(|X|^2)=E(X^2)=1\quad(\text{因为}D(X)=E(X^2)-[E(X)]^2=1-0=1).
+\]
+\[
+D(Y)=E(Y^2)-[E(Y)]^2=1-\frac{2}{\pi}.
+\]
+
+(3)
+\[
+\mathrm{Cov}(X,Y)=E(XY)-E(X)E(Y)=E(X|X|)-0\cdot E(Y)=E(X|X|).
+\]
+被积函数$x|x|\varphi(x)=\frac{x|x|}{\sqrt{2\pi}}e^{-x^2/2}$是奇函数（因为$x|x|$是奇函数），在对称区间$\mathbb{R}$上积分为零：
+\[
+E(X|X|)=\int_{-\infty}^{\infty}x|x|\varphi(x)\,\mathrm{d}x=0.
+\]
+故$\mathrm{Cov}(X,Y)=0$，从而$\rho_{XY}=0$，$X$与$Y$不相关。
+
+但$Y=|X|$是$X$的确定性函数，显然$X$与$Y$不独立（$Y$完全由$X$决定）。
+
+\textbf{评注：}不相关$\nRightarrow$独立！本题是一个经典反例：$X\sim N(0,1)$与$|X|$的相关系数为零（因$X|X|$的期望为零），但两者存在严格的函数关系，绝不独立。这再次说明相关系数只衡量\textbf{线性}相关程度。
+
+\end{enumerate}
+

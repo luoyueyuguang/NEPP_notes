@@ -1,12 +1,12 @@
 \section{中值定理与泰勒公式}
 \subsection{中值定理}
 \begin{mydef}{极值的定义}{definition of extremum}
-    若\(\exists \delta > 0\)，使得\(\forall x \in (x_0 - \delta, x_0 + \delta)\)，均有\(f(x) < f(x_0)(f(x) > f(x_0))\)，则称\(f\)在点\(x_0\)处取得极小值或极大值，简称极值。
+    若\(\exists \delta > 0\)，使得定义域内所有满足\(|x-x_0|<\delta\)的\(x\)均有\(f(x)\leq f(x_0)\)，则称\(f\)在点\(x_0\)处取得局部极大值；若均有\(f(x)\geq f(x_0)\)，则称\(f\)在点\(x_0\)处取得局部极小值。允许等号，因此常值平台上的点也可以是非严格局部极值点。
     称点\(x_0\)为\(f\)的极值点。
 \end{mydef}
 
 \begin{mydef}{费马定理及其几何意义}{fermat's theorem and its geometric meaning}
-    若\(y = f(x)\)在点\(x_0\)处可取得极值，则\(f'(x_0) = 0\)。
+    若\(y=f(x)\)在点\(x_0\)处取得局部极值，且\(f\)在\(x_0\)处可导，则\(f'(x_0)=0\)。
     若\(f'(x_0) = 0\)，则\(x_0\)为\(f\)的驻点。若\(f(x)\)在\(x = x_0\)处取得极值并可导，则\(x_0\)为极值点，反之，
     并不一定。
     \begin{conclusion}{费马定理的几何意义}{geometric meaning of fermat's theorem}
@@ -14,24 +14,25 @@
     \end{conclusion}
 \end{mydef}
 
-\begin{mydef}{罗尔定理及其几何意义}{roll's theorem and its geometric meaning}
+\begin{mydef}{罗尔定理及其几何意义}{Rolle's theorem and its geometric meaning}
     若\(y = f(x)\)在区间\([a, b]\)上连续，在\((a, b)\)内可导，且\(f(a) = f(b)\)，则至少存在一点\(\xi \in (a, b)\)，使得\(f'(\xi) = 0\)
-    \begin{conclusion}{罗尔定理的几何意义}{geometric meaning of roll's theorem}
-        若连续曲线\(y = f(x)\)在\(A(a, f(a))和B(b, f(b))\)间至少存在一点\(P(\xi, f(\xi))\)，使得点\(P\)处的切线平行于\(x\)轴。
+    \begin{conclusion}{罗尔定理的几何意义}{geometric meaning of Rolle's theorem}
+        在连续曲线 \(y=f(x)\) 上，端点 \(A(a,f(a))\) 与 \(B(b,f(b))\) 之间至少存在一点 \(P(\xi,f(\xi))\)，使得曲线在点 \(P\) 处的切线平行于 \(x\) 轴。
     \end{conclusion}
 \end{mydef}
 
 \begin{mydef}{拉格朗日中值定理及其几何意义}{lagrange's mean value theorem and its geometric meaning}
-    设\(f(x)\)在区间\([a, b]\)上连续，在\((a, b)\)内可导，且\(\exists \xi \in (a, b)\),使得
+    设\(f(x)\)在区间\([a,b]\)上连续，在\((a,b)\)内可导，则至少存在\(\xi\in(a,b)\)，使得
     \[
     \begin{aligned}
         &f(b) - f(a) = f'(\xi) (b - a) \\
         &f(x) = f(x_0) + f'(\xi) (x - x_0), \xi \in (x_0, x) \\
-        &f(x + \Delta x) = f(x_0) + f'(\xi) (\Delta x) \\
-        &\Delta y = f'(x + \theta \Delta x) \cdot \Delta x (0 \leq \theta \leq 1)
+        &f(x + \Delta x) = f(x) + f'(\xi)\Delta x,
+          \quad \xi\text{介于 }x\text{与 }x+\Delta x\text{之间}, \\
+        &\Delta y = f'(x + \theta \Delta x) \cdot \Delta x \quad (0 < \theta < 1).
     \end{aligned}
     \]
-    这个定理也叫作微分中值定理。上述第四个式称为有限增量公式，拉格朗日中理又称微分中值定理
+    这个定理也叫作微分中值定理。上述第四个式称为有限增量公式，拉格朗日中值定理又称微分中值定理
     \begin{conclusion}{拉格朗日中值定理的几何意义}{geometric meaning of lagrange's mean value theorem}
         若\(f(x)\)在\(
         A(a, f(a)), 
@@ -52,7 +53,7 @@
     微分中值定理建立了函数增量，自变量增量与导数之间的联系。由于函数的许多性质都可以通过函数增量与自变量增量的关系来描述，因此，微分中值定理在函数的分析中起着重要的作用。
 \end{conclusion}
 
-\begin{conclusion}{罗尔定理的辅助函数}{roll's theorem for auxiliary function}
+\begin{conclusion}{罗尔定理的辅助函数}{Rolle's theorem for auxiliary function}
     \begin{enumerate}
         \item 证明\(f'(\xi) = 0\)或\(f''(\xi) = 0\) \\
         应用一次或两次罗尔定理即得
@@ -105,7 +106,7 @@
                 n \in N^{+}
             )
             \)
-            辅助函数为\(F(X) = f(x)e^{n\ln x} = f(x)e^{{\ln x}^{n}} = x^n f(x)\)
+            在\(x>0\)的区间上可取辅助函数\(F(x)=f(x)e^{n\ln x}=x^n f(x)\)。注意\(e^{n\ln x}=x^n\)，并不等于\(e^{(\ln x)^n}\)。
             \begin{conclusion}{详细过程}{mean detailed process 3}
                 \begin{enumerate}
                     \item 证法一 \\/
@@ -121,13 +122,14 @@
                     \]
                 \end{enumerate}
             \end{conclusion}
-        \item 证明存在\(\xi in (a, b)\)，使得\(
+        \item 证明存在\(\xi \in (a, b)\)，使得\(
             \frac{f(\xi)}{g(\xi)} = \frac{f'(\xi)}{g'(\xi)}
         \)即\(
-            f(\xi)g''(\xi) - f''(\xi)g(\xi) = 0
+            f(\xi)g'(\xi)-f'(\xi)g(\xi)=0
         \),其辅助函数为\[
-            F(X) = f(x)g'(x) - f'(x)g(x)
+            F(x)=\frac{f(x)}{g(x)}
         \]
+        这里需保证相关分母不为零；对\(F\)应用罗尔定理时，还需验证端点值相等等前提。
         \item 证明存在\(\xi \in (a, b)\)，使得\(
             f(\xi) + g'(\xi)[f(\xi) - b\xi] = b
         \).其辅助函数为\[
@@ -151,38 +153,75 @@
         \Leftrightarrow
         f'(x) = 0 ( \forall x \in (a, b) )
     \)\\
-    若\(f(x)\)在\(
-    (a, b)
-    \)内可导，则\(
-    f(x)\)在\((a, b)\)内常数\(
-    \Leftrightarrow
-    f''(x) = 0 ( \forall x \in (a, b) )
-    \)
+    若\(f(x)\)在区间\((a,b)\)内可导，则同样有
+    \[
+      f(x)\text{在}(a,b)\text{内为常数}
+      \Longleftrightarrow f'(x)=0\quad(\forall x\in(a,b)).
+    \]
+    注意\(f''(x)=0\)只能推出\(f(x)=Ax+B\)为一次函数，不足以推出\(f\)为常数。
 \end{conclusion}
 
 \begin{conclusion}{两个函数差为函数的条件}{condition for the difference of two functions to be a function}
-    
+    设\(f(x), g(x)\)在区间\(I\)上可导，则\(f(x) - g(x) \equiv C\)（\(C\)为常数）\(\Leftrightarrow f'(x) = g'(x)\)（\(\forall x \in I\)）。
+    即：两个可导函数相差一个常数当且仅当它们的导数处处相等。
 \end{conclusion}
-
 \begin{conclusion}{两个函数恒等的条件}{condition for two functions to be identical}
+    设\(f(x), g(x)\)在区间\(I\)上可导，则\(f(x) \equiv g(x)\)（\(\forall x \in I\)）\(\Leftrightarrow f'(x) = g'(x)\)且\(\exists x_0 \in I\)使得\(f(x_0) = g(x_0)\)。
+    即：导数处处相等且在一点函数值相同，则两函数在整个区间上恒等。
 \end{conclusion}
 
 \begin{conclusion}{函数单调性判别定理及其几何意义}{judgement theorem of function's monotonicity and its geometric meaning}
+    设\(f(x)\)在\([a, b]\)上连续，在\((a, b)\)内可导：
+    \begin{enumerate}
+        \item 若\(\forall x \in (a, b)\)有\(f'(x) > 0\)，则\(f(x)\)在\([a, b]\)上严格单调递增；
+        \item 若\(\forall x \in (a, b)\)有\(f'(x) < 0\)，则\(f(x)\)在\([a, b]\)上严格单调递减；
+        \item 若\(\forall x \in (a, b)\)有\(f'(x) \equiv 0\)，则\(f(x)\)在\([a, b]\)上为常数。
+    \end{enumerate}
+    \textbf{几何意义：}曲线上每一点处切线的斜率（即导数）决定了函数的单调性：切线斜率为正则曲线上升，切线斜率为负则曲线下降。
 \end{conclusion}
 
 \begin{conclusion}{函数单调性区间的一般求法}{general method for finding the interval of function's monotonicity}
-
+    \begin{enumerate}
+        \item 确定\(f(x)\)的定义域；
+        \item 求\(f'(x)\)，并解方程\(f'(x) = 0\)，找出驻点及\(f'(x)\)不存在的点（统称为临界点）；
+        \item 用临界点将定义域划分为若干个子区间；
+        \item 在每个子区间内取测试点，判断\(f'(x)\)的正负号；
+        \item 根据\(f'(x)\)的正负号写出单调性区间：\(f'(x) > 0\)对应单调递增区间，\(f'(x) < 0\)对应单调递减区间。
+    \end{enumerate}
 \end{conclusion}
 
 \begin{conclusion}{极值点必要条件}{necessary condition for a point to be an extremum point}
+    若\(f(x)\)在点\(x_0\)处可导且在\(x_0\)处取得极值，则\(f'(x_0) = 0\)（费马定理）。
+    \textbf{注：}逆命题不成立。例如\(f(x) = x^3\)，\(f'(0) = 0\)但\(x = 0\)不是极值点。导数等于零的点称为\textbf{驻点}，驻点不一定是极值点。
 \end{conclusion}
 
 \begin{mydef}{极值点充分判定定理及几何意义}{sufficient judgement theorem of extremum point and its geometric meaning}
-
+    \textbf{第一充分条件（一阶导数判别法）：}设\(f(x)\)在\(x_0\)处连续，并在\(x_0\)的某个去心邻域内可导；\(f'(x_0)\)可以等于零，也可以不存在：
+    \begin{enumerate}
+        \item 若\(x < x_0\)时\(f'(x) > 0\)，\(x > x_0\)时\(f'(x) < 0\)，则\(f(x_0)\)为极大值；
+        \item 若\(x < x_0\)时\(f'(x) < 0\)，\(x > x_0\)时\(f'(x) > 0\)，则\(f(x_0)\)为极小值；
+        \item 若\(f'(x)\)在\(x_0\)两侧不变号，则\(f(x_0)\)不是极值。
+    \end{enumerate}
+    \textbf{第二充分条件（二阶导数判别法）：}设\(f(x)\)在\(x_0\)处二阶可导且\(f'(x_0) = 0\)：
+    \begin{enumerate}
+        \item 若\(f''(x_0) > 0\)，则\(f(x_0)\)为极小值；
+        \item 若\(f''(x_0) < 0\)，则\(f(x_0)\)为极大值；
+        \item 若\(f''(x_0) = 0\)，则无法判定，需用第一充分条件。
+    \end{enumerate}
+    \textbf{几何意义：}一阶导数判别法利用曲线在极值点两侧的升降趋势；二阶导数判别法利用曲线在驻点处的弯曲方向——凹（向上弯曲）对应极小值，凸（向下弯曲）对应极大值。
 \end{mydef}
 
 \begin{mydef}{凹凸性的定义及几何意义}{definition and geometric meaning of concavity}
-
+    设\(f(x)\)在区间\(I\)上连续，若对\(I\)上任意两点\(x_1 \neq x_2\)，恒有：
+    \[
+    f\left(\frac{x_1 + x_2}{2}\right) < \frac{f(x_1) + f(x_2)}{2}
+    \]
+    则称\(f(x)\)在\(I\)上的图形是\textbf{凹的}（concave up / 下凸），即曲线位于其任意一条切线的上方。
+    \[
+    f\left(\frac{x_1 + x_2}{2}\right) > \frac{f(x_1) + f(x_2)}{2}
+    \]
+    则称\(f(x)\)在\(I\)上的图形是\textbf{凸的}（concave down / 上凸），即曲线位于其任意一条切线的下方。
+    \textbf{几何意义：}凹曲线向上弯曲（如\(y = x^2\)），凸曲线向下弯曲（如\(y = -x^2\)）。从切线角度看：凹弧上任意点处的切线在曲线下方，凸弧上任意点处的切线在曲线上方。
 \end{mydef}
 
 \begin{conclusion}{凹凸性的判定定理及几何意义}{judgement theorem of concavity and its geometric meaning}
@@ -190,77 +229,395 @@
     反之，若\(f''(x) < 0\)，则函数曲线在区间\((a, b)\)上是凸的
 \end{conclusion}
 
-\begin{conclusion}{函数\(f(x)\)的凹凸性区间的求法}{method for finding the interval of concavity of function \(f(x)\)}
+\begin{conclusion}{函数$f(x)$的凹凸性区间的求法}{method for finding concavity interval of f(x)}
+    \begin{enumerate}
+        \item 确定\(f(x)\)的定义域；
+        \item 求\(f''(x)\)，解方程\(f''(x) = 0\)，找出使\(f''(x) = 0\)的点以及\(f''(x)\)不存在的点；
+        \item 用这些点将定义域划分为若干子区间；
+        \item 在每个子区间内判断\(f''(x)\)的正负号：\(f''(x) > 0\)对应凹区间，\(f''(x) < 0\)对应凸区间。
+    \end{enumerate}
 \end{conclusion}
 
-\begin{mydef}{拐点}{extremum point}
+\begin{mydef}{拐点}{inflection point}
+    设\(f(x)\)在\(x_0\)的某邻域内连续，若曲线\(y = f(x)\)在点\((x_0, f(x_0))\)的两侧凹凸性相反，则称点\((x_0, f(x_0))\)为曲线\(y = f(x)\)的\textbf{拐点}（inflection point / point of inflection）。
+    拐点处曲线的弯曲方向发生改变：由凹变凸或由凸变凹。其几何本质是曲线上切线穿越曲线的点。
 \end{mydef}
 
-\begin{conclusion}{拐点的必要条件}{necessary condition for a point to be a extremum point}
+\begin{conclusion}{拐点的必要条件}{necessary condition for a point to be an inflection point}
+    若\((x_0, f(x_0))\)是曲线\(y = f(x)\)的拐点且\(f''(x_0)\)存在，则必有\(f''(x_0) = 0\)。
+    \textbf{注：}逆命题不成立。例如\(f(x) = x^4\)，\(f''(0) = 0\)但\((0, 0)\)不是拐点（函数在\(x = 0\)两侧均为凹的）。二阶导数为零的点称为\textbf{拐点候选点}，还需验证凹凸性是否改变。
 \end{conclusion}
 
-\begin{conclusion}{拐点的充分判定定理及几何意义}{sufficient judgement theorem of extremum point and its geometric meaning}
+\begin{conclusion}{拐点的充分判定定理及几何意义}{sufficient judgement theorem of inflection point and its geometric meaning}
+    \textbf{第一充分条件：}设\(f(x)\)在\(x_0\)的某邻域内二阶可导，且\(f''(x_0) = 0\)（或\(f''(x_0)\)不存在）：
+    \begin{enumerate}
+        \item 若\(f''(x)\)在\(x_0\)两侧异号，则\((x_0, f(x_0))\)是拐点；
+        \item 若\(f''(x)\)在\(x_0\)两侧同号，则\((x_0, f(x_0))\)不是拐点。
+    \end{enumerate}
+    \textbf{第二充分条件：}设\(f''(x_0) = 0\)且\(f'''(x_0) \neq 0\)，则\((x_0, f(x_0))\)是拐点。
+    \textbf{几何意义：}拐点处曲线的弯曲方向发生变化——切线从在曲线的一侧穿到另一侧，二阶导数的符号改变对应凹凸性的切换。
 \end{conclusion}
 
-\begin{conclusion}{曲线拐点的求法}{method for finding the extremum points of a function}
+\begin{conclusion}{曲线拐点的求法}{method for finding the inflection points of a curve}
+    \begin{enumerate}
+        \item 求\(f''(x)\)；
+        \item 解方程\(f''(x) = 0\)，找出使\(f''(x) = 0\)的点以及\(f''(x)\)不存在的点；
+        \item 检查每个候选点两侧\(f''(x)\)的符号是否改变：若异号则为拐点，若同号则不是拐点；
+        \item 计算拐点的纵坐标\(f(x_0)\)，写出拐点坐标\((x_0, f(x_0))\)。
+    \end{enumerate}
 \end{conclusion}
 
 \begin{conclusion}
 {
     利用导数对给定函数上求单调性区间、极值点区间、凹凸性区间和拐点的求法
-}{method for finding the intervals of monotonicity, extremum points, concavity and extremum points using derivatives}
+}{method for finding the intervals of monotonicity, extremum points, concavity and inflection points using derivatives}
+    \begin{enumerate}
+        \item \textbf{确定定义域：}明确函数\(f(x)\)的定义域\(D\)；
+        \item \textbf{求一阶和二阶导数：}计算\(f'(x)\)和\(f''(x)\)；
+        \item \textbf{求临界点：}解\(f'(x) = 0\)得驻点，找出\(f'(x)\)不存在的点；解\(f''(x) = 0\)得拐点候选点，找出\(f''(x)\)不存在的点；
+        \item \textbf{列表分析：}将上述所有点按从小到大排列，划分区间，制作符号表，逐区间判断\(f'(x)\)和\(f''(x)\)的正负号；
+        \item \textbf{综合结论：}
+        \begin{itemize}
+            \item \(f'(x) > 0\)的区间为单调递增区间，\(f'(x) < 0\)的区间为单调递减区间；
+            \item \(f'(x)\)由正变负处取得极大值，由负变正处取得极小值；
+            \item \(f''(x) > 0\)的区间为凹区间，\(f''(x) < 0\)的区间为凸区间；
+            \item \(f''(x)\)变号处为拐点。
+        \end{itemize}
+    \end{enumerate}
 \end{conclusion}
 
 \begin{conclusion}{利用导数求渐近线}{method for finding the asymptotic lines using derivatives}
+    曲线\(y = f(x)\)的渐近线有三类：
+    \begin{enumerate}
+        \item \textbf{水平渐近线：}若\(\displaystyle \lim_{x \to +\infty} f(x) = b\)或\(\displaystyle \lim_{x \to -\infty} f(x) = b\)，则\(y = b\)为水平渐近线；
+        \item \textbf{垂直渐近线：}若\(\displaystyle \lim_{x \to a^{+}} f(x) = \infty\)或\(\displaystyle \lim_{x \to a^{-}} f(x) = \infty\)，则\(x = a\)为垂直渐近线（\(a\)通常为函数的无穷间断点或无定义点）；
+        \item \textbf{斜渐近线：}若\(\displaystyle k = \lim_{x \to \pm\infty} \frac{f(x)}{x}\)存在且不为零（或为零但配合水平渐近线分析），\(\displaystyle b = \lim_{x \to \pm\infty} [f(x) - kx]\)存在，则\(y = kx + b\)为斜渐近线。
+    \end{enumerate}
+    \textbf{注：}水平渐近线可视为斜渐近线当\(k = 0\)时的特例，但通常分别讨论。
 \end{conclusion}
 
 
 \subsection{函数的最大值与最小值问题}
 
-\begin{conclusion}{闭区间\([a, b] \)上连续函数\(f(x)\)的最值问题}{maximum and minimum problems of continuous function  on closed interval }
+\begin{conclusion}{闭区间$[a, b]$上连续函数$f(x)$的最值问题}{maximum and minimum problems of continuous function on closed interval}
+    设\(f(x)\)在\([a, b]\)上连续，则\(f(x)\)在\([a, b]\)上必取得最大值和最小值。求法：
+    \begin{enumerate}
+        \item 求\(f'(x)\)，找出\((a, b)\)内所有驻点（\(f'(x) = 0\)）及\(f'(x)\)不存在的点；
+        \item 计算\(f(x)\)在上述所有点以及区间端点\(a, b\)处的函数值；
+        \item 比较所有函数值，其中最大者即为最大值，最小者即为最小值。
+    \end{enumerate}
+\end{conclusion}
+\begin{conclusion}{$f(x)$在区间$I$可导且仅有两个单调区间的最值问题}{maximum and minimum problems of differentiable function with two monotonicity intervals}
+    设\(f(x)\)在区间\(I\)上可导且在\(I\)内仅有唯一的一个驻点\(x_0\)：
+    \begin{enumerate}
+        \item 若\(x_0\)为极大值点，则\(f(x_0)\)为\(f(x)\)在\(I\)上的最大值；
+        \item 若\(x_0\)为极小值点，则\(f(x_0)\)为\(f(x)\)在\(I\)上的最小值。
+    \end{enumerate}
+    该结论适用于开区间内只有一个极值点的情形，此时该极值即为最值。
 \end{conclusion}
 
-\begin{conclusion}{\(f(x)\)在区间\(I\)可导且仅有两个单调区间的最值问题}{maximum and minimum problems of continuous function  on two interval}
-\end{conclusion}
-
-\begin{conclusion}{其他的最值问题}{maximum and minimum problems of continuous function  on two interval}
-
+\begin{conclusion}{其他的最值问题}{other maximum and minimum problems}
+    对于应用问题（如最大面积、最小成本、最优生产量等）的最值求解，一般步骤为：
+    \begin{enumerate}
+        \item 建立目标函数\(y = f(x)\)，明确自变量\(x\)的取值范围（实际意义下的定义域）；
+        \item 求\(f'(x)\)，找出驻点及不可导点；
+        \item 根据实际问题的背景判断驻点是否为最值点——若问题本身存在最大值（或最小值）且驻点唯一，则该驻点即为所求最值点；
+        \item 作答并检验结果的实际合理性。
+    \end{enumerate}
 \end{conclusion}
 
 
 \subsection{泰勒公式}
 \begin{mydef}{泰勒公式}{taylor formula}
+    设\(f(x)\)在\(x_0\)的某邻域内具有\(n+1\)阶导数，则对该邻域内任意\(x\)，有：
+    \[
+    f(x) = f(x_0) + f'(x_0)(x - x_0) + \frac{f''(x_0)}{2!}(x - x_0)^2 + \cdots + \frac{f^{(n)}(x_0)}{n!}(x - x_0)^n + R_n(x)
+    \]
+    其中余项\(R_n(x)\)有两种常用形式：
+    \begin{itemize}
+        \item \textbf{拉格朗日余项：}\(R_n(x) = \dfrac{f^{(n+1)}(\xi)}{(n+1)!}(x - x_0)^{n+1}\)，其中\(\xi\)介于\(x_0\)与\(x\)之间；
+        \item \textbf{皮亚诺余项：}\(R_n(x) = o((x - x_0)^n)\)（当\(x \to x_0\)时）。
+    \end{itemize}
+    拉格朗日余项用于定量估计误差和证明不等式；皮亚诺余项用于定性分析局部性质和求极限。
 \end{mydef}
 
 \begin{mydef}{麦克劳林公式}{maclaurin formula}
+    泰勒公式当\(x_0 = 0\)时的特例称为麦克劳林公式：
+    \[
+    f(x) = f(0) + f'(0)x + \frac{f''(0)}{2!}x^2 + \frac{f'''(0)}{3!}x^3 + \cdots + \frac{f^{(n)}(0)}{n!}x^n + R_n(x)
+    \]
+    其中：
+    \begin{itemize}
+        \item 拉格朗日余项：\(R_n(x) = \dfrac{f^{(n+1)}(\xi)}{(n+1)!}x^{n+1}\)，\(\xi\)介于\(0\)与\(x\)之间；
+        \item 皮亚诺余项：\(R_n(x) = o(x^n)\)（当\(x \to 0\)时）。
+    \end{itemize}
+    麦克劳林公式是泰勒公式最常用的形式，尤其在进行极限计算和无穷小分析时。
 \end{mydef}
 
 \begin{formula}{五个基本初等函数的麦克劳林公式}{maclaurin formula of five basic elementary functions}
+    \begin{enumerate}
+        \item \(e^x = 1 + x + \dfrac{x^2}{2!} + \dfrac{x^3}{3!} + \cdots + \dfrac{x^n}{n!} + o(x^n)\)
+        \item \(\sin x = x - \dfrac{x^3}{3!} + \dfrac{x^5}{5!} - \cdots + (-1)^n\dfrac{x^{2n+1}}{(2n+1)!} + o(x^{2n+2})\)
+        \item \(\cos x = 1 - \dfrac{x^2}{2!} + \dfrac{x^4}{4!} - \cdots + (-1)^n\dfrac{x^{2n}}{(2n)!} + o(x^{2n})\)
+        \item \(\ln(1 + x) = x - \dfrac{x^2}{2} + \dfrac{x^3}{3} - \cdots + (-1)^{n-1}\dfrac{x^n}{n} + o(x^n)\)
+        \item \((1 + x)^\alpha = 1 + \alpha x + \dfrac{\alpha(\alpha - 1)}{2!}x^2 + \cdots + \dfrac{\alpha(\alpha - 1)\cdots(\alpha - n + 1)}{n!}x^n + o(x^n)\)
+    \end{enumerate}
+    这五个公式是极限计算、无穷小分析和高阶导数求解的基础，必须熟记。
 \end{formula}
 \subsection{泰勒公式求法}
 \begin{conclusion}{泰勒公式的唯一性}{uniqueness of taylor formula}
-
+    若\(f(x)\)在\(x_0\)处具有\(n\)阶导数，且存在一个\(n\)次多项式\(P_n(x)\)使得
+    \[
+    f(x) = P_n(x) + o((x - x_0)^n) \quad (x \to x_0)
+    \]
+    则该多项式\(P_n(x)\)是唯一的，并且恰好等于\(f(x)\)在\(x_0\)处的\(n\)阶泰勒多项式：
+    \[
+    P_n(x) = \sum_{k=0}^{n} \frac{f^{(k)}(x_0)}{k!}(x - x_0)^k
+    \]
+    这一性质保证了泰勒展开的确定性，也为通过其他途径（如已知展开式的四则运算、复合等）求得泰勒公式提供了理论依据。
 \end{conclusion}
 
 \begin{conclusion}{带皮亚诺余项的泰勒公式的求法}{method for finding taylor formula with peano remainder}
+    求带皮亚诺余项的泰勒展开主要有两种方法：
+    \begin{enumerate}
+        \item \textbf{直接法：}逐次求导计算\(f^{(k)}(x_0)\)，代入公式\(f(x) = \displaystyle\sum_{k=0}^{n}\frac{f^{(k)}(x_0)}{k!}(x - x_0)^k + o((x - x_0)^n)\)。适用于低阶展开或导数规律明显的函数。
+        \item \textbf{间接法（推荐）：}利用五个基本初等函数的麦克劳林公式，结合以下运算法则：
+        \begin{itemize}
+            \item 线性组合：\(af(x) + bg(x)\)的展开为各自展开的对应项相加；
+            \item 乘积：将两个展开式相乘，保留到所需阶数；
+            \item 复合（代入）：将内层函数的展开式代入外层函数的展开式；
+            \item 积分和求导：利用逐项求导或逐项积分的性质。
+        \end{itemize}
+    \end{enumerate}
 \end{conclusion}
 
 \begin{conclusion}{带拉格朗日余项的泰勒公式的求法}{method for finding taylor formula with lagrange remainder}
+    带拉格朗日余项的泰勒公式的求法与带皮亚诺余项的方法类似，多项式部分完全相同：
+    \[
+    f(x) = \sum_{k=0}^{n}\frac{f^{(k)}(x_0)}{k!}(x - x_0)^k + \frac{f^{(n+1)}(\xi)}{(n+1)!}(x - x_0)^{n+1}
+    \]
+    其中\(\xi\)介于\(x_0\)与\(x\)之间。
+    求法要点：
+    \begin{enumerate}
+        \item 多项式部分与皮亚诺型完全相同，可用直接法或间接法求得；
+        \item 余项需明确指出\(\xi\)的取值范围（在\(x_0\)与\(x\)之间），且要求\(f\)在对应区间上具有\(n+1\)阶导数；
+        \item 拉格朗日余项的主要用途是\textbf{证明不等式}和\textbf{误差估计}，因为它给出了余项的精确表达式而非渐近记号。
+    \end{enumerate}
 \end{conclusion}
 
 \subsection{带皮亚诺余项的泰勒公式的应用}
 \begin{conclusion}{利用泰勒公式求极限}{application of taylor formula to find limits}
+    泰勒公式是求解\(\dfrac{0}{0}\)型或\(\infty - \infty\)型极限的强大工具。基本步骤：
+    \begin{enumerate}
+        \item 将分子和分母中的函数分别展开为麦克劳林公式（或泰勒公式），展开到相同的阶数；
+        \item 一般展开到分子分母的最低阶非零项即可（根据洛必达法则的阶数要求确定展开阶数）；
+        \item 代入展开式后化简，消去高阶无穷小\(o(x^n)\)，求出极限。
+    \end{enumerate}
+    \textbf{示例：}\(\displaystyle \lim_{x \to 0}\frac{\sin x - x}{x^3} = \lim_{x \to 0}\frac{(x - x^3/3! + o(x^3)) - x}{x^3} = -\frac{1}{6}\)。
 \end{conclusion}
 
 \begin{conclusion}{利用泰勒公式确定无穷小的阶数}{application of taylor formula to find the order of infinite small}
+    若\(x \to 0\)时\(f(x)\)为无穷小量，将其展开为麦克劳林公式：
+    \[
+    f(x) = a_k x^k + a_{k+1}x^{k+1} + \cdots + o(x^{m})
+    \]
+    其中\(a_k \neq 0\)为首个非零系数，则\(f(x)\)是\(x\)的\(k\)阶无穷小，即\(f(x) \sim a_k x^k\)（\(x \to 0\)）。
+    该方法比洛必达法则逐次求导更高效，尤其当函数结构复杂时。
 \end{conclusion}
 
 \begin{conclusion}{利用泰勒公式求高阶函数的值}{application of taylor formula to find the value of higher order function}
+    由泰勒公式的唯一性，\(f^{(n)}(x_0)\)等于\(n\)阶泰勒多项式中\((x - x_0)^n\)项的系数乘以\(n!\)：
+    \[
+    f^{(n)}(x_0) = n! \times (\text{泰勒展开中}(x - x_0)^n\text{的系数})
+    \]
+    特别地，对于麦克劳林公式：
+    \[
+    f^{(n)}(0) = n! \times (\text{麦克劳林展开中}x^n\text{的系数})
+    \]
+    该方法避免了逐次求导的繁琐计算，仅需利用已知基本展开式通过代数运算得到目标函数的展开式即可。
 \end{conclusion}
 \subsection{带拉格朗日余项的泰勒公式的应用}
 \begin{conclusion}{利用泰勒公式证明不等式}{application of taylor formula to prove inequalities}
+    利用带拉格朗日余项的泰勒公式证明不等式的基本思路：
+    \begin{enumerate}
+        \item 选择适当的展开点\(x_0\)和展开阶数\(n\)；
+        \item 将\(f(x)\)在\(x_0\)处展开至\(n\)阶，并写出拉格朗日余项：
+        \[
+        f(x) = f(x_0) + f'(x_0)(x - x_0) + \cdots + \frac{f^{(n)}(x_0)}{n!}(x - x_0)^n + \frac{f^{(n+1)}(\xi)}{(n+1)!}(x - x_0)^{n+1}
+        \]
+        \item 根据余项中\(f^{(n+1)}(\xi)\)的符号（或界）来判断\(f(x)\)与泰勒多项式之间的大小关系；
+        \item 例如：若\(f^{(n+1)}(\xi) \geq 0\)，则\(f(x) \geq T_n(x)\)（泰勒多项式低估真值）；若\(f^{(n+1)}(\xi) \leq 0\)，则\(f(x) \leq T_n(x)\)。
+    \end{enumerate}
+    这是证明诸如\(\sin x < x\)（\(x > 0\)）、\(e^x > 1 + x + x^2/2\)等经典不等式的标准方法。
 \end{conclusion}
-
 \begin{conclusion}{利用泰勒公式证明高阶下的某些特征点}{application of taylor formula to prove some features of higher order}
+    泰勒公式可用于分析函数在一点附近的高阶行为，判定极值点和拐点的高阶判别法：
+    \begin{enumerate}
+        \item \textbf{高阶极值判别法：}设\(f'(x_0) = f''(x_0) = \cdots = f^{(n-1)}(x_0) = 0\)，而\(f^{(n)}(x_0) \neq 0\)：
+        \begin{itemize}
+            \item 若\(n\)为偶数且\(f^{(n)}(x_0) > 0\)，则\(f(x_0)\)为极小值；
+            \item 若\(n\)为偶数且\(f^{(n)}(x_0) < 0\)，则\(f(x_0)\)为极大值；
+            \item 若\(n\)为奇数，则\(x_0\)不是极值点。
+        \end{itemize}
+        \item \textbf{高阶拐点判定：}设\(f''(x_0) = f'''(x_0) = \cdots = f^{(n-1)}(x_0) = 0\)，而\(f^{(n)}(x_0) \neq 0\)（\(n \geq 3\)）：
+        \begin{itemize}
+            \item 若\(n\)为奇数，则\((x_0, f(x_0))\)为拐点；
+            \item 若\(n\)为偶数，则\((x_0, f(x_0))\)不是拐点。
+        \end{itemize}
+    \end{enumerate}
+    这些判定法通过泰勒展开式中首个非零高阶导数的阶数和符号来统一处理低阶导数失效的情形。
 \end{conclusion}
 
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\textbf{1.} 设函数 $f(x)=x^3-3x^2-9x+5$，求 $f(x)$ 的单调区间和极值。
+
+\boxed{\textbf{解}} $f'(x)=3x^2-6x-9=3(x^2-2x-3)=3(x-3)(x+1)$。
+令 $f'(x)=0$ 得 $x_1=-1,\ x_2=3$。
+当 $x\in(-\infty,-1)$ 时 $f'(x)>0$，$f(x)$ 单调递增；
+当 $x\in(-1,3)$ 时 $f'(x)<0$，$f(x)$ 单调递减；
+当 $x\in(3,+\infty)$ 时 $f'(x)>0$，$f(x)$ 单调递增。
+$x=-1$ 处 $f(-1)=10$ 为极大值；$x=3$ 处 $f(3)=-22$ 为极小值。
+
+\textbf{2.} 验证函数 $f(x)=x\sqrt{3-x}$ 在 $[0,3]$ 上满足罗尔定理的条件，并求出定理中的 $\xi$。
+
+\boxed{\textbf{解}} $f(x)$ 在 $[0,3]$ 上连续，在 $(0,3)$ 内可导，且 $f(0)=0$，$f(3)=0$，故 $f(0)=f(3)$。
+罗尔定理条件满足。计算导数：
+$f'(x)=\sqrt{3-x}+x\cdot\frac{-1}{2\sqrt{3-x}}=\frac{2(3-x)-x}{2\sqrt{3-x}}=\frac{6-3x}{2\sqrt{3-x}}$。
+令 $f'(\xi)=0$ 得 $6-3\xi=0$，即 $\xi=2\in(0,3)$。故 $\boxed{\xi=2}$。
+
+\textbf{3.} 设函数 $f(x)=\arctan x$，在区间 $[0,1]$ 上验证拉格朗日中值定理，并求出 $\xi$。
+
+\boxed{\textbf{解}} $f(x)=\arctan x$ 在 $[0,1]$ 上连续，在 $(0,1)$ 内可导，满足拉格朗日条件。
+$f(1)=\frac{\pi}{4}$，$f(0)=0$，$f'(x)=\frac{1}{1+x^2}$。
+由拉格朗日中值定理：$\frac{f(1)-f(0)}{1-0}=f'(\xi)$，即 $\frac{\pi}{4}=\frac{1}{1+\xi^2}$。
+解得 $\xi^2=\frac{4}{\pi}-1$，故 $\xi=\sqrt{\frac{4}{\pi}-1}\approx 0.523\in(0,1)$。
+
+\textbf{4.} 求函数 $f(x)=2x^3-9x^2+12x-3$ 在 $[0,3]$ 上的最大值和最小值。
+
+\boxed{\textbf{解}} $f'(x)=6x^2-18x+12=6(x^2-3x+2)=6(x-1)(x-2)$。
+令 $f'(x)=0$ 得 $x=1,\ x=2$。
+计算：$f(0)=-3$，$f(1)=2$，$f(2)=1$，$f(3)=6$。
+比较得：最大值为 $6$（$x=3$），最小值为 $-3$（$x=0$）。
+
+\textbf{5.} 求曲线 $y=x^4-6x^3+12x^2-10$ 的凹凸区间和拐点。
+
+\boxed{\textbf{解}} $y'=4x^3-18x^2+24x$，$y''=12x^2-36x+24=12(x^2-3x+2)=12(x-1)(x-2)$。
+令 $y''=0$ 得 $x=1,\ x=2$。
+当 $x<1$ 时 $y''>0$，曲线凹（$\smile$）；
+当 $1<x<2$ 时 $y''<0$，曲线凸（$\frown$）；
+当 $x>2$ 时 $y''>0$，曲线凹。
+拐点为 $(1,-3)$ 和 $(2,-2)$。
+
+\textbf{6.} 验证柯西中值定理：设 $f(x)=x^3$，$g(x)=x^2+1$ 在 $[1,2]$ 上，求 $\xi$。
+
+\boxed{\textbf{解}} $f(x)$ 和 $g(x)$ 均在 $[1,2]$ 上连续，在 $(1,2)$ 内可导，且 $g'(x)=2x\neq0$（$x\in(1,2)$）。
+由柯西中值定理：
+$\frac{f(2)-f(1)}{g(2)-g(1)}=\frac{f'(\xi)}{g'(\xi)}$，即 $\frac{8-1}{5-2}=\frac{3\xi^2}{2\xi}$。
+化简：$\frac{7}{3}=\frac{3\xi}{2}$，得 $\xi=\frac{14}{9}\in(1,2)$。
+
+\textbf{7.} 利用麦克劳林公式，求极限 $\displaystyle\lim_{x\to 0}\frac{e^x-\sin x-1}{x^2}$。
+
+\boxed{\textbf{解}} 将分子各项展开到 $x^2$ 阶：
+$e^x=1+x+\frac{x^2}{2}+o(x^2)$，$\sin x=x+o(x^2)$。
+代入得：
+$\displaystyle\lim_{x\to 0}\frac{(1+x+\frac{x^2}{2}+o(x^2))-(x+o(x^2))-1}{x^2}
+=\lim_{x\to 0}\frac{\frac{x^2}{2}+o(x^2)}{x^2}=\frac{1}{2}$。
+
+
+\subsection{综合提高题}
+
+\textbf{8.} 设 $f(x)$ 在 $[0,1]$ 上连续，在 $(0,1)$ 内可导，且 $f(1)=0$。证明：存在 $\xi\in(0,1)$，使得 $f(\xi)+\xi f'(\xi)=0$。
+
+\boxed{\textbf{解}} 构造函数 $F(x)=xf(x)$。则 $F(x)$ 在 $[0,1]$ 上连续，在 $(0,1)$ 内可导。
+$F(0)=0\cdot f(0)=0$，$F(1)=1\cdot f(1)=0$，故 $F(0)=F(1)$。
+由罗尔定理，存在 $\xi\in(0,1)$，使得 $F'(\xi)=0$。
+而 $F'(x)=f(x)+xf'(x)$，所以 $f(\xi)+\xi f'(\xi)=0$。证毕。
+
+\textbf{9.} 设 $f(x)$ 在 $[a,b]$ 上二阶可导，$f(a)=f(b)=0$，且存在 $c\in(a,b)$ 使得 $f(c)>0$。证明：存在 $\xi\in(a,b)$，使得 $f''(\xi)<0$。
+
+\boxed{\textbf{解}} 因 \(f(a)=0\) 且 \(f(c)>0\)，由拉格朗日中值定理，存在 \(\xi_1\in(a,c)\) 使得 \(f'(\xi_1)=\frac{f(c)-f(a)}{c-a}>0\)。
+同理，存在 $\xi_2\in(c,b)$ 使得 $f'(\xi_2)=\frac{f(b)-f(c)}{b-c}<0$。
+在 $[\xi_1,\xi_2]$ 上对 $f'(x)$ 应用拉格朗日中值定理，存在 $\xi\in(\xi_1,\xi_2)\subset(a,b)$，使得
+$f''(\xi)=\frac{f'(\xi_2)-f'(\xi_1)}{\xi_2-\xi_1}<0$（分子为负，分母为正）。证毕。
+
+\textbf{10.} 利用泰勒公式证明不等式：当 $x>0$ 时，$e^x>1+x+\frac{x^2}{2}$。
+
+\boxed{\textbf{解}} 将 $e^x$ 在 $x=0$ 处展开为带拉格朗日余项的二阶泰勒公式：
+$e^x=1+x+\frac{x^2}{2}+\frac{e^{\xi}}{6}x^3$，其中 $\xi$ 介于 $0$ 与 $x$ 之间。
+当 $x>0$ 时，$\xi\in(0,x)$，故 $e^{\xi}>0$，从而 $\frac{e^{\xi}}{6}x^3>0$。
+因此 $e^x=1+x+\frac{x^2}{2}+\frac{e^{\xi}}{6}x^3>1+x+\frac{x^2}{2}$。证毕。
+
+\textbf{11.} 求曲线 $y=x^3-3x^2-9x+5$ 的拐点，并证明该拐点处的切线平分曲线在拐点两侧的凹凸过渡区域。
+
+\boxed{\textbf{解}} $y'=3x^2-6x-9$，$y''=6x-6=6(x-1)$。
+令 $y''=0$ 得 $x=1$。当 $x<1$ 时 $y''<0$（凸）；当 $x>1$ 时 $y''>0$（凹）。故拐点为 $(1,-6)$。
+拐点处切线斜率 $k=y'(1)=3-6-9=-12$，切线方程：$y+6=-12(x-1)$，即 $y=-12x+6$。
+拐点处 $y=1-3-9+5=-6$，$f'''(x)=6\neq0$，确认拐点。
+
+\textbf{12.} 设 $f(x)$ 在 $[0,1]$ 上有二阶导数，且 $f(0)=f(1)=0$，$\displaystyle\min_{x\in[0,1]}f(x)=-1$。证明：存在 $\xi\in(0,1)$，使得 $f''(\xi)\geq 8$。
+
+\boxed{\textbf{解}} 设 $f(x)$ 在 $x_0\in(0,1)$ 处取得最小值 $-1$，则 $f(x_0)=-1$，$f'(x_0)=0$。
+将 $f(x)$ 在 $x_0$ 处展开为一阶泰勒公式：
+$f(0)=f(x_0)+f'(x_0)(0-x_0)+\frac{f''(\xi_1)}{2}x_0^2=-1+\frac{f''(\xi_1)}{2}x_0^2=0$，其中 $\xi_1\in(0,x_0)$。
+故 $f''(\xi_1)=\frac{2}{x_0^2}$。
+同理，$f(1)=f(x_0)+f'(x_0)(1-x_0)+\frac{f''(\xi_2)}{2}(1-x_0)^2=-1+\frac{f''(\xi_2)}{2}(1-x_0)^2=0$，其中 $\xi_2\in(x_0,1)$。
+故 $f''(\xi_2)=\frac{2}{(1-x_0)^2}$。
+令 $g(t)=\max\left\{\frac{2}{t^2},\frac{2}{(1-t)^2}\right\}$，$t\in(0,1)$。由对称性，$g(t)\geq g(\frac{1}{2})=8$。
+故 $\max\{f''(\xi_1),f''(\xi_2)\}\geq 8$，取 $\xi$ 为其中较大者即得 $f''(\xi)\geq 8$。证毕。
+
+
+\subsection{真题风格与综合训练}
+
+\textbf{13.}（\boxed{\textbf{真题风格}}）设函数 $f(x)$ 在 $[0,1]$ 上二阶可导，且 $f(0)=0$，$f(1)=1$，$f'(0)=0$。证明：
+(1) 存在 $\eta\in(0,1)$，使得 $f'(\eta)=1$；
+(2) 存在 $\xi\in(0,1)$，使得 $f''(\xi)=2$。
+
+\boxed{\textbf{解}} (1) 令 $F(x)=f(x)-x$，则 $F(0)=0-0=0$，$F(1)=1-1=0$。
+由罗尔定理，存在 $\eta\in(0,1)$ 使得 $F'(\eta)=0$，即 $f'(\eta)-1=0$，故 $f'(\eta)=1$。
+
+(2) 由 $f'(0)=0$，$f'(\eta)=1$。将 $f(1)$ 在 $x=0$ 处泰勒展开（带拉格朗日余项）：
+$f(1)=f(0)+f'(0)\cdot 1+\frac{f''(\xi)}{2}\cdot 1^2=\frac{f''(\xi)}{2}$，其中 $\xi\in(0,1)$。
+由 $f(1)=1$ 得 $\frac{f''(\xi)}{2}=1$，故 $f''(\xi)=2$，$\xi\in(0,1)$。证毕。
+
+\textbf{14.}（\boxed{\textbf{真题风格}}）设函数 $f\in C^2[a,b]$，且 $f(a)=f(b)=0$。证明：对任意 $x\in(a,b)$，有
+\[
+|f(x)|\leq\frac{(b-a)^2}{8}\max_{t\in[a,b]}|f''(t)|.
+\]
+
+\boxed{\textbf{解}} 设 $M=\displaystyle\max_{t\in[a,b]}|f''(t)|$。固定任意 $x\in(a,b)$，分别在区间 $[a,x]$ 和 $[x,b]$ 上使用带 Lagrange 余项的 Taylor 公式：
+\[
+\begin{aligned}
+0=f(a)&=f(x)+f'(x)(a-x)+\frac{f''(\xi_1)}{2}(a-x)^2,
+&&\xi_1\in(a,x),\\
+0=f(b)&=f(x)+f'(x)(b-x)+\frac{f''(\xi_2)}{2}(b-x)^2,
+&&\xi_2\in(x,b).
+\end{aligned}
+\]
+将第一式乘以 $b-x$，第二式乘以 $x-a$，再把两式相加。由于 $a-x=-(x-a)$，含 $f'(x)$ 的两项恰好抵消，从而
+\[
+0=(b-a)f(x)+\frac{(x-a)(b-x)}{2}
+\bigl[(x-a)f''(\xi_1)+(b-x)f''(\xi_2)\bigr].
+\]
+因此
+\[
+\begin{aligned}
+|f(x)|
+&\leq \frac{(x-a)(b-x)}{2(b-a)}
+\bigl[(x-a)M+(b-x)M\bigr]\\
+&=\frac{M}{2}(x-a)(b-x)
+\leq\frac{M}{2}\left(\frac{b-a}{2}\right)^2
+=\frac{(b-a)^2}{8}M.
+\end{aligned}
+\]
+最后一步使用了 $(x-a)+(b-x)=b-a$ 及均值不等式。证毕。
+
+\textbf{15.}（\boxed{\textbf{真题风格}}）设 $f(x)$ 在 $[0,1]$ 上二阶可导，$f(0)=f(1)=0$，且 $\displaystyle\int_0^1 f(x)\,\mathrm{d}x=0$。证明：存在 $\xi\in(0,1)$，使得 $f''(\xi)=0$。
+
+\boxed{\textbf{解}} 假设 $f''(x)\neq0$ 对一切 $x\in(0,1)$。由于导函数具有介值性，$f''$ 不可能在区间内由正变负而不取零，故 $f''$ 在 $(0,1)$ 上恒正或恒负。不妨设 $f''(x)>0$（恒负时考虑 $-f$）。
+则 $f$ 在 $(0,1)$ 内严格凸。由 $f(0)=f(1)=0$ 及严格凸性，$\forall x\in(0,1)$ 有 $f(x)<0$。
+从而 $\int_0^1 f(x)\,\mathrm{d}x<0$，与已知 $\int_0^1 f(x)\,\mathrm{d}x=0$ 矛盾。
+故“$f''$ 在 $(0,1)$ 内处处非零”的假设不成立，存在 $\xi\in(0,1)$ 使得 $f''(\xi)=0$。证毕。

@@ -1,0 +1,23 @@
+# LaTeX build artifacts
+*.aux
+*.log
+*.toc
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*-blx.bib
+
+# PDF output (generated)
+*.pdf
+
+# Font cache
+missfont.log
+texput.*
+
+# Output directory
+out/

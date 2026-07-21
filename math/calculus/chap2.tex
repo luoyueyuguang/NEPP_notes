@@ -48,12 +48,12 @@
     \[
         \triangle{y} = A(x_0) \triangle{x} + o(\triangle{x})(\triangle{x} \to 0)
     \]
-    则称\(f(x)\)在\(x_0\)处可微，并称\(A(x_0)\)为\(f(x)\)在\(x_0\)处的微分，记为
+    则称\(f(x)\)在\(x_0\)处可微。此时\(A(x_0)=f'(x_0)\)，线性主部\(A(x_0)\triangle{x}\)称为函数在该点的微分，记为
     \[
         \left. \mathrm{d}y \right|_{x = x_0} = A(x_0)\triangle{x}\text{或}
         \left. \mathrm{d}f(x) \right|_{x = x_0} = A(x_0)\triangle{x}
     \]
-    其中\(o(\triangle{x})\)是该函数在\(x=x_0\)处函数增量的线性主要部分(简称线性主部)
+    其中\(o(\triangle{x})\)是相对于\(\triangle{x}\)的高阶无穷小，\(A(x_0)\triangle{x}\)才是函数增量的线性主部。
 \end{mydef}
 
 \begin{mydef}{微分的几何意义}{differential-geometry}
@@ -101,66 +101,576 @@
 \subsection{求导方法}
 
 \begin{conclusion}{定义法}{definition method}
+    利用导数定义 \(f'(x_0) = \lim\limits_{x \to x_0} \frac{f(x)-f(x_0)}{x-x_0}\) 直接求导是最基本的方法，尤其适用于分段函数在分段点处的可导性判断。
+
+    \boxed{\textbf{例1}} 设 \(f(x)=|x|\)，讨论在 \(x=0\) 处的可导性。
+    \[
+        f'_-(0)=\lim_{x \to 0^-}\frac{|x|-0}{x-0}=\lim_{x \to 0^-}\frac{-x}{x}=-1,\quad
+        f'_+(0)=\lim_{x \to 0^+}\frac{|x|-0}{x-0}=\lim_{x \to 0^+}\frac{x}{x}=1
+    \]
+    左右导数不相等，故 \(|x|\) 在 \(x=0\) 处不可导，对应几何上该点为"尖点"。
+
+    \boxed{\textbf{例2}} 设 \(f(x)=x^2\sin\frac{1}{x}\ (x \neq 0),\ f(0)=0\)，求 \(f'(0)\)。
+    \[
+        f'(0)=\lim_{x \to 0}\frac{f(x)-f(0)}{x}=\lim_{x \to 0}\frac{x^2\sin\frac{1}{x}}{x}=\lim_{x \to 0}x\sin\frac{1}{x}=0
+    \]
+
+    \boxed{\textbf{例3}} 用定义求 \(f(x)=\ln x\ (x>0)\) 的导数。
+    \[
+        f'(x)=\lim_{\triangle x \to 0}\frac{\ln(x+\triangle x)-\ln x}{\triangle x}
+        =\lim_{\triangle x \to 0}\frac{1}{\triangle x}\ln\!\left(1+\frac{\triangle x}{x}\right)=\frac{1}{x}
+    \]
 \end{conclusion}
 
 \begin{conclusion}{导数定义与极限}{derivative-definition-limit}
+    导数本质上是特殊形式的极限：
+    \[
+        f'(x_0)=\lim_{h \to 0}\frac{f(x_0+h)-f(x_0)}{h}=\lim_{x \to x_0}\frac{f(x)-f(x_0)}{x-x_0}
+    \]
+    已知函数表达式时，可用此定义验证可导性。常见题型为：已知某种极限存在，反推函数是否可导。
+
+    \boxed{\textbf{例}} 已知 \(\lim\limits_{h \to 0}\frac{f(x_0+2h)-f(x_0-h)}{h}=A\)，能否推出 \(f'(x_0)\) 存在？
+    分析：
+    \[
+        \frac{f(x_0+2h)-f(x_0-h)}{h}=2\cdot\frac{f(x_0+2h)-f(x_0)}{2h}+\frac{f(x_0-h)-f(x_0)}{-h}
+    \]
+    若 \(f(x)\) 在 \(x_0\) 可导，该极限收敛于 \(3f'(x_0)\)；但反之不成立。例如令\(f(x_0)=0\)，而当\(x\neq x_0\)时令\(f(x)=1\)，则分子恒为\(0\)，所给极限存在且为\(0\)，但\(f\)在\(x_0\)不连续，因而不可导。
+
+    利用定义证明可导的关键：将所给极限凑成 \(\frac{f(x_0+\triangle)-f(x_0)}{\triangle}\) 的标准形式。
 \end{conclusion}
 
 \begin{formula}{微分表}{differential-table}
+    \textbf{基本初等函数的导数公式：}
+    \[
+        \begin{aligned}
+            (C)' &= 0 & (x^\mu)' &= \mu x^{\mu-1} \\
+            (\sin x)' &= \cos x & (\cos x)' &= -\sin x \\
+            (\tan x)' &= \sec^2 x & (\cot x)' &= -\csc^2 x \\
+            (\sec x)' &= \sec x \tan x & (\csc x)' &= -\csc x \cot x \\
+            (a^x)' &= a^x \ln a \quad (a>0,\ a \neq 1) & (e^x)' &= e^x \\
+            (\log_a x)' &= \frac{1}{x\ln a} \quad (a>0,\ a \neq 1) & (\ln x)' &= \frac{1}{x} \quad (x>0) \\
+            (\arcsin x)' &= \frac{1}{\sqrt{1-x^2}} \quad (|x|<1) & (\arccos x)' &= -\frac{1}{\sqrt{1-x^2}} \quad (|x|<1) \\
+            (\arctan x)' &= \frac{1}{1+x^2} & (\operatorname{arccot} x)' &= -\frac{1}{1+x^2}
+        \end{aligned}
+    \]
+    相应的微分公式为 \(\mathrm{d}f(x)=f'(x)\,\mathrm{d}x\)，只需将上述导数乘以 \(\mathrm{d}x\) 即可。
 \end{formula}
-
 \begin{conclusion}{导数与微分的四则运算法则}{differential-rule}
+    设 \(u=u(x),\ v=v(x)\) 均可导，则
+    \[
+        \begin{aligned}
+            (u \pm v)' &= u' \pm v' \\
+            (uv)' &= u'v + uv' \\
+            \left(\frac{u}{v}\right)' &= \frac{u'v - uv'}{v^2} \quad (v \neq 0)
+        \end{aligned}
+    \]
+    对应的微分运算法则：
+    \[
+        \begin{aligned}
+            \mathrm{d}(u \pm v) &= \mathrm{d}u \pm \mathrm{d}v \\
+            \mathrm{d}(uv) &= v\,\mathrm{d}u + u\,\mathrm{d}v \\
+            \mathrm{d}\!\left(\frac{u}{v}\right) &= \frac{v\,\mathrm{d}u - u\,\mathrm{d}v}{v^2} \quad (v \neq 0)
+        \end{aligned}
+    \]
+    \boxed{\textbf{例}} 求 \(y = x^2 e^x \sin x\) 的导数（三项乘积）。
+    \[
+    \begin{aligned}
+    y'
+    &=(x^2)'e^x\sin x+x^2(e^x)'\sin x+x^2e^x(\sin x)'\\
+    &=2xe^x\sin x+x^2e^x\sin x+x^2e^x\cos x.
+    \end{aligned}
+    \]
 \end{conclusion}
 
 \begin{conclusion}{复合函数求导法}{composite-function-derivative}
+    设 \(y=f(u),\ u=g(x)\) 均可导，则复合函数 \(y=f(g(x))\) 的导数为
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x} = \frac{\mathrm{d}y}{\mathrm{d}u} \cdot \frac{\mathrm{d}u}{\mathrm{d}x} = f'(u) \cdot g'(x)
+    \]
+    此即\textbf{链式法则}，可推广至多层复合：
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x} = \frac{\mathrm{d}y}{\mathrm{d}u_1} \cdot \frac{\mathrm{d}u_1}{\mathrm{d}u_2} \cdot \cdots \cdot \frac{\mathrm{d}u_n}{\mathrm{d}x}
+    \]
+    \boxed{\textbf{例1}} \(y = \sin(x^2+1)\)，求 \(y'\)。
+    \[
+        y' = \cos(x^2+1) \cdot (2x) = 2x\cos(x^2+1)
+    \]
+    \boxed{\textbf{例2}} \(y = \ln(\cos e^x)\)，求 \(y'\)（三层复合）。
+    \[
+        y' = \frac{1}{\cos e^x} \cdot (-\sin e^x) \cdot e^x = -e^x \tan e^x
+    \]
 \end{conclusion}
+\begin{conclusion}{幂指数${f(x)}^{g(x)}$的求导法}{derivative mie}
+    对于幂指函数 \(y = f(x)^{g(x)}\ (f(x)>0)\)，采用\textbf{对数求导法}：两边取对数得 \(\ln y = g(x)\ln f(x)\)，再对 \(x\) 求导：
+    \[
+        \frac{y'}{y} = g'(x)\ln f(x) + g(x)\frac{f'(x)}{f(x)}
+    \]
+    故
+    \[
+        y' = f(x)^{g(x)}\left[g'(x)\ln f(x) + \frac{g(x)f'(x)}{f(x)}\right]
+    \]
+    \boxed{\textbf{例}} 求 \(y = x^x\ (x>0)\) 的导数。
+    取对数：\(\ln y = x\ln x\)，求导得 \(\frac{y'}{y} = \ln x + 1\)，故 \(y' = x^x(\ln x + 1)\)。
 
-\begin{conclusion}{幂指数\({f(x)}^{g(x)}\)的求导法}{derivative mie}
+    \textbf{注}：对数求导法也适用于多个因式乘除、开方的情形，如 \(y = \sqrt{\frac{(x-1)(x-2)}{(x-3)(x-4)}}\)，先取对数再求导比直接求导简便得多。
 \end{conclusion}
 
 \begin{conclusion}{反函数求导法}{inverse-function-derivative}
+    设 \(y=f(x)\) 在某区间内严格单调可导且 \(f'(x) \neq 0\)，则其反函数 \(x=\varphi(y)\) 也可导，且
+    \[
+        \varphi'(y) = \frac{1}{f'(x)} \quad\text{即}\quad \frac{\mathrm{d}x}{\mathrm{d}y} = \frac{1}{\frac{\mathrm{d}y}{\mathrm{d}x}}
+    \]
+    \boxed{\textbf{例}} 用反函数求导法推导 \((\arcsin x)' = \frac{1}{\sqrt{1-x^2}}\)。
+    设 \(y=\arcsin x\)，则 \(x=\sin y\)，\(y\in[-\frac{\pi}{2},\frac{\pi}{2}]\)。
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x} = \frac{1}{\frac{\mathrm{d}x}{\mathrm{d}y}}
+        = \frac{1}{\cos y} = \frac{1}{\sqrt{1-\sin^2 y}} = \frac{1}{\sqrt{1-x^2}}
+    \]
+    （因 \(y \in [-\frac{\pi}{2},\frac{\pi}{2}]\) 时 \(\cos y \geq 0\)，故取正号）
 \end{conclusion}
 
 \begin{conclusion}{参数方程求导法}{parameter-equation-derivative}
+    设曲线由参数方程 \(\begin{cases} x = \varphi(t) \\ y = \psi(t) \end{cases}\) 给出，\(\varphi(t),\psi(t)\) 均可导且 \(\varphi'(t) \neq 0\)，则
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x} = \frac{\mathrm{d}y/\mathrm{d}t}{\mathrm{d}x/\mathrm{d}t} = \frac{\psi'(t)}{\varphi'(t)}
+    \]
+    二阶导数公式：
+    \[
+        \frac{\mathrm{d}^2 y}{\mathrm{d}x^2} = \frac{\mathrm{d}}{\mathrm{d}x}\!\left(\frac{\mathrm{d}y}{\mathrm{d}x}\right)
+        = \frac{\frac{\mathrm{d}}{\mathrm{d}t}\!\left(\frac{\psi'(t)}{\varphi'(t)}\right)}{\varphi'(t)}
+        = \frac{\psi''(t)\varphi'(t) - \psi'(t)\varphi''(t)}{[\varphi'(t)]^3}
+    \]
+    \boxed{\textbf{例}} 已知 \(\begin{cases} x = t^2 \\ y = t^3 \end{cases}\)，求 \(\frac{\mathrm{d}y}{\mathrm{d}x}\) 和 \(\frac{\mathrm{d}^2 y}{\mathrm{d}x^2}\)。
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x} = \frac{3t^2}{2t} = \frac{3}{2}t,\qquad
+        \frac{\mathrm{d}^2 y}{\mathrm{d}x^2} = \frac{\frac{\mathrm{d}}{\mathrm{d}t}(\frac{3}{2}t)}{2t} = \frac{3}{4t}
+    \]
 \end{conclusion}
 
 \begin{conclusion}{隐函数求导法}{implicit-function-derivative}
+    由方程 \(F(x,y)=0\) 确定的函数 \(y=y(x)\)，求导时在方程两边同时对 \(x\) 求导，将 \(y\) 视为 \(x\) 的函数（利用复合函数求导法则），然后解出 \(y'\)。
+
+    \boxed{\textbf{例1}} 已知 \(x^2 + y^2 = 1\)，求 \(\frac{\mathrm{d}y}{\mathrm{d}x}\)。
+    两边对 \(x\) 求导：\(2x + 2y \cdot y' = 0\)，解得 \(y' = -\dfrac{x}{y}\)。
+
+    \boxed{\textbf{例2}} 已知 \(e^y + xy - e = 0\)，求 \(\left.\dfrac{\mathrm{d}y}{\mathrm{d}x}\right|_{x=0}\)。
+    两边求导：\(e^y \cdot y' + y + xy' = 0\)，得 \(y' = -\dfrac{y}{x+e^y}\)。
+    当 \(x=0\) 时，由原方程得 \(e^y = e \Rightarrow y=1\)，故 \(\left.y'\right|_{x=0} = -\dfrac{1}{e}\)。
 \end{conclusion}
 
 \begin{conclusion}{变限积分求导}{varied-limit-integral-derivative}
+    设 \(f(x)\) 连续，\(a(x),b(x)\) 可导，则
+    \[
+        \frac{\mathrm{d}}{\mathrm{d}x}\int_{a(x)}^{b(x)} f(t)\,\mathrm{d}t
+        = f(b(x)) \cdot b'(x) - f(a(x)) \cdot a'(x)
+    \]
+    特例：
+    \[
+        \frac{\mathrm{d}}{\mathrm{d}x}\int_{a}^{x} f(t)\,\mathrm{d}t = f(x),\qquad
+        \frac{\mathrm{d}}{\mathrm{d}x}\int_{x}^{b} f(t)\,\mathrm{d}t = -f(x)
+    \]
+    \boxed{\textbf{例}} 求 \(\frac{\mathrm{d}}{\mathrm{d}x}\int_{x^2}^{x^3} \sin t\,\mathrm{d}t\)。
+    \[
+        \frac{\mathrm{d}}{\mathrm{d}x}\int_{x^2}^{x^3}\sin t\,\mathrm{d}t
+        = \sin(x^3) \cdot 3x^2 - \sin(x^2) \cdot 2x = 3x^2\sin(x^3) - 2x\sin(x^2)
+    \]
+    若被积函数本身还含参数\(x\)，应使用 Leibniz 公式。若\(F\)、\(F_x\)连续，\(a(x),b(x)\)可导，则
+    \[
+      \frac{\mathrm d}{\mathrm dx}\int_{a(x)}^{b(x)}F(x,t)\,\mathrm dt
+      =F(x,b(x))b'(x)-F(x,a(x))a'(x)
+      +\int_{a(x)}^{b(x)}F_x(x,t)\,\mathrm dt.
+    \]
+    只有与积分变量无关的因子才能直接提出积分号外。
 \end{conclusion}
 
 \begin{conclusion}{分段函数求导}{piecewise-function-derivative}
+    分段函数求导的步骤：
+    \begin{enumerate}
+        \item 在各段开区间内，直接用求导公式计算导数；
+        \item 在分段点处，\textbf{先验证连续性}（不连续则必然不可导），若连续，再用导数定义求左右导数，相等则在该点可导。
+    \end{enumerate}
+    \boxed{\textbf{例}} 设 \(f(x)=\begin{cases} x^2, & x \geq 0 \\ x, & x < 0 \end{cases}\)，讨论 \(x=0\) 处的可导性。
+    先验证连续性：\(\lim\limits_{x \to 0^-}f(x)=0,\ \lim\limits_{x \to 0^+}f(x)=0,\ f(0)=0\)，连续。
+    再求左右导数：
+    \[
+        f'_-(0)=\lim_{x \to 0^-}\frac{f(x)-f(0)}{x}=\lim_{x \to 0^-}\frac{x}{x}=1,\quad
+        f'_+(0)=\lim_{x \to 0^+}\frac{x^2}{x}=0
+    \]
+    \(f'_-(0) \neq f'_+(0)\)，故 \(f(x)\) 在 \(x=0\) 处不可导。
 \end{conclusion}
 
-\begin{conclusion}{归纳法求\(n\)阶导数}{induction-method-derivative}
+\begin{conclusion}{归纳法求$n$阶导数}{induction-method-derivative}
+    对某些函数，通过计算前几阶导数观察规律，猜测 \(n\) 阶导数公式，再用数学归纳法证明。
+
+    \boxed{\textbf{例1}} 求 \(y = \frac{1}{x}\) 的 \(n\) 阶导数。
+    计算前几阶：
+    \[
+        y' = -\frac{1}{x^2},\quad y'' = \frac{2}{x^3},\quad y''' = -\frac{6}{x^4},\quad
+        y^{(4)} = \frac{24}{x^5}
+    \]
+    猜测：\(y^{(n)} = (-1)^n \dfrac{n!}{x^{n+1}}\)，可用归纳法证明。
+
+    \boxed{\textbf{例2}} 求 \(y = \sin x\) 的 \(n\) 阶导数。
+    \[
+    \begin{aligned}
+        y' &= \cos x = \sin\!\left(x+\frac{\pi}{2}\right),\\
+        y'' &= -\sin x = \sin(x+\pi),\\
+        y''' &= -\cos x = \sin\!\left(x+\frac{3\pi}{2}\right).
+    \end{aligned}
+    \]
+    归纳得 \(y^{(n)} = \sin\!\left(x + \frac{n\pi}{2}\right)\)。
 \end{conclusion}
 
-\begin{formula}{归纳法的\(n\)阶导数公式}{induction-method formula}
+\begin{formula}{归纳法的$n$阶导数公式}{induction-method formula}
+    常用 \(n\) 阶导数公式：
+    \[
+        \begin{aligned}
+            (x^m)^{(n)} &= m(m-1)\cdots(m-n+1)\,x^{m-n},\quad n\leq m,\\
+            (x^m)^{(n)} &=0,\quad n>m,\\
+            (e^{ax})^{(n)} &= a^n e^{ax} \\
+            (\sin ax)^{(n)} &= a^n \sin\!\left(ax + \frac{n\pi}{2}\right) \\
+            (\cos ax)^{(n)} &= a^n \cos\!\left(ax + \frac{n\pi}{2}\right) \\
+            (\ln x)^{(n)} &= (-1)^{n-1}\frac{(n-1)!}{x^n} \quad (x>0) \\
+            \left(\frac{1}{ax+b}\right)^{(n)} &= (-1)^n \frac{a^n n!}{(ax+b)^{n+1}}
+        \end{aligned}
+    \]
 \end{formula}
 
 \begin{conclusion}{分解法}{decomposition-method}
+    对于有理函数（分式），先将其分解为部分分式（最简分式）之和，再逐项求导。这是求有理函数高阶导数的高效方法。
+
+    \boxed{\textbf{例}} 求 \(y = \dfrac{1}{x^2-1}\) 的 \(n\) 阶导数。
+    先分解：\(\displaystyle \frac{1}{x^2-1} = \frac{1}{2}\left(\frac{1}{x-1} - \frac{1}{x+1}\right)\)
+    利用公式 \(\left(\frac{1}{ax+b}\right)^{(n)} = (-1)^n \frac{a^n n!}{(ax+b)^{n+1}}\) 得：
+    \[
+        \begin{aligned}
+        y^{(n)}
+        &=\frac{(-1)^n n!}{2}
+        \left[\frac{1}{(x-1)^{n+1}}-\frac{1}{(x+1)^{n+1}}\right].
+        \end{aligned}
+    \]
+    此方法的核心：将复杂分式化为 \(\frac{A}{(ax+b)^k}\) 的线性组合。
 \end{conclusion}
 
 \begin{conclusion}{莱布尼茨法则}{leibniz-rule}
+    设 \(u=u(x),\ v=v(x)\) 均 \(n\) 阶可导，则乘积的 \(n\) 阶导数为
+    \[
+        (uv)^{(n)} = \sum_{k=0}^{n} \binom{n}{k} u^{(k)} v^{(n-k)}
+    \]
+    其中 \(\binom{n}{k} = \frac{n!}{k!(n-k)!}\)，约定 \(u^{(0)}=u,\ v^{(0)}=v\)。
+
+    \boxed{\textbf{例}} 求 \(y = x^2 e^x\) 的 \(n\) 阶导数。
+    取 \(u=e^x,\ v=x^2\)，则 \(u^{(k)} = e^x\ (k \geq 0)\)，\(v' = 2x,\ v'' = 2,\ v^{(k)} = 0\ (k \geq 3)\)。
+    \[
+        \begin{aligned}
+        y^{(n)} &= \binom{n}{0} e^x \cdot x^2 + \binom{n}{1} e^x \cdot 2x + \binom{n}{2} e^x \cdot 2 \\
+        &= e^x \big[x^2 + 2nx + n(n-1)\big]
+        \end{aligned}
+    \]
+    当其中一个因子为多项式（仅有有限阶非零导数）时，莱布尼茨法则尤为方便。
 \end{conclusion}
 
 \begin{formula}{泰勒公式}{taylor-formula}
+    设 \(f(x)\) 在 \(x_0\) 的某邻域内具有 \(n+1\) 阶导数，则对该邻域内任意 \(x\)，有
+    \[
+        f(x) = \sum_{k=0}^{n} \frac{f^{(k)}(x_0)}{k!}(x-x_0)^k + R_n(x)
+    \]
+    其中余项 \(R_n(x)\) 有两种常用形式：
+    \begin{itemize}
+        \item \textbf{拉格朗日余项}：\(R_n(x) = \dfrac{f^{(n+1)}(\xi)}{(n+1)!}(x-x_0)^{n+1}\)，\(\xi\) 介于 \(x_0\) 与 \(x\) 之间；
+        \item \textbf{皮亚诺余项}：\(R_n(x) = o((x-x_0)^n)\ (x \to x_0)\)。
+    \end{itemize}
+    当 \(x_0 = 0\) 时称为\textbf{麦克劳林公式}：
+    \[
+        f(x) = f(0) + f'(0)x + \frac{f''(0)}{2!}x^2 + \cdots + \frac{f^{(n)}(0)}{n!}x^n + R_n(x)
+    \]
 \end{formula}
 
 \begin{conclusion}{泰勒公式与幂级数展开}{taylor-formula-power-series}
+    若 \(f(x)\) 在 \(x_0\) 处无限次可导，且 \(\lim\limits_{n \to \infty} R_n(x) = 0\)，则泰勒公式变为泰勒级数（幂级数）：
+    \[
+        f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(x_0)}{n!}(x-x_0)^n
+    \]
+    常用麦克劳林展开（\(x_0 = 0\)）：
+    \[
+        \begin{aligned}
+            e^x &= 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots = \sum_{n=0}^{\infty} \frac{x^n}{n!} \quad (|x| < \infty) \\
+            \sin x &= x - \frac{x^3}{3!} + \frac{x^5}{5!} - \cdots = \sum_{n=0}^{\infty} \frac{(-1)^n x^{2n+1}}{(2n+1)!} \quad (|x| < \infty) \\
+            \cos x &= 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \cdots = \sum_{n=0}^{\infty} \frac{(-1)^n x^{2n}}{(2n)!} \quad (|x| < \infty) \\
+            \ln(1+x) &= x - \frac{x^2}{2} + \frac{x^3}{3} - \cdots = \sum_{n=1}^{\infty} \frac{(-1)^{n-1}x^n}{n} \quad (-1 < x \leq 1) \\
+            (1+x)^\alpha &= 1 + \alpha x + \frac{\alpha(\alpha-1)}{2!}x^2 + \cdots \quad (|x| < 1)
+        \end{aligned}
+    \]
+    泰勒展开是近似计算和极限求解的重要工具：用多项式逼近复杂函数，余项控制误差。
 \end{conclusion}
 
 \subsection{一元函数微分学的简单应用}
 \begin{conclusion}{平面曲线的表示}{plane-curve-representation}
+    平面曲线常见的三种表示形式：
+    \begin{enumerate}
+        \item \textbf{显式}：\(y = f(x)\)，如 \(y = x^2\)；
+        \item \textbf{参数式}：\(\begin{cases} x = x(t) \\ y = y(t) \end{cases}\)，如 \(\begin{cases} x = r\cos t \\ y = r\sin t \end{cases}\)（圆）；
+        \item \textbf{极坐标式}：\(r = r(\theta)\)，与直角坐标的关系为
+            \[
+                x = r(\theta)\cos\theta,\quad y = r(\theta)\sin\theta
+            \]
+    \end{enumerate}
+    极坐标下曲线的切线斜率：
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x} = \frac{r'(\theta)\sin\theta + r(\theta)\cos\theta}{r'(\theta)\cos\theta - r(\theta)\sin\theta}
+    \]
 \end{conclusion}
 \begin{conclusion}{平面曲线的曲率}{plane-curve-curvature}
+    曲率是描述曲线弯曲程度的量。对于曲线 \(y = y(x)\)，曲率公式为
+    \[
+        K = \frac{|y''|}{(1+{y'}^2)^{3/2}}
+    \]
+    曲率半径：\(R = \dfrac{1}{K}\)。
+
+    对于参数方程 \(\begin{cases} x = x(t) \\ y = y(t) \end{cases}\)：
+    \[
+        K = \frac{|x'(t)y''(t) - x''(t)y'(t)|}{\left({x'}^2(t) + {y'}^2(t)\right)^{3/2}}
+    \]
+    \boxed{\textbf{例}} 求半径为 \(R\) 的圆 \(x^2+y^2=R^2\) 上任意点处的曲率。
+    隐函数求导：\(2x+2yy'=0 \Rightarrow y'=-\frac{x}{y}\)，
+    再求导得 \(y''=-\frac{y-xy'}{y^2}=-\frac{y^2+x^2}{y^3}=-\frac{R^2}{y^3}\)。
+    代入曲率公式得 \(K=\frac{1}{R}\)，即圆的曲率为常数，曲率半径等于圆的半径。
 \end{conclusion}
 
 \begin{conclusion}{导数与物理量的关系}{derivative-physical-quantity-relationship}
+    导数在物理学中表示\textbf{变化率}，常见的对应关系：
+    \[
+        \begin{aligned}
+            \text{速度 } v &= \frac{\mathrm{d}s}{\mathrm{d}t} & \text{加速度 } a &= \frac{\mathrm{d}v}{\mathrm{d}t} = \frac{\mathrm{d}^2 s}{\mathrm{d}t^2} \\
+            \text{角速度 } \omega &= \frac{\mathrm{d}\theta}{\mathrm{d}t} & \text{角加速度 } \beta &= \frac{\mathrm{d}\omega}{\mathrm{d}t} = \frac{\mathrm{d}^2 \theta}{\mathrm{d}t^2} \\
+            \text{电流 } I &= \frac{\mathrm{d}Q}{\mathrm{d}t} & \text{功率 } P &= \frac{\mathrm{d}W}{\mathrm{d}t} \\
+            \text{线密度 } \rho &= \frac{\mathrm{d}m}{\mathrm{d}l} & \text{热容量 } C &= \frac{\mathrm{d}Q}{\mathrm{d}T},\quad \text{比热容 } c=\frac{1}{m}\frac{\mathrm dQ}{\mathrm dT}
+        \end{aligned}
+    \]
+    一般地，若两个物理量满足 \(B = f(A)\)，则 \(\frac{\mathrm{d}B}{\mathrm{d}A}\) 表示 \(B\) 随 \(A\) 的变化率（即单位 \(A\) 变化引起的 \(B\) 的变化量）。
 \end{conclusion}
 
 \subsection{一些其他技巧}
 
-\begin{conclusion}{关于\(x^2sin\frac{1}{x}\)的导数}{derivative-of-x^2sinfrac{1}{x}}
+\begin{conclusion}{关于$x^2\sin\frac{1}{x}$的导数}{derivative-of-x^2sinfrac{1}{x}}
+    经典反例——函数可导但导函数不连续：
+    \[
+        f(x) = \begin{cases}
+            x^2\sin\dfrac{1}{x}, & x \neq 0 \\[8pt]
+            0, & x = 0
+        \end{cases}
+    \]
+    \begin{enumerate}
+        \item \(f(x)\) 在 \(x=0\) 处可导：
+            \[
+                f'(0) = \lim_{x \to 0} \frac{x^2\sin\frac{1}{x} - 0}{x} = \lim_{x \to 0} x\sin\frac{1}{x} = 0
+            \]
+        \item 当 \(x \neq 0\) 时，\(f'(x) = 2x\sin\frac{1}{x} - \cos\frac{1}{x}\)。
+        \item 但 \(\lim\limits_{x \to 0} f'(x)\) 不存在（因 \(\cos\frac{1}{x}\) 在 \(x \to 0\) 时振荡无极限），故 \(f'(x)\) 在 \(x=0\) 处\textbf{不连续}。
+    \end{enumerate}
+    结论：\textbf{函数可导 \(\nRightarrow\) 导函数连续}。这是在微分学中反复出现的重要反例，用于说明可导性与导函数连续性之间的区别。
 \end{conclusion}
+
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\textbf{1.} 求下列函数的导数 $y'$：
+\begin{enumerate}
+    \item[(1)] $y = e^{2x}\sin 3x$；
+    \item[(2)] $y = \dfrac{\ln x}{1 + x^2}$。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) $y' = (e^{2x})'\sin 3x + e^{2x}(\sin 3x)' = 2e^{2x}\sin 3x + 3e^{2x}\cos 3x = e^{2x}(2\sin 3x + 3\cos 3x)$。
+
+    (2)
+    \[
+    \begin{aligned}
+    y'
+    &=\frac{\frac1x(1+x^2)-2x\ln x}{(1+x^2)^2}\\
+    &=\frac{1+x^2-2x^2\ln x}{x(1+x^2)^2}.
+    \end{aligned}
+    \]
+
+\bigskip
+
+\textbf{2.} 求曲线 $y = x^3 - 3x$ 在点 $(2,2)$ 处的切线方程。
+
+\boxed{\textbf{解}}
+$y' = 3x^2 - 3$，$y'(2) = 3 \times 4 - 3 = 9$。
+切线方程：$y - 2 = 9(x - 2)$，即 $y = 9x - 16$。
+
+\bigskip
+
+\textbf{3.} 求函数 $y = \arctan\sqrt{x}$ 的微分 $\mathrm{d}y$。
+
+\boxed{\textbf{解}}
+$y' = \dfrac{1}{1 + (\sqrt{x})^2} \cdot \dfrac{1}{2\sqrt{x}} = \dfrac{1}{2\sqrt{x}(1+x)}$，
+故 $\mathrm{d}y = \dfrac{1}{2\sqrt{x}(1+x)}\,\mathrm{d}x$。
+
+\bigskip
+
+\textbf{4.} 用对数求导法求 $y = x^x\ (x > 0)$ 的导数。
+
+\boxed{\textbf{解}}
+两边取对数：$\ln y = x\ln x$，再对 $x$ 求导：
+$\dfrac{y'}{y} = \ln x + x \cdot \dfrac{1}{x} = \ln x + 1$，
+故 $y' = x^x(\ln x + 1)$。
+
+\bigskip
+
+\textbf{5.} 方程 $e^y + xy = e$ 确定隐函数 $y = y(x)$，求 $\displaystyle\left.\frac{\mathrm{d}y}{\mathrm{d}x}\right|_{x=0}$。
+
+\boxed{\textbf{解}}
+两边对 $x$ 求导：$e^y \cdot y' + y + xy' = 0$，解得 $y' = -\dfrac{y}{e^y + x}$。
+当 $x = 0$ 时，由原方程得 $e^{y(0)} = e$，故 $y(0) = 1$。
+代入得 $\left.\dfrac{\mathrm{d}y}{\mathrm{d}x}\right|_{x=0} = -\dfrac{1}{e}$。
+
+\bigskip
+
+\textbf{6.} 设 $\begin{cases} x = e^t\cos t \\ y = e^t\sin t \end{cases}$，求 $\dfrac{\mathrm{d}^2y}{\mathrm{d}x^2}$。
+
+\boxed{\textbf{解}}
+$
+\dfrac{\mathrm{d}y}{\mathrm{d}t} = e^t(\sin t + \cos t),\quad
+\dfrac{\mathrm{d}x}{\mathrm{d}t} = e^t(\cos t - \sin t)
+$，故
+\[
+\frac{\mathrm{d}y}{\mathrm{d}x} = \frac{\sin t + \cos t}{\cos t - \sin t}.
+\]
+令 $u = \dfrac{\mathrm{d}y}{\mathrm{d}x}$，则
+\[
+\frac{\mathrm{d}u}{\mathrm{d}t} = \frac{(\cos t - \sin t)^2 + (\sin t + \cos t)^2}{(\cos t - \sin t)^2}
+= \frac{2}{(\cos t - \sin t)^2}.
+\]
+又 $\dfrac{\mathrm{d}t}{\mathrm{d}x} = \dfrac{1}{e^t(\cos t - \sin t)}$，故
+\[
+\frac{\mathrm{d}^2y}{\mathrm{d}x^2} = \frac{2}{e^t(\cos t - \sin t)^3}.
+\]
+
+\bigskip
+
+\subsection{综合提高题}
+
+\textbf{7.} 设 $y = y(x)$ 由方程 $x^2 + xy + y^2 = 3$ 确定，求 $y''$。
+
+\boxed{\textbf{解}}
+两边对 $x$ 求导：
+\[
+2x + y + xy' + 2yy' = 0 \quad\Rightarrow\quad y' = -\frac{2x + y}{x + 2y}.
+\]
+再对 $x$ 求导：
+\[
+2 + y' + y' + xy'' + 2(y')^2 + 2yy'' = 0,
+\]
+整理得 $(x + 2y)y'' = -2\bigl(1 + y' + {y'}^2\bigr)$，故
+\[
+y'' = -\frac{2(1 + y' + {y'}^2)}{x + 2y}.
+\]
+
+\bigskip
+
+\textbf{8.} 求 $y = (x^2 + 2x)e^{-x}$ 的 $n$ 阶导数 $y^{(n)}$。
+
+\boxed{\textbf{解}}
+令 $u = e^{-x}$，$v = x^2 + 2x$。则
+$u^{(k)} = (-1)^k e^{-x}$（$k \geq 0$），
+$v' = 2x + 2$，$v'' = 2$，$v^{(k)} = 0$（$k \geq 3$）。
+由莱布尼茨公式：
+\[
+\begin{aligned}
+y^{(n)} &= \sum_{k=0}^{n} \binom{n}{k} u^{(k)} v^{(n-k)} \\
+&= \binom{n}{0}(-1)^n e^{-x}(x^2+2x) + \binom{n}{1}(-1)^{n-1}e^{-x}(2x+2) + \binom{n}{2}(-1)^{n-2}e^{-x} \cdot 2 \\
+&= (-1)^n e^{-x}\Bigl[x^2+2x - 2n(x+1) + n(n-1)\Bigr] \\
+&= (-1)^n e^{-x}\bigl[x^2 + 2(1-n)x + n^2 - 3n\bigr].
+\end{aligned}
+\]
+
+\bigskip
+
+\textbf{9.} 设 $\begin{cases} x = \ln(1+t^2) \\ y = t - \arctan t \end{cases}$，求 $\dfrac{\mathrm{d}^2y}{\mathrm{d}x^2}$。
+
+\boxed{\textbf{解}}
+\[
+\frac{\mathrm{d}x}{\mathrm{d}t} = \frac{2t}{1+t^2},\qquad
+\frac{\mathrm{d}y}{\mathrm{d}t} = 1 - \frac{1}{1+t^2} = \frac{t^2}{1+t^2}.
+\]
+一阶导数：
+\[
+\frac{\mathrm{d}y}{\mathrm{d}x} = \frac{t^2/(1+t^2)}{2t/(1+t^2)} = \frac{t}{2}.
+\]
+二阶导数：
+\[
+\frac{\mathrm{d}^2y}{\mathrm{d}x^2} = \frac{\mathrm{d}}{\mathrm{d}t}\!\left(\frac{t}{2}\right) \cdot \frac{\mathrm{d}t}{\mathrm{d}x}
+= \frac{1}{2} \cdot \frac{1+t^2}{2t} = \frac{1+t^2}{4t}.
+\]
+
+\bigskip
+
+\textbf{10.} 设 $f(x) = \begin{cases} \dfrac{e^x - 1}{x}, & x \neq 0 \\[10pt] 1, & x = 0 \end{cases}$，
+(1) 证明 $f(x)$ 在 $x = 0$ 处连续；
+(2) 判断 $f(x)$ 在 $x = 0$ 处是否可导，若可导，求 $f'(0)$。
+
+\boxed{\textbf{解}}
+(1) $\displaystyle\lim_{x \to 0} f(x) = \lim_{x \to 0} \frac{e^x - 1}{x} = 1 = f(0)$，故 $f(x)$ 在 $x = 0$ 处连续。
+
+(2) 按导数定义：
+\[
+\begin{aligned}
+f'(0) &= \lim_{x \to 0} \frac{f(x) - f(0)}{x}
+= \lim_{x \to 0} \frac{\frac{e^x - 1}{x} - 1}{x}
+= \lim_{x \to 0} \frac{e^x - 1 - x}{x^2}.
+\end{aligned}
+\]
+由泰勒展开 $e^x = 1 + x + \dfrac{x^2}{2} + o(x^2)$，得
+\[
+\lim_{x \to 0} \frac{(1 + x + \frac{x^2}{2} + o(x^2)) - 1 - x}{x^2}
+= \lim_{x \to 0} \frac{\frac{x^2}{2} + o(x^2)}{x^2} = \frac{1}{2}.
+\]
+故 $f(x)$ 在 $x = 0$ 处可导，且 $f'(0) = \dfrac{1}{2}$。
+
+\bigskip
+
+\subsection{真题风格与综合训练}
+
+\textbf{11.} \boxed{\textbf{真题风格}} 设 $f(x)$ 在 $x = 1$ 处可导，且
+\[
+\lim_{\triangle x \to 0} \frac{f(1 + \sin\triangle x) - f(1 - \sin\triangle x)}{\triangle x} = 4,
+\]
+求 $f'(1)$。
+
+\boxed{\textbf{解}}
+将分子配凑为导数定义的标准形式：
+\[
+\begin{aligned}
+&\frac{f(1 + \sin\triangle x) - f(1 - \sin\triangle x)}{\triangle x} \\[4pt]
+=&\ \frac{f(1 + \sin\triangle x) - f(1)}{\sin\triangle x} \cdot \frac{\sin\triangle x}{\triangle x}
+   + \frac{f(1) - f(1 - \sin\triangle x)}{\sin\triangle x} \cdot \frac{\sin\triangle x}{\triangle x} \\[4pt]
+=&\ \frac{f(1 + \sin\triangle x) - f(1)}{\sin\triangle x} \cdot \frac{\sin\triangle x}{\triangle x}
+   + \frac{f(1 - \sin\triangle x) - f(1)}{-\sin\triangle x} \cdot \frac{\sin\triangle x}{\triangle x}.
+\end{aligned}
+\]
+当 $\triangle x \to 0$ 时，$\sin\triangle x \to 0$，$\dfrac{\sin\triangle x}{\triangle x} \to 1$。由导数定义：
+\[
+\lim_{\triangle x \to 0} \frac{f(1 + \sin\triangle x) - f(1)}{\sin\triangle x} = f'(1),\qquad
+\lim_{\triangle x \to 0} \frac{f(1 - \sin\triangle x) - f(1)}{-\sin\triangle x} = f'(1).
+\]
+故原极限 $= f'(1) \cdot 1 + f'(1) \cdot 1 = 2f'(1) = 4$，得 $f'(1) = 2$。
+
+\bigskip
+
+\textbf{12.} \boxed{\textbf{真题风格}} 设 $\begin{cases} x = t - \sin t \\ y = 1 - \cos t \end{cases}$（$0 \leq t \leq 2\pi$），求曲线上对应于 $t = \dfrac{\pi}{2}$ 的点处的切线方程和法线方程。
+
+\boxed{\textbf{解}}
+当 $t = \dfrac{\pi}{2}$ 时，$x = \dfrac{\pi}{2} - 1$，$y = 1$。
+\[
+\frac{\mathrm{d}y}{\mathrm{d}x} = \frac{\sin t}{1 - \cos t}.
+\]
+在 $t = \dfrac{\pi}{2}$ 处：$\left.\dfrac{\mathrm{d}y}{\mathrm{d}x}\right|_{t=\pi/2} = \dfrac{\sin(\pi/2)}{1 - \cos(\pi/2)} = \dfrac{1}{1 - 0} = 1$。
+
+切线方程：$y - 1 = 1 \cdot \bigl(x - (\frac{\pi}{2} - 1)\bigr)$，即 $y = x - \frac{\pi}{2} + 2$。
+
+法线斜率 $k_\perp = -1$，法线方程：$y - 1 = -1 \cdot \bigl(x - (\frac{\pi}{2} - 1)\bigr)$，即 $y = -x + \frac{\pi}{2}$。

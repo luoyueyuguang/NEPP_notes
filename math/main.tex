@@ -7,6 +7,8 @@
 \usepackage{amstext}   % 数学文本
 \usepackage{amsthm}    % 定理环境
 \usepackage{amssymb}   % 更多公式符号
+\usepackage{bm}        % 数学粗体（如 \bm{p}）
+\usepackage{esint}     % 闭合曲线/曲面积分符号（如 \oiint）
 \usepackage{graphicx}  % 插图
 % \usepackage{mathrsfs}  % 数学字体
 \usepackage{enumitem}  % 列表
@@ -33,12 +35,15 @@
 \usepackage{times}
 \usepackage{fontspec}  % 字体设置
 \usepackage{tabularx} % 表格
+\usepackage{multirow} % 表格跨行单元格
 \usepackage[fontsize=13.5pt]{fontsize}
 \hypersetup{
 	colorlinks=true,
 	linkcolor=blue
 }
 \newtheorem{definition}{定义}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Exp}{Exp}
 \tikzfeynmanset{warn luatex=false} % 禁用 LuaTeX 警告
 
 %加入画文本框的包
@@ -64,11 +69,9 @@
 \renewcommand{\footrulewidth}{0pt} % 去掉页脚横线
 
 
-\setmainfont{Times New Roman} % 设置主字体
-% 中文主字体已由 ctexbook 设置为 SimSun，无需重复设置
-% \setCJKmainfont{SimSun}[BoldFont=SimHei] % 推荐使用 SimHei 作为粗体，避免警告
-% 设置中文主字体为宋体，避免请求未定义的粗体
-\setCJKmainfont{SimSun}[BoldFont=SimSun] % 推荐使用 SimHei 作为粗体，避免警告
+% 字体设置 — Linux 兼容
+\setmainfont{Noto Serif} % 替代 Times New Roman
+\setCJKmainfont{Noto Serif CJK SC}[BoldFont=Noto Sans CJK SC] % 替代 SimSun
 %设置字号
 % \setCJKmainfont{SimSun}[BoldFont=SimSun,FontSize=14pt]
 
@@ -174,4 +177,8 @@
 % 导入概率论章节
 \part{概率论}
 \input{probality/probality.tex}
+
+% 模拟考试
+\part{考研数学一模拟试卷}
+\input{exams.tex}
 \end{document}

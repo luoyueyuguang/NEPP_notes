@@ -1,1 +1,1038 @@
 \section{线性方程组的解的问题}
+
+\subsection{齐次线性方程组}
+
+\begin{mydef}{齐次线性方程组}{homogeneous linear system}
+    设 \(A\) 为 \(m \times n\) 矩阵，\(x\) 为 \(n\) 维未知列向量，则称
+    \[
+    Ax = 0
+    \]
+    为\textbf{齐次线性方程组}。其中 \(0\) 表示 \(m\) 维零向量。
+\end{mydef}
+
+\begin{mydef}{零解与非零解}{trivial and non-trivial solutions}
+    齐次线性方程组 \(Ax = 0\) 恒有解 \(x = 0\)，称为\textbf{零解}（平凡解）。若存在非零向量 \(x_0 \neq 0\) 使得 \(Ax_0 = 0\)，则称 \(x_0\) 为\textbf{非零解}（非平凡解）。
+\end{mydef}
+
+\begin{conclusion}{齐次方程组有非零解的条件}{condition for non-trivial solutions}
+    齐次线性方程组 \(Ax = 0\) 有非零解的\textbf{充要条件}是系数矩阵的秩小于未知数的个数，即
+    \[
+    r(A) < n.
+    \]
+    换言之：
+    \begin{enumerate}
+        \item 若 \(r(A) = n\)，方程组\textbf{仅有零解}；
+        \item 若 \(r(A) < n\)，方程组有\textbf{无穷多个非零解}。
+    \end{enumerate}
+    \boxed{\text{注}} 特别地，当 \(m < n\)（方程个数小于未知数个数）时，必有 \(r(A) \leq m < n\)，齐次方程组一定有非零解。
+\end{conclusion}
+
+\begin{conclusion}{齐次方程组解的性质}{properties of homogeneous solutions}
+    设 \(x_1, x_2\) 是齐次方程组 \(Ax = 0\) 的解，\(k_1, k_2 \in \mathbb{R}\)（或任意数域），则：
+    \begin{enumerate}
+        \item \(x_1 + x_2\) 也是解；
+        \item \(k_1 x_1\) 也是解；
+        \item \(k_1 x_1 + k_2 x_2\) 也是解。
+    \end{enumerate}
+    即齐次方程组的\textbf{解集合构成一个向量空间}（解空间），是 \(\mathbb{R}^n\) 的子空间。
+\end{conclusion}
+
+\begin{mydef}{基础解系}{fundamental system of solutions}
+    设 \(Ax = 0\) 的解空间为 \(V\)，若 \(V\) 中一组线性无关的解向量 \(\xi_1, \xi_2, \ldots, \xi_t\) 满足：\(V\) 中任一解均可由它们线性表出，则称
+    \[
+    \xi_1, \xi_2, \ldots, \xi_t
+    \]
+    为齐次方程组的一个\textbf{基础解系}（或基本解组）。\\
+    基础解系就是解空间的一组基，因此基础解系中向量的个数
+    \[
+    t = \dim V = n - r(A).
+    \]
+\end{mydef}
+
+\begin{conclusion}{齐次方程组的通解结构}{structure of general homogeneous solution}
+    设 \(\xi_1, \xi_2, \ldots, \xi_{n-r}\) 是 \(Ax = 0\) 的一个基础解系（其中 \(r = r(A)\)），则齐次方程组的\textbf{通解}（一般解）为
+    \[
+    x = k_1 \xi_1 + k_2 \xi_2 + \cdots + k_{n-r} \xi_{n-r},
+    \]
+    其中 \(k_1, k_2, \ldots, k_{n-r}\) 为任意常数。
+\end{conclusion}
+
+\begin{formula}{求基础解系的方法}{method for finding fundamental system}
+    对系数矩阵 \(A\) 作初等行变换化为行最简形，确定自由未知量：
+    \begin{enumerate}
+        \item 将 \(A\) 通过初等行变换化为行最简形矩阵 \(R\)；
+        \item 确定主元列（共 \(r\) 列）和自由列（共 \(n - r\) 列）；
+        \item 令自由未知量依次取 \((1, 0, \ldots, 0)^T, (0, 1, \ldots, 0)^T, \ldots, (0, 0, \ldots, 1)^T\)；
+        \item 每次代入求出对应的主元未知量的值，得到 \(n - r\) 个解向量，即为基础解系。
+    \end{enumerate}
+    \boxed{\text{注}} 基础解系不唯一——对自由未知量的不同赋值方式可得到不同的基础解系，但向量个数始终为 \(n - r\)。
+\end{formula}
+
+\subsection{非齐次线性方程组}
+
+\begin{mydef}{非齐次线性方程组}{non-homogeneous linear system}
+    设 \(A\) 为 \(m \times n\) 矩阵，\(b \neq 0\) 为 \(m\) 维非零列向量，则称
+    \[
+    Ax = b
+    \]
+    为\textbf{非齐次线性方程组}。对应的齐次方程组 \(Ax = 0\) 称为该非齐次方程组的\textbf{导出组}。
+\end{mydef}
+
+\begin{conclusion}{非齐次方程组有解的判定}{consistency condition}
+    非齐次线性方程组 \(Ax = b\) 有解的\textbf{充要条件}是：
+    \[
+    r(A) = r(A \mid b),
+    \]
+    即系数矩阵的秩等于增广矩阵的秩。\\
+    进一步：
+    \begin{enumerate}
+        \item 若 \(r(A) = r(A \mid b) = n\)（未知数个数），则方程组有\textbf{唯一解}；
+        \item 若 \(r(A) = r(A \mid b) < n\)，则方程组有\textbf{无穷多解}；
+        \item 若 \(r(A) \neq r(A \mid b)\)（即 \(r(A \mid b) = r(A) + 1\)），则方程组\textbf{无解}。
+    \end{enumerate}
+    \boxed{\text{注}} \(r(A) \neq r(A \mid b)\) 的几何意义是：向量 \(b\) 不在 \(A\) 的列空间的线性张成中，即 \(b\) 不能由 \(A\) 的列向量线性表出。
+\end{conclusion}
+
+\begin{conclusion}{非齐次方程组解的性质}{properties of non-homogeneous solutions}
+    \begin{enumerate}
+        \item 若 \(\eta_1, \eta_2\) 是 \(Ax = b\) 的解，则 \(\eta_1 - \eta_2\) 是导出组 \(Ax = 0\) 的解；
+        \item 若 \(\eta\) 是 \(Ax = b\) 的解，\(\xi\) 是 \(Ax = 0\) 的解，则 \(\eta + \xi\) 仍是 \(Ax = b\) 的解；
+        \item 若 \(\eta^*\) 是 \(Ax = b\) 的一个特解，则 \(Ax = b\) 的任意解 \(\eta\) 可表示为
+        \[
+        \eta = \eta^* + \xi,
+        \]
+        其中 \(\xi\) 是导出组 \(Ax = 0\) 的某个解。
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{非齐次方程组的通解结构}{structure of general non-homogeneous solution}
+    设 \(r(A) = r(A \mid b) = r < n\)，\(\eta^*\) 是 \(Ax = b\) 的一个\textbf{特解}，\(\xi_1, \xi_2, \ldots, \xi_{n-r}\) 是导出组 \(Ax = 0\) 的一个基础解系，则非齐次方程组的\textbf{通解}为
+    \[
+    x = \eta^* + k_1 \xi_1 + k_2 \xi_2 + \cdots + k_{n-r} \xi_{n-r},
+    \]
+    其中 \(k_1, k_2, \ldots, k_{n-r}\) 为任意常数。
+    \newline
+    即：\textbf{非齐次通解 = 一个特解 + 导出组的通解}。
+\end{conclusion}
+
+\begin{conclusion}{非齐次方程组解的唯一性条件}{uniqueness condition}
+    非齐次方程组 \(Ax = b\) 解唯一的\textbf{充要条件}是
+    \[
+    r(A) = r(A \mid b) = n.
+    \]
+    换言之，导出组 \(Ax = 0\) 仅有零解，且非齐次方程组本身有解。
+\end{conclusion}
+
+\subsection{秩定理与维数定理}
+
+\begin{conclusion}{秩定理（维数定理）}{rank theorem}
+    设 \(A\) 为 \(m \times n\) 矩阵，则
+    \[
+    \dim \ker(A) + r(A) = n,
+    \]
+    其中 \(\ker(A) = \{x \mid Ax = 0\}\) 为 \(A\) 的核空间（零空间），即齐次方程组 \(Ax = 0\) 的解空间。\\
+    换言之：\textbf{零空间的维数 + 矩阵的秩 = 未知数的个数}。
+\end{conclusion}
+
+\begin{conclusion}{秩定理的等价表述}{equivalent forms of rank theorem}
+    记 \(r = r(A)\)，则有以下等价结论：
+    \begin{enumerate}
+        \item 基础解系中向量的个数 \(t = n - r\)；
+        \item \(\dim \ker(A) = n - r\)；
+        \item \(A\) 的列空间的维数 \(+\) 零空间的维数 \(= n\)；
+        \item 自由未知量的个数 \(= n - r\)。
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{秩定理的推论}{corollaries of rank theorem}
+    \begin{enumerate}
+        \item 若 \(A\) 为方阵（\(n \times n\)），则 \(Ax = 0\) 仅有零解 \(\Leftrightarrow\) \(r(A) = n\) \(\Leftrightarrow\) \(\det(A) \neq 0\) \(\Leftrightarrow\) \(A\) 可逆；
+        \item 若 \(A\) 为方阵且 \(r(A) < n\)，则 \(\det(A) = 0\)，此时 \(Ax = 0\) 有无穷多非零解；
+        \item 对任意 \(m \times n\) 矩阵，\(r(A) \leq \min\{m, n\}\)，且基础解系向量个数 \(n - r \geq \max\{0, n - m\}\)。
+    \end{enumerate}
+\end{conclusion}
+
+\subsection{求解方法}
+
+\subsubsection{高斯消元法}
+
+\begin{formula}{高斯消元法解一般线性方程组}{gaussian elimination}
+    对任意线性方程组 \(Ax = b\)，通过三种初等行变换（换行、数乘、倍加）将增广矩阵 \((A \mid b)\) 化为行阶梯形或行最简形：
+    \begin{enumerate}
+        \item \textbf{消元（正向）}：从上到下将增广矩阵化为行阶梯形，可判定：
+        \begin{itemize}
+            \item 若阶梯形中出现矛盾行（如 \(0 = c,\ c \neq 0\)），则方程组无解；
+            \item 否则方程组有解。
+        \end{itemize}
+        \item \textbf{回代（反向）}：从下到上进一步化为行最简形，读出主元未知量与自由未知量的关系，得到通解。
+    \end{enumerate}
+    \boxed{\text{注}} 高斯消元法适用于任何线性方程组，无论系数矩阵是否为方阵，也无论行列式是否为零。它是求解线性方程组最通用、最可靠的方法。
+\end{formula}
+
+\begin{formula}{行阶梯形与行最简形的区别}{row echelon vs reduced row echelon}
+    \begin{itemize}
+        \item \textbf{行阶梯形}：每行首个非零元（主元）的列标随行号严格递增，主元下方全为零；
+        \item \textbf{行最简形}：在行阶梯形基础上，每个主元为 \(1\)，且主元所在列的其余元素全为零。
+    \end{itemize}
+    行阶梯形足以判定解的存在性和秩；行最简形可以直接读出通解。
+\end{formula}
+
+\subsubsection{克莱姆法则}
+
+\begin{conclusion}{克莱姆法则}{cramer's rule}
+    对于 \(n\) 个方程 \(n\) 个未知数的线性方程组 \(Ax = b\)，若 \(\det(A) \neq 0\)，则方程组有\textbf{唯一解}：
+    \[
+    x_i = \frac{\det(A_i)}{\det(A)}, \quad i = 1, 2, \ldots, n,
+    \]
+    其中 \(A_i\) 是将 \(A\) 的第 \(i\) 列替换为向量 \(b\) 后所得的矩阵。
+\end{conclusion}
+
+\begin{formula}{克莱姆法则的适用范围与局限性}{scope and limitations of cramer's rule}
+    \begin{itemize}
+        \item \textbf{适用条件}：
+        \begin{enumerate}
+            \item 方程个数等于未知数个数（\(A\) 为方阵）；
+            \item \(\det(A) \neq 0\)。
+        \end{enumerate}
+        \item \textbf{局限性}：
+        \begin{enumerate}
+            \item 仅适用于系数矩阵为可逆方阵的情形；
+            \item 计算 \(n+1\) 个 \(n\) 阶行列式，当 \(n\) 较大时计算量巨大（远大于高斯消元法的 \(O(n^3)\)）；
+            \item 不能处理无解和无穷多解的情况。
+        \end{enumerate}
+    \end{itemize}
+    \boxed{\text{注}} 克莱姆法则的主要价值在理论上（如用于证明和推导），实际数值计算中一般使用高斯消元法。
+\end{formula}
+
+\subsection{解的几何意义}
+
+\begin{conclusion}{线性方程组解的几何解释}{geometric interpretation of solutions}
+    设 \(A\) 为 \(m \times n\) 矩阵，\(x \in \mathbb{R}^n\)，\(b \in \mathbb{R}^m\)。
+    \begin{enumerate}
+        \item \(Ax = b\) 可以理解为：寻找系数 \(x\)，使得 \(A\) 的列向量的线性组合等于 \(b\)。
+        \item \textbf{齐次方程组 \(Ax = 0\)}：解空间是 \(\mathbb{R}^n\) 中经过原点的子空间（线性子空间），维数为 \(n - r\)：
+        \begin{itemize}
+            \item \(n - r = 0\)：仅原点（零解）；
+            \item \(n - r = 1\)：过原点的一条直线；
+            \item \(n - r = 2\)：过原点的一个平面；
+            \item \(n - r = k\)：过原点的一个 \(k\) 维子空间。
+        \end{itemize}
+        \item \textbf{非齐次方程组 \(Ax = b\)}（有解时）：解集合是 \(\mathbb{R}^n\) 中经过特解点 \(\eta^*\) 且平行于零空间的一个仿射子空间（平移后的子空间）。维数仍为 \(n - r\)：
+        \begin{itemize}
+            \item \(n - r = 0\)：一个孤立点（唯一解）；
+            \item \(n - r = 1\)：一条直线（不过原点）；
+            \item \(n - r = 2\)：一个平面（不过原点）。
+        \end{itemize}
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{无解的几何意义}{geometric interpretation of no solution}
+    当 \(r(A) \neq r(A \mid b)\) 时，\(b\) 不在 \(A\) 的列空间 \(\operatorname{Col}(A)\) 中。\\
+    例如在 \(\mathbb{R}^3\) 中考虑两个方程三个未知数的方程组：\(A\) 的列空间是一个平面（维数 2），若 \(b\) 不在该平面上，则方程组无解。
+\end{conclusion}
+
+\subsection{方程个数、未知数个数与解的类型}
+
+\begin{tablebox}{方程个数\(m\)、未知数个数\(n\)与方程组解的关系（齐次情形 \(Ax = 0\)）}
+\centering
+\begin{tabular}{|c|c|c|p{7cm}|}
+\hline
+条件 & 秩关系 & 解的情况 & 说明 \\
+\hline
+\(m < n\) & \(r \leq m < n\) & 必有非零解 & 方程个数少于未知数，自由度为正 \\
+\hline
+\(m = n\) & \(r = n\) & 仅有零解 & 系数矩阵满秩（可逆），\(\det(A) \neq 0\) \\
+\hline
+\(m = n\) & \(r < n\) & 有无穷多非零解 & \(\det(A) = 0\)，自由未知量 \(n - r > 0\) \\
+\hline
+\(m > n\) & \(r = n\) & 仅有零解 & 列满秩 \\
+\hline
+\(m > n\) & \(r < n\) & 有无穷多非零解 & 存在自由未知量 \\
+\hline
+\end{tabular}
+\label{tab:homogeneous_solutions}
+\end{tablebox}
+
+\begin{tablebox}{方程个数\(m\)、未知数个数\(n\)与方程组解的关系（非齐次情形 \(Ax = b,\ b \neq 0\)）}
+\centering
+\begin{tabular}{|c|c|c|p{6cm}|}
+\hline
+秩条件 & 与 \(n\) 的关系 & 解的情况 & 说明 \\
+\hline
+\multirow{2}{*}{\(r(A) = r(A \mid b) = r\)} & \(r = n\) & 唯一解 & 导出组仅有零解 \\
+\cline{2-4}
+& \(r < n\) & 无穷多解 & 通解 = 特解 + 齐次通解（\(n-r\) 个自由参数）\\
+\hline
+\multicolumn{2}{|c|}{\(r(A) \neq r(A \mid b)\)} & 无解 & \(b\) 不在列空间中，增广矩阵比系数矩阵多一秩 \\
+\hline
+\end{tabular}
+\label{tab:nonhomogeneous_solutions}
+\end{tablebox}
+
+\begin{conclusion}{解的类型判定流程}{solution type decision flow}
+    对于一般线性方程组 \(Ax = b\) 的求解，可按以下步骤判定：
+    \begin{enumerate}
+        \item 写出增广矩阵 \((A \mid b)\)，通过初等行变换化为行阶梯形；
+        \item 比较 \(r(A)\) 与 \(r(A \mid b)\)：
+        \begin{itemize}
+            \item 若 \(r(A) \neq r(A \mid b)\) \(\Rightarrow\) \textbf{无解}；
+            \item 若 \(r(A) = r(A \mid b) = r\)，则继续：
+            \begin{itemize}
+                \item 若 \(r = n\) \(\Rightarrow\) \textbf{唯一解}；
+                \item 若 \(r < n\) \(\Rightarrow\) \textbf{无穷多解}。
+            \end{itemize}
+        \end{itemize}
+        \item 对于无穷多解情形：
+        \begin{itemize}
+            \item 写出导出组的基础解系 \(\xi_1, \ldots, \xi_{n-r}\)；
+            \item 求出非齐次方程组的一个特解 \(\eta^*\)；
+            \item 通解：\(x = \eta^* + k_1 \xi_1 + \cdots + k_{n-r} \xi_{n-r}\)。
+        \end{itemize}
+    \end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{方程个数与未知数个数的直观法则}{intuitive rules}
+    \begin{enumerate}
+        \item 对于\textbf{齐次方程组}：未知数个数 \(n\) 多于方程个数 \(m\) 时，一定有非零解（因为 \(r \leq m < n\)）；
+        \item 对于\textbf{非齐次方程组}：
+        \begin{itemize}
+            \item 方程个数 \(m\) 多于未知数个数 \(n\) 时，通常无解（过约束），但不绝对——若方程之间存在线性相关则可能仍有解；
+            \item 方程个数 \(m\) 少于未知数个数 \(n\) 时，若有解则必有无穷多解（欠约束）；
+            \item 方程个数等于未知数个数时，若系数矩阵可逆则唯一解，若不可逆则可能无解或无穷多解。
+        \end{itemize}
+    \end{enumerate}
+    \boxed{\text{注}} 方程个数和未知数个数的比较仅提供初步判断，最终结论必须依据秩的比较。例如 \(m = n\) 但 \(r(A) < n\) 时，齐次方程组有非零解，非齐次方程组可能无解或无穷多解。
+\end{conclusion}
+
+\subsection{补充结论与应用技巧}
+
+\begin{conclusion}{利用秩比较判定线性表出}{linear representation via rank}
+    设向量 \(\beta\) 可由向量组 \(\alpha_1, \alpha_2, \ldots, \alpha_n\) 线性表出，即存在系数 \(x_1, \ldots, x_n\) 使得
+    \[
+    x_1 \alpha_1 + x_2 \alpha_2 + \cdots + x_n \alpha_n = \beta,
+    \]
+    这等价于线性方程组 \(Ax = \beta\) 有解（其中 \(A\) 以 \(\alpha_i\) 为列）。因此：
+    \begin{itemize}
+        \item \(\beta\) 可由 \(\alpha_1, \ldots, \alpha_n\) 线性表出 \(\Leftrightarrow\) \(r(\alpha_1, \ldots, \alpha_n) = r(\alpha_1, \ldots, \alpha_n, \beta)\)；
+        \item 表出方式唯一 \(\Leftrightarrow\) \(r(\alpha_1, \ldots, \alpha_n) = n\) 且上述秩相等。
+    \end{itemize}
+\end{conclusion}
+
+\begin{formula}{含参数的线性方程组讨论}{linear systems with parameters}
+    对于含参数的线性方程组，通常步骤如下：
+    \begin{enumerate}
+        \item 写出增广矩阵，通过初等行变换化为行阶梯形（尽量避免分母含参数）；
+        \item 根据参数的不同取值，讨论 \(r(A)\) 与 \(r(A \mid b)\) 的关系：
+        \begin{itemize}
+            \item 找出使 \(r(A) \neq r(A \mid b)\) 的参数值 \(\Rightarrow\) 无解；
+            \item 找出使 \(r(A) = r(A \mid b) = n\) 的参数值 \(\Rightarrow\) 唯一解；
+            \item 找出使 \(r(A) = r(A \mid b) < n\) 的参数值 \(\Rightarrow\) 无穷多解。
+        \end{itemize}
+        \item 对有无穷多解的情形，写出通解表达式。
+    \end{enumerate}
+    \boxed{\textbf{例}} 讨论 \(\begin{cases} x_1 + \lambda x_2 + x_3 = 1 \\ x_1 + x_2 + \lambda x_3 = 1 \\ \lambda x_1 + x_2 + x_3 = 1 \end{cases}\) 的解的情况，需对 \(\lambda\) 分类讨论。
+\end{formula}
+
+\begin{conclusion}{两个齐次方程组同解的条件}{condition for equivalent homogeneous systems}
+    设 \(A\) 为 \(m \times n\) 矩阵，\(B\) 为 \(p \times n\) 矩阵，则
+    \[
+    Ax = 0 \text{ 与 } Bx = 0 \text{ 同解 } \Leftrightarrow r\begin{pmatrix} A \\ B \end{pmatrix} = r(A) = r(B).
+    \]
+    特别地，若 \(A\) 与 \(B\) 的行向量组等价（即由初等行变换联系），则两齐次方程组同解。
+\end{conclusion}
+
+\begin{conclusion}{解空间与矩阵行空间的关系}{solution space and row space}
+    设 \(A\) 为 \(m \times n\) 矩阵，则
+    \begin{enumerate}
+        \item \(Ax = 0\) 的解空间 \(\ker(A)\) 是行空间 \(\operatorname{Row}(A)\) 的\textbf{正交补}，即
+        \[
+        \ker(A) = (\operatorname{Row}(A))^\perp.
+        \]
+        \item 由此可得维数关系：
+        \[
+        \dim \ker(A) + \dim \operatorname{Row}(A) = n,
+        \]
+        而 \(\dim \operatorname{Row}(A) = r(A)\)，再次得到秩定理。
+    \end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（选择题）} 设 \(A\) 为 \(4 \times 4\) 矩阵，且 \(r(A) = 3\)，则齐次线性方程组 \(Ax = 0\) （~~~~）
+\begin{enumerate}
+\item[(A)] 无解
+\item[(B)] 仅有零解
+\item[(C)] 有无穷多解
+\item[(D)] 无法确定
+\end{enumerate}
+
+\boxed{\textbf{解}} 选 \textbf{(C)}。
+
+齐次方程组 \(Ax = 0\) 恒有零解，故不会无解，排除 (A)。由秩定理，解空间维数 \(t = n - r(A) = 4 - 3 = 1 > 0\)，故存在非零解，且有无穷多解。
+
+\(n - r(A) > 0\) 即意味着不止零解，解空间中除零向量外还有一维自由度的无穷多个非零向量。
+
+\boxed{\text{注}} 齐次方程组 \(Ax = 0\) 仅当 \(r(A) = n\)（列满秩）时才有且仅有零解。
+
+\item \textbf{（计算题）} 求齐次线性方程组
+\[
+\begin{cases}
+x_1 + 2x_2 - x_3 + 2x_4 = 0 \\
+2x_1 + 4x_2 + x_3 + x_4 = 0 \\
+3x_1 + 6x_2 + 0x_3 + 3x_4 = 0
+\end{cases}
+\]
+的一个基础解系和通解。
+
+\boxed{\textbf{解}} 对系数矩阵作初等行变换：
+\[
+A = \begin{pmatrix}
+1 & 2 & -1 & 2 \\
+2 & 4 & 1 & 1 \\
+3 & 6 & 0 & 3
+\end{pmatrix}
+\xrightarrow[R_2 - 2R_1]{R_3 - 3R_1}
+\begin{pmatrix}
+1 & 2 & -1 & 2 \\
+0 & 0 & 3 & -3 \\
+0 & 0 & 3 & -3
+\end{pmatrix}
+\xrightarrow{R_3 - R_2}
+\begin{pmatrix}
+1 & 2 & -1 & 2 \\
+0 & 0 & 3 & -3 \\
+0 & 0 & 0 & 0
+\end{pmatrix}
+\]
+
+化行最简形：
+\[
+\xrightarrow{\frac{1}{3}R_2}
+\begin{pmatrix}
+1 & 2 & -1 & 2 \\
+0 & 0 & 1 & -1 \\
+0 & 0 & 0 & 0
+\end{pmatrix}
+\xrightarrow{R_1 + R_2}
+\begin{pmatrix}
+1 & 2 & 0 & 1 \\
+0 & 0 & 1 & -1 \\
+0 & 0 & 0 & 0
+\end{pmatrix}
+\]
+
+\(r(A) = 2\)，\(n - r = 4 - 2 = 2\)。自由未知量：\(x_2, x_4\)。
+
+同解方程组：
+\[
+\begin{cases}
+x_1 + 2x_2 + x_4 = 0 \\
+x_3 - x_4 = 0
+\end{cases}
+\quad \Rightarrow \quad
+\begin{cases}
+x_1 = -2x_2 - x_4 \\
+x_3 = x_4
+\end{cases}
+\]
+
+令 \(\begin{pmatrix} x_2 \\ x_4 \end{pmatrix}\) 分别取 \(\begin{pmatrix} 1 \\ 0 \end{pmatrix}, \begin{pmatrix} 0 \\ 1 \end{pmatrix}\)，得基础解系：
+\[
+\xi_1 = \begin{pmatrix} -2 \\ 1 \\ 0 \\ 0 \end{pmatrix},\quad
+\xi_2 = \begin{pmatrix} -1 \\ 0 \\ 1 \\ 1 \end{pmatrix}.
+\]
+
+通解：\(x = k_1 \xi_1 + k_2 \xi_2\)，其中 \(k_1, k_2\) 为任意常数。
+
+\item \textbf{（选择题）} 设 \(A\) 为 \(m \times n\) 矩阵，且 \(r(A) = r\)，则齐次方程组 \(Ax = 0\) 的解空间的维数为（~~~~）
+\begin{enumerate}
+\item[(A)] \(r\)
+\item[(B)] \(m - r\)
+\item[(C)] \(n - r\)
+\item[(D)] \(n\)
+\end{enumerate}
+
+\boxed{\textbf{解}} 选 \textbf{(C)}。
+
+由秩定理 \(\dim \ker(A) + r(A) = n\)，知解空间维数 \(= n - r\)。选项 (A) \(r\) 是系数矩阵的秩；(B) \(m - r\) 是系数矩阵列数减去行空间的维数；(D) \(n\) 是未知数个数，仅在 \(A = O\) 时正确。
+
+\item \textbf{（计算题）} 已知 \(\eta^* = (1, 2, 3)^{\mathrm{T}}\) 是非齐次方程组 \(Ax = b\) 的一个特解，\(\xi_1 = (1, 0, -1)^{\mathrm{T}},\ \xi_2 = (0, 1, 2)^{\mathrm{T}}\) 是其导出组 \(Ax = 0\) 的一个基础解系。写出 \(Ax = b\) 的通解。
+
+\boxed{\textbf{解}} 由通解结构公式：
+\[
+x = \eta^* + k_1\xi_1 + k_2\xi_2
+= \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}
++ k_1 \begin{pmatrix} 1 \\ 0 \\ -1 \end{pmatrix}
++ k_2 \begin{pmatrix} 0 \\ 1 \\ 2 \end{pmatrix},
+\]
+其中 \(k_1, k_2\) 为任意常数。即
+\[
+x = \begin{pmatrix} 1 + k_1 \\ 2 + k_2 \\ 3 - k_1 + 2k_2 \end{pmatrix}.
+\]
+
+\item \textbf{（填空题）} 设 \(A\) 为 \(5 \times 4\) 矩阵，\(r(A) = 3\)，\(r(A \mid b) = 4\)，则方程组 \(Ax = b\) 的解的情况是\underline{~~~~~~~~~~}。
+
+\boxed{\textbf{解}} 应填 \textbf{无解}。
+
+由解的判定条件：\(r(A) < r(A \mid b)\)（即 \(3 < 4\)），秩不相等，故方程组无解。\\
+\boxed{\text{注}} \(r(A \mid b) = r(A) + 1\) 是典型的无解标志，表明 \(b\) 不在 \(A\) 的列空间中。
+
+\item \textbf{（计算题）} 用高斯消元法解非齐次线性方程组
+\[
+\begin{cases}
+x_1 + 2x_2 + 3x_3 = 14 \\
+2x_1 + 5x_2 + 6x_3 = 32 \\
+3x_1 + 8x_2 + 9x_3 = 50
+\end{cases}
+\]
+
+\boxed{\textbf{解}} 写出增广矩阵并作初等行变换：
+\[
+(A \mid b) = \left(\begin{array}{ccc|c}
+1 & 2 & 3 & 14 \\
+2 & 5 & 6 & 32 \\
+3 & 8 & 9 & 50
+\end{array}\right)
+\xrightarrow[R_2 - 2R_1]{R_3 - 3R_1}
+\left(\begin{array}{ccc|c}
+1 & 2 & 3 & 14 \\
+0 & 1 & 0 & 4 \\
+0 & 2 & 0 & 8
+\end{array}\right)
+\]
+\[
+\xrightarrow{R_3 - 2R_2}
+\left(\begin{array}{ccc|c}
+1 & 2 & 3 & 14 \\
+0 & 1 & 0 & 4 \\
+0 & 0 & 0 & 0
+\end{array}\right)
+\xrightarrow{R_1 - 2R_2}
+\left(\begin{array}{ccc|c}
+1 & 0 & 3 & 6 \\
+0 & 1 & 0 & 4 \\
+0 & 0 & 0 & 0
+\end{array}\right)
+\]
+
+\(r(A) = r(A \mid b) = 2 < 3 = n\)，方程组有无穷多解。
+
+同解方程组：
+\[
+\begin{cases}
+x_1 + 3x_3 = 6 \\
+x_2 = 4
+\end{cases}
+\Rightarrow
+\begin{cases}
+x_1 = 6 - 3x_3 \\
+x_2 = 4
+\end{cases}
+\]
+
+自由未知量 \(x_3 = t\)，通解：
+\[
+x = \begin{pmatrix} 6 \\ 4 \\ 0 \end{pmatrix} + t \begin{pmatrix} -3 \\ 0 \\ 1 \end{pmatrix}, \quad t \in \mathbb{R}.
+\]
+
+\end{enumerate}
+
+\subsection{综合提高题}
+
+\begin{enumerate}
+\setcounter{enumi}{6}
+
+\item \textbf{（讨论题 \quad 经典考研题型）} \boxed{\textbf{例}} 已知线性方程组
+\[
+\begin{cases}
+ax_1 + x_2 + x_3 = 4 \\
+x_1 + bx_2 + x_3 = 3 \\
+x_1 + 2bx_2 + x_3 = 4
+\end{cases}
+\]
+其中 \(a, b\) 为参数。试讨论 \(a, b\) 取何值时，方程组无解？有唯一解？有无穷多解？并在有无穷多解时求出通解。
+
+\boxed{\textbf{解}} 写出增广矩阵并作初等行变换：
+\[
+(A \mid b) = \left(\begin{array}{ccc|c}
+a & 1 & 1 & 4 \\
+1 & b & 1 & 3 \\
+1 & 2b & 1 & 4
+\end{array}\right)
+\xrightarrow{R_3 - R_2}
+\left(\begin{array}{ccc|c}
+a & 1 & 1 & 4 \\
+1 & b & 1 & 3 \\
+0 & b & 0 & 1
+\end{array}\right)
+\]
+
+由第 3 行得关键方程：\(b x_2 = 1\)。以下分情况讨论。
+
+\textbf{情况一：\(b = 0\)}
+
+则第 3 行变为 \(0 \cdot x_2 = 1\)，矛盾方程出现。此时无论 \(a\) 取何值，方程组均\textbf{无解}。
+
+\textbf{情况二：\(b \neq 0\)}
+
+此时 \(x_2 = \dfrac{1}{b}\)。将 \(x_2\) 代入前两行：
+\[
+\begin{cases}
+a x_1 + \frac{1}{b} + x_3 = 4 \\
+x_1 + b \cdot \frac{1}{b} + x_3 = 3
+\end{cases}
+\Rightarrow
+\begin{cases}
+a x_1 + x_3 = 4 - \frac{1}{b} \quad \text{（式一）} \\
+x_1 + x_3 = 2 \quad \text{（式二）}
+\end{cases}
+\]
+
+式一 \(-\) 式二：
+\[
+(a - 1) x_1 = \left(4 - \frac{1}{b}\right) - 2 = 2 - \frac{1}{b} \quad \text{（式三）}
+\]
+
+\begin{enumerate}
+\item[(i)] 若 \(a \neq 1\)，由式三得 \(x_1 = \dfrac{2 - \frac{1}{b}}{a - 1} = \dfrac{2b - 1}{b(a - 1)}\)。再由式二得 \(x_3 = 2 - x_1\)。此时方程组有\textbf{唯一解}。
+\item[(ii)] 若 \(a = 1\)，式三变为 \(0 = 2 - \dfrac{1}{b}\)。
+  \begin{itemize}
+  \item 当 \(b = \dfrac{1}{2}\) 时，\(0 = 0\) 恒成立。此时式二为 \(x_1 + x_3 = 2\)，式一与式二相同（因为 \(a=1\)），故方程组合并为两个独立方程，\(r(A) = r(A \mid b) = 2 < 3\)，方程组有\textbf{无穷多解}。
+  \item 当 \(b \neq \dfrac{1}{2}\) 时，\(0 = 2 - \dfrac{1}{b} \neq 0\)，矛盾。方程组\textbf{无解}。
+  \end{itemize}
+\end{enumerate}
+
+\textbf{有无穷多解时的通解}（\(a = 1,\ b = \dfrac{1}{2}\)）：
+
+此时 \(x_2 = \dfrac{1}{b} = 2\)，同解方程组为 \(x_1 + x_3 = 2\)。自由未知量取 \(x_3 = t\)，则 \(x_1 = 2 - t\)。通解：
+\[
+x = \begin{pmatrix} 2 \\ 2 \\ 0 \end{pmatrix} + t \begin{pmatrix} -1 \\ 0 \\ 1 \end{pmatrix}, \quad t \in \mathbb{R}.
+\]
+
+\textbf{总结表：}
+\[
+\begin{array}{|c|c|c|}
+\hline
+\text{参数条件} & \text{秩关系} & \text{解的情况} \\
+\hline
+b = 0 & r(A)=2,\ r(A \mid b)=3 & \text{无解} \\
+\hline
+b \neq 0,\ a \neq 1 & r(A)=r(A \mid b)=3 & \text{唯一解} \\
+\hline
+b \neq 0,\ a = 1,\ b = \frac{1}{2} & r(A)=r(A \mid b)=2 & \text{无穷多解} \\
+\hline
+b \neq 0,\ a = 1,\ b \neq \frac{1}{2} & r(A)=2,\ r(A \mid b)=3 & \text{无解} \\
+\hline
+\end{array}
+\]
+
+\boxed{\text{注}} 含两个参数的方程组讨论是考研高频考点。关键步骤是：通过初等行变换找"关键方程"，然后对参数分类。优先处理使关键系数为零的参数值（因为它们会改变秩），再在系数非零的情况下讨论其余参数。
+
+\item \textbf{（证明题）} 设 \(\eta_1, \eta_2, \ldots, \eta_k\) 都是非齐次线性方程组 \(Ax = b\) 的解，\(c_1, c_2, \ldots, c_k\) 为一组实数。证明：
+\[
+c_1\eta_1 + c_2\eta_2 + \cdots + c_k\eta_k
+\]
+也是 \(Ax = b\) 的解的\textbf{充要条件}是 \(c_1 + c_2 + \cdots + c_k = 1\)。
+
+\boxed{\textbf{证明}}
+
+\textbf{充分性：} 若 \(\sum_{i=1}^{k} c_i = 1\)，则
+\[
+A\left(\sum_{i=1}^{k} c_i \eta_i\right)
+= \sum_{i=1}^{k} c_i A\eta_i
+= \sum_{i=1}^{k} c_i b
+= \left(\sum_{i=1}^{k} c_i\right) b
+= 1 \cdot b = b,
+\]
+故 \(\sum_{i=1}^{k} c_i \eta_i\) 也是 \(Ax = b\) 的解。
+
+\textbf{必要性：} 若 \(\sum_{i=1}^{k} c_i \eta_i\) 是 \(Ax = b\) 的解，则
+\[
+A\left(\sum_{i=1}^{k} c_i \eta_i\right) = b.
+\]
+展开：
+\[
+\sum_{i=1}^{k} c_i A\eta_i = \sum_{i=1}^{k} c_i b = \left(\sum_{i=1}^{k} c_i\right) b = b.
+\]
+由于 \(b \neq 0\)（非齐次方程组），两边约去 \(b\)（严格地说，是在各分量上成立），得
+\[
+\sum_{i=1}^{k} c_i = 1.
+\]
+
+\boxed{\text{注}} 这个结论在考研中多次出现。几何上，它表明 \(Ax = b\) 的解集是一个仿射空间，对该空间中点的"仿射组合"（系数和为1）仍在该空间中。系数和不为1的线性组合会"漂移"到别的仿射层。
+
+\item \textbf{（计算+证明）} 设 \(\xi_1, \xi_2, \ldots, \xi_{n-r}\) 是 \(Ax = 0\) 的一个基础解系，\(\eta^*\) 是 \(Ax = b\) 的一个特解。记
+\[
+\gamma_i = \eta^* + \xi_i, \quad i = 1, 2, \ldots, n - r.
+\]
+\begin{enumerate}
+\item 证明 \(\gamma_1, \gamma_2, \ldots, \gamma_{n-r}\) 都是 \(Ax = b\) 的解；
+\item 证明向量组 \(\gamma_1 - \eta^*, \gamma_2 - \eta^*, \ldots, \gamma_{n-r} - \eta^*\) 线性无关；
+\item 证明 \(Ax = b\) 的任一解 \(\eta\) 可唯一地表为 \(\eta^*\) 与 \(\gamma_i - \eta^*\)（\(i=1,\ldots,n-r\)）的线性组合，并进一步说明 \(\eta\) 可表为 \(\eta^*, \gamma_1, \ldots, \gamma_{n-r}\) 的仿射组合（系数之和为 \(1\) 的线性组合）。
+\end{enumerate}
+
+\boxed{\textbf{解与证明}}
+
+(1) 对每个 \(i = 1, 2, \ldots, n-r\)，
+\[
+A\gamma_i = A(\eta^* + \xi_i) = A\eta^* + A\xi_i = b + 0 = b,
+\]
+故 \(\gamma_i\) 都是 \(Ax = b\) 的解。
+
+(2) 注意到 \(\gamma_i - \eta^* = \xi_i\)（\(i = 1, 2, \ldots, n-r\)）。由于 \(\xi_1, \ldots, \xi_{n-r}\) 是 \(Ax = 0\) 的基础解系，它们线性无关。故 \(\gamma_1 - \eta^*, \ldots, \gamma_{n-r} - \eta^*\) 线性无关。
+
+(3) 设 \(\eta\) 是 \(Ax = b\) 的任一解。令 \(\xi = \eta - \eta^*\)，则
+\[
+A\xi = A(\eta - \eta^*) = A\eta - A\eta^* = b - b = 0,
+\]
+故 \(\xi \in \ker(A)\)。由于 \(\xi_1, \ldots, \xi_{n-r}\) 是 \(\ker(A)\) 的基，存在唯一的一组数 \(k_1, \ldots, k_{n-r}\) 使得
+\[
+\xi = k_1\xi_1 + \cdots + k_{n-r}\xi_{n-r}.
+\]
+从而
+\[
+\eta = \eta^* + \xi = \eta^* + \sum_{i=1}^{n-r} k_i \xi_i = \eta^* + \sum_{i=1}^{n-r} k_i (\gamma_i - \eta^*).
+\]
+
+进一步，利用 \(\gamma_i = \eta^* + \xi_i\)：
+\[
+\eta = \eta^* + \sum_{i=1}^{n-r} k_i (\gamma_i - \eta^*)
+= \left(1 - \sum_{i=1}^{n-r} k_i\right) \eta^* + \sum_{i=1}^{n-r} k_i \gamma_i.
+\]
+记 \(k_0 = 1 - \sum_{i=1}^{n-r} k_i\)，则 \(\eta = k_0 \eta^* + \sum_{i=1}^{n-r} k_i \gamma_i\)，且系数之和
+\[
+k_0 + \sum_{i=1}^{n-r} k_i = 1.
+\]
+此即 \(\eta\) 可表为 \(\eta^*, \gamma_1, \ldots, \gamma_{n-r}\) 的仿射组合。
+
+\boxed{\text{注}} 这个结论是第8题结论在特定选择下的应用：取 \(\eta^*\) 和 \(\gamma_1, \ldots, \gamma_{n-r}\) 这 \(n-r+1\) 个解，它们的仿射组合张成整个解集（仿射超平面）。
+
+\item \textbf{（典型证明题）} 设 \(A\) 为 \(m \times n\) 实矩阵。证明：
+\[
+r(A^{\mathrm{T}}A) = r(A).
+\]
+（提示：考虑齐次方程组 \(Ax = 0\) 与 \(A^{\mathrm{T}}Ax = 0\) 的同解性。）
+
+\boxed{\textbf{证明}} 核心思路：证明 \(Ax = 0\) 与 \(A^{\mathrm{T}}Ax = 0\) 是同解方程组，从而解空间维数相同，由秩定理推出秩相等。
+
+\textbf{Step 1：} 若 \(x\) 满足 \(Ax = 0\)，则左乘 \(A^{\mathrm{T}}\) 得 \(A^{\mathrm{T}}Ax = 0\)。即
+\[
+\ker(A) \subseteq \ker(A^{\mathrm{T}}A).
+\]
+
+\textbf{Step 2：} 若 \(x\) 满足 \(A^{\mathrm{T}}Ax = 0\)，则左乘 \(x^{\mathrm{T}}\)：
+\[
+x^{\mathrm{T}}A^{\mathrm{T}}Ax = 0 \quad \Rightarrow \quad (Ax)^{\mathrm{T}}(Ax) = 0 \quad \Rightarrow \quad \|Ax\|^2 = 0.
+\]
+由于在实数域上，范数为零当且仅当向量为零，故 \(Ax = 0\)。即
+\[
+\ker(A^{\mathrm{T}}A) \subseteq \ker(A).
+\]
+
+\textbf{Step 3：} 由 Step 1 和 Step 2 得 \(\ker(A) = \ker(A^{\mathrm{T}}A)\)。两个齐次方程组同解，故解空间维数相同：
+\[
+n - r(A) = n - r(A^{\mathrm{T}}A).
+\]
+从而 \(r(A^{\mathrm{T}}A) = r(A)\)。
+
+\boxed{\text{注}} 这个结论是考研线性代数的"常青树"，几乎每年都有学校考察。关键步骤是利用范数的正定性：\(x^{\mathrm{T}}A^{\mathrm{T}}Ax = \|Ax\|^2 = 0 \Rightarrow Ax = 0\)。\textbf{仅对实矩阵成立}，因为复数域上内积的正定性不同。
+
+\item \textbf{（证明题）} 设 \(\alpha_1, \alpha_2, \alpha_3\) 是齐次线性方程组 \(Ax = 0\) 的一个基础解系。证明：
+\[
+\alpha_1 + \alpha_2,\quad \alpha_2 + \alpha_3,\quad \alpha_3 + \alpha_1
+\]
+也是 \(Ax = 0\) 的一个基础解系。
+
+\boxed{\textbf{证明}} 设 \(\beta_1 = \alpha_1 + \alpha_2\)，\(\beta_2 = \alpha_2 + \alpha_3\)，\(\beta_3 = \alpha_3 + \alpha_1\)。需证 \(\{\beta_1, \beta_2, \beta_3\}\) 也是 \(Ax = 0\) 的基础解系，即证：(i) 每个 \(\beta_i\) 是解；(ii) \(\beta_1, \beta_2, \beta_3\) 线性无关（个数 3 = 解空间维数，故线性无关即为基础解系）。
+
+(i) 由于 \(\alpha_i\) 是齐次方程组的解，解空间对加法封闭，故 \(\beta_i\) 也都是解。
+
+(ii) 设 \(k_1\beta_1 + k_2\beta_2 + k_3\beta_3 = 0\)，即
+\[
+k_1(\alpha_1 + \alpha_2) + k_2(\alpha_2 + \alpha_3) + k_3(\alpha_3 + \alpha_1) = 0.
+\]
+整理：
+\[
+(k_1 + k_3)\alpha_1 + (k_1 + k_2)\alpha_2 + (k_2 + k_3)\alpha_3 = 0.
+\]
+
+由于 \(\alpha_1, \alpha_2, \alpha_3\) 线性无关，得：
+\[
+\begin{cases}
+k_1 + k_3 = 0 \\
+k_1 + k_2 = 0 \\
+k_2 + k_3 = 0
+\end{cases}
+\]
+
+由前两式：\(k_3 = -k_1\)，\(k_2 = -k_1\)。代入第三式：\((-k_1) + (-k_1) = -2k_1 = 0\)，得 \(k_1 = 0\)，进而 \(k_2 = k_3 = 0\)。故 \(\beta_1, \beta_2, \beta_3\) 线性无关。
+
+\textbf{另证（过渡矩阵法）：}
+\[
+(\beta_1, \beta_2, \beta_3) = (\alpha_1, \alpha_2, \alpha_3)
+\begin{pmatrix}
+1 & 0 & 1 \\
+1 & 1 & 0 \\
+0 & 1 & 1
+\end{pmatrix}.
+\]
+过渡矩阵 \(P = \begin{pmatrix} 1 & 0 & 1 \\ 1 & 1 & 0 \\ 0 & 1 & 1 \end{pmatrix}\)，\(\det(P) = 1 \cdot (1 \cdot 1 - 0 \cdot 1) - 0 + 1 \cdot (1 \cdot 1 - 1 \cdot 0) = 1 + 1 = 2 \neq 0\)，故 \(P\) 可逆。由于 \(\{\alpha_i\}\) 是基，\(\{\beta_i\}\) 也是基。
+
+\boxed{\text{注}} 更一般地，若 \(\{\alpha_1, \ldots, \alpha_t\}\) 是基础解系，\(P\) 为 \(t\) 阶可逆矩阵，则 \((\beta_1, \ldots, \beta_t) = (\alpha_1, \ldots, \alpha_t) P\) 给出的 \(\{\beta_i\}\) 也是基础解系。这就是"基变换"的语言。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}
+\setcounter{enumi}{11}
+
+\item \textbf{（\boxed{\textbf{真题风格}}，综合题）} 已知线性方程组
+\[
+\begin{cases}
+x_1 + x_3 = 1 \\
+\lambda x_1 + x_2 + x_3 = 0 \\
+x_1 + \lambda x_2 + x_3 = \lambda
+\end{cases}
+\]
+其中 \(\lambda\) 为参数。讨论 \(\lambda\) 取何值时方程组无解？有唯一解？有无穷多解？并在有解时求出全部解。
+
+\boxed{\textbf{解}} 写出增广矩阵并作初等行变换：
+\[
+(A \mid b) = \left(\begin{array}{ccc|c}
+1 & 0 & 1 & 1 \\
+\lambda & 1 & 1 & 0 \\
+1 & \lambda & 1 & \lambda
+\end{array}\right)
+\xrightarrow[R_2 - \lambda R_1]{R_3 - R_1}
+\left(\begin{array}{ccc|c}
+1 & 0 & 1 & 1 \\
+0 & 1 & 1-\lambda & -\lambda \\
+0 & \lambda & 0 & \lambda-1
+\end{array}\right)
+\]
+\[
+\xrightarrow{R_3 - \lambda R_2}
+\left(\begin{array}{ccc|c}
+1 & 0 & 1 & 1 \\
+0 & 1 & 1-\lambda & -\lambda \\
+0 & 0 & -\lambda(1-\lambda) & \lambda-1 + \lambda^2
+\end{array}\right)
+\]
+
+计算第 3 行第 3 列：\(0 - \lambda(1-\lambda) = \lambda(\lambda - 1)\)。
+计算第 3 行右端：\((\lambda - 1) - \lambda(-\lambda) = \lambda - 1 + \lambda^2 = \lambda^2 + \lambda - 1\)。
+
+故：
+\[
+\left(\begin{array}{ccc|c}
+1 & 0 & 1 & 1 \\
+0 & 1 & 1-\lambda & -\lambda \\
+0 & 0 & \lambda(\lambda-1) & \lambda^2 + \lambda - 1
+\end{array}\right)
+\]
+
+\textbf{讨论：}
+
+\begin{enumerate}
+\item[(1)] 当 \(\lambda \neq 0\) 且 \(\lambda \neq 1\) 时：\(\lambda(\lambda-1) \neq 0\)，\(r(A) = r(A \mid b) = 3\)，方程组有\textbf{唯一解}。
+
+回代：
+\[
+x_3 = \frac{\lambda^2 + \lambda - 1}{\lambda(\lambda-1)}.
+\]
+\[
+\begin{aligned}
+x_2
+&=-\lambda+(\lambda-1)\frac{\lambda^2+\lambda-1}{\lambda(\lambda-1)}\\
+&=-\lambda+\frac{\lambda^2+\lambda-1}{\lambda}=\frac{\lambda-1}{\lambda}.
+\end{aligned}
+\]
+\[
+\begin{aligned}
+x_1
+&=1-\frac{\lambda^2+\lambda-1}{\lambda(\lambda-1)}\\
+&=\frac{\lambda(\lambda-1)-(\lambda^2+\lambda-1)}{\lambda(\lambda-1)}
+=\frac{1-2\lambda}{\lambda(\lambda-1)}.
+\end{aligned}
+\]
+
+唯一解：\(x = \left(\dfrac{1-2\lambda}{\lambda(\lambda-1)},\ \dfrac{\lambda-1}{\lambda},\ \dfrac{\lambda^2 + \lambda - 1}{\lambda(\lambda-1)}\right)^{\mathrm{T}}\)。
+
+\item[(2)] 当 \(\lambda = 0\) 时：
+
+增广矩阵化为：
+\[
+\left(\begin{array}{ccc|c}
+1 & 0 & 1 & 1 \\
+0 & 1 & 1 & 0 \\
+0 & 0 & 0 & -1
+\end{array}\right)
+\]
+第 3 行出现 \(0 = -1\)，\(r(A) = 2\)，\(r(A \mid b) = 3\)，方程组\textbf{无解}。
+
+\item[(3)] 当 \(\lambda = 1\) 时：
+
+增广矩阵化为：
+\[
+\left(\begin{array}{ccc|c}
+1 & 0 & 1 & 1 \\
+0 & 1 & 0 & -1 \\
+0 & 0 & 0 & 1
+\end{array}\right)
+\]
+第 3 行出现 \(0 = 1\)，\(r(A) = 2\)，\(r(A \mid b) = 3\)，方程组\textbf{无解}。
+\end{enumerate}
+
+\boxed{\text{注}} 此题的系数矩阵行列式 \(\det(A) = \lambda(\lambda-1)\)（其中 \(A = \begin{pmatrix} 1 & 0 & 1 \\ \lambda & 1 & 1 \\ 1 & \lambda & 1 \end{pmatrix}\)），当 \(\det(A) \neq 0\) 即 \(\lambda \neq 0, 1\) 时用克拉默法则也可求唯一解。这是判断参数分界点的快速方法。
+
+\item \textbf{（\boxed{\textbf{真题风格}}，证明题）} 设 \(A\) 为 \(n\) 阶方阵（\(n \geq 2\)），\(A^*\) 为其伴随矩阵。证明：
+\[
+r(A^*) = \begin{cases}
+n, & \text{当 } r(A) = n, \\
+1, & \text{当 } r(A) = n - 1, \\
+0, & \text{当 } r(A) \leq n - 2.
+\end{cases}
+\]
+并说明当 \(r(A) = n - 1\) 时，\(A^*\) 的任意一个非零列向量构成 \(Ax = 0\) 的一个基础解系。
+
+\boxed{\textbf{解}} 回忆伴随矩阵的定义与基本性质：\(AA^* = A^*A = |A| \cdot I_n\)。
+
+\textbf{(1) 当 \(r(A) = n\) 时：}
+
+\(A\) 可逆，\(|A| \neq 0\)。由 \(A^* = |A| A^{-1}\)，知 \(A^*\) 也可逆，故 \(r(A^*) = n\)。
+
+\textbf{(2) 当 \(r(A) = n-1\) 时：}
+
+\begin{itemize}
+\item[(i)] 由 \(AA^* = |A|I = 0\)（因 \(|A| = 0\)），知 \(A^*\) 的每一列都是齐次方程组 \(Ax = 0\) 的解。故 \(A^*\) 的列空间包含于 \(\ker(A)\)，从而
+\[
+r(A^*) \leq \dim \ker(A) = n - r(A) = 1.
+\]
+\item[(ii)] 由于 \(r(A) = n-1\)，\(A\) 至少有一个 \(n-1\) 阶子式不为零。由伴随矩阵的定义，\(A^*\) 中的每个元素都是 \(A\) 的某个 \(n-1\) 阶子式（带符号），故至少有一个非零元。因此 \(A^* \neq O\)，即 \(r(A^*) \geq 1\)。
+\end{itemize}
+
+综合 (i)(ii) 得 \(r(A^*) = 1\)。
+
+此时，\(A^*\) 的任何非零列向量都是 \(Ax = 0\) 的解。由于 \(\dim \ker(A) = 1\)，任意一个非零解即构成 \(Ax = 0\) 的基础解系。故\textbf{\(A^*\) 的任意一个非零列向量构成 \(Ax = 0\) 的一个基础解系}。
+
+\textbf{(3) 当 \(r(A) \leq n-2\) 时：}
+
+\(A\) 的所有 \(n-1\) 阶子式均为零（因为若存在非零的 \(n-1\) 阶子式，则 \(r(A) \geq n-1\)）。由伴随矩阵的定义，\(A^*\) 的每个元素（即 \(A\) 的某个 \(n-1\) 阶代数余子式）均为零。故 \(A^* = O\)，\(r(A^*) = 0\)。
+
+\boxed{\text{注}} 该结论是考研线性代数中的"三线定理"之一（伴随矩阵的秩），与 \(r(A+B) \leq r(A) + r(B)\)、\(r(AB) \geq r(A) + r(B) - n\) 并称为秩不等式三大经典结论。当 \(r(A) = n-1\) 时用伴随矩阵求基础解系是一个实用技巧。
+
+\item \textbf{（讨论题 \quad 参数讨论型）} \boxed{\textbf{真题风格}} 已知线性方程组
+\[
+\begin{cases}
+\lambda x_1 + x_2 + x_3 = 1 \\
+x_1 + \lambda x_2 + x_3 = \lambda \\
+x_1 + x_2 + \lambda x_3 = \lambda^2
+\end{cases}
+\]
+讨论 \(\lambda\) 取何值时方程组无解、有唯一解、有无穷多解，并在有无穷多解时求出通解。
+
+\boxed{\textbf{解}} 系数矩阵为典型对称矩阵：
+\[
+A = \begin{pmatrix}
+\lambda & 1 & 1 \\
+1 & \lambda & 1 \\
+1 & 1 & \lambda
+\end{pmatrix}
+\]
+
+计算行列式：
+\[
+\begin{aligned}
+|A| &= \lambda \begin{vmatrix} \lambda & 1 \\ 1 & \lambda \end{vmatrix}
+- 1 \cdot \begin{vmatrix} 1 & 1 \\ 1 & \lambda \end{vmatrix}
++ 1 \cdot \begin{vmatrix} 1 & \lambda \\ 1 & 1 \end{vmatrix} \\
+&= \lambda(\lambda^2 - 1) - (\lambda - 1) + (1 - \lambda) \\
+&= \lambda^3 - \lambda - \lambda + 1 + 1 - \lambda \\
+&= \lambda^3 - 3\lambda + 2 \\
+&= (\lambda - 1)(\lambda^2 + \lambda - 2) \\
+&= (\lambda - 1)^2 (\lambda + 2).
+\end{aligned}
+\]
+
+\textbf{讨论：}
+
+\begin{enumerate}
+\item[(1)] 当 \(\lambda \neq 1\) 且 \(\lambda \neq -2\) 时：\(|A| \neq 0\)，系数矩阵可逆。\(r(A) = r(A \mid b) = 3\)，方程组有\textbf{唯一解}。
+
+由克拉默法则：
+\[
+x_1 = \frac{\begin{vmatrix} 1 & 1 & 1 \\ \lambda & \lambda & 1 \\ \lambda^2 & 1 & \lambda \end{vmatrix}}{(\lambda-1)^2(\lambda+2)},\quad
+x_2 = \frac{\begin{vmatrix} \lambda & 1 & 1 \\ 1 & \lambda & 1 \\ 1 & \lambda^2 & \lambda \end{vmatrix}}{(\lambda-1)^2(\lambda+2)},\quad
+x_3 = \frac{\begin{vmatrix} \lambda & 1 & 1 \\ 1 & \lambda & \lambda \\ 1 & 1 & \lambda^2 \end{vmatrix}}{(\lambda-1)^2(\lambda+2)}.
+\]
+
+计算后可得（过程略）：
+\[
+x_1 = -\frac{\lambda+1}{\lambda+2},\quad
+x_2 = \frac{1}{\lambda+2},\quad
+x_3 = \frac{(\lambda+1)^2}{\lambda+2}.
+\]
+
+\item[(2)] 当 \(\lambda = -2\) 时：
+
+增广矩阵：
+\[
+(A \mid b) = \left(\begin{array}{ccc|c}
+-2 & 1 & 1 & 1 \\
+1 & -2 & 1 & -2 \\
+1 & 1 & -2 & 4
+\end{array}\right)
+\]
+
+三行相加：
+\[
+R_1 + R_2 + R_3: (0, 0, 0 \mid 3)
+\]
+出现矛盾 \(0 = 3\)。故 \(r(A) = 2\)（因为任意两行线性无关，三行相关），\(r(A \mid b) = 3\)，方程组\textbf{无解}。
+
+\item[(3)] 当 \(\lambda = 1\) 时：
+
+增广矩阵所有行相同：
+\[
+(A \mid b) = \left(\begin{array}{ccc|c}
+1 & 1 & 1 & 1 \\
+1 & 1 & 1 & 1 \\
+1 & 1 & 1 & 1
+\end{array}\right)
+\]
+\(r(A) = r(A \mid b) = 1 < 3\)，方程组有\textbf{无穷多解}。
+
+同解方程：\(x_1 + x_2 + x_3 = 1\)。
+
+自由未知量取 \(x_2 = s\)，\(x_3 = t\)，则 \(x_1 = 1 - s - t\)。通解：
+\[
+x = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}
++ s \begin{pmatrix} -1 \\ 1 \\ 0 \end{pmatrix}
++ t \begin{pmatrix} -1 \\ 0 \\ 1 \end{pmatrix}, \quad s, t \in \mathbb{R}.
+\]
+\end{enumerate}
+
+\textbf{总结表：}
+\[
+\begin{array}{|c|c|c|}
+\hline
+\lambda \text{ 取值} & \text{秩关系} & \text{解的情况} \\
+\hline
+\lambda \neq 1, -2 & r(A)=r(A \mid b)=3 & \text{唯一解} \\
+\hline
+\lambda = 1 & r(A)=r(A \mid b)=1 & \text{无穷多解（}2 \text{ 个自由参数）} \\
+\hline
+\lambda = -2 & r(A)=2,\ r(A \mid b)=3 & \text{无解} \\
+\hline
+\end{array}
+\]
+
+\boxed{\text{注}} 此题采用真题风格，具有较强的代表性。系数矩阵 \(\begin{pmatrix} \lambda & 1 & 1 \\ 1 & \lambda & 1 \\ 1 & 1 & \lambda \end{pmatrix}\) 是常见的对称参数矩阵，其行列式为 \((\lambda-1)^2(\lambda+2)\)，参数的分界点为 \(\lambda = 1, -2\)。建议读者熟悉此矩阵及其变形。
+
+\end{enumerate}

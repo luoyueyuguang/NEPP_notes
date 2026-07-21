@@ -1,0 +1,936 @@
+% ============================================================
+% 考研数学一 模拟试卷
+% ============================================================
+
+% 模拟卷默认显示解析；需要只打印题面时，将下一行改为 \showsolutionsfalse。
+\newif\ifshowsolutions
+\showsolutionstrue
+
+\section{模拟卷一}
+
+\noindent\textbf{考试说明：}考试时间 180 分钟，满分 150 分。请在规定位置作答；解答题应写出必要的文字说明、证明过程或演算步骤。
+
+\subsection*{一、选择题：1\textasciitilde10小题，每小题5分，共50分。下列每题给出的四个选项中，只有一个选项是符合题目要求的。}
+
+\textbf{1.} 设函数 $f(x)=\begin{cases} \dfrac{\sin x - x\cos x}{x^3}, & x \neq 0 \\ a, & x=0 \end{cases}$ 在 $x=0$ 处连续，则 $a=$
+\begin{center}
+\begin{tabular}{ll}
+(A) $\dfrac{1}{6}$ & (B) $\dfrac{1}{3}$ \\[6pt]
+(C) $\dfrac{1}{2}$ & (D) $1$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由连续性，$a = \lim\limits_{x \to 0} \dfrac{\sin x - x\cos x}{x^3}$。泰勒展开：
+\[
+\sin x=x-\frac{x^3}{6}+\frac{x^5}{120}+o(x^5),
+\qquad
+\cos x=1-\frac{x^2}{2}+\frac{x^4}{24}+o(x^4).
+\]
+因此
+\[
+\sin x-x\cos x
+=\left(x-\frac{x^3}{6}\right)-x\left(1-\frac{x^2}{2}\right)+o(x^3)
+=\frac{x^3}{3}+o(x^3).
+\]
+故 $\lim\limits_{x \to 0} \dfrac{\sin x - x\cos x}{x^3} = \dfrac{1}{3}$。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{2.} 曲线 $y = \dfrac{x^2 + 1}{x^2 - 1}$ 的渐近线条数为
+\begin{center}
+\begin{tabular}{ll}
+(A) 1 & (B) 2 \\[6pt]
+(C) 3 & (D) 4
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $x^2-1=0 \Rightarrow x=\pm 1$ 为垂直渐近线。$\lim\limits_{x\to\infty} \dfrac{x^2+1}{x^2-1}=1$，$y=1$ 为水平渐近线。无斜渐近线。共3条。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\textbf{3.} 设 $I = \displaystyle\int_{0}^{\pi} \dfrac{x\sin x}{1+\cos^2 x}\,dx$，则 $I =$
+\begin{center}
+\begin{tabular}{ll}
+(A) $\dfrac{\pi^2}{2}$ & (B) $\dfrac{\pi^2}{4}$ \\[6pt]
+(C) $\dfrac{\pi}{2}$ & (D) $\pi$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 令 $x = \pi - t$，则 $I = \displaystyle\int_{0}^{\pi} \dfrac{(\pi-t)\sin t}{1+\cos^2 t}\,dt$。
+两式相加：$2I = \pi\displaystyle\int_{0}^{\pi} \dfrac{\sin x}{1+\cos^2 x}\,dx$。令 $u=\cos x$，$du=-\sin x\,dx$：
+\[
+\int_{0}^{\pi} \dfrac{\sin x}{1+\cos^2 x}\,dx = \int_{-1}^{1} \dfrac{du}{1+u^2} = \frac{\pi}{2}
+\]
+故 $2I = \pi \cdot \dfrac{\pi}{2} = \dfrac{\pi^2}{2}$，$I = \dfrac{\pi^2}{4}$。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{4.} 设级数 $\displaystyle\sum_{n=1}^{\infty} a_n$ 条件收敛，则下列级数中发散的是
+\begin{center}
+\begin{tabular}{ll}
+(A) $\displaystyle\sum_{n=1}^{\infty} \left(a_n + \frac{1}{n^2}\right)$ & (B) $\displaystyle\sum_{n=1}^{\infty} \frac{a_n}{n}$ \\[6pt]
+(C) $\displaystyle\sum_{n=1}^{\infty} (a_{2n-1} + a_{2n})$ & (D) $\displaystyle\sum_{n=1}^{\infty} (|a_n| - a_n)$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $\sum a_n$ 条件收敛 $\Rightarrow \sum a_n$ 收敛，$\sum |a_n|$ 发散。
+(A) 收敛 $+$ 绝对收敛 $=$ 收敛。(B) 由 Abel 判别法，$\{1/n\}$ 单调趋于 $0$，$\sum a_n$ 部分和有界，收敛。
+(C) 将原级数按相邻两项分组不改变收敛性，且 $\sum_{n=1}^{N}(a_{2n-1}+a_{2n})=\sum_{k=1}^{2N}a_k$，故必收敛。(D) $\sum(|a_n|-a_n)$ 的部分和等于对应的 $\sum|a_n|$ 部分和减去 $\sum a_n$ 部分和，因此趋于 $+\infty$。\boxed{\textbf{答案：}(D)}\fi
+
+\vspace{8pt}
+
+\textbf{5.} 设 $z = f(xy, x^2+y^2)$，其中 $f$ 具有二阶连续偏导数，则 $\dfrac{\partial^2 z}{\partial x \partial y} =$
+\begin{center}
+\begin{tabular}{ll}
+(A) $xf_1' + 2yf_2' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$ \\[4pt]
+(B) $f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$ \\[4pt]
+(C) $f_1' + xy f_{11}'' + 2(x+y)f_{12}'' + 4xy f_{22}''$ \\[4pt]
+(D) $xf_1' + yf_2' + xy f_{11}'' + 2x^2 f_{12}'' + 4xy f_{22}''$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 令 $u=xy$, $v=x^2+y^2$。$\dfrac{\partial z}{\partial x} = y f_1' + 2x f_2'$。
+\[
+\frac{\partial^2 z}{\partial x \partial y} = f_1' + y\frac{\partial f_1'}{\partial y} + 2x\frac{\partial f_2'}{\partial y}
+\]
+$\dfrac{\partial f_1'}{\partial y} = x f_{11}'' + 2y f_{12}''$, $\dfrac{\partial f_2'}{\partial y} = x f_{21}'' + 2y f_{22}''$。由 $f_{12}''=f_{21}''$，代入得
+$f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{6.} 微分方程 $y'' - 3y' + 2y = e^x \cos x$ 的特解形式可设为
+\begin{center}
+\begin{tabular}{ll}
+(A) $e^x(A\cos x + B\sin x)$ & (B) $xe^x(A\cos x + B\sin x)$ \\[6pt]
+(C) $e^x(Ax\cos x + Bx\sin x)$ & (D) $e^x(A\cos x + B\sin x) + C e^x$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 特征方程：$r^2-3r+2=0$，$r_1=1$, $r_2=2$。右端 $e^x\cos x$ 对应 $1\pm i$，不是特征根。特解设为 $e^x(A\cos x+B\sin x)$。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\textbf{7.} 设 $A$ 为 $n$ 阶矩阵，且 $A^2 = A$，则下列命题中正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) $A = I$ 或 $A = O$ & (B) $A$ 可逆 \\[4pt]
+(C) $r(A) + r(I-A) = n$ & (D) $A$ 的特征值只能是 $1$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $A^2=A \Rightarrow A(I-A)=O \Rightarrow r(A)+r(I-A)\leqslant n$。又 $I=A+(I-A) \Rightarrow n=r(I)\leqslant r(A)+r(I-A)$。故 $r(A)+r(I-A)=n$。
+(A) 反例：$A=\begin{pmatrix}1&0\\0&0\end{pmatrix}$。(B) 反例同上。(D) 特征值可为 $0$ 或 $1$。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\textbf{8.} 设二次型 $f(x_1,x_2,x_3) = x_1^2 + 2x_2^2 + 3x_3^2 + 2x_1x_2 + 4x_1x_3 + 2x_2x_3$，则其规范形为
+\begin{center}
+\begin{tabular}{ll}
+(A) $y_1^2 + y_2^2 + y_3^2$ & (B) $y_1^2 + y_2^2 - y_3^2$ \\[6pt]
+(C) $y_1^2 - y_2^2$ & (D) $y_1^2 - y_2^2 - y_3^2$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $A = \begin{pmatrix} 1 & 1 & 2 \\ 1 & 2 & 1 \\ 2 & 1 & 3 \end{pmatrix}$。顺序主子式：$\Delta_1=1>0$, $\Delta_2=\begin{vmatrix}1&1\\1&2\end{vmatrix}=1>0$, $\Delta_3=|A|=-2<0$。正惯性指数 $p=2$，负惯性指数 $q=1$。规范形为 $y_1^2+y_2^2-y_3^2$。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{9.} 设随机变量 $X \sim N(0,1)$，$Y \sim \chi^2(3)$，且 $X$ 与 $Y$ 相互独立，则 $\dfrac{\sqrt{3}X}{\sqrt{Y}}$ 服从
+\begin{center}
+\begin{tabular}{ll}
+(A) $N(0,1)$ & (B) $t(3)$ \\[6pt]
+(C) $\chi^2(3)$ & (D) $F(1,3)$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由 $t$ 分布定义：$X\sim N(0,1)$, $Y\sim\chi^2(n)$ 独立，则 $\dfrac{X}{\sqrt{Y/n}}\sim t(n)$。$n=3$，故 $\dfrac{\sqrt{3}X}{\sqrt{Y}}\sim t(3)$。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{10.} 设 $X_1,\ldots,X_n$ 为来自正态总体 $N(\mu,\sigma^2)$ 的样本，$\bar{X}$ 为样本均值，$S^2$ 为样本方差，则 $\dfrac{\bar{X} - \mu}{S/\sqrt{n}}$ 服从
+\begin{center}
+\begin{tabular}{ll}
+(A) $N(0,1)$ & (B) $t(n-1)$ \\[6pt]
+(C) $\chi^2(n-1)$ & (D) $F(1,n-1)$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由抽样分布基本定理，$\dfrac{\bar{X}-\mu}{S/\sqrt{n}}\sim t(n-1)$。\boxed{\textbf{答案：}(B)}\fi
+
+\newpage
+
+\subsection*{二、填空题：11\textasciitilde16小题，每小题5分，共30分。}
+
+\textbf{11.} $\displaystyle\lim_{n \to \infty} \sum_{k=1}^{n} \frac{k}{n^2 + k^2} = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} $\displaystyle\sum_{k=1}^{n} \frac{k}{n^2+k^2} = \frac{1}{n}\sum_{k=1}^{n} \frac{k/n}{1+(k/n)^2} \to \int_{0}^{1} \frac{x}{1+x^2}dx = \frac{1}{2}\ln(1+x^2)\big|_{0}^{1} = \frac{1}{2}\ln 2$。
+\boxed{\textbf{答案：}\dfrac{1}{2}\ln 2}\fi
+
+\vspace{8pt}
+
+\textbf{12.} 设 $f(x) = \displaystyle\int_{0}^{x} e^{-t^2}\,dt$，则 $\displaystyle\int_{0}^{1} x f(x)\,dx = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 分部积分：$\int_{0}^{1} x f(x)dx = \frac{x^2}{2}f(x)\big|_{0}^{1} - \frac{1}{2}\int_{0}^{1} x^2 e^{-x^2}dx$。$f(1)=\int_{0}^{1}e^{-t^2}dt$。
+再分部：$\int_{0}^{1} x^2 e^{-x^2}dx = -\frac{x}{2}e^{-x^2}\big|_{0}^{1} + \frac{1}{2}\int_{0}^{1} e^{-x^2}dx = -\frac{1}{2e} + \frac{1}{2}f(1)$。
+代入：原式 $= \frac{1}{2}f(1) - \frac{1}{2}(-\frac{1}{2e}+\frac{1}{2}f(1)) = \frac{1}{4}f(1) + \frac{1}{4e}$。
+\boxed{\textbf{答案：}\dfrac{1}{4}\displaystyle\int_{0}^{1} e^{-x^2}dx + \dfrac{1}{4e}}\fi
+
+\vspace{8pt}
+
+\textbf{13.} 设 $u = x^y$，则 $du|_{(e,1)} = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} $\dfrac{\partial u}{\partial x} = y x^{y-1}$，$\dfrac{\partial u}{\partial y} = x^y\ln x$。在 $(e,1)$：$u=e$, $u_x=1$, $u_y=e$。故 $du|_{(e,1)} = dx + e\,dy$。
+\boxed{\textbf{答案：}dx + e\,dy}\fi
+
+\vspace{8pt}
+
+\textbf{14.} 设 $L$ 为从 $(1,0)$ 到 $(-1,0)$ 的上半圆周 $y=\sqrt{1-x^2}$，则 $\displaystyle\int_{L} (x^2+y^2)\,ds = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 在 $L$ 上 $x^2+y^2=1$。参数化 $x=\cos\theta$, $y=\sin\theta$, $\theta:0\to\pi$。$ds=d\theta$。$\int_{L}1\,ds=\pi$。
+\boxed{\textbf{答案：}\pi}\fi
+
+\vspace{8pt}
+
+\textbf{15.} 设 $\alpha_1=(1,2,-1)^T$, $\alpha_2=(2,1,4)^T$, $\alpha_3=(1,3,-5)^T$，则向量组的秩为 $\underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 初等行变换：$\begin{pmatrix}1&2&1\\2&1&3\\-1&4&-5\end{pmatrix} \to \begin{pmatrix}1&2&1\\0&-3&1\\0&6&-4\end{pmatrix} \to \begin{pmatrix}1&2&1\\0&-3&1\\0&0&-2\end{pmatrix}$。三个非零行，秩为 $3$。
+\boxed{\textbf{答案：}3}\fi
+
+\vspace{8pt}
+
+\textbf{16.} 设随机变量 $X \sim B(10, 0.4)$，则 $E(X^2) = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} $E(X)=4$, $D(X)=2.4$, $E(X^2)=D(X)+[E(X)]^2=2.4+16=18.4$。
+\boxed{\textbf{答案：}18.4}\fi
+
+\newpage
+
+\subsection*{三、解答题：17\textasciitilde22小题，共70分。解答应写出文字说明、证明过程或演算步骤。}
+
+\textbf{17.}（本题满分10分）
+设 $f(x)$ 在 $[0,1]$ 上连续，在 $(0,1)$ 内可导，且 $f(0)=0$, $f(1)=1$。证明：
+\begin{enumerate}
+    \item[(1)] 存在 $\xi \in (0,1)$，使得 $f(\xi) = 1 - \xi$；
+    \item[(2)] 存在两个不同的点 $\eta_1,\eta_2 \in (0,1)$，使得 $f'(\eta_1)f'(\eta_2)=1$。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 令 $F(x)=f(x)+x-1$。$F(0)=-1<0$, $F(1)=1>0$。由介值定理，存在 $\xi\in(0,1)$ 使 $F(\xi)=0$，即 $f(\xi)=1-\xi$。
+
+(2) 在 $[0,\xi]$ 和 $[\xi,1]$ 上分别用拉格朗日中值定理：
+\[
+\exists\eta_1\in(0,\xi):\quad
+f'(\eta_1)=\frac{f(\xi)-f(0)}{\xi}=\frac{1-\xi}{\xi},
+\]
+\[
+\exists\eta_2\in(\xi,1):\quad
+f'(\eta_2)=\frac{f(1)-f(\xi)}{1-\xi}=\frac{\xi}{1-\xi}.
+\]
+故 $f'(\eta_1)f'(\eta_2)=\dfrac{1-\xi}{\xi}\cdot\dfrac{\xi}{1-\xi}=1$，且 $\eta_1<\xi<\eta_2$。证毕。\boxed{\textbf{答案：}\text{证明如上}}\fi
+
+\vspace{8pt}
+
+\textbf{18.}（本题满分12分）
+计算二重积分 $\displaystyle\iint_{D} |y-x^2|\,dxdy$，其中 $D=\{(x,y)\mid -1\leqslant x\leqslant1, 0\leqslant y\leqslant1\}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 按 $y=x^2$ 分 $D$ 为 $D_1$（$0\leqslant y\leqslant x^2$）和 $D_2$（$x^2<y\leqslant1$）。
+\begin{align*}
+\iint_{D_1}(x^2-y)\,dxdy &= \int_{-1}^{1}dx\int_{0}^{x^2}(x^2-y)dy = \int_{-1}^{1}\frac{x^4}{2}dx = \int_{0}^{1}x^4dx = \frac{1}{5}
+\end{align*}
+\begin{align*}
+\iint_{D_2}(y-x^2)\,dxdy &= \int_{-1}^{1}dx\int_{x^2}^{1}(y-x^2)dy = \frac{1}{2}\int_{-1}^{1}(1-x^2)^2dx \\
+&= \int_{0}^{1}(1-2x^2+x^4)dx = 1-\frac{2}{3}+\frac{1}{5} = \frac{8}{15}
+\end{align*}
+合计：$\dfrac{1}{5}+\dfrac{8}{15}=\dfrac{11}{15}$。\boxed{\textbf{答案：}\dfrac{11}{15}}\fi
+
+\vspace{8pt}
+
+\textbf{19.}（本题满分12分）
+求幂级数 $\displaystyle\sum_{n=1}^{\infty} n(n+1)x^n$ 的收敛域及和函数。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 收敛半径 $R=1$。$x=\pm1$ 时通项不趋于 $0$，发散。收敛域 $(-1,1)$。
+由 $\sum_{n=0}^{\infty}x^n=\frac{1}{1-x}$，求导两次：
+$\sum_{n=2}^{\infty}n(n-1)x^{n-2}=\frac{2}{(1-x)^3}$，$\sum_{n=1}^{\infty}nx^{n-1}=\frac{1}{(1-x)^2}$。
+\begin{align*}
+\sum_{n=1}^{\infty}n(n+1)x^n &= \sum_{n=1}^{\infty}[n(n-1)+2n]x^n = x^2\sum_{n=2}^{\infty}n(n-1)x^{n-2} + 2x\sum_{n=1}^{\infty}nx^{n-1} \\
+&= \frac{2x^2}{(1-x)^3} + \frac{2x}{(1-x)^2} = \frac{2x^2+2x(1-x)}{(1-x)^3} = \frac{2x}{(1-x)^3}
+\end{align*}
+\boxed{\textbf{答案：}\text{收敛域 }(-1,1)\text{，和函数 }S(x)=\dfrac{2x}{(1-x)^3}}\fi
+
+\vspace{8pt}
+
+\textbf{20.}（本题满分12分）
+计算曲面积分 $\displaystyle\iint_{\Sigma} (x^3+y^2)\,dy\,dz + (y^3+z^2)\,dz\,dx + (z^3+x^2)\,dx\,dy$，其中 $a>0$，$\Sigma$ 为球面 $x^2+y^2+z^2=a^2$ 的外侧。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由高斯公式，原式 $=\iiint_{\Omega}(3x^2+3y^2+3z^2)dV = 3\iiint_{\Omega}(x^2+y^2+z^2)dV$。球坐标：
+$3\int_{0}^{2\pi}d\theta\int_{0}^{\pi}\sin\varphi\,d\varphi\int_{0}^{a}r^4dr = 3\cdot2\pi\cdot2\cdot\frac{a^5}{5} = \frac{12\pi a^5}{5}$。
+\boxed{\textbf{答案：}\dfrac{12\pi a^5}{5}}\fi
+
+\vspace{8pt}
+
+\textbf{21.}（本题满分12分）
+设矩阵 $A = \begin{pmatrix} 2 & -1 & 0 \\ -1 & 2 & 0 \\ 0 & 0 & 1 \end{pmatrix}$。
+\begin{enumerate}
+    \item[(1)] 求正交矩阵 $Q$，使 $Q^T A Q$ 为对角矩阵；
+    \item[(2)] 利用上述结果计算 $A^n$（$n$ 为正整数）。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (1) $|\lambda I-A| = (\lambda-1)^2(\lambda-3)$。$\lambda_1=\lambda_2=1$, $\lambda_3=3$。
+
+对 $\lambda=1$：$(I-A)x=0 \Rightarrow x_3=0,x_1=x_2$。$\alpha_1=(1,1,0)^T$, $\alpha_2=(0,0,1)^T$ 正交。单位化：$\eta_1=\frac{1}{\sqrt{2}}(1,1,0)^T$, $\eta_2=(0,0,1)^T$。
+
+对 $\lambda=3$：$(3I-A)x=0 \Rightarrow x_3=0,x_1=-x_2$。$\alpha_3=(1,-1,0)^T$。单位化：$\eta_3=\frac{1}{\sqrt{2}}(1,-1,0)^T$。
+
+$Q = \begin{pmatrix} \frac{1}{\sqrt{2}} & 0 & \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} & 0 & -\frac{1}{\sqrt{2}} \\ 0 & 1 & 0 \end{pmatrix}$, $\Lambda = \begin{pmatrix}1&0&0\\0&1&0\\0&0&3\end{pmatrix}$。
+
+(2) $A^n = Q\Lambda^n Q^T = \begin{pmatrix} \frac{1+3^n}{2} & \frac{1-3^n}{2} & 0 \\ \frac{1-3^n}{2} & \frac{1+3^n}{2} & 0 \\ 0 & 0 & 1 \end{pmatrix}$。
+\par\noindent\textbf{答案：}
+\[
+(1)\quad Q=\begin{pmatrix} \frac{1}{\sqrt{2}} & 0 & \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} & 0 & -\frac{1}{\sqrt{2}} \\ 0 & 1 & 0 \end{pmatrix}.
+\]
+\[
+(2)\quad A^n=\begin{pmatrix} \frac{1+3^n}{2} & \frac{1-3^n}{2} & 0 \\ \frac{1-3^n}{2} & \frac{1+3^n}{2} & 0 \\ 0 & 0 & 1 \end{pmatrix}.
+\]
+\fi
+
+\vspace{8pt}
+
+\textbf{22.}（本题满分12分）
+设总体 $X$ 的概率密度为 $f(x;\theta)=\begin{cases}\dfrac{2x}{\theta^2}, & 0<x\leqslant\theta\\0,&\text{其他}\end{cases}$，$\theta>0$ 未知。$X_1,\ldots,X_n$ 为样本。
+\begin{enumerate}
+    \item[(1)] 求 $\theta$ 的矩估计量 $\hat{\theta}_M$；
+    \item[(2)] 求 $\theta$ 的最大似然估计量 $\hat{\theta}_L$；
+    \item[(3)] $\hat{\theta}_L$ 是否为无偏估计？若不是，修正为无偏估计。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (1) $E(X)=\int_{0}^{\theta}x\cdot\frac{2x}{\theta^2}dx = \frac{2\theta}{3}$。令 $\frac{2\theta}{3}=\bar{X}$，$\hat{\theta}_M=\frac{3}{2}\bar{X}$。
+
+(2) $L(\theta)=\frac{2^n}{\theta^{2n}}\prod x_i$（约束 $\theta\geqslant X_{(n)}$）。$\frac{d\ln L}{d\theta}=-\frac{2n}{\theta}<0$，$L$ 递减，故 $\hat{\theta}_L=X_{(n)}$。
+
+(3) $F(x)=x^2/\theta^2$。$f_{(n)}(x)=n[F(x)]^{n-1}f(x)=\frac{2n x^{2n-1}}{\theta^{2n}}$。
+$E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}{2n+1}\theta \neq \theta$。
+修正：$\hat{\theta}^*=\frac{2n+1}{2n}X_{(n)}$ 为无偏估计。
+\par\noindent\textbf{答案：}(1) $\dfrac{3}{2}\bar{X}$；(2) $X_{(n)}$；(3) 不是无偏估计，修正为 $\dfrac{2n+1}{2n}X_{(n)}$。\fi
+
+
+\newpage
+% ============================================================
+\section{模拟卷二}
+
+\noindent\textbf{考试说明：}考试时间 180 分钟，满分 150 分。请在规定位置作答；解答题应写出必要的文字说明、证明过程或演算步骤。
+
+\subsection*{一、选择题：1\textasciitilde10小题，每小题5分，共50分。}
+
+\textbf{1.} 设 $a_n = \displaystyle\sum_{k=1}^{n} \frac{1}{n+k}$，则 $\lim\limits_{n \to \infty} a_n =$
+\begin{center}
+\begin{tabular}{ll}
+(A) $\ln 2$ & (B) $\dfrac{1}{2}\ln 2$ \\[6pt]
+(C) $0$ & (D) $1$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $a_n = \dfrac{1}{n}\displaystyle\sum_{k=1}^{n} \dfrac{1}{1+k/n} \to \displaystyle\int_{0}^{1} \dfrac{1}{1+x}\,dx = \ln 2$。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\textbf{2.} 设 $f(x) = \begin{cases} x^2 \sin\dfrac{1}{x}, & x \neq 0 \\ 0, & x=0 \end{cases}$，则 $f(x)$ 在 $x=0$ 处
+\begin{center}
+\begin{tabular}{ll}
+(A) 不连续 & (B) 连续但不可导 \\[4pt]
+(C) 可导但导函数不连续 & (D) 导函数连续
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $|f(x)|\leqslant x^2\to0=f(0)$，连续。$f'(0)=\lim_{x\to0}x\sin(1/x)=0$，可导。$x\neq0$ 时 $f'(x)=2x\sin(1/x)-\cos(1/x)$，$\lim_{x\to0}f'(x)$ 振荡不存在，导函数不连续。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\textbf{3.} 设 $F(x) = \displaystyle\int_{0}^{x} t f(x^2-t^2)\,dt$，$f$ 连续，则 $F'(x) =$
+\begin{center}
+\begin{tabular}{ll}
+(A) $x f(x^2)$ & (B) $2x f(x^2)$ \\[6pt]
+(C) $x^2 f(x^2)$ & (D) $0$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 令 $u=x^2-t^2$，$du=-2t\,dt$。$F(x)=\frac{1}{2}\int_{0}^{x^2}f(u)du$，$F'(x)=\frac{1}{2}f(x^2)\cdot2x=x f(x^2)$。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\textbf{4.} 设 $\displaystyle\sum a_n$ 为正项级数，则下列命题正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 若 $\lim n a_n = 0$，则 $\sum a_n$ 收敛 \\[4pt]
+(B) 若 $\sum a_n$ 收敛，则 $\lim n a_n = 0$ \\[4pt]
+(C) 若 $\sum a_n$ 收敛，则 $\sum a_n^2$ 收敛 \\[4pt]
+(D) 若 $\sum a_n^2$ 收敛，则 $\sum a_n$ 收敛
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (C) 正确：$\sum a_n$ 收敛 $\Rightarrow a_n\to0\Rightarrow\exists N,n>N$ 时 $a_n<1$，故 $a_n^2<a_n$，比较判别法得 $\sum a_n^2$ 收敛。
+(A) 反例：$a_n=1/(n\ln n)$（$n\geq2$）。(B) 可令 $a_n=1/n^2$（当 $n\neq2^k$），并令 $a_{2^k}=1/2^k$；此时 $\sum a_n$ 收敛，但 $2^k a_{2^k}=1$，故 $na_n$ 不趋于 $0$。(D) 反例：$a_n=1/n$。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\textbf{5.} 设 $z=f(x,y)$ 由 $F(x+y+z)=0$ 确定，$F'\neq0$，则 $x\dfrac{\partial z}{\partial y} - y\dfrac{\partial z}{\partial x}=$
+\begin{center}
+\begin{tabular}{ll}
+(A) $y-x$ & (B) $0$ \\[6pt]
+(C) $x-y$ & (D) $x+y$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 对 $F(x+y+z)=0$ 分别对 $x,y$ 求偏导：$F'\cdot(1+z_x)=0$, $F'\cdot(1+z_y)=0$。由 $F'\neq0$ 得 $z_x=z_y=-1$。故 $xz_y-yz_x = x(-1)-y(-1)=y-x$。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\textbf{6.} 微分方程 $y'' + 4y = x\sin 2x$ 的特解形式应设为
+\begin{center}
+\begin{tabular}{ll}
+(A) $(Ax+B)\sin 2x + (Cx+D)\cos 2x$ \\[4pt]
+(B) $x[(Ax+B)\sin 2x + (Cx+D)\cos 2x]$ \\[4pt]
+(C) $x^2[(Ax+B)\sin 2x + (Cx+D)\cos 2x]$ \\[4pt]
+(D) $x(A\sin 2x+B\cos 2x)$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 特征方程 $r^2+4=0$, $r=\pm2i$。右端 $x\sin2x$ 对应 $\pm2i$，是单重特征根。自由项含一次多项式，特解乘以 $x$：$x[(Ax+B)\sin2x+(Cx+D)\cos2x]$。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{7.} 设 $A$ 为 $3$ 阶矩阵，$\alpha_1,\alpha_2,\alpha_3$ 线性无关，$A\alpha_1=\alpha_2+\alpha_3$, $A\alpha_2=\alpha_1+\alpha_3$, $A\alpha_3=\alpha_1+\alpha_2$，则 $|A|=$
+\begin{center}
+\begin{tabular}{ll}
+(A) $-2$ & (B) $-1$ \\[6pt]
+(C) $2$ & (D) $3$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $AP = P\begin{pmatrix}0&1&1\\1&0&1\\1&1&0\end{pmatrix}$, $|A|=\begin{vmatrix}0&1&1\\1&0&1\\1&1&0\end{vmatrix}=2$。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\textbf{8.} 设 $A$ 为 $n$ 阶实对称矩阵，则下列命题中\textbf{错误}的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 若 $A$ 正定，则 $A^{-1}$ 也正定 \\[4pt]
+(B) $A$ 正定的充要条件是 $A$ 的所有特征值全为正 \\[4pt]
+(C) $A$ 正定的充要条件是 $|A|>0$ \\[4pt]
+(D) $A$ 半正定的充要条件是 $A$ 的特征值全非负
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (C) 错误：$|A|>0$ 只是正定的必要条件。反例：$A=\begin{pmatrix}-1&0\\0&-1\end{pmatrix}$, $|A|=1>0$ 但负定。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\textbf{9.} 设随机变量 $X$, $Y$ 相互独立同分布于 $N(0,1)$，则 $P\{X+Y>0\}=$
+\begin{center}
+\begin{tabular}{ll}
+(A) $\dfrac{1}{4}$ & (B) $\dfrac{1}{2}$ \\[6pt]
+(C) $\dfrac{2}{3}$ & (D) $\dfrac{3}{4}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $X+Y\sim N(0,2)$，关于 $0$ 对称，$P\{X+Y>0\}=1/2$。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{10.} 设 $X_1,\ldots,X_n$ 为来自总体 $N(\mu,\sigma^2)$ 的样本，$\sigma^2$ 已知。则 $\mu$ 的置信水平为 $1-\alpha$ 的置信区间长度为
+\begin{center}
+\begin{tabular}{ll}
+(A) $\dfrac{2\sigma}{\sqrt{n}} z_{\alpha/2}$ & (B) $\dfrac{2S}{\sqrt{n}} t_{\alpha/2}(n-1)$ \\[6pt]
+(C) $\dfrac{2\sigma}{\sqrt{n}} t_{\alpha/2}(n-1)$ & (D) $\dfrac{\sigma}{\sqrt{n}} z_{\alpha/2}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $\sigma^2$ 已知用 $Z$ 区间：$\bar{X}\pm\frac{\sigma}{\sqrt{n}}z_{\alpha/2}$，长度 $=\frac{2\sigma}{\sqrt{n}}z_{\alpha/2}$。\boxed{\textbf{答案：}(A)}\fi
+
+\newpage
+
+\subsection*{二、填空题：11\textasciitilde16小题，每小题5分，共30分。}
+
+\textbf{11.} $\displaystyle\lim_{x \to 0} \frac{e^x - e^{\sin x}}{x - \sin x} = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} $\dfrac{e^x-e^{\sin x}}{x-\sin x}=e^{\sin x}\cdot\dfrac{e^{x-\sin x}-1}{x-\sin x}\to 1\cdot1=1$。\boxed{\textbf{答案：}1}\fi
+
+\vspace{8pt}
+
+\textbf{12.} $\displaystyle\int_{0}^{1} x\arctan x\,dx = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 分部积分得
+\[
+\begin{aligned}
+\int x\arctan x\,dx
+&=\frac{x^2}{2}\arctan x-\frac{1}{2}\int\frac{x^2}{1+x^2}\,dx\\
+&=\frac{x^2}{2}\arctan x-\frac{x}{2}+\frac{1}{2}\arctan x+C.
+\end{aligned}
+\]
+代入上下限得 $\frac{\pi}{8}-\frac{1}{2}+\frac{\pi}{8}=\frac{\pi}{4}-\frac{1}{2}$。
+\boxed{\textbf{答案：}\dfrac{\pi}{4} - \dfrac{1}{2}}\fi
+
+\vspace{8pt}
+
+\textbf{13.} 设 $z = \arctan\dfrac{x}{y}$（$y\neq0$），则 $\dfrac{\partial^2 z}{\partial x^2} + \dfrac{\partial^2 z}{\partial y^2} = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} $z_x=\frac{y}{x^2+y^2}$, $z_y=-\frac{x}{x^2+y^2}$。$z_{xx}=-\frac{2xy}{(x^2+y^2)^2}$, $z_{yy}=\frac{2xy}{(x^2+y^2)^2}$。和为 $0$。\boxed{\textbf{答案：}0}\fi
+
+\vspace{8pt}
+
+\textbf{14.} 设 $D$ 为第一象限内由 $y=x$, $y=2x$, $xy=1$, $xy=2$ 围成的区域，则 $\displaystyle\iint_{D} xy\,dxdy = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 令 $u=y/x$, $v=xy$。$D$ 变为 $1\leqslant u\leqslant2$, $1\leqslant v\leqslant2$。$|J|=1/(2u)$。$\iint_D xy\,dxdy = \int_1^2 du\int_1^2 v\cdot\frac{1}{2u}dv = \frac{1}{2}\ln2\cdot\frac{3}{2} = \frac{3}{4}\ln2$。
+\boxed{\textbf{答案：}\dfrac{3}{4}\ln2}\fi
+
+\vspace{8pt}
+
+\textbf{15.} 设三阶矩阵 $A$ 的特征值为 $1,2,3$，则 $|A^2 - 3A + 2I| = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} $A^2-3A+2I$ 的特征值为 $\lambda^2-3\lambda+2$：$1\to0$, $2\to0$, $3\to2$。行列式 $=0\times0\times2=0$。\boxed{\textbf{答案：}0}\fi
+
+\vspace{8pt}
+
+\textbf{16.} 设 $X \sim U(0,2)$，则 $Y=X^2$ 在 $y=1$ 处的概率密度 $f_Y(1) = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} $f_X(x)=1/2$（$0<x<2$）。$Y=X^2$, $x=\sqrt{y}$, $f_Y(y)=f_X(\sqrt{y})\cdot\frac{1}{2\sqrt{y}} = \frac{1}{4\sqrt{y}}$（$0<y<4$）。$f_Y(1)=1/4$。
+\boxed{\textbf{答案：}\dfrac{1}{4}}\fi
+
+\newpage
+
+\subsection*{三、解答题：17\textasciitilde22小题，共70分。}
+
+\textbf{17.}（本题满分10分）
+设 $f(x)$ 在 $[0,1]$ 上二阶可导，$f(0)=f(1)=0$，且 $\min\limits_{x\in[0,1]}f(x) = -1$。证明：存在 $\xi \in (0,1)$，使得 $f''(\xi) \geqslant 8$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 设 $f(x_0)=-1$ 为最小值，$x_0\in(0,1)$，$f'(x_0)=0$。
+在 $[0,x_0]$ 上泰勒展开：$f(0)=f(x_0)+f'(x_0)(-x_0)+\frac{f''(\xi_1)}{2}x_0^2$，即 $0=-1+\frac{f''(\xi_1)}{2}x_0^2$，得 $f''(\xi_1)=\frac{2}{x_0^2}$。
+在 $[x_0,1]$ 上：$f(1)=f(x_0)+f'(x_0)(1-x_0)+\frac{f''(\xi_2)}{2}(1-x_0)^2$，即 $0=-1+\frac{f''(\xi_2)}{2}(1-x_0)^2$，得 $f''(\xi_2)=\frac{2}{(1-x_0)^2}$。
+若 $x_0\leqslant1/2$，则 $f''(\xi_1)\geqslant8$；若 $x_0>1/2$，则 $f''(\xi_2)\geqslant8$。证毕。\boxed{\textbf{答案：}\text{证明如上}}\fi
+
+\vspace{8pt}
+
+\textbf{18.}（本题满分12分）
+计算 $\displaystyle\int_{0}^{+\infty} \frac{\ln(1+x^2)}{1+x^2}\,dx$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 令 $x=\tan\theta$，$dx=\sec^2\theta\,d\theta$，则
+\[
+\int_0^{+\infty}\frac{\ln(1+x^2)}{1+x^2}\,dx
+=2\int_0^{\pi/2}\ln\sec\theta\,d\theta
+=-2\int_0^{\pi/2}\ln\cos\theta\,d\theta.
+\]
+已知 $\int_0^{\pi/2}\ln\cos\theta\,d\theta = -\frac{\pi}{2}\ln2$，故原式 $= \pi\ln2$。\boxed{\textbf{答案：}\pi\ln2}\fi
+
+\vspace{8pt}
+
+\textbf{19.}（本题满分12分）
+将函数 $f(x) = \dfrac{1}{x^2+3x+2}$ 展开为 $x+4$ 的幂级数，并求收敛域。
+
+\ifshowsolutions\par\noindent\textbf{解析：} $f(x)=\frac{1}{(x+1)(x+2)} = \frac{1}{x+1} - \frac{1}{x+2}$。令 $t=x+4$，则 $x+1=t-3$, $x+2=t-2$。
+$f = \frac{1}{t-3} - \frac{1}{t-2} = -\frac{1}{3}\frac{1}{1-t/3} + \frac{1}{2}\frac{1}{1-t/2} = \sum_{n=0}^{\infty}\left(\frac{1}{2^{n+1}} - \frac{1}{3^{n+1}}\right)t^n$。
+收敛条件 $|t/2|<1$ 且 $|t/3|<1$，取 $|t|<2$，即 $|x+4|<2$，收敛域 $(-6,-2)$。
+\boxed{\textbf{答案：}\displaystyle\sum_{n=0}^{\infty}\left(\frac{1}{2^{n+1}}-\frac{1}{3^{n+1}}\right)(x+4)^n\text{，收敛域 }(-6,-2)}\fi
+
+\vspace{8pt}
+
+\textbf{20.}（本题满分12分）
+计算曲面积分 $\displaystyle\iint_{\Sigma} x\,dy\,dz + y\,dz\,dx + z\,dx\,dy$，其中 $a>0$，$\Sigma$ 为上半球面 $z=\sqrt{a^2-x^2-y^2}$ 的上侧。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 补底面 $D: z=0, x^2+y^2\leqslant a^2$，按封闭曲面的外侧应取下侧。高斯公式：
+$\iint_{\Sigma+D} = \iiint_{\Omega} 3\,dV = 3\cdot\frac{2}{3}\pi a^3 = 2\pi a^3$。底面取下侧，且在 $D$ 上 $z=0$，故底面积分为 $0$。因此 $\iint_{\Sigma} = 2\pi a^3$。
+\boxed{\textbf{答案：}2\pi a^3}\fi
+
+\vspace{8pt}
+
+\textbf{21.}（本题满分12分）
+设二次型 $f(x_1,x_2,x_3) = x_1^2 + ax_2^2 + x_3^2 + 2bx_1x_2 + 2x_1x_3 + 2x_2x_3$ 的矩阵为 $A$。已知 $r(A)=2$，$\operatorname{tr}(A)=5$，且 $(1,0,-1)^T$ 是 $A$ 对应于特征值 $0$ 的特征向量。
+\begin{enumerate}
+    \item[(1)] 求 $a,b$ 的值；
+    \item[(2)] 求正交变换 $x=Qy$，将二次型化为标准形。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (1) $A = \begin{pmatrix} 1 & b & 1 \\ b & a & 1 \\ 1 & 1 & 1 \end{pmatrix}$。由 $A\begin{pmatrix}1\\0\\-1\end{pmatrix}=0$ 得 $\begin{pmatrix}1+0-1\\b+0-1\\1+0-1\end{pmatrix}=\begin{pmatrix}0\\b-1\\0\end{pmatrix}=0 \Rightarrow b=1$。
+又 $\operatorname{tr}(A)=a+2=5$，故 $a=3$。此时 $\begin{vmatrix}1&1\\1&3\end{vmatrix}=2\neq0$，结合 $|A|=0$ 可知 $r(A)=2$，与题设相符。
+
+(2) $A=\begin{pmatrix}1&1&1\\1&3&1\\1&1&1\end{pmatrix}$。$|\lambda I-A|=\begin{vmatrix}\lambda-1&-1&-1\\-1&\lambda-3&-1\\-1&-1&\lambda-1\end{vmatrix}=\lambda(\lambda-1)(\lambda-4)$。特征值：$0, 1, 4$。
+
+对 $\lambda=0$：解 $Ax=0$，得 $\alpha_1=(1,0,-1)^T$。单位化：$\eta_1=\frac{1}{\sqrt{2}}(1,0,-1)^T$。
+对 $\lambda=1$：解 $(I-A)x=0$，得 $\alpha_2=(1,-1,1)^T$。单位化：$\eta_2=\frac{1}{\sqrt{3}}(1,-1,1)^T$。
+对 $\lambda=4$：解 $(4I-A)x=0$，得 $\alpha_3=(1,2,1)^T$。单位化：$\eta_3=\frac{1}{\sqrt{6}}(1,2,1)^T$。
+
+正交变换 $x=Qy$，其中 $Q=\begin{pmatrix}\frac{1}{\sqrt{2}}&\frac{1}{\sqrt{3}}&\frac{1}{\sqrt{6}}\\0&-\frac{1}{\sqrt{3}}&\frac{2}{\sqrt{6}}\\-\frac{1}{\sqrt{2}}&\frac{1}{\sqrt{3}}&\frac{1}{\sqrt{6}}\end{pmatrix}$，标准形 $f=y_2^2+4y_3^2$。
+\boxed{\textbf{答案：}(1)\ a=3,\ b=1\text{；}(2)\ f=y_2^2+4y_3^2}\fi
+
+\vspace{8pt}
+
+\textbf{22.}（本题满分12分）
+设总体 $X$ 的概率密度为 $f(x;\theta)=\begin{cases}\theta x^{\theta-1},&0<x<1\\0,&\text{其他}\end{cases}$，$\theta>0$ 未知。$X_1,\ldots,X_n$ 为样本，且 $n>1$。
+\begin{enumerate}
+    \item[(1)] 求 $\theta$ 的矩估计量 $\hat{\theta}_M$；
+    \item[(2)] 求 $\theta$ 的最大似然估计量 $\hat{\theta}_L$；
+    \item[(3)] 判断 $\hat{\theta}_L$ 是否为 $\theta$ 的无偏估计，并证明其一致性。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (1) $E(X)=\int_0^1 x\cdot\theta x^{\theta-1}dx = \theta\int_0^1 x^{\theta}dx = \frac{\theta}{\theta+1}$。令 $\frac{\theta}{\theta+1}=\bar{X}$，解得 $\hat{\theta}_M=\frac{\bar{X}}{1-\bar{X}}$。
+
+(2) $L(\theta)=\prod_{i=1}^n \theta x_i^{\theta-1} = \theta^n \left(\prod_{i=1}^n x_i\right)^{\theta-1}$。$\ln L = n\ln\theta + (\theta-1)\sum\ln x_i$。
+$\frac{d\ln L}{d\theta} = \frac{n}{\theta} + \sum\ln x_i = 0 \Rightarrow \hat{\theta}_L = -\frac{n}{\sum\ln X_i}$。
+
+(3) 令$Y_i=-\ln X_i$，则$Y_i\sim\operatorname{Exp}(\theta)$。记$T=\sum_{i=1}^nY_i$，则$T\sim\operatorname{Gamma}(n,\text{rate }\theta)$，且$\hat\theta_L=n/T$。由$E(1/T)=\theta/(n-1)$（$n>1$），
+\[
+E(\hat\theta_L)=\frac{n\theta}{n-1}\ne\theta,
+\]
+故$\hat\theta_L$有偏；$\frac{n-1}{n}\hat\theta_L$是无偏估计。另一方面，由大数定律，
+\[
+\frac{T}{n}=\frac1n\sum_{i=1}^nY_i\overset P\longrightarrow E(Y_i)=\frac1\theta.
+\]
+再由连续映射定理，$\hat\theta_L=n/T=1/(T/n)\overset P\longrightarrow\theta$，故$\hat\theta_L$是一致估计。
+\par\noindent\textbf{答案：}(1) $\dfrac{\bar{X}}{1-\bar{X}}$；(2) $-\dfrac{n}{\sum\ln X_i}$；(3) 有偏但一致，$\dfrac{n-1}{n}\hat{\theta}_L$无偏。\fi
+
+
+\newpage
+% ============================================================
+\section{模拟卷三}
+
+\noindent\textbf{考试说明：}考试时间 180 分钟，满分 150 分。请在规定位置作答；解答题应写出必要的文字说明、证明过程或演算步骤。
+
+\subsection*{一、选择题：1\textasciitilde10小题，每小题5分，共50分。}
+
+\textbf{1.} 设 $f(x)$ 在 $x=0$ 的某邻域内有定义，且 $\lim\limits_{x\to0}\dfrac{f(x)-f(0)}{|x|}=1$，则
+\begin{center}
+\begin{tabular}{ll}
+(A) $f'(0)$ 存在且 $f'(0)=1$ & (B) $f'(0)$ 存在且 $f'(0)=0$ \\[4pt]
+(C) $f(x)$ 在 $x=0$ 处取得极大值 & (D) $f(x)$ 在 $x=0$ 处取得极小值
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由 $\lim_{x\to0}\frac{f(x)-f(0)}{|x|}=1>0$ 及极限保号性，存在 $\delta>0$ 使 $0<|x|<\delta$ 时 $\frac{f(x)-f(0)}{|x|}>\frac{1}{2}>0$，故 $f(x)-f(0)>0$，即 $f(x)>f(0)$，所以 $f(0)$ 是极小值。
+由于左右导数分别为 $\lim_{x\to0^+}\frac{f(x)-f(0)}{x}=1$, $\lim_{x\to0^-}\frac{f(x)-f(0)}{x}=-1$，不相等，故 $f'(0)$ 不存在。\boxed{\textbf{答案：}(D)}\fi
+
+\vspace{8pt}
+
+\textbf{2.} 设 $f(x)=\begin{cases}\dfrac{1-\cos x}{x^2},&x\neq0\\a,&x=0\end{cases}$，若 $f(x)$ 在 $x=0$ 处可导，则 $a=$
+\begin{center}
+\begin{tabular}{ll}
+(A) $0$ & (B) $\dfrac{1}{2}$ \\[6pt]
+(C) $1$ & (D) $\dfrac{1}{6}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $f$ 可导必连续：$a=\lim_{x\to0}\frac{1-\cos x}{x^2}=\frac{1}{2}$。验证：$f'(0)=\lim_{x\to0}\frac{\frac{1-\cos x}{x^2}-\frac12}{x}=\lim\frac{2(1-\cos x)-x^2}{2x^3}$。由 $1-\cos x=\frac{x^2}{2}-\frac{x^4}{24}+O(x^6)$，得 $2(1-\cos x)-x^2=-\frac{x^4}{12}+O(x^6)$，故 $\lim\frac{2(1-\cos x)-x^2}{2x^3}=\lim\frac{-\frac{x^4}{12}+O(x^6)}{2x^3}=\lim\left(-\frac{x}{24}+O(x^3)\right)=0$。可导。
+\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{3.} 设 $I_n = \displaystyle\int_{0}^{\pi/2} \sin^n x\,dx$，则 $\lim\limits_{n\to\infty}\sqrt{n}\,I_n =$
+\begin{center}
+\begin{tabular}{ll}
+(A) $0$ & (B) $\sqrt{\dfrac{\pi}{2}}$ \\[6pt]
+(C) $\sqrt{2\pi}$ & (D) $\sqrt{\pi}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由 Wallis 公式：$I_{2k}=\frac{(2k-1)!!}{(2k)!!}\cdot\frac{\pi}{2}$, $I_{2k+1}=\frac{(2k)!!}{(2k+1)!!}$。
+利用 Stirling 公式可得 $I_n\sim\sqrt{\frac{\pi}{2n}}$。故 $\sqrt{n}\,I_n\to\sqrt{\frac{\pi}{2}}$。
+因此极限为 $\sqrt{\pi/2}$。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{4.} 设 $f(x)$ 是以 $2\pi$ 为周期的函数，在 $[-\pi,\pi]$ 上 $f(x)=|x|$，其傅里叶级数的和函数记为 $S(x)$，则 $S(3\pi)=$
+\begin{center}
+\begin{tabular}{ll}
+(A) $0$ & (B) $\dfrac{\pi}{2}$ \\[6pt]
+(C) $\pi$ & (D) $2\pi$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $S(x)$ 以 $2\pi$ 为周期。$S(3\pi)=S(\pi)=f(\pi)=\pi$。由狄利克雷收敛定理，在连续点处和函数等于 $f(x)$。$x=\pi$ 处 $f$ 连续（$f(\pi)=|\pi|=\pi$），故 $S(3\pi)=\pi$。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\textbf{5.} 设函数 $u(x,y)$ 在平面区域 $D$ 上具有二阶连续偏导数，且满足 $\dfrac{\partial^2 u}{\partial x^2}+\dfrac{\partial^2 u}{\partial y^2}=0$。简单闭曲线 $C$ 及其所围区域 $D_C$ 均包含于 $D$，$\boldsymbol n$ 为 $C$ 的外法向量，则 $\displaystyle\oint_{C}\dfrac{\partial u}{\partial n}\,ds$ 的值为
+\begin{center}
+\begin{tabular}{ll}
+(A) $0$ & (B) 曲线 $C$ 所围面积 \\[4pt]
+(C) $\pi$ & (D) 依赖于 $u$ 的选取
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由平面散度公式（格林公式），$\oint_C\frac{\partial u}{\partial n}\,ds = \iint_{D_C} (\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2})\,dxdy = \iint_{D_C} 0\,dxdy = 0$。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\textbf{6.} 在任一不含点 $k\pi$（$k\in\mathbb Z$）的区间上，微分方程 $y''+y=\dfrac{1}{\sin x}$ 的通解形式为
+\begin{center}
+\begin{tabular}{ll}
+(A) $C_1\cos x+C_2\sin x$ \\[4pt]
+(B) $C_1\cos x+C_2\sin x + \ln|\sin x|$ \\[4pt]
+(C) $C_1\cos x+C_2\sin x - x\cos x + \sin x\ln|\sin x|$ \\[4pt]
+(D) $C_1\cos x+C_2\sin x + \cos x\ln|\csc x-\cot x|$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 齐次通解 $y_h=C_1\cos x+C_2\sin x$。用常数变易法求特解。设 $y_p=u_1\cos x+u_2\sin x$。
+Wronskian $W=\cos x\cdot\cos x - \sin x\cdot(-\sin x)=1$。
+$u_1'=-y_2f/W=-\sin x\cdot\frac{1}{\sin x}=-1 \Rightarrow u_1=-x$。
+$u_2'=y_1f/W=\cos x\cdot\frac{1}{\sin x}=\cot x \Rightarrow u_2=\ln|\sin x|$。
+特解 $y_p=-x\cos x+\sin x\ln|\sin x|$。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\textbf{7.} 设 $A$ 为 $m\times n$ 实矩阵，则下列命题中正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) $r(A^T A) = r(A)$ & (B) $r(A^T A) = r(A^T)$ \\[4pt]
+(C) $r(A A^T) = r(A)$ & (D) 以上全对
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 对于实矩阵，$A^T A x=0 \iff Ax=0$（因为 $x^T A^T A x = \|Ax\|^2=0 \iff Ax=0$），故 $A^T A$ 与 $A$ 有相同的零空间，从而 $r(A^T A)=r(A)$。同理 $r(AA^T)=r(A^T)=r(A)$。故 (A)(B)(C) 全对。\boxed{\textbf{答案：}(D)}\fi
+
+\vspace{8pt}
+
+\textbf{8.} 设 $A$ 为 $n$ 阶正定矩阵，$B$ 为 $n$ 阶实矩阵，则二次型 $f(x)=x^T(B^T A B)x$ 为正定的充要条件是
+\begin{center}
+\begin{tabular}{ll}
+(A) $B$ 正定 & (B) $B$ 可逆 \\[4pt]
+(C) $|B|>0$ & (D) $r(B)=n-1$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $f(x)=(Bx)^T A (Bx)$。$A$ 正定，故 $f(x)\geqslant0$ 且 $f(x)=0 \iff Bx=0$。$f$ 正定 $\iff \forall x\neq0, Bx\neq0 \iff B$ 的零空间只有零向量 $\iff B$ 列满秩。由于 $B$ 是方阵，即 $B$ 可逆。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{9.} 设 $X\sim N(0,1)$，$Y=|X|$，则 $Y$ 的概率密度 $f_Y(y)=$
+\begin{center}
+\begin{tabular}{ll}
+(A) $\dfrac{1}{\sqrt{2\pi}}e^{-y^2/2}$（$y>0$） & (B) $\dfrac{2}{\sqrt{2\pi}}e^{-y^2/2}$（$y>0$） \\[6pt]
+(C) $\dfrac{1}{\sqrt{2\pi}}e^{-y^2/2}$（$y\in\mathbb{R}$） & (D) $\dfrac{2}{\sqrt{2\pi}}e^{-y^2/2}$（$y\in\mathbb{R}$）
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $Y=|X|$ 取值非负。$F_Y(y)=P(|X|\leqslant y)=P(-y\leqslant X\leqslant y)=\Phi(y)-\Phi(-y)=2\Phi(y)-1$（$y>0$）。
+求导：$f_Y(y)=2\varphi(y)=2\cdot\frac{1}{\sqrt{2\pi}}e^{-y^2/2}$（$y>0$）；$y\leqslant0$ 时 $f_Y(y)=0$。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\textbf{10.} 在同一检验统计量下仅扩大拒绝域时，记 $\alpha$ 为第一类错误概率，$\beta$ 为某个给定备择参数值下的第二类错误概率。当样本容量 $n$ 固定时，下列结论正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) $\alpha$ 与 $\beta$ 同时增大 & (B) $\alpha$ 不减，$\beta$ 不增 \\[4pt]
+(C) $\alpha$ 增大时 $\beta$ 也增大 & (D) $\alpha$ 与 $\beta$ 无关
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 拒绝域扩大后，在原假设下落入拒绝域的概率不减，故$\alpha$不减；在给定备择下落入接受域的概率不增，故$\beta$不增。只有当新增区域在相应原假设分布和备择分布下均有正概率时，才能写成严格的“$\alpha$增大、$\beta$减小”。\boxed{\textbf{答案：}(B)}\fi
+
+\newpage
+
+\subsection*{二、填空题：11\textasciitilde16小题，每小题5分，共30分。}
+
+\textbf{11.} $\displaystyle\lim_{x\to0}\frac{\int_0^x(e^{t^2}-1)dt}{x^3} = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由洛必达法则：$\lim_{x\to0}\frac{e^{x^2}-1}{3x^2} = \lim_{x\to0}\frac{x^2+o(x^2)}{3x^2} = \frac{1}{3}$。\boxed{\textbf{答案：}\dfrac{1}{3}}\fi
+
+\vspace{8pt}
+
+\textbf{12.} $\displaystyle\int_{0}^{2} \frac{dx}{\sqrt{x(2-x)}} = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 令 $x-1=\sin\theta$，$dx=\cos\theta\,d\theta$。$\sqrt{x(2-x)}=\sqrt{1-(x-1)^2}=\cos\theta$。积分限：$x:0\to2 \Rightarrow \theta:-\pi/2\to\pi/2$。$\int_{-\pi/2}^{\pi/2}\frac{\cos\theta}{\cos\theta}d\theta = \pi$。
+或配方 $x(2-x)=1-(x-1)^2$，原式 $=\int_0^2\frac{dx}{\sqrt{1-(x-1)^2}} = \arcsin(x-1)\big|_0^2 = \arcsin1-\arcsin(-1)=\pi$。\boxed{\textbf{答案：}\pi}\fi
+
+\vspace{8pt}
+
+\textbf{13.} 设 $z=z(x,y)$ 由方程 $z^3-3xyz=a^3$ 确定，且 $a\neq0$，则 $\dfrac{\partial z}{\partial x}\Big|_{(0,1)} = \underline{\qquad\qquad}$。（其中 $z(0,1)=a$）
+
+\ifshowsolutions\par\noindent\textbf{解析：} 方程两边对 $x$ 求偏导：$3z^2 z_x - 3yz - 3xy z_x = 0$，即 $(3z^2-3xy)z_x = 3yz$，$z_x = \frac{yz}{z^2-xy}$。在 $(0,1)$ 处 $z=a$，$z_x = \frac{1\cdot a}{a^2-0} = \frac{1}{a}$。
+\boxed{\textbf{答案：}\dfrac{1}{a}}\fi
+
+\vspace{8pt}
+
+\textbf{14.} 设 $\Sigma$ 为锥面 $z=\sqrt{x^2+y^2}$ 被平面 $z=1$ 所截部分的下侧，则 $\displaystyle\iint_{\Sigma} z\,dxdy = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 取下侧时 $dxdy$ 项为负。投影到 $xOy$ 面得 $D: x^2+y^2\leqslant1$。$\iint_{\Sigma} z\,dxdy = -\iint_{D} \sqrt{x^2+y^2}\,dxdy = -\int_0^{2\pi}d\theta\int_0^1 r\cdot r\,dr = -2\pi\cdot\frac{1}{3} = -\frac{2\pi}{3}$。
+\boxed{\textbf{答案：}-\dfrac{2\pi}{3}}\fi
+
+\vspace{8pt}
+
+\textbf{15.} 设 $\alpha=(1,2,1)^T$，$\beta=(1,1/2,0)^T$，$\gamma=(2,5,2)^T$，矩阵 $A=\alpha\beta^T$，则 $A^2$ 的迹 $\operatorname{tr}(A^2) = \underline{\qquad\qquad}$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} $A=\alpha\beta^T = \begin{pmatrix}1\\2\\1\end{pmatrix}(1,\frac12,0) = \begin{pmatrix}1&\frac12&0\\2&1&0\\1&\frac12&0\end{pmatrix}$。
+$A^2 = (\alpha\beta^T)(\alpha\beta^T) = \alpha(\beta^T\alpha)\beta^T$。$\beta^T\alpha = 1\cdot1 + \frac12\cdot2 + 0\cdot1 = 2$。故 $A^2 = 2\alpha\beta^T = 2A$。
+$\operatorname{tr}(A) = 1+1+0 = 2$。$\operatorname{tr}(A^2) = \operatorname{tr}(2A) = 2\cdot2 = 4$。\boxed{\textbf{答案：}4}\fi
+
+\vspace{8pt}
+
+\textbf{16.} 设 $X\sim N(\mu,\sigma^2)$，$\sigma^2$ 已知，且 $L>0$。要使 $\mu$ 的置信水平为 $0.95$ 的置信区间长度不超过 $L$，则样本容量 $n$ 至少为 $\underline{\qquad\qquad}$。（用 $z_{0.025}$ 表示）
+
+\ifshowsolutions\par\noindent\textbf{解析：} 区间长度 $= \frac{2\sigma}{\sqrt{n}}z_{0.025} \leqslant L \Rightarrow \sqrt{n} \geqslant \frac{2\sigma z_{0.025}}{L} \Rightarrow n \geqslant \frac{4\sigma^2 z_{0.025}^2}{L^2}$。由于样本容量必须为整数，取满足该不等式的最小整数。
+\boxed{\textbf{答案：}\left\lceil\dfrac{4\sigma^2 z_{0.025}^2}{L^2}\right\rceil}\fi
+
+\newpage
+
+\subsection*{三、解答题：17\textasciitilde22小题，共70分。}
+
+\textbf{17.}（本题满分10分）
+设 $\{a_n\}$ 为正项数列，$\lim\limits_{n\to\infty}\dfrac{a_{n+1}}{a_n}=q<1$。证明：
+\begin{enumerate}
+    \item[(1)] $\displaystyle\lim_{n\to\infty}a_n=0$；
+    \item[(2)] 级数 $\displaystyle\sum_{n=1}^{\infty}a_n$ 收敛；
+    \item[(3)] $\displaystyle\lim_{n\to\infty}n a_n=0$。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (1) 由 $\lim a_{n+1}/a_n=q<1$，取 $\varepsilon=\frac{1-q}{2}>0$，存在 $N$，当 $n\geqslant N$ 时 $a_{n+1}/a_n<q+\varepsilon=\frac{1+q}{2}=r<1$。则 $a_{N+k}\leqslant a_N r^k$。由 $0<r<1$，$r^k\to0$，故 $a_n\to0$。
+
+(2) 同上，$\sum_{k=0}^{\infty} a_{N+k} \leqslant a_N\sum_{k=0}^{\infty} r^k = \frac{a_N}{1-r}<\infty$。由比较判别法，$\sum a_n$ 收敛。
+
+(3) 需要证明 $\lim n a_n = 0$。取 $q<r<1$，则当 $n$ 充分大时 $a_n \leqslant C r^n$。$\lim n r^n = 0$（由洛必达法则：$\lim_{x\to\infty} x r^x = \lim\frac{x}{r^{-x}} = \lim\frac{1}{-r^{-x}\ln r} = 0$）。由夹逼定理，$\lim n a_n = 0$。证毕。\boxed{\textbf{答案：}\text{证明如上}}\fi
+
+\vspace{8pt}
+
+\textbf{18.}（本题满分12分）
+设 $f(x)$ 在 $[a,b]$ 上连续，在 $(a,b)$ 内二阶可导，$f(a)=f(b)=0$，且存在 $c\in(a,b)$ 使 $f(c)>0$。证明：存在 $\xi\in(a,b)$ 使 $f''(\xi)<0$。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由 $f(a)=f(b)=0$ 且 $f(c)>0$，$f$ 在 $[a,b]$ 上连续，必有最大值。设最大值点为 $x_0\in(a,b)$，则 $f(x_0)\geqslant f(c)>0$，且 $f'(x_0)=0$。
+
+在 $[a,x_0]$ 上由拉格朗日中值定理：存在 $\xi_1\in(a,x_0)$ 使 $f'(\xi_1)=\frac{f(x_0)-f(a)}{x_0-a}=\frac{f(x_0)}{x_0-a}>0$。
+在 $[x_0,b]$ 上：存在 $\xi_2\in(x_0,b)$ 使 $f'(\xi_2)=\frac{f(b)-f(x_0)}{b-x_0}=-\frac{f(x_0)}{b-x_0}<0$。
+
+在 $[\xi_1,\xi_2]$ 上对 $f'$ 用拉格朗日中值定理：存在 $\xi\in(\xi_1,\xi_2)\subset(a,b)$ 使
+$f''(\xi) = \frac{f'(\xi_2)-f'(\xi_1)}{\xi_2-\xi_1} < 0$（因为分子 $<0$，分母 $>0$）。证毕。\boxed{\textbf{答案：}\text{证明如上}}\fi
+
+\vspace{8pt}
+
+\textbf{19.}（本题满分12分）
+设 $f(x)=\begin{cases}x,&0\leqslant x\leqslant1\\2-x,&1<x\leqslant2\end{cases}$，$S(x)$ 为 $f(x)$ 在 $[0,2]$ 上的正弦级数的和函数。
+\begin{enumerate}
+    \item[(1)] 求 $S(x)$ 的表达式（$x\in\mathbb{R}$）；
+    \item[(2)] 求 $S(-1/2)$ 和 $S(5/2)$；
+    \item[(3)] 利用上述结果求级数 $\displaystyle\sum_{n=1}^{\infty}\frac{1}{n^2}$ 的和。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (1) 正弦级数对应奇延拓，周期 $T=4$。
+$S(x)=\begin{cases} f(x), & x\in[0,2] \\ -f(-x), & x\in(-2,0) \end{cases}$，并以 $4$ 为周期延拓。$S(x)$ 在间断点处取左右极限平均值。
+
+(2) $S(-1/2) = -f(1/2) = -1/2$。$S(5/2)=S(5/2-4)=S(-3/2) = -f(3/2) = -(2-3/2) = -1/2$。
+
+(3) 傅里叶正弦系数为
+\[
+\begin{aligned}
+b_n
+&=\int_0^2 f(x)\sin\frac{n\pi x}{2}\,dx\\
+&=\int_0^1 x\sin\frac{n\pi x}{2}\,dx
++\int_1^2(2-x)\sin\frac{n\pi x}{2}\,dx
+=\frac{8}{n^2\pi^2}\sin\frac{n\pi}{2}.
+\end{aligned}
+\]
+故正弦级数为
+\[
+f(x)=\sum_{n=1}^{\infty}\frac{8}{n^2\pi^2}
+\sin\frac{n\pi}{2}\sin\frac{n\pi x}{2},\qquad 0\leqslant x\leqslant2.
+\]
+
+取 $x=1$，$f(1)=1$。当 $n=2k+1$ 时，$\sin\frac{n\pi}{2}=(-1)^k$，故
+\[
+1=\frac{8}{\pi^2}\sum_{k=0}^{\infty}\frac{1}{(2k+1)^2},
+\qquad
+\sum_{k=0}^{\infty}\frac{1}{(2k+1)^2}=\frac{\pi^2}{8}.
+\]
+设 $\sum_{n=1}^{\infty}n^{-2}=S$，则
+\[
+\frac{3}{4}S=S-\frac14S=\sum_{k=0}^{\infty}\frac{1}{(2k+1)^2}=\frac{\pi^2}{8},
+\]
+从而 $S=\frac{\pi^2}{6}$。
+\par\noindent\textbf{答案：}(1) 奇周期延拓；(2) $S(-1/2)=-1/2$，$S(5/2)=-1/2$；(3) $\displaystyle\sum_{n=1}^{\infty}\frac{1}{n^2}=\frac{\pi^2}{6}$。\fi
+
+\vspace{8pt}
+
+\textbf{20.}（本题满分12分）
+计算 $\displaystyle\oint_{L} \frac{x\,dy - y\,dx}{x^2+y^2}$，其中 $a,b>0$，$L$ 为椭圆 $\dfrac{x^2}{a^2}+\dfrac{y^2}{b^2}=1$ 的逆时针方向。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 记 $P=-\frac{y}{x^2+y^2}$, $Q=\frac{x}{x^2+y^2}$。当 $(x,y)\neq(0,0)$ 时，$\frac{\partial Q}{\partial x} = \frac{y^2-x^2}{(x^2+y^2)^2} = \frac{\partial P}{\partial y}$。
+原点 $(0,0)$ 在椭圆内部。取充分小的圆 $C_{\varepsilon}^+:x^2+y^2=\varepsilon^2$，上标 $+$ 表示逆时针方向。对 $L$ 与 $C_{\varepsilon}^+$ 之间的穿孔区域，其正向边界由外边界 $L$（逆时针）和内边界 $-C_{\varepsilon}^+$（顺时针）组成。由格林公式，
+\[
+\oint_L(P\,dx+Q\,dy)-\oint_{C_{\varepsilon}^+}(P\,dx+Q\,dy)=0.
+\]
+在 $C_{\varepsilon}^+$ 上令 $x=\varepsilon\cos\theta$，$y=\varepsilon\sin\theta$（$0\leqslant\theta\leqslant2\pi$），则
+\[
+\oint_{C_{\varepsilon}^+}\frac{x\,dy-y\,dx}{x^2+y^2}
+=\int_0^{2\pi}\frac{\varepsilon^2(\cos^2\theta+\sin^2\theta)}{\varepsilon^2}\,d\theta
+=2\pi.
+\]
+故 $\displaystyle\oint_L\frac{x\,dy-y\,dx}{x^2+y^2}=2\pi$。
+\boxed{\textbf{答案：}2\pi}\fi
+
+\vspace{8pt}
+
+\textbf{21.}（本题满分12分）
+设 $A$ 为 $n$ 阶实对称矩阵，满足
+\[
+(A-I)(A-2I)=O,\qquad r(A-I)=1.
+\]
+\begin{enumerate}
+    \item[(1)] 求 $A$ 的全部特征值及其重数；
+    \item[(2)] 判断二次型 $x^TAx$ 是否正定，并说明理由；
+    \item[(3)] 对正整数 $m$，求 $A^m$ 以及 $|A^m+I|$。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 因 $A$ 为实对称矩阵，所以 $A$ 可正交对角化。设 $\lambda$ 为 $A$ 的任一特征值，则由 $(A-I)(A-2I)=O$ 得
+\[
+(\lambda-1)(\lambda-2)=0,
+\]
+故 $\lambda$ 只能为 $1$ 或 $2$。又 $A-I$ 在特征值 $1$ 对应的特征子空间上为零，在特征值 $2$ 对应的特征子空间上为恒等变换。由于 $A$ 可对角化，$r(A-I)=1$ 恰为特征值 $2$ 的重数。因此 $2$ 的重数为 $1$，$1$ 的重数为 $n-1$。
+
+(2) $A$ 的全部特征值均为正数，故实对称矩阵 $A$ 正定，二次型 $x^TAx$ 为正定二次型。
+
+(3) 由
+\[
+(A-I)(A-2I)=O
+\]
+可得 $(A-I)^2=A-I$。令 $P=A-I$，则 $P^2=P$，且 $A=I+P$。于是
+\[
+A^m=(I+P)^m=I+(2^m-1)P=I+(2^m-1)(A-I).
+\]
+$A^m+I$ 的特征值为 $2$（重数 $n-1$）和 $2^m+1$（重数 $1$），故
+\[
+|A^m+I|=2^{n-1}(2^m+1).
+\]
+\par\noindent\textbf{答案：}(1) $1$ 的重数为 $n-1$，$2$ 的重数为 $1$；(2) 正定；(3)
+\[
+A^m=I+(2^m-1)(A-I),\qquad |A^m+I|=2^{n-1}(2^m+1).
+\]
+\fi
+
+\vspace{8pt}
+
+\textbf{22.}（本题满分12分）
+设总体 $X$ 的分布律为 $P\{X=k\}=(1-p)^{k-1}p$，$k=1,2,\ldots$，其中 $0<p\leqslant1$ 未知。$X_1,\ldots,X_n$ 为样本。
+\begin{enumerate}
+    \item[(1)] 求 $p$ 的矩估计量 $\hat{p}_M$；
+    \item[(2)] 求 $p$ 的最大似然估计量 $\hat{p}_L$；
+    \item[(3)] 证明 $\hat{p}_L$ 是 $p$ 的一致估计量。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $X$ 服从几何分布（从 $1$ 开始计数）。$E(X)=1/p$。
+
+(1) 令 $1/p=\bar{X}$，$\hat{p}_M = 1/\bar{X}$。
+
+(2) $L(p)=\prod_{i=1}^n (1-p)^{X_i-1}p = p^n (1-p)^{\sum X_i - n}$。若 $\bar X>1$，则在 $0<p<1$ 上
+$\ln L = n\ln p + (\sum X_i - n)\ln(1-p)$，且
+$\frac{d\ln L}{dp} = \frac{n}{p} - \frac{\sum X_i - n}{1-p} = 0$ 给出唯一极大点
+$\hat p_L=1/\bar X$。若 $\bar X=1$，则所有观测值均为 $1$，此时 $L(p)=p^n$ 在 $0<p\leqslant1$ 上于 $p=1$ 取得最大值，而 $1/\bar X=1$。因此对所有可能样本均有
+\[
+\hat p_L=\frac1{\bar X},
+\]
+与矩估计相同。
+
+(3) 几何分布的期望存在，且 $E(X)=1/p$。由辛钦大数定律，
+\[
+\bar X\xrightarrow{P}\frac1p.
+\]
+函数 $g(x)=1/x$ 在 $1/p>0$ 处连续，因此
+\[
+\hat p_L=\frac1{\bar X}\xrightarrow{P}p.
+\]
+故 $\hat p_L$ 是 $p$ 的一致估计量。
+\boxed{\textbf{答案：}(1)(2)\ \hat{p}=1/\bar{X}\text{；(3)\ }\hat p_L\xrightarrow{P}p}\fi

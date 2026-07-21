@@ -1,0 +1,65 @@
+name: Build LaTeX
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install TeX Live and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            texlive-xetex \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            fonts-noto \
+            fonts-noto-cjk \
+            latexmk
+
+      - name: Build PDF
+        working-directory: math
+        run: |
+          xelatex -interaction=nonstopmode -halt-on-error -output-directory=out main.tex
+          xelatex -interaction=nonstopmode -halt-on-error -output-directory=out main.tex
+
+      - name: Check for hard errors
+        working-directory: math
+        run: |
+          if grep -q '^!' out/main.log; then
+            echo "::error::LaTeX compilation had hard errors"
+            grep '^!' out/main.log
+            exit 1
+          fi
+          echo "Build OK — $(grep -c 'Output written' out/main.log || echo 0) pages"
+
+      - name: Check for missing characters
+        working-directory: math
+        run: |
+          if grep -q 'Missing character' out/main.log; then
+            echo "::warning::Missing characters detected"
+            grep 'Missing character' out/main.log
+          fi
+
+      - name: Check for duplicate labels
+        working-directory: math
+        run: |
+          if grep -q 'multiply defined' out/main.log; then
+            echo "::warning::Duplicate labels"
+            grep 'multiply defined' out/main.log
+          fi
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: main.pdf
+          path: math/out/main.pdf
+          retention-days: 7

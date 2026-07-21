@@ -1,38 +1,45 @@
 \section{一维随机变量及其分布}
 \subsection{随机变量与分布函数的概念}
 \begin{mydef}{随机变量}{random variable}
-随机变量是随机试验的结果，是一个随机试验的函数。
-设随机试验E的样本空间为$\Omega, \omega \in R$若对任意实数$x$,事件
-$
-\{X \leq x\} = \{\omega | X(\omega) \leq x \}
-$
+随机变量是定义在样本空间上的实值可测函数。设随机试验的样本空间为 $\Omega$，对任意实数 $x$，事件
+\[
+\{X\leq x\}=\{\omega\in\Omega:X(\omega)\leq x\}
+\]
+属于事件域，则称 $X$ 为随机变量。
 \end{mydef}
 
 \begin{mydef}{分布函数}{distribution function}
-$X$是随机变量,$x$是任意实数,$F(X) = P(X \leq x)$是随机变量$X$的
-分布函数。称$X$服从$F(X)$分布或$X \sim F(X)$
+$X$ 是随机变量，$x$ 是任意实数，$F_X(x)=P(X\leq x)$ 称为 $X$ 的分布函数。
 \end{mydef}
 
 \begin{conclusion}{分布函数的性质}{distribution function properties}
 \begin{enumerate}
     \item 分布函数是单调不减函数。
-    \item $0 \leq F(X) \leq 1$。$F(-\infty) = 0, F(\infty) = 1$。
-    \item $F(X)$是右连续函数。$x_{0} \in R$时，$F(x_{0})$存在，且有
+    \item $0 \leq F_X(x) \leq 1$，且 $\lim_{x\to-\infty}F_X(x)=0$，$\lim_{x\to+\infty}F_X(x)=1$。
+    \item $F(x)$是右连续函数。$x_{0} \in R$时，$F(x_{0})$存在，且有
     $$
     \lim_{x \to {x_{0}^{+}}} F(x) = F(x_{0} + 0) = F(x_{0})
     $$
-    \item 对任意$x_{1} < x_{2}, P\{x_{1} \leq X \leq x_{2}\} = F(x_{2}) - F(x_{1})$
-    \item 对任意$x_{0} \in R$, $P(X = x_{0}) = F(x_{0}) - F(x_{0} - 0)$
-    \item 设$x_{1} < x_{2}$,且$F(X)$在$x_{1},x_{2}$处连续，$P\{x_{1} \leq X \leq x_{2}\} = F(x_{2}) - F(x_{1})$
+    \item 对任意 $x_1<x_2$，
+    \[
+    \begin{aligned}
+    P(x_1<X\leq x_2)&=F_X(x_2)-F_X(x_1),\\
+    P(x_1\leq X\leq x_2)&=F_X(x_2)-F_X(x_1-),
+    \end{aligned}
+    \]
+    其中 $F_X(x_1-)=\lim_{t\uparrow x_1}F_X(t)$。
+    \item 对任意 $x_0\in\mathbb R$，$P(X=x_0)=F_X(x_0)-F_X(x_0-)$。
+    \item 若 $F_X$ 在 $x_1$ 处连续，则 $P(x_1\leq X\leq x_2)=F_X(x_2)-F_X(x_1)$。
 \end{enumerate}
 \end{conclusion}
 
 \subsection{离散型随机变量及连续型随机变量}
 \begin{mydef}{离散型随机变量}{discrete random variable}
-    如果随机变量$X$只可能取有限个或无限个离散的值，则为离散型随机变量。
+    如果随机变量 $X$ 只可能取有限个或可列无限个离散值，则称为离散型随机变量。
     $X$的概率分布(或分布律，分布列)可表示为
     $$
-    P(X = x_{i}) = p_{i}, i = 1,2,...,n
+    P(X=x_i)=p_i,\quad i=1,2,\ldots,
+    \qquad p_i\geq0,\quad \sum_i p_i=1,
     $$
     或表格形式
     $$
@@ -63,13 +70,13 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
 \end{mydef}
 
 \begin{mydef}{连续型随机变量}{continuous random variable}
-    若随机变量$X$的分布函数$F(X)$，存在非负可积函数$f(x)$，使得
+    若随机变量$X$的分布函数$F(x)$，存在非负可积函数$f(x)$，使得
     $$
     F(x) = P(X \leq x) = \int_{-\infty}^{x} f(t) dt
     $$
     则称$X$为连续型随机变量，$f(x)$为$X$的概率密度函数。\\
     \\
-    \boxed{\textbf{注}} 随机变量的取值并不可列，转换为F(X)求得是落入某一区间的概率。$f(x)$是密度值，而不是概率值
+    \boxed{\textbf{注}} 连续型随机变量在任一点的概率均为 $0$。$F_X(x)$ 给出区间事件的概率，$f_X(x)$ 是概率密度值而不是点概率。
 
 
 \end{mydef}
@@ -77,29 +84,29 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
 \subsection{离散型随机变量及其分布}
 \begin{mydef}{离散型随机变量的分布函数}{distribution function of discrete random variable}
     设$X$是离散型随机变量，$x_{1},x_{2},...,x_{n}$是$X$的可能取值，
-    $P(X = x_{i})$是$X$取$x_{i}$的概率，$F(X)$是$X$的分布函数，
+    $P(X = x_{i})$是$X$取$x_{i}$的概率，$F(x)$是$X$的分布函数，
     则有
     $$
-    F(X) = P(X \leq x) = P(X = x_{1}) + P(X = x_{2}) + ... + P(X = x_{n})
+    F_X(x)=P(X\leq x)=\sum_{x_i\leq x}P(X=x_i)=\sum_{x_i\leq x}p_i.
     $$
 \end{mydef}
 
 \begin{tablebox}{常见离散型随机变量分布}
     \centering
-    \scalebox{1.2}{
+    \resizebox{\textwidth}{!}{
     \begin{tabular}{|c|c|c|}
         \hline
         \text{名字} & 符号 & 概率分布 \\
         \hline
-        0-1分布 & $P(X = 0)$ & $P(X = 0) = 1 - P(X = 1)$ \\
+        0-1分布 & $B(1,p)$ & $P(X=0)=1-p,\ P(X=1)=p,\ 0\leq p\leq1$ \\
         \hline
-        二项分布 & $B(n,p)$ & $P(X = k) = C_{n}^{k} p^{k} (1 - p)^{n - k}$ \\
+        二项分布 & $B(n,p)$ & $P(X=k)=C_n^kp^k(1-p)^{n-k},\ k=0,\ldots,n$ \\
         \hline
-        泊松分布 & $P(\lambda)$ & $P(X = k) = \frac{\lambda^{k} e^{-\lambda}}{k!}$ \\
+        泊松分布 & $P(\lambda)$ & $P(X=k)=\frac{\lambda^ke^{-\lambda}}{k!},\ k=0,1,\ldots,\ \lambda>0$ \\
         \hline
-        几何分布 & $G(p)$ & $P(X = k) = p (1 - p)^{k - 1}$ \\
+        几何分布 & $G(p)$ & $P(X=k)=p(1-p)^{k-1},\ k=1,2,\ldots,\ 0<p\leq1$ \\
         \hline
-        超几何分布 & $H(M,N,n)$ & $P(X = k) = \frac{C_{k}^{n} C_{M - k}^{N - n}}{C_{M}^{N}}$ \\
+        超几何分布 & $H(N,M,n)$ & $P(X=k)=\frac{C_M^kC_{N-M}^{n-k}}{C_N^n},\ \max(0,n-N+M)\leq k\leq\min(n,M)$ \\
         \hline
     \end{tabular}
     }
@@ -109,10 +116,10 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
 
 \subsection{连续型随机变量及其分布}
 \begin{mydef}{连续型随机变量的分布函数}{distribution function of continuous random variable}
-    设$X$是连续型随机变量，$f(x)$是$X$的概率密度函数，$F(X)$是$X$的分布函数，
+    设$X$是连续型随机变量，$f(x)$是$X$的概率密度函数，$F(x)$是$X$的分布函数，
     则有
     $$
-    F(X) = P(X \leq x) = \int_{-\infty}^{x} f(t) dt
+    F(x) = P(X \leq x) = \int_{-\infty}^{x} f(t) dt
     $$
 \end{mydef}
 
@@ -148,7 +155,7 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
             &(\lambda > 0) \\
         \end{aligned}
         $
-        & $F(X) = \begin{cases}
+        & $F(x) = \begin{cases}
 
             1 - \mathrm{e}^{-\lambda x},& x \geq 0 \\
             0, & x < 0 \\
@@ -157,12 +164,12 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
             0, & \text{其他}
         \end{cases}$ \\
         \hline
-        正态分布 & $N(\mu,\sigma)$ & 
-         $\Phi(X)$
+        正态分布 & $N(\mu,\sigma^2)$ & 
+         $\Phi\!\left(\dfrac{x-\mu}{\sigma}\right)$
         & 
         $
         \begin{aligned}
-            \phi(x)&=f(x) = \frac{1}{\sigma \sqrt{2\pi}} \mathrm{e}^{-\frac{(x - \mu)^{2}}{2 \sigma^{2}}} \\
+            f_X(x)&=\frac{1}{\sigma \sqrt{2\pi}} \mathrm{e}^{-\frac{(x - \mu)^{2}}{2 \sigma^{2}}} \\
             &\quad (-\infty < x < \infty)
         \end{aligned}
         $ \\
@@ -180,20 +187,20 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
     $$
     其分布函数为
     $$
-    \Phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}{x}\mathrm{e}^{-\frac{t^2}{2}}\mathrm{d}t
+    \Phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{x}\mathrm{e}^{-\frac{t^2}{2}}\,\mathrm{d}t
     $$
     $\phi(x)$为偶函数，则$\Phi(0) = 0.5$, $\Phi(-x) = 1 - \Phi(x)$
     当$a > 0$时，
     $$
     \begin{aligned}
-        P(a < X < b) &= \Phi(b) - \Phi(a) \\
-        P(|x| \le a) &= 2\Phi(a) -1
+        P(a < Z < b) &= \Phi(b) - \Phi(a) \\
+        P(|Z| \le a) &= 2\Phi(a) -1
     \end{aligned}
     $$
 \end{conclusion}
 
-\begin{conclusion}{正态分布的标准化}{standardlize normal distribution}
-    设$X$为正态分布，$X \sim N(\mu, \sigma^{2})$, $Y = \frac{X - \mu}{\sigma}$，则$Y$为标准正态分布。\\
+\begin{conclusion}{正态分布的标准化}{standardize normal distribution}
+    设$X$为正态分布，$X \sim N(\mu, \sigma^{2})$，其中$\sigma>0$。令$Y = \frac{X - \mu}{\sigma}$，则$Y$为标准正态分布。\\
     $$
     % \begin{aligned}
         P(a < X < b) = P(\frac{a - \mu}{\sigma} < Y < \frac{b - \mu}{\sigma})
@@ -204,16 +211,16 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
 
 \subsection{一维随机变量函数的分布}
 \begin{mydef}{随机变量的函数}{function of random variable}
-    设$X$为随机变量，$Y = f(X)$为$X$的函数，$Y$也为随机变量，$Y$的分布函数为$F(Y)$，
-    则有
+    设 $X$ 为随机变量，$Y=g(X)$ 为其可测函数。则 $Y$ 也是随机变量，且其分布函数为
     $$
-    F(Y) = P(Y \leq y) = P(f(X) \leq y) = P(X \leq f^{-1}(y))
+    F_Y(y)=P(Y\leq y)=P\bigl(g(X)\leq y\bigr).
     $$
+    只有在 $g$ 单调且可逆时，才能进一步把事件写成关于 $g^{-1}(y)$ 的单边不等式。
 \end{mydef}
 
 \begin{conclusion}{离散型随机变量函数的分布}{distribution of discrete random variable function}
     设$X$为离散型随机变量，$Y = f(X)$为$X$的函数，$Y$也为离散型随机变量，
-    求$X$的分布律的步骤为
+    求 $Y$ 的分布律的步骤为
     \begin{enumerate}
         \item 求$Y=g(X)$的所有可能的取值$a_{1}, a_{2}, \cdots, a_{n}$ 
         \item 计算$P(Y = a_{i})$，若$a_{i}$相同，合并其概率值
@@ -221,28 +228,25 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
 \end{conclusion}
 
 \begin{conclusion}{连续型随机变量函数的分布}{distribution of continuous random variable function}
-    设$X$为连续型随机变量，$Y = f(X)$为$X$的函数，$Y$也为连续型随机变量，
-    求$X$的分布律有两种方法
+    设 $X$ 为连续型随机变量，$Y=g(X)$。函数变换后的 $Y$ 不一定仍为连续型；在 $Y$ 确有密度的情形，可用下列方法求其分布：
     \begin{enumerate}
         \item 定义法(分布函数法)\\
-        设$Y = f(X)$的分布函数为$F(Y)$，则有
+        设 $Y=g(X)$，先由定义求其分布函数
         $$
         \begin{aligned}
-        F(Y) &= P(Y \leq y) \\
-        &= P(f(X) \leq y) = P(X \leq f^{-1}(y))\\
-        &= \int_{g(x) \leq y}^{} f_{X}x\mathrm{d}x \\
+        F_Y(y) &= P(Y \leq y) \\
+        &=P\bigl(g(X)\leq y\bigr)
+        =\int_{\{x:g(x)\leq y\}} f_X(x)\,\mathrm{d}x.
         \end{aligned}
         $$
-        $Y = f(X)$的概率密度函数为$f(y)$为
+        $Y = f(X)$的概率密度函数$f(y)$为
         $$
         f(y) = \frac{\mathrm{d}F_{Y}(y)}{\mathrm{d}y}
         $$
-        \item 若$g^{'}(x) \ne 0$,$y=g(x)$与其反函数$x=h(y)$单调性一致。\\
-        故 \\ 
+        \item 若 $g$ 在支撑区间上严格单调、可导且 $g'(x)\neq0$，设反函数为 $x=h(y)$，则
         $$
         \begin{aligned}
-        F_{Y}(y) = P(Y \leq y) &= P(g(x) \leq y) = P(X \geq h(y)) \\
-        f_{Y}(y) &= F^{'}_{Y}(y) = f_{X}(h(y))|h^{'}(y)|
+        f_Y(y)&=f_X\bigl(h(y)\bigr)\left|h'(y)\right|.
         \end{aligned}
         $$
         $$
@@ -252,17 +256,10 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
             0, & \text{其他}
         \end{cases}
         $$
-        其中$\alpha$为$Y$的下限，$\beta$为$Y$的上限。 \\
-        \(
-        \alpha = \mathrm{min}\{\lim\limits_{x \to a^{+}}g(x),
-        \lim\limits_{x \to b^{-}}g(x)
-        \}
-        \),
-        \(
-        \beta = \mathrm{max}\{\lim\limits_{x \to a^{-}}g(x),
-        \lim\limits_{x \to b^{+}}g(x)
-        \}
-        \)
+        其中 $y$ 的取值范围由 $g$ 在 $X$ 的支撑上的值域决定。若 $g$ 非单调但只有有限个可逆分支，则应对所有逆像求和：
+        \[
+        f_Y(y)=\sum_{x:g(x)=y}\frac{f_X(x)}{|g'(x)|}.
+        \]
 
     \end{enumerate}
 
@@ -271,35 +268,357 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
 \subsection{一些其他技巧}
 \begin{conclusion}{泊松积分}{poisson integral}
 $$
-    \int_{-\infty}^{\infty} \mathrm{e}^{-t^2} = \sqrt{\pi}
+    \int_{-\infty}^{\infty} \mathrm{e}^{-t^2}\,\mathrm{d}t = \sqrt{\pi}
 $$
 \end{conclusion}
 
-\begin{conclusion}{泊松分布下的比例问题}
-    设$X \sim P(\lambda)$，则$P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}$ \\
-    在$X$中发生$Y$的比例为$\alpha$，\\
-    $Y$的分布为$P(\alpha \lambda)$ ,   
-    则$P(Y = k) = \frac{(\lambda \alpha)^k e^{-\lambda \alpha}}{k!}$
+\begin{conclusion}{泊松分布的稀疏化（拓展）}{poisson-thinning}
+    设$X \sim P(\lambda)$。在给定$X$后，将这$X$个对象各自独立地以概率 $\alpha$ 保留，并记保留数为$Y$，即
+    $Y\mid X\sim B(X,\alpha)$，则
+    \[
+    Y\sim P(\alpha\lambda),\qquad
+    P(Y=k)=\frac{(\alpha\lambda)^k e^{-\alpha\lambda}}{k!}.
+    \]
+    该稀疏化结论属于拓展内容，不作为现行考研数学一主线要求。
 \end{conclusion}
 
 \begin{conclusion}{标准柯西分布}{standard cauchy distribution}
 \(X \sim \mathrm{Cauchy}(0, 1)\)\\
-\(F(x) = \frac{1}{\pi} \arctan x\)\\
+\(F(x) = \frac{1}{\pi} \arctan x + \frac{1}{2}\)
 \(f(x) = \frac{1}{\pi (1 + x^2)}\)
 标准柯西分布即是自由度为1的t分布,\(X \sim t(1)\),其\(EX,DX\)均不存在
 \end{conclusion}
 
 \begin{conclusion}{几何分布与指数分布的无记忆性}{geometric distribution and exponential distribution without memory}
-即无论等待了多久，下一个瞬间事件发生的概率（或等待时间）和从头开始等待是完全一样的。过去的等待不会给未来带来任何“积累”或“优势”。\\
-\(P(X > m + n | X > m) = P(X > n)\)
+几何分布（取值为 $1,2,\ldots$）与指数分布分别满足无记忆性：过去的等待不改变未来的条件分布。统一写作
+\[
+P(X>m+n\mid X>m)=P(X>n),
+\]
+其中离散情形 $m,n$ 为非负整数，连续情形 $m,n\geq0$。
 \end{conclusion}
 
 \begin{conclusion}{两个变换}{two transform}
 \begin{enumerate}
-    \item \(F_{X}(x)\)在\(X\)的正概率密度区间上严格单调递增，若\(X \sim F_{X}(x)\),则
-    \(F_{X}(x) \sim U(0,1)\)
-    \item 设随机变量\(X\)的分布函数\(F_{X}(x)\)连续，且\(F_{X}(x)\)在\(X\)的正概率密度区间上严格单调且
-    \(Y = -\ln[1 - F_{X}(x)]\),随机变量\(Y\)服从指数分布\(E(1)\)
+    \item 若 $F_X$ 连续，则概率积分变换给出 $F_X(X)\sim U(0,1)$。
+    \item 若 $F_X$ 连续，则 $Y=-\ln\bigl[1-F_X(X)\bigr]\sim E(1)$；严格单调性不是必要条件。
 \end{enumerate}
 \end{conclusion}
 
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（填空题）} 设离散型随机变量 $X$ 的分布律为
+\[
+\begin{array}{c|cccc}
+X & -1 & 0 & 1 & 2 \\
+\hline
+P & 0.2 & 0.3 & 0.3 & 0.2
+\end{array}
+\]
+求：(1) $X$ 的分布函数 $F(x)$；(2) $P(0 < X \leq 1.5)$；(3) $P(0 \leq X < 1.5)$。
+
+\boxed{\textbf{解}} 
+(1) 由分布函数定义 $F(x)=P(X \leq x)$，分段写出：
+\[
+F(x)=\begin{cases}
+0, & x < -1, \\
+0.2, & -1 \leq x < 0, \\
+0.5, & 0 \leq x < 1, \\
+0.8, & 1 \leq x < 2, \\
+1, & x \geq 2.
+\end{cases}
+\]
+(2) $P(0 < X \leq 1.5) = F(1.5) - F(0) = 0.8 - 0.5 = 0.3$（即 $P(X=1)$）。
+
+(3) $P(0 \leq X < 1.5) = F(1.5-0) - F(0-0) = 0.8 - 0.2 = 0.6$（即 $P(X=0)+P(X=1)$）。
+
+\boxed{\textbf{注}} 离散型随机变量分布函数为阶梯函数，在取值点处右连续，跳跃高度即为该点的概率值。计算区间概率时务必注意端点开闭，区分 $F(x_0)$ 与 $F(x_0-0)$。
+
+\item \textbf{（选择题）} 设 $X \sim N(3, 4)$，则 $P(1 < X < 5) = $ \underline{\qquad}。
+\begin{enumerate}[label=(\Alph*)]
+    \item $\Phi(1) - \Phi(0)$
+    \item $2\Phi(1) - 1$
+    \item $\Phi(2) - \Phi(0)$
+    \item $2\Phi(2) - 1$
+\end{enumerate}
+
+\boxed{\textbf{解}} 选 (B)。
+
+$X \sim N(3,4)$，$\mu = 3$，$\sigma = 2$。标准化：
+\[
+P(1 < X < 5) = P\!\left(\frac{1-3}{2} < \frac{X-3}{2} < \frac{5-3}{2}\right) = P(-1 < Z < 1)
+\]
+由标准正态分布对称性 $\Phi(-x) = 1 - \Phi(x)$：
+\[
+P(-1 < Z < 1) = \Phi(1) - \Phi(-1) = \Phi(1) - [1 - \Phi(1)] = 2\Phi(1) - 1.
+\]
+故只有 (B) 正确。注意 $P(|Z|<a) = 2\Phi(a)-1$ 是常用结论。
+
+\item \textbf{（填空题）} 设 $X \sim B(200, 0.01)$，利用泊松定理近似计算 $P(X = 2) \approx$ \underline{\qquad}。（已知 $\mathrm{e}^{-2} \approx 0.1353$）
+
+\boxed{\textbf{解}} $n = 200$ 较大，$p = 0.01$ 较小，$\lambda = np = 2$。由泊松定理：
+\[
+P(X = 2) \approx \frac{\lambda^2}{2!}\mathrm{e}^{-\lambda} = \frac{4}{2} \times 0.1353 = 2 \times 0.1353 = 0.2706.
+\]
+
+\boxed{\textbf{注}} 泊松近似适用于$n$较大、$p$较小的稀有事件计数，近似质量还取决于$np$的规模；$n\geq20$、$p\leq0.05$只能作为经验参考，不能当作严格分界。考研中常考查近似计算和条件判断。
+
+\item \textbf{（计算题）} 设某电子元件的寿命 $X$（单位：千小时）服从参数 $\lambda = 0.5$ 的指数分布。求：
+\begin{enumerate}[label=(\arabic*)]
+    \item 该元件寿命超过 $2$ 千小时的概率；
+    \item 已知该元件已正常工作了 $2$ 千小时，还能再使用至少 $3$ 千小时的概率。
+\end{enumerate}
+
+\boxed{\textbf{解}} $X \sim E(0.5)$，$f(x) = 0.5\mathrm{e}^{-0.5x}\ (x > 0)$，$F(x) = 1 - \mathrm{e}^{-0.5x}\ (x \geq 0)$。
+
+(1) $P(X > 2) = 1 - F(2) = \mathrm{e}^{-0.5 \times 2} = \mathrm{e}^{-1} \approx 0.3679$。
+
+(2) 由条件概率：
+\[
+P(X > 5 \mid X > 2) = \frac{P(X > 5)}{P(X > 2)} = \frac{\mathrm{e}^{-0.5 \times 5}}{\mathrm{e}^{-0.5 \times 2}} = \frac{\mathrm{e}^{-2.5}}{\mathrm{e}^{-1}} = \mathrm{e}^{-1.5} \approx 0.2231.
+\]
+或直接由指数分布的\textbf{无记忆性}：$P(X > s + t \mid X > s) = P(X > t)$，故
+$P(X > 5 \mid X > 2) = P(X > 3) = \mathrm{e}^{-1.5}$。
+
+\item \textbf{（计算题）} 设连续型随机变量 $X$ 的分布函数为
+\[
+F(x) = \begin{cases}
+0, & x < 0, \\
+kx^2, & 0 \leq x < 1, \\
+1, & x \geq 1.
+\end{cases}
+\]
+(1) 求常数 $k$；(2) 求概率密度 $f(x)$；(3) 求 $P(0.3 < X < 0.7)$。
+
+\boxed{\textbf{解}}
+(1) 由分布函数的连续性（在 $x = 1$ 处）：$\lim\limits_{x \to 1^-} F(x) = k \cdot 1^2 = k = F(1) = 1$，故 $k = 1$。
+
+(2) $f(x) = F'(x)$，在可导点处求导：
+\[
+f(x) = \begin{cases}
+2x, & 0 < x < 1, \\
+0, & \text{其他}.
+\end{cases}
+\]
+
+(3) $P(0.3 < X < 0.7) = F(0.7) - F(0.3) = 0.7^2 - 0.3^2 = 0.49 - 0.09 = 0.40$。
+或由密度积分：$\int_{0.3}^{0.7} 2x\,\mathrm{d}x = [x^2]_{0.3}^{0.7} = 0.49 - 0.09 = 0.40$。
+
+\end{enumerate}
+
+\subsection{综合提高题}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（计算题，变换法）} 设 $X \sim U(0, 1)$，求 $Y = -\ln(1 - X)$ 的概率密度。
+
+\boxed{\textbf{解}} \textbf{分布函数法。}
+
+$X \sim U(0,1)$，$f_X(x) = 1\ (0 < x < 1)$。
+
+$Y = -\ln(1-X)$：当 $x \to 0^+$ 时 $y \to 0^+$；当 $x \to 1^-$ 时 $y \to +\infty$。故 $y > 0$。
+\[
+\begin{aligned}
+F_Y(y) &= P(Y \leq y) = P(-\ln(1-X) \leq y) \\
+&= P(\ln(1-X) \geq -y) = P(1-X \geq \mathrm{e}^{-y}) \\
+&= P(X \leq 1 - \mathrm{e}^{-y}), \quad y > 0.
+\end{aligned}
+\]
+当 $y > 0$ 时，$0 < 1 - \mathrm{e}^{-y} < 1$，故
+\[
+F_Y(y) = \int_0^{1 - \mathrm{e}^{-y}} 1\,\mathrm{d}x = 1 - \mathrm{e}^{-y}.
+\]
+求导得 $f_Y(y) = F_Y'(y) = \mathrm{e}^{-y}\ (y > 0)$；$f_Y(y) = 0\ (y \leq 0)$。
+
+故 $Y \sim E(1)$。这验证了重要结论：若 $X \sim U(0,1)$，则 $-\ln(1-X) \sim E(1)$（也可用 $-\ln X \sim E(1)$）。
+
+\boxed{\textbf{注}} 分布函数法是求随机变量函数分布的通法，核心步骤：(1) 由 $X$ 的范围确定 $Y$ 的值域；(2) 写出 $F_Y(y) = P(g(X) \leq y)$；(3) 反解出 $X$ 的范围并利用 $f_X$ 积分；(4) 求导得 $f_Y$。特别注意 $g$ 非单调时需分段讨论。
+
+\item \textbf{（计算题，平方变换）} 设 $X \sim N(0, 1)$，求 $Y = X^2$ 的概率密度。
+
+\boxed{\textbf{解}} $Y = X^2 \geq 0$，值域 $y \geq 0$。
+
+当 $y \leq 0$ 时，$F_Y(y) = 0$。
+
+当 $y > 0$ 时，
+\[
+\begin{aligned}
+F_Y(y) &= P(X^2 \leq y) = P(-\sqrt{y} \leq X \leq \sqrt{y}) \\
+&= \Phi(\sqrt{y}) - \Phi(-\sqrt{y}) = 2\Phi(\sqrt{y}) - 1.
+\end{aligned}
+\]
+\[
+\begin{aligned}
+f_Y(y) = F_Y'(y) &= 2\varphi(\sqrt{y}) \cdot \frac{1}{2\sqrt{y}} = \frac{\varphi(\sqrt{y})}{\sqrt{y}} \\
+&= \frac{1}{\sqrt{2\pi}} \cdot \frac{\mathrm{e}^{-y/2}}{\sqrt{y}} = \frac{1}{\sqrt{2\pi}}\, y^{-\frac{1}{2}}\,\mathrm{e}^{-\frac{y}{2}}, \quad y > 0.
+\end{aligned}
+\]
+$f_Y(y) = 0\ (y \leq 0)$。
+
+\boxed{\textbf{注}} 这是自由度为 $1$ 的卡方分布 $\chi^2(1)$ 的密度函数。$Y = X^2$ 的变换中 $g(x) = x^2$ 在整个 $\mathbb{R}$ 上不单调，不能直接套用单调公式，必须用分布函数法分段处理。
+
+\item \textbf{（计算题，拉普拉斯分布）} 设随机变量 $X$ 的概率密度为 $f(x) = \frac{1}{2}\mathrm{e}^{-|x|}$，$-\infty < x < +\infty$（拉普拉斯分布）。求：
+\begin{enumerate}[label=(\arabic*)]
+    \item $X$ 的分布函数 $F(x)$；
+    \item $P(|X| < 1)$。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+(1) $F(x) = \int_{-\infty}^{x} \frac{1}{2}\mathrm{e}^{-|t|}\,\mathrm{d}t$。
+
+当 $x < 0$ 时：
+\[
+F(x) = \int_{-\infty}^{x} \frac{1}{2}\mathrm{e}^{t}\,\mathrm{d}t = \frac{1}{2}\mathrm{e}^{x}.
+\]
+
+当 $x \geq 0$ 时：
+\[
+\begin{aligned}
+F(x) &= \int_{-\infty}^{0} \frac{1}{2}\mathrm{e}^{t}\,\mathrm{d}t + \int_{0}^{x} \frac{1}{2}\mathrm{e}^{-t}\,\mathrm{d}t \\
+&= \frac{1}{2} + \frac{1}{2}(1 - \mathrm{e}^{-x}) = 1 - \frac{1}{2}\mathrm{e}^{-x}.
+\end{aligned}
+\]
+故
+\[
+F(x) = \begin{cases}
+\dfrac{1}{2}\mathrm{e}^{x}, & x < 0, \\[6pt]
+1 - \dfrac{1}{2}\mathrm{e}^{-x}, & x \geq 0.
+\end{cases}
+\]
+
+(2) $P(|X| < 1) = F(1) - F(-1) = \left(1 - \frac{1}{2}\mathrm{e}^{-1}\right) - \frac{1}{2}\mathrm{e}^{-1} = 1 - \mathrm{e}^{-1} \approx 0.6321$。
+
+\boxed{\textbf{注}} 拉普拉斯分布又称双指数分布，是双边指数衰减的对称分布，在绝对值损失函数和鲁棒统计中有重要应用。其分布函数在 $x = 0$ 处连续但密度不光滑。
+
+\item \textbf{（计算题，线性变换）} 设 $X \sim N(\mu, \sigma^2)$，$a \neq 0$，$Y = aX + b$。证明 $Y \sim N(a\mu + b,\, a^2\sigma^2)$。
+
+\boxed{\textbf{解}} \textbf{分布函数法。}
+
+当 $a > 0$ 时：
+\[
+F_Y(y) = P(aX + b \leq y) = P\!\left(X \leq \frac{y-b}{a}\right) = F_X\!\left(\frac{y-b}{a}\right)
+\]
+\[
+f_Y(y) = F_Y'(y) = f_X\!\left(\frac{y-b}{a}\right) \cdot \frac{1}{a}.
+\]
+
+当 $a < 0$ 时：
+\[
+F_Y(y) = P(aX + b \leq y) = P\!\left(X \geq \frac{y-b}{a}\right) = 1 - F_X\!\left(\frac{y-b}{a}\right)
+\]
+\[
+f_Y(y) = F_Y'(y) = -f_X\!\left(\frac{y-b}{a}\right) \cdot \frac{1}{a} = f_X\!\left(\frac{y-b}{a}\right) \cdot \frac{1}{|a|}.
+\]
+
+综合（$a \neq 0$）：
+\[
+\begin{aligned}
+f_Y(y) &= \frac{1}{|a|}\, f_X\!\left(\frac{y-b}{a}\right) \\
+&= \frac{1}{|a|\sigma\sqrt{2\pi}} \exp\!\left\{-\frac{\left(\frac{y-b}{a}-\mu\right)^2}{2\sigma^2}\right\} \\
+&= \frac{1}{|a|\sigma\sqrt{2\pi}} \exp\!\left\{-\frac{\bigl(y - (a\mu + b)\bigr)^2}{2a^2\sigma^2}\right\}.
+\end{aligned}
+\]
+这正是 $N(a\mu + b,\, a^2\sigma^2)$ 的密度函数，故 $Y \sim N(a\mu + b,\, a^2\sigma^2)$。
+
+\boxed{\textbf{注}} 正态分布的线性变换仍为正态分布，此性质称为正态分布的\textbf{线性不变性}。特别地，取 $a = 1/\sigma$，$b = -\mu/\sigma$ 即得标准化变换 $Z = (X-\mu)/\sigma \sim N(0,1)$。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（\boxed{\textbf{真题风格}}，综合题，分段密度）} 设随机变量 $X$ 的概率密度为
+\[
+f(x) = \begin{cases}
+Ax + \dfrac{1}{2}, & 0 \leq x < 1, \\[6pt]
+0, & \text{其他}.
+\end{cases}
+\]
+(1) 求常数 $A$；(2) 求 $X$ 的分布函数 $F(x)$；(3) 求 $Y = 1/X$ 的概率密度。
+
+\boxed{\textbf{解}}
+(1) 由规范性 $\int_{-\infty}^{+\infty} f(x)\,\mathrm{d}x = 1$：
+\[
+\int_0^1 \left(Ax + \frac{1}{2}\right)\mathrm{d}x = \left[\frac{A}{2}x^2 + \frac{x}{2}\right]_0^1 = \frac{A}{2} + \frac{1}{2} = 1 \;\Longrightarrow\; A = 1.
+\]
+故 $f(x) = x + \frac{1}{2}$，$0 \leq x < 1$。
+
+(2) $F(x) = \int_{-\infty}^{x} f(t)\,\mathrm{d}t$，分段：
+\[
+F(x) = \begin{cases}
+0, & x < 0, \\[4pt]
+\displaystyle\int_0^x \!\left(t + \frac{1}{2}\right)\mathrm{d}t = \frac{x^2}{2} + \frac{x}{2}, & 0 \leq x < 1, \\[8pt]
+1, & x \geq 1.
+\end{cases}
+\]
+
+(3) $Y = 1/X$，$X \in (0,1)$，$Y \in (1, +\infty)$。$y = g(x) = 1/x$ 在 $(0,1)$ 上严格单调递减。
+
+反函数 $x = h(y) = 1/y$，$h'(y) = -1/y^2$，$|h'(y)| = 1/y^2$。
+
+由公式 $f_Y(y) = f_X(h(y))\,|h'(y)|$：
+\[
+f_Y(y) = \left(\frac{1}{y} + \frac{1}{2}\right) \cdot \frac{1}{y^2} = \frac{1}{y^3} + \frac{1}{2y^2}, \quad y > 1;
+\]
+$f_Y(y) = 0$，$y \leq 1$。
+
+\boxed{\textbf{注}} 本题综合考查了密度规范性、分布函数分段求法以及单调函数的变换公式；这类“求 $A$—求 $F(x)$—求 $Y=g(X)$ 分布”的三段式问题是常见综合题型。
+
+\item \textbf{（\boxed{\textbf{真题风格}}，对数正态）} 设 $X \sim N(0, 1)$，求 $Y = \mathrm{e}^X$ 的概率密度（对数正态分布）。
+
+\boxed{\textbf{解}} $Y = \mathrm{e}^X$，值域 $y > 0$。
+
+$y = g(x) = \mathrm{e}^x$ 在 $\mathbb{R}$ 上严格单调递增。反函数 $x = h(y) = \ln y$，$h'(y) = 1/y$。
+
+\textbf{方法一（单调公式）}：
+\[
+f_Y(y) = f_X(\ln y) \cdot |h'(y)| = \frac{1}{\sqrt{2\pi}}\,\mathrm{e}^{-\frac{(\ln y)^2}{2}} \cdot \frac{1}{y}, \quad y > 0;
+\]
+$f_Y(y) = 0$，$y \leq 0$。
+
+\textbf{方法二（分布函数法）}：
+\[
+F_Y(y) = P(\mathrm{e}^X \leq y) = P(X \leq \ln y) = \Phi(\ln y), \quad y > 0.
+\]
+\[
+f_Y(y) = F_Y'(y) = \varphi(\ln y) \cdot \frac{1}{y} = \frac{1}{y\sqrt{2\pi}}\,\mathrm{e}^{-\frac{(\ln y)^2}{2}}, \quad y > 0.
+\]
+
+\boxed{\textbf{注}} 对数正态分布 $\mathrm{LN}(0,1)$ 在金融数学（Black-Scholes 模型中股票价格）、可靠性工程中有广泛应用。期望 $E(Y) = \mathrm{e}^{1/2}$，方差 $D(Y) = \mathrm{e}^2 - \mathrm{e}^1$。一般地，若 $X \sim N(\mu,\sigma^2)$，则 $Y = \mathrm{e}^X \sim \mathrm{LN}(\mu,\sigma^2)$，密度为 $f_Y(y) = \frac{1}{y\sigma\sqrt{2\pi}}\exp\{-\frac{(\ln y - \mu)^2}{2\sigma^2}\}$。
+
+\item \textbf{（\boxed{\textbf{真题风格}}，综合题，立方变换）} 设随机变量 $X$ 的概率密度为
+\[
+f_X(x) = \begin{cases}
+2x, & 0 < x < 1, \\
+0, & \text{其他}.
+\end{cases}
+\]
+求 $Y = X^3$ 的概率密度。
+
+\boxed{\textbf{解}} $y = x^3$ 在 $(0, 1)$ 上严格单调递增，值域 $y \in (0, 1)$。
+
+反函数 $x = h(y) = y^{1/3}$，$h'(y) = \frac{1}{3}y^{-2/3} > 0$（单调递增，绝对值即本身）。
+
+由单调变换公式：
+\[
+\begin{aligned}
+f_Y(y) &= f_X(h(y)) \cdot |h'(y)| = 2y^{1/3} \cdot \frac{1}{3}y^{-2/3} \\
+&= \frac{2}{3}y^{-1/3}, \quad 0 < y < 1;
+\end{aligned}
+\]
+$f_Y(y) = 0$，其他。
+
+\textbf{验证规范性：}
+\[
+\int_0^1 \frac{2}{3}y^{-1/3}\,\mathrm{d}y = \frac{2}{3} \cdot \frac{3}{2}\Bigl[y^{2/3}\Bigr]_0^1 = 1.
+\]
+
+\boxed{\textbf{拓展注}} 若 $X$ 的密度为 $f_X(x) = ax^{a-1}$（$0 < x < 1$，可识别为 $\mathrm{Beta}(a,1)$），则 $Y = X^k$ 的密度为 $f_Y(y) = \frac{a}{k}\,y^{a/k - 1}$（$0 < y < 1$）。Beta 分布名称不作为本题主线要求；本题只需掌握单调变换公式。
+
+\end{enumerate}

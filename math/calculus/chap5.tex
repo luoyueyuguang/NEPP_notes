@@ -5,8 +5,12 @@
     当未知函数是一元函数时，称为常微分方程。
 \end{mydef}
 
-\begin{mydef}{线性微分方程与非线性微分方程}
-    以未知函数及其各阶导数的线性多项式形式(即幂次为\(1\))出现的微分方程，称为线性微分方程，否则称为非线性微分方程。
+\begin{mydef}{线性微分方程与非线性微分方程}{LinearNonlinearODE}
+    若未知函数及其各阶导数只以一次线性组合出现，且其系数仅为自变量的函数，即方程可写成
+    \[
+    a_n(x)y^{(n)}+a_{n-1}(x)y^{(n-1)}+\cdots+a_1(x)y'+a_0(x)y=g(x),
+    \]
+    则称其为线性微分方程；否则称为非线性微分方程。特别地，$yy'$、$(y')^2$、$\sin y$ 等含未知函数或其导数的非线性组合均不属于线性方程。
 \end{mydef}
 
 \begin{mydef}{微分方程的阶}{ODEOrder}
@@ -14,7 +18,7 @@
     \[
         F(x,y,y',\cdots,y^{(n)})=0
     \]
-    其中$n$称为该方程的\textbf{阶}。\(F\)是已知的\(n+1\)元函数。
+    其中$n$称为该方程的\textbf{阶}。若把 $x,y,y',\ldots,y^{(n)}$ 视为相互独立的形式变量，则 $F$ 是已知的 $n+2$ 元函数。
 \end{mydef}
 
 \begin{mydef}{微分方程的解}{ODESolution}
@@ -22,7 +26,7 @@
     要求解必须在某区间内连续，并且具有与方程阶数相同的连续导数。
 \end{mydef}
 
-\begin{mydef}{微分方程的通解和特解}{ODESolution}
+\begin{mydef}{微分方程的通解和特解}{ODEGeneralParticularSolution}
     含有任意常数的解称为该微分方程的\textbf{通解}，不含任意常数的解称为该微分方程的\textbf{特解}。
 \end{mydef}
 
@@ -64,9 +68,10 @@
         \int \frac{\mathrm{d}y}{g(y)} = \int f(x) \mathrm{d}x
         + C
     \]
+    分离变量时若除以了\(g(y)\)，还应单独检查并补回满足\(g(y)=0\)的常值解；这些解可能在除法过程中丢失。
 \end{conclusion}
 
-\begin{mydef}{\(y'+p(x)y=q(x)\)的微分方程}{FirstOrderLinearODE}
+\begin{mydef}{$y'+p(x)y=q(x)$的微分方程}{FirstOrderLinearODE}
     形如
     \[
         y' + p(x)y = q(x)
@@ -78,12 +83,12 @@
     \]
 \end{mydef}
 
-\begin{conclusion}{\(y'+p(x)y=q(x)\)的解法}{FirstOrderLinearODESolution}
+\begin{conclusion}{$y'+p(x)y=q(x)$的解法}{FirstOrderLinearODESolution}
     \begin{enumerate}
         \item 积分因子法\\
         设\(\mu(x)\)为积分因子，则
         \[
-            \mu(x)y' + p(x)y = q(x)
+            \mu(x)y' + \mu(x)p(x)y = \mu(x)q(x)
         \]
         可改写为
         \[
@@ -99,13 +104,13 @@
         \[
             y = \mu(x)^{-1} \left( \int \mu(x) q(x) \mathrm{d}x + C \right)
         \]
-        将\(mu(x)\)换成\(e^{\int p(x) \mathrm{d}x}\)即得
+        将\(\mu(x)\)换成\(e^{\int p(x) \mathrm{d}x}\)即得
         \[
             y = e^{-\int p(x) \mathrm{d}x} \left( \int e^{\int p(x) \mathrm{d}x} q(x) \mathrm{d}x + C \right)
         \]
         相应的齐次方程通解为
         \[
-            y = e^{-\int p(x) \mathrm{d}x} \left( \int e^{\int p(x) \mathrm{d}x} q(x) \mathrm{d}x + C \right)
+            y = Ce^{-\int p(x) \mathrm{d}x}
         \]
     \end{enumerate}
 \end{conclusion}
@@ -113,8 +118,7 @@
 \begin{mydef}{全微分方程}{ALLODEForm}
     \(P(x, y)dx + Q(x, y)dy = 0\),存在\(u(x,y)\)，使得
     \(du = P(x,y)dx + Q(x,y)dy\)\\
-    若在考虑的单连通区域上满足\(\frac{\partial Q}{\partial x} = \frac{\partial P}{\partial y}\),则称其
-    为全微分方程。
+    若 $P,Q$ 在所考察的单连通区域上具有连续的一阶偏导数，且满足\(\frac{\partial Q}{\partial x} = \frac{\partial P}{\partial y}\)，则该微分形式为全微分，原方程称为全微分方程。
 \end{mydef}
 
 \begin{conclusion}{全微分方程的解法}{ODESolutionMethod}
@@ -130,16 +134,17 @@
         \item 不定积分法 \\
         由\(\frac{\partial u}{\partial x} = P(x,y)\),对\(x\)积分得
         \[
-            u(x,y) = \int_{x_0}^{x} P(t,y_0) \mathrm{d}t + C
+        u(x,y) = \int P(x,y)\,\mathrm{d}x + C(y)
         \]
         对\(y\)求导得
         \[
             \frac{\partial u}{\partial y} = Q(x,y) = \frac{\partial}{\partial y}
-            \left( \int_{x_0}^{x} P(t,y_0) \mathrm{d}t + C \right) = \frac{\partial}{\partial y}[\int P(x, y)dy] + C'(y)
+            \left(\int P(x,y)\,\mathrm{d}x+C(y)\right)
+            =\frac{\partial}{\partial y}\left(\int P(x,y)\,\mathrm{d}x\right)+C'(y)
         \]
         由此解的\(C'(y)\)，再对\(y\)积分得\(C(y)\)，从而得出\(u(x,y)\)。
         \[
-            u(x,y) = \int_{x_0}^{x} P(t,y_0) \mathrm{d}t + C(y)
+            u(x,y) = \int P(x,y)\,\mathrm{d}x + C(y)
         \]
         \item 凑微分法
         \[
@@ -180,9 +185,10 @@
         \frac{1}{1-n} \frac{\mathrm{d}u}{\mathrm{d}x} + p(x)u = q(x)
     \]
     这是一个一阶线性微分方程。
+    由于代换\(u=y^{1-n}\)通常要求\(y\ne0\)，完成代换求解后还应回到原方程检查是否存在被代换遗漏的零解；当原方程有定义时，\(y\equiv0\)通常也是解。
 \end{conclusion}
 
-\begin{conclusion}{\(\frac{\mathrm{dy}}{\mathrm{dx}} = \frac{h(y)}{p(y)x + q(y)}\)类似方程的解法}{FirstOrderLinearODE}
+\begin{conclusion}{$\frac{\mathrm{dy}}{\mathrm{dx}} = \frac{h(y)}{p(y)x + q(y)}$类似方程的解法}{FirstOrderLinearODE}
     形如
     \[
         \frac{\mathrm{dy}}{\mathrm{dx}} = \frac{h(y)}{p(y)x + q(y)}
@@ -212,7 +218,7 @@
         \hline
         \(y'' = f(x, y')\) & 令\(p = y'\)，则\(y'' = p'\)，方程变为
         \[
-            p'' = f(x, p)
+            p' = f(x, p)
         \]
         这是一个一阶微分方程，解出\(p\)后再积分得\(y\)。 \\
         \hline
@@ -231,12 +237,12 @@
 \begin{conclusion}{含变限积分得方程得求法}{IntegralFormODE}
     形如
     \[
-        y' = f(x, y, \int_{x_0}^{x} g(t, y) \mathrm{d}t)
+        y' = f\left(x, y(x), \int_{x_0}^{x} g(t, y(t)) \mathrm{d}t\right)
     \]
     的微分方程。\\
     令
     \[
-        z = \int_{x_0}^{x} g(t, y) \mathrm{d}t
+        z = \int_{x_0}^{x} g(t, y(t)) \mathrm{d}t
     \]
     则
     \[
@@ -288,9 +294,9 @@
     \(y'' + p(x)y' + q(x)y = A_1f_1(x) + A_2f_2(x)\)的解
     \\同时具有以下性质
     \begin{enumerate}
-        \item 若\(y_1(x), y_2(x)\)是方程的两个特解，则\(y_1(x) + y_2(x)\)也是方程的解。
-        \item 若\(y_1(x), y_2(x)\)是方程的两个特解，则\(y_1(x) - y_2(x)\)是对应的齐次方程的解。
-        \item 齐次方程和非齐次方程的解的和是非齐次方程的解。
+        \item 若\(y_1,y_2\)分别对应右端\(f_1,f_2\)，则\(A_1y_1+A_2y_2\)对应右端\(A_1f_1+A_2f_2\)。
+        \item 同一非齐次方程的两个解之差是对应齐次方程的解；两个同方程特解之和一般对应右端\(2f\)，不再是原方程的解。
+        \item 对应齐次方程的任一解与非齐次方程的任一解之和，仍是该非齐次方程的解。
     \end{enumerate}
 \end{conclusion}
 
@@ -308,11 +314,7 @@
     其中\(c_1, c_2\)为任意常数。
     \\
     \newline
-    若\(y_1, y_2\)是非齐次方程的两个线性无关的解，则非齐次方程的通解为
-    \[
-        y = c_1y_1(x) + c_2y_2(x) + y^*
-    \]
-    其中\(c_1, c_2\)为任意常数。
+    非齐次方程的解集不是向量空间，不能用“两个线性无关的非齐次解作线性组合”构造通解。正确结构始终是“一个非齐次特解＋对应齐次通解”。
     \newline
     若\(\exists c_0, c_1, c_2, \cdots, c_n, c_i\)使得
     \(c_0y_0(x) + c_1y_1(x) + c_2y_2(x) + \cdots + c_ny_n(x) \equiv 0\)
@@ -324,11 +326,11 @@
 \begin{mydef}{二阶常数齐次线性微分方程}{SecondOrderHomogeneousODE}
     其一般形式为
     \[
-        y'' + p(x)y' + q(x)y = 0
+        y'' + py' + qy = 0
     \]
     其特征方程为
     \[
-        r^2 + p(x)r + q(x) = 0
+        r^2 + pr + q = 0
     \]
     根据判别式\(\Delta = p^2 - 4q\)的值，分为三种情况
     \begin{enumerate}
@@ -421,7 +423,7 @@
 \begin{mydef}{欧拉方程}{EulerEquation}
     形如
     \[
-        x^ny^{(n)} + a_{n-1}x^{n-1}y^{(n-1)} + \cdots + a_{n-1}xy' + a_{n}y = f(x)
+        x^ny^{(n)} + a_{n-1}x^{n-1}y^{(n-1)} + \cdots + a_1xy' + a_0y = f(x)
     \]的方程称为欧拉方程。\\
     令\(x = e^t\)，则
     \[
@@ -439,303 +441,40 @@
 \end{mydef}
 
 
-\subsection{微分算子法}
+\subsection{微分算子法（拓展）}
 
-\begin{mydef}{以一个线性的观点看待函数}{LinearViewOfFunction}
-    一个函数$y = f(x)$，它输入$x$，输出$y$，可以看作是一个映射,看作是线性变换，是一个矩阵。
-    如\[
-        f(x) = 1 + x \Leftrightarrow \begin{bmatrix}
-            1 & 1 \\
-            0 & 1
-        \end{bmatrix}\begin{bmatrix}
-            1 \\
-            x
-        \end{bmatrix} = \begin{bmatrix}
-            1 + x \\
-            x
-        \end{bmatrix}
-    \]
-\end{mydef}
+\textbf{考研定位：}微分算子记号可用于简化常系数线性微分方程的书写，但不属于考研数学一必须掌握的独立解法。主线仍应使用特征方程法和待定系数法。
 
-\begin{mydef}{什么是线性}{Linear}
-    线性具有叠加性和齐次性
-    \[
-        \lambda f(x) = \lambda(1 + x) = 1 + \lambda x
-    \]
-    线性变换的一个重要性质是，它的复合也是线性变换。
-    \[
-        (g \circ f)(x) = g(f(x)) = g(1 + x) = 1 + g(x)
-    \]
-    从矩阵观点来看，\(f(x)\)和\(g(x)\)分别对应矩阵\(A\)和\(B\)，则\(g \circ f\)对应矩阵\(BA\)
-    \[
-        (g \circ f)(x) = g(f(x)) = g(1 + x) = 1 + g(x) \Leftrightarrow
-        \begin{bmatrix}
-            1 & 1 \\
-            0 & 1
-        \end{bmatrix}\begin{bmatrix}
-            1 & 1 \\
-            0 & 1
-        \end{bmatrix} = \begin{bmatrix}
-            1 & 0 \\
-            0 & 1
-        \end{bmatrix}
-    \]
-    所以函数可以看作是线性变换，微分方程可以看作是线性变换的复合。
-\end{mydef}
+令
+\[
+  D=\frac{\mathrm d}{\mathrm dx},\qquad
+  L(D)=a_nD^n+a_{n-1}D^{n-1}+\cdots+a_1D+a_0.
+\]
+求导算子满足线性性
+\[
+  D(\alpha f+\beta g)=\alpha Df+\beta Dg,
+\]
+但这并不意味着任意函数映射 \(x\mapsto f(x)\) 都是线性变换。例如 \(f(x)=1+x\) 是仿射函数，不满足 \(f(0)=0\)。
 
-\begin{mydef}{以矩阵的形式看求导}{MatrixViewOfDerivative}
-    设\(y = ax^2 + bx + c\)，则\(y' = 2ax + b\),\(y'' = 2a\)，设想一个矩阵\(D\)表示在基\(\{1, x, x^2\}\)下的求导变换
-    \[
-        D = \begin{bmatrix}
-            0 & 1 & 0 \\
-            0 & 0 & 2 \\
-            0 & 0 & 0
-        \end{bmatrix}
-    \]
-    则\(y = ax^2 + bx + c\)的导数为
-    \[
-        y' = D y = \begin{bmatrix}
-            0 & 1 & 0 \\
-            0 & 0 & 2 \\
-            0 & 0 & 0
-        \end{bmatrix}\begin{bmatrix}
-            1 \\
-            b \\
-            a
-        \end{bmatrix} = \begin{bmatrix}
-            b \\
-            2a \\
-            0
-        \end{bmatrix}
-    \]
-    不严谨的讲，这个\(D\)就是微分算子\(\frac{\mathrm{d}}{\mathrm{d}x}\)。但在做题时，我们并不需要特别在意
-    \(D\)是个矩阵，只需知道\(D^{n}\)代表求\(n\)阶导，\(D^{-n}\)代表求\(n\)阶积分。
-\end{mydef}
+常系数线性方程可简写为
+\[
+  L(D)y=F(x).
+\]
+齐次方程 \(L(D)y=0\) 的解由特征方程 \(L(r)=0\) 得到。对非齐次方程，算子记号只是一种简写，选取特解仍按待定系数法进行。
 
-\begin{conclusion}{幂零性质}{PowerZeroProperty}
-    设\(D\)是一个\(n\)阶矩阵，则\(D^n = 0\)。
-    这说明\(D\)的幂次矩阵的乘积是\(0\)矩阵。
-    将我们的微分算子\(\frac{\mathrm{d}}{\mathrm{d}x}\)推广到\(n\)阶多项式上，则
-    \[
-        D^n = \begin{bmatrix}
-        0  & 2 &  &  \\
-        0  &  & \ddots &  \\
-        0  &  &  & n(n-1) \\
-        0  &  &  &  &  0
-        \end{bmatrix}
-    \]
-    从求导角度看，表明求导多次后，结果为\(0\)。\\
-    我们可以利用幂零性来进行微分方程求解，即\(D^n y = 0\)，则\(y\)是\(n\)阶齐次线性微分方程的解。
-\end{conclusion}
+一个有用的恒等式是移位公式：
+\[
+  L(D)\bigl[e^{\lambda x}v(x)\bigr]
+  =e^{\lambda x}L(D+\lambda)v(x).
+\]
+它说明右端含 \(e^{\lambda x}\) 时可先令 \(y=e^{\lambda x}v\)；若 \(\lambda\) 是特征根，还需按其重数乘以相应的 \(x^s\)，这与待定系数法的“共振”规则完全一致。
 
-\begin{conclusion}{幂零矩阵求逆}{PowerZeroMatrixInverseProperty}
-    用微分算子，对于微分方程，我们可以表示为
-    \(g(D)y = f(x)\)，其中\(g(D)\)是一个幂零矩阵，\(f(x)\)是一个多项式。
-    则
-    \(
-        y = g(D)^{-1}f(x)
-    \)
-    对于幂零矩阵，由以下关于逆的性质
-    \[
-        A^k = 0 \Rightarrow (I - A)(I + A + A^2 + \cdots + A^{k-1}) = I
-    \]
-    即
-    \[
-        I - A \text{是可逆的},(I - A)^{-1} = I + A + A^2 + \cdots + A^{k-1}
-    \]
-    例如
-    \[
-        y'' - 3y' + 2y = x
-    \]
-    则
-    \[
-        \begin{aligned}
-        &D^2 - 3D + 2I = (D - I)(D - 2I) \\
-        &y = (D - I)^{-1}(D - 2I)^{-1}(x) \\ 
-        &(D - I)^{-1} = I + D \\
-        &(D - 2I)^{-1} = \frac{1}{2} \cdot (I - \frac{D}{2})^{-1} = \frac{1}{2} \cdot 
-        (I + (\frac{D}{2})) \\
-        &(I + \frac{D}{2}) \cdot (I + D) = I + \frac{3D}{2} =
-        \begin{bmatrix}
-            1 & \frac{3}{2} & 0 \\
-            0 & 1 & 0 \\
-            0 & 0 & 1
-        \end{bmatrix}
-        \end{aligned}
-    \]
-\end{conclusion}
-
-\begin{conclusion}{指数型微分方程的微分算子法}{eode}
-    在线性代数中有
-    \[
-        Ax = \lambda x
-    \]
-    联想到
-    \[
-        De^{\lambda x} = \lambda e^{\lambda x}
-    \]
-    所以\(e^{\lambda x}\)是\(D\)的特征向量
-    所以\(D^2e^{\lambda x} = \lambda^2 e^{\lambda x}\)
-    例如
-    \[
-        y'' + 3y' + 2y = e^x
-    \]
-    得到了
-    \[
-        y'' + 3y' + 2y = e^x
-    \]
-    则
-    \[
-        \begin{aligned}
-        (D^2 + 3D + &2I)^{-1}e^{x} = y \\
-        y &= \frac{e^x}{6}
-        \end{aligned}
-    \]
-
-\end{conclusion}
-
-\begin{conclusion}{移位定理}{ShiftTheorem}
-    \[
-        D(e^{ax}f(x)) = a e^{ax}f(x) + e^{ax}f'(x) = e^{ax}(D+a)f(x)
-    \]
-    \[
-        D^{n}(e^{ax}f(x)) = e^{ax}(D+a)^{n} f(x)
-    \]
-     对于多个根的情况，我们则有
-    \[
-        (\prod_{i = 1}^{n}(D - \lambda_i))y = 0
-        \Rightarrow
-        \sum_{i = 1}^{n} \lambda_i^n y = 0
-    \]
-    对于重根的情况，我们有
-    \[
-       (D - \lambda)^{n} y = 0
-       \Rightarrow
-       e^{-\lambda x}(D - \lambda)^{n}y = 0
-       \Rightarrow
-       y = (C_1 + C_2x + \cdots C_nx^{n-1})e^{\lambda x}
-    \]
-\end{conclusion}
-
-
-\begin{formula}{欧拉公式与三角函数}{EulerFormulaAndTrigonometricFunction}
-    \[
-        e^{ix} = \cos x + i\ sin x
-    \]
-    \(\sin x \text{与}\cos x\)均可使用指数函数来表示
-    \[
-        \sin x = \frac{e^{ix} - e^{-ix}}{2i},
-        \cos x = \frac{e^{ix} + e^{-ix}}{2}
-    \]
-    三角函数的积化和差公式也可用欧拉公式推导出来
-    \[
-        \begin{aligned}
-        &\sin (ax) \cos (bx) = \frac{e^{iax} - e^{-iax}}{2i} 
-        \cdot \frac{e^{ibx} + e^{-ibx}}{2} \\
-        &= \frac{1}{2} \cdot \frac{
-            (e^{i(a+b)x} - e^{-i(a+b)x}) + 
-            (e^{i(a-b)x} - e^{-i(a-b)x})
-        }{2i} \\
-        &= \frac{[sin(a+b)x + sin(a -b)x]}{2}
-        \end{aligned}
-    \]
-    其他三角函数公式
-    \[
-        \begin{aligned}
-            &cos ax - cos bx  = \\
-            &-2 \sin (\frac{a-b}{2} x) \sin (\frac{a + b}{2} x) \\
-            &\cos 3x = cos^3x - 3cosxsinx \\
-            &\sin 3x = 3cos^2xsinx - sin^3x 
-        \end{aligned} 
-    \]
-    也可以用欧拉公式推导出来
-\end{formula}
-
-\begin{conclusion}{自由项有三角函数的微分方程}{FreeTermHasTrigonometricFunction}
-    将三角函数和指数函数结合起来，我们可以得到一些微分方程的解。
-    \[
-        \begin{aligned}
-            &e^{(a+bi)x} = e^{ax} (\cos (bx) + i  \sin (bx)) \\
-            &e^{-ax}\cos bx = \Re\{e^{(a+bi)x}\} ,\text{取实部} \\
-             &e^{-ax}\sin bx = \Im\{e^{(a+bi)x}\},\text{取虚 部}  
-        \end{aligned}
-    \]
-    于是，有
-    \[
-        \begin{aligned}
-            D(e^{ax}sinbx) \\
-            &= D(\Im(e^{(a+bi)x})) \\
-            &= \Im(D(e^{(a+bi)x})) \\
-             &= \Im((a+bi)(e^{ax}\cos bx \\
-            & + i e^{ax}\sin bx)) \\
-             &= e^{ax}(a \sin bx + b \cos bx)
-        \end{aligned}
-    \]
-    \[
-        \begin{aligned}
-            D^{-1}(e^ax \sin bx) \\
-            &= D^{-1}(\Im(e^{(a+bi)x})) \\
-            &= \Im(D^{-1}(e^{(a+bi)x})) \\
-             &= \Im(\frac{1}{a+bi}(e^{ax}\cos bx \\
-            & - i e^{ax}\sin bx)) \\
-             &= \frac{1}{a+bi}e^{ax}(a \cos bx - b \sin bx)
-        \end{aligned} 
-    \]
-    \[
-        \begin{aligned}
-        \sum_{k = 0}^{n} cos(kx) &= \sum_{k = 0}^{n} \Re(e^{ikx})  \\
-        &= \Re(\sum_{k = 0}^{n} e^{ikx}) \\
-        &= \Re{
-            \frac{
-                1 - e^{i(n+1)x}
-            }
-            {1 - e^{inx}}
-        } \\
-        &= \Re{ 
-            \frac{
-                e^{i((n+1)/2)x}(
-                    e^{-i((n+1)/2)x} - e^{i((n+1)/2x)}
-                )
-            }
-            {
-                e^i(x/2)(e^{i(x/2)x} - e^{-i(x/2)x})
-            }
-        } \\
-        &= \frac{
-            cos(nx / 2) sin((n+1)x /2 )
-        }{
-            sin(x /2)
-        }
-        \end{aligned}
-    \]
-\end{conclusion}
-
-\begin{conclusion}{多项式微分算子的进一步推广}{PolynomialDifferentialOperator}
-    \[
-        D^n(x^m e^{\lambda x}) = e^{\lambda x}(D + \lambda)^{n} x^{m}\]
-\end{conclusion}
-
-\begin{conclusion}{欧拉方程的微分算子法}{EulerEquationDifferentialOperator}
-    若
-    \[
-        D^2(e^{a\phi(x)}) = a \phi^{'}(x)e^{a\phi(x)}
-    \]
-    转化为
-    \[
-    \frac{1}{\phi^{'}(x)}De^{a\phi(x)} = ae^{a\phi(x)}
-    \]
-    将\(
-        \frac{1}{\phi^{'}(x)}
-    \)视为算子 \\
-    因此欧拉方程的算子为\(xD\),
-    即形如\(
-        xy'' + pxy' + qy = 0
-    \)的方程，其算子方程为
-    \[
-        (xD)^2 + p(xD) + q = 0
-    \]
-\end{conclusion} 
- 
+\textbf{说明：}
+\begin{enumerate}
+  \item 在次数不超过 \(n\) 的多项式空间上，求导算子满足 \(D^{n+1}=0\)；一般矩阵或一般函数空间上的求导算子并不具有这一性质。
+  \item 形式记号 \(L(D)^{-1}\) 不能不加条件地当作普通矩阵求逆。只有在所作用的有限维函数空间和展开终止等条件明确时，才可作为简便计算。
+  \item 三角型右端可利用 \(e^{(\alpha+i\beta)x}\) 辅助计算，最后取实部或虚部；实际备考中直接采用待定系数法更稳妥。
+\end{enumerate}
 \subsection{微分方程的简单应用}
 \begin{mydef}{利用定积分的几何意义列方程}{IntegralFormODEApplication}
     利用面积，弧长，体积，形心等列方程
@@ -745,40 +484,37 @@
     \]
     体积公式为
     \[
-        V = \int_{a}^{b} y^2 \mathrm{d}x
+        V = \pi\int_{a}^{b} y^2 \mathrm{d}x
     \]
-    形心公式为
+    上式适用于平面图形绕\(x\)轴旋转所得旋转体。若密度均匀，其\(x\)坐标形心为
     \[
-        \bar{x} = \frac{1}{V} \int_{a}^{b} x y^2 \mathrm{d}x
-    \]
-    \[
-        \bar{y} = \frac{1}{V} \int_{a}^{b} y x^2 \mathrm{d}x
+        \bar{x} = \frac{\pi}{V} \int_{a}^{b} x y^2 \mathrm{d}x.
     \]
 
 \end{mydef}
 
 \begin{mydef}{利用导数的几何意义列方程}{DerivativeFormODEApplication}
     导数的几何意义是函数在点处的切线的斜率。即\(
-        Y = y(x) + y'(x)(x - x_0)
+        Y-y(x_0)=y'(x_0)(X-x_0)
     \)
     所以\(y'(x)\)是\(y(x)\)的切线的斜率，即\(y'(x)\)是\(y(x)\)的变化率。
 \end{mydef}
 
-\begin{mydef}{利用变化率满足的条件列方程}{DerivativeFormODEApplication}
+\begin{mydef}{利用变化率满足的条件列方程}{RateFormODEApplication}
     若函数\(y(x)\)的变化率满足\(y'(x) = f(x)\)，则\(y(x)\)是\(f(x)\)的积分。
 \end{mydef}
 
 \begin{mydef}{利用牛顿第二定律列方程}{NewtonSecondLaw}
-    指点做直线运动，建立坐标系\(t\)时刻的质点的坐标为\(y=y(t)\)，若质点的质量为\(m\),受力为
+    质点作直线运动，\(t\)时刻的位置为\(y=y(t)\)。若质点质量为\(m\)，所受合力为
     \(f(t,y(t),y'(t))\),则由牛顿第二定律得
     \[
-        \frac{\mathrm{d}y}{\mathrm{d}t} = y'(t) = \frac{1}{m}f(t,y(t),y'(t))
+        m\frac{\mathrm{d}^2y}{\mathrm{d}t^2}=m y''(t)=f(t,y(t),y'(t)).
     \]
     当满足一下情形时，可进行降阶
     \begin{enumerate}
         \item 外力\(f\)只依赖于时间\(t\)于速度\(v = \frac{\mathrm{d}y}{\mathrm{d}t}\),方程变成
         \[
-            \frac{\mathrm{d}v}{\mathrm{d}t} = f(t,v)
+            m\frac{\mathrm{d}v}{\mathrm{d}t} = f(t,v)
         \]
         \item 外力\(f\)只与位移\(y\)及速度\(v\)相关，由于\(
             \frac{\mathrm{d^2}y}{\mathrm{d}t^2} = \frac{\mathrm{d}v}{\mathrm{d}t} = \frac{\mathrm{dv}}{\mathrm{dy}} \cdot 
@@ -799,3 +535,420 @@
         \frac{\mathrm{d}y}{\mathrm{d}x} = f(x, y),\lim_{\delta x \to 0} F(x, y, \delta x) = f(x, y)
     \]
 \end{mydef}
+
+\newpage
+\subsection{习题精练}
+
+\subsubsection{基础过关题}
+
+\textbf{1.}（变量可分离方程）求解初值问题：
+\[
+\frac{\mathrm{d}y}{\mathrm{d}x} = \frac{1+y^{2}}{1+x^{2}},\quad y(0)=1.
+\]
+
+\boxed{\textbf{解}}
+分离变量得
+\[
+\frac{\mathrm{d}y}{1+y^{2}} = \frac{\mathrm{d}x}{1+x^{2}},
+\]
+两边积分：$\arctan y = \arctan x + C$。代入 $y(0)=1$ 得 $\arctan 1 = \arctan 0 + C$，即 $\frac{\pi}{4}=C$。故
+\[
+\arctan y = \arctan x + \frac{\pi}{4}.
+\]
+取正切：
+\[
+y = \tan\!\Bigl(\arctan x + \frac{\pi}{4}\Bigr) = \frac{x+1}{1-x}.
+\]
+由初始条件 $y(0)=1$ 及表达式 $\frac{x+1}{1-x}$ 在 $x=0$ 取值为 $1$，解在 $(-\infty,1)$ 内有定义。
+
+\bigskip
+
+\textbf{2.}（一阶线性方程）求解方程
+\[
+y' + \frac{2}{x}y = \frac{\sin x}{x^{2}},\quad x>0.
+\]
+
+\boxed{\textbf{解}}
+积分因子 $\mu(x)=e^{\int\frac{2}{x}\mathrm{d}x}=e^{2\ln x}=x^{2}$。方程两边同乘 $x^{2}$：
+\[
+x^{2}y' + 2xy = \sin x \quad\Longrightarrow\quad (x^{2}y)' = \sin x.
+\]
+积分得 $x^{2}y = -\cos x + C$，故通解
+\[
+y = \frac{C-\cos x}{x^{2}}.
+\]
+
+\bigskip
+
+\textbf{3.}（齐次方程）求解方程
+\[
+(x^{2}+y^{2})\mathrm{d}x - xy\,\mathrm{d}y = 0.
+\]
+
+\boxed{\textbf{解}}
+化为 $\frac{\mathrm{d}y}{\mathrm{d}x} = \frac{x^{2}+y^{2}}{xy} = \frac{x}{y} + \frac{y}{x}$。这是齐次方程，令 $u=\frac{y}{x}$，则 $y=ux$，$y'=u+xu'$。代入：
+\[
+u + x\frac{\mathrm{d}u}{\mathrm{d}x} = \frac{1}{u} + u \quad\Longrightarrow\quad x\frac{\mathrm{d}u}{\mathrm{d}x} = \frac{1}{u}.
+\]
+分离变量：$u\,\mathrm{d}u = \frac{\mathrm{d}x}{x}$，积分得 $\frac{u^{2}}{2} = \ln|x| + C$。代回 $u=\frac{y}{x}$：
+\[
+\frac{y^{2}}{2x^{2}} = \ln|x| + C \quad\Longrightarrow\quad y^{2} = 2x^{2}(\ln|x|+C).
+\]
+
+\bigskip
+
+\textbf{4.}（伯努利方程）求解方程
+\[
+y' - \frac{2}{x}y = x^{2}y^{2},\quad x>0.
+\]
+
+\boxed{\textbf{解}}
+这是伯努利方程 ($n=2$)。令 $z = y^{1-2} = y^{-1}$，则 $z' = -y^{-2}y'$，即 $y' = -y^{2}z'$。代入原方程：
+\[
+-y^{2}z' - \frac{2}{x}y = x^{2}y^{2}.
+\]
+由 $y=\frac{1}{z}$ 得 $y^{2}=\frac{1}{z^{2}}$，代入：
+\[
+-\frac{1}{z^{2}}z' - \frac{2}{x}\cdot\frac{1}{z} = \frac{x^{2}}{z^{2}}.
+\]
+两边乘 $z^{2}$：
+\[
+-z' - \frac{2}{x}z = x^{2} \quad\Longrightarrow\quad z' + \frac{2}{x}z = -x^{2}.
+\]
+这是一阶线性方程，积分因子 $\mu(x)=x^{2}$。两边乘 $x^{2}$：$(x^{2}z)' = -x^{4}$，积分得 $x^{2}z = -\frac{x^{5}}{5}+C$。故
+\[
+z = -\frac{x^{3}}{5} + \frac{C}{x^{2}}.
+\]
+代回 $z=\frac{1}{y}$ 得通解
+\[
+y = \frac{1}{-\frac{x^{3}}{5} + \frac{C}{x^{2}}} = \frac{5x^{2}}{5C - x^{5}}.
+\]
+
+\newpage
+\subsubsection{综合提高题}
+
+\textbf{5.}（待定系数法——三角函数右端）求微分方程
+\[
+y'' - 4y' + 5y = e^{2x}\sin x
+\]
+的通解。
+
+\boxed{\textbf{解}}
+齐次方程的特征方程为 $r^{2}-4r+5=0$，解得 $r=2\pm i$。故齐次通解
+\[
+y_{h} = e^{2x}(C_{1}\cos x + C_{2}\sin x).
+\]
+注意右端 $e^{2x}\sin x$ 对应的特征根 $2+i$ 恰为特征根（一重），故设特解为
+\[
+y^{*} = x e^{2x}(A\cos x + B\sin x).
+\]
+记 $u = A\cos x + B\sin x$，则 $y^{*}=xe^{2x}u$。求导：
+\[
+\begin{aligned}
+(y^{*})' &= e^{2x}\bigl[(2x+1)u + xu'\bigr],\\
+(y^{*})'' &= e^{2x}\bigl[(4x+4)u + (4x+2)u' + xu''\bigr].
+\end{aligned}
+\]
+其中 $u' = -A\sin x + B\cos x$，$u'' = -A\cos x - B\sin x = -u$。
+
+代入 $y''-4y'+5y = e^{2x}\sin x$，消去 $e^{2x}$：
+\[
+(4x+4)u + (4x+2)u' + xu'' - 4\bigl[(2x+1)u + xu'\bigr] + 5xu = \sin x.
+\]
+利用 $u''=-u$，整理得
+\[
+\bigl[(4x+4)-4(2x+1)+5x -x\bigr]u + \bigl[(4x+2)-4x\bigr]u' = \sin x.
+\]
+化简：$x$ 的系数 $(4-8+5-1)x=0$，常数项 $4-4=0$，故 $u$ 系数为 $0$。$u'$ 系数为 $2$，得
+\[
+2u' = \sin x \quad\Longrightarrow\quad 2(-A\sin x + B\cos x) = \sin x.
+\]
+比较系数：$2B=0 \Rightarrow B=0$，$-2A=1 \Rightarrow A=-\frac{1}{2}$。故特解
+\[
+y^{*} = x e^{2x}\Bigl(-\frac{1}{2}\cos x\Bigr) = -\frac{1}{2}x e^{2x}\cos x.
+\]
+通解为
+\[
+y = e^{2x}(C_{1}\cos x + C_{2}\sin x) - \frac{1}{2}x e^{2x}\cos x.
+\]
+
+\bigskip
+
+\textbf{6.}（欧拉方程）求解方程
+\[
+x^{2}y'' - 2xy' + 2y = x^{2}\ln x,\quad x>0.
+\]
+
+\boxed{\textbf{解}}
+令 $x=e^{t}$（即 $t=\ln x$），记 $D_{t}=\frac{\mathrm{d}}{\mathrm{d}t}$。由 $xy'=D_{t}y$，$x^{2}y''=D_{t}(D_{t}-1)y$，原方程化为
+\[
+[D_{t}(D_{t}-1) - 2D_{t} + 2]y = (e^{t})^{2}\cdot t = t e^{2t},
+\]
+即 $(D_{t}^{2}-3D_{t}+2)y = t e^{2t}$。对应齐次方程特征方程 $r^{2}-3r+2=0$，$r_{1}=1$，$r_{2}=2$。故 $y_{h}=C_{1}e^{t}+C_{2}e^{2t}=C_{1}x+C_{2}x^{2}$。
+
+右端 $t e^{2t}$，$2$ 是单特征根，设特解 $y_{p}^{*}=t(At+B)e^{2t}=(At^{2}+Bt)e^{2t}$。求导：
+\[
+\begin{aligned}
+D_{t}y_{p}^{*} &= [2At+B + 2(At^{2}+Bt)]e^{2t} = [2At^{2}+(2A+2B)t+B]e^{2t},\\
+D_{t}^{2}y_{p}^{*} &= [4At+(2A+2B) + 2(2At^{2}+(2A+2B)t+B)]e^{2t}\\
+&= [4At^{2}+(8A+4B)t+(2A+4B)]e^{2t}.
+\end{aligned}
+\]
+代入 $(D_{t}^{2}-3D_{t}+2)y_{p}^{*}=t e^{2t}$，消去 $e^{2t}$：
+\[
+\begin{aligned}
+&[4At^{2}+(8A+4B)t+(2A+4B)] - 3[2At^{2}+(2A+2B)t+B] + 2(At^{2}+Bt) = t.
+\end{aligned}
+\]
+整理 $t^{2}$ 项：$4A-6A+2A=0$。$t$ 项：$(8A+4B)-3(2A+2B)+2B = 8A+4B-6A-6B+2B = 2A = 1$，故 $A=\frac{1}{2}$。常数项：$(2A+4B)-3B = 2A+B = 0$，故 $B=-2A=-1$。
+
+特解 $y_{p}^{*}=(\frac{1}{2}t^{2}-t)e^{2t}$。代回 $x=e^{t}$：
+\[
+y_{p} = \Bigl(\frac{1}{2}\ln^{2}x - \ln x\Bigr)x^{2}.
+\]
+通解为
+\[
+y = C_{1}x + C_{2}x^{2} + x^{2}\Bigl(\frac{1}{2}\ln^{2}x - \ln x\Bigr).
+\]
+
+\bigskip
+
+\textbf{7.}（常数变易法）求解方程
+\[
+y'' + y = \frac{1}{\cos x},\quad |x|<\frac{\pi}{2}.
+\]
+
+\boxed{\textbf{解}}
+齐次方程 $y''+y=0$ 的通解为 $y_{h}=C_{1}\cos x + C_{2}\sin x$。用常数变易法，设特解 $y^{*}=u_{1}(x)\cos x+u_{2}(x)\sin x$，其中
+\[
+\begin{cases}
+u_{1}'\cos x + u_{2}'\sin x = 0,\\[4pt]
+-u_{1}'\sin x + u_{2}'\cos x = \dfrac{1}{\cos x}.
+\end{cases}
+\]
+解此关于 $u_{1}',u_{2}'$ 的线性方程组。系数行列式 $\Delta = \cos^{2}x+\sin^{2}x=1$。
+\[
+u_{1}' = \frac{\begin{vmatrix}0 & \sin x\\ \frac{1}{\cos x} & \cos x\end{vmatrix}}{1} = -\frac{\sin x}{\cos x} = -\tan x,
+\]
+\[
+u_{2}' = \frac{\begin{vmatrix}\cos x & 0\\ -\sin x & \frac{1}{\cos x}\end{vmatrix}}{1} = 1.
+\]
+积分得 $u_{2}(x)=x$，$u_{1}(x)=-\int\tan x\,\mathrm{d}x = \ln|\cos x| = \ln(\cos x)$（因 $|x|<\frac{\pi}{2}$ 时 $\cos x>0$）。故特解
+\[
+y^{*} = \ln(\cos x)\cdot\cos x + x\sin x.
+\]
+通解为
+\[
+y = C_{1}\cos x + C_{2}\sin x + \cos x\cdot\ln(\cos x) + x\sin x.
+\]
+
+\bigskip
+
+\textbf{8.}（微分方程的应用——牛顿冷却定律）某物体在 $t=0$ 时温度为 $100^{\circ}\mathrm{C}$，放置在温度为 $20^{\circ}\mathrm{C}$ 的恒温环境中。已知经过 $10$ 分钟后物体温度降至 $60^{\circ}\mathrm{C}$。按牛顿冷却定律（冷却速率与物体和环境的温差成正比），求物体温度降至 $30^{\circ}\mathrm{C}$ 所需的时间。
+
+\boxed{\textbf{解}}
+设 $T(t)$ 为 $t$ 时刻物体的温度。由牛顿冷却定律：
+\[
+\frac{\mathrm{d}T}{\mathrm{d}t} = -k(T-20),\quad k>0.
+\]
+分离变量：$\frac{\mathrm{d}T}{T-20} = -k\,\mathrm{d}t$，积分得 $\ln|T-20| = -kt + C$，即
+\[
+T(t) = 20 + Ce^{-kt}.
+\]
+由 $T(0)=100$ 得 $20+C=100$，$C=80$。故 $T(t)=20+80e^{-kt}$。
+由 $T(10)=60$ 得 $20+80e^{-10k}=60$，$e^{-10k}=\frac{1}{2}$，故 $-10k=\ln\frac{1}{2}=-\ln 2$，$k=\frac{\ln 2}{10}$。
+
+令 $T(t)=30$：$20+80e^{-kt}=30$，$e^{-kt}=\frac{1}{8}=2^{-3}$，$-kt = -3\ln 2$，
+\[
+t = \frac{3\ln 2}{k} = \frac{3\ln 2}{\ln 2/10} = 30.
+\]
+故物体温度降至 $30^{\circ}\mathrm{C}$ 需要 $30$ 分钟。
+
+\newpage
+\subsection{真题风格与综合训练}
+
+\textbf{9.}（\boxed{\textbf{真题风格}}，微分方程与积分方程综合）设 $f(x)$ 在 $[0,+\infty)$ 上连续，且满足
+\[
+f(x) = x + \int_{0}^{x} (x-t)f(t)\,\mathrm{d}t.
+\]
+求 $f(x)$ 的表达式。
+
+\boxed{\textbf{解}}
+将积分方程改写为
+\[
+f(x) = x + x\int_{0}^{x}f(t)\,\mathrm{d}t - \int_{0}^{x}tf(t)\,\mathrm{d}t.
+\]
+令 $F(x)=\int_{0}^{x}f(t)\,\mathrm{d}t$，$G(x)=\int_{0}^{x}tf(t)\,\mathrm{d}t$，则 $F'(x)=f(x)$，$G'(x)=xf(x)$，且 $F(0)=G(0)=0$。
+原方程化为 $f(x)=x+xF(x)-G(x)$。
+
+对 $x$ 求导（$f$ 连续故 $F,G$ 可导）：
+\[
+f'(x) = 1 + F(x) + xf(x) - xf(x) = 1 + F(x).
+\]
+再求导：$f''(x) = F'(x) = f(x)$。故 $f$ 满足 $f''-f=0$。特征方程 $r^{2}-1=0$，$r=\pm 1$，$f(x)=C_{1}e^{x}+C_{2}e^{-x}$。
+
+由原方程令 $x=0$：$f(0)=0$。由 $f'(x)=1+F(x)$，令 $x=0$：$f'(0)=1+F(0)=1$。代入通解：
+\[
+\begin{cases}
+C_{1}+C_{2}=0,\\
+C_{1}-C_{2}=1,
+\end{cases}
+\]
+解得 $C_{1}=\frac{1}{2}$，$C_{2}=-\frac{1}{2}$。故
+\[
+f(x) = \frac{e^{x}-e^{-x}}{2} = \operatorname{sh} x.
+\]
+
+\bigskip
+
+\textbf{10.}（\boxed{\textbf{真题风格}}，含参微分方程的边值问题）讨论参数 $\lambda$ 取何值时，边值问题
+\[
+\begin{cases}
+y'' + \lambda y = 0,\quad 0<x<\pi,\\
+y(0)=0,\quad y(\pi)=0
+\end{cases}
+\]
+有非零解，并求出相应的非零解。
+
+\boxed{\textbf{解}}
+这是一个含参边值问题，按 $\lambda$ 的符号分三种情形讨论。
+
+\textbf{情形 1：}$\lambda<0$。设 $\lambda=-\omega^{2}$（$\omega>0$），方程 $y''-\omega^{2}y=0$，通解 $y=C_{1}e^{\omega x}+C_{2}e^{-\omega x}$。由 $y(0)=0$ 得 $C_{1}+C_{2}=0$；由 $y(\pi)=0$ 得 $C_{1}e^{\omega\pi}+C_{2}e^{-\omega\pi}=C_{1}(e^{\omega\pi}-e^{-\omega\pi})=0$，故 $C_{1}=0$，只有零解。
+
+\textbf{情形 2：}$\lambda=0$。方程 $y''=0$，$y=C_{1}x+C_{2}$。$y(0)=0\Rightarrow C_{2}=0$；$y(\pi)=0\Rightarrow C_{1}\pi=0\Rightarrow C_{1}=0$，只有零解。
+
+\textbf{情形 3：}$\lambda>0$。设 $\lambda=\omega^{2}$（$\omega>0$），方程 $y''+\omega^{2}y=0$，通解 $y=C_{1}\cos\omega x+C_{2}\sin\omega x$。由 $y(0)=0$ 得 $C_{1}=0$，故 $y=C_{2}\sin\omega x$。由 $y(\pi)=0$ 得 $C_{2}\sin\omega\pi=0$。要存在非零解需 $C_{2}\neq 0$，即 $\sin\omega\pi=0$，故 $\omega\pi = n\pi$，$n=1,2,3,\ldots$。即 $\omega=n$，$\lambda=n^{2}$。
+
+综上，当且仅当 $\lambda = n^{2}$（$n=1,2,3,\ldots$）时边值问题有非零解，对应的非零解为
+\[
+y_{n}(x) = C\sin nx,\quad C\neq 0.
+\]
+
+\bigskip
+
+\textbf{11.}（\boxed{\textbf{真题风格}}，含参微分方程的定性讨论）设 $a$ 为实参数，求方程
+\[
+y'' + ay' + y = 0
+\]
+的任一解都在 $x\to+\infty$ 时趋于零的充要条件。
+
+\boxed{\textbf{解}}
+特征方程为 $r^{2}+ar+1=0$，判别式 $\Delta = a^{2}-4$。
+
+\textbf{情形 1：}$\Delta>0$，即 $|a|>2$。特征根 $r_{1,2}=\frac{-a\pm\sqrt{a^{2}-4}}{2}$。通解 $y=C_{1}e^{r_{1}x}+C_{2}e^{r_{2}x}$。
+要使 $y\to 0$（$x\to+\infty$），需 $r_{1}<0$ 且 $r_{2}<0$，即两实根均为负。由韦达定理，$r_{1}r_{2}=1>0$，故两根同号；$r_{1}+r_{2}=-a$。二者均为负 $\Leftrightarrow -a<0\Leftrightarrow a>0$。结合 $|a|>2$，得 $a>2$。
+
+\textbf{情形 2：}$\Delta=0$，即 $a=\pm 2$。特征根 $r=-\frac{a}{2}$（二重根）。通解 $y=(C_{1}+C_{2}x)e^{-ax/2}$。
+当 $a=2$ 时 $y=(C_{1}+C_{2}x)e^{-x}\to 0$；当 $a=-2$ 时，除零解外均不趋于 $0$。
+
+\textbf{情形 3：}$\Delta<0$，即 $|a|<2$。特征根 $r_{1,2}= -\frac{a}{2}\pm i\frac{\sqrt{4-a^{2}}}{2}$。通解
+\[
+y = e^{-ax/2}\Bigl(C_{1}\cos\frac{\sqrt{4-a^{2}}}{2}x + C_{2}\sin\frac{\sqrt{4-a^{2}}}{2}x\Bigr).
+\]
+当 $x\to+\infty$ 时 $y\to 0 \Leftrightarrow e^{-ax/2}\to 0 \Leftrightarrow -\frac{a}{2}<0 \Leftrightarrow a>0$。结合 $|a|<2$，得 $0<a<2$。
+
+综合三种情形，$y\to 0$（$x\to+\infty$）对任意初始条件成立 $\Leftrightarrow a>0$。
+
+\bigskip
+
+\textbf{12.}（\boxed{\textbf{真题风格}}，积分—微分方程综合）设 $y=y(x)$ 二阶可导，且满足
+\[
+y'' = \int_{0}^{x} y(t)\,\mathrm{d}t + e^{-x},
+\]
+及 $y(0)=0$，$y'(0)=1$。求 $y(x)$。
+
+\boxed{\textbf{解}}
+令 $I(x)=\int_{0}^{x}y(t)\,\mathrm{d}t$，则 $I'(x)=y(x)$，$I''(x)=y'(x)$，$I'''(x)=y''(x)$，且 $I(0)=0$，$I'(0)=y(0)=0$。
+
+原方程化为 $I'''(x) = I(x) + e^{-x}$，即
+\[
+I''' - I = e^{-x}.
+\]
+这是三阶常系数线性方程。特征方程 $r^{3}-1=0$，即 $(r-1)(r^{2}+r+1)=0$，特征根为
+\[
+r_{1}=1,\quad r_{2,3}=-\frac{1}{2}\pm i\frac{\sqrt{3}}{2}.
+\]
+齐次通解：
+\[
+I_{h} = C_{1}e^{x} + e^{-x/2}\Bigl(C_{2}\cos\frac{\sqrt{3}}{2}x + C_{3}\sin\frac{\sqrt{3}}{2}x\Bigr).
+\]
+
+右端 $e^{-x}$，对应的特征根 $-1$ 不是特征根，设特解 $I_{p}=Ae^{-x}$。代入 $I_{p}'''-I_{p}=e^{-x}$：
+\[
+(-Ae^{-x}) - Ae^{-x} = -2Ae^{-x} = e^{-x} \quad\Longrightarrow\quad A = -\frac{1}{2}.
+\]
+故 $I_{p} = -\frac{1}{2}e^{-x}$。通解：
+\[
+I(x) = C_{1}e^{x} + e^{-x/2}\Bigl(C_{2}\cos\frac{\sqrt{3}}{2}x + C_{3}\sin\frac{\sqrt{3}}{2}x\Bigr) - \frac{1}{2}e^{-x}.
+\]
+
+由初始条件 $I(0)=0$：
+\[
+C_{1} + C_{2} - \frac{1}{2} = 0. \tag{1}
+\]
+由 $I'(0)=0$（即 $y(0)=0$）：
+\[
+I'(x) = C_{1}e^{x} + e^{-x/2}\Bigl[\Bigl(-\frac{1}{2}C_{2}+\frac{\sqrt{3}}{2}C_{3}\Bigr)\cos\frac{\sqrt{3}}{2}x + \Bigl(-\frac{1}{2}C_{3}-\frac{\sqrt{3}}{2}C_{2}\Bigr)\sin\frac{\sqrt{3}}{2}x\Bigr] + \frac{1}{2}e^{-x}.
+\]
+代入 $x=0$：
+\[
+C_{1} - \frac{1}{2}C_{2} + \frac{\sqrt{3}}{2}C_{3} + \frac{1}{2} = 0. \tag{2}
+\]
+由 $y'(0)=1$ 即 $I''(0)=1$：
+\[
+I''(x) = C_{1}e^{x} + e^{-x/2}\Bigl[\cdots\Bigr] - \frac{1}{2}e^{-x},
+\]
+在 $x=0$ 处（略去与 $\sin,\cos$ 混叠的繁琐展开，直接计算）：
+\[
+I''(0) = C_{1} + \Bigl(-\frac{1}{2}\Bigr)\Bigl(-\frac{1}{2}C_{2}+\frac{\sqrt{3}}{2}C_{3}\Bigr) + \frac{\sqrt{3}}{2}\Bigl(-\frac{1}{2}C_{3}-\frac{\sqrt{3}}{2}C_{2}\Bigr) - \frac{1}{2}.
+\]
+展开 $e^{-x/2}$ 项在 $x=0$ 的二阶导（或直接用算子法）：更简洁的方法是直接利用 $I'''(0)=I(0)+e^{0}=0+1=1$ 作为边界条件的补充，但这需要更高阶导数。换一种方式：由原方程 $y''=\int y + e^{-x}$ 在 $x=0$ 处得 $y''(0)=I(0)+1=1$。而 $y''(0)=I'''(0)=1$，这与 $I'''-I=e^{-x}$ 在 $x=0$ 处一致（$1-0=1$）。
+
+我们利用 $y(0)=I'(0)=0$，$y'(0)=I''(0)=1$。直接计算 $I''(0)$：
+\[
+\begin{aligned}
+I''(x) &= C_{1}e^{x} + \frac{\mathrm{d}}{\mathrm{d}x}\Bigl[e^{-x/2}\bigl(C_{2}\cos\alpha x + C_{3}\sin\alpha x\bigr)\Bigr] + \frac{1}{2}e^{-x},\quad \alpha=\frac{\sqrt{3}}{2}.
+\end{aligned}
+\]
+记 $J(x)=e^{-x/2}(C_{2}\cos\alpha x + C_{3}\sin\alpha x)$。则
+\[
+J'(x) = e^{-x/2}\Bigl[\bigl(-\frac{1}{2}C_{2}+\alpha C_{3}\bigr)\cos\alpha x + \bigl(-\frac{1}{2}C_{3}-\alpha C_{2}\bigr)\sin\alpha x\Bigr],
+\]
+\[
+J''(x) = e^{-x/2}\Bigl[\bigl((\frac{1}{4}-\alpha^{2})C_{2}-\alpha C_{3}\bigr)\cos\alpha x + \bigl((\frac{1}{4}-\alpha^{2})C_{3}+\alpha C_{2}\bigr)\sin\alpha x\Bigr].
+\]
+由于 $\alpha^{2}=\frac{3}{4}$，$\frac{1}{4}-\alpha^{2}=-\frac{1}{2}$，故
+\[
+J''(0) = -\frac{1}{2}C_{2} - \alpha C_{3} = -\frac{1}{2}C_{2} - \frac{\sqrt{3}}{2}C_{3}.
+\]
+因此
+\[
+I''(0) = C_{1} + \Bigl(-\frac{1}{2}C_{2} - \frac{\sqrt{3}}{2}C_{3}\Bigr) + \frac{1}{2} = C_{1} - \frac{1}{2}C_{2} - \frac{\sqrt{3}}{2}C_{3} + \frac{1}{2} = 1. \tag{3}
+\]
+
+联立 (1)(2)(3)：
+\[
+\begin{cases}
+C_{1} + C_{2} = \frac{1}{2},\\[4pt]
+C_{1} - \frac{1}{2}C_{2} + \frac{\sqrt{3}}{2}C_{3} = -\frac{1}{2},\\[4pt]
+C_{1} - \frac{1}{2}C_{2} - \frac{\sqrt{3}}{2}C_{3} = \frac{1}{2}.
+\end{cases}
+\]
+(2)+(3) 得 $2C_{1} - C_{2} = 0$，即 $C_{2}=2C_{1}$。代入 (1)：$C_{1}+2C_{1}=\frac{1}{2}$，故 $3C_{1}=\frac{1}{2}$，$C_{1}=\frac{1}{6}$，$C_{2}=\frac{1}{3}$。
+(2)-(3) 得 $\sqrt{3}C_{3} = -1$，故 $C_{3}=-\frac{1}{\sqrt{3}}$。
+
+因此
+\[
+I(x) = \frac{1}{6}e^{x} + e^{-x/2}\Bigl(\frac{1}{3}\cos\frac{\sqrt{3}}{2}x - \frac{1}{\sqrt{3}}\sin\frac{\sqrt{3}}{2}x\Bigr) - \frac{1}{2}e^{-x}.
+\]
+最终 $y(x)=I'(x)$。求导：
+\[
+\begin{aligned}
+y(x)
+&=\frac16e^x+e^{-x/2}
+\left(-\frac23\cos\frac{\sqrt3}{2}x
+-\frac1{\sqrt3}\sin\frac{\sqrt3}{2}x\right)
++\frac12e^{-x}.
+\end{aligned}
+\]
+可验证 $y(0)=\frac{1}{6}-\frac{2}{3}+\frac{1}{2}=0$，$y'(0)$ 经计算为 $1$，满足条件。

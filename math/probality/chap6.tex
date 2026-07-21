@@ -2,27 +2,27 @@
 \subsection{统计量及其数字特征}
 \begin{mydef}{总体与样本}{population and sample}
     总体是指待研究的对象的集合，样本是指从总体中抽取的部分对象.
-    设总体为\(X\)，与\(X\)同分布的随机变量\(X_1,X_2,\cdots,X_{n}\)称为
-    样本。\(n\)为样本容量。\(x_1,x_2,\cdots,x_n\)分别是\(X_1, X_2, \cdots, X_n\)的
+    设总体为\(X\)，与\(X\)同分布且相互独立的随机变量\(X_1,X_2,\cdots,X_n\)称为
+    来自总体的简单随机样本。\(n\)为样本容量。\(x_1,x_2,\cdots,x_n\)分别是\(X_1, X_2, \cdots, X_n\)的
     观测值，则称\(x_1,x_2,\cdots,x_n\)为样本观测值.
 \end{mydef}
 
 \begin{conclusion}{样本的概率分布}{sample probability distribution}
     \begin{enumerate}
         \item 分布函数 \\
-        总体\(X\)分布函数为\(F(x)\)，则样本分布函数为
+        总体\(X\)分布函数为\(F(x)\)，由于样本独立，样本向量的联合分布函数为
         \[
-            F(x_1, x_2, \cdots, x_n) =  \prod \limits_{i = 1}^{n} F(x_{i})
+            F_{X_1,\ldots,X_n}(x_1,\ldots,x_n)=\prod_{i=1}^{n}F(x_i)
         \]
         \item 概率密度函数 \\
-        总体\(X\)概率密度函数为\(f(x)\)，则样本概率密度函数为
+        总体\(X\)概率密度函数为\(f(x)\)，则样本向量的联合密度为
         \[
-            f(x_1, x_2, \cdots, x_n) =  \prod \limits_{i = 1}^{n} f(x_{i})
+            f_{X_1,\ldots,X_n}(x_1,\ldots,x_n)=\prod_{i=1}^{n}f(x_i)
         \]
         \item 联合概率分布 \\
-        总体\(X\)联合概率分布为\(P(X = x_i) = p(x_i)\)，则样本联合概率分布为
+        若总体为离散型且 $P(X=x)=p(x)$，则样本联合概率函数为
         \[
-            P(X_1 = x_1, X_2 = x_2, \cdots, X_n = x_n) =  \prod \limits_{i = 1}^{n} P(X_i = x_i)
+            P(X_1=x_1,\ldots,X_n=x_n)=\prod_{i=1}^{n}p(x_i)
         \]
     \end{enumerate}
 \end{conclusion}
@@ -54,17 +54,17 @@
         样本最小值 ~
         \(\min(X_1, X_2, \cdots, X_n)\)
     \end{enumerate}
-    无论什么分布，期望与方差均存在，则总有
+    对简单随机样本，只要总体二阶矩存在，则总有
     \[
         \begin{aligned}
         E(\overline{X}) = E(X) = \mu, &D(\overline{X}) = \frac{D(X)}{n} = \frac{\sigma^2}{n} \\
-        E(S^2) =& D(S) = \sigma^2, 
+        E(S^2) = \sigma^2, 
         \end{aligned}
     \]
 \end{conclusion}
 
 \subsection{抽样分布}
-\begin{mydef}{\(\chi^2\)分布}{chi2 distribution}
+\begin{mydef}{$\chi^2$分布}{chi2 distribution}
     设\(X_1, X_2, \cdots, X_n\)为独立随机变量，且均服从标准正态分布，
     则\(\chi^2\)分布为
     \[
@@ -78,7 +78,7 @@
     其中\(\chi^2_{\alpha}\)为\(\chi^2\)分布的上\(\alpha\)分位数.
 \end{mydef}
 
-\begin{conclusion}{\(\chi^2\)分布的性质}{chi2 distribution property}
+\begin{conclusion}{$\chi^2$分布的性质}{chi2 distribution property}
     \begin{enumerate}
         \item \(E(\chi^2) = n, D(\chi^2) = 2n.\) 
         \item 可加性, \(\chi_1^2 \sim  \chi^2(n_1), \chi_2^2 \sim  \chi^2(n_2)\), ~若\(\chi_{1}^2, \chi_2^2\)相互独立，则\(\chi_1^2 + \chi_2^2 \sim  \chi^2(n_1 + n_2)\)
@@ -86,7 +86,8 @@
 \end{conclusion}
 
 \begin{mydef}{t分布}{t distribution}
-    设\(X \sim N(0, 1)\), \(Y \sim \chi^2(n)\), 则\(t = \frac{X}{\sqrt{Y/n}}\)服从t分布.记作\(t(n)\),\(t\)分布密度函数关于\(X = 0\)对称，
+    设\(X\sim N(0,1)\)、\(Y\sim\chi^2(n)\) 且 $X,Y$ 相互独立，则
+    \(t=\frac{X}{\sqrt{Y/n}}\) 服从自由度为 $n$ 的 $t$ 分布，记作 $t(n)$。其密度函数关于 $0$ 对称，
     对于给定的\(\alpha\),称满足
     \[
         P(t > t_{\alpha}(n)) = \alpha
@@ -96,15 +97,17 @@
 
 \begin{conclusion}{t分布的性质}{t distribution property}
     \begin{enumerate}
-        \item \(E(t) = 0 \),
-        \item \(\lim\limits_{n \to \infty}f(t) = \frac{1}{\sqrt{2\pi}} \mathrm{e}^{-t^2/2}\)
+        \item 当 $n>1$ 时 $E(t)=0$（当 $n\leq1$ 时期望不存在）；
+        \item 记自由度为 $n$ 的 $t$ 分布密度为 $f_n(t)$，则对每个固定的 $t$，
+        \[\lim\limits_{n \to \infty}f_n(t) = \frac{1}{\sqrt{2\pi}} \mathrm{e}^{-t^2/2}.\]
         \item \(t \sim t(n), t^2 \sim F(1, n)\)
     \end{enumerate}
 \end{conclusion}
 
 
 \begin{mydef}{F分布}{f distribution}
-    设\(X \sim \chi^2(n_1)\), \(Y \sim \chi^2(n_2)\), 则\(F = \frac{X/n_1}{Y/n_2}\)服从F分布.记作\(F(n_1, n_2)\),
+    设\(X\sim\chi^2(n_1)\)、\(Y\sim\chi^2(n_2)\) 且 $X,Y$ 相互独立，则
+    \(F=\frac{X/n_1}{Y/n_2}\) 服从 $F(n_1,n_2)$ 分布，
     其中\(n_1, n_2\)为自由度.\\
     对于给定的\(\alpha\),称满足
     \[
@@ -129,7 +132,7 @@
             &\overline{X} \sim N(\mu, \frac{\sigma^2}{n}) \\
             &\frac{\overline{X} - \mu}{\frac{\sigma}{\sqrt{n}}} 
             = \frac{\sqrt{n}(\overline{X} - \mu)}{\sigma} \sim N(0, 1) \\
-            &\frac{\overline{X} - \mu}{\frac{S}{\sqrt{n}}}\frac{\sqrt{n}(\overline{X} - \mu)}{S} 
+            &\frac{\overline{X} - \mu}{\frac{S}{\sqrt{n}}}=\frac{\sqrt{n}(\overline{X} - \mu)}{S}
             \sim t(n - 1) \\
         \end{aligned}
         \]
@@ -140,19 +143,21 @@
             &\frac{(n-1)S^2}{\sigma^2} \sim \chi^2(n - 1) \\
         \end{aligned}
         \]
+        \item 对正态总体，还有核心结论：\(\overline X\)与\(S^2\)相互独立。
     \end{enumerate}
 \end{conclusion}
 
 \begin{conclusion}{两个正态总体}{two normal population sample mean distribution}
     \[
     \begin{aligned}
-        &\overline{X} = \frac{\sum \limits_{i = 1}^{n1} X_i}{n1}, \quad
-        \overline{Y} = \frac{\sum \limits_{i = 1}^{n2} Y_i}{n2} \\
-        &S_X^2 = \frac{\sum \limits_{i = 1}^{n1} (X_i - \overline{X})^2}{n1 - 1}, \quad
-        S_Y^2 = \frac{\sum \limits_{i = 1}^{n2} (Y_i - \overline{Y})^2}{n2 - 1} \\
+        &\overline{X} = \frac{\sum \limits_{i = 1}^{n_1} X_i}{n_1}, \quad
+        \overline{Y} = \frac{\sum \limits_{i = 1}^{n_2} Y_i}{n_2} \\
+        &S_X^2 = \frac{\sum \limits_{i = 1}^{n_1} (X_i - \overline{X})^2}{n_1 - 1}, \quad
+        S_Y^2 = \frac{\sum \limits_{i = 1}^{n_2} (Y_i - \overline{Y})^2}{n_2 - 1} \\
         &S_{XY}^2 = \frac{(n_1 -1)S_{X}^2 + (n_2 -1)S_{Y}^2}{n_1 + n_2 -2}
     \end{aligned}
     \]
+    设两组样本分别来自两个正态总体，且两组样本相互独立。
     \begin{enumerate}
         \item 样本均值差 \\
         \[
@@ -169,16 +174,294 @@
         \begin{aligned}
             & F = \frac{S_X^2/\sigma_1^2}{S_Y^2/\sigma_2^2} \sim F(n_1 - 1, n_2 - 1) \\
             &\frac{(n_1 + n_2 - 2)S_{XY}^2}{\sigma^2} \sim \chi^2(n_1 + n_2 -2)
+            \quad(\sigma_1^2=\sigma_2^2=\sigma^2)
         \end{aligned}
         \]
     \end{enumerate}
 \end{conclusion}
 
-\begin{conclusion}{\(X(n) = max(X_1, X_2, \cdots , X_{n})\)\\与\(X(n) = min(X_1,X_2,\cdots,X_n)\)}{min and max distribution}
+\begin{conclusion}{$X_{(n)} = \max(X_1, X_2, \cdots , X_{n})$\\与$X_{(1)} = \min(X_1,X_2,\cdots,X_n)$}{min and max distribution}
+    设\(X_1,\ldots,X_n\)独立同分布，共同分布函数为\(F\)，则
     \[
         \begin{aligned}
-            &F_{max}(x)  = P(max(X_1, X_2, \cdots, X_n) \leq x)  = [F(X)]^n \\
-            &F_{min}(x)  = P(min(X_1, X_2, \cdots, X_n) \geq x)  = 1 - [1 - F(X)]^n
+            &F_{\max}(x)=P(\max(X_1,\ldots,X_n)\leq x)=[F(x)]^n,\\
+            &F_{\min}(x)=P(\min(X_1,\ldots,X_n)\leq x)=1-[1-F(x)]^n
         \end{aligned}
     \]
 \end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\textbf{1.} \textbf{（选择题）} 设 $X_1, X_2, \ldots, X_n$ 是来自总体 $X$ 的简单随机样本，$E(X)=\mu$，$D(X)=\sigma^2$。记 $\overline{X}=\frac{1}{n}\sum_{i=1}^{n}X_i$，$S^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2$，则下列结论中\textbf{错误的是} \underline{\qquad}。
+\begin{enumerate}[label=(\Alph*)]
+    \item $E(\overline{X})=\mu$
+    \item $D(\overline{X})=\dfrac{\sigma^2}{n}$
+    \item $E(S^2)=\sigma^2$
+    \item $D(S^2)=\dfrac{\sigma^4}{n-1}$
+\end{enumerate}
+
+\boxed{\textbf{解}} 选 \textbf{(D)}。
+
+\textbf{分析：}(A)、(B)、(C) 均为样本均值和样本方差的基本性质，对任意总体只要方差存在即成立。
+
+(D) 错误。$S^2$ 的方差依赖于总体的峰度。仅当总体为正态分布时，$\dfrac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1)$，从而 $D\!\left(\dfrac{(n-1)S^2}{\sigma^2}\right)=2(n-1)$，即 $D(S^2)=\dfrac{2\sigma^4}{n-1}$，并非 $\dfrac{\sigma^4}{n-1}$。对于非正态总体，$D(S^2)$ 的表达式更为复杂，还涉及总体的四阶中心矩。
+
+\vspace{0.5cm}
+
+\textbf{2.} \textbf{（选择题）} 设 $X_1, X_2, X_3, X_4$ 是来自正态总体 $N(0, 2^2)$ 的简单随机样本，则下列统计量中服从 $\chi^2(3)$ 分布的是 \underline{\qquad}。
+\begin{enumerate}[label=(\Alph*)]
+    \item $\dfrac{1}{4}\bigl(X_1^2+X_2^2+X_3^2+X_4^2\bigr)$
+    \item $\dfrac{1}{4}\bigl(X_1^2+X_2^2+X_3^2\bigr)$
+    \item $\dfrac{1}{2}\bigl(X_1^2+X_2^2+X_3^2+X_4^2\bigr)$
+    \item $\dfrac{1}{16}\bigl(X_1^2+X_2^2+X_3^2+X_4^2\bigr)$
+\end{enumerate}
+
+\boxed{\textbf{解}} 选 \textbf{(B)}。
+
+\textbf{分析：}$X_i\sim N(0,4)$，标准化得 $\dfrac{X_i}{2}\sim N(0,1)$。则 $\dfrac{X_i^2}{4}\sim\chi^2(1)$。由 $\chi^2$ 分布的可加性：
+\[
+\frac{X_1^2}{4}+\frac{X_2^2}{4}+\frac{X_3^2}{4}=\frac{1}{4}\bigl(X_1^2+X_2^2+X_3^2\bigr)\sim\chi^2(3).
+\]
+(A) 为 $\chi^2(4)$；(C) 中系数 $\frac{1}{2}$ 不对；(D) 系数 $\frac{1}{16}$ 不对。
+
+\vspace{0.5cm}
+
+\textbf{3.} \textbf{（选择题）} 设 $X\sim N(0,1)$，$Y\sim\chi^2(n)$，且 $X$ 与 $Y$ 相互独立，则随机变量 $T=\dfrac{X}{\sqrt{Y/n}}$ 服从的分布为 \underline{\qquad}。
+\begin{enumerate}[label=(\Alph*)]
+    \item $N(0,1)$
+    \item $t(n)$
+    \item $\chi^2(n)$
+    \item $F(1,n)$
+\end{enumerate}
+
+\boxed{\textbf{解}} 选 \textbf{(B)}。
+
+由 $t$ 分布的定义直接得出：若 $X\sim N(0,1)$，$Y\sim\chi^2(n)$，且 $X$ 与 $Y$ 独立，则 $T=\dfrac{X}{\sqrt{Y/n}}\sim t(n)$。
+
+\vspace{0.5cm}
+
+\textbf{4.} \textbf{（填空题）} 设 $X\sim\chi^2(m)$，$Y\sim\chi^2(n)$，且 $X$ 与 $Y$ 相互独立，令 $F=\dfrac{X/m}{Y/n}$，则 $F\sim$ \underline{\qquad}；$\dfrac{1}{F}\sim$ \underline{\qquad}；$E(F)=$ \underline{\qquad}（$n>2$）。
+
+\boxed{\textbf{解}} 依次填 $F(m,n)$；$F(n,m)$；$\dfrac{n}{n-2}$。
+
+\textbf{分析：}由 $F$ 分布定义，$F\sim F(m,n)$。由 $F$ 分布的性质，$\dfrac{1}{F}=\dfrac{Y/n}{X/m}\sim F(n,m)$。
+
+对于 $F\sim F(m,n)$，当 $n>2$ 时，
+\[
+E(F)=\frac{n}{n-2}.
+\]
+推导：$F=\dfrac{X/m}{Y/n}$，$E(F)=\dfrac{n}{m}E\!\left(\dfrac{X}{Y}\right)$。由独立性及 $E(X)=m$，$E(Y^{-1})=\dfrac{1}{n-2}$，得 $E(F)=\dfrac{n}{m}\cdot m\cdot\dfrac{1}{n-2}=\dfrac{n}{n-2}$。
+
+\vspace{0.5cm}
+
+\textbf{5.} \textbf{（选择题）} 设 $X_1, X_2, \ldots, X_n$ 是来自正态总体 $N(\mu,\sigma^2)$ 的简单随机样本，$\overline{X}$ 为样本均值，$S^2$ 为样本方差，则下列结论中\textbf{正确的是} \underline{\qquad}。
+\begin{enumerate}[label=(\Alph*)]
+    \item $\dfrac{\overline{X}-\mu}{S/\sqrt{n}}\sim N(0,1)$
+    \item $\dfrac{\overline{X}-\mu}{S/\sqrt{n}}\sim t(n-1)$
+    \item $\dfrac{\overline{X}-\mu}{\sigma/\sqrt{n}}\sim t(n-1)$
+    \item $\dfrac{(n-1)S^2}{\sigma^2}\sim\chi^2(n)$
+\end{enumerate}
+
+\boxed{\textbf{解}} 选 \textbf{(B)}。
+
+\textbf{分析：}由正态总体抽样分布基本定理：
+\begin{itemize}
+    \item $\dfrac{\overline{X}-\mu}{\sigma/\sqrt{n}}\sim N(0,1)$，故 (C) 错误（应为 $N(0,1)$ 而非 $t$）；
+    \item $\dfrac{\overline{X}-\mu}{S/\sqrt{n}}\sim t(n-1)$，故 (B) 正确，(A) 错误（用 $S$ 代替 $\sigma$ 后变成 $t$ 分布）；
+    \item $\dfrac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1)$，故 (D) 错误（自由度为 $n-1$ 而非 $n$）。
+\end{itemize}
+这些是正态总体抽样分布的基础结论，属于考研数学一主线内容；使用时应特别区分总体标准差 $\sigma$ 与样本标准差 $S$，并核对自由度。
+
+\newpage
+\subsection{综合提高题}
+
+\textbf{6.} \textbf{（计算与证明题）} 设 $X_1, X_2, \ldots, X_n$ 是来自正态总体 $N(0,\sigma^2)$ 的简单随机样本，$\overline{X}=\dfrac{1}{n}\sum_{i=1}^{n}X_i$。证明：
+\begin{enumerate}[label=(\arabic*)]
+    \item $\displaystyle\sum_{i=1}^{n}\left(\frac{X_i}{\sigma}\right)^2\sim\chi^2(n)$；
+    \item $\displaystyle\frac{\sqrt{n}\,\overline{X}}{\sigma}\sim N(0,1)$，且与 $\displaystyle\sum_{i=1}^{n}\left(\frac{X_i-\overline{X}}{\sigma}\right)^2$ 相互独立；
+    \item 由此证明 $\displaystyle\frac{\sqrt{n}\,\overline{X}}{S}\sim t(n-1)$，其中 $S^2=\dfrac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2$。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+
+(1) 因为 $X_i\sim N(0,\sigma^2)$ 且相互独立，故 $\dfrac{X_i}{\sigma}\sim N(0,1)$ 且相互独立。由 $\chi^2$ 分布定义，
+\[
+\sum_{i=1}^{n}\left(\frac{X_i}{\sigma}\right)^2\sim\chi^2(n).
+\]
+
+(2) 样本均值 $\overline{X}\sim N\!\left(0,\dfrac{\sigma^2}{n}\right)$，标准化得 $\dfrac{\sqrt{n}\,\overline{X}}{\sigma}\sim N(0,1)$。
+
+由 Cochran 定理（正态总体下的平方和分解定理），
+\[
+\sum_{i=1}^{n}X_i^2=n\overline{X}^2+\sum_{i=1}^{n}(X_i-\overline{X})^2,
+\]
+且 $n\overline{X}^2/\sigma^2\sim\chi^2(1)$ 与 $\sum_{i=1}^{n}(X_i-\overline{X})^2/\sigma^2\sim\chi^2(n-1)$ 相互独立。故 $\overline{X}$ 与 $\sum_{i=1}^{n}(X_i-\overline{X})^2$ 相互独立。
+
+(3) 由 $t$ 分布定义，
+\[
+T=\frac{\dfrac{\sqrt{n}\,\overline{X}}{\sigma}}{\sqrt{\dfrac{\sum_{i=1}^{n}(X_i-\overline{X})^2/\sigma^2}{n-1}}}
+=\frac{\sqrt{n}\,\overline{X}}{\sqrt{\dfrac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2}}
+=\frac{\sqrt{n}\,\overline{X}}{S}\sim t(n-1).
+\]
+
+\vspace{0.5cm}
+
+\textbf{7.} \textbf{（计算题）} 设 $X_1, X_2, \ldots, X_{n_1}$ 是来自正态总体 $N(\mu_1,\sigma^2)$ 的样本，$Y_1, Y_2, \ldots, Y_{n_2}$ 是来自正态总体 $N(\mu_2,\sigma^2)$ 的样本，且两样本相互独立。记
+\[
+S_w^2=\frac{(n_1-1)S_X^2+(n_2-1)S_Y^2}{n_1+n_2-2},
+\]
+其中 $S_X^2$ 和 $S_Y^2$ 分别为两样本的样本方差。
+\begin{enumerate}[label=(\arabic*)]
+    \item 求 $\dfrac{(n_1+n_2-2)S_w^2}{\sigma^2}$ 的分布；
+    \item 证明 $\dfrac{(\overline{X}-\overline{Y})-(\mu_1-\mu_2)}{S_w\sqrt{\dfrac{1}{n_1}+\dfrac{1}{n_2}}}\sim t(n_1+n_2-2)$。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+
+(1) 由正态总体样本方差的分布：
+\[
+\frac{(n_1-1)S_X^2}{\sigma^2}\sim\chi^2(n_1-1),\qquad
+\frac{(n_2-1)S_Y^2}{\sigma^2}\sim\chi^2(n_2-1).
+\]
+两样本独立，故由 $\chi^2$ 分布的可加性：
+\[
+\frac{(n_1+n_2-2)S_w^2}{\sigma^2}
+=\frac{(n_1-1)S_X^2}{\sigma^2}+\frac{(n_2-1)S_Y^2}{\sigma^2}
+\sim\chi^2(n_1+n_2-2).
+\]
+
+(2) 由正态总体样本均值的分布：
+\[
+\overline{X}-\overline{Y}\sim N\!\left(\mu_1-\mu_2,\;\frac{\sigma^2}{n_1}+\frac{\sigma^2}{n_2}\right).
+\]
+标准化得
+\[
+U=\frac{(\overline{X}-\overline{Y})-(\mu_1-\mu_2)}{\sigma\sqrt{\dfrac{1}{n_1}+\dfrac{1}{n_2}}}\sim N(0,1).
+\]
+由 (1) 知 $V=\dfrac{(n_1+n_2-2)S_w^2}{\sigma^2}\sim\chi^2(n_1+n_2-2)$。
+
+由两样本独立性及 Cochran 定理，$U$ 与 $V$ 相互独立。由 $t$ 分布定义：
+\[
+T=\frac{U}{\sqrt{V/(n_1+n_2-2)}}
+=\frac{(\overline{X}-\overline{Y})-(\mu_1-\mu_2)}{S_w\sqrt{\dfrac{1}{n_1}+\dfrac{1}{n_2}}}
+\sim t(n_1+n_2-2).
+\]
+
+\boxed{\text{注}} 以上推导假设两总体方差相等（$\sigma_1^2=\sigma_2^2=\sigma^2$），此时才能将两个样本方差合并为 $S_w^2$。若方差不等，则需用 Welch 近似 $t$ 检验，其分布不再是精确的 $t$ 分布。
+
+\newpage
+\textbf{8.} \textbf{（综合证明题）} 设 $X_1, X_2, \ldots, X_n$ 是来自绝对连续总体的简单随机样本，其分布函数为 $F(x)$，概率密度为 $f(x)$。记次序统计量为 $X_{(1)}\leqslant X_{(2)}\leqslant\cdots\leqslant X_{(n)}$。
+\begin{enumerate}[label=(\arabic*)]
+    \item 求 $X_{(n)}=\max(X_1,\ldots,X_n)$ 的分布函数和概率密度函数；
+    \item 求 $X_{(1)}=\min(X_1,\ldots,X_n)$ 的分布函数和概率密度函数；
+    \item 若 $X\sim U(0,\theta)$，求 $X_{(n)}$ 的数学期望 $E(X_{(n)})$。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+
+(1) 对于最大值 $X_{(n)}$，事件 $\{X_{(n)}\leqslant x\}$ 等价于所有 $X_i\leqslant x$。由独立性：
+\[
+F_{(n)}(x)=P(X_{(n)}\leqslant x)=P(X_1\leqslant x,\ldots,X_n\leqslant x)=[F(x)]^n.
+\]
+求导得概率密度函数：
+\[
+f_{(n)}(x)=n[F(x)]^{n-1}f(x).
+\]
+
+(2) 对于最小值 $X_{(1)}$，
+\[
+\begin{aligned}
+F_{(1)}(x)
+&=P(X_{(1)}\leqslant x)=1-P(X_{(1)}>x)\\
+&=1-P(X_1>x,\ldots,X_n>x)=1-[1-F(x)]^n.
+\end{aligned}
+\]
+求导得：
+\[
+f_{(1)}(x)=n[1-F(x)]^{n-1}f(x).
+\]
+
+(3) 当 $X\sim U(0,\theta)$ 时，$F(x)=\dfrac{x}{\theta}\;(0<x<\theta)$，$f(x)=\dfrac{1}{\theta}$。代入 (1)：
+\[
+f_{(n)}(x)=n\left(\frac{x}{\theta}\right)^{n-1}\cdot\frac{1}{\theta}=\frac{n x^{n-1}}{\theta^n},\quad 0<x<\theta.
+\]
+\[
+E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{n x^{n-1}}{\theta^n}\,dx
+=\frac{n}{\theta^n}\int_{0}^{\theta}x^n\,dx
+=\frac{n}{\theta^n}\cdot\frac{\theta^{n+1}}{n+1}
+=\frac{n}{n+1}\theta.
+\]
+
+\boxed{\text{注}} $E(X_{(n)})=\dfrac{n}{n+1}\theta<\theta$，说明即使样本容量很大，样本最大值也倾向于低估 $\theta$，这是矩估计中需要修正的原因。
+
+\newpage
+\subsection{真题风格与综合训练}
+
+\textbf{9.} \textbf{（\boxed{\textbf{真题风格}}，综合计算题）} 设 $X_1, X_2, \ldots, X_n$ 是来自正态总体 $N(\mu,\sigma^2)$ 的简单随机样本，$\overline{X}$ 为样本均值，$S^2$ 为样本方差。
+\begin{enumerate}[label=(\arabic*)]
+    \item 求 $P\!\left(\dfrac{S^2}{\sigma^2}\leqslant c\right)$ 用 $\chi^2$ 分布函数表示的表达式；
+    \item 若 $n=9$，求 $P\!\left(\overline{X}>\mu+\dfrac{\sigma}{3}\right)$；
+    \item 若 $n=16$，判断 $P\!\left(S^2>2\sigma^2\right)$ 所在的区间（已知 $\chi^2_{0.025}(15)=27.49$，$\chi^2_{0.01}(15)=30.58$；这里 $\chi^2_{\alpha}(15)$ 表示右尾概率为 $\alpha$ 的临界值）。
+\end{enumerate}
+
+\boxed{\textbf{解}}
+
+(1) 由正态总体抽样分布基本定理：
+\[
+\frac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1).
+\]
+因此
+\[
+P\!\left(\frac{S^2}{\sigma^2}\leqslant c\right)
+=P\!\left(\frac{(n-1)S^2}{\sigma^2}\leqslant (n-1)c\right)
+=F_{\chi^2(n-1)}\bigl((n-1)c\bigr),
+\]
+其中 $F_{\chi^2(n-1)}$ 为 $\chi^2(n-1)$ 分布的分布函数。
+
+(2) $n=9$ 时，$\overline{X}\sim N\!\left(\mu,\dfrac{\sigma^2}{9}\right)$。标准化：
+\[
+P\!\left(\overline{X}>\mu+\frac{\sigma}{3}\right)
+=P\!\left(\frac{\overline{X}-\mu}{\sigma/3}>1\right)
+=P(Z>1),\quad Z\sim N(0,1).
+\]
+查标准正态分布表，$P(Z>1)=1-\Phi(1)=1-0.8413=0.1587$。
+
+(3) $n=16$ 时，$\dfrac{(n-1)S^2}{\sigma^2}=\dfrac{15S^2}{\sigma^2}\sim\chi^2(15)$。
+\[
+P(S^2>2\sigma^2)=P\!\left(\frac{15S^2}{\sigma^2}>30\right).
+\]
+由 $\chi^2_{0.025}(15)=27.49<30<30.58=\chi^2_{0.01}(15)$，且右尾概率随临界值增大而减小，故
+\[
+0.01<P(S^2>2\sigma^2)<0.025.
+\]
+
+\vspace{0.5cm}
+
+\textbf{10.} \textbf{（\boxed{\textbf{真题风格}}，选择题）} 设随机变量 $X\sim t(n)$（$n>1$），$Y=\dfrac{1}{X^2}$，则 \underline{\qquad}。
+\begin{enumerate}[label=(\Alph*)]
+    \item $Y\sim\chi^2(n)$
+    \item $Y\sim\chi^2(n-1)$
+    \item $Y\sim F(n,1)$
+    \item $Y\sim F(1,n)$
+\end{enumerate}
+
+\boxed{\textbf{解}} 选 \textbf{(C)}。
+
+\textbf{分析：}由 $t$ 分布与 $F$ 分布的关系：若 $T\sim t(n)$，则 $T^2\sim F(1,n)$。
+
+按 $t$ 分布的构造，可写成
+\[
+T=\frac{Z}{\sqrt{U/n}},\qquad
+Z\sim N(0,1),\quad U\sim\chi^2(n),\quad Z\perp U.
+\]
+于是
+\[
+T^2=\frac{Z^2/1}{U/n}\sim F(1,n).
+\]
+题设中的 $X\sim t(n)$，故 $X^2\sim F(1,n)$，进而
+$Y=1/X^2\sim F(n,1)$（若 $F\sim F(m,n)$，则 $1/F\sim F(n,m)$）。
+
+\boxed{\text{注}} 此题考查 $t$ 分布与 $F$ 分布的内在联系，是考研选择题中的经典题型。关键结论链：$t(n)\xrightarrow{\text{平方}}F(1,n)\xrightarrow{\text{取倒数}}F(n,1)$。

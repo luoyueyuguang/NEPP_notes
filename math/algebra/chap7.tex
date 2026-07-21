@@ -1,1 +1,1193 @@
 \section{二次型}
+
+\subsection{二次型的定义与矩阵表示}
+
+\begin{mydef}{二次型}{quadratic-form}
+含有 \(n\) 个变量 \(x_1, x_2, \ldots, x_n\) 的二次齐次多项式
+\[
+f(x_1, x_2, \ldots, x_n) = \sum_{i=1}^{n}\sum_{j=1}^{n} a_{ij} x_i x_j
+\]
+称为 \textbf{\(n\) 元二次型}，简称二次型。其中系数 \(a_{ij}\) 为实数（或复数），且可取 \(a_{ij} = a_{ji}\)，
+即令系数矩阵为\textbf{对称矩阵}。
+
+将二次型写成矩阵形式：
+\[
+f(x_1, x_2, \ldots, x_n) = \mathbf{x}^{\mathsf{T}} A \mathbf{x}
+\]
+其中 \(\mathbf{x} = (x_1, x_2, \ldots, x_n)^{\mathsf{T}}\)，\(A = (a_{ij})_{n \times n}\) 为\textbf{对称矩阵}（\(A^{\mathsf{T}} = A\)），
+称为二次型的\textbf{矩阵}。矩阵 \(A\) 的秩称为二次型的\textbf{秩}。
+\end{mydef}
+
+\boxed{\text{注}} 二次型与对称矩阵一一对应：给定一个二次型，唯一确定一个对称矩阵 \(A\)；反之，给定一个对称矩阵 \(A\)，
+唯一确定一个二次型 \(f = \mathbf{x}^{\mathsf{T}} A \mathbf{x}\)。这一一对应是研究二次型的出发点。
+
+\begin{formula}{二次型的展开形式}{quadratic-form-expansion}
+二次型 \(f = \mathbf{x}^{\mathsf{T}} A \mathbf{x}\) 的展开式为：
+\[
+f = a_{11}x_1^2 + 2a_{12}x_1 x_2 + 2a_{13}x_1 x_3 + \cdots + 2a_{1n}x_1 x_n + a_{22}x_2^2 + 2a_{23}x_2 x_3 + \cdots + a_{nn}x_n^2
+\]
+其中交叉项系数为 \(2a_{ij}\;(i \neq j)\)。
+\end{formula}
+
+\begin{mydef}{二次型的矩阵表示}{quadratic-form-matrix}
+对于二次型 \(f(x_1, x_2, x_3) = x_1^2 + 4x_1 x_2 + 2x_1 x_3 + 3x_2^2 - 6x_2 x_3 + 5x_3^2\)，
+其对称矩阵为：
+\[
+A = \begin{pmatrix}
+1 & 2 & 1 \\
+2 & 3 & -3 \\
+1 & -3 & 5
+\end{pmatrix}
+\]
+即交叉项系数取一半放在非对角元位置。
+\end{mydef}
+
+\subsection{二次型的标准形与规范形}
+
+\begin{mydef}{标准形}{canonical-form}
+若二次型只含平方项（不含交叉项），即
+\[
+f = d_1 y_1^2 + d_2 y_2^2 + \cdots + d_n y_n^2
+\]
+则称此二次型为\textbf{标准形}（也称对角形）。其矩阵为对角矩阵
+\(\operatorname{diag}(d_1, d_2, \ldots, d_n)\)。
+\end{mydef}
+
+\begin{mydef}{规范形}{normal-form}
+若标准形中的系数 \(d_i\) 只取 \(1, -1, 0\)，即
+\[
+f = y_1^2 + y_2^2 + \cdots + y_p^2 - y_{p+1}^2 - \cdots - y_{p+q}^2
+\]
+则称此为标准形在实数域上的\textbf{规范形}。其中 \(p\) 称为\textbf{正惯性指数}，\(q\) 称为\textbf{负惯性指数}，
+\(p+q = r\) 为二次型的秩。规范形由 \(p\) 和 \(q\) 唯一确定。
+\end{mydef}
+
+\begin{conclusion}{惯性定理}{sylvester-inertia-law}
+\textbf{惯性定理（Sylvester 惯性定律）：} 任意一个实二次型 \(f = \mathbf{x}^{\mathsf{T}} A \mathbf{x}\)，
+经过不同的可逆线性变换化为标准形时，其正平方项的项数 \(p\)（正惯性指数）和负平方项的项数 \(q\)（负惯性指数）
+是唯一确定的，与所用的可逆变换无关。
+\end{conclusion}
+
+\subsection{化二次型为标准形的方法}
+
+\begin{conclusion}{配方法（Lagrange 配方法）}{completing-square}
+\textbf{配方法}是将二次型化为标准形的基本方法。步骤：
+\begin{enumerate}
+\item 若 \(\exists a_{ii} \neq 0\)，则将所有含 \(x_i\) 的项归并，配成完全平方；
+\item 若所有 \(a_{ii} = 0\) 但存在 \(a_{ij} \neq 0\;(i \neq j)\)，则先作变换
+\(x_i = y_i + y_j,\; x_j = y_i - y_j\)（其余不变），再配方。
+\end{enumerate}
+
+\boxed{\textbf{例}} 用配方法化 \(f = x_1^2 + 2x_1 x_2 + 2x_1 x_3 + 2x_2^2 + 5x_3^2 + 6x_2 x_3\) 为标准形。
+
+解：\(f = (x_1 + x_2 + x_3)^2 + (x_2 + 2x_3)^2\)。令
+\(y_1 = x_1 + x_2 + x_3,\; y_2 = x_2 + 2x_3,\; y_3 = x_3\)，
+则 \(f = y_1^2 + y_2^2\)，为标准形。所用变换矩阵为可逆矩阵：
+\[
+\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix}
+= \begin{pmatrix} 1 & -1 & 1 \\ 0 & 1 & -2 \\ 0 & 0 & 1 \end{pmatrix}
+\begin{pmatrix} y_1 \\ y_2 \\ y_3 \end{pmatrix}
+\]
+\end{conclusion}
+
+\begin{conclusion}{正交变换法}{orthogonal-transformation}
+对于实对称矩阵 \(A\)，存在正交矩阵 \(Q\)（\(Q^{\mathsf{T}} = Q^{-1}\)），使得
+\[
+Q^{\mathsf{T}} A Q = Q^{-1} A Q = \Lambda = \operatorname{diag}(\lambda_1, \lambda_2, \ldots, \lambda_n)
+\]
+其中 \(\lambda_1, \lambda_2, \ldots, \lambda_n\) 是 \(A\) 的特征值。作正交变换 \(\mathbf{x} = Q \mathbf{y}\)，则二次型化为标准形：
+\[
+f = \mathbf{x}^{\mathsf{T}} A \mathbf{x} = \mathbf{y}^{\mathsf{T}} Q^{\mathsf{T}} A Q \mathbf{y}
+= \lambda_1 y_1^2 + \lambda_2 y_2^2 + \cdots + \lambda_n y_n^2
+\]
+正交变换法的优势：保持向量的长度（内积）不变，是几何意义最清晰的变换。
+\end{conclusion}
+
+\begin{conclusion}{正交变换法化标准形的步骤}{orthogonal-method-steps}
+\begin{enumerate}
+\item 写出二次型的对称矩阵 \(A\)；
+\item 求 \(A\) 的特征值 \(\lambda_1, \lambda_2, \ldots, \lambda_n\)；
+\item 求每个特征值对应的特征向量，对重特征值的特征向量进行 Schmidt 正交化；
+\item 将全部特征向量单位化，以单位特征向量为列构成正交矩阵 \(Q\)；
+\item 作正交变换 \(\mathbf{x} = Q \mathbf{y}\)，得标准形 \(f = \lambda_1 y_1^2 + \lambda_2 y_2^2 + \cdots + \lambda_n y_n^2\)。
+\end{enumerate}
+\end{conclusion}
+
+\subsection{合同变换}
+
+\begin{mydef}{合同矩阵}{congruent-matrix}
+设 \(A, B\) 为 \(n\) 阶方阵，若存在\textbf{可逆矩阵} \(C\)，使得
+\[
+B = C^{\mathsf{T}} A C
+\]
+则称 \(A\) 与 \(B\) \textbf{合同}（或称\textbf{相合}），记为 \(A \simeq B\)。
+\end{mydef}
+
+\begin{conclusion}{合同关系的性质}{congruent-properties}
+合同关系是等价关系，即满足：
+\begin{enumerate}
+\item \textbf{反身性：} \(A \simeq A\)（取 \(C = I\)）；
+\item \textbf{对称性：} 若 \(A \simeq B\)，则 \(B \simeq A\)（取 \(C^{-1}\)）；
+\item \textbf{传递性：} 若 \(A \simeq B\) 且 \(B \simeq D\)，则 \(A \simeq D\)。
+\end{enumerate}
+此外，合同变换保持对称性：若 \(A\) 对称，则合同于 \(A\) 的矩阵也是对称的。
+\end{conclusion}
+
+\begin{conclusion}{合同变换与二次型}{congruent-and-quadratic}
+若对二次型 \(f = \mathbf{x}^{\mathsf{T}} A \mathbf{x}\) 作可逆线性变换 \(\mathbf{x} = C \mathbf{y}\)，则
+\[
+f = (C\mathbf{y})^{\mathsf{T}} A (C\mathbf{y}) = \mathbf{y}^{\mathsf{T}} (C^{\mathsf{T}} A C) \mathbf{y}
+= \mathbf{y}^{\mathsf{T}} B \mathbf{y}
+\]
+其中 \(B = C^{\mathsf{T}} A C\) 与 \(A\) 合同。
+
+因此，\textbf{二次型经可逆线性变换后，其矩阵与原矩阵合同}。化二次型为标准形，本质上就是求与 \(A\) 合同的对角矩阵。
+\end{conclusion}
+
+\begin{conclusion}{合同与相似的关系}{congruent-vs-similar}
+\begin{enumerate}
+\item \textbf{合同：} \(B = C^{\mathsf{T}} A C\)（\(C\) 可逆）。保持对称性和惯性指数。
+\item \textbf{相似：} \(B = P^{-1} A P\)（\(P\) 可逆）。保持特征值、行列式、迹等。
+\item \textbf{正交相似（既是合同又是相似）：} \(B = Q^{\mathsf{T}} A Q = Q^{-1} A Q\)（\(Q\) 正交）。同时保持特征值和惯性指数。\\
+对实对称矩阵，正交相似对角化等同于正交合同对角化。
+\end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{实对称矩阵合同的充要条件}{real-symmetric-congruent}
+两个 \(n\) 阶实对称矩阵 \(A\) 与 \(B\) 合同 \(\Leftrightarrow\) \(A\) 与 \(B\) 有相同的正惯性指数和负惯性指数
+（即有相同的秩和相同的符号差）。
+
+特别地，实对称矩阵 \(A\) 与单位矩阵 \(I\) 合同 \(\Leftrightarrow\) \(A\) 正定（即所有特征值 \(>0\)）。
+\end{conclusion}
+
+\subsection{正定二次型与正定矩阵}
+
+\begin{mydef}{正定二次型}{positive-definite-quadratic}
+设实二次型 \(f(\mathbf{x}) = \mathbf{x}^{\mathsf{T}} A \mathbf{x}\)。若对任意非零向量 \(\mathbf{x} \neq \mathbf{0}\)，恒有
+\[
+f(\mathbf{x}) = \mathbf{x}^{\mathsf{T}} A \mathbf{x} > 0
+\]
+则称 \(f\) 为\textbf{正定二次型}，\(A\) 为\textbf{正定矩阵}，记为 \(A \succ 0\)。
+类似可定义：
+\begin{enumerate}
+\item \textbf{负定：} \(\forall \mathbf{x} \neq \mathbf{0},\; f(\mathbf{x}) < 0\)；
+\item \textbf{半正定：} \(\forall \mathbf{x},\; f(\mathbf{x}) \geq 0\) 且 \(\exists \mathbf{x} \neq \mathbf{0}\) 使 \(f(\mathbf{x}) = 0\)；
+\item \textbf{半负定：} \(\forall \mathbf{x},\; f(\mathbf{x}) \leq 0\) 且 \(\exists \mathbf{x} \neq \mathbf{0}\) 使 \(f(\mathbf{x}) = 0\)；
+\item \textbf{不定：} \(f(\mathbf{x})\) 既可取正值也可取负值。
+\end{enumerate}
+\end{mydef}
+
+\begin{conclusion}{正定矩阵的等价条件}{positive-definite-conditions}
+设 \(A\) 为 \(n\) 阶实对称矩阵，则以下条件等价：
+\begin{enumerate}
+\item \(A\) 是正定矩阵（\(\mathbf{x}^{\mathsf{T}} A \mathbf{x} > 0,\; \forall \mathbf{x} \neq \mathbf{0}\)）；
+\item \(A\) 的特征值全大于零（\(\lambda_i > 0,\; i = 1, 2, \ldots, n\)）；
+\item \(A\) 的正惯性指数 \(p = n\)（即 \(A\) 合同于单位矩阵 \(I_n\)）；
+\item 存在可逆矩阵 \(C\)，使得 \(A = C^{\mathsf{T}} C\)（Cholesky 分解的推论）；
+\item \(A\) 的各阶顺序主子式全大于零（Sylvester 准则）。
+\end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{Sylvester 准则（顺序主子式判别法）}{sylvester-criterion}
+设实对称矩阵
+\[
+A = \begin{pmatrix}
+a_{11} & a_{12} & \cdots & a_{1n} \\
+a_{21} & a_{22} & \cdots & a_{2n} \\
+\vdots & \vdots & \ddots & \vdots \\
+a_{n1} & a_{n2} & \cdots & a_{nn}
+\end{pmatrix}
+\]
+其 \(k\) 阶\textbf{顺序主子式}为：
+\[
+\Delta_k = \det\begin{pmatrix}
+a_{11} & a_{12} & \cdots & a_{1k} \\
+a_{21} & a_{22} & \cdots & a_{2k} \\
+\vdots & \vdots & \ddots & \vdots \\
+a_{k1} & a_{k2} & \cdots & a_{kk}
+\end{pmatrix}, \quad k = 1, 2, \ldots, n
+\]
+则：
+\begin{enumerate}
+\item \(A\) \textbf{正定} \(\Leftrightarrow\) \(\Delta_k > 0,\; k = 1, 2, \ldots, n\)；
+\item \(A\) \textbf{负定} \(\Leftrightarrow\) \((-1)^k \Delta_k > 0,\; k = 1, 2, \ldots, n\)（即顺序主子式正负交替，\(\Delta_1 < 0,\; \Delta_2 > 0,\; \Delta_3 < 0,\; \ldots\)）。
+\end{enumerate}
+
+\boxed{\text{注}} Sylvester 准则只适用于判定正定和负定，不能直接判定半正定和不定。对于半正定和半负定，
+需用\textbf{所有主子式}（不仅是顺序主子式）非负的条件；不定情形需考察特征值的符号。
+\end{conclusion}
+
+\begin{conclusion}{正定矩阵的基本性质}{positive-definite-properties}
+设 \(A, B\) 为 \(n\) 阶正定矩阵，则：
+\begin{enumerate}
+\item \(A^{-1}\) 也是正定矩阵；
+\item \(A\) 的主对角线元素全为正数（\(a_{ii} > 0\)）；
+\item \(\det A > 0\)（行列式为正），且 \(\det A \leq a_{11} a_{22} \cdots a_{nn}\)（Hadamard 不等式）；
+\item \(A + B\) 也是正定矩阵；
+\item 若 \(k > 0\)，则 \(kA\) 也是正定矩阵；
+\item 若 \(C\) 为可逆矩阵，则 \(C^{\mathsf{T}} A C\) 也是正定矩阵；
+\item \(A\) 的所有主子式（不仅顺序主子式）均为正。
+\end{enumerate}
+\end{conclusion}
+
+\subsection{二次型的分类}
+
+\begin{conclusion}{实二次型的分类判别}{quadratic-classification}
+对于实二次型 \(f = \mathbf{x}^{\mathsf{T}} A \mathbf{x}\)（\(A\) 实对称，秩为 \(r\)，正惯性指数为 \(p\)，负惯性指数为 \(q = r-p\)）：
+\[
+\begin{aligned}
+\text{正定} &\Leftrightarrow p = n,\; r = n,\; q = 0
+\;\Leftrightarrow\; \text{所有特征值} > 0 \;\Leftrightarrow\; \text{所有顺序主子式} > 0 \\
+\text{负定} &\Leftrightarrow p = 0,\; r = n,\; q = n
+\;\Leftrightarrow\; \text{所有特征值} < 0 \;\Leftrightarrow\; (-1)^k \Delta_k > 0 \\
+\text{半正定} &\Leftrightarrow p = r < n,\; q = 0
+\;\Leftrightarrow\; \text{所有特征值} \geq 0 \text{ 且至少一个为零} \\
+\text{半负定} &\Leftrightarrow p = 0,\; q = r < n
+\;\Leftrightarrow\; \text{所有特征值} \leq 0 \text{ 且至少一个为零} \\
+\text{不定} &\Leftrightarrow p > 0 \text{ 且 } q > 0
+\;\Leftrightarrow\; \text{特征值有正有负}
+\end{aligned}
+\]
+\end{conclusion}
+
+\begin{conclusion}{用特征值判别二次型的类型}{classification-by-eigenvalues}
+设实对称矩阵 \(A\) 的特征值为 \(\lambda_1, \lambda_2, \ldots, \lambda_n\)，则二次型 \(f = \mathbf{x}^{\mathsf{T}} A \mathbf{x}\)：
+\begin{enumerate}
+\item 正定 \(\Leftrightarrow\) \(\lambda_i > 0,\; \forall i\)；
+\item 负定 \(\Leftrightarrow\) \(\lambda_i < 0,\; \forall i\)；
+\item 半正定 \(\Leftrightarrow\) \(\lambda_i \geq 0,\; \forall i\)，且 \(\exists j\) 使 \(\lambda_j = 0\)；
+\item 半负定 \(\Leftrightarrow\) \(\lambda_i \leq 0,\; \forall i\)，且 \(\exists j\) 使 \(\lambda_j = 0\)；
+\item 不定 \(\Leftrightarrow\) \(\exists i,j\) 使 \(\lambda_i > 0,\; \lambda_j < 0\)。
+\end{enumerate}
+\end{conclusion}
+
+\subsection{合同变换下的标准形}
+
+\begin{conclusion}{实二次型在合同变换下的标准形}{real-congruent-canonical}
+设 \(A\) 为 \(n\) 阶实对称矩阵，秩为 \(r\)，则 \(A\) 合同于如下对角矩阵：
+\[
+\begin{pmatrix}
+I_p & 0 & 0 \\
+0 & -I_{r-p} & 0 \\
+0 & 0 & 0
+\end{pmatrix}_{n \times n}
+\]
+其中 \(p\) 为正惯性指数。此时二次型的规范形为：
+\[
+f = y_1^2 + \cdots + y_p^2 - y_{p+1}^2 - \cdots - y_r^2
+\]
+\end{conclusion}
+
+\begin{conclusion}{复对称二次型的合同标准形}{complex-congruent-canonical}
+对于复对称二次型
+\(f=\mathbf x^{\mathsf T}A\mathbf x\)（\(A^{\mathsf T}=A\)），若 \(\operatorname{rank}(A)=r\)，
+则存在可逆复矩阵 \(C\)，使得
+\[
+C^{\mathsf T}AC=
+\begin{pmatrix}
+I_r & 0 \\
+0 & 0
+\end{pmatrix}
+\]
+即其规范形为 \(f=y_1^2+\cdots+y_r^2\)。这里讨论的是复对称矩阵及变换
+\(C^{\mathsf T}AC\)；若讨论 Hermite 型 \(\mathbf x^{\mathsf H}A\mathbf x\)，
+则在 \(*\)-合同下正、负惯性指数仍保持不变，不能把负平方项一律化为正平方项。
+\end{conclusion}
+
+\subsection{二次型的应用}
+
+\noindent\textbf{考研定位：}利用二次型讨论正定性和多元函数极值属于主线能力；下述二次曲面分类、最小二乘法与 Rayleigh 商内容主要用于拓宽理解，不作为考研数学一独立考点。
+
+\subsubsection{二次曲面分类}
+
+\begin{conclusion}{二次曲面的矩阵形式}{quadric-surface-matrix}
+三维空间中的一般二次曲面方程可写为：
+\[
+\mathbf{x}^{\mathsf{T}} A \mathbf{x} + 2\mathbf{b}^{\mathsf{T}} \mathbf{x} + c = 0
+\]
+其中 \(A\) 为 \(3 \times 3\) 实对称矩阵，\(\mathbf{b} \in \mathbb{R}^3\)，\(c \in \mathbb{R}\)。
+通过正交变换 \(\mathbf{x} = Q \mathbf{y}\)（将 \(A\) 对角化）和平移变换，可将二次曲面化为标准方程。
+\end{conclusion}
+
+\begin{tablebox}{二次曲面分类的判定原则}
+二次项矩阵 \(A\) 的秩和惯性指数只能确定二次部分的类型；完整曲面还取决于
+线性项 \(\mathbf b\) 与常数项 \(c\)。典型情形如下：
+\begin{itemize}
+    \item \(A\) 正定且中心化后的常数项为负时，得到椭球面；常数项为零或为正时，
+    可能分别退化为一点或空集。
+    \item \(A\) 非退化且惯性指数为 \((2,1)\) 或 \((1,2)\) 时，结合中心化后的常数项，
+    可得到单叶双曲面、双叶双曲面或二次锥面。
+    \item \(\operatorname{rank}(A)=2\) 时，若线性项在 \(A\) 的零空间方向上分量非零，
+    可得到椭圆抛物面或双曲抛物面；若该分量为零，则还可能得到柱面或退化曲面。
+\end{itemize}
+因此，不能仅凭特征值的正负和零值就唯一判定一般二次曲面的名称。
+\end{tablebox}
+
+\subsubsection{多元函数的极值}
+
+\begin{conclusion}{Hessian 矩阵与极值判定}{hessian-extrema}
+设 \(n\) 元函数 \(f(x_1, \ldots, x_n)\) 在驻点 \(\mathbf{x}_0\) 处二阶连续可微。定义 Hessian 矩阵：
+\[
+H(\mathbf{x}_0) = \left( \frac{\partial^2 f}{\partial x_i \partial x_j}(\mathbf{x}_0) \right)_{n \times n}
+\]
+则：
+\begin{enumerate}
+\item 若 \(H(\mathbf{x}_0)\) \textbf{正定}，则 \(f\) 在 \(\mathbf{x}_0\) 处取得\textbf{极小值}；
+\item 若 \(H(\mathbf{x}_0)\) \textbf{负定}，则 \(f\) 在 \(\mathbf{x}_0\) 处取得\textbf{极大值}；
+\item 若 \(H(\mathbf{x}_0)\) \textbf{不定}，则 \(\mathbf{x}_0\) 不是极值点（鞍点）；
+\item 若 \(H(\mathbf{x}_0)\) \textbf{半正定}或\textbf{半负定}，则该判别法失效，需进一步分析。
+\end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{二元函数的极值判别}{bivariate-extrema}
+对于二元函数 \(z = f(x, y)\)，记
+\[
+A = \frac{\partial^2 f}{\partial x^2},\quad
+B = \frac{\partial^2 f}{\partial x \partial y},\quad
+C = \frac{\partial^2 f}{\partial y^2}
+\]
+在驻点 \((x_0, y_0)\) 处：
+\begin{enumerate}
+\item 若 \(A > 0\) 且 \(AC - B^2 > 0\)（即 Hessian 正定），则 \(f\) 取得极小值；
+\item 若 \(A < 0\) 且 \(AC - B^2 > 0\)（即 Hessian 负定），则 \(f\) 取得极大值；
+\item 若 \(AC - B^2 < 0\)（即 Hessian 不定），则 \((x_0, y_0)\) 为鞍点；
+\item 若 \(AC - B^2 = 0\)，则判别法失效。
+\end{enumerate}
+这里 \(AC - B^2 = \det H\)，而 \(A\) 为一阶顺序主子式。
+\end{conclusion}
+
+\subsubsection{最小二乘法中的正定性}
+
+\begin{formula}{正规方程与正定性}{normal-equation-positive}
+在线性回归中，最小二乘法的正规方程为：
+\[
+X^{\mathsf{T}} X \boldsymbol{\beta} = X^{\mathsf{T}} \mathbf{y}
+\]
+其中 \(X^{\mathsf{T}} X\) 为 Gram 矩阵。当 \(X\) 列满秩时，\(X^{\mathsf{T}} X\) 是正定矩阵，
+因此方程有唯一解 \(\hat{\boldsymbol{\beta}} = (X^{\mathsf{T}} X)^{-1} X^{\mathsf{T}} \mathbf{y}\)。
+正定性保证了解的唯一性；数值稳定性还取决于\(X^{\mathsf T}X\)的条件数，不能仅由正定性推出。
+\end{formula}
+
+\begin{conclusion}{二次型在优化中的应用}{quadratic-optimization}
+\textbf{约束优化问题：} 在约束 \(\mathbf{x}^{\mathsf{T}} \mathbf{x} = 1\)（单位球面）下求二次型 \(\mathbf{x}^{\mathsf{T}} A \mathbf{x}\) 的最大值和最小值。
+
+由 Rayleigh 商的性质：
+\[
+\lambda_{\min} \leq \frac{\mathbf{x}^{\mathsf{T}} A \mathbf{x}}{\mathbf{x}^{\mathsf{T}} \mathbf{x}} \leq \lambda_{\max}
+\]
+即在单位球面上：
+\begin{enumerate}
+\item 二次型的\textbf{最大值}为 \(A\) 的最大特征值 \(\lambda_{\max}\)，在对应的单位特征向量处取得；
+\item 二次型的\textbf{最小值}为 \(A\) 的最小特征值 \(\lambda_{\min}\)，在对应的单位特征向量处取得。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+
+\subsection{综合习题与重要结论}
+
+\begin{formula}{二次型的各类等价条件汇总}{quadratic-summary}
+设 \(A\) 为 \(n\) 阶实对称矩阵，以下为各类型二次型的全部等价条件：
+
+\boxed{\textbf{正定}}
+\begin{enumerate}
+\item \(\mathbf{x}^{\mathsf{T}} A \mathbf{x} > 0,\; \forall \mathbf{x} \neq \mathbf{0}\)
+\item \(A\) 的特征值全大于零
+\item \(A\) 的正惯性指数 \(p = n\)
+\item \(A\) 合同于单位矩阵 \(I_n\)
+\item 所有顺序主子式 \(> 0\)
+\item 存在可逆矩阵 \(C\) 使 \(A = C^{\mathsf{T}} C\)
+\end{enumerate}
+
+\boxed{\textbf{负定}}
+\begin{enumerate}
+\item \(\mathbf{x}^{\mathsf{T}} A \mathbf{x} < 0,\; \forall \mathbf{x} \neq \mathbf{0}\)
+\item \(A\) 的特征值全小于零
+\item \(A\) 的负惯性指数 \(q = n\)
+\item \(A\) 合同于 \(-I_n\)
+\item 顺序主子式正负交替：\(\Delta_1 < 0,\; \Delta_2 > 0,\; \Delta_3 < 0,\; \ldots\)
+\end{enumerate}
+
+\boxed{\textbf{半正定}}
+\begin{enumerate}
+\item \(\mathbf{x}^{\mathsf{T}} A \mathbf{x} \geq 0,\; \forall \mathbf{x}\)，且 \(\exists \mathbf{x} \neq \mathbf{0}\) 使等号成立
+\item \(A\) 的特征值全 \(\geq 0\)，且至少有一个为 \(0\)
+\item 正惯性指数 \(p = r < n\)，负惯性指数 \(q = 0\)
+\item 所有主子式 \(\geq 0\)（不仅仅是顺序主子式）
+\end{enumerate}
+
+\boxed{\textbf{不定}}
+\begin{enumerate}
+\item \(\exists \mathbf{x}_1, \mathbf{x}_2\) 使 \(\mathbf{x}_1^{\mathsf{T}} A \mathbf{x}_1 > 0,\; \mathbf{x}_2^{\mathsf{T}} A \mathbf{x}_2 < 0\)
+\item \(A\) 的特征值有正有负
+\item 正惯性指数 \(p > 0\) 且负惯性指数 \(q > 0\)
+\end{enumerate}
+\end{formula}
+
+\begin{conclusion}{合同变换的进一步结论}{congruent-further}
+\begin{enumerate}
+\item 实对称矩阵的正、负惯性指数由矩阵本身唯一确定（惯性定理）；
+\item 两个 \(n\) 阶实对称矩阵合同 \(\Leftrightarrow\) 它们有相同的正惯性指数和负惯性指数；
+\item 秩为 \(r\) 的实对称矩阵的一切合同标准形构成一个等价类；
+\item 实对称矩阵 \(A\) 可逆时，\(A\) 与 \(A^{-1}\) 合同（因它们有相同的惯性指数）。事实上，
+若 \(A\) 正定，则 \(A^{-1}\) 也正定。
+\end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{Cholesky 分解}{cholesky-decomposition}
+\noindent\textbf{拓展阅读：}Cholesky 分解不作为考研数学一主线要求；主线应掌握正定二次型、惯性指数和顺序主子式判别法。
+若 \(A\) 为 \(n\) 阶\textbf{正定}矩阵，则存在唯一的对角线元素全为正的下三角矩阵 \(L\)，使得
+\[
+A = L L^{\mathsf{T}}
+\]
+这称为 \(A\) 的\textbf{Cholesky 分解}（平方根分解）。这是正定矩阵的一个重要数值特征。
+\end{conclusion}
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\boxed{\textbf{例}}\quad \textbf{1.（填空题）} 已知二次型
+\[
+f(x_1,x_2,x_3)=2x_1^2-4x_1x_2+x_2^2+6x_1x_3-2x_2x_3+3x_3^2
+\]
+写出其对称矩阵 \(A\)，并求该二次型的秩。
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+二次型 \(f=2x_1^2-4x_1x_2+x_2^2+6x_1x_3-2x_2x_3+3x_3^2\)。
+
+对称矩阵 \(A\) 的构造规则：平方项系数是 \(a_{ii}\)，交叉项系数的一半是 \(a_{ij}=a_{ji}\)。
+\[
+\begin{aligned}
+a_{11}&=2,\qquad a_{22}=1,\qquad a_{33}=3,\\
+a_{12}=a_{21}&=-2,\qquad
+a_{13}=a_{31}=3,\qquad
+a_{23}=a_{32}=-1.
+\end{aligned}
+\]
+所以
+\[
+A=\begin{pmatrix}
+2 & -2 & 3 \\
+-2 & 1 & -1 \\
+3 & -1 & 3
+\end{pmatrix}
+\]
+
+求秩：计算 \(\det A\)。
+\begin{align*}
+\det A &= 2\begin{vmatrix}1&-1\\-1&3\end{vmatrix}
+-(-2)\begin{vmatrix}-2&-1\\3&3\end{vmatrix}
++3\begin{vmatrix}-2&1\\3&-1\end{vmatrix} \\
+&= 2(3-1)+2(-6+3)+3(2-3) \\
+&= 2\cdot 2+2\cdot(-3)+3\cdot(-1) \\
+&= 4-6-3=-5\neq 0
+\end{align*}
+故 \(\operatorname{rank}(A)=3\)，即二次型的秩为 \(3\)。
+
+
+\boxed{\textbf{例}}\quad \textbf{2.（计算题）} 用配方法化二次型
+\[
+f(x_1,x_2,x_3)=x_1^2+2x_2^2+3x_3^2+2x_1x_2+4x_1x_3+6x_2x_3
+\]
+为标准形，并写出所用的可逆线性变换，指出二次型的秩和正、负惯性指数。
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+\[
+f=x_1^2+2x_2^2+3x_3^2+2x_1x_2+4x_1x_3+6x_2x_3
+\]
+
+先按 \(x_1\) 配方：
+\begin{align*}
+f &= (x_1^2+2x_1x_2+4x_1x_3)+2x_2^2+3x_3^2+6x_2x_3 \\
+  &= (x_1+x_2+2x_3)^2-(x_2+2x_3)^2+2x_2^2+3x_3^2+6x_2x_3
+\end{align*}
+计算余项：
+\begin{align*}
+-(x_2+2x_3)^2+2x_2^2+3x_3^2+6x_2x_3
+&= -x_2^2-4x_2x_3-4x_3^2+2x_2^2+3x_3^2+6x_2x_3 \\
+&= x_2^2+2x_2x_3-x_3^2
+\end{align*}
+再按 \(x_2\) 配方：
+\[
+x_2^2+2x_2x_3-x_3^2=(x_2+x_3)^2-2x_3^2
+\]
+于是
+\[
+f=(x_1+x_2+2x_3)^2+(x_2+x_3)^2-2x_3^2
+\]
+
+令
+\[
+\begin{cases}
+y_1=x_1+x_2+2x_3,\\
+y_2=x_2+x_3,\\
+y_3=x_3,
+\end{cases}
+\quad\text{即}\quad
+\begin{pmatrix}y_1\\y_2\\y_3\end{pmatrix}
+=\begin{pmatrix}1&1&2\\0&1&1\\0&0&1\end{pmatrix}
+\begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix}
+\]
+则 \(f=y_1^2+y_2^2-2y_3^2\) 为标准形。
+
+变换矩阵 \(P=\begin{pmatrix}1&1&2\\0&1&1\\0&0&1\end{pmatrix}\) 可逆（上三角，行列式为 \(1\)），
+所用的可逆线性变换为：
+\[
+\mathbf{x}=P^{-1}\mathbf{y}=\begin{pmatrix}1&-1&-1\\0&1&-1\\0&0&1\end{pmatrix}\mathbf{y}
+\]
+
+标准形为 \(f=y_1^2+y_2^2-2y_3^2\)，故秩 \(r=3\)，正惯性指数 \(p=2\)，负惯性指数 \(q=1\)。
+
+
+\boxed{\textbf{例}}\quad \textbf{3.（选择题）} 二次型
+\[
+f(x_1,x_2,x_3)=-2x_1^2-3x_2^2-x_3^2+2x_1x_2+2x_1x_3
+\]
+的定性类型是
+\[
+\text{(A) 正定} \qquad \text{(B) 负定} \qquad \text{(C) 不定} \qquad \text{(D) 半正定}
+\]
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+先写出对称矩阵：
+\[
+f=-2x_1^2-3x_2^2-x_3^2+2x_1x_2+2x_1x_3
+\]
+\[
+A=\begin{pmatrix}
+-2 & 1 & 1 \\
+1 & -3 & 0 \\
+1 & 0 & -1
+\end{pmatrix}
+\]
+
+计算各阶顺序主子式：
+\[
+\Delta_1=-2<0,\qquad
+\Delta_2=\begin{vmatrix}-2&1\\1&-3\end{vmatrix}=6-1=5>0
+\]
+\begin{align*}
+\Delta_3=\det A
+&= (-2)\begin{vmatrix}-3&0\\0&-1\end{vmatrix}
+-1\cdot\begin{vmatrix}1&0\\1&-1\end{vmatrix}
++1\cdot\begin{vmatrix}1&-3\\1&0\end{vmatrix} \\
+&= (-2)(3)-1\cdot(-1)+1\cdot(3) \\
+&= -6+1+3=-2<0
+\end{align*}
+
+顺序主子式符号为 \(\Delta_1<0,\;\Delta_2>0,\;\Delta_3<0\)，
+满足负定的充要条件 \((-1)^k\Delta_k>0\)（即 \(-\Delta_1>0,\;\Delta_2>0,\;-\Delta_3>0\)），
+故该二次型为\textbf{负定}。
+
+答案选 (B)。
+
+
+\boxed{\textbf{例}}\quad \textbf{4.（计算题）} 用正交变换法化二次型
+\[
+f(x_1,x_2,x_3)=2x_1^2+2x_2^2+2x_3^2+2x_1x_2+2x_2x_3
+\]
+为标准形，并求所用的正交矩阵 \(Q\)。
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+二次型 \(f=2x_1^2+2x_2^2+2x_3^2+2x_1x_2+2x_2x_3\) 的对称矩阵为：
+\[
+A=\begin{pmatrix}
+2 & 1 & 0 \\
+1 & 2 & 1 \\
+0 & 1 & 2
+\end{pmatrix}
+\]
+
+\textbf{求特征值：}
+\begin{align*}
+\det(\lambda I-A)&=\begin{vmatrix}
+\lambda-2 & -1 & 0 \\
+-1 & \lambda-2 & -1 \\
+0 & -1 & \lambda-2
+\end{vmatrix} \\
+&= (\lambda-2)\begin{vmatrix}\lambda-2&-1\\-1&\lambda-2\end{vmatrix}
+-(-1)\begin{vmatrix}-1&-1\\0&\lambda-2\end{vmatrix} \\
+&= (\lambda-2)[(\lambda-2)^2-1] + [(-1)(\lambda-2)-0] \\
+&= (\lambda-2)[(\lambda-2)^2-1] - (\lambda-2) \\
+&= (\lambda-2)[(\lambda-2)^2-2]=0
+\end{align*}
+特征值：\(\lambda_1=2-\sqrt{2},\;\lambda_2=2,\;\lambda_3=2+\sqrt{2}\)。
+
+\textbf{求特征向量：}
+
+对 \(\lambda_1=2-\sqrt{2}\)，解 \(( (2-\sqrt{2})I-A)\mathbf{x}=\mathbf{0}\)：
+\[
+(2-\sqrt{2})I-A=\begin{pmatrix}
+-\sqrt{2} & -1 & 0 \\
+-1 & -\sqrt{2} & -1 \\
+0 & -1 & -\sqrt{2}
+\end{pmatrix}
+\]
+由第一行：\(x_2=-\sqrt{2}x_1\)；代入第二行：
+\(-x_1-\sqrt{2}(-\sqrt{2}x_1)-x_3=0\Rightarrow -x_1+2x_1-x_3=0\Rightarrow x_3=x_1\)。
+取 \(\alpha_1=(1,-\sqrt{2},1)^{\mathsf{T}}\)。
+
+对 \(\lambda_2=2\)，解 \((2I-A)\mathbf{x}=\mathbf{0}\)：
+\[
+2I-A=\begin{pmatrix}
+0 & -1 & 0 \\
+-1 & 0 & -1 \\
+0 & -1 & 0
+\end{pmatrix}\xrightarrow{\text{行变换}}
+\begin{pmatrix}
+1 & 0 & 1 \\
+0 & 1 & 0 \\
+0 & 0 & 0
+\end{pmatrix}
+\]
+得 \(x_2=0,\;x_3=-x_1\)。取 \(\alpha_2=(1,0,-1)^{\mathsf{T}}\)。
+
+对 \(\lambda_3=2+\sqrt{2}\)，解 \(( (2+\sqrt{2})I-A)\mathbf{x}=\mathbf{0}\)：
+\[
+(2+\sqrt{2})I-A=\begin{pmatrix}
+\sqrt{2} & -1 & 0 \\
+-1 & \sqrt{2} & -1 \\
+0 & -1 & \sqrt{2}
+\end{pmatrix}
+\]
+由第一行：\(x_2=\sqrt{2}x_1\)；代入第二行：
+\(-x_1+\sqrt{2}(\sqrt{2}x_1)-x_3=0\Rightarrow -x_1+2x_1-x_3=0\Rightarrow x_3=x_1\)。
+取 \(\alpha_3=(1,\sqrt{2},1)^{\mathsf{T}}\)。
+
+三个特征值互异，特征向量自动正交。单位化：
+\[
+\|\alpha_1\|=\sqrt{1+2+1}=2,\quad
+\|\alpha_2\|=\sqrt{1+0+1}=\sqrt{2},\quad
+\|\alpha_3\|=2
+\]
+\[
+\eta_1=\frac{1}{2}\begin{pmatrix}1\\-\sqrt{2}\\1\end{pmatrix},\;
+\eta_2=\frac{1}{\sqrt{2}}\begin{pmatrix}1\\0\\-1\end{pmatrix},\;
+\eta_3=\frac{1}{2}\begin{pmatrix}1\\\sqrt{2}\\1\end{pmatrix}
+\]
+
+正交矩阵：
+\[
+Q=(\eta_1,\eta_2,\eta_3)=\begin{pmatrix}
+\frac{1}{2} & \frac{1}{\sqrt{2}} & \frac{1}{2} \\[4pt]
+-\frac{\sqrt{2}}{2} & 0 & \frac{\sqrt{2}}{2} \\[4pt]
+\frac{1}{2} & -\frac{1}{\sqrt{2}} & \frac{1}{2}
+\end{pmatrix}
+\]
+作正交变换 \(\mathbf{x}=Q\mathbf{y}\)，得标准形：
+\[
+f=(2-\sqrt{2})y_1^2+2y_2^2+(2+\sqrt{2})y_3^2
+\]
+
+
+\boxed{\textbf{例}}\quad \textbf{5.（选择题）} 设 \(A\) 为 \(n\) 阶实对称矩阵，\(C\) 为 \(n\) 阶可逆矩阵。在合同变换 \(B=C^{\mathsf{T}}AC\) 下，下列哪一项是 \(A\) 与 \(B\) 共同的不变量？
+\[
+\text{(A) 特征值} \qquad \text{(B) 行列式} \qquad \text{(C) 秩和惯性指数} \qquad \text{(D) 迹}
+\]
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+合同变换 \(B=C^{\mathsf{T}}AC\)（\(C\) 可逆）保持秩和惯性指数（惯性定理），但不一定保持特征值、行列式、迹。
+
+例如取 \(A=\begin{pmatrix}1&0\\0&1\end{pmatrix},\;C=\begin{pmatrix}2&0\\0&1\end{pmatrix}\)，则
+\(B=C^{\mathsf{T}}AC=\begin{pmatrix}4&0\\0&1\end{pmatrix}\)：特征值由 \(\{1,1\}\) 变为 \(\{4,1\}\)，
+行列式由 \(1\) 变为 \(4\)，迹由 \(2\) 变为 \(5\)。只有秩（均为 \(2\)）和正惯性指数（均为 \(2\)）不变。
+
+答案选 (C)。
+
+
+\boxed{\textbf{例}}\quad \textbf{6.（计算题）} 已知二次型
+\[
+f(x_1,x_2,x_3)=x_1^2+2x_2^2+tx_3^2+2x_1x_2+2x_1x_3+2x_2x_3
+\]
+其中 \(t\) 为实参数。用 Sylvester 准则确定使该二次型正定的 \(t\) 的取值范围。
+
+\newpage
+
+\boxed{\textbf{解}}
+二次型 \(f=x_1^2+2x_2^2+tx_3^2+2x_1x_2+2x_1x_3+2x_2x_3\) 的对称矩阵为：
+\[
+A=\begin{pmatrix}
+1 & 1 & 1 \\
+1 & 2 & 1 \\
+1 & 1 & t
+\end{pmatrix}
+\]
+
+Sylvester 准则要求所有顺序主子式 \(>0\)：
+\[
+\Delta_1=1>0 \quad \checkmark
+\]
+\[
+\Delta_2=\begin{vmatrix}1&1\\1&2\end{vmatrix}=2-1=1>0 \quad \checkmark
+\]
+\begin{align*}
+\Delta_3=\det A
+&= 1\cdot\begin{vmatrix}2&1\\1&t\end{vmatrix}
+-1\cdot\begin{vmatrix}1&1\\1&t\end{vmatrix}
++1\cdot\begin{vmatrix}1&2\\1&1\end{vmatrix} \\
+&= (2t-1)-(t-1)+(1-2) \\
+&= 2t-1-t+1-1 = t-1
+\end{align*}
+要求 \(\Delta_3>0\Rightarrow t>1\)。
+
+故正定的充要条件为 \(t>1\)。
+
+\newpage
+
+
+
+\subsection{综合提高题}
+
+\boxed{\textbf{例}}\quad \textbf{7.（典型证明题）} 设 \(A\) 为 \(n\) 阶正定矩阵。证明 \(A^{-1}\) 也是正定矩阵。
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+\textbf{证法一（特征值法）：} 因为 \(A\) 正定，所以 \(A\) 的所有特征值 \(\lambda_i>0\;(i=1,\ldots,n)\)。\(A^{-1}\) 的特征值为 \(1/\lambda_i>0\)，故 \(A^{-1}\) 正定。
+
+\textbf{证法二（定义法）：} \(\forall \mathbf{x}\neq\mathbf{0}\)，令 \(\mathbf{y}=A^{-1}\mathbf{x}\neq\mathbf{0}\)。因为 \(A\) 正定，\(\mathbf{y}^{\mathsf{T}}A\mathbf{y}>0\)，所以
+\[
+\mathbf{x}^{\mathsf{T}}A^{-1}\mathbf{x}=(A^{-1}\mathbf{x})^{\mathsf{T}}A(A^{-1}\mathbf{x})=\mathbf{y}^{\mathsf{T}}A\mathbf{y}>0
+\]
+故 \(A^{-1}\) 正定。
+
+\textbf{证法三（合同分解法）：} \(A\) 正定 \(\Rightarrow\) 存在可逆 \(C\) 使 \(A=C^{\mathsf{T}}C\)。则
+\(A^{-1}=(C^{\mathsf{T}}C)^{-1}=C^{-1}(C^{-1})^{\mathsf{T}}=D^{\mathsf{T}}D\)（取 \(D=(C^{-1})^{\mathsf{T}}\)），故 \(A^{-1}\) 正定。
+
+\boxed{\text{注}} 正定矩阵的逆仍正定，是考研中频繁使用的结论。三种证法分别利用了正定的三个等价刻画。
+
+
+\boxed{\textbf{例}}\quad \textbf{8.（证明题）} 设 \(A,B\) 均为 \(n\) 阶正定矩阵，且 \(AB=BA\)（即 \(A\) 与 \(B\) 乘法可交换）。证明 \(AB\) 也是正定矩阵。
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+因为 \(A,B\) 正定，所以 \(A,B\) 均为实对称矩阵。由 \(AB=BA\) 知
+\[
+(AB)^{\mathsf{T}}=B^{\mathsf{T}}A^{\mathsf{T}}=BA=AB
+\]
+故 \(AB\) 也是实对称矩阵。
+
+下面证明 \(AB\) 的特征值全正。因为 \(A\) 正定，设 \(A^{1/2}\) 为其正定平方根。
+由 \(AB=BA\) 可推出 \(A^{1/2}B=BA^{1/2}\)，于是
+\[
+AB = A^{1/2}A^{1/2}B = A^{1/2}(A^{1/2}B) = A^{1/2}(BA^{1/2}) = A^{1/2}B A^{1/2}
+\]
+注意 \(A^{1/2}BA^{1/2}\) 与 \(B\) 合同（取 \(C=A^{1/2}\)，则 \(C^{\mathsf{T}}BC=A^{1/2}BA^{1/2}\)），
+因 \(B\) 正定，故 \(A^{1/2}BA^{1/2}\) 也正定。
+
+又 \(AB\) 与 \(A^{1/2}BA^{1/2}\) 相似（因 \(A^{-1/2}(AB)A^{1/2}=A^{1/2}BA^{1/2}\)），故有相同的特征值，均为正数。
+
+因此 \(AB\) 对称且特征值全正，即 \(AB\) 正定。
+
+\boxed{\text{注}} 条件 \(AB=BA\) 保证了 \(AB\) 的对称性。若 \(A,B\) 正定但不交换，则 \(AB\) 不一定对称，更不一定正定。
+
+
+\boxed{\textbf{例}}\quad \textbf{9.（计算+证明题）} 已知二次型
+\[
+f(x_1,x_2,x_3)=x_1^2+2x_2^2+tx_3^2+2x_1x_2+2x_2x_3
+\]
+其中 \(t\) 为实参数。
+\begin{enumerate}
+\item[(1)] 用 Sylvester 准则求出 \(f\) 正定时 \(t\) 的取值范围；
+\item[(2)] 用配方法或合同变换验证（1）的结论。
+\end{enumerate}
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+二次型 \(f=x_1^2+2x_2^2+tx_3^2+2x_1x_2+2x_2x_3\) 的对称矩阵为：
+\[
+A=\begin{pmatrix}
+1 & 1 & 0 \\
+1 & 2 & 1 \\
+0 & 1 & t
+\end{pmatrix}
+\]
+
+\textbf{(1) Sylvester 准则：}
+\[
+\Delta_1=1>0\quad\checkmark,\qquad
+\Delta_2=\begin{vmatrix}1&1\\1&2\end{vmatrix}=2-1=1>0\quad\checkmark
+\]
+\begin{align*}
+\Delta_3=\det A
+&= 1\cdot\begin{vmatrix}2&1\\1&t\end{vmatrix}
+-1\cdot\begin{vmatrix}1&1\\0&t\end{vmatrix} \\
+&= (2t-1)-t = t-1
+\end{align*}
+要求 \(\Delta_3>0\Rightarrow t>1\)。
+
+\textbf{(2) 配方法验证：}
+\[
+\begin{aligned}
+f&=x_1^2+2x_1x_2+2x_2^2+2x_2x_3+tx_3^2\\
+ &=(x_1+x_2)^2+(x_2+x_3)^2+(t-1)x_3^2.
+\end{aligned}
+\]
+令\(y_1=x_1+x_2,y_2=x_2+x_3,y_3=x_3\)，该变量变换可逆，所以\(A\)合同于\(\operatorname{diag}(1,1,t-1)\)。因此\(f\)正定当且仅当\(t-1>0\)，即\(t>1\)。
+
+两种方法得到完全一致的结论：\(f\) 正定 \(\Leftrightarrow\) \(t>1\)。
+
+
+\boxed{\textbf{例}}\quad \textbf{10.（证明题）} 设 \(A=(a_{ij})_{n \times n}\) 为正定矩阵。证明 Hadamard 不等式：
+\[
+\det A \leq a_{11}a_{22}\cdots a_{nn}
+\]
+并说明等号成立的条件。
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+对 \(n\) 作数学归纳法。
+
+\(n=1\) 时，\(\det A=a_{11}\)，不等式成立且取等号。
+
+假设对 \(n-1\) 阶正定矩阵成立。将 \(A\) 分块：
+\[
+A=\begin{pmatrix}
+A_{n-1} & \boldsymbol{\alpha} \\
+\boldsymbol{\alpha}^{\mathsf{T}} & a_{nn}
+\end{pmatrix}
+\]
+其中 \(A_{n-1}\) 为 \(n-1\) 阶正定矩阵。由分块行列式公式：
+\[
+\det A=\det A_{n-1}\cdot (a_{nn}-\boldsymbol{\alpha}^{\mathsf{T}}A_{n-1}^{-1}\boldsymbol{\alpha})
+\]
+因为 \(A\) 正定，\(A_{n-1}\) 也正定，从而 \(A_{n-1}^{-1}\) 正定，
+故 \(\boldsymbol{\alpha}^{\mathsf{T}}A_{n-1}^{-1}\boldsymbol{\alpha} \geq 0\)（等号成立当且仅当 \(\boldsymbol{\alpha}=\mathbf{0}\)）。
+于是
+\[
+0 < a_{nn}-\boldsymbol{\alpha}^{\mathsf{T}}A_{n-1}^{-1}\boldsymbol{\alpha} \leq a_{nn}
+\]
+从而
+\[
+\det A \leq \det A_{n-1}\cdot a_{nn}
+\]
+由归纳假设 \(\det A_{n-1}\leq a_{11}a_{22}\cdots a_{n-1,n-1}\)，代入得
+\[
+\det A \leq a_{11}a_{22}\cdots a_{nn}
+\]
+
+等号成立当且仅当每次分块时 \(\boldsymbol{\alpha}=\mathbf{0}\)，即 \(A\) 为对角矩阵。
+
+
+\boxed{\textbf{例}}\quad \textbf{11.（证明题，考研进阶）} 设 \(A\) 为 \(n\) 阶实对称矩阵，满足 \(A^2+3A+2I=0\)。证明以 \(A\) 为矩阵的二次型 \(f(\mathbf{x})=\mathbf{x}^{\mathsf{T}}A\mathbf{x}\) 是负定二次型。
+
+\newpage
+
+\boxed{\textbf{解}}
+由 \(A^2+3A+2I=0\)，得 \((A+I)(A+2I)=0\)。
+
+设 \(\lambda\) 为 \(A\) 的任一特征值（因 \(A\) 实对称，\(\lambda\in\mathbb{R}\)），对应特征向量 \(\mathbf{x}\neq\mathbf{0}\)。
+将等式作用于 \(\mathbf{x}\)：
+\[
+(A^2+3A+2I)\mathbf{x}= \mathbf{0} \;\Longrightarrow\; (\lambda^2+3\lambda+2)\mathbf{x}= \mathbf{0}
+\]
+故 \(\lambda^2+3\lambda+2=0\)，即 \((\lambda+1)(\lambda+2)=0\)。
+所以 \(A\) 的每个特征值只能是 \(-1\) 或 \(-2\)，均为负数。
+
+实对称矩阵 \(A\) 对应的二次型 \(f(\mathbf{x})=\mathbf{x}^{\mathsf{T}}A\mathbf{x}\) 经正交变换 \(\mathbf{x}=Q\mathbf{y}\) 化标准形：
+\[
+f=\lambda_1y_1^2+\cdots+\lambda_ny_n^2, \qquad \lambda_i\in\{-1,-2\}
+\]
+对任意 \(\mathbf{x}\neq\mathbf{0}\)，\(f(\mathbf{x})<0\)，故二次型负定。
+
+\boxed{\text{注}} 本题利用矩阵多项式方程约束特征值范围。常见考研变形：
+\(A^2=I\) 给出特征值 \(\pm1\)；\(A^2=A\) 给出特征值 \(0,1\)（幂等矩阵必可对角化；只有另有实对称条件时，才是半正定的正交投影矩阵）；
+\(A^2+5A+6I=0\) 给出特征值 \(-2,-3\)（负定）。
+
+\newpage
+
+
+
+\subsection{真题风格与综合训练}
+
+\boxed{\textbf{例}}\quad \textbf{12.（综合题，真题风格）} 已知二次型
+\[
+f(x_1,x_2,x_3)=x_1^2+x_2^2+x_3^2+2ax_1x_2
+\]
+其中 \(a\) 为实参数。
+\begin{enumerate}
+\item[(1)] 求 \(a\) 的取值范围，使 \(f\) 为正定二次型；
+\item[(2)] 当 \(a=\frac12\) 时，求一个正交变换 \(\mathbf{x}=Q\mathbf{y}\)，将 \(f\) 化为标准形。
+\end{enumerate}
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+\textbf{(1)} \(f=x_1^2+x_2^2+x_3^2+2ax_1x_2\) 的对称矩阵为：
+\[
+A=\begin{pmatrix}
+1 & a & 0 \\
+a & 1 & 0 \\
+0 & 0 & 1
+\end{pmatrix}
+\]
+
+Sylvester 准则：
+\[
+\Delta_1=1>0\quad\checkmark,\qquad
+\Delta_2=\begin{vmatrix}1&a\\a&1\end{vmatrix}=1-a^2>0\Rightarrow |a|<1
+\]
+\[
+\Delta_3=\det A=1\cdot\begin{vmatrix}1&a\\a&1\end{vmatrix}=1-a^2>0\Rightarrow |a|<1
+\]
+故 \(f\) 正定 \(\Leftrightarrow\) \(-1<a<1\)。
+
+\textbf{(2)} 当 \(a=\frac12\) 时，矩阵为
+\[
+A=\begin{pmatrix}
+1&\frac12&0\\
+\frac12&1&0\\
+0&0&1
+\end{pmatrix}.
+\]
+它的三个单位正交特征向量可取
+\[
+\boldsymbol q_1=\frac1{\sqrt2}(1,-1,0)^{\mathsf T},\qquad
+\boldsymbol q_2=\frac1{\sqrt2}(1,1,0)^{\mathsf T},\qquad
+\boldsymbol q_3=(0,0,1)^{\mathsf T},
+\]
+对应特征值依次为 \(\frac12,\frac32,1\)。令
+\[
+Q=(\boldsymbol q_1,\boldsymbol q_2,\boldsymbol q_3)
+=\begin{pmatrix}
+\frac1{\sqrt2}&\frac1{\sqrt2}&0\\
+-\frac1{\sqrt2}&\frac1{\sqrt2}&0\\
+0&0&1
+\end{pmatrix},
+\]
+则 \(Q^{\mathsf T}Q=I\)，且
+\[
+Q^{\mathsf T}AQ=\operatorname{diag}\!\left(\frac12,\frac32,1\right).
+\]
+因此在正交变换 \(\mathbf x=Q\mathbf y\) 下，标准形为
+\[
+f=\frac12y_1^2+\frac32y_2^2+y_3^2.
+\]
+
+
+\boxed{\textbf{例}}\quad \textbf{13.（拓展证明题：同时合同对角化）} 设 \(A\) 为 \(n\) 阶正定矩阵，\(B\) 为 \(n\) 阶实对称矩阵。证明：存在可逆矩阵 \(C\)，使得
+\[
+C^{\mathsf{T}}AC=I_n,\qquad C^{\mathsf{T}}BC=\operatorname{diag}(\mu_1,\mu_2,\ldots,\mu_n)
+\]
+即可以同时将 \(A\) 合同于单位阵，将 \(B\) 合同于对角阵。（提示：先对 \(A\) 作合同变换化为 \(I\)，再对合同后的 \(B\) 作正交对角化。）
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+\textbf{第一步：} 因为 \(A\) 正定，存在可逆矩阵 \(C_1\) 使得 \(C_1^{\mathsf{T}}AC_1=I_n\)
+（例如取 \(A\) 的 Cholesky 分解 \(A=L L^{\mathsf{T}}\)，令 \(C_1=(L^{-1})^{\mathsf{T}}\)）。
+
+\textbf{第二步：} 令 \(B_1=C_1^{\mathsf{T}}BC_1\)。因 \(B\) 实对称，\(B_1\) 也是实对称矩阵。
+
+\textbf{第三步：} 对实对称矩阵 \(B_1\)，存在正交矩阵 \(Q\) 使得
+\(Q^{\mathsf{T}}B_1Q=\operatorname{diag}(\mu_1,\mu_2,\ldots,\mu_n)\)，其中 \(\mu_i\) 为 \(B_1\) 的特征值。
+
+\textbf{第四步：} 令 \(C=C_1Q\)，则 \(C\) 可逆，且
+\begin{align*}
+C^{\mathsf{T}}AC &= Q^{\mathsf{T}}C_1^{\mathsf{T}}AC_1Q = Q^{\mathsf{T}}I_nQ = Q^{\mathsf{T}}Q = I_n, \\
+C^{\mathsf{T}}BC &= Q^{\mathsf{T}}C_1^{\mathsf{T}}BC_1Q = Q^{\mathsf{T}}B_1Q = \operatorname{diag}(\mu_1,\mu_2,\ldots,\mu_n).
+\end{align*}
+证毕。
+
+\boxed{\text{注}} 这是"同时合同对角化"的经典结论。核心思路：
+(1) 利用 \(A\) 的正定性将 \(A\) 合同于 \(I\)；
+(2) 对变换后的 \(B\)，利用实对称矩阵的正交对角化（正交变换既是相似也是合同）；
+(3) 两步复合得到所需的 \(C\)。这一技巧在广义特征值问题中反复出现。
+
+
+\boxed{\textbf{例}}\quad \textbf{14.（计算题，真题风格）} 已知二次型
+\[
+f(x_1,x_2,x_3)=x_1^2+2x_2^2+3x_3^2+2x_1x_2+2ax_1x_3+2x_2x_3
+\]
+经过某个可逆线性变换化为标准形 \(f=y_1^2+y_2^2\)，且已知该二次型的秩为 \(2\)，求参数 \(a\) 的值。
+
+\vspace{0.5cm}
+
+
+\boxed{\textbf{解}}
+二次型 \(f=x_1^2+2x_2^2+3x_3^2+2x_1x_2+2ax_1x_3+2x_2x_3\) 的对称矩阵为：
+\[
+A=\begin{pmatrix}
+1 & 1 & a \\
+1 & 2 & 1 \\
+a & 1 & 3
+\end{pmatrix}
+\]
+
+已知标准形为 \(f=y_1^2+y_2^2\)，故：
+\begin{itemize}
+\item 秩 \(r=2\)（只有两个平方项）
+\item 正惯性指数 \(p=2\)，负惯性指数 \(q=0\)
+\end{itemize}
+
+由秩为 \(2\) 知 \(\det A=0\)。计算：
+\begin{align*}
+\det A &= \begin{vmatrix}
+1 & 1 & a \\
+1 & 2 & 1 \\
+a & 1 & 3
+\end{vmatrix} \\
+&= 1\cdot\begin{vmatrix}2&1\\1&3\end{vmatrix}
+- 1\cdot\begin{vmatrix}1&1\\a&3\end{vmatrix}
++ a\cdot\begin{vmatrix}1&2\\a&1\end{vmatrix} \\
+&= (6-1) - (3-a) + a(1-2a) \\
+&= 5 - 3 + a + a - 2a^2 \\
+&= 2 + 2a - 2a^2
+\end{align*}
+令 \(\det A=0\)：
+\[
+-2a^2+2a+2=0 \;\Longrightarrow\; a^2-a-1=0 \;\Longrightarrow\; a=\frac{1\pm\sqrt{5}}{2}
+\]
+
+还需检验正惯性指数 \(p=2\)：
+\[
+\Delta_1=1>0,\quad \Delta_2=\begin{vmatrix}1&1\\1&2\end{vmatrix}=1>0
+\]
+前两个顺序主子式为正。由 \(\det A=0\) 且 \(\Delta_2>0\)，可知正惯性指数 \(p=2\)。
+
+故参数 \(a=\dfrac{1\pm\sqrt{5}}{2}\)。
+
+\boxed{\text{注}} 核心思路：由标准形 \(y_1^2+y_2^2\) 推出秩为 2、正惯性指数为 2，
+由秩推出 \(\det A=0\) 解参数，再由二阶顺序主子式验证 \(p=2\)。
+
+
+\boxed{\textbf{例}}\quad \textbf{15.（综合题，合同变换+特征值混合）} 已知二次型
+\[
+f(x_1,x_2,x_3)=2x_1^2+2x_2^2+2x_3^2+2x_1x_2+2x_1x_3+2x_2x_3
+\]
+\begin{enumerate}
+\item[(1)] 用正交变换将 \(f\) 化为标准形，并写出正交矩阵；
+\item[(2)] 判断方程 \(f(x_1,x_2,x_3)=1\) 表示何种二次曲面（椭球面、单叶双曲面、双叶双曲面等）。
+\end{enumerate}
+
+\newpage
+
+\boxed{\textbf{解}}
+\textbf{(1)} 二次型 \(f=2x_1^2+2x_2^2+2x_3^2+2x_1x_2+2x_1x_3+2x_2x_3\) 的对称矩阵为：
+\[
+A=\begin{pmatrix}
+2 & 1 & 1 \\
+1 & 2 & 1 \\
+1 & 1 & 2
+\end{pmatrix}
+\]
+
+\textbf{求特征值：}
+\[
+\det(\lambda I-A)=\begin{vmatrix}
+\lambda-2 & -1 & -1 \\
+-1 & \lambda-2 & -1 \\
+-1 & -1 & \lambda-2
+\end{vmatrix}
+\]
+将第 2、3 行加到第 1 行：
+\[
+=\begin{vmatrix}
+\lambda-4 & \lambda-4 & \lambda-4 \\
+-1 & \lambda-2 & -1 \\
+-1 & -1 & \lambda-2
+\end{vmatrix}
+= (\lambda-4)\begin{vmatrix}
+1 & 1 & 1 \\
+-1 & \lambda-2 & -1 \\
+-1 & -1 & \lambda-2
+\end{vmatrix}
+\]
+将第 1 行加到第 2、3 行：
+\[
+= (\lambda-4)\begin{vmatrix}
+1 & 1 & 1 \\
+0 & \lambda-1 & 0 \\
+0 & 0 & \lambda-1
+\end{vmatrix}
+= (\lambda-4)(\lambda-1)^2
+\]
+特征值为 \(\lambda_1=\lambda_2=1\)（二重），\(\lambda_3=4\)。
+
+\textbf{求特征向量：}
+
+对 \(\lambda=1\)（二重），解 \((I-A)\mathbf{x}=\mathbf{0}\)：
+\[
+I-A=\begin{pmatrix}
+-1 & -1 & -1 \\
+-1 & -1 & -1 \\
+-1 & -1 & -1
+\end{pmatrix}
+\]
+即 \(x_1+x_2+x_3=0\)。取两个正交的特征向量：
+\[
+\alpha_1=\begin{pmatrix}1\\-1\\0\end{pmatrix},\qquad
+\alpha_2=\begin{pmatrix}1\\1\\-2\end{pmatrix}
+\]
+验证：\(\alpha_1\cdot\alpha_2=1-1+0=0\)，已正交。
+
+对 \(\lambda=4\)，解 \((4I-A)\mathbf{x}=\mathbf{0}\)：
+\[
+4I-A=\begin{pmatrix}
+2 & -1 & -1 \\
+-1 & 2 & -1 \\
+-1 & -1 & 2
+\end{pmatrix}
+\]
+前两行相加：\(x_1+x_2-2x_3=0\)；第一行与第三行相加：\(x_1-2x_2+x_3=0\)。
+两式联立解得（也可直接看出）\(x_1=x_2=x_3\)。取 \(\alpha_3=(1,1,1)^{\mathsf{T}}\)。
+
+验证正交性：
+\(\alpha_1\cdot\alpha_3=1-1+0=0\)，\(\alpha_2\cdot\alpha_3=1+1-2=0\)，已与 \(\alpha_3\) 正交。
+
+\textbf{单位化：}
+\[
+\|\alpha_1\|=\sqrt{2},\quad \|\alpha_2\|=\sqrt{6},\quad \|\alpha_3\|=\sqrt{3}
+\]
+\[
+\eta_1=\frac{1}{\sqrt{2}}\begin{pmatrix}1\\-1\\0\end{pmatrix},\;
+\eta_2=\frac{1}{\sqrt{6}}\begin{pmatrix}1\\1\\-2\end{pmatrix},\;
+\eta_3=\frac{1}{\sqrt{3}}\begin{pmatrix}1\\1\\1\end{pmatrix}
+\]
+
+正交矩阵：
+\[
+Q=\begin{pmatrix}
+\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{6}} & \frac{1}{\sqrt{3}} \\[4pt]
+-\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{6}} & \frac{1}{\sqrt{3}} \\[4pt]
+0 & -\frac{2}{\sqrt{6}} & \frac{1}{\sqrt{3}}
+\end{pmatrix}
+\]
+
+作正交变换 \(\mathbf{x}=Q\mathbf{y}\)，得标准形：
+\[
+f=y_1^2+y_2^2+4y_3^2
+\]
+
+\textbf{(2)} 方程 \(f(x_1,x_2,x_3)=1\) 即 \(y_1^2+y_2^2+4y_3^2=1\)，整理为
+\[
+\frac{y_1^2}{1}+\frac{y_2^2}{1}+\frac{y_3^2}{1/4}=1
+\]
+这是标准椭球面方程（三个半轴长分别为 \(1,1,\frac{1}{2}\)），表示一个\textbf{椭球面}。
+
+\boxed{\text{注}} 特征值 \(1,1,4\) 全为正，验证了 \(A\) 是正定矩阵，故 \(f=1\) 为椭球面。
