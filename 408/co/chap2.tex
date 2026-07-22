@@ -40,6 +40,33 @@ N_{10} = \sum_{i=-m}^{n-1} d_i \times R^{i},\qquad d_i\in\{0,1,\ldots,R-1\}.
 \textbf{408 常考点：}小数部分除基取余/乘基取整的方向不能混淆——整数除基取余「逆序」，小数乘基取整「顺序」。此外八进制/十六进制与二进制的分组转换是快速解题的核心技巧。
 \end{attention}
 
+\subsection{数据编码、存放与校验}
+
+\begin{conclusion}{字符、BCD 与字节序}{data-encoding-storage}
+\begin{itemize}
+    \item \textbf{ASCII：}标准 ASCII 使用 7 位编码，共 128 个码点；计算机中通常占 1 字节。数字字符 \texttt{'0'}--\texttt{'9'} 连续编码，大小写字母也分别连续编码。
+    \item \textbf{BCD：}用 4 位二进制表示一位十进制数。8421 BCD 中 $59_{10}$ 编码为 \texttt{0101 1001}，不是二进制真值 $111011_2$。
+    \item \textbf{大端方式：}多字节数据的最高有效字节放在低地址；\textbf{小端方式：}最低有效字节放在低地址。设 32 位数 \texttt{0x12345678} 从地址 $a$ 开始存放，大端的 $a$ 单元为 \texttt{12H}，小端为 \texttt{78H}。
+    \item \textbf{边界对齐：}一个 $n$ 字节数据通常从 $n$ 的整数倍地址开始存放。对齐可减少访存次数，但结构体中可能产生填充字节；题目若明确“紧凑存放”，则不得自行加入填充。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{奇偶校验与海明码}{error-detect-code}
+\begin{itemize}
+    \item \textbf{奇偶校验：}增加 1 位校验位，使码字中 1 的总数为偶数（偶校验）或奇数（奇校验）。能检测任意奇数位错误，不能定位错误，也不能保证检测出偶数位错误。
+    \item \textbf{海明码：}若数据位为 $k$、校验位为 $r$，能够纠正 1 位错误的基本条件是
+    \[
+    2^r \geqslant k+r+1.
+    \]
+    校验位通常放在编号 $1,2,4,8,\ldots$ 的位置。各校验组重新计算得到的校验结果组成\textbf{故障字（syndrome）}；故障字为 0 表示未检出错误，非 0 时其数值给出出错位编号。
+    \item 仅满足上式的普通海明码最小距离为 3，可纠正 1 位错；再增加 1 位全局奇偶校验位可构成 SEC--DED 码，实现“纠正 1 位、检测 2 位”。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+数据的机器表示必须区分三件事：数值编码（补码/IEEE 754）、字节在内存中的排列（大小端）和数据对象的起始地址约束（边界对齐）。大小端只改变字节次序，不改变一个字节内各位的顺序。
+\end{attention}
+
 \subsection{机器数的表示}
 
 \begin{mydef}{真值与机器数}{truth-machine}
@@ -138,7 +165,7 @@ N_{10} = \sum_{i=-m}^{n-1} d_i \times R^{i},\qquad d_i\in\{0,1,\ldots,R-1\}.
 \end{conclusion}
 
 \begin{attention}
-\textbf{408 必考：}$n+1$ 位补码整数的表示范围为 $[-2^n, 2^n-1]$，比原码/反码多一个最小负数。例如 8 位补码范围 $[-128, 127]$。——这也是 \texttt{abs(INT\_MIN)} 在 C 中未定义行为的原因：128 超出 8 位有符号范围。
+\textbf{408 高频：}$n+1$ 位补码整数的表示范围为 $[-2^n, 2^n-1]$，比原码/反码多一个最小负数。例如 8 位补码范围 $[-128, 127]$。这也是 C 中 \texttt{abs(INT\_MIN)} 无法得到可表示正值的根本原因。
 \end{attention}
 
 \subsubsection{移码（Biased Notation）}
@@ -171,6 +198,18 @@ $-8$ & $-1000$ & — & — & 1,1000 & 0,1000 \\
 \end{tabular}
 \end{tablebox}
 （逗号仅用于分隔符号位和数值位，实际存储中无此分隔。）
+\end{conclusion}
+
+\subsection{移位运算}
+
+\begin{conclusion}{逻辑移位与算术移位}{shift-operations}
+\begin{itemize}
+    \item \textbf{逻辑移位：}移出的位丢弃，空位一律补 0，通常用于无符号数。
+    \item \textbf{算术左移：}低位补 0；在不溢出的前提下相当于乘 2。若移位前后的有效符号特征被破坏，则发生溢出。
+    \item \textbf{算术右移：}高位补原符号位，近似相当于除 2；对负数舍入方向取决于机器和语言规定，不能简单等同于向 0 截断。
+    \item \textbf{循环移位：}移出的位回填到另一端；带进位循环移位还把进位标志位纳入循环链。
+\end{itemize}
+\textbf{补码算术右移的核心：}正数高位补 0，负数高位补 1；逻辑右移则无论符号都补 0。
 \end{conclusion}
 
 \subsection{定点数}
@@ -382,7 +421,7 @@ $y_i$ & $y_{i-1}$ & 操作 \\
 \end{tabular}
 \end{tablebox}
 
-共进行 $n+1$ 次加法、$n+1$ 次移位（最后一次不移位或只移位不加）。
+算法共进行 $n$ 个迭代周期；每个周期根据 $(Q_0,Q_{-1})$ 决定加、减或不操作，然后对 $(A,Q,Q_{-1})$ 做一次算术右移。加、减并非每轮都发生。
 
 \textbf{核心思想：}将乘数中连续的 $1$ 串转化为一次减法和一次加法。$011\ldots10$ 的处理：首位 $1$ 做减法，末位后做加法。$n$ 位补码乘法得到 $2n$ 位积（含符号扩展）。
 
@@ -475,7 +514,7 @@ void TrueDiv(unsigned int x, unsigned int y, int n,
 \begin{formula}{IEEE 754 四种舍入模式}{rounding-modes}
 \begin{tablebox}{舍入模式}
 \centering
-\begin{tabular}{|l|l|}
+\begin{tabularx}{\linewidth}{|p{0.30\linewidth}|X|}
 \hline
 模式 & 规则 \\
 \hline
@@ -484,7 +523,7 @@ void TrueDiv(unsigned int x, unsigned int y, int n,
 向 $-\infty$ 舍入 & 始终向下舍入（floor）\\
 向 $0$ 舍入 & 截断（truncate）\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{tablebox}
 默认模式为就近舍入到偶数。设置\textbf{保护位}（guard bit）、\textbf{舍入位}（round bit）和\textbf{粘滞位}（sticky bit）辅助舍入决策。
 \end{formula}
@@ -519,9 +558,11 @@ C_{i+1} = G_i + P_i C_i.
 \]
 展开得：
 \[
-C_1 = G_0 + P_0 C_0,\quad
-C_2 = G_1 + P_1 G_0 + P_1 P_0 C_0,\quad
-C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
+\begin{aligned}
+C_1 &= G_0 + P_0 C_0,\\
+C_2 &= G_1 + P_1 G_0 + P_1 P_0 C_0,\\
+C_3 &= G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
+\end{aligned}
 \]
 所有进位可并行计算，延迟 $O(\log n)$。但门电路扇入随位数增长，实际采用分组并行（如4位一组CLA，组间串行或再加一级CLA）。
 
@@ -546,8 +587,32 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \begin{enumerate}[leftmargin=*]
 
-    \item \textbf{（2011年·选择题·第14题）} float 型数据通常用 IEEE 754 单精度浮点数格式表示。若编译器将 float 型变量 $x$ 分配在一个 32 位浮点寄存器 FR1 中，且 $x=-8.25$，则 FR1 的内容是（\quad）。
-    \begin{enumerate}
+    \item \textbf{（基础题）} 32 位数 \texttt{0x12345678} 从地址 \texttt{0x1000} 开始按字节存放。若 \texttt{0x1000} 单元的内容为 \texttt{78H}，则机器采用大端还是小端方式？
+
+    \ifshowsolutions\par\noindent\textbf{答案：}小端。最低有效字节 \texttt{78H} 位于最低地址。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（基础题）} 8 位补码 \texttt{10010110} 算术右移一位和逻辑右移一位的结果分别是什么？
+
+    \ifshowsolutions\par\noindent\textbf{答案：}算术右移保留符号位，结果为 \texttt{11001011}；逻辑右移高位补 0，结果为 \texttt{01001011}。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（基础题）} 采用偶校验时，数据位 \texttt{1011001} 的校验位应取何值？若传输后有两位同时翻转，偶校验是否一定能检出？
+
+    \ifshowsolutions\par\noindent\textbf{答案：}数据中有 4 个 1，校验位取 0；两位同时翻转不会改变 1 的奇偶性，因此不一定能检出。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（基础题）} 对 16 位数据构造可纠正一位错误的海明码，至少需要多少个校验位？
+
+    \ifshowsolutions\par\noindent\textbf{答案：}至少 5 位。$r=4$ 时 $2^4=16<16+4+1$；$r=5$ 时 $2^5=32\geqslant16+5+1$。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（真题风格·选择题）} float 型数据通常用 IEEE 754 单精度浮点数格式表示。若编译器将 float 型变量 $x$ 分配在一个 32 位浮点寄存器 FR1 中，且 $x=-8.25$，则 FR1 的内容是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item C104 0000H
         \item C242 0000H
         \item C184 0000H
@@ -560,8 +625,8 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \vspace{10pt}
 
-    \item \textbf{（2022年·选择题·第13题）} 32 位补码所能表示的整数范围是（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} 32 位补码所能表示的整数范围是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item $-2^{32} \sim 2^{31}-1$
         \item $-2^{31} \sim 2^{31}-1$
         \item $-2^{32} \sim 2^{32}-1$
@@ -574,8 +639,8 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \vspace{10pt}
 
-    \item \textbf{（2023年·选择题·第13题）} 若 short 型变量 $x=-8190$，则 $x$ 的机器数为（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} 若 short 型变量 $x=-8190$，则 $x$ 的机器数为（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item E002H
         \item E001H
         \item 9FFFH
@@ -588,8 +653,8 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \vspace{10pt}
 
-    \item \textbf{（2018年·选择题·第14题）} IEEE 754 单精度浮点格式表示的数中，最小的规格化正数是（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} IEEE 754 单精度浮点格式表示的数中，最小的规格化正数是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item $1.0 \times 2^{-126}$
         \item $1.0 \times 2^{-127}$
         \item $1.0 \times 2^{-128}$
@@ -602,8 +667,8 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \vspace{10pt}
 
-    \item \textbf{（2022年·选择题·第14题）} $-0.4375$ 的 IEEE 754 单精度浮点数表示为（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} $-0.4375$ 的 IEEE 754 单精度浮点数表示为（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item BEE0 0000H
         \item BF60 0000H
         \item BF70 0000H
@@ -616,8 +681,8 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \vspace{10pt}
 
-    \item \textbf{（2012年·选择题·第14题）} float 类型（即 IEEE 754 单精度浮点数格式）能表示的最大正整数是（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} float 类型（即 IEEE 754 单精度浮点数格式）能表示的最大正整数是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item $2^{127} - 2^{104}$
         \item $2^{127} - 2^{103}$
         \item $2^{128} - 2^{104}$
@@ -630,8 +695,8 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \vspace{10pt}
 
-    \item \textbf{（2014年·选择题·第13题）} 某 IEEE 754 单精度浮点数的机器码为 42E4 8000H，则它的真值为（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} 某 IEEE 754 单精度浮点数的机器码为 42E4 8000H，则它的真值为（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item 114.25
         \item 57.125
         \item 228.5
@@ -644,8 +709,8 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \vspace{10pt}
 
-    \item \textbf{（2009年·选择题·第13题）} 浮点数加减运算过程中，「对阶」操作的原则是（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} 浮点数加减运算过程中，「对阶」操作的原则是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item 将较小的阶码对齐到较大的阶码
         \item 将较大的阶码对齐到较小的阶码
         \item 将被加（减）数的阶码对齐到加（减）数的阶码
@@ -658,14 +723,14 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \vspace{10pt}
 
-    \item \textbf{（2010年·选择题·第18题）} 假定变量 $i$、$f$ 和 $d$ 的数据类型分别为 int、float 和 double（int 用补码表示，float 和 double 分别用 IEEE 754 单精度和双精度浮点数格式表示），已知 $i=785$，$f=1.5678\text{e}3$，$d=1.5\text{e}100$。若在 32 位机器中执行下列关系表达式，则结果为「真」的是（\quad）。
+    \item \textbf{（真题风格·选择题）} 假定变量 $i$、$f$ 和 $d$ 的数据类型分别为 int、float 和 double（int 用补码表示，float 和 double 分别用 IEEE 754 单精度和双精度浮点数格式表示），已知 $i=785$，$f=1.5678\text{e}3$，$d=1.5\text{e}100$。若在 32 位机器中执行下列关系表达式，则结果为「真」的是（\quad）。
     \begin{center}
     I.\; $i == (\text{int})(\text{float})i$ \qquad
     II.\; $f == (\text{float})(\text{int})f$ \\
     III.\; $f == (\text{float})(\text{double})f$ \qquad
     IV.\; $(d+f)-d == f$
     \end{center}
-    \begin{enumerate}
+    \begin{enumerate}[label=(\Alph*)]
         \item 仅 I 和 II
         \item 仅 I 和 III
         \item 仅 II 和 III
@@ -683,8 +748,8 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \vspace{10pt}
 
-    \item \textbf{（2015年·选择题·第14题）} 下列有关 IEEE 754 浮点数的叙述中，正确的是（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} 下列有关 IEEE 754 浮点数的叙述中，正确的是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item 规格化数的尾数部分隐含了整数位 $1$，故 23 位尾数实际实现了 24 位精度
         \item 非规格化数的阶码为全 0，隐藏位为 $1$，用于表示接近 $0$ 的极小值
         \item IEEE 754 单精度浮点数的阶码采用补码表示，偏置值为 128
@@ -704,8 +769,8 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \begin{enumerate}[leftmargin=*]
 
-    \item \textbf{（2020年·选择题·第14题）} 已知带符号整数用补码表示，float 型数据用 IEEE 754 标准表示，假定变量 $x$ 的类型只能是 int 或 float。当 $x$ 的机器数为 C800 0000H 时，$x$ 的值可能是（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} 已知带符号整数用补码表示，float 型数据用 IEEE 754 标准表示，假定变量 $x$ 的类型只能是 int 或 float。当 $x$ 的机器数为 C800 0000H 时，$x$ 的值可能是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item $-7 \times 2^{27}$
         \item $-2^{126}$
         \item $-2^{27}$
@@ -724,47 +789,29 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \vspace{10pt}
 
-    \item \textbf{（2025年·选择题·第13题）} 已知 float 型变量用 IEEE 754 单精度浮点数格式表示。若 float 型变量 $x$ 的机器数为 4730 0000H，则 $x$ 的值为（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} 已知 float 型变量用 IEEE 754 单精度浮点数格式表示。若 float 型变量 $x$ 的机器数为 4730 0000H，则 $x$ 的值为（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item $0.375 \times 2^{14}$
         \item $1.375 \times 2^{14}$
         \item $0.375 \times 2^{15}$
         \item $1.375 \times 2^{15}$
     \end{enumerate}
 
-    \ifshowsolutions\par\noindent\textbf{答案：}(B)
+    \ifshowsolutions\par\noindent\textbf{答案：}(D)
 
-    \textbf{解析：} $\text{47300000H} = 0100\;0111\;0011\;0000\;\ldots\;0000_2$。$S=0$，$E = 1000\;1110_2 = 142$，$e = 142 - 127 = 15$。$M$ 小数部分 = \texttt{011 0000 0000 0000 0000 0000}（即 $.011_2$）。尾数真值 $= 1.011_2 = 1 + 0.25 + 0.125 = 1.375$。故 $x = 1.375 \times 2^{15}$。等等——$e=15$，所以是 $2^{15}$。但仔细算：$E=10001110_2$，让我重新计算。
-
-    $E = 1000\;1110_2 = 128 + 8 + 4 + 2 = 142$？不对，$128+14 = 142$。$e=142-127=15$。所以 $x = 1.375 \times 2^{15}$。选项 (D) 是 $1.375 \times 2^{15}$。
-
-    等一下，让我重新仔细算。$0100\;0111\;0011\;0000\;\ldots = \text{47300000H}$。
-    $S = 0$
-    $E = 1000\;1110_2 = 8\text{EH} = 8 \times 16 + 14 = 142$
-    $e = 142 - 127 = 15$
-    尾数 $M = 011\;0000\;\ldots$ 即 $0.011_2 = 0.375$
-    数值 $= 1.375 \times 2^{15}$
-    答案选 (D)。
-
-    但如果是 $1.375 \times 2^{14}$ (B)，那 $e$ 必须是 14。让我检查 $E$ 是否可能为 $1000\;1101_2 = 141$。$\text{47300000H}$ 中第 2 字节是 $73$ = $0111\;0011_2$，$E$ 的位是 $0\;1000\;1110\;0$（从 bit 30 到 23）。是的 $E = 1000\;1110_2 = 142$。$e=15$。答案选 (D)。
-
-    实际上我再检查一下十六进制：$47300000H = 0100\;0111\;0011\;0000\;0000\;0000\;0000\;0000_2$。IEEE 754 位序：
-    bit 31 = 0 (S)
-    bits 30-23 = 1000 1110 = 0x8E = 142 (E)
-    bits 22-0 = 011 0000 0000 0000 0000 0000
-    $e = 142 - 127 = 15$，$1.M = 1.011_2 = 1.375$，$x = 1.375 \times 2^{15}$。答案：(D)。\fi
+    \textbf{解析：}$47300000\text{H}=0\mid10001110\mid011000\ldots0$，故 $S=0$，阶码 $E=142$，真指数 $e=142-127=15$；尾数真值为 $1.011_2=1.375$。因此 $x=1.375\times2^{15}$。\fi
 
 \vspace{10pt}
 
-    \item \textbf{（2025年·选择题·第14题）} 假设 8 位字长的计算机中，两个带符号整数 $x$ 和 $y$ 的补码表示分别为 $[x]_{\text{补}} = 6\text{AH}$，$[y]_{\text{补}} = 9\text{FH}$。则 $x+y$ 的结果和溢出情况是（\quad）。
-    \begin{enumerate}
+    \item \textbf{（真题风格·选择题）} 假设 8 位字长的计算机中，两个带符号整数 $x$ 和 $y$ 的补码表示分别为 $[x]_{\text{补}} = 6\text{AH}$，$[y]_{\text{补}} = 9\text{FH}$。则 $x+y$ 的结果和溢出情况是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
         \item 结果为 09H，无溢出
         \item 结果为 09H，有溢出
         \item 结果为 F5H，无溢出
         \item 结果为 F5H，有溢出
     \end{enumerate}
 
-    \ifshowsolutions\par\noindent\textbf{答案：}(B)
+    \ifshowsolutions\par\noindent\textbf{答案：}(A)
 
     \textbf{解析：} 
     $[x]_{\text{补}} = 6\text{AH} = 0110\;1010_2$，符号位 $0$，$x = +106$。
@@ -774,9 +821,7 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
     \textbf{溢出判断：} 用进位异或法——最高位进位 $C_s$ 和次高位进位 $C_{s-1}$ 异或：
     $0110\;1010 + 1001\;1111$：bit 6$\to$7 有进位（$1+1=10$），bit 7$\to$溢出位有进位（$0+1+1=10$）。$C_s=1$，$C_{s-1}=1$，$1 \oplus 1 = 0$，无溢出。
 
-    但用符号位法：正数 $+$ 负数，不可能溢出。故结果 $09\text{H}$，无溢出。答案选 (A)。
-
-    等一下，我再算算：$6\text{AH} = 106$，$9\text{FH} = -97$，$106-97 = 9 = 09\text{H}$。没错，无溢出。答案 (A)。\fi
+    用符号位法也可立即判断：正数与负数相加不可能发生有符号溢出。因此结果为 $09\text{H}$，无溢出。\fi
 
 \vspace{10pt}
 
@@ -879,11 +924,11 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 \subsection{拓展阅读}
 
 \begin{itemize}
-    \item \textbf{Patterson \& Hennessy《计算机组成与设计（RISC-V版）》}第 3 章「计算机的算术运算」——3.2 加法和减法，3.3 乘法（Booth 算法），3.4 除法（恢复余数法和不恢复余数法），3.5 浮点数（IEEE 754 标准的完整论述，含舍入模式与精度分析）。\textbf{必读：3.5 节是 408 浮点题的直接来源。}
+    \item \textbf{Patterson \& Hennessy《计算机组成与设计（RISC-V版）》}第 3 章「计算机的算术运算」——3.2 加法和减法，3.3 乘法（Booth 算法），3.4 除法（恢复余数法和不恢复余数法），3.5 浮点数（IEEE 754 标准的完整论述，含舍入模式与精度分析），可用于补充理解浮点运算。
 
     \item \textbf{Bryant \& O'Hallaron《深入理解计算机系统》（CS:APP）}第 2 章「信息的表示和处理」——2.1 信息存储，2.2 整数表示（补码编码的完整处理），2.3 整数运算（溢出判断的底层原理），2.4 浮点数（IEEE 754 细节与非规格化数）。\textbf{CS:APP 的整数与浮点章节论述严密，适合补充理解 P\&H 中省略的编码细节。}
 
-    \item \textbf{唐朔飞《计算机组成原理》}第 6 章「计算机的运算方法」——6.1 无符号数和有符号数，6.2 定点运算，6.3 浮点四则运算，6.4 算术逻辑单元。唐教材的符号体系与国内 408 考试完全对齐，可作为符号和术语的权威参照。
+    \item \textbf{唐朔飞《计算机组成原理》}第 6 章「计算机的运算方法」——6.1 无符号数和有符号数，6.2 定点运算，6.3 浮点四则运算，6.4 算术逻辑单元。不同版本的章节号和个别符号可能有差异，复习时应与所用大纲和教材版本对照。
 
     \item \textbf{延伸思考：}IEEE 754-2008 标准扩展了 16 位半精度（binary16）和 128 位四精度（binary128）格式，本质与单/双精度一致。此外，十进制浮点（decimal floating-point）格式用于金融计算，避免二进制浮点的舍入偏差。感兴趣者可从 P\&H 3.10 节（历史与扩展阅读）入手。
 \end{itemize}

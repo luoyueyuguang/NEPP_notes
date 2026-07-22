@@ -70,7 +70,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \end{conclusion}
 
 \begin{attention}
-\textbf{408 综合计算必考：} 给定带宽和信噪比，先由奈奎斯特准则算符号率上限，再由香农定理算信息速率上限，取两者的\textbf{最小值}作为实际极限速率。给定 dB 值时需先换算为 $S/N$ 比值。
+\textbf{408 综合计算高频：} 给定带宽和信噪比，先由奈奎斯特准则算符号率上限，再由香农定理算信息速率上限，取两者的\textbf{较小值}作为题设条件下的速率上限。给定 dB 值时需先换算为 $S/N$ 比值。
 \end{attention}
 
 \subsection{编码与调制}
@@ -78,18 +78,18 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \begin{conclusion}{数字数据的数字信号编码}{digital-encoding}
 \begin{tablebox}{常见数字编码}
 \centering
-\begin{tabular}{|l|l|}
+\begin{tabularx}{\linewidth}{|p{4.0cm}|X|}
 \hline
 编码方式 & 规则 \\
 \hline
 不归零编码（NRZ）& 高电平=1，低电平=0；无同步信号 \\
 归零编码（RZ）& 每个比特中间跳变回零 \\
-曼彻斯特编码 & 比特中间跳变：高$\to$低=1，低$\to$高=0；自同步 \\
-差分曼彻斯特 & 比特开始有无跳变：无跳变=1，有跳变=0；中间总有跳变 \\
+曼彻斯特编码 & 每个比特中间均有跳变；跳变方向与 0/1 的对应关系以题目约定为准；可自同步 \\
+差分曼彻斯特 & 每个比特中间均有跳变；比特起始处是否跳变表示数据，具体 0/1 约定以题目为准 \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{tablebox}
-\textbf{曼彻斯特编码：}每个比特的中间都有跳变（既作时钟又作数据），波特率是数据率的 2 倍。802.3 以太网使用曼彻斯特编码。
+\textbf{曼彻斯特编码：}每个比特的中间都有跳变（既作时钟又作数据），码元速率是数据率的 2 倍。经典 10 Mb/s IEEE 802.3 以太网采用曼彻斯特编码；不能据此推断所有速率的以太网都采用该编码。
 
 \textbf{差分曼彻斯特：}抗干扰性更强，常用于令牌环网。
 \end{conclusion}
@@ -109,19 +109,19 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \begin{conclusion}{常见传输介质}{transmission-media}
 \begin{tablebox}{有线传输介质对比}
 \centering
-\begin{tabular}{|l|c|l|}
+\begin{tabularx}{\linewidth}{|p{3.0cm}|p{3.8cm}|X|}
 \hline
-介质 & 典型带宽/距离 & 特点 \\
+介质 & 典型使用范围 & 特点 \\
 \hline
-双绞线 & 100m (100Mbps-10Gbps) & 便宜，易受干扰；Cat5e/Cat6 \\
-同轴电缆 & 更长距离 & 抗干扰优于双绞线 \\
-光纤（单模）& 数十公里以上 & 带宽极大，损耗极低，最昂贵 \\
-光纤（多模）& 几百米-数千米 & 带宽大，成本低于单模 \\
+双绞线 & 局域网接入 & 成本低、布线方便；性能取决于线缆类别，抗干扰能力相对较弱 \\
+同轴电缆 & 有线接入、传统总线网 & 屏蔽性较好，抗干扰能力通常优于非屏蔽双绞线 \\
+光纤（单模）& 长距离、高速骨干 & 芯径小、模间色散小，适合长距离高速传输 \\
+光纤（多模）& 较短距离园区/机房互连 & 芯径较大、光源与收发器成本通常较低，但存在模间色散 \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{tablebox}
 
-\textbf{408 常考：}光纤利用光的\textbf{全反射}原理传输，单模光纤芯径小（~9$\mu$m）传输一个模式，多模光纤芯径大（~50$\mu$m）传输多个模式，存在模间色散。
+\textbf{常见辨析：}光纤利用\textbf{全反射}原理传输；单模光纤只传播一个模式、模间色散小，多模光纤传播多个模式、存在模间色散。具体芯径、距离和速率取决于光纤与收发器标准，题目若给出参数应以题设为准。
 \end{conclusion}
 
 \subsection{物理层设备}
@@ -154,7 +154,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 
 \begin{enumerate}
 
-\item \textbf{（2009年·选择题·第34题）} 在无噪声情况下，若某通信链路的带宽为3 kHz，采用4个相位、每个相位有4种振幅的QAM调制技术，则该通信链路的最大数据传输速率是
+\item \textbf{（真题风格·选择题）} 在无噪声情况下，若某通信链路的带宽为3 kHz，采用4个相位、每个相位有4种振幅的QAM调制技术，则该通信链路的最大数据传输速率是
 \begin{center}
 \begin{tabular}{ll}
 (A) 12 kbps & (B) 24 kbps \\[6pt]
@@ -166,7 +166,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 
 \vspace{8pt}
 
-\item \textbf{（2011年·选择题·第34题）} 若某通信链路的数据传输速率为2400 bps，采用4相位调制，则该链路的波特率是
+\item \textbf{（真题风格·选择题）} 若某通信链路的数据传输速率为2400 bps，采用4相位调制，则该链路的波特率是
 \begin{center}
 \begin{tabular}{ll}
 (A) 600 Baud & (B) 1200 Baud \\[6pt]
@@ -178,8 +178,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 
 \vspace{8pt}
 
-\item \textbf{（2013年·选择题·第34题）} 若下图为10BaseT网卡接收到的信号波形，则该网卡收到的比特串是（采用曼彻斯特编码）
-（图略，比特中间从高到低为1，从低到高为0）
+\item \textbf{（真题风格·选择题）} 某 10BaseT 网卡采用曼彻斯特编码，并约定码元中心由高电平跳变到低电平表示 1、由低电平跳变到高电平表示 0。连续 8 个码元中心的跳变方向依次为：低到高、低到高、高到低、高到低、低到高、高到低、高到低、低到高。该网卡收到的比特串是
 \begin{center}
 \begin{tabular}{ll}
 (A) 00110110 & (B) 10101101 \\[6pt]
@@ -187,11 +186,11 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 曼彻斯特编码：中间跳变高$\to$低=1，低$\to$高=0。按波形逐位读取。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 按题目给定的约定逐位译码：低$\to$高为 0，高$\to$低为 1，得到 \texttt{00110110}。曼彻斯特编码的 0/1 跳变方向在不同约定中可能互换，作答时必须服从题设。\boxed{\textbf{答案：}(A)}\fi
 
 \vspace{8pt}
 
-\item \textbf{（2016年·选择题·第34题）} 若信道在无噪声情况下的极限数据传输速率不小于信噪比为30 dB条件下的极限数据传输速率，则信号的离散电平数至少是
+\item \textbf{（真题风格·选择题）} 若信道在无噪声情况下的极限数据传输速率不小于信噪比为30 dB条件下的极限数据传输速率，则信号的离散电平数至少是
 \begin{center}
 \begin{tabular}{ll}
 (A) 4 & (B) 8 \\[6pt]
@@ -203,7 +202,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 
 \vspace{8pt}
 
-\item \textbf{（2020年·选择题·第34题）} 若将1010 0110用曼彻斯特编码，则第一个比特（最高位1）的编码波形为
+\item \textbf{（真题风格·选择题）} 若将1010 0110用曼彻斯特编码，则第一个比特（最高位1）的编码波形为
 \begin{center}
 \begin{tabular}{ll}
 (A) 前半高电平，后半低电平 & (B) 前半低电平，后半高电平 \\[6pt]

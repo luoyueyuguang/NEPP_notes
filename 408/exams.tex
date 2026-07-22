@@ -3,8 +3,7 @@
 % DS 1-11, CO 12-22, OS 23-32, CN 33-40
 % DS 41-42(23分), CO 43-44(23分), OS 45-46(15分), CN 47(9分)
 
-\newif\ifshowsolutions
-\showsolutionstrue  % 改为 \showsolutionsfalse 只显示题面
+% The solution switch is defined once in main.tex.
 
 \section{模拟卷一}
 
@@ -365,12 +364,14 @@
 \noindent\textbf{30.} 设磁盘的磁头当前在50号磁道，正向磁道号增大的方向移动。请求序列为：30, 180, 70, 100, 40。用SSTF算法，磁头移动的总磁道数为
 \begin{center}
 \begin{tabular}{ll}
-(A) 180 & (B) 210 \\[6pt]
+(A) 170 & (B) 210 \\[6pt]
 (C) 240 & (D) 290
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(D)。SSTF序列：50$\to$40(10)$\to$30(10)$\to$70(40)$\to$100(30)$\to$180(80)。总$=10+10+40+30+80=170$。最近选项(D)290明显不对$\dots$重算：从50开始最近→70(20)→100(30)→40(60)→30(10)→180(150)=270。选项中有(D)290最近似。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。SSTF 每一步选择离当前磁头最近的请求：
+$50\to40\to30\to70\to100\to180$，总移动距离为
+$10+10+40+30+80=170$ 个磁道。\fi
 
 \vspace{6pt}
 
@@ -564,7 +565,7 @@ $58.75=111010.11_2=1.1101011\times 2^5$。$S=1$（负数）。$e=5$, $E=5+127=13
 
 \noindent\textbf{44.（11分，组成原理）} 某16位计算机指令格式如下：操作码4位，两个操作数各6位（均为寄存器-寄存器型，每个操作数3位寄存器号+3位寻址方式）。问：(1)该指令系统最多有多少条指令？(2)若改用扩展操作码，保留12条两操作数指令，一操作数指令最多有多少条？
 
-\ifshowsolutions\par\noindent\textbf{答案：}(1) $2^4=16$条。(2) 两操作数用掉12个编码（0000-1011），剩余4个编码（1100-1111）。一操作数用高4位+低12位（操作数各6位），每条两操作数编码留出$2^{12}$空间。一操作数最多$4\times 2^{12}=16384$条。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(1) $2^4=16$ 条。(2) 两地址指令占用 12 个 4 位前缀，剩余 4 个前缀可扩展为一地址指令；每个前缀有 $2^6$ 个一地址操作码编码，因此最多为 $4\times2^6=256$ 条。\fi
 
 \vspace{8pt}
 
@@ -594,7 +595,9 @@ Customer() {
 
 \noindent\textbf{46.（7分，操作系统）} 某请求分页系统，页面大小4 KB。进程访问的逻辑地址序列为0x1234, 0x5678, 0x9ABC, 0x1238（均为十六进制）。假设进程分得3个物理块，初始为空。采用LRU页面置换算法。(1)写出各逻辑地址的页号；(2)画出页面置换过程；(3)计算缺页率。
 
-\ifshowsolutions\par\noindent\textbf{解析：}(1) 4 KB$=0x1000$，页号$=$地址$/0x1000$：0x1, 0x5, 0x9, 0x1。(2) LRU过程：页1缺$\to$页5缺$\to$页9缺（换出页1）$\to$页1缺（换出页5）。共4次访问，4次缺页。(3)缺页率$=4/4=100\%$（初始装入导致全部缺页）。\fi
+\ifshowsolutions\par\noindent\textbf{解析：}(1) 4 KB$=0x1000$，页号为 $0x1,0x5,0x9,0x1$。
+(2) 前三次访问分别装入页 1、5、9，三个页框恰好装满；第四次再次访问页 1，命中，不发生置换。
+(3) 共 3 次缺页，缺页率为 $3/4=75\%$。\fi
 
 \vspace{8pt}
 
@@ -647,7 +650,8 @@ Customer() {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(A)。逐位计算：next[1]=0; next[2]=1; 前2"ab"$\to$next[3]=1; 前3"aba"$\to$next[4]=2; 前4"abab"$\to$next[5]=3; 前5"ababa"$\to$next[6]=1; 前6"ababaa"$\to$next[7]=2。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(D)。按本书采用的 1 起始下标约定，
+$\operatorname{next}(T)=0,1,1,2,3,4,2$。其中 $T[1..5]=\texttt{ababa}$ 的最长相等真前后缀为 $\texttt{aba}$，故 $\texttt{next}[6]=4$。\fi
 
 \vspace{6pt}
 
@@ -709,7 +713,7 @@ Customer() {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(C)。Huffman合并：2+4$\to$6, 5+6$\to$11, 7+9$\to$16, 11+16$\to$27。c(2)在最底层$\to$编码长度4。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。合并过程为 $2+4\to6$、$5+6\to11$、$7+9\to16$、$11+16\to27$。字符 $c$ 所在叶结点经过三次合并，编码长度为 3。\fi
 
 \vspace{6pt}
 
@@ -721,7 +725,7 @@ Customer() {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(B)。H(16)=3占3，H(29)=3冲突$\to$4占4，H(42)=3冲突$\to$4冲突$\to$5占5。H(55)=3冲突$\to$4冲突$\to$5冲突$\to$6空闲$\to$地址6。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(D)。$H(16)=H(29)=H(42)=H(55)=3$；已有关键字依次占用 3、4、5，故 55 线性探测到地址 6。\fi
 
 \vspace{6pt}
 
@@ -793,11 +797,11 @@ Customer() {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(C)。块大小32B$\to$块内偏移5位。16块/2路$=8$组$\to$组号3位。129号单元：块号$=\lfloor129/32\rfloor=4$。组号$=4\bmod 8=4$。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(D)。主存块号为 $\lfloor129/32\rfloor=4$；共有 8 组，故组号为 $4\bmod8=4$。\fi
 
 \vspace{6pt}
 
-\noindent\textbf{16.} 某指令系统采用扩展操作码，指令字长16位。二地址指令地址码各占6位，一地址指令地址码占6位，零地址指令无地址码。若二地址指令有15条，则零地址指令最多有
+\noindent\textbf{16.} 某指令系统采用扩展操作码，指令字长16位。二地址指令的两个地址码各占6位，一地址指令的地址码占6位。若二地址指令有15条、一地址指令有62条，则零地址指令最多有
 \begin{center}
 \begin{tabular}{ll}
 (A) $64$条 & (B) $128$条 \\[6pt]
@@ -805,7 +809,7 @@ Customer() {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(C)。二地址操作码4位(15条占0000-1110，剩1111)。一地址：1111+6位地址码$=10$位，共$2^{10}$条。零地址：再用掉一地址编码，剩余$2^{4+6+6}=2^{16}$种，零地址$=2^{16}-15-2^{10}=65536-15-1024$? 不对——扩展编码：二地址15条→一地址$1\times2^6=64$条→零地址$(16-15)\times2^{12}-64=1\times4096-64=4032$? 简化思路：(16-15)个编码$\times2^6$一地址编码$\times2^6$零地址编码$=$单个分支$2^{12}$，减去占用的一地址$=$...实际408原题答案常为256。路径：16-15=1, $1\times 2^{12}=4096$，但需为每次一地址留空间。零地址$=(2^4-15)\times 2^{12}=4096$条(近似)。需要原题精确数值。此处用原题答案(C)256。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。15 条二地址指令占用 15 个 4 位前缀，剩余一个前缀可扩展出 $2^6=64$ 个一地址操作码。使用其中 62 个后，还剩 2 个可继续用最后 6 位扩展为零地址操作码，故最多为 $2\times2^6=128$ 条。\fi
 
 \vspace{6pt}
 
@@ -821,15 +825,16 @@ Customer() {
 
 \vspace{6pt}
 
-\noindent\textbf{18.} 某微程序控制器采用字段直接编码法，微指令字长32位。控制字段共4个，各字段分别需要3,5,4,2个互斥的微命令。下地址字段占8位。该微指令最多可控制的微命令总数为
+\noindent\textbf{18.} 某微程序控制器采用字段编码法。4 个互斥控制字段分别需要表示 3、5、4、2 个微命令，并且每个字段还需保留一种“不发出微命令”的编码。控制字段至少需要多少位？
 \begin{center}
 \begin{tabular}{ll}
-(A) 14 & (B) 32 \\[6pt]
-(C) $3+5+4+2=14$ & (D) $2^3+2^5+2^4+2^2=60$
+(A) 8 & (B) 9 \\[6pt]
+(C) 10 & (D) 14
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(C)。字段直接编码：每个字段经译码器后可产生$2^n$种微命令，但字段内互斥，同时只能发一个。本题问"最多可控微命令总数"即各字段译码后命令数之和$=3+5+4+2=14$。（若问"最大独立微操作信号数"则需考虑字段宽度：$\lceil\log_2 3\rceil+\lceil\log_2 5\rceil+\lceil\log_2 4\rceil+\lceil\log_2 2\rceil=2+3+2+1=8$位，剩余$32-8-8=16$位用于直接控制。）\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。每个字段还要表示“无操作”，所需位数分别为
+$\lceil\log_2(3+1)\rceil=2$、$\lceil\log_2(5+1)\rceil=3$、$\lceil\log_2(4+1)\rceil=3$、$\lceil\log_2(2+1)\rceil=2$，合计 10 位。\fi
 
 \vspace{6pt}
 
@@ -881,11 +886,11 @@ Customer() {
 
 \subsubsection*{操作系统（23--32题）}
 
-\noindent\textbf{23.} 以下会导致创建新进程的操作是
+\noindent\textbf{23.} 以下操作中，必然通过创建新的执行实体来启动另一个程序的是
 \begin{center}
 \begin{tabular}{ll}
-(A) 设备分配 & (B) 用户登录 \\[6pt]
-(C) 中断处理 & (D) 启动程序执行
+(A) 修改文件权限 & (B) 分配设备 \\[6pt]
+(C) 处理中断 & (D) 启动程序执行
 \end{tabular}
 \end{center}
 
@@ -977,7 +982,7 @@ Customer() {
 
 \vspace{6pt}
 
-\noindent\textbf{31.} I/O软件层次结构中，直接与硬件交互的是
+\noindent\textbf{31.} I/O 软件层次结构中，层次最低、负责首先响应设备中断的是
 \begin{center}
 \begin{tabular}{ll}
 (A) 用户层I/O软件 & (B) 设备独立性软件 \\[6pt]
@@ -985,7 +990,7 @@ Customer() {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(D)。中断处理程序位于最底层，直接响应硬件中断。设备驱动程序也直接操作设备寄存器——严格说两者都直接与硬件交互，但408常考中断处理程序更底层。部分教材认为两者都在底层。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(D)。中断处理程序位于 I/O 软件层次的最底层，首先响应控制器发出的中断；设备驱动程序负责向控制器寄存器发出具体命令。\fi
 
 \vspace{6pt}
 
@@ -1028,12 +1033,12 @@ Customer() {
 \noindent\textbf{35.} CRC校验码的生成多项式为$G(x)=x^3+x+1$（即1011），数据为10110，则发送的码字为
 \begin{center}
 \begin{tabular}{ll}
-(A) 10110011 & (B) 10110000 \\[6pt]
+(A) 10110010 & (B) 10110000 \\[6pt]
 (C) 10110110 & (D) 10110101
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(无精确选项，需模2除)。$G(x)$次数$r=3$，数据后补3个0：10110000。模2除1011得余数010。发送码字=10110010。此处选项(C)10110110近似。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。生成多项式次数为 3，数据后补 3 个 0 得 10110000；对 1011 做模 2 除法的余数为 000，因此发送码字仍为 10110000。\fi
 
 \vspace{6pt}
 
@@ -1067,7 +1072,7 @@ Customer() {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(B)。3个重复ACK触发快重传，门限减半，cwnd降为门限+3。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。3 个重复 ACK 会触发快重传。后续 cwnd 的具体取值取决于题设采用教材化简化规则还是 TCP Reno 快恢复，但不影响本题对触发机制的判断。\fi
 
 \vspace{6pt}
 
@@ -1133,13 +1138,30 @@ BiTree LCA(BiTree root, BiTree p, BiTree q) {
 
 \noindent\textbf{43.（12分，组成原理）} 某计算机的Cache采用2路组相联映射，共有8组。主存地址32位，按字节编址，Cache块大小为16 B。(1)给出主存地址的划分（Tag、组索引、块内偏移各占多少位）；(2)Cache的总容量是多少（含Tag和有效位）？(3)若CPU依次访问地址0,8,16,32,0,8,16,32，计算Cache命中率。
 
-\ifshowsolutions\par\noindent\textbf{答案：} (1) 块大小16B$\to$块内偏移4位。8组$\to$组索引3位。Tag$=32-3-4=25$位。(2) 2路$\times$8组$=16$个Cache行。每行：Tag 25位+数据16B+有效1位$=25+128+1=154$位$\approx 19.25$ B。总容量$=16\times 154=2464$位$=308$ B。(3) 0/8/16在块0(组0)，32在块2(组2)。第一轮全缺失(4次)。第二轮：0/8/16在块0命中，32在块2命中。命中率$=4/8=50\%$。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} (1) 块内偏移 4 位，组索引 3 位，Tag 为 $32-4-3=25$ 位。
+(2) 共 16 行；每行含 128 位数据、25 位 Tag 和1位有效位，总实现容量为 $16\times154=2464$ 位，即 308 B（其中数据容量为 256 B）。
+(3) 地址 0 和 8 属于块0，16属于块1，32属于块2。访问结果依次为：缺、命中、缺、缺、命中、命中、命中、命中，共5次命中，命中率为 $5/8=62.5\%$。\fi
 
 \vspace{8pt}
 
-\noindent\textbf{44.（11分，组成原理）} 某16位计算机的部分数据通路如图所示（略）。ALU可完成算术和逻辑运算，通用寄存器R0-R3。写出指令\texttt{ADD R1, (R2)}（将R1与R2指向的内存单元内容相加，结果存R1）的取指周期和执行周期的数据流动路径和有效控制信号。
+\noindent\textbf{44.（11分，组成原理）} 某 16 位、按字编址的计算机采用单总线 CPU。PC、MAR、MDR、IR、通用寄存器 R0--R3、暂存器 Y 和 Z 均连接到内部总线；ALU 的 A 端取自 Y，B 端取自总线，结果锁存到 Z。PC 有不占用内部总线的自增通路；主存通过 MAR 和 MDR 读写。假定一次主存读在一个时钟周期内完成，且每周期至多有一个部件向内部总线送数。写出指令 \texttt{ADD R1, (R2)}（$\mathrm{R1}\gets\mathrm{R1}+\mathrm{Mem[R2]}$）的取指周期和执行周期微操作，并列出主要控制信号。
 
-\ifshowsolutions\par\noindent\textbf{答案：} 取指周期：PC$\to$MAR, 读主存, MDR$\to$IR, PC+1。执行周期：R2$\to$MAR, 读主存, MDR$\to$ALU\_B（临时寄存器）, R1$\to$ALU\_A, ALU做加法, ALU结果$\to$R1。控制信号：取指所需信号（PCout, MARin, MEMread, MDRout, IRin, PCinc）；执行所需信号（R2out, MARin, MEMread, MDRout, R1out, ALUadd, ALUout, R1in）。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}
+取指周期：
+\begin{enumerate}[label=T$\arabic*$:,leftmargin=*]
+    \item PC$\to$MAR，同时 PC$\gets$PC+1（PCout, MARin, PCinc）；
+    \item Mem[MAR]$\to$MDR（MemRead, MDRin）；
+    \item MDR$\to$IR（MDRout, IRin）。
+\end{enumerate}
+执行周期：
+\begin{enumerate}[label=T$\arabic*$:,leftmargin=*]
+    \item R2$\to$MAR（R2out, MARin）；
+    \item Mem[MAR]$\to$MDR（MemRead, MDRin）；
+    \item R1$\to$Y（R1out, Yin）；
+    \item MDR 经总线送 ALU 的 B 端，ALU 做加法并将结果锁存到 Z（MDRout, ALUadd, Zin）；
+    \item Z$\to$R1（Zout, R1in）。
+\end{enumerate}
+由于是单总线结构，R1 和 MDR 不能在同一周期同时向总线送数，故需先把一个操作数存入 Y。\fi
 
 \vspace{8pt}
 
@@ -1158,7 +1180,7 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 \end{array}
 \]
 
-\ifshowsolutions\par\noindent\textbf{答案：} (1) Need=Max$-$Allocation: P0(7,4,3), P1(1,2,2), P2(6,0,0), P3(0,1,1), P4(4,3,1)。Available=(10,5,7)-(7,2,5)=(3,3,2)。(2) 安全序列: P1$\to$P3$\to$P0$\to$P2$\to$P4。(3) Request(1,0,2)≤Need(P1)且≤Available？Available=(3,3,2), Request=(1,0,2)≤Available$\to$试探分配：Allocation P1=(3,0,2), Available=(2,3,0)。检查安全：P1可完成$\to$Work=(5,3,2); P3可完成; P0可完成; P2可完成; P4可完成。安全$\to$可以分配。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} (1) Need=Max$-$Allocation: P0(7,4,3), P1(1,2,2), P2(6,0,0), P3(0,1,1), P4(4,3,1)。Available=(10,5,7)-(7,2,5)=(3,3,2)。(2) 安全序列: P1$\to$P3$\to$P0$\to$P2$\to$P4。(3) Request$(1,0,2)\leqslant$Need(P1) 且 Request$(1,0,2)\leqslant$Available$(3,3,2)$，可试探分配：Allocation P1=(3,0,2), Available=(2,3,0)。检查安全：P1可完成$\to$Work=(5,3,2); P3可完成; P0可完成; P2可完成; P4可完成。系统仍安全，因此可以分配。\fi
 
 \vspace{8pt}
 
@@ -1170,7 +1192,9 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 
 \noindent\textbf{47.（9分，计算机网络）} 一个TCP连接以1 KB的MSS发送数据。初始ssthresh=16 KB，cwnd=1 KB。按时间顺序：连续成功传输使cwnd变为2,4,8,16,17,18,19，随后发生超时。(1)画出cwnd的变化折线图；(2)发生超时后，ssthresh和cwnd的新值是多少？(3)之后3个RTT的传输均成功，第3次成功后cwnd是多少？
 
-\ifshowsolutions\par\noindent\textbf{答案：} (1) 慢开始：1,2,4,8,16→拥塞避免：17,18,19→超时。图略。(2) 超时时cwnd=1, ssthresh=19/2≈9（取整为9或10）。进入慢开始。(3) 慢开始：RTT1: cwnd=2; RTT2: cwnd=4; RTT3: cwnd=8。仍<ssthresh=10，保持慢开始。第3次后cwnd=8 KB。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} (1) 慢开始阶段为 $1,2,4,8,16$，随后拥塞避免为 $17,18,19$，然后超时。
+(2) 约定以整数 MSS 向下取整，$\text{ssthresh}=\lfloor19/2\rfloor=9$ KB，$\text{cwnd}=1$ KB，重新进入慢开始。
+(3) 三个成功 RTT 后 cwnd 依次为 2、4、8 KB，故答案为 8 KB。\fi
 
 \newpage
 % ============================================================
@@ -1264,7 +1288,7 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(C)。mid=(0+4)/2=2$\to$20, 25>20$\to$右半mid=(3+4)/2=3$\to$30, 25<30$\to$左半mid=3$\to$25。过程：20,30,25。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。取下中位下标时，第一次比较 20；随后查找区间为下标 $3..4$，$\lfloor(3+4)/2\rfloor=3$，第二次比较 25 即成功。\fi
 
 \vspace{6pt}
 
@@ -1292,21 +1316,21 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 
 \vspace{6pt}
 
-\noindent\textbf{10.} 以下关于B-树和B+树的叙述，正确的是
+\noindent\textbf{10.} 以下关于 B+ 树的叙述，正确的是
 \begin{center}
 \begin{tabular}{ll}
-(A) B-树的非叶结点也存储指向数据记录的指针 \\[4pt]
+(A) 非叶结点保存全部数据记录 \\[4pt]
 (B) B+树的所有关键字都出现在叶结点中，非叶结点仅起索引作用 \\[4pt]
-(C) B-树和B+树的叶结点都在同一层 \\[4pt]
+(C) 叶结点之间没有顺序链接 \\[4pt]
 (D) B+树不支持顺序访问
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(B)。B+树特点：所有关键字在叶结点，叶结点链接成有序链表。(C)两者叶结点都在同一层，但这不是B+树独有。选项(B)最准确描述B+树与B-树的区别。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。B+ 树的非叶结点仅保存索引关键字和子树指针，全部记录位于叶结点；叶结点按关键字有序链接，支持范围查找和顺序访问。\fi
 
 \vspace{6pt}
 
-\noindent\textbf{11.} 排序趟数与序列原始状态无关的算法是
+\noindent\textbf{11.} 对含 $n$ 个关键字的序列，关键字比较次数始终为 $n(n-1)/2$ 的算法是
 \begin{center}
 \begin{tabular}{ll}
 (A) 冒泡排序 & (B) 快速排序 \\[6pt]
@@ -1314,11 +1338,11 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(C)。选择排序无论如何都需$n-1$趟（每趟选min）。冒泡可提前终止，插入可提前终止，快排递归深度与划分结果有关。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。简单选择排序每趟扫描未排序区间，比较次数固定为 $(n-1)+(n-2)+\cdots+1=n(n-1)/2$。\fi
 
 \subsubsection*{计算机组成原理（12--22题）}
 
-\noindent\textbf{12.} 计算机系统的层次结构中，位于硬件和操作系统之间的是
+\noindent\textbf{12.} 计算机系统的经典层次结构中，操作系统直接建立在下列哪一层之上？
 \begin{center}
 \begin{tabular}{ll}
 (A) 机器语言层 & (B) 汇编语言层 \\[6pt]
@@ -1326,7 +1350,7 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(C)。微程序层是硬件之上的最底层，直接控制数据通路。操作系统在机器语言层之上。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。操作系统运行在传统机器语言层之上；微程序层属于机器硬件的实现层。\fi
 
 \vspace{6pt}
 
@@ -1354,7 +1378,7 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 
 \vspace{6pt}
 
-\noindent\textbf{15.} 某计算机的Cache块大小为64 B，主存容量为256 MB，按字节编址。若采用直接映射，主存地址中Tag字段的位数为
+\noindent\textbf{15.} 某计算机的 Cache 容量为 4 KB，块大小为 64 B，主存容量为 256 MB，按字节编址。若采用直接映射，主存地址中 Tag 字段的位数为
 \begin{center}
 \begin{tabular}{ll}
 (A) 8 & (B) 16 \\[6pt]
@@ -1362,7 +1386,7 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}需要Cache容量信息。主存地址$256\text{MB}=2^{28}$字节$\to 28$位地址。块大小64B$\to$块内偏移6位。假设Cache有$2^c$行，则行索引$c$位，Tag$=28-6-c$。缺失Cache容量信息，无法确定Tag位数。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。主存地址为 28 位；块内偏移占 6 位；Cache 有 $4\text{KB}/64\text{B}=64$ 行，行号占 6 位。因此 Tag 占 $28-6-6=16$ 位。\fi
 
 \vspace{6pt}
 
@@ -1416,11 +1440,10 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 
 \noindent\textbf{20.} DMA方式与中断方式的主要区别是
 \begin{center}
-\begin{tabular}{ll}
+\begin{tabularx}{0.94\linewidth}{@{}X X@{}}
 (A) DMA方式不需要CPU干预 & (B) DMA方式可处理复杂I/O \\[6pt]
-(C) DMA方式仅在数据块传送开始和结束时需要CPU干预 \\[6pt]
-(D) DMA方式比中断方式慢
-\end{tabular}
+(C) DMA方式仅在数据块传送的初始化和完成阶段需要CPU干预 & (D) DMA方式比中断方式慢
+\end{tabularx}
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{答案：}(C)。DMA仅在预处理和后处理时需要CPU。数据传输阶段由DMA控制器独立完成，不经过CPU。\fi
@@ -1475,15 +1498,15 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 
 \vspace{6pt}
 
-\noindent\textbf{25.} P操作可能导致
+\noindent\textbf{25.} 对记录型信号量执行 P 操作后，若信号量值小于 0，则当前进程将
 \begin{center}
 \begin{tabular}{ll}
-(A) 进程唤醒 & (B) 进程阻塞 \\[6pt]
-(C) 其他进程进入临界区 & (D) 死锁
+(A) 被唤醒 & (B) 阻塞 \\[6pt]
+(C) 进入就绪态 & (D) 终止
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(B)。P操作先减value，若value<0则阻塞当前进程。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。P 操作先将 value 减 1；若结果小于 0，说明没有可用资源，当前进程加入该信号量的等待队列并阻塞。\fi
 
 \vspace{6pt}
 
@@ -1511,15 +1534,15 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 
 \vspace{6pt}
 
-\noindent\textbf{28.} 文件的逻辑结构中，下列哪种结构便于随机存取
+\noindent\textbf{28.} 文件的逻辑结构中，通过索引表把关键字映射到记录地址、最便于按关键字随机存取的是
 \begin{center}
 \begin{tabular}{ll}
 (A) 顺序文件 & (B) 索引文件 \\[6pt]
-(C) 索引顺序文件 & (D) 以上都是
+(C) 流式文件 & (D) 无结构字节流
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(B)。索引文件通过索引表可以直接定位记录。(C)索引顺序文件也可随机存取——最全面的是(B)和(C)。408中索引文件和索引顺序文件都支持随机存取。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。索引文件为记录建立索引项，可先查索引再直接定位记录；顺序文件通常按记录次序访问。\fi
 
 \vspace{6pt}
 
@@ -1671,30 +1694,55 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 
 \noindent\textbf{41.（13分，数据结构）} 已知一个带有头结点的单链表L，设计一个尽可能高效的算法，将链表中的所有结点按数据域的值从小到大重新链接（就地排序），并分析时间复杂度。
 
-\ifshowsolutions\par\noindent\textbf{解析：} 采用插入排序思想——从原链表中每次取下一个结点，按值插入到新有序链表的合适位置。
+\ifshowsolutions\par\noindent\textbf{解析：} 单链表不能随机访问，但能在 $O(1)$ 时间内断链和接链，适合采用自底向上的归并排序。每轮把相邻的长度为 $1,2,4,\ldots$ 的有序段两两归并，只修改结点指针，不复制数据域。
 \begin{lstlisting}[language=C]
-void InsertSort(LinkList L) {
-    if (!L->next || !L->next->next) return;
-    LNode *sorted = L->next;          // 已排序部分末尾
-    LNode *p = sorted->next;          // 待排序部分首结点
-    sorted->next = NULL;
-    while (p) {
-        LNode *cur = p; p = p->next;
-        LNode *prev = L;              // 在已排序链表中找插入位置
-        while (prev->next && prev->next->data < cur->data)
-            prev = prev->next;
-        cur->next = prev->next;       // 插入
-        prev->next = cur;
+// 将链表从第 n 个结点后断开，返回后一段的首结点
+LNode *Split(LNode *p, int n) {
+    while (p && --n) p = p->next;
+    if (!p) return NULL;
+    LNode *q = p->next;
+    p->next = NULL;
+    return q;
+}
+
+// 归并两个有序链，返回新链首结点，并通过 tail 返回尾结点
+LNode *Merge(LNode *a, LNode *b, LNode **tail) {
+    LNode dummy, *p = &dummy;
+    while (a && b) {
+        if (a->data <= b->data) { p->next = a; a = a->next; }
+        else                    { p->next = b; b = b->next; }
+        p = p->next;
+    }
+    p->next = a ? a : b;
+    while (p->next) p = p->next;
+    *tail = p;
+    return dummy.next;
+}
+
+void MergeSort(LinkList L) {
+    int n = 0;
+    for (LNode *p = L->next; p; p = p->next) ++n;
+    for (int width = 1; width < n; width *= 2) {
+        LNode *cur = L->next, *out = L;
+        while (cur) {
+            LNode *a = cur;
+            LNode *b = Split(a, width);
+            cur = Split(b, width);
+            LNode *tail;
+            out->next = Merge(a, b, &tail);
+            out = tail;
+        }
     }
 }
 \end{lstlisting}
-时间复杂度$O(n^2)$（最坏），空间复杂度$O(1)$。\fi
+共有 $\lceil\log_2 n\rceil$ 轮归并，每轮扫描全部结点，时间复杂度为 $O(n\log n)$；自底向上实现只使用常数个指针，辅助空间复杂度为 $O(1)$。使用“$\leqslant$”从左段优先取相等元素时，该排序还是稳定的。\fi
 
 \vspace{8pt}
 
 \noindent\textbf{42.（10分，数据结构）} 已知关键字序列(12,24,8,37,15,30,45,20)，画出依次插入生成的二叉排序树，并判断该树是否为平衡二叉树（AVL）。若不是，指出不平衡结点并说明如何调整。
 
-\ifshowsolutions\par\noindent\textbf{答案：} 12为根→24在12右→8在12左→37在24右→15在24左→30在37左→45在37右→20在15右。检查平衡因子：37的平衡因子=-2（左子树高度0,右子树高度2），不平衡！LL型（右子树的左子树插入导致）。调整：30上提替代37，37成为30的右孩子，45保持37右。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} 最终 BST 为：12 的左孩子是 8、右孩子是 24；24 的左孩子是 15、右孩子是 37；15 的右孩子是 20；37 的左、右孩子分别是 30、45。
+根结点 12 的左、右子树高度分别为 1 和 3，平衡因子为 $-2$，因此不是 AVL 树；其右孩子 24 的平衡因子为 0。对 12 做一次左旋（RR 型调整），以 24 为新根，12 成为 24 的左孩子，15 成为 12 的右孩子，即可恢复平衡。\fi
 
 \vspace{8pt}
 
@@ -1707,18 +1755,18 @@ I4: sub R6, R5, R7
 \end{lstlisting}
 (1)若无转发机制，需要插入多少个阻塞周期？画出流水线时空图。(2)若有转发机制（但不能消除Load-use冒险），需要插入多少个阻塞周期？(3)计算两种情况的总执行时间。
 
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) 无转发：I1$\to$I3: I1的R1在WB段才写回(第5拍)，I3的ID段在第4拍读R1$\to$需要阻塞2拍。I1和I2无依赖可并行。I2$\to$I3: I2的R3也需要到WB，但I3的ID段在I2的WB之后$\to$无需额外阻塞。I3$\to$I4: RAW，EX段ALU结果可转发？无转发需等WB(第3+5=8拍)$\to$阻塞2拍。共需阻塞约4拍，总时间$\approx 4\times5=20$拍$=20\times2=40$ ns？需要精确画图。
-
-(2) 有转发：I1$\to$I3: Load-use，必须阻塞1拍（lw数据在MEM段才就绪）。I2$\to$I3: Load-use，但I3开始执行时I2的MEM段已完成，转发可解决$\to$阻塞0或1拍。I3$\to$I4: ALU-ALU可通过转发解决$\to$无阻塞。共阻塞约1-2拍。
-
-(3) 无转发：总拍数$=5+(4-1)+$阻塞$=8+$阻塞。有转发+load-use阻塞。精确数值需画时空图。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} 约定寄存器堆同一周期先写后读。
+(1) 无转发时，I3 必须等 I2 在第 6 拍 WB 后才能完成 ID，产生 2 个阻塞周期；I4 又必须等 I3 在第 9 拍 WB 后才能完成 ID，再产生 2 个阻塞周期，共 4 拍。总周期数为 $5+(4-1)+4=12$。
+(2) 有转发时，I3 紧随 I2 使用装载结果，产生 1 个 load-use 阻塞；I1 的装载结果此时已可转发，I3 到 I4 的 ALU 结果也可直接转发，故总阻塞 1 拍。总周期数为 $5+(4-1)+1=9$。
+(3) 时钟周期为 2 ns，因此无转发为 $12\times2=24$ ns，有转发为 $9\times2=18$ ns。\fi
 
 \vspace{8pt}
 
-\noindent\textbf{44.（11分，组成原理）} 设$[x]_{\text{补}}=1.0101$，$[y]_{\text{补}}=1.0011$，均为5位（含2位符号位，即双符号位补码）。求$[x+y]_{\text{补}}$和$[x-y]_{\text{补}}$，并判断是否溢出。
+\noindent\textbf{44.（11分，组成原理）} 在 8 位字长计算机中，$[x]_{\text{补}}=6\text{AH}$，$[y]_{\text{补}}=9\text{FH}$。(1)写出 $x,y$ 的十进制真值；(2)用补码完成 $x+y$，给出 8 位结果并判断有符号溢出 OF；(3)完成 $x-y$，给出 8 位结果并判断 OF。
 
-\ifshowsolutions\par\noindent\textbf{答案：} 双符号位补码$x=11.0101$, $y=11.0011$。$[x+y]_{\text{补}}=11.0101+11.0011=110.1000$，双符号位$11\to$结果负，无溢出。真值$x=-0.1011$, $y=-0.1101$，$x+y=-1.1000$。$[-y]_{\text{补}}=00.1101$。$[x-y]_{\text{补}}=11.0101+00.1101=100.0010$，双符号位$10\to$负溢出（下溢）。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} (1) $x=106$；$9\text{FH}=10011111_2$，取反加一得 97，故 $y=-97$。
+(2) $6\text{A}+9\text{F}=109\text{H}$，保留 8 位得 $09\text{H}$，真值为 9。异号数相加不会产生有符号溢出，故 OF=0。
+(3) $-y$ 的补码为 $61\text{H}$，$6\text{A}+61=CB\text{H}$。两个正数相加得到符号位为 1 的结果，故发生正溢出，OF=1；$CB\text{H}$ 只是模 $2^8$ 截断后的机器结果。\fi
 
 \vspace{8pt}
 
@@ -1753,15 +1801,17 @@ Writer() {
 
 \vspace{8pt}
 
-\noindent\textbf{46.（7分，操作系统）} 某请求分页系统，页面访问序列为1,2,3,4,2,1,5,6,2,1,2,3,7,6,3,2,1,2,3,6。设分配给进程3个物理块。(1)分别用OPT、FIFO、LRU算法计算缺页次数；(2)哪种算法在本序列中表现最好？为什么OPT无法在实际系统中实现？
+\noindent\textbf{46.（7分，操作系统）} 某请求分页系统为进程分配了 3 个物理块，页面访问序列为
+\[
+1,2,3,4,2,1,5,6,2,1,2,3,7,6,3,2,1,2,3,6.
+\]
+(1) 分别用 OPT、FIFO、LRU 算法计算缺页次数；(2) 哪种算法在本序列中表现最好？为什么 OPT 无法在实际系统中实现？
 
-\ifshowsolutions\par\noindent\textbf{答案：} (1) OPT(3块): 缺页1,2,3,4,5,6,7=7次？需逐页模拟。
-FIFO(3块): 缺页次数较多，约12-15次。
-LRU(3块): 约10-13次。(2) OPT必然最少（7次），因为OPT预知未来，淘汰最远未使用的页。但OPT需预知未来访问串，实际系统无法实现。OPT的作用是作为理论下界衡量其他算法的效果。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} (1) 逐页模拟可得：OPT 缺页 11 次，FIFO 缺页 16 次，LRU 缺页 15 次。
+(2) 本序列中 OPT 最好。OPT 每次淘汰未来最晚才会再次访问（或以后不再访问）的页，因而给出理论最小缺页数；实际系统无法预知未来访问序列，所以 OPT 只能作为性能下界。\fi
 
 \vspace{8pt}
 
 \noindent\textbf{47.（9分，计算机网络）} 主机A的IP地址为192.168.10.66/27，主机B的IP地址为192.168.10.92/27。(1)写出/27的子网掩码；(2)A和B是否在同一子网？(3)若A向B发送数据，A需要ARP解析B的MAC地址吗？说明原因。
 
 \ifshowsolutions\par\noindent\textbf{答案：} (1) /27$\to$255.255.255.224。(2) A: 66\&224$=64$。B: 92\&224$=64$。在同一子网。(3) A和B在同一子网，A可直接发送。A需要ARP获取B的MAC地址——ARP在同一广播域内解析IP到MAC。\fi
-

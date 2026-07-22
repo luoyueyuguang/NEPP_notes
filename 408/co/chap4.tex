@@ -37,7 +37,8 @@
 
 \begin{tablebox}{寻址方式汇总}
 \centering
-\begin{tabular}{|l|l|l|l|}
+\small
+\begin{tabularx}{\linewidth}{|p{2.4cm}|p{3.6cm}|p{3.2cm}|X|}
 \hline
 寻址方式 & EA 计算 & 访存次数（取操作数）& 用途 \\
 \hline
@@ -51,7 +52,7 @@
 相对寻址 & EA = (PC) + A & 1 & 转移指令 \\
 堆栈寻址 & 栈顶隐含 & 0 & 表达式求值 \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{tablebox}
 
 \textbf{变址寻址 vs 基址寻址：} 两者形式相同（$EA = \text{寄存器} + A$），但语义不同：
@@ -70,21 +71,22 @@
 \begin{conclusion}{CISC 与 RISC 对比}{cisc-risc}
 \begin{tablebox}{CISC vs RISC}
 \centering
-\begin{tabular}{|l|c|c|}
+\small
+\begin{tabularx}{\linewidth}{|p{3.0cm}|X|X|}
 \hline
 特征 & CISC & RISC \\
 \hline
 指令长度 & 变长 & 定长（通常 32 位）\\
-指令数量 & 多（200+）& 少（100 以内）\\
+指令数量 & 通常较多 & 通常较少、强调规则性\\
 寻址方式 & 多 & 少（仅 LOAD/STORE 访存）\\
-指令执行周期 & 多变（单周期到多周期）& 基本单周期 \\
-微程序控制 & 广泛使用 & 较少（通常硬布线）\\
-寄存器数量 & 少 & 多（如 32 个通用寄存器）\\
+指令执行周期 & 差异通常较大 & 设计上便于流水化，周期数较规则 \\
+控制实现 & 可采用微程序控制 & 常采用硬布线控制 \\
+寄存器数量 & 传统设计相对较少 & 通常较多 \\
 流水线实现 & 困难 & 容易 \\
 典型代表 & x86 & MIPS, ARM, RISC-V \\
 设计哲学 & 用硬件复杂度换编译器简单性 & 用编译器复杂度换硬件简单性 \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{tablebox}
 \end{conclusion}
 

@@ -79,7 +79,7 @@
 
 \begin{tablebox}{中断与异常对比}
 \centering
-\begin{tabular}{|l|c|c|}
+\begin{tabularx}{\linewidth}{|>{\centering\arraybackslash}p{2.3cm}|X|X|}
 \hline
  & 中断（Interrupt）& 异常（Exception）\\
 \hline
@@ -89,12 +89,12 @@
 示例 & 时钟中断、I/O完成中断 & 缺页、除零、断点\\
 分类 & 可屏蔽/不可屏蔽 & 故障(Fault)/陷阱(Trap)/终止(Abort)\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{tablebox}
 \end{conclusion}
 
 \begin{attention}
-\textbf{408 高频辨析：中断 vs 异常（内中断 vs 外中断）。} 缺页异常属于 Fault（故障），处理后可恢复；除零属于 Abort（终止），无法恢复。系统调用（如 \texttt{int 0x80} 或 \texttt{syscall}）属于 Trap（陷阱），由程序主动触发。
+\textbf{中断 vs 异常（内中断 vs 外中断）的辨析：} 缺页异常是典型的 Fault（故障），处理后通常可重新执行引发异常的指令；系统调用（如 \texttt{int 0x80} 或 \texttt{syscall}）是由程序主动触发的 Trap（陷阱）。除零等同步异常的具体 Fault/Abort 归类依赖体系结构和异常处理约定，不能脱离体系结构一概而论。
 \end{attention}
 
 \subsection{系统调用}

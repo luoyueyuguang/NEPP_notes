@@ -75,7 +75,7 @@
 \begin{formula}{二叉树核心性质}{binary-tree-core-props}
 设二叉树中度为 0、1、2 的结点数分别为 $n_0,n_1,n_2$，总结点数 $n = n_0+n_1+n_2$。
 \begin{enumerate}
-    \item \textbf{（408 必考）} $n_0 = n_2 + 1$。\\
+    \item \textbf{（408 高频）} $n_0 = n_2 + 1$。\\
     证明：由 $n = n_0+n_1+n_2$，且边数 $= n-1 = n_1 + 2n_2$（每个度为 $k$ 的结点贡献 $k$ 条边指向孩子）。联立得 $n_0 = n_2+1$。
     \item 第 $i$ 层上最多有 $2^{i-1}$ 个结点（$i\geqslant 1$）。
     \item 高度为 $h$ 的二叉树最多有 $2^h-1$ 个结点。
@@ -145,27 +145,27 @@ $n$ 个结点的二叉链表共有 $2n$ 个指针域，其中 $n-1$ 个指向孩
 // 先序遍历：根 $\to$ 左 $\to$ 右
 void PreOrder(BiTree T) {
     if (T) {
-        visit(T);              // ① 访问根
-        PreOrder(T->lchild);   // ② 遍历左子树
-        PreOrder(T->rchild);   // ③ 遍历右子树
+        visit(T);              // （1） 访问根
+        PreOrder(T->lchild);   // （2） 遍历左子树
+        PreOrder(T->rchild);   // （3） 遍历右子树
     }
 }
 
 // 中序遍历：左 $\to$ 根 $\to$ 右
 void InOrder(BiTree T) {
     if (T) {
-        InOrder(T->lchild);    // ① 遍历左子树
-        visit(T);              // ② 访问根
-        InOrder(T->rchild);    // ③ 遍历右子树
+        InOrder(T->lchild);    // （1） 遍历左子树
+        visit(T);              // （2） 访问根
+        InOrder(T->rchild);    // （3） 遍历右子树
     }
 }
 
 // 后序遍历：左 $\to$ 右 $\to$ 根
 void PostOrder(BiTree T) {
     if (T) {
-        PostOrder(T->lchild);  // ① 遍历左子树
-        PostOrder(T->rchild);  // ② 遍历右子树
-        visit(T);              // ③ 访问根
+        PostOrder(T->lchild);  // （1） 遍历左子树
+        PostOrder(T->rchild);  // （2） 遍历右子树
+        visit(T);              // （3） 访问根
     }
 }
 \end{lstlisting}
@@ -268,7 +268,7 @@ void LevelOrder(BiTree T) {
 \subsection{遍历序列构造二叉树}
 
 \begin{conclusion}{由遍历序列构造二叉树}{construct-from-traversal}
-\textbf{核心定理（408 必考）：} 已知\textbf{中序序列 + 先序序列} 或 \textbf{中序序列 + 后序序列}，可唯一确定一棵二叉树。\textbf{已知先序 + 后序无法唯一确定二叉树}（除非是完全二叉树等特殊情形）。
+\textbf{核心定理（408 高频）：} 已知\textbf{中序序列 + 先序序列} 或 \textbf{中序序列 + 后序序列}，可唯一确定一棵二叉树。\textbf{已知先序 + 后序无法唯一确定二叉树}（除非另有能够消除歧义的结构条件）。
 
 \textbf{构造方法}（已知先序 + 中序）：
 \begin{enumerate}
@@ -331,17 +331,17 @@ ThreadNode *pre = NULL;  // 全局变量，记录前一个访问结点
 
 void InThread(ThreadTree T) {
     if (T) {
-        InThread(T->lchild);            // ① 线索化左子树
-        if (!T->lchild) {               // ② 处理当前结点
+        InThread(T->lchild);            // （1） 线索化左子树
+        if (!T->lchild) {               // （2） 处理当前结点
             T->lchild = pre;
             T->ltag = 1;
         }
-        if (pre && !pre->rchild) {      // ③ 处理前驱的右线索
+        if (pre && !pre->rchild) {      // （3） 处理前驱的右线索
             pre->rchild = T;
             pre->rtag = 1;
         }
-        pre = T;                        // ④ 更新 pre
-        InThread(T->rchild);            // ⑤ 线索化右子树
+        pre = T;                        // （4） 更新 pre
+        InThread(T->rchild);            // （5） 线索化右子树
     }
 }
 \end{lstlisting}
@@ -629,7 +629,7 @@ void Union(int x, int y) {
 
 \begin{enumerate}
 
-\item \textbf{（2010年·选择题·第3题）} 在一棵二叉树中，度为 2 的结点数为 5，度为 1 的结点数为 6，则叶子结点数为
+\item \textbf{（真题风格·选择题）} 在一棵二叉树中，度为 2 的结点数为 5，度为 1 的结点数为 6，则叶子结点数为
 \begin{center}
 \begin{tabular}{ll}
 (A) 5 & (B) 6 \\[6pt]
@@ -641,7 +641,7 @@ void Union(int x, int y) {
 
 \vspace{8pt}
 
-\item \textbf{（2011年·选择题·第5题）} 一棵完全二叉树共有 768 个结点，则该二叉树中叶子结点的个数为
+\item \textbf{（真题风格·选择题）} 一棵完全二叉树共有 768 个结点，则该二叉树中叶子结点的个数为
 \begin{center}
 \begin{tabular}{ll}
 (A) 383 & (B) 384 \\[6pt]
@@ -655,7 +655,7 @@ void Union(int x, int y) {
 
 \vspace{8pt}
 
-\item \textbf{（2012年·选择题·第3题）} 已知一棵二叉树的先序遍历序列为 \texttt{ABDECFG}，中序遍历序列为 \texttt{DBEAFCG}，则该二叉树的后序遍历序列为
+\item \textbf{（真题风格·选择题）} 已知一棵二叉树的先序遍历序列为 \texttt{ABDECFG}，中序遍历序列为 \texttt{DBEAFCG}，则该二叉树的后序遍历序列为
 \begin{center}
 \begin{tabular}{ll}
 (A) \texttt{DEBFGCA} & (B) \texttt{EDBFGCA} \\[6pt]
@@ -670,7 +670,7 @@ void Union(int x, int y) {
 
 \vspace{8pt}
 
-\item \textbf{（2015年·选择题·第4题）} 一棵非空二叉树的先序序列与后序序列正好相反，则该二叉树一定
+\item \textbf{（真题风格·选择题）} 一棵非空二叉树的先序序列与后序序列正好相反，则该二叉树一定
 \begin{center}
 \begin{tabular}{ll}
 (A) 所有结点无左孩子 & (B) 所有结点无右孩子 \\[6pt]
@@ -684,7 +684,7 @@ void Union(int x, int y) {
 
 \vspace{8pt}
 
-\item \textbf{（2018年·选择题·第5题）} 设给定的权值集合为 $\{2, 3, 4, 7, 8, 9\}$，构造 Huffman 树，则该树的带权路径长度 WPL 为
+\item \textbf{（真题风格·选择题）} 设给定的权值集合为 $\{2, 3, 4, 7, 8, 9\}$，构造 Huffman 树，则该树的带权路径长度 WPL 为
 \begin{center}
 \begin{tabular}{ll}
 (A) 80 & (B) 81 \\[6pt]
@@ -702,11 +702,11 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 
 \vspace{8pt}
 
-\item \textbf{（2020年·选择题·第6题）} 一组字符 $\{A,B,C,D,E\}$ 出现的频率分别为 $\{5,2,8,3,13\}$，对其进行 Huffman 编码，则字符 E 的编码是
+\item \textbf{（真题风格·选择题）} 一组字符 $\{A,B,C,D,E\}$ 出现的频率分别为 $\{5,2,8,3,13\}$，对其进行 Huffman 编码，则字符 E 的编码长度是
 \begin{center}
 \begin{tabular}{ll}
-(A) 00 & (B) 01 \\[6pt]
-(C) 10 & (D) 11
+(A) 1 位 & (B) 2 位 \\[6pt]
+(C) 3 位 & (D) 4 位
 \end{tabular}
 \end{center}
 
@@ -715,11 +715,11 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 (2) $5+5=10$（A与B,D合并）；集合 $\{8(C), 10, 13(E)\}$；
 (3) $8+10=18$；集合 $\{13(E), 18\}$；
 (4) $13+18=31$。
-树的结构：E 在最后一层最右侧（权值最大，离根最近），可能的编码为 0 或 1（1位）。由于 E 权值最大，编码通常最短（1 位），对应选项中的 1 位码。C 权值次大（8），需具体根据左右分支约定判断。此处 E 最靠近根，其编码为 \texttt{0} 或 \texttt{1}。查阅原题选项，E 的编码为 \texttt{11}（E 位于右子且路径最短的情况）。\boxed{\textbf{答案：}(D)}\fi
+最后一次合并时 E 是根的一个孩子，故其编码长度为 1。左右分支的 0/1 约定只会改变具体码字，不会改变码长。\boxed{\textbf{答案：}(A)}\fi
 
 \vspace{8pt}
 
-\item \textbf{（2023年·选择题·第5题）} 已知一棵二叉树的先序遍历序列为 \texttt{ABDFEC}，中序遍历序列为 \texttt{BFDAEC}，则该二叉树的后序遍历序列为
+\item \textbf{（真题风格·选择题）} 已知一棵二叉树的先序遍历序列为 \texttt{ABDFEC}，中序遍历序列为 \texttt{BFDAEC}，则该二叉树的后序遍历序列为
 \begin{center}
 \begin{tabular}{ll}
 (A) \texttt{FDBECA} & (B) \texttt{BFDECA} \\[6pt]
@@ -728,16 +728,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} 先序首元 A 为根，中序中 A 前为左子树 \texttt{BFD}，后为右子树 \texttt{EC}。
-左子树先序 \texttt{BDF}，中序 \texttt{BFD}：B 为根，左 B 无(F 在右)，右为 D。F 在 D 的左子树？看中序 \texttt{BFD}，B 后是 F（左孩子），F 后是 D（F 的右孩子或 B 的右孩子）。先序 \texttt{BDF} 中 B 后是 D（右孩子）。所以 B 左 F，右 D。但中序是 B F D，若 B 左 F，右 D，中序应为 F B D。不对。重新分析。
-
-左子树中序 \texttt{BFD}，先序 \texttt{BDF}。
-先序首元 B（根），中序：B 前是空的（无左子树），B 后是 \texttt{FD}（右子树）。
-右子树先序 \texttt{DF}，中序 \texttt{FD}：D 为根，D 左 F。所以 B 右 D，D 左 F。
-
-右子树中序 \texttt{EC}，先序 \texttt{EC}。E 为根，E 后 \texttt{C} 是中序中 E 后的部分，若 E 右 C 则中序 E C，对得上。
-
-树：A 左 B，右 E。B 右 D，D 左 F。E 右 C。
-后序：FDBECA。\boxed{\textbf{答案：}(A)}\fi
+左子树的先序为 \texttt{BDF}、中序为 \texttt{BFD}：B 无左子树，其右子树的根为 D；D 的左孩子为 F。右子树的先序和中序均为 \texttt{EC}：E 无左孩子，右孩子为 C。因此左、右子树的后序分别为 \texttt{FDB}、\texttt{CE}，整棵树的后序为 \texttt{FDBECA}。\boxed{\textbf{答案：}(A)}\fi
 
 \end{enumerate}
 
@@ -745,24 +736,21 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 
 \begin{enumerate}[resume]
 
-\item \textbf{（2014年·选择题·第5题）} 下列关于线索二叉树的叙述中，正确的是
+\item \textbf{（真题风格·选择题）} 下列关于线索二叉树的叙述中，正确的是
 \begin{center}
-\begin{tabular}{ll}
-(A) 先序线索二叉树中，任意结点都可以直接找到其先序后继 \\
-(B) 中序线索二叉树中，非叶子结点若有右线索，则其右线索指向其后继 \\
-(C) 后序线索二叉树中，任意结点都可以直接找到其后序后继 \\
-(D) 线索二叉树是指二叉树中所有空指针都用作线索
-\end{tabular}
+\begin{tabularx}{0.96\linewidth}{@{}X@{}}
+(A) 先序线索二叉树中，任意结点都可在不知道双亲的情况下直接找到其先序前驱 \\[4pt]
+(B) 中序线索二叉树中，若某结点的 \texttt{rtag=1}，则其右指针指向中序后继 \\[4pt]
+(C) 后序线索二叉树中，任意结点都可在不知道双亲的情况下直接找到其后序后继 \\[4pt]
+(D) 只有叶结点的空指针域才可以改作线索
+\end{tabularx}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} (A) 错——先序线索树中，若结点有左孩子，其先序后继为左孩子（可找到）；若只有右孩子，其后继为右孩子；若结点是叶子但有右线索，可由线索找到。但「任意结点」的说法绝对化：找先序前驱需要知道双亲。
-(B) 错——右孩子 $\neq$ 后继。若 \texttt{rtag=0}（非线索），则右孩子并非中序后继。当 \texttt{rtag=1} 时，右指针才是线索，指向中序后继。
-(C) 错——后序线索中找后继一般需知道双亲（需三叉链表）。
-(D) \textbf{正确。} 线索二叉树的定义正是将 $n+1$ 个空指针域改造为线索。\boxed{\textbf{答案：}(D)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错，先序前驱一般需要双亲信息，不能仅靠当前结点的线索确定。(B) 正确，\texttt{rtag=1} 明确表示右指针域是线索，在线索化的中序序列中指向该结点的直接后继。(C) 错，后序后继常涉及双亲，二叉链式结构中不能保证直接找到。(D) 错，任何结点的空指针域都可按遍历次序改作前驱或后继线索，并非仅限叶结点。\boxed{\textbf{答案：}(B)}\fi
 
 \vspace{8pt}
 
-\item \textbf{（2022年·选择题·第6题）} 在中序线索二叉树中，指针 \texttt{p} 指向某结点且 \texttt{p->rtag == 0}，则 \texttt{p} 的直接中序后继是
+\item \textbf{（真题风格·选择题）} 在中序线索二叉树中，指针 \texttt{p} 指向某结点且 \texttt{p->rtag == 0}，则 \texttt{p} 的直接中序后继是
 \begin{center}
 \begin{tabular}{ll}
 (A) \texttt{p->rchild} \\
@@ -776,7 +764,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 
 \vspace{8pt}
 
-\item \textbf{（2017年·选择题·第6题）} 设森林 $F$ 对应的二叉树为 $B$，它有 $m$ 个结点，$B$ 的根为 $p$，$p$ 的右子树结点数为 $n$，则森林 $F$ 中第一棵树的结点个数是
+\item \textbf{（真题风格·选择题）} 设森林 $F$ 对应的二叉树为 $B$，它有 $m$ 个结点，$B$ 的根为 $p$，$p$ 的右子树结点数为 $n$，则森林 $F$ 中第一棵树的结点个数是
 \begin{center}
 \begin{tabular}{ll}
 (A) $m-n$ & (B) $m-n-1$ \\[6pt]
@@ -789,19 +777,19 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 
 \vspace{8pt}
 
-\item \textbf{（2024年·选择题·第6题）} 已知一棵二叉树的先序序列为 $a,b,c,d$，中序序列为 $b,a,d,c$，则下列说法正确的是
+\item \textbf{（真题风格·选择题）} 已知一棵二叉树的先序序列为 $a,b,c,d$，中序序列为 $b,a,d,c$，则下列说法正确的是
 \begin{center}
 \begin{tabular}{ll}
 (A) 该二叉树是满二叉树 \\
 (B) 该二叉树的结点 $b$ 和结点 $d$ 在同一层 \\
-(C) 该二叉树中结点 $a$ 有左右两个孩子 \\
+(C) 该二叉树中结点 $a$ 只有左孩子 \\
 (D) 该二叉树的后序序列为 $b,d,c,a$
 \end{tabular}
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} 先序首元 $a$ 为根，中序 $a$ 前 \texttt{b} 为左子树（1结点），后 \texttt{d,c} 为右子树。
 右子树先序 \texttt{cd}，中序 \texttt{dc}：c 为根，d 为 c 的左孩子。树：a 左 b，右 c；c 左 d。
-后序 = b,d,c,a。(A) 不是满二叉树（c层不满）；(B) b 在第2层，d 在第3层；(C) a 确有左右两个孩子（b和c）；(D) 后序 \texttt{b,d,c,a} 正确。原题问"正确的是"——D 正确，且 C 也正确。查原题，选项为 C 正确。
+后序为 \texttt{b,d,c,a}。(A) 错，结点 c 只有左孩子，不是满二叉树；(B) 错，b 在第 2 层，d 在第 3 层；(C) 错，a 同时有左孩子 b 和右孩子 c；(D) 正确。
 \boxed{\textbf{答案：}(D)}\fi
 
 \vspace{8pt}
@@ -854,7 +842,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 - $25+30=55$，集合 $\{45,55\}$
 - $45+55=100$
 
-WPL = 所有内部结点权值之和 $= 15+15+30+45+55+100 = 260$（对应原始频率，需还原比例：$260/100 \times 1.0 = 2.60$，即 $\sum w_i l_i$）。或者直接计算：
+WPL = 所有内部结点权值之和 $= 15+30+45+55+100 = 245$（对应原始频率，需还原比例：$245/100 = 2.45$，即 $\sum w_i l_i$）。或者直接计算：
 A(0.05, 路径长4): $0.05\times4=0.20$
 B(0.10, 路径长4): $0.10\times4=0.40$
 C(0.15, 路径长3): $0.15\times3=0.45$
@@ -863,8 +851,9 @@ E(0.25, 路径长2): $0.25\times2=0.50$
 F(0.25, 路径长2): $0.25\times2=0.50$
 WPL $= 0.20+0.40+0.45+0.40+0.50+0.50 = 2.45$
 
-(2) 编码（基于约定 左0右1）：
-A: 0100, B: 0101, C: 011, D: 00, E: 10, F: 11
+(2) 一组与上述合并过程一致的编码（约定左分支为 0、右分支为 1）为：
+A: 1110, B: 1111, C: 110, D: 00, E: 01, F: 10。
+等权叶子或等权子树交换左右位置时，具体码字可以不同，但各字符的码长和 WPL 不变。
 
 (3) WPL = 2.45（见过程）。
 
@@ -874,10 +863,17 @@ A: 0100, B: 0101, C: 011, D: 00, E: 10, F: 11
 - $20+25=45$，$\{30,40,45\}$
 - $30+40=70$，$\{45,70\}$
 - $45+70=115$
-重新计算：A(0.05,次4): 0.20; B(0.10,次4): 0.40; C(0.15,次3): 0.45; D(0.20,次3): 0.60; E(0.25,次2): 0.50; F(0.40,次1): 0.40。WPL = 2.55 > 2.45。
 
-原因：F 权值极端增大后，整体 WPL 略有上升——虽然 F 本身的路径变短，但其他中等权值的字符（D、E）路径加长，综合效应使 WPL 增大。Huffman 树对权值分布不均匀时，小权值字符的深度增加更多。
-\boxed{\textbf{答案：}(1)\text{见上};\;(2)\;\text{A:0100, B:0101, C:011, D:00, E:10, F:11};\;(3)\;\text{WPL}=2.45;\;(4)\;\text{WPL}=2.55}\fi
+由这棵树得到的码长为 A、B 各 4 位，C 为 3 位，D、E、F 各 2 位。因此
+\[
+\mathrm{WPL}=0.05\times4+0.10\times4+0.15\times3
+ +0.20\times2+0.25\times2+0.40\times2=2.75.
+\]
+也可由内部结点权值和验证：$(15+30+45+70+115)/100=2.75$。
+
+这里把 F 的频率单独改为 0.40 后，六个给定数之和变为 1.15，因而它们应理解为相对频数而非已经归一化的概率。未归一化 WPL 从 2.45 增至 2.75；若比较平均码长，则新平均码长为 $2.75/1.15\approx2.39$ 位，反而略低于原来的 2.45 位，这是高频字符获得较短码字的结果。
+
+\textbf{答案：}(1) 见上述合并过程；(2) 一组可行编码为 A:1110，B:1111，C:110，D:00，E:01，F:10；(3) WPL 为 2.45；(4) 未归一化 WPL 为 2.75，归一化平均码长约为 2.39 位。\fi
 
 \end{enumerate}
 

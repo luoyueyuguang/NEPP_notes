@@ -282,18 +282,19 @@ int QueueLength(SqQueue Q) {
 
 \begin{tablebox}{判空/判满的三种策略}
 \centering
-\begin{tabular}{|c|c|c|}
+\small
+\begin{tabularx}{\linewidth}{|p{3.4cm}|X|X|}
 \hline
 策略 & 判空 & 判满 \\
 \hline
-\textbf{① 牺牲一个单元} & \texttt{front == rear} & \texttt{(rear+1)\%MaxSize == front} \\
-\textbf{② 增设长度计数} & \texttt{len == 0} & \texttt{len == MaxSize} \\
-\textbf{③ 增设 tag 标记} & \texttt{front==rear \&\& tag==0} & \texttt{front==rear \&\& tag==1} \\
+\textbf{（1） 牺牲一个单元} & \texttt{front == rear} & \texttt{(rear+1)\%MaxSize == front} \\
+\textbf{（2） 增设长度计数} & \texttt{len == 0} & \texttt{len == MaxSize} \\
+\textbf{（3） 增设 tag 标记} & \texttt{front==rear \&\& tag==0} & \texttt{front==rear \&\& tag==1} \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{tablebox}
 
-策略①是 408 最常用写法，代价是数组有效容量为 $\text{MaxSize}-1$。策略②和③可以充分利用所有单元，但需要额外维护计数器或标记位。tag 标记在每次入队操作时置 1，出队操作时置 0。
+策略（1）是 408 最常用写法，代价是数组有效容量为 $\text{MaxSize}-1$。策略（2）和（3）可以充分利用所有单元，但需要额外维护计数器或标记位。tag 标记在每次入队操作时置 1，出队操作时置 0。
 
 \textbf{注意：} 若定义 \texttt{rear} 指向队尾元素（而非下一空位），则需相应调整初始值、入队/出队的顺序和判空/判满条件——408 选择题务必仔细审题。
 \end{conclusion}
@@ -372,6 +373,30 @@ bool DeQueue(LinkQueue *Q, ElemType *e) {
 
 \begin{attention}
 408 对双端队列的考察通常为选择题：给定输入序列（如 $1,2,3,4$），判断某种双端队列能产生/不能产生哪种输出序列。解题关键——在纸上模拟两端操作的可能性，标记出受限端的操作能力。
+\end{attention}
+
+\subsection{数组与特殊矩阵的压缩存储}
+
+\begin{conclusion}{数组的地址计算}{array-address}
+设二维数组 $A[m][n]$ 的每个元素占 $L$ 字节，首元素地址为 $\operatorname{LOC}(A[0][0])$。
+\begin{itemize}
+    \item \textbf{按行优先：}$\operatorname{LOC}(A[i][j])=\operatorname{LOC}(A[0][0])+(i\cdot n+j)L$；
+    \item \textbf{按列优先：}$\operatorname{LOC}(A[i][j])=\operatorname{LOC}(A[0][0])+(j\cdot m+i)L$。
+\end{itemize}
+若题目下标从 1 开始，必须先把 $i,j$ 分别减 1；若给出了各维下界，也要先减去对应下界。
+\end{conclusion}
+
+\begin{conclusion}{特殊矩阵的压缩存储}{matrix-compression}
+\begin{itemize}
+    \item \textbf{对称矩阵：}只存上三角或下三角，共 $n(n+1)/2$ 个元素。按行存下三角（含主对角线）、下标从 0 开始时，$i\geqslant j$ 的元素映射为 $k=i(i+1)/2+j$；访问上三角元素 $A[i][j]$ 时改取 $A[j][i]$。
+    \item \textbf{三角矩阵：}只存一个三角区和一个公共常量，共 $n(n+1)/2+1$ 个存储单元。
+    \item \textbf{三对角矩阵：}只有主对角线及其上下相邻对角线可能非零，共 $3n-2$ 个非零位置。
+    \item \textbf{稀疏矩阵：}非零元素很少时可用三元组 $(i,j,v)$ 表或十字链表，存储量与非零元素个数 $t$ 相关，而不是固定为 $n^2$。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+矩阵压缩题必须先确认：下标从 0 还是 1 开始、存上三角还是下三角、按行还是按列、主对角线是否包含在内。公式不能跨约定直接套用。
 \end{attention}
 
 \subsection{栈的应用}
@@ -550,7 +575,7 @@ int Factorial(int n) {
 
 \subsection{队列的应用}
 
-\begin{conclusion}{层次遍历（BFS）}{level-order}
+\begin{conclusion}{层次遍历（BFS）}{graph-level-order}
 队列是实现\textbf{广度优先遍历}（BFS, Breadth-First Search）的核心数据结构。
 
 以二叉树的层次遍历为例（详细见第 4 章）：
@@ -644,7 +669,7 @@ void LevelOrder(BiTree T) {
 
 \begin{enumerate}
 
-\item \textbf{（2009年·单选·2）} 设栈S的初始状态为空，入栈序列为$1,2,3,\ldots,n$，若出栈序列的第一个元素是$k$（$1\leqslant k\leqslant n$），则以下说法正确的是
+\item \textbf{（真题风格·选择题）} 设栈S的初始状态为空，入栈序列为$1,2,3,\ldots,n$，若出栈序列的第一个元素是$k$（$1\leqslant k\leqslant n$），则以下说法正确的是
 \begin{center}
 \begin{tabular}{ll}
 (A) 此时元素$1,2,\ldots,k-1$必定全部在栈中，且$1$在栈底 \\
@@ -654,7 +679,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\item \textbf{（2010年·单选·1）} 设循环队列的存储空间为$Q[0..m-1]$，\texttt{front}指向队头元素，\texttt{rear}指向队尾元素的下一位置。则元素入队时\texttt{rear}的变化为
+\item \textbf{（真题风格·选择题）} 设循环队列的存储空间为$Q[0..m-1]$，\texttt{front}指向队头元素，\texttt{rear}指向队尾元素的下一位置。则元素入队时\texttt{rear}的变化为
 \begin{center}
 \begin{tabular}{ll}
 (A) \texttt{rear = rear + 1} & (B) \texttt{rear = (rear + 1) \% (m - 1)} \\[6pt]
@@ -662,7 +687,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\item \textbf{（2012年·单选·2）} 中缀表达式$A+B*(C-D)-E/F$对应的后缀表达式是
+\item \textbf{（真题风格·选择题）} 中缀表达式$A+B*(C-D)-E/F$对应的后缀表达式是
 \begin{center}
 \begin{tabular}{ll}
 (A) $ABCD-*+EF/-$ & (B) $AB+CD-*EF/-$ \\[6pt]
@@ -670,7 +695,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\item \textbf{（2023年·单选·1）} 对后缀表达式$ab+c*d-ef+/$进行求值（设$a,b,c,d,e,f$均为操作数），在从左到右扫描求值的过程中，操作数栈中元素个数的最大值为
+\item \textbf{（真题风格·选择题）} 对后缀表达式$ab+c*d-ef+/$进行求值（设$a,b,c,d,e,f$均为操作数），在从左到右扫描求值的过程中，操作数栈中元素个数的最大值为
 \begin{center}
 \begin{tabular}{ll}
 (A) 2 & (B) 3 \\[6pt]
@@ -678,7 +703,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\item \textbf{（2018年·单选·2）} 设用数组$A[0..n-1]$实现两个栈共享存储空间的共享栈。栈1的栈底在$A[0]$处，从低地址向高地址增长；栈2的栈底在$A[n-1]$处，从高地址向低地址增长。\texttt{top1}指向栈1的栈顶元素，\texttt{top2}指向栈2的栈顶元素。则栈满的条件是
+\item \textbf{（真题风格·选择题）} 设用数组$A[0..n-1]$实现两个栈共享存储空间的共享栈。栈1的栈底在$A[0]$处，从低地址向高地址增长；栈2的栈底在$A[n-1]$处，从高地址向低地址增长。\texttt{top1}指向栈1的栈顶元素，\texttt{top2}指向栈2的栈顶元素。则栈满的条件是
 \begin{center}
 \begin{tabular}{ll}
 (A) $\texttt{top1} + \texttt{top2} = n$ & (B) $\texttt{top1} + 1 = \texttt{top2}$ \\[6pt]
@@ -686,7 +711,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\item \textbf{（2014年·单选·1）} 设循环队列的存储空间为$Q[0..m-1]$，\texttt{front}指向队头元素，\texttt{rear}指向队尾元素的下一位置。在采用「牺牲一个存储单元」判满策略时，队列为空的判定条件是
+\item \textbf{（真题风格·选择题）} 设循环队列的存储空间为$Q[0..m-1]$，\texttt{front}指向队头元素，\texttt{rear}指向队尾元素的下一位置。在采用「牺牲一个存储单元」判满策略时，队列为空的判定条件是
 \begin{center}
 \begin{tabular}{ll}
 (A) $\texttt{front} = \texttt{rear}$ & (B) $(\texttt{rear}+1) \bmod m = \texttt{front}$ \\[6pt]
@@ -694,13 +719,21 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
+\item \textbf{（基础题）} 一个 $6\times8$ 的二维数组按行优先存储，每个元素占 4 B，$A[0][0]$ 的地址为 1000，则 $A[3][5]$ 的地址是多少？
+
+\ifshowsolutions\par\noindent\textbf{答案：}$1000+(3\times8+5)\times4=1116$。\fi
+
+\item \textbf{（基础题）} 一个 $n$ 阶三对角矩阵按行压缩存储，可能的非零元素最多有多少个？
+
+\ifshowsolutions\par\noindent\textbf{答案：}第一行和最后一行各 2 个，中间 $n-2$ 行各 3 个，共 $2+3(n-2)+2=3n-2$。\fi
+
 \end{enumerate}
 
 \subsection{综合训练}
 
 \begin{enumerate}[resume]
 
-\item \textbf{（2019年·单选·3）} 以下算法中，需要使用队列作为辅助数据结构的是
+\item \textbf{（真题风格·选择题）} 以下算法中，需要使用队列作为辅助数据结构的是
 \begin{center}
 \begin{tabular}{ll}
 (A) 二叉树的先序遍历 & (B) 二叉树的层次遍历 \\[6pt]

@@ -21,7 +21,7 @@
 \usepackage{fontspec}
 \usepackage{tabularx}
 \usepackage{multirow}
-\usepackage[fontsize=13.5pt]{fontsize}
+\usepackage[fontsize=11pt]{fontsize}
 \hypersetup{
 	colorlinks=true,
 	linkcolor=blue
@@ -83,6 +83,9 @@
 \geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
 \setlength{\parindent}{2em}
 \setlength{\parskip}{0.5em}
+% 给中英文混排段落保留少量伸缩空间，避免长术语或行内公式越出版心。
+% 宽表格和长公式仍需在各章节中单独处理，不能依赖此设置掩盖。
+\setlength{\emergencystretch}{3em}
 
 \ctexset{
 	section={
@@ -190,5 +193,8 @@
 \input{exams.tex}
 
 \part{附录}
-\input{appendix-exams.tex}
+% appendix-exams.tex contains an unverified historical-question index.  It is
+% intentionally excluded until every year/number is checked against the
+% original examination papers.
+\input{appendix-audit.tex}
 \end{document}

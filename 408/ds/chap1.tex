@@ -168,7 +168,7 @@ typedef struct LNode {
 \draw[->] (0.3,0.8) -- (H);
 \end{tikzpicture}
 \end{center}
-\textbf{注意：} 408 真题中也有不带头结点的题目，务必看清题设。
+\textbf{注意：} 题目既可能采用带头结点的链表，也可能采用不带头结点的链表，务必以题设为准。
 \end{conclusion}
 
 \subsubsection{单链表的基本操作}
@@ -182,8 +182,8 @@ LinkList CreateListHead(int n) {
     for (int i = 0; i < n; i++) {
         LNode *s = (LNode*)malloc(sizeof(LNode));
         scanf("%d", &s->data);
-        s->next = L->next;              // ① s 后继 = 原首元
-        L->next = s;                    // ② 头$\to$s
+        s->next = L->next;              // （1） s 后继 = 原首元
+        L->next = s;                    // （2） 头$\to$s
     }
     return L;
 }
@@ -235,12 +235,12 @@ bool ListInsert(LinkList L, int i, ElemType e) {
     if (!p) return false;
     LNode *s = (LNode*)malloc(sizeof(LNode));
     s->data = e;
-    s->next = p->next;                // ① 新结点先接后继
-    p->next = s;                      // ② 前驱再接新结点
+    s->next = p->next;                // （1） 新结点先接后继
+    p->next = s;                      // （2） 前驱再接新结点
     return true;
 }
 \end{lstlisting}
-\textbf{关键：} 语句①②的顺序不能颠倒！若先执行 \texttt{p->next = s}，则原后继链丢失。时间复杂度：查找 $O(n)$，插入本身 $O(1)$。
+\textbf{关键：} 语句（1）（2）的顺序不能颠倒！若先执行 \texttt{p->next = s}，则原后继链丢失。时间复杂度：查找 $O(n)$，插入本身 $O(1)$。
 \end{conclusion}
 
 \begin{conclusion}{单链表删除操作}{linked-list-delete}
@@ -278,12 +278,12 @@ typedef struct DNode {
 \begin{conclusion}{双链表的插入操作}{dlink-insert}
 在结点 \texttt{p} 之后插入新结点 \texttt{s}：
 \begin{lstlisting}[language=C]
-s->next = p->next;                   // ① s接p的后继
-s->prior = p;                        // ② s接p
-if (p->next) p->next->prior = s;     // ③ p后继的前驱指向s
-p->next = s;                         // ④ p接s
+s->next = p->next;                   // （1） s接p的后继
+s->prior = p;                        // （2） s接p
+if (p->next) p->next->prior = s;     // （3） p后继的前驱指向s
+p->next = s;                         // （4） p接s
 \end{lstlisting}
-四条语句缺一不可，且顺序有讲究：先建立 s 的两个指针，再修改原链中指向 s 的两个指针。若 p 为尾结点则跳过③。
+四条语句缺一不可，且顺序有讲究：先建立 s 的两个指针，再修改原链中指向 s 的两个指针。若 p 为尾结点则跳过（3）。
 \end{conclusion}
 
 \begin{conclusion}{双链表的删除操作}{dlink-delete}
@@ -379,7 +379,7 @@ typedef struct {
 
 \ifshowsolutions\par\noindent\textbf{解析：} 插入结点时必须先让新结点 \texttt{s} 指向原后继 \texttt{p->next}，再修改 \texttt{p} 的指针域指向 \texttt{s}。若顺序颠倒（先执行 \texttt{p->next = s}），则原后继链丢失，无法再找到。故 (A) 正确。(B) 先断链导致丢失后继；(C) 是插在 \texttt{p} 之前而非之后；(D) 逻辑错误。\boxed{\textbf{答案：}(A)}\fi
 
-\item \textbf{（算法设计·2019年·综合题·第41题）} 设单链表的结点结构为 \texttt{[data | next]}，头指针为 \texttt{L}（带头结点）。编写算法，将链表就地逆置，即辅助空间复杂度为 $O(1)$。分析算法的时间复杂度与空间复杂度。
+\item \textbf{（真题风格·综合题）} 设单链表的结点结构为 \texttt{[data | next]}，头指针为 \texttt{L}（带头结点）。编写算法，将链表就地逆置，即辅助空间复杂度为 $O(1)$。分析算法的时间复杂度与空间复杂度。
 
 \ifshowsolutions\par\noindent\textbf{解析：}
 采用头插法思想：将头结点与后续结点断开，然后依次将每个数据结点以头插法重新插入到头结点之后。
@@ -401,10 +401,10 @@ void Reverse(LinkList L) {
 \textbf{时间复杂度：} $O(n)$，遍历链表一次。\\
 \textbf{空间复杂度：} $O(1)$，仅使用常数个辅助指针。
 
-\textbf{关键点：} ① 先断开 \texttt{L->next = NULL}，避免形成环；② \texttt{q} 暂存后继是必需的，否则修改 \texttt{p->next} 后无法找到下一个结点；③ 头插法保证逆序结果。
+\textbf{关键点：} （1） 先断开 \texttt{L->next = NULL}，避免形成环；（2） \texttt{q} 暂存后继是必需的，否则修改 \texttt{p->next} 后无法找到下一个结点；（3） 头插法保证逆序结果。
 \fi
 
-\item \textbf{（算法设计·2009年·综合题·第42题）} 已知一个带有头结点的单链表，结点结构为 \texttt{[data | next]}。假设该链表只给出了头指针 \texttt{L}。在不改变链表的前提下，设计一个尽可能高效的算法，查找链表中倒数第 $k$（$k$ 为正整数）个位置上的结点。若查找成功，算法输出该结点的 \texttt{data} 值并返回 1；否则只返回 0。
+\item \textbf{（真题风格·综合题）} 已知一个带有头结点的单链表，结点结构为 \texttt{[data | next]}。假设该链表只给出了头指针 \texttt{L}。在不改变链表的前提下，设计一个尽可能高效的算法，查找链表中倒数第 $k$（$k$ 为正整数）个位置上的结点。若查找成功，算法输出该结点的 \texttt{data} 值并返回 1；否则只返回 0。
 
 \ifshowsolutions\par\noindent\textbf{解析：}
 采用双指针（快慢指针）法，一趟扫描完成：
@@ -435,7 +435,7 @@ int SearchKthFromEnd(LinkList L, int k) {
 \textbf{思想：} 维护两个指针，间距为 $k$。当快指针走到表尾时，慢指针恰好指向倒数第 $k$ 个结点。
 \fi
 
-\item \textbf{（算法设计·2022年·综合题·第41题）} 已知一个带头结点的单链表，结点结构为 \texttt{[data | next]}。设计一个算法，删除链表中所有数据值在区间 $[a,b]$ 内的结点（$a \leqslant b$），并分析算法的时间复杂度。
+\item \textbf{（真题风格·综合题）} 已知一个带头结点的单链表，结点结构为 \texttt{[data | next]}。设计一个算法，删除链表中所有数据值在区间 $[a,b]$ 内的结点（$a \leqslant b$），并分析算法的时间复杂度。
 
 \ifshowsolutions\par\noindent\textbf{解析：}
 一趟遍历，维护前驱指针。由于单链表删除结点需要前驱，用 \texttt{p->next} 指向当前考察结点。
@@ -459,10 +459,10 @@ void DeleteRange(LinkList L, int a, int b) {
 \textbf{时间复杂度：} $O(n)$，遍历链表一次。\\
 \textbf{空间复杂度：} $O(1)$。
 
-\textbf{关键：} ① 用 \texttt{p->next} 考察结点，避免维护前驱的复杂性；② 删除时 \texttt{p} 不动（因为新的 \texttt{p->next} 可能也需删除），不删除时 \texttt{p} 才后移；③ 注意区间是否包含端点——408 真题中通常明确为闭区间 $[a,b]$。
+\textbf{关键：} （1） 用 \texttt{p->next} 考察结点，避免维护前驱的复杂性；（2） 删除时 \texttt{p} 不动（因为新的 \texttt{p->next} 可能也需删除），不删除时 \texttt{p} 才后移；（3） 注意区间是否包含端点，必须严格按题设处理开、闭区间。
 \fi
 
-\item \textbf{（算法设计·2012年·综合题·第42题）} 假定采用带头结点的单链表保存单词。当两个单词有相同的后缀时，可共享相同的后缀存储空间。设 \texttt{str1} 和 \texttt{str2} 分别指向两个单词所在单链表的头结点，链表结点结构为 \texttt{[data | next]}。设计一个尽可能高效的算法，找出由 \texttt{str1} 和 \texttt{str2} 所指的两个链表共同后缀的起始位置。
+\item \textbf{（真题风格·综合题）} 假定采用带头结点的单链表保存单词。当两个单词有相同的后缀时，可共享相同的后缀存储空间。设 \texttt{str1} 和 \texttt{str2} 分别指向两个单词所在单链表的头结点，链表结点结构为 \texttt{[data | next]}。设计一个尽可能高效的算法，找出由 \texttt{str1} 和 \texttt{str2} 所指的两个链表共同后缀的起始位置。
 
 \ifshowsolutions\par\noindent\textbf{解析：}
 先计算两链表表长，将较长链表的指针先移动 $|len1-len2|$ 步，使两指针到表尾的距离相等；然后同步后移，第一个相同结点即为公共后缀起点。
@@ -502,7 +502,7 @@ LNode *FindCommonSuffix(LinkList str1, LinkList str2) {
 
 \begin{enumerate}[resume]
 
-\item \textbf{（2010年·综合题·第42题）} 设将 $n$（$n>1$）个整数存放到一维数组 $R$ 中。设计一个在时间和空间两方面都尽可能高效的算法，将 $R$ 中保存的序列循环左移 $p$（$0<p<n$）个位置，即将 $R$ 中的数据由 $(x_0,x_1,\ldots,x_{n-1})$ 变换为 $(x_p,x_{p+1},\ldots,x_{n-1},x_0,x_1,\ldots,x_{p-1})$。
+\item \textbf{（真题风格·综合题）} 设将 $n$（$n>1$）个整数存放到一维数组 $R$ 中。设计一个在时间和空间两方面都尽可能高效的算法，将 $R$ 中保存的序列循环左移 $p$（$0<p<n$）个位置，即将 $R$ 中的数据由 $(x_0,x_1,\ldots,x_{n-1})$ 变换为 $(x_p,x_{p+1},\ldots,x_{n-1},x_0,x_1,\ldots,x_{p-1})$。
 
 \ifshowsolutions\par\noindent\textbf{解析：}
 核心思想：三次逆置。
@@ -536,7 +536,7 @@ void LeftShift(int R[], int n, int p) {
 \textbf{关键：} 三次逆置法是本题最优解，比逐位移动（$O(np)$）和辅助数组（$O(n)$ 空间）都更优。
 \fi
 
-\item \textbf{（2011年·综合题·第42题）} 一个长度为 $L$（$L \geqslant 1$）的升序序列 $S$，处在第 $\lceil L/2 \rceil$ 个位置的数称为 $S$ 的中位数。例如，若序列 $S_1=(11,13,15,17,19)$，则 $S_1$ 的中位数是 15。两个序列的中位数是含它们所有元素的升序序列的中位数。例如，若 $S_2=(2,4,6,8,20)$，则 $S_1$ 和 $S_2$ 的中位数是 11。现有两个等长升序序列 $A$ 和 $B$，设计一个在时间和空间两方面都尽可能高效的算法，找出两个序列 $A$ 和 $B$ 的中位数。
+\item \textbf{（真题风格·综合题）} 一个长度为 $L$（$L \geqslant 1$）的升序序列 $S$，处在第 $\lceil L/2 \rceil$ 个位置的数称为 $S$ 的中位数。例如，若序列 $S_1=(11,13,15,17,19)$，则 $S_1$ 的中位数是 15。两个序列的中位数是含它们所有元素的升序序列的中位数。例如，若 $S_2=(2,4,6,8,20)$，则 $S_1$ 和 $S_2$ 的中位数是 11。现有两个等长升序序列 $A$ 和 $B$，设计一个在时间和空间两方面都尽可能高效的算法，找出两个序列 $A$ 和 $B$ 的中位数。
 
 \ifshowsolutions\par\noindent\textbf{解析：}
 采用二分法，每次从两个序列中各删除大约一半的元素，直到两个序列均只剩一个元素时取较小者。
@@ -572,7 +572,7 @@ int MidSearch(int A[], int B[], int n) {
 \textbf{注意：} 当区间长度为偶数时中位数取偏左位置，元素个数的奇偶性会影响舍弃边界，代码中用 \texttt{(s+d)\%2==0} 判断。
 \fi
 
-\item \textbf{（2013年·综合题·第41题）} 已知一个整数序列 $A=(a_0,a_1,\ldots,a_{n-1})$，其中 $0 \leqslant a_i < n$（$0 \leqslant i < n$）。若存在 $a_{p_1}=a_{p_2}=\cdots=a_{p_m}=x$ 且 $m > n/2$（$0 \leqslant p_k < n$，$1 \leqslant k \leqslant m$），则称 $x$ 为 $A$ 的\textbf{主元素}。例如 $A=(0,5,5,3,5,7,5,5)$，则 5 为主元素；又如 $A=(0,5,5,3,5,1,5,7)$，则 $A$ 中没有主元素。假设 $A$ 中的 $n$ 个元素保存在一个一维数组中，设计一个尽可能高效的算法，找出 $A$ 的主元素。若存在主元素，则输出该元素；否则输出 $-1$。
+\item \textbf{（真题风格·综合题）} 已知一个整数序列 $A=(a_0,a_1,\ldots,a_{n-1})$，其中 $0 \leqslant a_i < n$（$0 \leqslant i < n$）。若存在 $a_{p_1}=a_{p_2}=\cdots=a_{p_m}=x$ 且 $m > n/2$（$0 \leqslant p_k < n$，$1 \leqslant k \leqslant m$），则称 $x$ 为 $A$ 的\textbf{主元素}。例如 $A=(0,5,5,3,5,7,5,5)$，则 5 为主元素；又如 $A=(0,5,5,3,5,1,5,7)$，则 $A$ 中没有主元素。假设 $A$ 中的 $n$ 个元素保存在一个一维数组中，设计一个尽可能高效的算法，找出 $A$ 的主元素。若存在主元素，则输出该元素；否则输出 $-1$。
 
 \ifshowsolutions\par\noindent\textbf{解析：}
 使用摩尔投票算法（Moore's Voting Algorithm）：候选元素与计数器，一趟扫描确定候选，二趟扫描验证。
@@ -603,7 +603,7 @@ int Majority(int A[], int n) {
 \textbf{思想：} 两两抵消——若当前元素与候选相同则计数+1，不同则计数-1。计数归零时更换候选。若存在主元素，最终候选必为主元素（因为主元素出现次数超过半数，无法被完全抵消）。但最终候选不一定过半（如全部不同的序列），故需二趟验证。
 \fi
 
-\item \textbf{（2015年·综合题·第41题）} 用单链表保存 $m$ 个整数，结点的结构为 \texttt{[data][next]}，且 $\lvert \texttt{data} \rvert \leqslant n$（$n$ 为正整数）。设计一个时间复杂度尽可能高效的算法，对于链表中 \texttt{data} 的绝对值相等的结点，仅保留第一次出现的结点而删除其余绝对值相等的结点。
+\item \textbf{（真题风格·综合题）} 用单链表保存 $m$ 个整数，结点的结构为 \texttt{[data][next]}，且 $\lvert \texttt{data} \rvert \leqslant n$（$n$ 为正整数）。设计一个时间复杂度尽可能高效的算法，对于链表中 \texttt{data} 的绝对值相等的结点，仅保留第一次出现的结点而删除其余绝对值相等的结点。
 
 \ifshowsolutions\par\noindent\textbf{解析：}
 使用辅助数组标记已出现的绝对值，一趟扫描完成。
@@ -631,10 +631,10 @@ void DeleteAbsEqual(LinkList L, int n) {
 \textbf{时间复杂度：} $O(m)$，遍历链表一次。\\
 \textbf{空间复杂度：} $O(n)$，辅助数组大小取决于 \texttt{data} 的取值范围 $n$，而非链表长度。
 
-\textbf{关键：} ① 单链表删除结点需要知道前驱，用 \texttt{p->next} 指向当前考察结点，避免额外维护前驱指针；② 为什么是 $O(n)$ 空间？题目明确 $\lvert \texttt{data} \rvert \leqslant n$，辅助数组大小由 $n$ 决定。408 真题常故意用此考查「时间复杂度尽可能高效」与「空间换时间」的权衡。
+\textbf{关键：} （1） 单链表删除结点需要知道前驱，用 \texttt{p->next} 指向当前考察结点，避免额外维护前驱指针；（2） 为什么是 $O(n)$ 空间？题目明确 $\lvert \texttt{data} \rvert \leqslant n$，辅助数组大小由 $n$ 决定。408 真题常故意用此考查「时间复杂度尽可能高效」与「空间换时间」的权衡。
 \fi
 
-\item \textbf{（2018年·综合题·第41题）} 给定一个含 $n$（$n \geqslant 1$）个整数的数组，设计一个在时间上尽可能高效的算法，找出数组中未出现的最小正整数。例如，数组 $\{-5,3,2,3\}$ 未出现的最小正整数是 1；数组 $\{1,2,3\}$ 未出现的最小正整数是 4。
+\item \textbf{（真题风格·综合题）} 给定一个含 $n$（$n \geqslant 1$）个整数的数组，设计一个在时间上尽可能高效的算法，找出数组中未出现的最小正整数。例如，数组 $\{-5,3,2,3\}$ 未出现的最小正整数是 1；数组 $\{1,2,3\}$ 未出现的最小正整数是 4。
 
 \ifshowsolutions\par\noindent\textbf{解析：}
 核心思想：用原数组本身做哈希表——将每个在 $[1,n]$ 范围内的数放到下标对应的位置。
@@ -662,7 +662,7 @@ int FindMissMin(int A[], int n) {
 \textbf{思想：} 答案只可能在 $[1,n+1]$ 范围内（最坏情况 $1,2,\ldots,n$ 全部出现则答案为 $n+1$）。将每个在 $[1,n]$ 内的数 $x$ 交换到下标 $x-1$ 处，然后检查哪个位置不匹配。
 \fi
 
-\item \textbf{（2024年·综合题·第41题）} 已知一个带头结点的单链表，结点结构为 \texttt{[data | next]}。设计一个算法，将该链表按结点位置的奇偶性拆分为两个链表：位置为奇数的结点保持原顺序组成链表 $A$，位置为偶数的结点保持原顺序组成链表 $B$（结点编号从 1 开始计数，即首元结点为第 1 个结点）。
+\item \textbf{（真题风格·综合题）} 已知一个带头结点的单链表，结点结构为 \texttt{[data | next]}。设计一个算法，将该链表按结点位置的奇偶性拆分为两个链表：位置为奇数的结点保持原顺序组成链表 $A$，位置为偶数的结点保持原顺序组成链表 $B$（结点编号从 1 开始计数，即首元结点为第 1 个结点）。
 
 \ifshowsolutions\par\noindent\textbf{解析：}
 一趟遍历，用尾插法分别构建两个链表。

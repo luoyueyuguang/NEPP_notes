@@ -391,15 +391,15 @@ $i=0$（值为 4），调整：4 与 10 交换 $\to$ $\{10,4,3,5,1,2\}$；\\
 \end{conclusion}
 
 \begin{conclusion}{堆排序——完整算法}{heap-sort}
-堆排序分为两步：① 建初堆（$O(n)$）；② 反复输出堆顶，将堆尾元素移至堆顶后向下调整（$n-1$ 次，每次 $O(\log n)$）。
+堆排序分为两步：（1） 建初堆（$O(n)$）；（2） 反复输出堆顶，将堆尾元素移至堆顶后向下调整（$n-1$ 次，每次 $O(\log n)$）。
 
 \begin{lstlisting}[language=C]
 void HeapSort(int A[], int n) {
-    BuildMaxHeap(A, n);                  // ① 建大根堆
+    BuildMaxHeap(A, n);                  // （1） 建大根堆
     for (int i = n - 1; i > 0; i--) {
         // 交换堆顶和堆尾（当前未排序部分最后一个）
         int temp = A[0]; A[0] = A[i]; A[i] = temp;
-        HeapAdjust(A, 0, i);             // ② 调整剩余 i 个元素为新堆
+        HeapAdjust(A, 0, i);             // （2） 调整剩余 i 个元素为新堆
     }
 }
 \end{lstlisting}
