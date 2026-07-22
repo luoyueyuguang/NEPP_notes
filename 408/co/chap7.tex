@@ -207,7 +207,7 @@ CS:APP 分类 & 中断 & 故障（Fault）/陷阱（Trap）/终止（Abort）\\
     \item \textbf{获取中断向量}：根据中断类型号 $n$，从中断向量表中读出对应的中断服务程序入口地址（中断向量）。
     \item \textbf{转入中断服务程序}：将中断向量加载到 PC/IP 和 CS（或相应寄存器），CPU 开始执行 ISR 的第一条指令。
     \item \textbf{执行中断服务程序}：ISR 通常包含保护现场（PUSH 各寄存器）、中断处理核心逻辑、恢复现场（POP 各寄存器）。
-    \item \textbf{返回断点}：执行 IRET（中断返回指令），从堆栈中弹出 PSW 和 PC/IP，恢复原程序的执行，同时\textbf{开中断}（IF = 1）。
+    \item \textbf{返回断点}：执行 IRET（中断返回指令），从堆栈中弹出并恢复保存的 PSW 和 PC/IP；IF 按中断前保存的值恢复。若中断前 IF=1，返回后才重新允许可屏蔽中断，不能表述为 IRET 无条件将 IF 置 1。
 \end{enumerate}
 \end{conclusion}
 
@@ -411,16 +411,16 @@ CPU 与外设并行度 & 无 & 部分并行 & 高度并行 & 高度并行 \\
     \item \textbf{中断向量表}：向量表在内存低地址区（0--1023），每个向量占 4 字节（实模式 8086），地址 = 类型号 $\times$ 4。中断向量 = ISR 入口地址（$\neq$ 类型号）。
     \item \textbf{多重中断}：ISR 中开中断 + 优先级裁决 = 可实现嵌套。注意：保护现场前不能开中断。
     \item \textbf{DMA 三阶段}：预处理（CPU 初始化 DMAC 寄存器）$\to$ 数据传送（DMAC 控制，CPU 不参与）$\to$ 后处理（DMAC 发中断，CPU 检查结果）。
-    \item \textbf{DMA 与中断的区别}：DMA 只在数据块传送结束时发一次中断（vs 中断方式每个字都中断）；DMA 的数据不经过 CPU（vs 中断方式需经 CPU）；DMA 响应在指令执行周期结束后（vs 中断在每条指令执行结束后）。
-    \item \textbf{周期挪用}：DMAC 在 CPU 不使用总线时挪用总线周期进行数据传送，这是 DMA 实现高速传送的核心机制。
+    \item \textbf{DMA 与中断的区别}：在 408 的典型模型中，DMA 通常在数据块传送结束时才发一次中断（中断驱动 I/O 则常按字中断）；DMA 数据不经过 CPU 通用寄存器，也不由 CPU 指令逐字搬运；CPU 在\textbf{当前总线周期结束}的边界响应 DMA 总线请求，而可屏蔽中断通常在\textbf{当前指令周期结束}后响应。
+    \item \textbf{周期挪用}：DMAC 在需要时暂停 CPU 的一次或若干总线周期，取得总线并完成数据传送，造成 CPU 的访存停顿；这不等同于只使用 CPU 空闲总线周期的透明 DMA。
 \end{enumerate}
 \end{conclusion}
 
 \begin{attention}
 \textbf{常见易错点：}
 \begin{itemize}
-    \item DMA 方式中数据传送路径是「外设 $\leftrightarrow$ 内存」，\textbf{不经过 CPU}。不是「外设 $\leftrightarrow$ DMAC $\leftrightarrow$ 内存」——DMAC 只提供控制信号和地址，数据直接在外设与内存之间流动。
-    \item 中断响应周期中，CPU 完成当前指令后才会检查中断请求——也就是说，中断响应发生在\textbf{指令周期结束}时；而 DMA 请求的响应发生在\textbf{总线周期结束}时，DMA 可以在一条指令执行过程中（当 CPU 暂时不使用总线时）插入。
+    \item DMA 传送的逻辑端点是「外设 $\leftrightarrow$ 主存」，数据\textbf{不经过 CPU 通用寄存器}，CPU 也不执行逐字搬运指令。DMAC 负责地址、计数和总线控制；具体实现可以设置数据缓冲寄存器暂存一次传送的数据，因此不能绝对断言数据从不经过 DMAC 内部缓冲。
+    \item 中断响应周期中，CPU 通常完成当前指令后才检查可屏蔽中断请求，即在\textbf{指令周期结束}时响应；DMA 总线请求则在\textbf{当前总线周期结束}的边界响应，因而可能在一条指令尚未完成时取得后续总线周期。周期挪用还可能使 CPU 的后续访存等待，并不要求总线原本处于空闲状态。
     \item 通道与 DMA 的区别不在传送速度，而在于通道是一个\textbf{有指令系统的处理器}（可执行通道程序），DMA 只是一个\textbf{硬件控制器}。
     \item 对于「中断隐指令」——它实际上并不是一条真正的机器指令，而是 CPU 在中断响应周期中由硬件自动执行的一系列操作（保护断点、获取中断向量等），408 中可能以「不属于指令系统中的指令」来描述。
 \end{itemize}

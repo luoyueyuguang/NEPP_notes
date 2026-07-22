@@ -18,7 +18,7 @@
 \begin{itemize}
     \item \textbf{字符计数法}：帧首部包含帧中字符数。缺点：计数字段一旦出错，后续全部帧错位。
     \item \textbf{字符填充法（字节填充）}：用特殊字符标记帧边界，数据中出现的边界字符用转义字符 ESC 替换。
-    \item \textbf{零比特填充法（Bit Stuffing）}：帧边界标记为 \texttt{01111110}（6 个连续 1）。发送方每 5 个连续的 1 后插入 0，接收方每 5 个连续的 1 后删除 0。\textbf{HDLC 和 PPP 使用。}
+    \item \textbf{零比特填充法（Bit Stuffing）}：帧边界标记为 \texttt{01111110}（6 个连续 1）。发送方每 5 个连续的 1 后插入 0，接收方每 5 个连续的 1 后删除 0。\textbf{HDLC 和同步 PPP 使用；异步 PPP 通常使用字节填充/转义机制。}
     \item \textbf{违规编码法}：利用物理层的冗余编码（如曼彻斯特编码中非法跳变）。仅适用于物理层编码特殊的网络。
 \end{itemize}
 \end{conclusion}

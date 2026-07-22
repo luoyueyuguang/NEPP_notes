@@ -131,15 +131,15 @@ CR（命令/状态寄存器）& 存放 CPU 发出的命令或设备的状态 \\
     \item \textbf{中断频率：}中断驱动每字/字节中断一次；DMA 每块数据仅中断一次。
     \item \textbf{数据传送：}中断驱动由 CPU 执行数据传送（从设备寄存器到内存）；DMA 由 DMA 控制器直接完成，CPU \textbf{不参与数据传输}。
     \item \textbf{总线占用：}DMA 传送期间，DMA 控制器需占用系统总线（周期窃取/周期挪用，Cycle Stealing）。若 CPU 也需要访存，DMA 优先级更高。
-    \item \textbf{内存地址：}DMA 传送的是物理地址（不是虚拟地址），因此 DMA 需要连续的物理内存块。
+    \item \textbf{内存地址：}DMA 描述符通常使用物理地址或设备可见地址；传统简化模型常要求一段物理连续缓冲区，但现代 DMA 可用 scatter-gather 描述符或 IOMMU 映射非连续物理页。
 \end{enumerate}
 \end{attention}
 
 \begin{formula}{DMA周期窃取时的CPU停顿分析}{dma-cycle-stealing}
-设内存周期为 $t_c$，DMA 传送一个字需占用一个内存周期。若 CPU 每执行 $k$ 条指令需访存一次，则 CPU 因 DMA 窃取周期的降速比为：
+DMA 对 CPU 的影响取决于 DMA 请求频率、每次传送占用的总线周期数以及 CPU 的总线请求频率。仅给出“CPU 每执行 $k$ 条指令访存一次”不足以唯一确定降速比。若额外假设每 $k$ 条指令恰有一次 CPU 访存、每次 DMA 恰挪用一个周期且二者严格交替，才可在该简化模型下计算比例：
 
 \[
-\text{降速比} = \frac{1}{1 + \frac{1}{k}} \quad \text{（DMA占用总线比例为 } \frac{1}{k+1}\text{）}
+\text{CPU有效时间比例} = \frac{k}{k+1} \quad \text{（上述严格交替模型）}
 \]
 
 当 $k$ 很大（CPU 指令大多访问 Cache）时，DMA 的影响可忽略。这也是现代系统中 Cache 对 DMA 效率的关键意义。
@@ -243,12 +243,12 @@ I/O 软件采用分层设计，每层对上层屏蔽下层细节，是 OS 分层
 \textbf{核心思想：}用磁盘（共享设备）作为中转站，截获对独占设备的输出请求，先写入磁盘上的\textbf{SPOOLing 文件}，再由 SPOOLing 守护进程在后台逐个传输到物理设备。用户进程以为自己在独占设备，实际只是写入了磁盘。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=2.5cm]
-\node[draw, fill=yellow!20, minimum width=3cm] (P1) {进程 P1};
-\node[draw, fill=yellow!20, minimum width=3cm, below of=P1, yshift=0.5cm] (P2) {进程 P2};
-\node[draw, fill=gray!20, minimum width=4cm, right of=P1, xshift=2cm] (DISK) {磁盘（SPOOLing 井）};
-\node[draw, fill=green!20, minimum width=4cm, right of=DISK, xshift=2cm] (DAEMON) {SPOOLing 守护进程};
-\node[draw, fill=red!20, minimum width=3cm, right of=DAEMON, xshift=1.5cm] (DEV) {打印机};
+\begin{tikzpicture}[>=stealth, node distance=2.2cm, every node/.style={font=\small}]
+\node[draw, fill=yellow!20, minimum width=2.2cm] (P1) {进程 P1};
+\node[draw, fill=yellow!20, minimum width=2.2cm, below of=P1, yshift=0.5cm] (P2) {进程 P2};
+\node[draw, fill=gray!20, minimum width=3.1cm, right of=P1, xshift=1cm] (DISK) {磁盘（SPOOLing 井）};
+\node[draw, fill=green!20, minimum width=3.2cm, right of=DISK, xshift=1.3cm] (DAEMON) {SPOOLing 守护进程};
+\node[draw, fill=red!20, minimum width=2.2cm, right of=DAEMON, xshift=0.8cm] (DEV) {打印机};
 \draw[->] (P1) -- node[above] {输出到井} (DISK);
 \draw[->] (P2) -- node[below] {输出到井} (DISK);
 \draw[->] (DISK) -- node[above] {逐个取出} (DAEMON);

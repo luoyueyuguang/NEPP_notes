@@ -109,10 +109,10 @@ Cache 结构分析：
 \begin{itemize}
     \item 块内偏移（低 6 位）：\texttt{0x05} = 5
     \item 索引（中 6 位）：\texttt{0x0D} = 13
-    \item 标记（高 16 位）：需计算。\texttt{0x00456345} $\gg$ 12 = \texttt{0x004563}，取低 16 位 = \texttt{0x4563}。
+    \item 标记（高 16 位）：\texttt{0x00456345} $\gg$ 12 = \texttt{0x00456}，按 16 位字段补前导零为 \texttt{0x0456}。
 \end{itemize}
 
-\textbf{结论：} Cache 行号 = 13，标记 = \texttt{0x4563}，块内偏移 = 5。由于是 32 位读，访问字节 5--8。去 Cache 第 13 行比较标记字段，若相等则命中，直接取数据；否则缺失，从主存加载 64 B 到该行。
+\textbf{结论：} Cache 行号 = 13，标记 = \texttt{0x0456}，块内偏移 = 5。由于是 32 位读，访问字节 5--8。去 Cache 第 13 行比较标记字段，若相等则命中，直接取数据；否则缺失，从主存加载 64 B 到该行。
 
 \begin{attention}
 \textbf{408 关键辨析：}

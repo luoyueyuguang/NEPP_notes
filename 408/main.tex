@@ -1,6 +1,8 @@
-% 408 计算机学科专业基础综合 复习讲义
+% 408 计算机学科专业基础综合复习讲义
 \documentclass[a4paper,oneside]{ctexbook}
-\usepackage[dvipsnames]{xcolor}
+
+% ---------- 基础宏包 ----------
+\usepackage[table,dvipsnames]{xcolor}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -16,184 +18,423 @@
 \usepackage{tikz-cd}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
-
-\usepackage{times}
 \usepackage{fontspec}
 \usepackage{tabularx}
 \usepackage{multirow}
 \usepackage[fontsize=11pt]{fontsize}
-\hypersetup{
-	colorlinks=true,
-	linkcolor=blue
-}
+\usepackage[titles]{tocloft}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{ragged2e}
 
-% 代码排版
+% ---------- 配色 ----------
+\definecolor{Navy}{HTML}{17324D}
+\definecolor{NavyDark}{HTML}{10263B}
+\definecolor{Teal}{HTML}{247B86}
+\definecolor{TealDark}{HTML}{185C65}
+\definecolor{Amber}{HTML}{B7791F}
+\definecolor{Burgundy}{HTML}{9B3A4A}
+\definecolor{BodyText}{HTML}{27313B}
+\definecolor{MutedText}{HTML}{66717D}
+\definecolor{RuleGray}{HTML}{D7DEE5}
+\definecolor{SoftGray}{HTML}{F5F7F9}
+\definecolor{SoftBlue}{HTML}{F1F6FA}
+\definecolor{SoftTeal}{HTML}{EFF8F7}
+\definecolor{SoftAmber}{HTML}{FFF8E8}
+\definecolor{CodeBlue}{HTML}{1E5AA8}
+\definecolor{CodeGreen}{HTML}{3F6F5B}
+
+% ---------- 字体 ----------
+\setmainfont{Noto Serif}
+\setsansfont{Noto Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
+\setCJKmainfont{Noto Serif CJK SC}[BoldFont=Noto Sans CJK SC]
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans CJK SC}
+
+% ---------- 页面与正文 ----------
+\geometry{
+  left=2.35cm,
+  right=2.35cm,
+  top=2.45cm,
+  bottom=2.35cm,
+  headheight=22pt,
+  headsep=0.55cm,
+  footskip=0.95cm
+}
+\setstretch{1.12}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.35em plus 0.08em minus 0.05em}
+\setlength{\emergencystretch}{3em}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.16}
+\arrayrulecolor{RuleGray}
+\raggedbottom
+
+\setlist[itemize]{leftmargin=2.1em,itemsep=0.25em,topsep=0.45em,parsep=0pt}
+\setlist[enumerate]{leftmargin=2.25em,itemsep=0.28em,topsep=0.45em,parsep=0pt}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=Navy,
+  urlcolor=TealDark,
+  citecolor=Burgundy,
+  bookmarksnumbered=true,
+  pdfstartview=FitH
+}
+\urlstyle{same}
+
+% ---------- 代码 ----------
 \usepackage{listings}
 \lstset{
-	basicstyle=\ttfamily\small,
-	keywordstyle=\color{blue}\bfseries,
-	commentstyle=\color{gray},
-	stringstyle=\color{red},
-	numbers=left,
-	numberstyle=\tiny\color{gray},
-	stepnumber=1,
-	numbersep=5pt,
-	backgroundcolor=\color{gray!5},
-	showspaces=false,
-	showstringspaces=false,
-	showtabs=false,
-	frame=single,
-	tabsize=2,
-	captionpos=b,
-	breaklines=true,
-	breakatwhitespace=false,
-	escapeinside={\%*}{*)},
-	language=C,
-	morekeywords={bool,status,LinkList,SqList,ElemType},
+  basicstyle=\ttfamily\fontsize{9.2pt}{12pt}\selectfont,
+  keywordstyle=\color{CodeBlue}\bfseries,
+  commentstyle=\color{CodeGreen}\itshape,
+  stringstyle=\color{Burgundy},
+  numbers=left,
+  numberstyle=\ttfamily\scriptsize\color{MutedText!75},
+  stepnumber=1,
+  numbersep=9pt,
+  backgroundcolor=\color{SoftGray},
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  frame=l,
+  rulecolor=\color{Teal},
+  framerule=2.2pt,
+  framesep=6pt,
+  xleftmargin=1.25em,
+  framexleftmargin=0.55em,
+  xrightmargin=0.25em,
+  aboveskip=0.75em,
+  belowskip=0.55em,
+  tabsize=4,
+  columns=fullflexible,
+  keepspaces=true,
+  captionpos=b,
+  breaklines=true,
+  breakatwhitespace=false,
+  postbreak=\mbox{\textcolor{MutedText}{$\hookrightarrow$}\space},
+  escapeinside={\%*}{*)},
+  language=C,
+  morekeywords={bool,status,LinkList,SqList,ElemType,BiTree,uint32_t,uint64_t,int64_t,size_t},
 }
 
-% 习题解析开关：\showsolutionstrue 显示解析，\showsolutionsfalse 隐藏
+% ---------- 标题层级 ----------
+% 保留全书按“部分”重置节编号的既有结构。
+\ctexset{
+  section={name={,},number={\arabic{section}}},
+  subsection={name={,},number={\arabic{section}.\arabic{subsection}}}
+}
+\counterwithin{section}{part}
+% 仅借助 part 重置 section 计数，不把 Part 罗马数字带入正文标题。
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{%
+  \arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+
+\newcommand{\sectionbadge}[1]{%
+  \tikz[baseline=(badge.base)]
+    \node[fill=Teal,text=white,rounded corners=1.2pt,
+          inner xsep=6pt,inner ysep=2.6pt,font=\sffamily\bfseries] (badge) {#1};%
+}
+
+\titleformat{\part}[display]
+  {\thispagestyle{empty}\centering\sffamily}
+  {\color{Teal}\fontsize{16pt}{21pt}\selectfont\bfseries
+   PART~\Roman{part}\quad{}第\chinese{part}部分}
+  {1.3em}
+  {\color{Navy}\fontsize{34pt}{43pt}\selectfont\bfseries}
+  [\vspace{1.45em}{\color{Teal}\rule{52mm}{2.4pt}}]
+\titlespacing*{\part}{0pt}{0.245\paperheight}{0pt}
+
+\titleformat{\chapter}[display]
+  {\sffamily\bfseries\color{Navy}}
+  {\color{Teal}\Large 第\chinese{chapter}章}
+  {0.7em}
+  {\fontsize{29pt}{37pt}\selectfont}
+  [\vspace{0.75em}{\color{Teal}\rule{\textwidth}{2pt}}]
+\titleformat{name=\chapter,numberless}[display]
+  {\sffamily\bfseries\color{Navy}}
+  {}
+  {0pt}
+  {\fontsize{29pt}{37pt}\selectfont}
+  [\vspace{0.75em}{\color{Teal}\rule{\textwidth}{2pt}}]
+\titlespacing*{\chapter}{0pt}{0.5em}{2.2em}
+
+\titleformat{\section}[block]
+  {\Large\sffamily\bfseries\color{Navy}}
+  {\sectionbadge{\thesection}}
+  {0.75em}
+  {}
+  [\vspace{0.35em}{\color{RuleGray}\rule{\textwidth}{0.6pt}}]
+\titleformat{name=\section,numberless}[block]
+  {\Large\sffamily\bfseries\color{Navy}}
+  {}
+  {0pt}
+  {}
+  [\vspace{0.35em}{\color{RuleGray}\rule{\textwidth}{0.6pt}}]
+\titlespacing*{\section}{0pt}{1.8em plus 0.3em minus 0.2em}{1.05em}
+
+\titleformat{\subsection}[hang]
+  {\large\sffamily\bfseries\color{Navy}}
+  {\color{Teal}\thesubsection}
+  {0.7em}
+  {}
+\titleformat{name=\subsection,numberless}[hang]
+  {\large\sffamily\bfseries\color{Navy}}
+  {}
+  {0pt}
+  {}
+\titlespacing*{\subsection}{0pt}{1.45em plus 0.2em minus 0.15em}{0.65em}
+
+\titleformat{\subsubsection}[hang]
+  {\normalsize\sffamily\bfseries\color{TealDark}}
+  {\thesubsubsection}
+  {0.65em}
+  {}
+\titleformat{name=\subsubsection,numberless}[hang]
+  {\normalsize\sffamily\bfseries\color{TealDark}}
+  {}
+  {0pt}
+  {}
+\titlespacing*{\subsubsection}{0pt}{1.15em}{0.45em}
+
+% ---------- 目录 ----------
+\renewcommand{\cftdotsep}{1.6}
+\setlength{\cftbeforepartskip}{1.0em}
+\setlength{\cftbeforesecskip}{0.12em}
+\setlength{\cftbeforesubsecskip}{0.02em}
+\setlength{\cftpartnumwidth}{5.3em}
+\setlength{\cftsecnumwidth}{2.8em}
+\setlength{\cftsubsecnumwidth}{3.6em}
+\renewcommand{\cftpartfont}{\sffamily\bfseries\color{Navy}}
+\renewcommand{\cftpartpagefont}{\sffamily\bfseries\color{Navy}}
+\renewcommand{\cftsecfont}{\sffamily\color{Navy}}
+\renewcommand{\cftsecpagefont}{\sffamily\color{MutedText}}
+\renewcommand{\cftsubsecfont}{\small\color{BodyText}}
+\renewcommand{\cftsubsecpagefont}{\small\color{MutedText}}
+\makeatletter
+\renewcommand{\@pnumwidth}{2.5em}
+\renewcommand{\@tocrmarg}{3.4em}
+\makeatother
+
+% ---------- 页眉页脚 ----------
+\renewcommand{\sectionmark}[1]{\markright{\thesection\quad #1}}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{RuleGray}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{RuleGray}\leaders\hrule height \footrulewidth\hfill}}
+
+\fancypagestyle{study}{%
+  \fancyhf{}
+  \fancyhead[L]{\nouppercase{\small\sffamily\color{MutedText}\rightmark}}
+  \fancyhead[R]{\small\sffamily\bfseries\color{Navy}408 计算机学科专业基础综合}
+  \fancyfoot[L]{\scriptsize\sffamily\color{MutedText}NEPP · REVIEW NOTES}
+  \fancyfoot[R]{\small\sffamily\bfseries\color{Teal}\thepage}
+  \renewcommand{\headrulewidth}{0.45pt}
+  \renewcommand{\footrulewidth}{0.35pt}
+}
+
+% 目录与章首页保留安静的无页眉样式。
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyfoot[L]{\scriptsize\sffamily\color{MutedText}NEPP · REVIEW NOTES}
+  \fancyfoot[R]{\small\sffamily\bfseries\color{Teal}\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0.35pt}
+}
+
+\fancypagestyle{tocplain}{%
+  \fancyhf{}
+  \fancyfoot[L]{\scriptsize\sffamily\color{MutedText}NEPP · REVIEW NOTES}
+  \fancyfoot[R]{\small\sffamily\bfseries\color{Teal}\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0.35pt}
+}
+
+% ---------- 习题解析开关 ----------
 \newif\ifshowsolutions
 \showsolutionstrue
 
-% 定理/定义/结论 环境
+% ---------- 知识框、提示框与表格 ----------
 \usepackage{tcolorbox}
 \usepackage{fancybox}
-\tcbuselibrary{skins, breakable, theorems, most, breakable}
-
+\tcbuselibrary{skins,breakable,theorems}
 \usepackage{caption}
 \usepackage{chngcntr}
 \usepackage{booktabs}
 \usepackage{extarrows}
 
-% 页眉页脚
-\pagestyle{fancy}
-\fancyhead{}
-\fancyfoot{}
-\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{0pt}
-
-% 字体
-\setmainfont{Noto Serif}
-\setCJKmainfont{Noto Serif CJK SC}[BoldFont=Noto Sans CJK SC]
-
-\renewcommand{\textbf}[1]{\textcolor{blue}{\textsf{#1}}}
-
-\setlength{\headheight}{13pt}
-\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
-\setlength{\parindent}{2em}
-\setlength{\parskip}{0.5em}
-% 给中英文混排段落保留少量伸缩空间，避免长术语或行内公式越出版心。
-% 宽表格和长公式仍需在各章节中单独处理，不能依赖此设置掩盖。
-\setlength{\emergencystretch}{3em}
-
-\ctexset{
-	section={
-		name={,},
-		number={\arabic{section}},
-		format=\Large\bfseries,
-		beforeskip=1.5ex plus .2ex minus .2ex,
-		afterskip=1.5ex plus .2ex minus .2ex
-	},
-	subsection={
-		name={,},
-		number={\arabic{section}.\arabic{subsection}},
-		format=\large\bfseries,
-		beforeskip=1.5ex plus .2ex minus .2ex,
-		afterskip=1.5ex plus .2ex minus .2ex
-	}
+\tcbset{
+  studybox/.style={
+    enhanced jigsaw,
+    breakable,
+    boxrule=0.55pt,
+    arc=1.4mm,
+    outer arc=1.4mm,
+    left=2.1mm,
+    right=2.1mm,
+    top=1.5mm,
+    bottom=1.5mm,
+    boxsep=0.8mm,
+    before skip=9pt plus 2pt minus 1pt,
+    after skip=9pt plus 2pt minus 1pt,
+    fonttitle=\sffamily\bfseries,
+    titlerule=0pt,
+    toptitle=1.25mm,
+    bottomtitle=1.25mm,
+  }
 }
 
-\counterwithin{section}{part}
+\newtcbtheorem[number within=section]{mydef}{定义}
+  {studybox,colback=SoftTeal,colframe=Teal!55,
+   colbacktitle=Teal!11,coltitle=TealDark,
+   borderline west={2.4pt}{0pt}{Teal}}{th}
 
-\title{408 计算机学科专业基础综合笔记}
-\author{luoyue \\
-	\href{https://github.com/luoyueyuguang/}{GitHub:luoyueyugaung}
-}
-\date{}
+\newtcbtheorem[number within=section]{formula}{要点}
+  {studybox,colback=SoftAmber,colframe=Amber!45,
+   colbacktitle=Amber!12,coltitle=Amber!85!black,
+   borderline west={2.4pt}{0pt}{Amber}}{fo}
 
-% 定义框
-\newtcbtheorem[number within=section]{mydef}{定义}%
-  {colback=blue!5,colframe=cyan!60!blue,fonttitle=\bfseries}{th}
+\newtcbtheorem[number within=section]{conclusion}{结论}
+  {studybox,colback=SoftBlue,colframe=Navy!38,
+   colbacktitle=Navy!8,coltitle=Navy,
+   borderline west={2.4pt}{0pt}{Navy}}{cu}
 
-% 公式/要点框
-\newtcbtheorem[number within=section]{formula}{要点}%
-{
-	colback=blue!5,colframe=white!30!pink,fonttitle=\bfseries,
-	coltitle=cyan!30!black,
-	breakable,
-}{fo}
-
-% 结论框
-\newtcbtheorem[number within=section]{conclusion}{结论}%
-{
-	colback=blue!5,colframe=blue!50!black,fonttitle=\bfseries,
-	breakable,
-}{cu}
-
-% 注意框
 \newtcolorbox{attention}{
-	enhanced,
-	colback=yellow!5,
-	colframe=yellow!50!black,
-	fonttitle=\bfseries,
-	title=注意,
-	breakable,
+  studybox,
+  colback=SoftAmber,
+  colframe=Amber!48,
+  colbacktitle=Amber!14,
+  coltitle=Amber!85!black,
+  borderline west={2.4pt}{0pt}{Amber},
+  title=注意
 }
 
-% 例题框
 \newtcolorbox{examplebox}{
-	enhanced,
-	colback=gray!5,
-	colframe=gray!50!black,
-	fonttitle=\bfseries,
-	title=例,
-	breakable,
+  studybox,
+  colback=SoftGray,
+  colframe=MutedText!35,
+  colbacktitle=MutedText!10,
+  coltitle=Navy,
+  borderline west={2.4pt}{0pt}{MutedText},
+  title=例题
 }
 
-% 表格样式
 \newtcolorbox{tablebox}[2][]{
-  enhanced,
-  arc=1mm,
+  enhanced jigsaw,
+  breakable,
+  arc=1.3mm,
   boxrule=0.5pt,
   colback=white,
-  colframe=teal!50!black,
-  fonttitle=\bfseries\sffamily\centering,
-  colbacktitle=blue!40!cyan,
+  colframe=RuleGray,
+  colbacktitle=Navy,
   coltitle=white,
-  title={\tablename~\arabic{table}: #2},
-  boxed title style={
-    sharp corners,
-    rounded corners=northeast
-  },
-  #1,
-  breakable,
+  fonttitle=\sffamily\bfseries,
+  title={#2},
+  left=1.7mm,
+  right=1.7mm,
+  top=1.3mm,
+  bottom=1.3mm,
+  toptitle=1.15mm,
+  bottomtitle=1.15mm,
+  before skip=7pt,
+  after skip=7pt,
+  #1
 }
 
+\captionsetup{font=small,labelfont={bf,sf,color=Navy},textfont={color=BodyText}}
 \newtheorem{definition}{定义}
 \setcounter{definition}{1}
 
+% ---------- 封面 ----------
+\newcommand{\makecustomcover}{%
+\pagecolor{NavyDark}
+\begin{titlepage}
+  \thispagestyle{empty}
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[NavyDark] (current page.south west) rectangle (current page.north east);
+    \fill[Teal] ([xshift=-3.2cm]current page.north east) --
+                (current page.north east) --
+                ([yshift=-6.8cm]current page.north east) -- cycle;
+    \fill[Navy] (current page.south west) rectangle
+                ([yshift=2.2cm]current page.south east);
+    \draw[white!10,line width=0.7pt]
+      ([xshift=1.5cm,yshift=-1.5cm]current page.north west) rectangle
+      ([xshift=-1.5cm,yshift=1.5cm]current page.south east);
+    \draw[Teal!75,line width=3pt]
+      ([xshift=1.5cm,yshift=-1.5cm]current page.north west) --
+      ([xshift=1.5cm,yshift=-5.2cm]current page.north west);
+  \end{tikzpicture}
+
+  \vspace*{2.4cm}
+  \begin{flushleft}
+    {\color{white!65}\sffamily\bfseries\small
+      NATIONAL POSTGRADUATE ENTRANCE EXAMINATION}\par
+    \vspace{1.25cm}
+    {\color{Teal!80!white}\sffamily\bfseries\fontsize{48pt}{54pt}\selectfont
+      408}\par
+    \vspace{0.18cm}
+    {\color{white}\sffamily\bfseries\fontsize{27pt}{36pt}\selectfont
+      计算机学科专业基础综合}\par
+    \vspace{0.5cm}
+    {\color{white!72}\sffamily\fontsize{15pt}{22pt}\selectfont
+      系统复习讲义 · 章节训练 · 三套模拟卷}\par
+    \vspace{1.15cm}
+    {\color{Teal!85!white}\rule{72mm}{2.5pt}}\par
+    \vspace{1.05cm}
+    {\color{white!82}\sffamily\large
+      数据结构\quad{}·\quad{}计算机组成原理\quad{}·\quad{}操作系统\quad{}·\quad{}计算机网络}
+  \end{flushleft}
+
+  \vfill
+  \begin{flushleft}
+    {\color{white!55}\sffamily\small 2026 REVIEW EDITION}\par
+    \vspace{0.35cm}
+    {\color{white}\sffamily\bfseries\large luoyue}\par
+    {\color{white!70}\sffamily\small
+      \href{https://github.com/luoyueyuguang/}{github.com/luoyueyuguang}}
+  \end{flushleft}
+  \vspace*{1.05cm}
+\end{titlepage}
+\pagecolor{white}
+}
+
 \begin{document}
-\maketitle
+\color{BodyText}
+\makecustomcover
+
+\pagenumbering{Roman}
+\pagestyle{tocplain}
 \tableofcontents
+\clearpage
+
+\pagenumbering{arabic}
+\pagestyle{study}
 
 \part{数据结构}
+\pagestyle{study}
 \input{ds/ds.tex}
 
 \part{计算机组成原理}
+\pagestyle{study}
 \input{co/co.tex}
 
 \part{操作系统}
+\pagestyle{study}
 \input{os/os.tex}
 
 \part{计算机网络}
+\pagestyle{study}
 \input{cn/cn.tex}
 
 \part{408 模拟试卷}
+\pagestyle{study}
 \input{exams.tex}
 
 \part{附录}
-% appendix-exams.tex contains an unverified historical-question index.  It is
+\pagestyle{study}
+% appendix-exams.tex contains an unverified historical-question index. It is
 % intentionally excluded until every year/number is checked against the
 % original examination papers.
 \input{appendix-audit.tex}

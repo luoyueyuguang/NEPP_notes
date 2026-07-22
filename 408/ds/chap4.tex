@@ -32,9 +32,9 @@
 设树 $T$ 有 $n$ 个结点，则：
 \begin{enumerate}
     \item $T$ 中\textbf{边数} $= n-1$。
-    \item \textbf{各结点度数之和 = 边数} $\times 2 = 2(n-1)$（无向视角），即 $\sum \deg(v) = 2(n-1)$。
-    \item 从\textbf{有向}视角（父$\to$子），$\sum \text{出度}(v) = n-1$。
-    \item 设度为 $k$ 的结点有 $n_k$ 个，则 $n = \sum n_k$，且 $\sum k \cdot n_k = n-1$。
+    \item 按本章定义，结点的度是其孩子（子树）数，因此\textbf{各结点度数之和等于边数}：$\sum \deg_{\text{树}}(v)=n-1$。将边定向为父$\to$子时，这也就是 $\sum \operatorname{outdeg}(v)=n-1$。
+    \item 若把树另行视为无向图，则图论中的顶点度统计每条边的两个端点，故 $\sum \deg_{\text{图}}(v)=2(n-1)$。这里的图论度数与上一项的“孩子数”不是同一概念，不能混用。
+    \item 设按孩子数计、度为 $k$ 的结点有 $n_k$ 个，则 $n = \sum n_k$，且 $\sum k \cdot n_k = n-1$。
 \end{enumerate}
 \end{formula}
 
@@ -66,7 +66,7 @@
     \item 右孩子编号为 $2i+1$（若 $2i+1\leqslant n$，否则无右孩子）；
     \item 双亲编号为 $\lfloor i/2 \rfloor$（$i>1$）；
     \item 叶子结点只可能在最后两层出现；
-    \item 若结点 $i$ 为叶子或只有左孩子，则编号 $\geqslant i$ 的结点均为叶子。
+    \item 若结点 $i$ 为叶子，则编号 $\geqslant i$ 的结点均为叶子；若结点 $i$ 只有左孩子，则编号 $>i$ 的结点均为叶子。
 \end{enumerate}
 \end{conclusion}
 
@@ -268,7 +268,7 @@ void LevelOrder(BiTree T) {
 \subsection{遍历序列构造二叉树}
 
 \begin{conclusion}{由遍历序列构造二叉树}{construct-from-traversal}
-\textbf{核心定理（408 高频）：} 已知\textbf{中序序列 + 先序序列} 或 \textbf{中序序列 + 后序序列}，可唯一确定一棵二叉树。\textbf{已知先序 + 后序无法唯一确定二叉树}（除非另有能够消除歧义的结构条件）。
+\textbf{核心定理（408 高频）：} 在\textbf{结点关键字互异且遍历序列合法}的前提下，已知\textbf{中序序列 + 先序序列} 或 \textbf{中序序列 + 后序序列}，可唯一确定一棵二叉树。\textbf{已知先序 + 后序无法唯一确定二叉树}（除非另有能够消除歧义的结构条件）。
 
 \textbf{构造方法}（已知先序 + 中序）：
 \begin{enumerate}
@@ -287,6 +287,10 @@ BiTree Build(char pre[], char in[], int pl, int pr, int il, int ir) {
     int k;                                   // 根在中序中的位置
     for (k = il; k <= ir; k++)
         if (in[k] == pre[pl]) break;
+    if (k > ir) {                         // 序列不合法或关键字不一致
+        free(root);
+        return NULL;
+    }
     int leftLen = k - il;                    // 左子树结点数
     root->lchild = Build(pre, in, pl+1, pl+leftLen, il, k-1);
     root->rchild = Build(pre, in, pl+leftLen+1, pr, k+1, ir);
@@ -677,7 +681,7 @@ void Union(int x, int y) {
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} 先序 = 根$\to$左$\to$右，后序 = 左$\to$右$\to$根。二者相反，意味着对每个结点，先访问根再访问子树 vs 先访问子树再访问根。
-举例：先序 \texttt{ABC}，后序 \texttt{CBA}，则树为 A 有左 B，B 有左 C（单链向左）。先序 \texttt{ABC}，后序 \texttt{BCA}，则树为 A 有右 B，B 有右 C（单链向右）。
+举例：先序 \texttt{ABC}，后序 \texttt{CBA}，则树为 A 有左 B，B 有左 C（单链向左）。若树为 A 有右 B、B 有右 C，则先序为 \texttt{ABC}、后序仍为 \texttt{CBA}；\texttt{BCA} 并不是这棵单链树的后序序列。
 \textbf{结论：} 每个结点至多只有一个孩子结点，即整个树只有一个叶结点（否则中间有分叉就会出现不相反的片段）。所有结点无左孩子或所有结点无右孩子仅是两种特例，不一定是普通情况。\boxed{\textbf{答案：}(C)}\fi
 
 \vspace{8pt}
@@ -818,7 +822,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 (2) 后序遍历（左$\to$右$\to$根）：\texttt{DGEBFCA}。层次遍历（从上到下，从左到右）：\texttt{ABCDEFG}。
 (3) 二叉树$\to$森林：抹去右子树的父子关系（二叉树中根结点沿右链走到底，每遇到一个右孩子即断开），得到多棵树。规则：二叉树中，根和沿左链走到的结点为第一棵树中的父子关系，沿右链走到的结点为下一棵树的根。
 
-断开：A 右 C，断开得到两棵树。第一棵树（A 为根，左子树 B）：先恢复为一般树——每个结点保留左孩子，左孩子的右链变为该结点的其他孩子。B 的左 D$\to$B 的第一个孩子 D；D 的右 E$\to$B 的第二个孩子 E；E 的左 G$\to$E 的第一个孩子 G。森林第一棵树：A-B(D,E(G))。第二棵树：C(F)。
+断开：A 右 C、C 右 F，断开得到三棵树。第一棵树（A 为根，左子树 B）：恢复为一般树时，每个结点保留左孩子，左孩子的右链变为该结点的其他孩子。B 的左 D$\to$B 的第一个孩子 D；B 的右 E$\to$A 的第二个孩子 E；E 的左 G$\to$E 的第一个孩子 G。森林为：第一棵树 $A(B(D),E(G))$，第二棵树根为 C，第三棵树根为 F。
 \boxed{\textbf{答案：}\text{如上}}\fi
 
 \vspace{8pt}

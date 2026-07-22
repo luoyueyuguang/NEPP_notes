@@ -360,7 +360,7 @@ bool IsBalanced(BiTree T) {
 }
 \end{lstlisting}
 
-\textbf{复杂度：}优化方法时间为 $O(n)$，空间 $O(\log n)$（递归栈深度）。
+\textbf{复杂度：}优化方法时间为 $O(n)$，辅助空间为 $O(h)$（递归栈深度，$h$ 为树高）；平衡树时 $h=O(\log n)$，最坏退化树时为 $O(n)$。
 
 \textbf{设计要点：}用返回值同时承载「是否平衡」和「高度」两个信息，避免各自重复计算。这是后序遍历的经典应用——先获得子树信息，再综合判断。
 \end{conclusion}
@@ -504,6 +504,8 @@ int CountConnectedComponents(ALGraph *G) {
 \textbf{DFS 方法：}遍历过程中，若遇到已访问顶点且该顶点不是当前结点的直接父结点，则存在环。
 
 \begin{lstlisting}[language=C]
+bool DFSCycle(ALGraph *G, int v, int parent, bool visited[]);
+
 bool HasCycleUndirected(ALGraph *G) {
     bool visited[MaxV] = {false};
     for (int v = 0; v < G->n; v++)
@@ -585,7 +587,8 @@ bool DFSCycleD(ALGraph *G, int v) {
 \end{enumerate}
 
 \begin{lstlisting}[language=C]
-int MajorityElement(int A[], int n) {
+// 通过返回值表示是否存在主元素，*result 输出主元素
+bool MajorityElement(int A[], int n, int *result) {
     int candidate = 0, count = 0;
     for (int i = 0; i < n; i++) {
         if (count == 0) candidate = A[i];   // 重置候选
@@ -594,7 +597,9 @@ int MajorityElement(int A[], int n) {
     count = 0;
     for (int i = 0; i < n; i++)             // 验证阶段
         if (A[i] == candidate) count++;
-    return (count > n / 2) ? candidate : -1; // -1 表示不存在
+    if (count <= n / 2) return false;
+    *result = candidate;
+    return true;
 }
 \end{lstlisting}
 
@@ -742,12 +747,12 @@ int MaxSubArrayDC(int A[], int left, int right) {
 \begin{tabularx}{0.96\linewidth}{@{}X@{}}
 (A) 快指针每次走两步可以保证在有环时一定与慢指针相遇 \\[4pt]
 (B) 快指针每次走三步也可以保证在有环时一定与慢指针相遇 \\[4pt]
-(C) 找环入口时，从头和相遇点各出发一个指针，每次各走一步，相遇处即为环入口 \\[4pt]
+(C) 若检测阶段采用快指针每次走三步，找到相遇点后仍可直接用经典“头指针+相遇点各走一步”定位环入口 \\[4pt]
 (D) 算法的时间复杂度为 $O(n)$，空间复杂度为 $O(1)$
 \end{tabularx}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 经典 Floyd 算法的步长为慢指针1、快指针2，环内相对步长为1，故必能相遇；入口定位结论也建立在这一经典步长关系上。若快指针改为每次3步，相对步长为2，当环长为偶数时可能因同余类限制而永不相遇，不能无条件保证。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 经典 Floyd 算法的步长为慢指针1、快指针2，环内相对步长为1，故必能相遇。即使快指针改为每次3步，环内相对步长为2；对任意有限环长 $\lambda$，总能取到满足 $2t\equiv0\pmod\lambda$ 的时刻，因此检测阶段仍会相遇。不过，经典入口定位依赖相遇点满足 $a=k\lambda-b$ 的 1:2 关系；改成1:3后，直接重置并各走一步不一定落在入口。因此错误的是 (C)。\boxed{\textbf{答案：}(C)}\fi
 
 \item \textbf{（单项选择题）} 判断有向图是否存在环的常用方法不包括
 \begin{center}
@@ -876,24 +881,34 @@ int FindMin(int A[], int n) {
 
 \ifshowsolutions\par\noindent\textbf{解析：} 扫描邻接表统计每个顶点的入度和边数：必须恰有一个入度为0的根，其余顶点入度均为1，因而边数为 $n-1$。再从根做一次 DFS/BFS，若能访问全部顶点，则图为有向根树。
 \begin{lstlisting}[language=C]
-bool IsArborescence(ALGraph G) {
-    int indeg[MAXV] = {0}, edges = 0;
-    for (int u = 0; u < G.vexnum; ++u)
-        for (ArcNode *p = G.adj[u].first; p; p = p->next) {
+static int DFSCount(const ALGraph *G, int v, bool visited[]) {
+    int count = 1;
+    visited[v] = true;
+    for (ArcNode *p = G->adjlist[v].first; p; p = p->next) {
+        if (!visited[p->adjvex])
+            count += DFSCount(G, p->adjvex, visited);
+    }
+    return count;
+}
+
+bool IsArborescence(const ALGraph *G) {
+    int indeg[MaxV] = {0}, edges = 0;
+    for (int u = 0; u < G->n; ++u)
+        for (ArcNode *p = G->adjlist[u].first; p; p = p->next) {
             if (++indeg[p->adjvex] > 1) return false;
             ++edges;
         }
 
     int root = -1, roots = 0;
-    for (int v = 0; v < G.vexnum; ++v) {
+    for (int v = 0; v < G->n; ++v) {
         if (indeg[v] == 0) { root = v; ++roots; }
         else if (indeg[v] != 1) return false;
     }
-    if (roots != 1 || edges != G.vexnum - 1) return false;
+    if (roots != 1 || edges != G->n - 1) return false;
 
-    bool visited[MAXV] = {false};
+    bool visited[MaxV] = {false};
     int count = DFSCount(G, root, visited); // 只计首次访问的顶点
-    return count == G.vexnum;
+    return count == G->n;
 }
 \end{lstlisting}
 扫描边和遍历图的总时间为 $O(|V|+|E|)$；入度、访问标记和递归栈/队列占 $O(|V|)$ 辅助空间。\fi
@@ -933,11 +948,17 @@ BiTree Build(int pre[], int pl, int pr,
 
 \ifshowsolutions\par\noindent\textbf{解析：} 使用快速选择。一次划分把枢轴放到最终位置 $p$；若 $p=k-1$ 即返回，否则只在包含第 $k$ 小元素的一侧继续划分。
 \begin{lstlisting}[language=C]
+static void SwapInt(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
 int Partition(int A[], int low, int high) {
     int pivot = A[high], i = low;
     for (int j = low; j < high; ++j)
-        if (A[j] < pivot) Swap(&A[i++], &A[j]);
-    Swap(&A[i], &A[high]);
+        if (A[j] < pivot) SwapInt(&A[i++], &A[j]);
+    SwapInt(&A[i], &A[high]);
     return i;
 }
 

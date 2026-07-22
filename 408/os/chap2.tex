@@ -324,7 +324,7 @@ semaphore full  = 0;       // 产品数
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 资源分配图：$P_1$持有$R_1$等$R_2$，$P_2$持有$R_2$等$R_3$，$P_3$持有$R_3$等$R_1$——形成环$P_1\to P_2\to P_3\to P_1$，涉及3个进程。$P_2$只需$R_2$，可先分配不参与死锁。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 资源分配图：$P_1$持有$R_1$等$R_2$，$P_2$持有$R_2$等$R_3$，$P_3$持有$R_3$等$R_1$——形成环$P_1\to P_2\to P_3\to P_1$，涉及3个进程。$P_4$只需$R_2$，可先分配不参与死锁。\boxed{\textbf{答案：}(C)}\fi
 
 \vspace{8pt}
 
@@ -415,7 +415,7 @@ P2() {  // 取奇数
 }
 // P3类似P2，将odd改为even
 \end{lstlisting}
-三个信号量：\texttt{mutex}实现缓冲区互斥访问；\texttt{empty}表示空位数（初值$N$）；\texttt{odd/even}分别表示缓冲区中奇数/偶数个数。\fi
+四个信号量：\texttt{mutex}实现缓冲区互斥访问；\texttt{empty}表示空位数（初值$N$）；\texttt{odd/even}分别表示缓冲区中奇数/偶数个数。\fi
 
 \vspace{8pt}
 

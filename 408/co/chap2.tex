@@ -443,42 +443,65 @@ Booth 算法的优势在于：当乘数中连续 $1$ 较多时减少加法次数
 \subsubsection{原码除法——加减交替法}
 
 \begin{conclusion}{原码除法（不恢复余数法/加减交替法）}{true-division}
-设 $[x]_{\text{原}}$（被除数）和 $[y]_{\text{原}}$（除数）：
+设 $x,y$ 为被除数和除数的\textbf{无符号数值部分}，且 $y\ne 0$；$n$ 为商的位数。符号位单独处理，以下只说明数值部分：
 \begin{enumerate}
-    \item 符号位单独处理：$Q_s = x_s \oplus y_s$。
-    \item 数值部分相除。初始余数 $R = |x|$。
-    \item 第 $i$ 次迭代（$i=1,\ldots,n$）：
+    \item 初始余数 $R=0$，按从被除数最高位到最低位的顺序逐位移入。
+    \item 第 $i$ 次迭代（从高位到低位）：先执行 $R\leftarrow 2R+x_i$，其中 $x_i$ 是当前移入的被除数位；若原余数非负则减去 $y$，若原余数为负则加上 $y$。
+    \item 根据本次运算后的余数符号确定商位：余数非负时商位置 1，否则置 0。
     \begin{itemize}
-        \item 若 $R \geqslant 0$：商 $q_i = 1$，$R \leftarrow 2R - |y|$；
-        \item 若 $R < 0$：商 $q_i = 0$，$R \leftarrow 2R + |y|$。
+        \item 原余数 $R\geqslant 0$：$R\leftarrow R-y$；
+        \item 原余数 $R<0$：$R\leftarrow R+y$。
     \end{itemize}
-    \item 最后若余数为负，做一次恢复：$R \leftarrow R + |y|$。
+    \item 最后若余数为负，做一次恢复：$R \leftarrow R + y$。
 \end{enumerate}
-\textbf{核心：}「够减则商1并减去除数，不够减则商0并加回除数」，避免恢复余数法的额外恢复步骤。
+\textbf{核心：}上一轮余数非负，本轮移位后减除数；上一轮余数为负，本轮移位后加除数。再按本轮结果的符号确定商位，从而避免每轮都先恢复负余数。
 
 \begin{lstlisting}[language=C]
-// 原码加减交替除法（数值部分，n位商）
-void TrueDiv(unsigned int x, unsigned int y, int n,
-             unsigned int *quot, unsigned int *rem) {
-    unsigned int R = x;              // 初始余数 = 被除数
-    unsigned int Q = 0;
-    for (int i = 0; i < n; i++) {
-        Q <<= 1;
-        if ((R & (1u << (2*n-1))) == 0) {  // R >= 0（检查符号位）
-            R = (R << 1) - y;
-            Q |= 1;
+// 原码加减交替除法（无符号数值部分，n 位商）
+#include <stdbool.h>
+#include <stdint.h>
+
+// 成功返回 true；失败时不写输出参数。
+bool TrueDiv(uint32_t x, uint32_t y, unsigned int n,
+             uint32_t *quot, uint32_t *rem) {
+    if (n == 0 || n > 32 || y == 0 || !quot || !rem) {
+        return false;
+    }
+    uint64_t limit = UINT64_C(1) << n;
+    if ((uint64_t)x >= limit || (uint64_t)y >= limit) {
+        return false;                // x、y 必须能用 n 位表示
+    }
+
+    int64_t R = 0;                   // 余数允许为负
+    uint32_t Q = 0;
+    for (int i = (int)n - 1; i >= 0; --i) {
+        bool was_nonnegative = (R >= 0);
+        uint32_t bit = (x >> (unsigned int)i) & UINT32_C(1);
+        R = 2 * R + (int64_t)bit;    // 不左移负的有符号整数
+        if (was_nonnegative) {
+            R -= (int64_t)y;
         } else {
-            R = (R << 1) + y;
+            R += (int64_t)y;
+        }
+
+        Q <<= 1;
+        if (R >= 0) {
+            Q |= UINT32_C(1);
         }
     }
-    if (R & (1u << (2*n-1))) R += y; // 最后余数为负则恢复
-    *quot = Q; *rem = R;
+    if (R < 0) {
+        R += (int64_t)y;             // 最后恢复
+    }
+    *quot = Q;
+    *rem = (uint32_t)R;
+    return true;
 }
 \end{lstlisting}
+接口约定 $1\leqslant n\leqslant32$、$y\ne0$，且 $x,y$ 都能用 $n$ 位无符号数表示；仅在返回 \texttt{true} 时读取输出。迭代后有 $-y\leqslant R<y$，故上述 32 位输入模型中的 \texttt{2 * R + bit} 可由 \texttt{int64\_t} 安全表示。
 \end{conclusion}
 
 \begin{attention}
-\textbf{408 常考对比：}原码恢复余数法 vs 不恢复余数法。前者每次减去除数，若余数为负则加回（恢复），再上商 $0$——恢复步骤多一次加法。后者直接将负余数左移后加除数，省去恢复操作，速度更快。
+\textbf{408 常考对比：}原码恢复余数法 vs 不恢复余数法。前者每次减去除数，若余数为负则加回（恢复），再上商 $0$——恢复步骤多一次加法。后者将负余数按算法左移一位（数值上乘 2）后加除数，省去逐轮恢复操作，速度更快；这不表示 C 程序可以对负的有符号整数直接使用左移运算符。
 \end{attention}
 
 \subsection{浮点运算}
