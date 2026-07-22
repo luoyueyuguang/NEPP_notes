@@ -305,7 +305,7 @@ free(q);
     \item \textbf{循环单链表}：尾结点 \texttt{next} 指向头结点。判空条件：\texttt{L->next == L}。
     \item \textbf{循环双链表}：头结点的 \texttt{prior} 指向尾结点；尾结点的 \texttt{next} 指向头结点。判空条件：\texttt{L->next == L \&\& L->prior == L}。
 \end{itemize}
-循环链表适合需要\textbf{循环遍历}或\textbf{从任意位置快速到达任意位置}的场景。
+循环链表适合需要\textbf{循环遍历}或从任意结点出发沿链反复扫描的场景。它避免了到达表尾后重新回到表头的特殊处理，但从一个任意结点查找到另一个任意结点通常仍需 $O(n)$ 时间，并不提供随机访问。
 \end{mydef}
 
 \subsection{静态链表（Static Linked List）}

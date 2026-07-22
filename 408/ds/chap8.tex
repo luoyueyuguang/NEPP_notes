@@ -402,7 +402,7 @@ void InOrderNonRec(BiTree T) {
 }
 \end{lstlisting}
 
-\textbf{复杂度：}时间 $O(n)$，空间（栈）最坏 $O(n)$（退化为链时），平均 $O(\log n)$。
+\textbf{复杂度：}时间 $O(n)$，辅助栈空间为 $O(h)$，其中 $h$ 为树高；退化为链时最坏 $O(n)$，树高为 $O(\log n)$ 时为 $O(\log n)$。
 \end{conclusion}
 
 \subsubsection{非递归先序遍历}

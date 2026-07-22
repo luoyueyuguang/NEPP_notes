@@ -39,7 +39,7 @@
 \begin{attention}
 \textbf{408 CRC 计算题的几个注意点：}
 \begin{itemize}
-    \item CRC 是\textbf{检错码}（非纠错码）。能检测所有单比特错误和绝大多数突发错误。
+    \item CRC 是\textbf{检错码}（非纠错码）。当生成多项式至少含两个非零项时可检测所有单比特错误；对突发错误的检测能力取决于生成多项式次数和具体因子，不能只用“CRC”二字概括成无条件保证。
     \item 模 2 除法 = 异或（不进位、不借位）。
     \item $r$ 次生成多项式产生的 CRC 校验位为 $r$ 位。
 \end{itemize}

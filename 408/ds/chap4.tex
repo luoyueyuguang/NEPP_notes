@@ -19,7 +19,7 @@
     \item \textbf{孩子/双亲/兄弟}：结点的子树的根称为该结点的\textbf{孩子}（Child）；该结点称为孩子的\textbf{双亲}（Parent）；同一双亲的孩子互为\textbf{兄弟}（Sibling）。
     \item \textbf{路径与路径长度}：从结点 $v_0$ 到 $v_k$ 的\textbf{路径}是结点序列 $v_0,v_1,\ldots,v_k$，其中 $v_{i-1}$ 是 $v_i$ 的双亲。路径上边的数目称为\textbf{路径长度}。
     \item \textbf{深度与高度}：结点的\textbf{深度}（Depth）是从根到该结点的路径长度（根深为 $0$ 或 $1$，依约定）；树的\textbf{高度}（Height）是树中结点的最大深度。408 通常约定根深度为 $1$，高度 = 最大层数。
-    \item \textbf{祖先与子孙}：从根到某结点路径上的所有结点（不含自身）为该结点的\textbf{祖先}；某结点的子树中所有结点为其\textbf{子孙}。
+    \item \textbf{祖先与子孙}：从根到某结点路径上的所有结点（不含自身）为该结点的\textbf{祖先}；以某结点为根的子树中除该结点自身外的所有结点为其\textbf{子孙}。
     \item \textbf{有序树 vs 无序树}：子树有左右次序之分则为有序树，否则为无序树。
 \end{itemize}
 \end{conclusion}
@@ -173,7 +173,7 @@ void PostOrder(BiTree T) {
 
 \begin{conclusion}{递归遍历的时间/空间复杂度}{traversal-complexity}
 每个结点访问一次且仅一次：时间复杂度 $O(n)$。
-递归调用栈的最大深度 = 树的高度，空间复杂度 $O(h)$，最坏情况（单链状）为 $O(n)$，平均 $O(\log n)$。
+递归调用栈的最大深度 = 树的高度，空间复杂度为 $O(h)$。退化为单链时 $h=n$，故最坏为 $O(n)$；仅在树高为 $O(\log n)$（如平衡树）时，栈空间才是 $O(\log n)$。
 \end{conclusion}
 
 \subsubsection{非递归遍历}
@@ -573,8 +573,9 @@ void Union(int x, int y) {              // 合并
 \begin{conclusion}{并查集的优化}{union-find-optimizations}
 朴素实现中树可能退化为链，导致 \texttt{Find} 为 $O(n)$。两种经典优化：
 \begin{enumerate}
-    \item \textbf{按秩合并（Union by Rank）：} 总是将高度较小的树合并到高度较大的树上，保持树高为 $O(\log n)$。可用根结点的 \texttt{parent} 值（负数）的绝对值表示秩/大小。
-    \item \textbf{路径压缩（Path Compression）：} 在 \texttt{Find} 过程中，将查找路径上的所有结点直接指向根。与按秩合并结合使用时，摊还时间复杂度近乎 $O(\alpha(n))$，其中 $\alpha$ 为反 Ackermann 函数，对任何实际 $n$ 值 $\alpha(n)\leqslant 4$。
+    \item \textbf{按秩合并（Union by Rank）：} 总是将秩较小的树合并到秩较大的树上；秩通常是树高的上界，而不是集合元素个数。
+    \item \textbf{按大小合并（Union by Size）：} 总是将元素较少的集合挂到元素较多的集合下。可用根结点 \texttt{parent} 的负值绝对值记录集合大小；下方代码采用的正是这种方式。
+    \item \textbf{路径压缩（Path Compression）：} 在 \texttt{Find} 过程中，将查找路径上的所有结点直接指向根。与按秩或按大小合并结合使用时，摊还复杂度为 $O(\alpha(n))$，其中 $\alpha$ 为增长极慢的反 Ackermann 函数。
 \end{enumerate}
 
 \begin{lstlisting}[language=C]
@@ -584,12 +585,12 @@ int Find(int x) {
     return parent[x] = Find(parent[x]);   // 递归压缩
 }
 
-// 按秩合并
+// 按大小合并：根结点 parent 的负值绝对值表示集合大小
 void Union(int x, int y) {
     int rx = Find(x), ry = Find(y);
     if (rx == ry) return;
-    if (parent[rx] > parent[ry]) {         // rx 高度较小（负数绝对值较小）
-        parent[ry] += parent[rx];          // 更新高度
+    if (parent[rx] > parent[ry]) {         // rx 的集合较小
+        parent[ry] += parent[rx];          // 更新 ry 集合的大小
         parent[rx] = ry;
     } else {
         parent[rx] += parent[ry];
@@ -600,7 +601,7 @@ void Union(int x, int y) {
 \end{conclusion}
 
 \begin{attention}
-并查集在 408 中通常以选择题（考察优化效果和时间复杂度）或简答题（结合图论中的 Kruskal 算法）出现。理解\textbf{按秩合并}和\textbf{路径压缩}的机制是重点。
+并查集在 408 中通常以选择题（考察优化效果和时间复杂度）或简答题（结合图论中的 Kruskal 算法）出现。需区分\textbf{按秩合并}与\textbf{按大小合并}的元数据含义，并理解它们和\textbf{路径压缩}的配合。
 \end{attention}
 
 \subsection{408 高频考点与真题风格}

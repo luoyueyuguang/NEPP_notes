@@ -67,18 +67,18 @@ Flash & NAND/NOR Flash & 块擦除、页编程 & 非易失 \\
 \node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!20, below of=reg] (cache) {Cache（SRAM）};
 \node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!30, below of=cache] (mem) {主存（DRAM）};
 \node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!40, below of=mem] (disk) {辅存（磁盘/SSD）};
-\node[right of=reg, node distance=4cm] (speed) {\small 速度：$<1$ns};
-\node[right of=cache, node distance=4cm] (speed2) {\small $\sim 1$--$10$ns};
-\node[right of=mem, node distance=4cm] (speed3) {\small $\sim 50$--$100$ns};
-\node[right of=disk, node distance=4cm] (speed4) {\small $\sim 10$ms（磁盘）/$\sim100\mu$s（SSD）};
-\node[left of=reg, node distance=5cm] (size) {\small 容量：$\sim$KB};
-\node[left of=cache, node distance=5cm] (size2) {\small $\sim$MB};
-\node[left of=mem, node distance=5cm] (size3) {\small $\sim$GB};
-\node[left of=disk, node distance=5cm] (size4) {\small $\sim$TB};
+\node[right of=reg, node distance=4cm] (speed) {\small 访问速度：最快};
+\node[right of=cache, node distance=4cm] (speed2) {\small 很快};
+\node[right of=mem, node distance=4cm] (speed3) {\small 较慢};
+\node[right of=disk, node distance=4cm] (speed4) {\small 最慢};
+\node[left of=reg, node distance=5cm] (size) {\small 容量：最小};
+\node[left of=cache, node distance=5cm] (size2) {\small 较小};
+\node[left of=mem, node distance=5cm] (size3) {\small 较大};
+\node[left of=disk, node distance=5cm] (size4) {\small 最大};
 \end{tikzpicture}
 \end{center}
 
-每一层都是下一层的「缓存」——Cache 缓存主存、主存缓存磁盘。上层是下层的子集（包含关系）。
+存储层次通过局部性在相邻层之间保存近期或常用数据：Cache 缓存主存中的块，虚拟存储系统可把主存看作外存中进程地址空间的缓存。这里的“缓存”是功能类比，并不意味着任意时刻都满足严格的物理包含关系；写回 Cache、非包含式多级 Cache 和寄存器状态都可能使简单的“上层必为下层子集”表述失效。
 \end{mydef}
 
 \begin{conclusion}{局部性原理（Principle of Locality）}{locality}
@@ -178,7 +178,7 @@ Flash & NAND/NOR Flash & 块擦除、页编程 & 非易失 \\
 \begin{mydef}{SRAM（静态随机存取存储器）}{sram}
 SRAM 的基本存储单元是\textbf{六管 CMOS 双稳态触发器}（6-T cell）：两个交叉耦合的反相器构成锁存器，4 个晶体管做读写控制。只要持续供电，数据就稳定保持。特点：
 \begin{itemize}
-    \item \textbf{速度快}：读/写延迟 $\sim 1$--$10$ns，不需要刷新。
+    \item \textbf{速度快}：静态存储单元无需刷新，通常比 DRAM 延迟低；具体延迟取决于工艺、容量和层级，题目给出参数时应以题设为准。
     \item \textbf{功耗较高}：每个 bit 需要 $6$ 个晶体管持续耗电维持状态。
     \item \textbf{密度低}：集成度远低于 DRAM，每 bit 成本高。
     \item \textbf{用途}：CPU 内部的 Cache（L1/L2/L3），要求极低延迟。
@@ -272,7 +272,7 @@ Cache 中的多端口实现常基于双口 RAM。
 \text{体号} = \text{高位地址},\quad \text{体内地址} = \text{低位地址}
 \]
 
-\textbf{特点：}一个连续的程序段通常在单个存储体中，各体只能串行工作。适合多道程序环境（不同程序分布在不同体中），但不能提高单道程序的带宽。
+\textbf{特点：}连续地址块通常集中在同一个存储体中，因此对单个连续地址流不能像低位交叉编址那样让相邻字在各体流水访问；它更适合让不同地址区域或不同访问流分布到不同存储体并行工作。
 
 \subsubsection*{低位交叉编址（Low-Order Interleaving）}
 
