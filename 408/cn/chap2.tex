@@ -154,27 +154,64 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 
 \begin{enumerate}
 
-\item \textbf{（单项选择题）} 物理层传输的数据单元是
+\item \textbf{（2009年·选择题·第34题）} 在无噪声情况下，若某通信链路的带宽为3 kHz，采用4个相位、每个相位有4种振幅的QAM调制技术，则该通信链路的最大数据传输速率是
 \begin{center}
 \begin{tabular}{ll}
-(A) 帧 & (B) 分组 \\[6pt]
-(C) 比特 & (D) 报文
+(A) 12 kbps & (B) 24 kbps \\[6pt]
+(C) 48 kbps & (D) 96 kbps
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 曼彻斯特编码的波特率与比特率的关系是
+\ifshowsolutions\par\noindent\textbf{解析：} 4相位$\times$4振幅$=16$种信号状态，每码元$\log_2 16=4$ bit。奈奎斯特：$C_{\max}=2\times 3000\times 4=24$ kbps。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2011年·选择题·第34题）} 若某通信链路的数据传输速率为2400 bps，采用4相位调制，则该链路的波特率是
 \begin{center}
 \begin{tabular}{ll}
-(A) 波特率 = 比特率 & (B) 波特率 = 2$\times$比特率 \\[6pt]
-(C) 比特率 = 2$\times$波特率 & (D) 两者无关
+(A) 600 Baud & (B) 1200 Baud \\[6pt]
+(C) 4800 Baud & (D) 9600 Baud
 \end{tabular}
 \end{center}
 
-\item \textbf{（填空题）} 若某信道带宽为 3 kHz，信噪比为 30 dB，则根据香农定理，该信道的极限数据率为 \underline{\qquad} bps（保留整数）。
+\ifshowsolutions\par\noindent\textbf{解析：} 4相位每码元$\log_2 4=2$ bit。波特率$=2400/2=1200$ Baud。\boxed{\textbf{答案：}(B)}\fi
 
-\item \textbf{（简答题）} 简述集线器（Hub）和交换机（Switch）在 OSI 参考模型中所处的层次以及主要功能差异。
+\vspace{8pt}
 
-\item \textbf{（计算题）} 若某信道带宽为 4 kHz，采用 16 种不同相位的 QPSK 调制技术（即每个码元有 16 种不同的离散值）。在无噪声条件下，该信道的最大数据率是多少？
+\item \textbf{（2013年·选择题·第34题）} 若下图为10BaseT网卡接收到的信号波形，则该网卡收到的比特串是（采用曼彻斯特编码）
+（图略，比特中间从高到低为1，从低到高为0）
+\begin{center}
+\begin{tabular}{ll}
+(A) 00110110 & (B) 10101101 \\[6pt]
+(C) 01010010 & (D) 11000101
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 曼彻斯特编码：中间跳变高→低=1，低→高=0。按波形逐位读取。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2016年·选择题·第34题）} 若信道在无噪声情况下的极限数据传输速率不小于信噪比为30 dB条件下的极限数据传输速率，则信号的离散电平数至少是
+\begin{center}
+\begin{tabular}{ll}
+(A) 4 & (B) 8 \\[6pt]
+(C) 16 & (D) 32
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 30 dB$\Rightarrow S/N=10^{30/10}=1000$。香农：$C=W\log_2(1+1000)\approx W\times 10$。奈奎斯特：$C=2W\log_2 V$。需$2W\log_2 V\geq 10W\Rightarrow \log_2 V\geq 5\Rightarrow V\geq 32$。\boxed{\textbf{答案：}(D)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2020年·选择题·第34题）} 若将1010 0110用曼彻斯特编码，则第一个比特（最高位1）的编码波形为
+\begin{center}
+\begin{tabular}{ll}
+(A) 前半高电平，后半低电平 & (B) 前半低电平，后半高电平 \\[6pt]
+(C) 中间跳变高到低 & (D) 中间跳变低到高
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 曼彻斯特编码：1→中间从高到低跳变；0→中间从低到高跳变。第一个比特为1，中间跳变高→低。前半高电平，后半低电平即中间从高到低。\boxed{\textbf{答案：}(A)}\fi
 
 \end{enumerate}
 
@@ -182,35 +219,36 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 
 \begin{enumerate}[resume]
 
-\item \textbf{（真题风格，单项选择题）} 以下关于曼彻斯特编码和差分曼彻斯特编码的说法，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 两者均无自同步能力 \\[4pt]
-(B) 差分曼彻斯特编码中，比特中间的跳变仅用于同步 \\[4pt]
-(C) 曼彻斯特编码的波特率等于比特率 \\[4pt]
-(D) 差分曼彻斯特编码的抗干扰性更好
-\end{tabular}
-\end{center}
-
-\item \textbf{（真题风格，综合题）} 某信道的带宽为 3 kHz，采用四相调制（4 种相位，每种相位一个振幅），信噪比为 20 dB。
+\item \textbf{（真题风格·综合题）} 电话线路的带宽为3 kHz，信噪比为30 dB。
 \begin{enumerate}
-    \item[(1)] 根据奈奎斯特准则，该信道的最大数据率是多少？
-    \item[(2)] 根据香农定理，该信道的极限数据率是多少？
-    \item[(3)] 该信道实际可达到的最大数据率是多少？说明理由。
+    \item[(1)] 根据香农定理，该信道的最大数据率是多少？
+    \item[(2)] 若采用QPSK（4种相位）调制，再根据奈奎斯特准则计算最大数据率；
+    \item[(3)] 两者为何不同？哪一个才是该信道的实际极限？
 \end{enumerate}
 
-\item \textbf{（真题风格，综合题）} 主机 A 和主机 B 之间通过一个集线器和两段 100 m 的双绞线连接，端到端传输速率为 100 Mbps，电磁波在双绞线上的传播速率为 $2\times10^8$ m/s。A 向 B 发送一个长度为 1000 字节的帧。
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) $S/N=10^{30/10}=1000$。$C=3000\times\log_2 1001\approx 3000\times 10=30$ kbps。
+(2) QPSK每码元$\log_2 4=2$ bit。奈奎斯特：$C=2\times 3000\times 2=12$ kbps。
+(3) 奈奎斯特是无噪声下的符号率上限，香农是有噪声下的信息率上限。取$\min(30,12)=12$ kbps为实际极限——码元数限制了上限。\fi
+
+\vspace{8pt}
+
+\item \textbf{（真题风格·综合题）} 收发两端相距1000 km，信号传播速率为$2\times 10^8$ m/s，数据发送速率为1 Gbps。发送方连续发送长度为1000 B的帧。
 \begin{enumerate}
-    \item[(1)] 假设采用电路交换方式（忽略电路建立时间），求 A 开始发送到 B 完全收完的总时延；
-    \item[(2)] 若采用分组交换，A 先将帧分为两个 500 字节的分组依次发送。集线器采用存储转发方式，求总时延；
-    \item[(3)] 对比两种方式的结果。
+    \item[(1)] 若采用停止-等待协议，信道利用率是多少？
+    \item[(2)] 若要使信道利用率达到50\%，发送窗口至少应为多少？
 \end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) $T_{\text{发送}}=1000\times 8/10^9=8\ \mu\text{s}$。$T_{\text{传播}}=10^6/(2\times 10^8)=5$ ms。RTT$=10$ ms。利用$=8/(8+10000)=0.08\%$。
+
+(2) 需$W\times T_{\text{发送}}\geq 0.5\times(\text{RTT}+T_{\text{发送}})\Rightarrow W\geq 0.5\times 10008/8\approx 626$。窗口至少626个帧。\fi
 
 \end{enumerate}
 
 \vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item Kurose \& Ross《计算机网络：自顶向下方法》第 1 章（1.4-1.5 节）——时延、丢包和吞吐量的定量分析，含奈奎斯特/香农的直观解释；
-    \item 谢希仁《计算机网络》第 2 章——物理层传输介质和编码技术的标准国内表述。
+    \item Kurose \& Ross 第1章——奈奎斯特与香农公式的直观解释和推导。
+    \item 谢希仁 第2章——物理层传输介质和编码技术。
 \end{itemize}

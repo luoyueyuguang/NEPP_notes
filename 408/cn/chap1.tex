@@ -152,29 +152,58 @@ OSI & TCP/IP & 典型协议 \\
 
 \begin{enumerate}
 
-\item \textbf{（单项选择题）} TCP/IP 参考模型中，与 OSI 参考模型的网络层对应的是
+\item \textbf{（2009年·选择题·第33题）} 在OSI参考模型中，自下而上第一个提供端到端服务的层次是
 \begin{center}
 \begin{tabular}{ll}
-(A) 网络接口层 & (B) 网际层 \\[6pt]
-(C) 传输层 & (D) 应用层
+(A) 数据链路层 & (B) 传输层 \\[6pt]
+(C) 会话层 & (D) 应用层
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 在 OSI 参考模型中，负责路由选择的层是
+\ifshowsolutions\par\noindent\textbf{解析：} 传输层是第一个端到端的层次——网络层及以下都是逐跳（hop-by-hop）。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2010年·选择题·第33题）} 下列选项中，不属于网络体系结构所描述的内容的是
 \begin{center}
 \begin{tabular}{ll}
-(A) 物理层 & (B) 数据链路层 \\[6pt]
-(C) 网络层 & (D) 传输层
+(A) 网络的层次 & (B) 每一层使用的协议 \\[6pt]
+(C) 协议的内部实现细节 & (D) 每一层必须完成的功能
 \end{tabular}
 \end{center}
 
-\item \textbf{（填空题）} 网络协议的三要素是 \underline{\qquad}、\underline{\qquad} 和 \underline{\qquad}。
+\ifshowsolutions\par\noindent\textbf{解析：} 网络体系结构只定义层次划分和各层功能/协议接口，不规定协议的内部实现细节。\boxed{\textbf{答案：}(C)}\fi
 
-\item \textbf{（填空题）} 发送时延取决于 \underline{\qquad} 和 \underline{\qquad}；传播时延取决于 \underline{\qquad} 和 \underline{\qquad}。
+\vspace{8pt}
 
-\item \textbf{（计算题）} 一个长度为 1000 字节的分组，从主机 A 经过一段 1000 km 的光纤链路（传播速率 $2\times 10^8$ m/s）发送到主机 B，链路带宽为 100 Mbps。求发送时延和传播时延。
+\item \textbf{（2012年·选择题·第33题）} TCP/IP参考模型的网络层（网际层）提供的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 无连接不可靠的数据报服务 & (B) 无连接可靠的数据报服务 \\[6pt]
+(C) 面向连接不可靠的虚电路服务 & (D) 面向连接可靠的虚电路服务
+\end{tabular}
+\end{center}
 
-\item \textbf{（简答题）} 简要说明电路交换、报文交换和分组交换的主要区别。
+\ifshowsolutions\par\noindent\textbf{解析：} IP协议提供无连接、不可靠的尽力而为（best-effort）数据报服务。可靠传输由传输层TCP保证。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2016年·选择题·第33题）} 假设OSI参考模型的应用层欲发送400 B的数据（无拆分）。除物理层和应用层外，其他各层在封装PDU时均引入20 B的额外开销，则应用层的数据传输效率约为
+\begin{center}
+\begin{tabular}{ll}
+(A) 80\% & (B) 83\% \\[6pt]
+(C) 87\% & (D) 91\%
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 共5层开销（表示层、会话层、传输层、网络层、数据链路层），每层20B，共$5\times 20=100$B。总发送量$=400+100=500$B。效率$=400/500=80\%$。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（计算题）} 收发两端之间的传输距离为1000 km，信号在媒体上的传播速率为$2\times 10^8$ m/s。数据长度为$10^7$ bit，数据发送速率为100 kb/s。求发送时延和传播时延。
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+发送时延$=10^7/10^5=100$ s。传播时延$=10^6/(2\times 10^8)=0.005$ s$=5$ ms。\fi
 
 \end{enumerate}
 
@@ -182,34 +211,44 @@ OSI & TCP/IP & 典型协议 \\
 
 \begin{enumerate}[resume]
 
-\item \textbf{（真题风格，单项选择题）} 在 OSI 参考模型中，自下而上第一个提供端到端服务的层次是
+\item \textbf{（2013年·选择题·第35题）} 主机甲通过1个路由器（存储转发方式）与主机乙互连，两段链路的数据传输速率均为10 Mbps。主机甲分别用报文交换和分组大小为10 kb的分组交换向主机乙发送1个大小为8 Mb的报文。若忽略链路传播时延、分组首部开销和拆装时间，则两种交换方式完成该报文传输所需的总时间分别为
 \begin{center}
 \begin{tabular}{ll}
-(A) 数据链路层 & (B) 网络层 \\[6pt]
-(C) 传输层 & (D) 应用层
+(A) 800 ms, 1600 ms & (B) 801 ms, 1600 ms \\[6pt]
+(C) 1600 ms, 800 ms & (D) 1600 ms, 801 ms
 \end{tabular}
 \end{center}
 
-\item \textbf{（真题风格，单项选择题）} 在一个采用电路交换的网络中，从主机 A 到主机 B 经过 3 段链路，每段链路的传播时延均为 10 ms。若忽略处理时延和连接建立时间，则从 A 开始发送一个 1000 比特的分组到 B 收到该分组的时延（链路带宽均为 1 Mbps）为
-\begin{center}
-\begin{tabular}{ll}
-(A) 1 ms & (B) 30 ms \\[6pt]
-(C) 31 ms & (D) 33 ms
-\end{tabular}
-\end{center}
+\ifsholutions\par\noindent\textbf{解析：}
+报文交换：甲发完$8\text{ Mb}/10\text{ Mbps}=800$ ms；路由器再发800 ms到乙。总$=1600$ ms。
 
-\item \textbf{（真题风格，综合题）} 某网络的拓扑结构如下：主机 A—路由器 R1—路由器 R2—主机 B。每段链路长度 1000 km，电磁波传播速率为 $2\times 10^8$ m/s，链路带宽均为 100 Mbps。A 向 B 发送一个大小为 $10^6$ 字节的文件。
-\begin{enumerate}
-    \item[(1)] 若采用报文交换（整个文件作为一个报文），求从 A 开始发送到 B 完全收完的总时延（忽略处理时延）；
-    \item[(2)] 若将文件分成 1000 个分组（每个 1000 字节），采用分组交换（存储转发），求总时延（忽略首部开销和排队时延）；
-    \item[(3)] 对比两种交换方式的结果，说明分组交换的优势。
-\end{enumerate}
+分组交换：$8\text{ Mb}/10\text{ kb}=800$个分组。甲发完所有分组$=800\times(10\text{ kb}/10\text{ Mbps})=800$ ms。第一个分组到达乙：甲发完第一个分组（1 ms）$+$路由器转发第一个分组（1 ms）$=2$ ms。最后一个分组到达乙$=800+1=801$ ms（最后一个分组甲发完时，路由器在1 ms前已完成倒数第二个分组的转发，可立即转发最后一个）。
+
+总时间$=800+1=801$ ms。\boxed{\textbf{答案：}(D)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（真题风格·综合题）} 画出TCP/IP四层模型与OSI七层模型的对应关系，并标注各层典型协议和数据单元名称。
+
+\ifshowsolutions\par\noindent\textbf{答案：}
+\begin{center}
+\begin{tabular}{|c|c|l|l|}
+\hline
+OSI & TCP/IP & 典型协议 & PDU \\
+\hline
+应用层、表示层、会话层 & 应用层 & HTTP, DNS, SMTP & 报文 \\
+传输层 & 传输层 & TCP, UDP & 报文段/数据报 \\
+网络层 & 网际层 & IP, ICMP, ARP & 数据报/分组 \\
+数据链路层、物理层 & 网络接口层 & Ethernet & 帧/比特 \\
+\hline
+\end{tabular}
+\end{center}\fi
 
 \end{enumerate}
 
 \vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item Kurose \& Ross《计算机网络：自顶向下方法》第 1 章——极其生动的 Internet 全景介绍，包括分组交换 vs 电路交换的定量分析。
-    \item 谢希仁《计算机网络》第 1 章——OSI 和 TCP/IP 体系结构的国内标准表述，用于对齐 408 术语。
+    \item Kurose \& Ross《计算机网络：自顶向下方法》第1章——生动直观的分组交换vs电路交换定量分析。
+    \item 谢希仁《计算机网络》第1章——国内标准术语体系。
 \end{itemize}
