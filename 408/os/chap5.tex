@@ -538,35 +538,44 @@ T_{\text{total}} = T + N \times \max(C, T) + M
 
 \begin{enumerate}
 
-\item \textbf{（单项选择题）} 以下设备中，属于块设备的是
+\item \textbf{（2017年·选择题·第32题）} 系统将数据从磁盘读到内存的过程包括以下操作：
+\begin{center}
+\begin{tabular}{l}
+① DMA 控制器发出中断请求 \\
+② 初始化 DMA 控制器并启动磁盘 \\
+③ 从磁盘传输一块数据到内存缓冲区 \\
+④ 执行「DMA 结束」中断服务程序
+\end{tabular}
+\end{center}
+正确的执行顺序是
 \begin{center}
 \begin{tabular}{ll}
-(A) 键盘 & (B) 鼠标 \\[6pt]
-(C) 磁盘 & (D) 打印机
+(A) ③→①→②→④ & (B) ②→③→①→④ \\[6pt]
+(C) ②→①→③→④ & (D) ①→②→④→③
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 在 I/O 控制方式中，由 DMA 控制器直接完成数据传输，CPU 仅在传输开始和结束时参与。DMA 方式每传送完一整块数据后，通过以下哪种方式通知 CPU？
+\item \textbf{（2015年·选择题·第28题）} 在系统内存中设置磁盘缓冲区的主要目的是
 \begin{center}
 \begin{tabular}{ll}
-(A) 由 CPU 不断轮询 DMA 控制器的状态寄存器 & (B) DMA 控制器向 CPU 发出一次中断 \\[6pt]
-(C) 由驱动程序定期检查 DREQ 信号 & (D) 通过修改内存中的标志位
+(A) 减少磁盘 I/O 次数 & (B) 减少平均寻道时间 \\[6pt]
+(C) 提高磁盘数据可靠性 & (D) 实现设备无关性
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} SPOOLing 系统中，输入井和输出井位于
+\item \textbf{（2022年·选择题·第32题）} 下列关于驱动程序的叙述中，\textbf{不正确}的是
 \begin{center}
 \begin{tabular}{ll}
-(A) 内存 & (B) 磁盘 \\[6pt]
-(C) 设备控制器的缓冲区 & (D) CPU 的 Cache
+(A) 驱动程序与 I/O 控制方式无关 \\[4pt]
+(B) 初始化设备是由驱动程序控制的 \\[4pt]
+(C) 驱动程序执行 I/O 操作时，进程可能会阻塞 \\[4pt]
+(D) 对磁盘的读/写操作最终转换为驱动程序中的读/写函数
 \end{tabular}
 \end{center}
 
-\item \textbf{（填空题）} I/O 软件的四个层次自底向上依次为：\underline{\qquad}、\underline{\qquad}、\underline{\qquad} 和 \underline{\qquad}。其中，SPOOLing 系统属于 \underline{\qquad} 层。
+\item \textbf{（填空题）} I/O 软件的四个层次自底向上依次为：\underline{\qquad}、\underline{\qquad}、\underline{\qquad} 和 \underline{\qquad}。其中，SPOOLing 系统属于 \underline{\qquad} 层；设备独立性软件负责将 \underline{\qquad} 设备名映射到物理设备；向上提供统一接口、向下操作设备寄存器的是 \underline{\qquad}。
 
-\item \textbf{（简答题）} 简述 DMA 控制方式与中断驱动方式的核心区别（至少三点）。
-
-\item \textbf{（计算题）} 设磁盘块大小为 2 KB，缓冲区大小等于磁盘块大小。磁盘 I/O 传输一块数据的时间 $T = 0.1$ ms，系统将缓冲区内数据传送到用户工作区的时间 $M = 0.02$ ms，CPU 处理一块数据的时间 $C = 0.05$ ms。现有 100 块数据需要读入并处理，分别使用单缓冲和双缓冲方式，计算总处理时间。
+\item \textbf{（简答题）} 简述 DMA 控制方式与中断驱动方式的核心区别（至少三点），并说明为什么 DMA 方式更适合高速块设备。
 
 \end{enumerate}
 
@@ -574,21 +583,39 @@ T_{\text{total}} = T + N \times \max(C, T) + M
 
 \begin{enumerate}[resume]
 
-\item \textbf{（真题风格，单项选择题）} 下列关于 SPOOLing 技术的叙述中，\textbf{错误}的是
+\item \textbf{（2016年·选择题·第31题）} 下列关于 SPOOLing 技术的叙述中，\textbf{错误}的是
 \begin{center}
 \begin{tabular}{ll}
-(A) SPOOLing 技术可以将独占设备改造为共享设备 \\[4pt]
-(B) SPOOLing 输出并位于磁盘上，用于暂存用户进程的输出数据 \\[4pt]
-(C) SPOOLing 系统中的输出进程负责将数据从磁盘输出井送至物理设备 \\[4pt]
-(D) SPOOLing 技术可以用于加速磁盘 I/O 的性能
+(A) SPOOLing 技术需要外存的支持 \\[4pt]
+(B) SPOOLing 技术需要多道程序技术的支持 \\[4pt]
+(C) SPOOLing 技术可以使多个作业共享一台独占设备 \\[4pt]
+(D) SPOOLing 技术由用户作业控制设备与输入/输出井之间的数据传送
 \end{tabular}
 \end{center}
 
-\item \textbf{（真题风格，单项选择题）} 某系统采用双缓冲技术实现磁盘 I/O。设磁盘将一块数据读入缓冲区的时间为 $T$，操作系统将缓冲区数据传送到用户区的时间为 $M$，CPU 处理一块数据的时间为 $C$。若 $T = 80 \; \mu\text{s}$，$C = 100 \; \mu\text{s}$，$M = 10 \; \mu\text{s}$，则系统处理完一块数据的平均时间约为
+\item \textbf{（2011年·选择题·第26题）} 用户程序发出磁盘 I/O 请求后，系统的正确处理流程是
 \begin{center}
 \begin{tabular}{ll}
-(A) $100 \; \mu\text{s}$ & (B) $110 \; \mu\text{s}$ \\[6pt]
-(C) $130 \; \mu\text{s}$ & (D) $180 \; \mu\text{s}$
+(A) 用户程序→系统调用处理程序→设备驱动程序→中断处理程序 \\[4pt]
+(B) 用户程序→系统调用处理程序→中断处理程序→设备驱动程序 \\[4pt]
+(C) 用户程序→设备驱动程序→系统调用处理程序→中断处理程序 \\[4pt]
+(D) 用户程序→设备驱动程序→中断处理程序→系统调用处理程序
+\end{tabular}
+\end{center}
+
+\item \textbf{（2013年·选择题·第27题）} 设系统缓冲区和用户工作区均采用单缓冲，从外设读入 1 个数据块到系统缓冲区的时间为 100，从系统缓冲区读入 1 个数据块到用户工作区的时间为 5，对用户工作区中的 1 个数据块进行分析的时间为 90。进程从外设读入并分析 2 个数据块的最短时间是
+\begin{center}
+\begin{tabular}{ll}
+(A) 200 & (B) 295 \\[6pt]
+(C) 300 & (D) 390
+\end{tabular}
+\end{center}
+
+\item \textbf{（2011年·选择题·第31题）} 某文件占 10 个磁盘块，现要把该文件磁盘块逐个读入主存缓冲区，并送用户区进行分析。假设一个缓冲区与一个磁盘块大小相同，把一个磁盘块读入缓冲区的时间为 100 $\mu\text{s}$，将缓冲区的数据传送到用户区的时间是 50 $\mu\text{s}$，CPU 对一块数据进行分析的时间为 50 $\mu\text{s}$。在单缓冲区和双缓冲区结构下，读入并分析完该文件的时间分别是
+\begin{center}
+\begin{tabular}{ll}
+(A) 1500 $\mu\text{s}$、1000 $\mu\text{s}$ & (B) 1550 $\mu\text{s}$、1100 $\mu\text{s}$ \\[6pt]
+(C) 1550 $\mu\text{s}$、1550 $\mu\text{s}$ & (D) 2000 $\mu\text{s}$、2000 $\mu\text{s}$
 \end{tabular}
 \end{center}
 
@@ -600,16 +627,14 @@ T_{\text{total}} = T + N \times \max(C, T) + M
     \item[(3)] 以上两种缓冲大小下，哪种配置的 I/O 吞吐率更高？为什么？
 \end{enumerate}
 
-\item \textbf{（真题风格，综合题）} 一个 SPOOLing 打印系统，由三个用户进程 P1、P2、P3 同时请求打印。各进程打印数据量分别为 100 KB、50 KB 和 200 KB，打印机输出速率为 100 KB/s。不考虑磁盘读写时间。
-
-\begin{enumerate}
-    \item[(1)] 若三个进程同时发出打印请求，在没有 SPOOLing 的情况下（即进程独占打印机），从第一个进程开始打印到所有进程打印完成需要多长时间？
-    \item[(2)] 在 SPOOLing 系统下，三个用户进程从发出打印请求到各自返回（即 ``感觉'' 打印完成）分别需要多长时间？（设输出井写入速率为无限大——不阻塞）
-    \item[(3)] 打印守护进程从开始打印到所有文件打印完成需要多少时间？
-    \item[(4)] 对比 (1) 和 (2) 的结果，说明 SPOOLing 如何改善了用户体验。
 \end{enumerate}
 
-\end{enumerate}
+\vspace{8pt}
+\noindent\textbf{解题提示：}
+\begin{itemize}
+    \item 第 8 题考查单/双缓冲时间计算的核心公式——单缓冲每块时间 $= \max(C,T) + M$，双缓冲每块时间 $= \max(C, T)$。注意首尾边界（第一块需先填满缓冲区，最后一块需处理完 $M$ 和 $C$）。
+    \item 第 9 题双缓冲下 $\max(T, C) = \max(0.2, 0.3) = 0.3$ ms，总时间 $= T + 199 \times \max(T,C) + M + C$（注意第一块 $T$ 和最后一块 $M+C$ 的边界处理）。
+\end{itemize}
 
 \vspace{8pt}
 \noindent\textbf{拓展阅读：}
