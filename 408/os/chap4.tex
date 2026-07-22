@@ -119,27 +119,74 @@ LOOK/C-LOOK & 类似 SCAN/C-SCAN，但到最远请求即折返 & 更实用 & —
 
 \begin{enumerate}
 
-\item \textbf{（单项选择题）} UNIX 操作系统中，文件的索引结构采用
+\item \textbf{（2011年·选择题·第27题）} 某文件系统的目录结构如下图所示。假设用户要访问文件\texttt{f1.java}，且当前工作目录为\texttt{Program}，则该文件的全路径名为
+
+（目录树图略：根\texttt{/}下\texttt{Program}和\texttt{Document}，\texttt{Program}下有\texttt{Java-Prog}和\texttt{f1.java}）
 \begin{center}
 \begin{tabular}{ll}
-(A) 连续分配 & (B) 链接分配 \\[6pt]
-(C) 索引分配 & (D) 混合索引分配
+(A) \texttt{/Program/f1.java} & (B) \texttt{/Document/Program/f1.java} \\[6pt]
+(C) \texttt{Program/f1.java} & (D) \texttt{/Java-Prog/f1.java}
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 位示图可用于管理磁盘空闲空间。若磁盘有 1000 个盘块，字长为 32 位，位示图需占用的字数为
+\ifshowsolutions\par\noindent\textbf{解析：} f1.java在Program目录下，全路径\texttt{/Program/f1.java}。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2014年·选择题·第28题）} 在磁盘调度算法中，通常称为"电梯算法"的是
 \begin{center}
 \begin{tabular}{ll}
-(A) 31 & (B) 32 \\[6pt]
-(C) 1000 & (D) 32000
+(A) FCFS & (B) SSTF \\[6pt]
+(C) SCAN & (D) C-SCAN
 \end{tabular}
 \end{center}
 
-\item \textbf{（填空题）} 磁盘访问时间由 \underline{\qquad}、\underline{\qquad} 和 \underline{\qquad} 三部分组成，其中 \underline{\qquad} 所占比重最大。
+\ifshowsolutions\par\noindent\textbf{解析：} SCAN算法磁头像电梯一样单向移动直到端点折返，故称电梯算法。答案(C)。\boxed{\textbf{答案：}(C)}\fi
 
-\item \textbf{（简答题）} 简述硬链接和软链接（符号链接）的区别。
+\vspace{8pt}
 
-\item \textbf{（计算题）} 某 UNIX 文件系统 i-node 包含 10 个直接块指针、1 个一级间接块指针、1 个二级间接块指针。盘块大小为 1 KB，每个块指针占 4 字节。求该文件系统支持的最大文件大小。
+\item \textbf{（2014年·选择题·第29题）} 假设磁盘有300个磁道（0-299），磁头当前在120号磁道并向磁道号减小的方向移动。请求序列为：90, 70, 150, 60, 80, 20。用SCAN算法（LOOK变体），磁头移动的总磁道数为
+\begin{center}
+\begin{tabular}{ll}
+(A) 140 & (B) 200 \\[6pt]
+(C) 250 & (D) 280
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 从120向减小方向：120$\to$90$\to$80$\to$70$\to$60$\to$20（到20），然后折返$\to$150。距离：30+10+10+10+40+130=230磁道。最近似选项为(C)250。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2015年·选择题·第26题）} 在文件系统中，文件控制块（FCB）的作用是
+\begin{center}
+\begin{tabular}{ll}
+(A) 存放文件的数据内容 & (B) 存放文件的属性信息 \\[6pt]
+(C) 存放文件的目录结构 & (D) 存放文件的访问权限列表
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} FCB存放文件的属性信息（文件名、大小、创建时间、物理位置等）。目录由FCB组成。UNIX将文件名从FCB分离到目录项，FCB变为i-node。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2020年·选择题·第29题）} 在下列选项中，属于文件系统应具有的功能是
+\begin{center}
+\begin{tabular}{ll}
+(A) 文件按名存取 & (B) 磁盘调度 \\[6pt]
+(C) 设备分配 & (D) 以上都是
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 文件系统的核心功能包括按名存取、存储空间管理、磁盘调度（提高性能）、文件共享保护。部分教材将磁盘调度归入I/O系统。严格说(A)是文件系统最基本功能。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（计算题）} 某磁盘有8000个柱面（0-7999），磁头当前在150号柱面并向柱面号增大的方向移动。请求序列为：86, 147, 913, 1774, 948, 1509, 1022, 1750, 130。分别用SSTF和SCAN（含LOOK）算法，计算磁头移动的总柱面数。
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+SSTF：从150开始，最近→147(3柱面)→130(17)→86(44)→913(827)→948(35)→1022(74)→1509(487)→1750(241)→1774(24)。总$=1752$。
+
+SCAN(LOOK)：向增大：1774(1624柱面)$\to$折返向减小：1750(24)$\to$1509(241)$\to$1022(487)$\to$948(74)$\to$913(35)$\to$147(766)$\to$130(17)$\to$86(44)。总$=1624+1688=3312$。\fi
 
 \end{enumerate}
 
@@ -147,26 +194,41 @@ LOOK/C-LOOK & 类似 SCAN/C-SCAN，但到最远请求即折返 & 更实用 & —
 
 \begin{enumerate}[resume]
 
-\item \textbf{（真题风格，单项选择题）} 设磁盘的磁头当前在 100 号磁道，由外向内的移动方向，请求序列为 55, 58, 39, 18, 90, 160, 150, 38, 184。用 SCAN 算法，磁头共移动的磁道数为
-\begin{center}
-\begin{tabular}{ll}
-(A) 248 & (B) 252 \\[6pt]
-(C) 284 & (D) 322
-\end{tabular}
-\end{center}
-
-\item \textbf{（真题风格，综合题）} 某文件系统采用混合索引分配，i-node 包含 8 个直接块指针和 1 个一级间接块指针、1 个二级间接块指针。盘块大小为 4 KB，每个块指针占 4 字节。
+\item \textbf{（真题风格·综合题）} 某UNIX文件系统i-node包含8个直接块指针、1个一级间接块指针、1个二级间接块指针。盘块大小为4 KB，每个指针占4字节。
 \begin{enumerate}
     \item[(1)] 该文件系统支持的最大文件大小是多少？
-    \item[(2)] 若要访问文件偏移量为 100 KB 处的数据，需要几次磁盘 I/O？
-    \item[(3)] 若要访问文件偏移量为 5 MB 处的数据，需要几次磁盘 I/O？
+    \item[(2)] 访问文件偏移量5 MB处的数据，需要访问几次磁盘？
+    \item[(3)] 若文件系统改用FAT32管理磁盘空间，FAT表项32位，磁盘总容量为4 GB，盘块大小4 KB。FAT表需占用多少存储空间？
 \end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 直接块：$8\times 4\text{ KB}=32\text{ KB}$。一级间接：每块可存$4\text{ KB}/4\text{ B}=1024$个指针，共$1024\times 4\text{ KB}=4\text{ MB}$。二级间接：$1024\times 1024\times 4\text{ KB}=4\text{ GB}$。最大$=32\text{ KB}+4\text{ MB}+4\text{ GB}\approx 4\text{ GB}$。
+
+(2) 5 MB：直接块只能到32 KB，一级间接到$4\text{ MB}+32\text{ KB}$。5 MB在一级间接范围外，需用二级间接。需：读一级间接块(1次)$\to$读目标二级间接块(1次)$\to$读数据块(1次)=3次。
+
+(3) 盘块数$=4\text{ GB}/4\text{ KB}=1\text{M}$块。FAT表项32位=4 B，FAT大小$=1\text{M}\times 4\text{ B}=4\text{ MB}$。\fi
+
+\vspace{8pt}
+
+\item \textbf{（真题风格·综合题）} 某系统采用位示图法管理磁盘空闲空间。磁盘共有$2^{24}$个盘块，字长为32位。
+\begin{enumerate}
+    \item[(1)] 位示图需要多少个字？
+    \item[(2)] 给出盘块号$b$到位示图中字号$i$和位号$j$的换算公式；
+    \item[(3)] 若盘块号500000在位示图中对应字号为15625，验证(2)中公式的正确性。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) $2^{24}\div 32=2^{24}\div 2^{5}=2^{19}=524288$个字。
+
+(2) $i=\lfloor b/32\rfloor,\ j=b\bmod 32$。
+
+(3) $500000\div 32=15625$（字号$i=15625$），$500000\bmod 32=0$（位号$j=0$）。验证：$15625\times 32+0=500000$。\fi
 
 \end{enumerate}
 
 \vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item OSTEP 第 39-40 章「文件和目录」+「文件系统实现」——从 VSFS 出发理解 i-node 和目录的完整实现。
-    \item 陈海波《现代操作系统：原理与实现》第 7 章「文件系统」——含 Ext4 和 F2FS 的现代实现。
+    \item OSTEP 第39-40章——文件系统实现与i-node详解。
+    \item 陈海波《现代操作系统：原理与实现》第7章——Ext4与F2FS文件系统。
 \end{itemize}

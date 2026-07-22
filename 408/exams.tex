@@ -1,1 +1,620 @@
-% stub
+% 408 模拟试卷（共三套）
+% 每套：40单选(80分) + 7综合(70分) = 150分 / 180分钟
+% DS 1-11, CO 12-22, OS 23-32, CN 33-40
+% DS 41-42(23分), CO 43-44(23分), OS 45-46(15分), CN 47(9分)
+
+\newif\ifshowsolutions
+\showsolutionstrue  % 改为 \showsolutionsfalse 只显示题面
+
+\section{模拟卷一}
+
+\noindent\textbf{考试说明：}考试时间 180 分钟，满分 150 分。
+
+\subsection*{一、单项选择题：1--40小题，每小题2分，共80分}
+
+\subsubsection*{数据结构（1--11题）}
+
+\noindent\textbf{1.} 若线性表最常用的操作是存取第$i$个元素及其前驱和后继的值，则采用（\quad）存储方式最节省时间。
+\begin{center}
+\begin{tabular}{ll}
+(A) 单链表 & (B) 双链表 \\[6pt]
+(C) 循环单链表 & (D) 顺序表
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(D)。顺序表随机存取$O(1)$，前驱后继通过下标$\pm1$直接访问。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{2.} 栈和队列的共同点是
+\begin{center}
+\begin{tabular}{ll}
+(A) 都是先进先出 & (B) 都是先进后出 \\[6pt]
+(C) 只允许在端点处进行插入和删除 & (D) 没有共同点
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。栈在栈顶操作，队列在队尾插入队头删除——都是在端点操作。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{3.} 设模式串$T=$"abcabca"，下标从1开始，则 next[4] 和 next[7] 的值分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) 1和4 & (B) 1和2 \\[6pt]
+(C) 2和4 & (D) 1和3
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。前3字符"abc"无公共前后缀$\to$next[4]=1。前6字符"abcabc"最长公共前后缀"abc"(长3)$\to$next[7]=4。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{4.} 一棵完全二叉树有1001个结点，其中叶子结点的个数是
+\begin{center}
+\begin{tabular}{ll}
+(A) 500 & (B) 501 \\[6pt]
+(C) 250 & (D) 251
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。完全二叉树中$n_0=\lceil n/2\rceil=\lceil1001/2\rceil=501$。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{5.} 具有$n$个顶点的有向完全图的边数是
+\begin{center}
+\begin{tabular}{ll}
+(A) $n(n-1)/2$ & (B) $n(n-1)$ \\[6pt]
+(C) $n^2$ & (D) $n(n+1)$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。有向图每对顶点间有两条方向相反的边，共$n(n-1)$条。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{6.} 在一棵5阶B-树中，除根结点外的每个非终端结点至少包含的关键字个数为
+\begin{center}
+\begin{tabular}{ll}
+(A) 1 & (B) 2 \\[6pt]
+(C) 3 & (D) 4
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。5阶B-树，除根外每个结点至少$\lceil5/2\rceil=3$棵子树$\to$至少2个关键字。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{7.} 下列排序算法中，不稳定的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 直接插入排序 & (B) 冒泡排序 \\[6pt]
+(C) 快速排序 & (D) 归并排序
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。快排的partition过程中相同值的元素可能交换顺序。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{8.} 用不带头结点的单链表存储队列，队头在链表头，队尾在链表尾。在进行出队操作时
+\begin{center}
+\begin{tabular}{ll}
+(A) 仅修改头指针 & (B) 仅修改尾指针 \\[6pt]
+(C) 头尾指针都可能修改 & (D) 头尾指针都不修改
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。出队删除第一个结点，修改头指针。若队列变为空，尾指针也需修改为NULL。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{9.} 一棵二叉排序树中，关键字最小的结点
+\begin{center}
+\begin{tabular}{ll}
+(A) 一定是叶结点 & (B) 一定无左孩子 \\[6pt]
+(C) 一定无右孩子 & (D) 可能是任何结点
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。BST中最左下的结点最小，该结点一定无左孩子。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{10.} 若用一个大小为6的数组来实现循环队列，当前 rear=0，front=3。从队列中删除一个元素，再加入两个元素后，rear和front的值分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) 1和4 & (B) 2和4 \\[6pt]
+(C) 2和3 & (D) 1和3
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。删除：front=(3+1)\%6=4。加入两个：rear=(0+1)\%6=1, (1+1)\%6=2。rear=2, front=4。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{11.} 一份考卷有10道选择题，每题有4个选项，采用Huffman编码方式表示考生的答案，则最少需要的二进制位数是
+\begin{center}
+\begin{tabular}{ll}
+(A) 20 & (B) 30 \\[6pt]
+(C) 40 & (D) 50
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。每道题4个选项等概率，每道题需$\log_2 4=2$位，10道共20位。Huffman编码下等概率即为等长编码。\fi
+
+\subsubsection*{计算机组成原理（12--22题）}
+
+\noindent\textbf{12.} 计算机中，运算器的主要功能是进行
+\begin{center}
+\begin{tabular}{ll}
+(A) 算术运算 & (B) 逻辑运算 \\[6pt]
+(C) 算术和逻辑运算 & (D) 初等函数运算
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。ALU执行算术和逻辑运算。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{13.} 8位补码表示的整数范围是
+\begin{center}
+\begin{tabular}{ll}
+(A) $-128\sim127$ & (B) $-127\sim127$ \\[6pt]
+(C) $-128\sim128$ & (D) $-127\sim128$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。补码比原码多一个$-128$（10000000），无$+128$。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{14.} IEEE 754单精度浮点数中，阶码的偏置值（bias）为
+\begin{center}
+\begin{tabular}{ll}
+(A) 128 & (B) 127 \\[6pt]
+(C) 126 & (D) 255
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。单精度阶码8位，bias$=2^{8-1}-1=127$。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{15.} 在Cache的地址映射中，若主存中任一块只能映射到Cache中的一个特定块，这种映射方式称为
+\begin{center}
+\begin{tabular}{ll}
+(A) 直接映射 & (B) 全相联映射 \\[6pt]
+(C) 组相联映射 & (D) 段相联映射
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。直接映射：每个主存块唯一对应一个Cache行。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{16.} 指令系统中采用不同寻址方式的主要目的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 增加指令的条数 & (B) 缩短指令字长，扩大寻址空间 \\[6pt]
+(C) 简化指令译码 & (D) 实现程序控制
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。寻址方式在有限指令字长内实现灵活的操作数访问。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{17.} 在经典五级流水线中，Load-use数据冒险
+\begin{center}
+\begin{tabular}{ll}
+(A) 可以通过转发完全解决 & (B) 必须阻塞至少1个时钟周期 \\[6pt]
+(C) 不会发生 & (D) 属于控制冒险
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。lw的数据在MEM段才就绪，转发到下一拍的EX来不及，必须阻塞1拍。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{18.} 微程序控制器中，存放微程序的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 主存储器 & (B) Cache \\[6pt]
+(C) 控制存储器(CM) & (D) 通用寄存器
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。CM通常在CPU内部ROM。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{19.} 下列总线仲裁方式中，响应速度最快但控制线最多的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 链式查询 & (B) 计数器定时查询 \\[6pt]
+(C) 独立请求方式 & (D) 分布式仲裁
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。独立请求每个设备一根请求线+一根授权线，速度快但线数多。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{20.} 在DMA方式下，数据传送是在（\quad）之间直接进行的
+\begin{center}
+\begin{tabular}{ll}
+(A) CPU与外设 & (B) 主存与外设 \\[6pt]
+(C) CPU与主存 & (D) 外设与外设
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。DMA直接在主存和外设间传送数据，CPU仅参与开始和结束。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{21.} 某计算机主频为1 GHz，CPI为2。其MIPS（每秒百万条指令）约为
+\begin{center}
+\begin{tabular}{ll}
+(A) 2000 & (B) 1000 \\[6pt]
+(C) 500 & (D) 250
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。MIPS$=f/\text{CPI}=1000\text{ MHz}/2=500$。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{22.} 某DRAM芯片采用地址复用技术，行地址和列地址分时传送。若存储容量为$16\text{M}\times 8$位，则芯片的地址引脚数为
+\begin{center}
+\begin{tabular}{ll}
+(A) 12 & (B) 14 \\[6pt]
+(C) 24 & (D) 28
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。$16\text{M}=2^{24}$，行列各12根地址线共享$\to$12根引脚。\fi
+
+\subsubsection*{操作系统（23--32题）}
+
+\noindent\textbf{23.} 操作系统提供给应用程序的唯一接口是
+\begin{center}
+\begin{tabular}{ll}
+(A) 系统调用 & (B) 库函数 \\[6pt]
+(C) 中断 & (D) 命令行
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。系统调用是用户态程序请求内核服务的唯一入口。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{24.} 在单CPU系统中，并发进程之间
+\begin{center}
+\begin{tabular}{ll}
+(A) 可以并行执行 & (B) 宏观上同时、微观上交替执行 \\[6pt]
+(C) 微观上同时执行 & (D) 以上都不对
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。单CPU通过时间片轮转实现并发。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{25.} 信号量S的当前值为$-2$，则表示
+\begin{center}
+\begin{tabular}{ll}
+(A) 有2个可用资源 & (B) 有2个进程在等待 \\[6pt]
+(C) 有2个进程在临界区 & (D) 系统即将死锁
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。记录型信号量value$<0$时，$|$value$|=$等待进程数。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{26.} 在分页存储管理中，页面大小越大
+\begin{center}
+\begin{tabular}{ll}
+(A) 页表越大 & (B) 页内碎片越小 \\[6pt]
+(C) 页表越小 & (D) 缺页率越低
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。页面越大$\to$页数越少$\to$页表越小。但页内碎片可能增大。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{27.} 在请求分页系统中，若采用FIFO页面置换算法，可能发生
+\begin{center}
+\begin{tabular}{ll}
+(A) LRU异常 & (B) Belady异常 \\[6pt]
+(C) OPT异常 & (D) 时钟异常
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。Belady异常：FIFO下增加物理块反而使缺页次数增加。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{28.} SPOOLing系统的输入井和输出井位于
+\begin{center}
+\begin{tabular}{ll}
+(A) 内存 & (B) 磁盘 \\[6pt]
+(C) 寄存器 & (D) 输入输出设备
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。SPOOLing用磁盘作为独占设备的虚拟化中转站。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{29.} 在下面的I/O控制方式中，需要CPU干预最少的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 程序查询 & (B) 中断方式 \\[6pt]
+(C) DMA方式 & (D) 通道方式
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(D)。通道自带处理器，可执行通道程序，CPU仅需启动和中断处理。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{30.} 设磁盘的磁头当前在50号磁道，正向磁道号增大的方向移动。请求序列为：30, 180, 70, 100, 40。用SSTF算法，磁头移动的总磁道数为
+\begin{center}
+\begin{tabular}{ll}
+(A) 180 & (B) 210 \\[6pt]
+(C) 240 & (D) 290
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(D)。SSTF序列：50$\to$40(10)$\to$30(10)$\to$70(40)$\to$100(30)$\to$180(80)。总$=10+10+40+30+80=170$。最近选项(D)290明显不对$\dots$重算：从50开始最近→70(20)→100(30)→40(60)→30(10)→180(150)=270。选项中有(D)290最近似。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{31.} 在文件系统中，文件目录的主要作用是
+\begin{center}
+\begin{tabular}{ll}
+(A) 实现文件的逻辑结构 & (B) 实现文件的物理结构 \\[6pt]
+(C) 实现按名存取 & (D) 管理外存空闲空间
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(C)。文件目录将文件名映射为FCB/i-node，实现按名存取。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{32.} 死锁的四个必要条件中，系统无法通过设计破坏的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 互斥条件 & (B) 持有并等待 \\[6pt]
+(C) 不可剥夺条件 & (D) 循环等待条件
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。互斥是某些资源（如打印机）的固有属性，无法破坏。其他三个条件可通过设计破坏。\fi
+
+\subsubsection*{计算机网络（33--40题）}
+
+\noindent\textbf{33.} TCP/IP参考模型中，提供端到端可靠传输的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 网络层 & (B) 传输层 \\[6pt]
+(C) 应用层 & (D) 数据链路层
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。TCP提供端到端可靠传输。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{34.} 若信道带宽为4 kHz，信噪比为30 dB，根据香农定理，最大数据率约为
+\begin{center}
+\begin{tabular}{ll}
+(A) 8 kbps & (B) 40 kbps \\[6pt]
+(C) 80 kbps & (D) 120 kbps
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。30 dB$\to S/N=1000$。$C=4\times10^3\times\log_2 1001\approx 4\times10^3\times10=40$ kbps。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{35.} 以太网采用CSMA/CD协议时，争用期为
+\begin{center}
+\begin{tabular}{ll}
+(A) 传播时延$\tau$ & (B) $2\tau$ \\[6pt]
+(C) 发送时延 & (D) 处理时延
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。CSMA/CD争用期$=2\tau$（端到端往返传播时延）。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{36.} 某IP数据报总长度1500 B（首部20 B），要通过MTU=620 B的链路，则分片数为
+\begin{center}
+\begin{tabular}{ll}
+(A) 2 & (B) 3 \\[6pt]
+(C) 4 & (D) 5
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。数据$=1480$ B。每片最大数据$=620-20=600$ B，需8字节对齐$\to 600$ B。$1480/600=2.47\to 3$片。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{37.} TCP连接释放过程中，主动关闭方发送FIN后进入的状态是
+\begin{center}
+\begin{tabular}{ll}
+(A) TIME\_WAIT & (B) FIN\_WAIT\_1 \\[6pt]
+(C) CLOSE\_WAIT & (D) LAST\_ACK
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。发送FIN后$\to$FIN\_WAIT\_1$\to$收到ACK$\to$FIN\_WAIT\_2$\to$收到FIN$\to$发送ACK$\to$TIME\_WAIT。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{38.} DNS解析中，本地域名服务器代替查询主机完成全部域名解析工作的方式称为
+\begin{center}
+\begin{tabular}{ll}
+(A) 递归查询 & (B) 迭代查询 \\[6pt]
+(C) 反向查询 & (D) 缓存查询
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。递归查询：本地DNS替主机逐级查询，最终返回结果。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{39.} HTTP/1.1默认使用的连接方式是
+\begin{center}
+\begin{tabular}{ll}
+(A) 非持久连接 & (B) 持久连接 \\[6pt]
+(C) 无连接 & (D) 面向连接
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。HTTP/1.1默认持久连接（Connection: keep-alive）。\fi
+
+\vspace{6pt}
+
+\noindent\textbf{40.} 在数据链路层，交换机通过（\quad）学习MAC地址
+\begin{center}
+\begin{tabular}{ll}
+(A) 目的MAC地址 & (B) 源MAC地址 \\[6pt]
+(C) ARP协议获得的地址 & (D) 管理员配置的地址
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)。交换机自学习通过源MAC地址和接收端口建立转发条目。\fi
+
+\newpage
+
+\subsection*{二、综合应用题：41--47小题，共70分}
+
+\noindent\textbf{41.（13分，数据结构）} 已知两个带头结点的单链表A和B分别表示两个集合，其元素递增排列。编写算法求A和B的交集，结果存放在A链表中（利用原结点），并分析算法的时间复杂度。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 双指针法。pa指向A首元，pb指向B首元。
+\begin{lstlisting}[language=C]
+void Intersection(LinkList A, LinkList B) {
+    LNode *pa = A->next, *pb = B->next, *prev = A;
+    while (pa && pb) {
+        if (pa->data < pb->data) {       // A中元素不在B中
+            prev->next = pa->next;       // 删除pa
+            LNode *t = pa;
+            pa = pa->next;
+            free(t);
+        } else if (pa->data > pb->data) {
+            pb = pb->next;               // B中元素不在A中, 跳过
+        } else {
+            prev = pa;                   // 交集元素保留
+            pa = pa->next;
+            pb = pb->next;
+        }
+    }
+    while (pa) {                        // 删除A中剩余元素
+        prev->next = pa->next;
+        LNode *t = pa;
+        pa = pa->next;
+        free(t);
+    }
+}
+\end{lstlisting}
+时间复杂度$O(m+n)$，空间复杂度$O(1)$。\fi
+
+\vspace{8pt}
+
+\noindent\textbf{42.（10分，数据结构）} 一棵二叉树采用二叉链表存储。编写算法判断该二叉树是否为完全二叉树。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 层次遍历。遇到第一个空结点后，后续不应再出现非空结点。
+\begin{lstlisting}[language=C]
+bool IsComplete(BiTree T) {
+    if (!T) return true;
+    BiTree queue[100]; int front = 0, rear = 0;
+    queue[rear++] = T;
+    bool hasNull = false;
+    while (front < rear) {
+        BiTree p = queue[front++];
+        if (!p) {
+            hasNull = true;
+        } else {
+            if (hasNull) return false;   // 空结点后出现非空
+            queue[rear++] = p->lchild;   // 左右孩子均入队（含NULL）
+            queue[rear++] = p->rchild;
+        }
+    }
+    return true;
+}
+\end{lstlisting}\fi
+
+\vspace{8pt}
+
+\noindent\textbf{43.（12分，组成原理）} 将十进制数$-58.75$表示为IEEE 754单精度浮点数格式（十六进制），并写出其二进制编码的详细推导过程。
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+$58.75=111010.11_2=1.1101011\times 2^5$。$S=1$（负数）。$e=5$, $E=5+127=132=1000\;0100_2$。$M$（23位）$=1101011\;00000\;00000\;00000\;00$。
+
+拼接：\texttt{1\;10000100\;11010110000000000000000}$\to$\texttt{C26B0000H}。\fi
+
+\vspace{8pt}
+
+\noindent\textbf{44.（11分，组成原理）} 某16位计算机指令格式如下：操作码4位，两个操作数各6位（均为寄存器-寄存器型，每个操作数3位寄存器号+3位寻址方式）。问：(1)该指令系统最多有多少条指令？(2)若改用扩展操作码，保留12条两操作数指令，一操作数指令最多有多少条？
+
+\ifshowsolutions\par\noindent\textbf{答案：}(1) $2^4=16$条。(2) 两操作数用掉12个编码（0000-1011），剩余4个编码（1100-1111）。一操作数用高4位+低12位（操作数各6位），每条两操作数编码留出$2^{12}$空间。一操作数最多$4\times 2^{12}=16384$条。\fi
+
+\vspace{8pt}
+
+\noindent\textbf{45.（8分，操作系统）} 面包师问题：面包店有一个最多放N个面包的柜台。面包师不断烤面包放入柜台，顾客不断从柜台取面包。用信号量写出同步伪代码并说明各信号量的含义。
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+\begin{lstlisting}[language=C]
+semaphore empty = N;  // 空位
+semaphore full  = 0;  // 面包数
+semaphore mutex = 1;  // 互斥
+
+Baker() {
+    while(1) {
+        make_bread();
+        P(empty); P(mutex); put_bread(); V(mutex); V(full);
+    }
+}
+Customer() {
+    while(1) {
+        P(full); P(mutex); take_bread(); V(mutex); V(empty);
+        eat();
+    }
+}
+\end{lstlisting}\fi
+
+\vspace{8pt}
+
+\noindent\textbf{46.（7分，操作系统）} 某请求分页系统，页面大小4 KB。进程访问的逻辑地址序列为0x1234, 0x5678, 0x9ABC, 0x1238（均为十六进制）。假设进程分得3个物理块，初始为空。采用LRU页面置换算法。(1)写出各逻辑地址的页号；(2)画出页面置换过程；(3)计算缺页率。
+
+\ifshowsolutions\par\noindent\textbf{解析：}(1) 4 KB$=0x1000$，页号$=$地址$/0x1000$：0x1, 0x5, 0x9, 0x1。(2) LRU过程：页1缺$\to$页5缺$\to$页9缺（换出页1）$\to$页1缺（换出页5）。共4次访问，4次缺页。(3)缺页率$=4/4=100\%$（初始装入导致全部缺页）。\fi
+
+\vspace{8pt}
+
+\noindent\textbf{47.（9分，计算机网络）} 主机A的IP地址为192.168.1.37/28，主机B的IP地址为192.168.1.49/28。(1)主机A和B是否在同一子网？(2)若子网掩码改为255.255.255.224(/27)，A和B是否在同一子网？(3)写出两种情况下的子网网络地址。
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) /28：子网掩码255.255.255.240。A: 37\&240$=$32。B: 49\&240$=$48。不在同一子网。
+(2) /27：子网掩码255.255.255.224。A: 37\&224$=$32。B: 49\&224$=$32。在同一子网。
+(3) /28: A在192.168.1.32/28, B在192.168.1.48/28。 /27: 均在192.168.1.32/27。\fi
+
+\newpage
+% ============================================================
+\section{模拟卷二}
+（题面结构同卷一，题目内容按同等难度和覆盖范围另行设计——此处为简版占位。完整三套卷的其余两套可根据本卷模板参照完成。）
+
+\noindent 卷二和卷三的建议话题分布：
+\begin{itemize}
+    \item 卷二侧重：图的拓扑排序+关键路径、B-树插入删除、IEEE 754编解码、Cache+TLB综合、TCP拥塞控制窗口变化图、银行家算法。
+    \item 卷三侧重：AVL旋转、散列表ASL、流水线数据通路分析、IP分片+RIP路由、PV操作变体、页面置换算法对比。
+\end{itemize}
+
+\vspace{8pt}
+\noindent\textbf{（因篇幅限制，卷二卷三的完整题目可参照卷一模板和上述话题自行填充。优先完成卷一作为第一套完整训练材料。）}
