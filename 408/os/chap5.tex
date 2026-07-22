@@ -33,7 +33,7 @@
 \end{mydef}
 
 \begin{attention}
-\textbf{408 辨析：} 块设备 ≠ 独占设备。磁盘是块设备同时又是共享设备；打印机是字符设备同时又是独占设备。设备分类维度不同，不可混淆。\textbf{块设备的典型特征是可寻址（可以 lseek），字符设备不可寻址。}
+\textbf{408 辨析：} 块设备 $\neq$ 独占设备。磁盘是块设备同时又是共享设备；打印机是字符设备同时又是独占设备。设备分类维度不同，不可混淆。\textbf{块设备的典型特征是可寻址（可以 lseek），字符设备不可寻址。}
 \end{attention}
 
 \subsection{I/O控制方式}
@@ -188,7 +188,7 @@ I/O 软件采用分层设计，每层对上层屏蔽下层细节，是 OS 分层
     \begin{itemize}
         \item I/O 完成后，设备控制器发出中断信号。
         \item CPU 响应中断：硬件保存 PC 和 PSW，然后跳转到中断向量表指定的中断处理程序入口。
-        \item 中断处理程序：保存寄存器上下文 → 处理中断（读取设备状态，唤醒等待进程）→ 恢复上下文 → 中断返回。
+        \item 中断处理程序：保存寄存器上下文 $\to$ 处理中断（读取设备状态，唤醒等待进程）$\to$ 恢复上下文 $\to$ 中断返回。
         \item \textbf{关键要求：中断处理程序必须尽可能短}，复杂性推迟到下半部（Bottom Half）处理。
     \end{itemize}
 
@@ -231,7 +231,7 @@ I/O 软件采用分层设计，每层对上层屏蔽下层细节，是 OS 分层
     \item SPOOLing 系统 \textbf{通常在用户层}（以守护进程形式），但也涉及内核态的系统调用。
 \end{itemize}
 
-\textbf{关键题眼：} ``向上提供统一接口，向下操作设备寄存器'' → 这是在描述 \textbf{设备驱动程序}。
+\textbf{关键题眼：} ``向上提供统一接口，向下操作设备寄存器'' $\to$ 这是在描述 \textbf{设备驱动程序}。
 \end{attention}
 
 \subsection{SPOOLing系统（假脱机技术）}
@@ -354,8 +354,8 @@ SPOOLing 系统由三部分组成：
 
 \textbf{原因分析：}
 \begin{itemize}
-    \item 若 $C \geqslant T$：设备读下一块数据到缓冲区时，CPU 正在处理上一块数据，两者可以并行。但因为只有一个缓冲区，设备写完后需等 CPU 处理完 + $M$ 搬移后才能释放缓冲区 → 瓶颈在 CPU。
-    \item 若 $C < T$：CPU 处理完上一块后需要等设备读完下一块数据 → 瓶颈在设备。
+    \item 若 $C \geqslant T$：设备读下一块数据到缓冲区时，CPU 正在处理上一块数据，两者可以并行。但因为只有一个缓冲区，设备写完后需等 CPU 处理完 + $M$ 搬移后才能释放缓冲区 $\to$ 瓶颈在 CPU。
+    \item 若 $C < T$：CPU 处理完上一块后需要等设备读完下一块数据 $\to$ 瓶颈在设备。
     \item $M$ 与 $T$ 不能并行（因为 $M$ 需要访问缓冲区，和设备写缓冲区冲突），$M$ 与 $C$ 也不能并行（都要访问内存中的用户工作区）。
 \end{itemize}
 
@@ -485,10 +485,10 @@ T_{\text{total}} = T + N \times \max(C, T) + M
 
 \textbf{缓冲池的操作原语：}
 \begin{itemize}
-    \item \textbf{收容输入（GetBuf\_Input）}：从 emq 取一个空缓冲区 → 挂入 inq。
-    \item \textbf{提取输入（ReleaseBuf\_Input）}：从 inq 取一个满缓冲区 → 供进程使用 → 回收后挂入 emq。
-    \item \textbf{收容输出（GetBuf\_Output）}：从 emq 取一个空缓冲区 → 挂入 outq。
-    \item \textbf{提取输出（ReleaseBuf\_Output）}：从 outq 取一个满缓冲区 → 供设备输出 → 回收后挂入 emq。
+    \item \textbf{收容输入（GetBuf\_Input）}：从 emq 取一个空缓冲区 $\to$ 挂入 inq。
+    \item \textbf{提取输入（ReleaseBuf\_Input）}：从 inq 取一个满缓冲区 $\to$ 供进程使用 $\to$ 回收后挂入 emq。
+    \item \textbf{收容输出（GetBuf\_Output）}：从 emq 取一个空缓冲区 $\to$ 挂入 outq。
+    \item \textbf{提取输出（ReleaseBuf\_Output）}：从 outq 取一个满缓冲区 $\to$ 供设备输出 $\to$ 回收后挂入 emq。
 \end{itemize}
 
 \textbf{与专用缓冲的对比：}
@@ -513,11 +513,11 @@ T_{\text{total}} = T + N \times \max(C, T) + M
 
 \begin{conclusion}{I/O管理 — 408常考点}{os5-keypoints}
 \begin{enumerate}
-    \item \textbf{四种 I/O 控制方式}：轮询→中断→DMA→通道，每次演进减少了 CPU 参与 I/O 的程度和中断频率。DMA 与中断的最关键区别：\textbf{DMA 的数据传输不由 CPU 完成，且每块只中断一次}。
+    \item \textbf{四种 I/O 控制方式}：轮询$\to$中断$\to$DMA$\to$通道，每次演进减少了 CPU 参与 I/O 的程度和中断频率。DMA 与中断的最关键区别：\textbf{DMA 的数据传输不由 CPU 完成，且每块只中断一次}。
 
-    \item \textbf{I/O 软件层次}：四层自底向上依次是中断处理程序→设备驱动程序→设备独立性软件→用户层 I/O 软件。SPOOLing 属于用户层（守护进程形式）。
+    \item \textbf{I/O 软件层次}：四层自底向上依次是中断处理程序$\to$设备驱动程序$\to$设备独立性软件$\to$用户层 I/O 软件。SPOOLing 属于用户层（守护进程形式）。
 
-    \item \textbf{SPOOLing 系统}：独占设备→共享设备的虚拟化技术。输入/输出井\textbf{在磁盘上}。原理：截获输出请求写入磁盘井，后台守护进程逐个送往物理设备。
+    \item \textbf{SPOOLing 系统}：独占设备$\to$共享设备的虚拟化技术。输入/输出井\textbf{在磁盘上}。原理：截获输出请求写入磁盘井，后台守护进程逐个送往物理设备。
 
     \item \textbf{缓冲区处理时间计算}：
     \begin{itemize}
@@ -550,8 +550,8 @@ T_{\text{total}} = T + N \times \max(C, T) + M
 正确的执行顺序是
 \begin{center}
 \begin{tabular}{ll}
-(A) ③→①→②→④ & (B) ②→③→①→④ \\[6pt]
-(C) ②→①→③→④ & (D) ①→②→④→③
+(A) ③$\to$①$\to$②$\to$④ & (B) ②$\to$③$\to$①$\to$④ \\[6pt]
+(C) ②$\to$①$\to$③$\to$④ & (D) ①$\to$②$\to$④$\to$③
 \end{tabular}
 \end{center}
 
@@ -596,10 +596,10 @@ T_{\text{total}} = T + N \times \max(C, T) + M
 \item \textbf{（2011年·选择题·第26题）} 用户程序发出磁盘 I/O 请求后，系统的正确处理流程是
 \begin{center}
 \begin{tabular}{ll}
-(A) 用户程序→系统调用处理程序→设备驱动程序→中断处理程序 \\[4pt]
-(B) 用户程序→系统调用处理程序→中断处理程序→设备驱动程序 \\[4pt]
-(C) 用户程序→设备驱动程序→系统调用处理程序→中断处理程序 \\[4pt]
-(D) 用户程序→设备驱动程序→中断处理程序→系统调用处理程序
+(A) 用户程序$\to$系统调用处理程序$\to$设备驱动程序$\to$中断处理程序 \\[4pt]
+(B) 用户程序$\to$系统调用处理程序$\to$中断处理程序$\to$设备驱动程序 \\[4pt]
+(C) 用户程序$\to$设备驱动程序$\to$系统调用处理程序$\to$中断处理程序 \\[4pt]
+(D) 用户程序$\to$设备驱动程序$\to$中断处理程序$\to$系统调用处理程序
 \end{tabular}
 \end{center}
 

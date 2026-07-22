@@ -334,7 +334,7 @@ bool EnQueue(LinkQueue *Q, ElemType e) {
     if (!p) return false;
     p->data = e;
     p->next = NULL;
-    Q->rear->next = p;   // 原队尾 → 新结点
+    Q->rear->next = p;   // 原队尾 $\to$ 新结点
     Q->rear = p;         // 更新队尾指针
     return true;
 }
@@ -455,7 +455,7 @@ bool BracketMatch(char *expr) {
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline
-当前 token & 栈（栈底→栈顶）& 输出 \\
+当前 token & 栈（栈底$\to$栈顶）& 输出 \\
 \hline
 A & 空 & A \\
 + & + & A \\
@@ -534,8 +534,8 @@ int Factorial(int n) {
     return n * Factorial(n - 1);         // 递归调用
 }
 // Factorial(4):
-// 调用: fact(4) → fact(3) → fact(2) → fact(1)
-// 返回: 1 → 2 → 3 → 4 → 24
+// 调用: fact(4) $\to$ fact(3) $\to$ fact(2) $\to$ fact(1)
+// 返回: 1 $\to$ 2 $\to$ 3 $\to$ 4 $\to$ 24
 \end{lstlisting}
 
 递归与栈的关系：

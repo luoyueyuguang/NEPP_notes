@@ -34,7 +34,7 @@ LNode *DetectCycle(LinkList L) {
     while (fast && fast->next) {
         slow = slow->next;
         fast = fast->next->next;
-        if (slow == fast) {           // 相遇→有环
+        if (slow == fast) {           // 相遇$\to$有环
             LNode *p = L->next;       // p 从头开始
             while (p != slow) {       // 各走一步，再次相遇为入口
                 p = p->next;
@@ -306,7 +306,7 @@ bool IsCompleteTree(BiTree T) {
             queue[rear++] = p->lchild;
             queue[rear++] = p->rchild;
         } else if (!p->lchild && p->rchild) {
-            return false;            // 有右无左 → 非完全二叉树
+            return false;            // 有右无左 $\to$ 非完全二叉树
         } else {                     // 有左无右 或 无孩子
             leafPhase = true;        // 进入必须为叶子阶段
             if (p->lchild) queue[rear++] = p->lchild;
@@ -318,7 +318,7 @@ bool IsCompleteTree(BiTree T) {
 
 \textbf{时间复杂度：}$O(n)$。\textbf{关键判断条件：}
 \begin{itemize}
-    \item 若某结点有右孩子无左孩子 → 非完全二叉树；
+    \item 若某结点有右孩子无左孩子 $\to$ 非完全二叉树；
     \item 若某结点只有左孩子（或无孩子），之后的所有结点都不能有孩子。
 \end{itemize}
 \end{conclusion}
@@ -426,7 +426,7 @@ void PreOrderNonRec(BiTree T) {
 \subsubsection{非递归后序遍历}
 
 \begin{conclusion}{非递归后序遍历}{postorder-nonrec}
-\textbf{双栈法（最简单的实现思路）：}先用「根→右→左」的顺序入栈，再反转输出即得「左→右→根」的后序。
+\textbf{双栈法（最简单的实现思路）：}先用「根$\to$右$\to$左」的顺序入栈，再反转输出即得「左$\to$右$\to$根」的后序。
 或者用单栈 + 标记法：
 
 \begin{lstlisting}[language=C]
@@ -518,7 +518,7 @@ bool DFSCycle(ALGraph *G, int v, int parent, bool visited[]) {
         int w = p->adjvex;
         if (!visited[w]) {
             if (DFSCycle(G, w, v, visited)) return true;
-        } else if (w != parent) {    // 已访问且不是父结点 → 回边 → 有环
+        } else if (w != parent) {    // 已访问且不是父结点 $\to$ 回边 $\to$ 有环
             return true;
         }
     }
@@ -545,7 +545,7 @@ bool DFSCycleD(ALGraph *G, int v) {
     color[v] = GRAY;                // 正在访问
     for (ArcNode *p = G->adjlist[v].first; p; p = p->next) {
         int w = p->adjvex;
-        if (color[w] == GRAY) return true;   // 回到当前路径上 → 环
+        if (color[w] == GRAY) return true;   // 回到当前路径上 $\to$ 环
         if (color[w] == WHITE && DFSCycleD(G, w))
             return true;
     }

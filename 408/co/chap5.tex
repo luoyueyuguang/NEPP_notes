@@ -309,7 +309,7 @@ I4: sw  R8, 0(R9)
 
 \ifshowsolutions\par\noindent\textbf{答案：}(C)
 
-\textbf{解析：} I1（lw）与 I2（add）之间的 RAW：I1 的数据在 MEM 结束才写入，但 I2 在 EX 阶段就需要 R1。无转发时，lw 的结果在 WB 阶段（第 5 拍）才写回寄存器堆，而 add 在 ID 阶段（第 3 拍）就需要读 R1。因此 I2 必须等到 I1 写回完成后才能 ID，需要阻塞 2 个周期。I2-I4 间无数据依赖。I3 和 I4 之间也无依赖（sw 读 R8，I3 不写 R8；sw 读 R9，无人写 R9）。故仅 I1→I2 间需要 2 个气泡。总阻塞 $=2$。\fi
+\textbf{解析：} I1（lw）与 I2（add）之间的 RAW：I1 的数据在 MEM 结束才写入，但 I2 在 EX 阶段就需要 R1。无转发时，lw 的结果在 WB 阶段（第 5 拍）才写回寄存器堆，而 add 在 ID 阶段（第 3 拍）就需要读 R1。因此 I2 必须等到 I1 写回完成后才能 ID，需要阻塞 2 个周期。I2-I4 间无数据依赖。I3 和 I4 之间也无依赖（sw 读 R8，I3 不写 R8；sw 读 R9，无人写 R9）。故仅 I1$\to$I2 间需要 2 个气泡。总阻塞 $=2$。\fi
 
 \item \textbf{（2012年·第43题·真题风格，综合题）} 某 16 位计算机采用单总线 CPU 结构，数据通路示意图如下（文字描述）：
 
@@ -373,7 +373,7 @@ I5: sw   R7, 0(R8)     % Mem[R8 + 0] <- R7
 
 (1) 数据冒险：
 \begin{itemize}
-    \item I1 $\to$ I2（RAW on R1）：I1 在 EX 段末产生 R1，I2 在 EX 段初需要 R1。有转发 → 转发可解决；无转发 → 需等待 I1 的 WB。
+    \item I1 $\to$ I2（RAW on R1）：I1 在 EX 段末产生 R1，I2 在 EX 段初需要 R1。有转发 $\to$ 转发可解决；无转发 $\to$ 需等待 I1 的 WB。
     \item I1 $\to$ I3（RAW on R1）：I1 在 EX 段末产生 R1，I3 在 EX 段初需要 R1。同上。
     \item I2 $\to$ I4（RAW on R4，Load-use）：I2 在 MEM 段末才获得 R4，I4 在 EX 段初就需要 R4。即使有转发，也需阻塞 1 拍。
     \item I3 $\to$ I4（RAW on R5）：I3 在 EX 段末产生 R5，I4 在 EX 段初需要 R5。有转发可解决；无转发需等待 WB。

@@ -183,7 +183,7 @@ LinkList CreateListHead(int n) {
         LNode *s = (LNode*)malloc(sizeof(LNode));
         scanf("%d", &s->data);
         s->next = L->next;              // ① s 后继 = 原首元
-        L->next = s;                    // ② 头→s
+        L->next = s;                    // ② 头$\to$s
     }
     return L;
 }
@@ -677,9 +677,9 @@ void SplitOddEven(LinkList L, LinkList *A, LinkList *B) {
     int pos = 1;
     while (p != NULL) {
         LNode *q = p->next;        // 暂存后继
-        if (pos % 2 == 1) {        // 奇数位 → A
+        if (pos % 2 == 1) {        // 奇数位 $\to$ A
             ra->next = p;  ra = p;
-        } else {                   // 偶数位 → B
+        } else {                   // 偶数位 $\to$ B
             rb->next = p;  rb = p;
         }
         p = q;

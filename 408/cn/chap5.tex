@@ -487,7 +487,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 超时→阈值$=16/2=8$ KB，cwnd$=1$ KB，进入慢开始。RTT1: cwnd$=2$；RTT2: cwnd$=4$；RTT3: cwnd$=8$（到达阈值，进入拥塞避免）；RTT4: cwnd$=9$ KB。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 超时$\to$阈值$=16/2=8$ KB，cwnd$=1$ KB，进入慢开始。RTT1: cwnd$=2$；RTT2: cwnd$=4$；RTT3: cwnd$=8$（到达阈值，进入拥塞避免）；RTT4: cwnd$=9$ KB。\boxed{\textbf{答案：}(C)}\fi
 
 \vspace{8pt}
 
@@ -511,7 +511,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 超时时cwnd$=1$，ssthresh$=12/2=6$。慢开始：1→2→4→6（达阈值）→拥塞避免：7。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 超时时cwnd$=1$，ssthresh$=12/2=6$。慢开始：1$\to$2$\to$4$\to$6（达阈值）$\to$拥塞避免：7。\boxed{\textbf{答案：}(A)}\fi
 
 \vspace{8pt}
 
@@ -537,7 +537,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 发送窗口$=\min(\text{cwnd},\text{rwnd})$。rwnd始终$=10$ KB。超时后ssthresh$=4$，cwnd$=1$→慢开始。RTT:1→2→4→(拥塞避免)5→6→7→8→9→10→11。但rwnd=10限制窗口为10。第9个RTT后cwnd=10已达rwnd，后续不再增长。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 发送窗口$=\min(\text{cwnd},\text{rwnd})$。rwnd始终$=10$ KB。超时后ssthresh$=4$，cwnd$=1$$\to$慢开始。RTT:1$\to$2$\to$4$\to$(拥塞避免)5$\to$6$\to$7$\to$8$\to$9$\to$10$\to$11。但rwnd=10限制窗口为10。第9个RTT后cwnd=10已达rwnd，后续不再增长。\boxed{\textbf{答案：}(A)}\fi
 
 \end{enumerate}
 
@@ -560,14 +560,14 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \item \textbf{（真题风格·综合题）} TCP的拥塞窗口cwnd和门限ssthresh的初始值分别为1和16（单位为MSS）。按时间顺序发生以下事件：连续成功传输使cwnd分别变为2,4,8,16,17,18,19，随后发生3次重复ACK（快重传），之后又经历2次成功传输。
 \begin{enumerate}
     \item[(1)] 画出cwnd随传输轮次变化的折线图；
-    \item[(2)] 标注每次状态转换（慢开始→拥塞避免→快恢复→拥塞避免）；
+    \item[(2)] 标注每次状态转换（慢开始$\to$拥塞避免$\to$快恢复$\to$拥塞避免）；
     \item[(3)] 第2次成功传输后cwnd的值是多少？
 \end{enumerate}
 
 \ifshowsolutions\par\noindent\textbf{解析：}
-(1) 慢开始：1→2→4→8→16（达ssthresh）→拥塞避免：17→18→19。
+(1) 慢开始：1$\to$2$\to$4$\to$8$\to$16（达ssthresh）$\to$拥塞避免：17$\to$18$\to$19。
 3次重复ACK触发快重传：ssthresh$=19/2=9.5\approx 9$（向下取整为9或10，TCP实现通常向下），cwnd$=9+3=12$（快恢复）。
-之后拥塞避免：13→14。
+之后拥塞避免：13$\to$14。
 
 (2) 轮次1-4:慢开始；轮次5-7:拥塞避免；轮次8:快恢复；轮次9后:拥塞避免。
 (3) 第2次成功传输后cwnd$=14$。\fi

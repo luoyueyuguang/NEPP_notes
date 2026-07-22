@@ -96,7 +96,7 @@ void BinInsertSort(int A[], int n) {
         while (low <= high) {            // 二分查找插入位置
             mid = (low + high) / 2;
             if (A[mid] > temp) high = mid - 1;
-            else               low  = mid + 1;  // 相等时插在后面 → 稳定
+            else               low  = mid + 1;  // 相等时插在后面 $\to$ 稳定
         }
         for (j = i - 1; j >= low; j--)   // 统一后移
             A[j + 1] = A[j];
@@ -290,7 +290,7 @@ void QuickSort(int A[], int low, int high) {
 \begin{itemize}
     \item \textbf{给定序列，写出每趟排序后的结果。} 注意：408 的快排一趟通常指一次 Partition 执行完毕（pivot 落位，左右分好），而不是一次递归调用。
     \item \textbf{最坏情况的触发条件}：初始序列基本有序或基本逆序，且 pivot 选法固定（如始终选第一个/最后一个）时退化为 $O(n^2)$。优化方法：随机选 pivot、三数取中。
-    \item \textbf{递归次数 ≠ 比较次数}：递归深度 = 栈深度，每趟比较次数 $\approx$ 子序列长度。
+    \item \textbf{递归次数 $\neq$ 比较次数}：递归深度 = 栈深度，每趟比较次数 $\approx$ 子序列长度。
     \item \textbf{快排的趟数与初始序列有关}：有序时需 $n$ 趟（每趟定一个位置），随机时约 $\log_2 n$ 趟。
 \end{itemize}
 \end{attention}

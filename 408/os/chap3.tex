@@ -54,9 +54,9 @@
 \begin{attention}
 \textbf{408 高频辨析：三种地址变换时机。}
 \begin{itemize}
-    \item 编译时：编译器知道进程驻留在内存的\textbf{确切位置} → 生成\textbf{绝对代码}（Absolute Code）。
-    \item 装入时（静态重定位）：编译器不知道确切位置 → 生成\textbf{可重定位代码}（Relocatable Code），装入时修改。
-    \item 执行时（动态重定位）：进程可在执行期间从一内存段移到另一内存段 → 需要 MMU 硬件。
+    \item 编译时：编译器知道进程驻留在内存的\textbf{确切位置} $\to$ 生成\textbf{绝对代码}（Absolute Code）。
+    \item 装入时（静态重定位）：编译器不知道确切位置 $\to$ 生成\textbf{可重定位代码}（Relocatable Code），装入时修改。
+    \item 执行时（动态重定位）：进程可在执行期间从一内存段移到另一内存段 $\to$ 需要 MMU 硬件。
 \end{itemize}
 \textbf{注意：}现代通用 OS 均采用\textbf{执行时动态重定位 + 运行时动态链接}的组合。
 \end{attention}
@@ -223,7 +223,7 @@ Next Fit & 继续搜索第一个 $\ge n$ 的块 & 空闲分布更均匀，但会
 \textbf{408 计算核心：页面大小 = $2^p$ 时，逻辑地址低 $p$ 位为页内偏移，其余高位为页号。}
 例如页面大小 4 KB（$p=12$），逻辑地址为 32 位，则页号占高 20 位（$2^{20}$ 个页），页内偏移占低 12 位（$0\sim4095$）。
 
-\textbf{常考题型：} 给出页面大小和逻辑地址，求页号和页内偏移 → 逻辑地址除以页面大小。
+\textbf{常考题型：} 给出页面大小和逻辑地址，求页号和页内偏移 $\to$ 逻辑地址除以页面大小。
 \end{attention}
 
 \subsubsection{页表与地址变换}
@@ -297,7 +297,7 @@ CPU 发出逻辑地址 $A$，MMU 执行以下变换：
 
 \begin{attention}
 \textbf{408 高频计算：TLB + 页表 + Cache 综合题。}
-典型考题流程：CPU 发出逻辑地址 → \textcircled{1} TLB 查找（命中/缺失）→ \textcircled{2} （若缺失）访问页表 → \textcircled{3} 得到物理地址 → \textcircled{4} 访问 Cache（命中/缺失）→ \textcircled{5} （若缺失）访问主存。\textbf{关键：理解每一步的先后依赖关系和各自的命中率。}
+典型考题流程：CPU 发出逻辑地址 $\to$ \textcircled{1} TLB 查找（命中/缺失）$\to$ \textcircled{2} （若缺失）访问页表 $\to$ \textcircled{3} 得到物理地址 $\to$ \textcircled{4} 访问 Cache（命中/缺失）$\to$ \textcircled{5} （若缺失）访问主存。\textbf{关键：理解每一步的先后依赖关系和各自的命中率。}
 \end{attention}
 
 \subsubsection{多级页表}
@@ -433,9 +433,9 @@ CPU 发出逻辑地址 $A$，MMU 执行以下变换：
 \begin{attention}
 \textbf{408 常考辨析：时间局部性 vs 空间局部性。}
 \begin{itemize}
-    \item 循环中的求和变量 → \textbf{时间局部性}（反复访问同一变量）；
-    \item 遍历数组 \texttt{a[0..N-1]} → \textbf{空间局部性}（依次访问相邻元素）；
-    \item 循环体中的指令 → \textbf{时间局部性}（反复执行同一条指令）\textbf{+ 空间局部性}（指令顺序存放）。
+    \item 循环中的求和变量 $\to$ \textbf{时间局部性}（反复访问同一变量）；
+    \item 遍历数组 \texttt{a[0..N-1]} $\to$ \textbf{空间局部性}（依次访问相邻元素）；
+    \item 循环体中的指令 $\to$ \textbf{时间局部性}（反复执行同一条指令）\textbf{+ 空间局部性}（指令顺序存放）。
 \end{itemize}
 \end{attention}
 
@@ -473,8 +473,8 @@ CPU 发出逻辑地址 $A$，MMU 执行以下变换：
 \begin{enumerate}
     \item 硬件检测到缺页（页表项有效位 $=0$），触发缺页异常，陷入内核；
     \item OS 保存现场（寄存器、程序计数器等）；
-    \item OS 判断该逻辑地址是否合法（属于该进程的地址空间）。若非法→终止进程；若合法→继续：
-    \item 从空闲页框中分配一个（若无空闲→执行页面置换算法，选出换出页面）；
+    \item OS 判断该逻辑地址是否合法（属于该进程的地址空间）。若非法$\to$终止进程；若合法$\to$继续：
+    \item 从空闲页框中分配一个（若无空闲$\to$执行页面置换算法，选出换出页面）；
     \item 若换出页面被修改过（Dirty 位 $=1$），将其写回磁盘；
     \item 从磁盘将缺失的页面读入分配到的页框；
     \item 更新页表（设置页框号、有效位 $=1$），更新 TLB；
@@ -692,8 +692,8 @@ OS 在多个进程之间分配物理页框时，有三种基本策略：
 \textbf{408 高频考点：抖动与工作集。}
 \begin{itemize}
     \item 抖动可以通过\textbf{工作集模型}或\textbf{缺页频率（PFF，Page Fault Frequency）}策略来预防。
-    \item PFF 策略：若进程缺页率太高 → 增加其页框数；若缺页率太低 → 减少其页框数。
-    \item 408 常考判断：「系统频繁换页，CPU 利用率低」→ 系统发生了抖动，应\textbf{减少并发进程数}，而不是增加。
+    \item PFF 策略：若进程缺页率太高 $\to$ 增加其页框数；若缺页率太低 $\to$ 减少其页框数。
+    \item 408 常考判断：「系统频繁换页，CPU 利用率低」$\to$ 系统发生了抖动，应\textbf{减少并发进程数}，而不是增加。
 \end{itemize}
 \end{attention}
 
@@ -701,7 +701,7 @@ OS 在多个进程之间分配物理页框时，有三种基本策略：
 
 \begin{conclusion}{内存管理 — 408 常考点总结}{mem-keypoints}
 \begin{enumerate}
-    \item \textbf{地址变换计算}：给定逻辑地址和页面大小 → 求页号、页内偏移；查页表 → 求物理地址。\textbf{必考题}。
+    \item \textbf{地址变换计算}：给定逻辑地址和页面大小 $\to$ 求页号、页内偏移；查页表 $\to$ 求物理地址。\textbf{必考题}。
     \item \textbf{TLB + 页表 + Cache 综合}：理解 TLB 命中/缺失后的访存流程，计算不同命中率下的有效访存时间。
     \item \textbf{多级页表}：给定多级页表结构和逻辑地址，求各级索引和最终物理地址；计算多级页表节省的内存量。
     \item \textbf{页面置换算法}：OPT、FIFO（注意 Belady 异常）、LRU、CLOCK、改进 CLOCK 的置换过程模拟和缺页次数统计。\textbf{高频计算题}。

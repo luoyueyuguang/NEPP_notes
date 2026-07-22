@@ -224,10 +224,10 @@ DRAM 的基本存储单元是\textbf{单晶体管 + 一个微小电容}（1T1C c
 
 \textbf{408 常见辨析：}
 \begin{itemize}
-    \item 「SRAM 速度快、成本高」→ 用于 Cache。
-    \item 「DRAM 需要刷新」→ 这是 DRAM 的「动态」含义。
-    \item 「DRAM 破坏性读出」→ 读后必须重写。
-    \item 「SRAM 不需要刷新」→ 但不等于非易失——断电数据仍丢失。
+    \item 「SRAM 速度快、成本高」$\to$ 用于 Cache。
+    \item 「DRAM 需要刷新」$\to$ 这是 DRAM 的「动态」含义。
+    \item 「DRAM 破坏性读出」$\to$ 读后必须重写。
+    \item 「SRAM 不需要刷新」$\to$ 但不等于非易失——断电数据仍丢失。
 \end{itemize}
 \end{conclusion}
 
@@ -599,7 +599,7 @@ TLB 中的每项记录：
     \item Data：物理页框号（PPN）+ 权限位 + 脏位
 \end{itemize}
 
-TLB 命中时，翻译（VA→PA）在一个时钟周期内完成，不再需要访问主存中的页表。TLB 缺失时，硬件（或 OS）从主存中的页表找到对应 PTE 并装入 TLB。
+TLB 命中时，翻译（VA$\to$PA）在一个时钟周期内完成，不再需要访问主存中的页表。TLB 缺失时，硬件（或 OS）从主存中的页表找到对应 PTE 并装入 TLB。
 \end{mydef}
 
 \begin{conclusion}{TLB + Cache 的综合访存流程}{tlb-cache-flow}
@@ -667,7 +667,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
     \item OS 在磁盘（swap 区）中找到对应页，在物理主存中分配一个空闲页框。
     \item 若主存已满，OS 执行\textbf{页面置换算法}（如 LRU、Clock、改进的 Clock 算法）选出一个牺牲页写回磁盘（若脏）。
     \item 将所需页从磁盘读入分配的物理页框。
-    \item 更新页表（VPN→PPN，标记 Valid），刷新 TLB 中对应项。
+    \item 更新页表（VPN$\to$PPN，标记 Valid），刷新 TLB 中对应项。
     \item 返回被中断的指令，重新执行。
 \end{enumerate}
 
@@ -678,7 +678,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
 \textbf{408 常考辨析——Cache 缺失 vs 缺页：}
 \begin{itemize}
     \item Cache 缺失\textbf{完全由硬件处理}（硬件自动从主存取块装入 Cache），对 OS 透明。
-    \item 缺页\textbf{由 OS 软件处理}（发出异常→OS 缺页处理程序→磁盘 IO→页表更新→返回），代价巨大。
+    \item 缺页\textbf{由 OS 软件处理}（发出异常$\to$OS 缺页处理程序$\to$磁盘 IO$\to$页表更新$\to$返回），代价巨大。
     \item 二者在存储层次中处于不同级别：Cache 缺失是第 2--3 层之间，缺页是第 3--4 层之间。
 \end{itemize}
 \end{attention}
@@ -694,7 +694,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
     \item \textbf{LRU 替换}：手动模拟命中/缺失过程，统计命中率。
     \item \textbf{写策略组合}：写回+写分配，写直达+非写分配。
     \item \textbf{低位交叉编址}：连续访问的流水线带宽计算（$T$、$\tau$、$m$ 的关系）。
-    \item \textbf{TLB + Cache + 页表的综合访存流程}：虚拟地址→TLB→PA→Cache→数据。
+    \item \textbf{TLB + Cache + 页表的综合访存流程}：虚拟地址$\to$TLB$\to$PA$\to$Cache$\to$数据。
     \item \textbf{缺页处理}：由 OS 而非硬件处理，属于异常（fault）类。
     \item \textbf{局部性判断}：数组按行 vs 按列访问的空间局部性差异。
 \end{enumerate}
@@ -885,5 +885,5 @@ for (int j = 0; j < N; j++)
 
     \item \textbf{唐朔飞《计算机组成原理》}第 4 章「存储器」——4.1 概述，4.2 主存储器（SRAM/DRAM 对比、刷新方式），4.3 高速缓冲存储器（Cache 地址映射、替换算法、写策略），4.5 辅助存储器。唐教材的符号体系与 408 完全对齐。
 
-    \item \textbf{延伸思考：}现代处理器的 Cache 设计远不止 408 范围——多级 Cache 的包含策略（Inclusive/Exclusive/NINE）、硬件预取（Stride/Stream prefetcher）、非阻塞 Cache（MSHR）等。但 408 的核心始终是「给出参数→划分地址位→模拟访问序列→统计算命中率」这一基本功，务必练熟。
+    \item \textbf{延伸思考：}现代处理器的 Cache 设计远不止 408 范围——多级 Cache 的包含策略（Inclusive/Exclusive/NINE）、硬件预取（Stride/Stream prefetcher）、非阻塞 Cache（MSHR）等。但 408 的核心始终是「给出参数$\to$划分地址位$\to$模拟访问序列$\to$统计算命中率」这一基本功，务必练熟。
 \end{itemize}

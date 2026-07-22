@@ -299,7 +299,7 @@ $\therefore$ $T_0$ 安全，安全序列：\{P4, P1, P2, P3\}（不唯一，\{P4
 \draw[->] (R1) -- (P2) node[midway, right] {分配1个};
 \draw[->] (R2) -- (P1) node[midway, left] {分配1个};
 \draw[->] (R3) -- (P3) node[midway, left] {分配1个};
-% 请求边 P→R
+% 请求边 P$\to$R
 \draw[->] (P1) -- (R3) node[midway, right] {请求1个};
 \draw[->] (P2) -- (R2) node[midway, right] {请求1个};
 \draw[->] (P2) -- (R3) node[midway, right] {请求1个};
@@ -555,11 +555,11 @@ void provider() {
     while (1) {
         // 随机提供两种材料（三种组合之一）
         int combo = random() % 3;
-        if (combo == 0) {       // 纸+火柴 → 有烟草者可吸
+        if (combo == 0) {       // 纸+火柴 $\to$ 有烟草者可吸
             V(&P); V(&M);
-        } else if (combo == 1) {// 烟草+火柴 → 有纸者可吸
+        } else if (combo == 1) {// 烟草+火柴 $\to$ 有纸者可吸
             V(&T); V(&M);
-        } else {                // 烟草+纸 → 有火柴者可吸
+        } else {                // 烟草+纸 $\to$ 有火柴者可吸
             V(&T); V(&P);
         }
         P(&done);    // 等吸烟者完成

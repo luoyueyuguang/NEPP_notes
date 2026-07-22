@@ -33,7 +33,7 @@
 \begin{enumerate}
     \item $T$ 中\textbf{边数} $= n-1$。
     \item \textbf{各结点度数之和 = 边数} $\times 2 = 2(n-1)$（无向视角），即 $\sum \deg(v) = 2(n-1)$。
-    \item 从\textbf{有向}视角（父→子），$\sum \text{出度}(v) = n-1$。
+    \item 从\textbf{有向}视角（父$\to$子），$\sum \text{出度}(v) = n-1$。
     \item 设度为 $k$ 的结点有 $n_k$ 个，则 $n = \sum n_k$，且 $\sum k \cdot n_k = n-1$。
 \end{enumerate}
 \end{formula}
@@ -142,7 +142,7 @@ $n$ 个结点的二叉链表共有 $2n$ 个指针域，其中 $n-1$ 个指向孩
 三种深度优先遍历的核心区别在于\textbf{访问根结点的时机}：
 
 \begin{lstlisting}[language=C]
-// 先序遍历：根 → 左 → 右
+// 先序遍历：根 $\to$ 左 $\to$ 右
 void PreOrder(BiTree T) {
     if (T) {
         visit(T);              // ① 访问根
@@ -151,7 +151,7 @@ void PreOrder(BiTree T) {
     }
 }
 
-// 中序遍历：左 → 根 → 右
+// 中序遍历：左 $\to$ 根 $\to$ 右
 void InOrder(BiTree T) {
     if (T) {
         InOrder(T->lchild);    // ① 遍历左子树
@@ -160,7 +160,7 @@ void InOrder(BiTree T) {
     }
 }
 
-// 后序遍历：左 → 右 → 根
+// 后序遍历：左 $\to$ 右 $\to$ 根
 void PostOrder(BiTree T) {
     if (T) {
         PostOrder(T->lchild);  // ① 遍历左子树
@@ -298,7 +298,7 @@ BiTree Build(char pre[], char in[], int pl, int pr, int il, int ir) {
 \end{conclusion}
 
 \begin{attention}
-408 选择题高频考察「给定两个遍历序列，判断能否唯一确定二叉树」以及「由序列还原二叉树的中间步骤」。务必掌握手动构造的流程：\textbf{找根→切分中序→切分先序/后序→递归}。
+408 选择题高频考察「给定两个遍历序列，判断能否唯一确定二叉树」以及「由序列还原二叉树的中间步骤」。务必掌握手动构造的流程：\textbf{找根$\to$切分中序$\to$切分先序/后序$\to$递归}。
 \end{attention}
 
 \subsection{线索二叉树}
@@ -425,7 +425,7 @@ typedef struct CSNode {
 
 \subsubsection{树/森林与二叉树的转换}
 
-\begin{conclusion}{树→二叉树的转换规则}{tree-to-binary}
+\begin{conclusion}{树$\to$二叉树的转换规则}{tree-to-binary}
 给定一棵树：
 \begin{enumerate}
     \item 每个结点只保留其\textbf{第一个孩子}的连线，删除与其他孩子的连线；
@@ -435,7 +435,7 @@ typedef struct CSNode {
 \textbf{口诀：} 左孩子、右兄弟。转换后的二叉树右子树一定为空（因根无兄弟）。
 \end{conclusion}
 
-\begin{conclusion}{森林→二叉树的转换规则}{forest-to-binary}
+\begin{conclusion}{森林$\to$二叉树的转换规则}{forest-to-binary}
 \begin{enumerate}
     \item 先将森林中的每棵树各自转换为二叉树；
     \item 将第一棵树的根作为总根，后续树的根依次作为前一棵树的根的\textbf{右孩子}。
@@ -666,7 +666,7 @@ void Union(int x, int y) {
 \ifshowsolutions\par\noindent\textbf{解析：} 由先序知根为 A，中序中 A 左边 \texttt{DBE} 为左子树，右边 \texttt{FCG} 为右子树。
 左子树的先序为 \texttt{BDE}，中序为 \texttt{DBE}，知 B 为根，D 为 B 的左孩子，E 为 B 的右孩子。
 右子树的先序为 \texttt{CFG}，中序为 \texttt{FCG}，知 C 为根，F 为 C 的左孩子，G 为 C 的右孩子。
-后序遍历（左→右→根）：\texttt{DEBFGCA}。\boxed{\textbf{答案：}(A)}\fi
+后序遍历（左$\to$右$\to$根）：\texttt{DEBFGCA}。\boxed{\textbf{答案：}(A)}\fi
 
 \vspace{8pt}
 
@@ -678,7 +678,7 @@ void Union(int x, int y) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 先序 = 根→左→右，后序 = 左→右→根。二者相反，意味着对每个结点，先访问根再访问子树 vs 先访问子树再访问根。
+\ifshowsolutions\par\noindent\textbf{解析：} 先序 = 根$\to$左$\to$右，后序 = 左$\to$右$\to$根。二者相反，意味着对每个结点，先访问根再访问子树 vs 先访问子树再访问根。
 举例：先序 \texttt{ABC}，后序 \texttt{CBA}，则树为 A 有左 B，B 有左 C（单链向左）。先序 \texttt{ABC}，后序 \texttt{BCA}，则树为 A 有右 B，B 有右 C（单链向右）。
 \textbf{结论：} 每个结点至多只有一个孩子结点，即整个树只有一个叶结点（否则中间有分叉就会出现不相反的片段）。所有结点无左孩子或所有结点无右孩子仅是两种特例，不一定是普通情况。\boxed{\textbf{答案：}(C)}\fi
 
@@ -784,7 +784,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 森林→二叉树的转换规则：第一棵树的根 = 二叉树根 $p$，第一棵树中除根以外的结点 → $p$ 的左子树；其余森林中的树 → $p$ 的右子树。
+\ifshowsolutions\par\noindent\textbf{解析：} 森林$\to$二叉树的转换规则：第一棵树的根 = 二叉树根 $p$，第一棵树中除根以外的结点 $\to$ $p$ 的左子树；其余森林中的树 $\to$ $p$ 的右子树。
 故第一棵树的结点数 $= 1$（根）+ 左子树结点数 $= 1 + (m - 1 - n) = m - n$。\boxed{\textbf{答案：}(A)}\fi
 
 \vspace{8pt}
@@ -816,7 +816,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 \ifshowsolutions\par\noindent\textbf{解析：}
 (1) 构造步骤：先序首元 A 为根。中序中 A 前 \texttt{DBGE}（4结点）为左子树，后 \texttt{CF}（2结点）为右子树。
 左子树先序 \texttt{BDEG}，中序 \texttt{DBGE}：B 根，D 左，\texttt{GE} 右。右子树的先序 \texttt{EG}，中序 \texttt{GE}：E 根，G 左。
-右子树先序 \texttt{CF}，中序 \texttt{CF}：C 根，F 右（中序 C 前为空→无左子树，后为 F→右子树）。
+右子树先序 \texttt{CF}，中序 \texttt{CF}：C 根，F 右（中序 C 前为空$\to$无左子树，后为 F$\to$右子树）。
 
 最终结构：
 \begin{verbatim}
@@ -829,10 +829,10 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
       G
 \end{verbatim}
 
-(2) 后序遍历（左→右→根）：\texttt{DGEBFCA}。层次遍历（从上到下，从左到右）：\texttt{ABCDEFG}。
-(3) 二叉树→森林：抹去右子树的父子关系（二叉树中根结点沿右链走到底，每遇到一个右孩子即断开），得到多棵树。规则：二叉树中，根和沿左链走到的结点为第一棵树中的父子关系，沿右链走到的结点为下一棵树的根。
+(2) 后序遍历（左$\to$右$\to$根）：\texttt{DGEBFCA}。层次遍历（从上到下，从左到右）：\texttt{ABCDEFG}。
+(3) 二叉树$\to$森林：抹去右子树的父子关系（二叉树中根结点沿右链走到底，每遇到一个右孩子即断开），得到多棵树。规则：二叉树中，根和沿左链走到的结点为第一棵树中的父子关系，沿右链走到的结点为下一棵树的根。
 
-断开：A 右 C，断开得到两棵树。第一棵树（A 为根，左子树 B）：先恢复为一般树——每个结点保留左孩子，左孩子的右链变为该结点的其他孩子。B 的左 D→B 的第一个孩子 D；D 的右 E→B 的第二个孩子 E；E 的左 G→E 的第一个孩子 G。森林第一棵树：A-B(D,E(G))。第二棵树：C(F)。
+断开：A 右 C，断开得到两棵树。第一棵树（A 为根，左子树 B）：先恢复为一般树——每个结点保留左孩子，左孩子的右链变为该结点的其他孩子。B 的左 D$\to$B 的第一个孩子 D；D 的右 E$\to$B 的第二个孩子 E；E 的左 G$\to$E 的第一个孩子 G。森林第一棵树：A-B(D,E(G))。第二棵树：C(F)。
 \boxed{\textbf{答案：}\text{如上}}\fi
 
 \vspace{8pt}

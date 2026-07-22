@@ -94,7 +94,7 @@ PSW/FLAGS & 程序状态字/标志寄存器，存放条件码（ZF/OF/CF/SF）\\
 \begin{conclusion}{控制器的基本工作流程}{cu-workflow}
 控制器完成一条指令的基本流程（取指--译码--执行）：
 \begin{enumerate}
-    \item \textbf{取指（Fetch）}：按 PC 所指地址从存储器取指令→IR，PC 自增指向下一条指令。
+    \item \textbf{取指（Fetch）}：按 PC 所指地址从存储器取指令$\to$IR，PC 自增指向下一条指令。
     \item \textbf{译码（Decode）}：指令译码器分析 IR 中的操作码，产生相应的控制信号。
     \item \textbf{执行（Execute）}：根据译码结果，控制相关部件完成数据传送或运算。
     \item \textbf{写回（Write Back）}：将结果写回寄存器或存储器（如有需要）。
@@ -140,7 +140,7 @@ PSW/FLAGS & 程序状态字/标志寄存器，存放条件码（ZF/OF/CF/SF）\\
 可移植性 & 无 & 差 & 好（需编译器适配）\\
 执行效率 & 最高 & 高 & 取决于编译器优化 \\
 程序示例 & \texttt{B8 0001} & \texttt{MOV AX, 1} & \texttt{int a = 1;} \\
-翻译方式 & 直接执行 & 汇编器→机器码 & 编译器→机器码或解释执行 \\
+翻译方式 & 直接执行 & 汇编器$\to$机器码 & 编译器$\to$机器码或解释执行 \\
 \hline
 \end{tabular}
 \end{tablebox}
@@ -197,7 +197,7 @@ $L_5$ & 应用层（用户层）& 应用程序通过 API/库使用系统服务 \
 衡量计算机性能的主要指标包括：
 \begin{enumerate}
     \item \textbf{机器字长（Word Size）}：CPU 一次能处理的二进制数据的位数。通常与通用寄存器位数和 ALU 宽度一致。字长越长，计算精度越高，但硬件成本也越大。常见：32 位、64 位。
-    \item \textbf{主频（Clock Frequency）}：CPU 内部时钟信号的频率，以 Hz 为单位。主频 $f$ 决定了时钟周期 $T = 1/f$。例如主频 3.0 GHz → 时钟周期 $T \approx 0.33\text{ ns}$。
+    \item \textbf{主频（Clock Frequency）}：CPU 内部时钟信号的频率，以 Hz 为单位。主频 $f$ 决定了时钟周期 $T = 1/f$。例如主频 3.0 GHz $\to$ 时钟周期 $T \approx 0.33\text{ ns}$。
     \item \textbf{CPI（Cycles Per Instruction）}：执行一条指令所需的平均时钟周期数。CPI 越小，CPU 效率越高。
     \item \textbf{MIPS（Million Instructions Per Second）}：每秒执行百万条指令。
     \item \textbf{MFLOPS（Million Floating-point Operations Per Second）}：每秒百万次浮点运算。类似还有 GFLOPS、TFLOPS。
@@ -265,7 +265,7 @@ $L_5$ & 应用层（用户层）& 应用程序通过 API/库使用系统服务 \
 \hline
 机器字长 & CPU 一次处理的二进制位数 & 32/64 位 \\
 主频 $f$ & 时钟信号频率 & GHz 级 \\
-$T_{\text{clk}}$ & $1/f$，时钟周期 & 例如 3 GHz → 0.33 ns \\
+$T_{\text{clk}}$ & $1/f$，时钟周期 & 例如 3 GHz $\to$ 0.33 ns \\
 CPI & 每条指令的平均时钟数 & 越小越好 \\
 IPC & $1/\text{CPI}$，每周期指令数 & 越大越好 \\
 MIPS & 每秒百万条指令 & 与程序相关 \\
@@ -303,7 +303,7 @@ $T_{\text{CPU}}$ & $N \times \text{CPI} \times T_{\text{clk}}$ & 终极性能指
     \item \textbf{冯·诺依曼结构的核心特征}：存储程序、五大部件、以运算器为中心（注意与现代以存储器为中心的对比）。
     \item \textbf{五大部件的功能与辨析}：运算器（ALU + 寄存器）、控制器（PC/IR/ID）、两者合称 CPU；主机 = CPU + 主存。
     \item \textbf{软件分类}：系统软件（OS/编译器/汇编器/DBMS）vs 应用软件——这个知识点在选择题中常以「以下哪个属于系统软件」的形式出现。
-    \item \textbf{三个语言级别}：机器语言（二进制）、汇编语言（助记符→汇编器翻译）、高级语言（编译器翻译或解释执行）。注意区分编译与解释。
+    \item \textbf{三个语言级别}：机器语言（二进制）、汇编语言（助记符$\to$汇编器翻译）、高级语言（编译器翻译或解释执行）。注意区分编译与解释。
     \item \textbf{计算机层次结构}：$L_0$（微程序）到 $L_5$（应用层），理解每一层的作用及层次间的翻译/解释关系。常考点：哪几层是虚拟机？哪几层是物理机？
     \item \textbf{CPU 执行时间公式}：$T_{\text{CPU}} = N \times \text{CPI} \times T_{\text{clk}}$。这是串起所有性能指标的枢纽公式，必须熟练运用。
     \item \textbf{MIPS 计算}：$\text{MIPS} = f / (\text{CPI} \times 10^{6})$，注意单位的统一（主频用 Hz）。

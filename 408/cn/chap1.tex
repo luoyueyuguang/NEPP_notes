@@ -219,7 +219,7 @@ OSI & TCP/IP & 典型协议 \\
 \end{tabular}
 \end{center}
 
-\ifsholutions\par\noindent\textbf{解析：}
+\ifshowsolutions\par\noindent\textbf{解析：}
 报文交换：甲发完$8\text{ Mb}/10\text{ Mbps}=800$ ms；路由器再发800 ms到乙。总$=1600$ ms。
 
 分组交换：$8\text{ Mb}/10\text{ kb}=800$个分组。甲发完所有分组$=800\times(10\text{ kb}/10\text{ Mbps})=800$ ms。第一个分组到达乙：甲发完第一个分组（1 ms）$+$路由器转发第一个分组（1 ms）$=2$ ms。最后一个分组到达乙$=800+1=801$ ms（最后一个分组甲发完时，路由器在1 ms前已完成倒数第二个分组的转发，可立即转发最后一个）。
