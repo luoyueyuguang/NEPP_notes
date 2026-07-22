@@ -16,6 +16,7 @@
 - 高等数学（9 章）、线性代数（7 章）、概率论与数理统计（7 章）
 - 三套模拟卷
 - 470 页 PDF
+- 数学部分在编写中参考了李正元老师的复习全书等资料，特此致谢。
 
 ## 构建
 
@@ -25,6 +26,6 @@ xelatex -interaction=nonstopmode -halt-on-error -output-directory=out main.tex
 xelatex -interaction=nonstopmode -halt-on-error -output-directory=out main.tex
 ```
 
-## 许可
+## 版权声明
 
-本项目仅用于个人学习目的。AI 生成内容可能存在错误，请自行甄别。
+本项目内容由 AI 生成，仅供个人学习参考。数学部分参考了李正元老师的资料，408 部分参考了邓俊辉、Patterson \& Hennessy、OSTEP、Kurose 等教材。如有无意侵权，请在 [Issues](https://github.com/luoyueyuguang/NEPP_notes/issues) 中提出，作者将尽快处理。
