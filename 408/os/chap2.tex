@@ -336,7 +336,7 @@ semaphore full  = 0;       // 产品数
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} SJF长作业可能饥饿；优先级调度低优先级可能饥饿；多级反馈队列通过老化机制防止饥饿（但不保证完全无饥饿）。RR每个进程都有机会获得CPU，不会饥饿。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} SJF可能使长作业饥饿，优先级调度可能使低优先级进程饥饿。普通多级反馈队列若没有周期性优先级提升等额外机制，CPU密集型进程也可能长期得不到运行；题干没有给出这类防饥饿机制。RR按就绪队列循环分配时间片，只要时间片有限且调度持续进行，每个就绪进程都会获得CPU。\boxed{\textbf{答案：}(C)}\fi
 
 \vspace{8pt}
 

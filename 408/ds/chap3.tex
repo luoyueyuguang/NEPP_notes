@@ -45,7 +45,7 @@ int Index_BF(SString S, SString T) {
 
 \textbf{回溯公式 $i = i-j+2$ 的理解：} $i-j+1$ 是本轮起始位置，$+1$ 即下一位置。
 
-\textbf{时间复杂度：} 最好 $O(n)$，最坏 $O(nm)$（如 $S=$"aaaa…a"，$T=$"aaaab"），平均 $O(n+m)$。
+\textbf{时间复杂度：} 最好 $O(n)$，最坏 $O(nm)$（如 $S=$"aaaa…a"，$T=$"aaaab"）。只有在字符独立、失配位置具有特定概率分布等平均模型下，期望代价才可接近线性；脱离概率模型时不应无条件写成“平均 $O(n+m)$”。
 \end{conclusion}
 
 \subsection{KMP算法}
@@ -180,6 +180,8 @@ void GetNextVal(SString T, int nextval[]) {
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 串长是串中字符的总个数，空格也属于字符，不要求字符互异。\boxed{\textbf{答案：}(B)}\fi
+
 \item \textbf{（单项选择题）} 设有两个串 $p$ 和 $q$，求 $q$ 在 $p$ 中首次出现的位置的运算称为
 \begin{center}
 \begin{tabular}{ll}
@@ -188,15 +190,36 @@ void GetNextVal(SString T, int nextval[]) {
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 在主串 $p$ 中查找模式串 $q$ 首次出现位置的运算称为模式匹配。\boxed{\textbf{答案：}(B)}\fi
+
 \item \textbf{（填空题）} 空串与空格串的区别是：空串的长度为 \underline{\qquad}，空格串的长度 \underline{\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{答案：} 0；等于其中空格字符的个数，因而大于0。空格是普通字符，空格串不是空串。\fi
 
 \item \textbf{（填空题）} 设模式串 $T=$ "ababaa"，下标从 1 开始，则 next[4] = \underline{\qquad}，next[5] = \underline{\qquad}。
 
+\ifshowsolutions\par\noindent\textbf{答案：} 2；3。前3个字符“aba”的最长相等真前后缀为“a”，故 next[4]$=1+1=2$；前4个字符“abab”的对应前后缀为“ab”，故 next[5]$=2+1=3$。\fi
+
 \item \textbf{（简答题）} 已知主串 $S=$ "aaabaaaab"，模式串 $T=$ "aaaab"。用 BF 算法进行匹配，写出每趟匹配的过程，统计总的字符比较次数。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 模式串依次与主串第1至第5个位置对齐。各趟比较次数分别为4、3、2、1、5；前四趟分别在模式位置4、3、2、1失配，第五趟“aaaab”全部匹配。因此首次匹配位置为5，总字符比较次数为 $4+3+2+1+5=15$。\fi
 
 \item \textbf{（计算题）} 求模式串 $T=$ "abcabca" 的 next 数组和 nextval 数组（下标从 1 开始）。
 
+\ifshowsolutions\par\noindent\textbf{答案：}
+\[
+\begin{array}{c|ccccccc}
+j&1&2&3&4&5&6&7\\ \hline
+T[j]&a&b&c&a&b&c&a\\
+\mathrm{next}[j]&0&1&1&1&2&3&4\\
+\mathrm{nextval}[j]&0&1&1&0&1&1&0
+\end{array}
+\]
+nextval 在 $T[j]=T[\mathrm{next}[j]]$ 时继续沿失配指针跳转，因而位置4、7可直接跳到0。\fi
+
 \item \textbf{（简答题）} KMP 算法相对于 BF 算法的优势是什么？什么情况下 KMP 的优势最明显？
+
+\ifshowsolutions\par\noindent\textbf{答案：} BF 每次失配后把主串起点右移一位并重复比较已经匹配过的字符，最坏为 $O(nm)$；KMP 利用模式串真前后缀信息移动模式串，主串指针不回溯，预处理和匹配总计 $O(n+m)$。当主串和模式串含大量重复前缀、经常在接近模式末尾处失配时，KMP 避免重复比较的优势最明显。\fi
 
 \end{enumerate}
 
@@ -212,7 +235,9 @@ void GetNextVal(SString T, int nextval[]) {
 \end{tabular}
 \end{center}
 
-\item \textbf{（真题风格，单项选择题）} 设主串 $S$ 的长度为 $n$，模式串 $T$ 的长度为 $m$。KMP 算法在匹配过程中的时间复杂度为
+\ifshowsolutions\par\noindent\textbf{解析：} 前5个字符“ababa”的最长相等真前后缀为“aba”，故 next[6]$=3+1=4$；前6个字符“ababaa”的最长相等真前后缀为“a”，故 next[7]$=1+1=2$。\boxed{\textbf{答案：}(C)}\fi
+
+\item \textbf{（真题风格，单项选择题）} 设主串 $S$ 的长度为 $n$，模式串 $T$ 的长度为 $m$。若把构造 next 数组和随后执行匹配都计入，KMP 算法的总时间复杂度为
 \begin{center}
 \begin{tabular}{ll}
 (A) $O(n)$ & (B) $O(n+m)$ \\[6pt]
@@ -220,13 +245,17 @@ void GetNextVal(SString T, int nextval[]) {
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 构造 next 数组为 $O(m)$，匹配阶段主串指针不回溯，为 $O(n)$，总时间为 $O(n+m)$。\boxed{\textbf{答案：}(B)}\fi
+
 \item \textbf{（真题风格，单项选择题）} 设有模式串 $T=$ "aaab"，下标从 1 开始，以下关于 nextval 数组的说法中正确的是
 \begin{center}
 \begin{tabular}{ll}
-(A) nextval[2] = 0 & (B) nextval[3] = 0 \\[6pt]
-(C) nextval[2] = 1 & (D) nextval[4] = 1
+(A) nextval[2] = 1 & (B) nextval[3] = 2 \\[6pt]
+(C) nextval[4] = 3 & (D) nextval[4] = 1
 \end{tabular}
 \end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 该模式的 next 数组为 $(0,1,2,3)$。前三个字符均为“a”，nextval 会继续跳过相同字符，得到 nextval$=(0,0,0,3)$，故只有 nextval[4]$=3$ 正确。\boxed{\textbf{答案：}(C)}\fi
 
 \item \textbf{（真题风格，综合题）} 设主串 $S=$ "ababcabcacbab"，模式串 $T=$ "abcac"。
 \begin{enumerate}
@@ -235,7 +264,35 @@ void GetNextVal(SString T, int nextval[]) {
     \item[(3)] 统计总的字符比较次数。
 \end{enumerate}
 
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 模式串“abcac”的 next 数组为 $(0,1,1,1,2)$。
+
+(2) 只列出发生失配或完成匹配的关键状态：从 $(i,j)=(1,1)$ 开始，前两个字符匹配；在 $(3,3)$ 比较 $a$ 与 $c$ 失配，令 $j=1$，随后从主串位置3重新利用该字符继续匹配。匹配至 $(7,5)$ 时比较 $b$ 与 $c$ 失配，令 $j=2$；之后依次匹配主串位置7--10与模式位置2--5，最终在主串第6个位置开始完成匹配。
+
+(3) 实际字符比较状态依次为
+\[
+(1,1),(2,2),(3,3),(3,1),(4,2),(5,3),
+(6,4),(7,5),(7,2),(8,3),(9,4),(10,5),
+\]
+共12次字符比较。\fi
+
 \item \textbf{（真题风格，综合题）} 给出求模式串 next 数组的算法（GetNext），分析其时间复杂度。若模式串为 $T=$ "aaaaab"，该算法的时间复杂度是否会退化为 $O(m^2)$？说明理由。
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+\begin{lstlisting}[language=C]
+void GetNext(SString T, int next[]) {
+    int j = 1, k = 0;
+    next[1] = 0;
+    while (j < T.length) {
+        if (k == 0 || T.ch[j] == T.ch[k]) {
+            ++j; ++k; next[j] = k;
+        } else {
+            k = next[k];
+        }
+    }
+}
+\end{lstlisting}
+$j$ 只增不减，$k$ 的前进和回退也可用摊还方法界定在线性次数内，因此构造 next 的时间复杂度为 $O(m)$、辅助空间为 $O(1)$（不计输出数组）。即使模式串为“aaaaab”，算法也不会从每个位置重新扫描整个前缀，不会退化为 $O(m^2)$。\fi
 
 \end{enumerate}
 

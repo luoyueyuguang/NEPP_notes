@@ -673,6 +673,8 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 直接插入、冒泡和采用“相等时先取左段”的归并排序均可稳定；快速排序的远距离交换可能改变相等关键字的相对次序。\boxed{\textbf{答案：}(D)}\fi
+
 \item \textbf{（单项选择题）} 对 $n$ 个记录进行快速排序，平均情况下的时间复杂度为
 \begin{center}
 \begin{tabular}{ll}
@@ -680,6 +682,8 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
 (C) $O(n^2)$ & (D) $O(\log n)$
 \end{tabular}
 \end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 在枢轴位置近似均匀的平均模型下，递推为 $T(n)=T(k)+T(n-k-1)+O(n)$，期望为 $O(n\log n)$。\boxed{\textbf{答案：}(B)}\fi
 
 \item \textbf{（单项选择题）} 堆排序中，对 $n$ 个元素的序列建初堆，时间复杂度为
 \begin{center}
@@ -689,6 +693,8 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 自底向上建堆时，大量靠近叶子的结点只需很少调整，所有下沉距离之和为 $O(n)$。\boxed{\textbf{答案：}(B)}\fi
+
 \item \textbf{（单项选择题）} 初始序列基本有序时，以下排序算法中效率最高的是
 \begin{center}
 \begin{tabular}{ll}
@@ -697,17 +703,62 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 直接插入排序的移动和比较次数与逆序程度相关，序列基本有序时接近 $O(n)$；选择排序和堆排序不能利用这一性质，固定首元素枢轴的快排还可能退化。\boxed{\textbf{答案：}(B)}\fi
+
 \item \textbf{（填空题）} 基于比较的排序算法在最坏情况下的时间下界为 \underline{\qquad\qquad}（用大 $O$ 或大 $\Omega$ 记法）。
+
+\ifshowsolutions\par\noindent\textbf{答案：} $\Omega(n\log n)$。比较决策树至少有 $n!$ 个叶结点，其高度不小于 $\lceil\log_2(n!)\rceil=\Omega(n\log n)$。\fi
 
 \item \textbf{（填空题）} 希尔排序的最后一趟增量必须为 \underline{\qquad\qquad}。
 
+\ifshowsolutions\par\noindent\textbf{答案：} 1。最后必须对整个序列执行一次普通插入排序式的相邻间隔整理，才能保证全局有序。\fi
+
 \item \textbf{（填空题）} 对序列 $\{6,5,3,1,8,7,2,4\}$ 进行二路归并排序，第一趟归并后的序列为 \underline{\qquad\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{答案：} $\{5,6,1,3,7,8,2,4\}$。第一趟把相邻的单元素段两两归并。\fi
 
 \item \textbf{（简答题）} 简述堆排序中建堆过程为什么可以达到 $O(n)$ 的时间复杂度而非 $O(n\log n)$。给出证明思路即可。
 
+\ifshowsolutions\par\noindent\textbf{答案：} 不能把每个结点都按高度 $\log n$ 估计。高度至少为 $h$ 的结点数至多约为 $n/2^{h+1}$，故全部下沉工作量满足
+\[
+\sum_{h\geqslant 0} O\!\left(\frac{n}{2^{h+1}}h\right)
+=O(n)\sum_{h\geqslant0}\frac{h}{2^{h+1}}=O(n).
+\]
+因此自底向上建堆是 $O(n)$，而逐个插入建堆才通常按 $O(n\log n)$ 上界估计。\fi
+
 \item \textbf{（算法设计）} 编写算法，用单链表实现直接插入排序。说明时间与空间复杂度。
 
+\ifshowsolutions\par\noindent\textbf{解析：}
+\begin{lstlisting}[language=C]
+void ListInsertSort(LinkList L) {
+    LNode *p = L->next;
+    L->next = NULL;                    // 已排序链初始为空
+    while (p) {
+        LNode *next = p->next;
+        LNode *q = L;
+        while (q->next && q->next->data <= p->data)
+            q = q->next;               // 相等时插到已有相等结点之后
+        p->next = q->next;
+        q->next = p;
+        p = next;
+    }
+}
+\end{lstlisting}
+最坏时间复杂度 $O(n^2)$，最好 $O(n)$，辅助空间 $O(1)$；使用“$\leqslant$”越过已有相等结点可保持稳定性。\fi
+
 \item \textbf{（算法设计）} 编写算法，将两个按升序排列的整型数组 $A[0..m-1]$ 与 $B[0..n-1]$ 归并到数组 $C[0..m+n-1]$ 中。要求 $O(m+n)$ 时间。
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+\begin{lstlisting}[language=C]
+void MergeArray(int A[], int m, int B[], int n, int C[]) {
+    int i = 0, j = 0, k = 0;
+    while (i < m && j < n)
+        C[k++] = (A[i] <= B[j]) ? A[i++] : B[j++];
+    while (i < m) C[k++] = A[i++];
+    while (j < n) C[k++] = B[j++];
+}
+\end{lstlisting}
+每个元素只复制一次，时间复杂度 $O(m+n)$；除输出数组外辅助空间为 $O(1)$。相等时先取 A 可保持跨段稳定性。\fi
 
 \end{enumerate}
 
@@ -715,13 +766,15 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
 
 \begin{enumerate}[resume]
 
-\item \textbf{（真题风格，单项选择题）} 对序列 $\{45,38,66,90,88,10,25,45'\}$ 以第一个元素 45 为枢轴进行一趟快速排序（Partition），得到的序列是
+\item \textbf{（真题风格，单项选择题）} 对序列 $\{45,38,66,90,88,10,25,45'\}$ 采用本章给出的“以首元素为枢轴、从右找小再从左找大”的交替填坑 Partition 算法进行一趟划分，得到的序列是
 \begin{center}
 \begin{tabular}{ll}
 (A) $\{10,25,38,45,88,90,66,45'\}$ & (B) $\{25,38,10,45,88,90,66,45'\}$ \\[6pt]
 (C) $\{10,38,25,45',45,90,66,88\}$ & (D) $\{25,38,10,45',45,90,88,66\}$
 \end{tabular}
 \end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 按指定填坑法，右侧先找到25填入首位置，左侧再找到66移到右侧空位；随后10移到左侧，最终两指针在下标3相遇并放回枢轴，得到 $\{25,38,10,45,88,90,66,45'\}$。\boxed{\textbf{答案：}(B)}\fi
 
 \item \textbf{（真题风格，单项选择题）} 已知序列 $\{12,10,15,8,20,6,25,18\}$，将其调整为一个小根堆，则调整后堆对应的序列是
 \begin{center}
@@ -730,6 +783,8 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
 (C) $\{6,10,12,8,20,15,25,18\}$ & (D) $\{6,8,12,15,20,10,25,18\}$
 \end{tabular}
 \end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 自最后一个非叶结点向根调整：先把15与6交换，再把10与8交换，最后把根12与较小孩子6交换，得到 $\{6,8,12,10,20,15,25,18\}$。\boxed{\textbf{答案：}(A)}\fi
 
 \item \textbf{（真题风格，单项选择题）} 以下关于堆排序的说法中，正确的是
 \begin{center}
@@ -741,6 +796,8 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 堆排序不稳定；建堆为 $O(n)$；使用大根堆升序排序时，每趟把当前最大元素放到末尾。其最好、平均和最坏时间均为 $O(n\log n)$。\boxed{\textbf{答案：}(B)}\fi
+
 \item \textbf{（真题风格，综合题）} 设待排序记录的关键字序列为 $\{49,38,65,97,76,13,27,49'\}$。
 \begin{enumerate}
     \item[(1)] 以第一个元素 49 为枢轴，写出一趟快速排序（Partition）的结果；
@@ -749,12 +806,64 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
     \item[(4)] 分析上述两种算法中 $49$ 与 $49'$ 的相对次序变化，说明算法的稳定性。
 \end{enumerate}
 
+\ifshowsolutions\par\noindent\textbf{答案：} 按本章首元素枢轴的交替填坑算法：
+
+(1) 第一趟为
+\[
+\{27,38,13,49,76,97,65,49'\}.
+\]
+
+(2) 按递归先处理左区间、再处理右区间，每次 Partition 后的完整序列依次为
+\[
+\begin{aligned}
+&\{27,38,13,49,76,97,65,49'\},\\
+&\{13,27,38,49,76,97,65,49'\},\\
+&\{13,27,38,49,49',65,76,97\},\\
+&\{13,27,38,49,49',65,76,97\}.
+\end{aligned}
+\]
+最后一次划分没有改变可见序列。
+
+(3) 二路归并各趟为
+\[
+\begin{aligned}
+d=1:&\ \{38,49,65,97,13,76,27,49'\},\\
+d=2:&\ \{38,49,65,97,13,27,49',76\},\\
+d=4:&\ \{13,27,38,49,49',65,76,97\}.
+\end{aligned}
+\]
+
+(4) 在这组特定数据和这次执行中，两种算法都恰好保持了 $49$ 在 $49'$ 之前；但“某一次没有改变”不能证明算法稳定。归并时相等关键字总是先取左段，因而可保证稳定；快速排序的跨区移动在其他输入上可能改变相等元素次序，所以快速排序仍是不稳定算法。\fi
+
 \item \textbf{（真题风格，综合题）} 设有关键字序列 $\{10,18,4,3,6,12,1,9,15,8\}$。
 \begin{enumerate}
     \item[(1)] 画出建初堆（大根堆）的过程（每步调整后画出对应的完全二叉树）；
     \item[(2)] 写出堆排序输出前 3 个最大元素后剩余元素构成的堆序列；
     \item[(3)] 写出希尔排序（增量序列 $5,3,1$）每趟排序后的序列。
 \end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{答案：}
+(1) 自底向上建成的大根堆的层序序列为
+\[
+\{18,15,12,10,8,4,1,9,3,6\}.
+\]
+各次向下调整都选择两个孩子中的较大者交换，直至恢复堆序。
+
+(2) 依次输出18、15、12后，尚未排序部分构成的堆为
+\[
+\{10,9,4,6,8,3,1\},
+\]
+数组尾部已就位部分为 $\{12,15,18\}$。
+
+(3) 希尔排序各趟结果为
+\[
+\begin{aligned}
+d=5:&\ \{10,1,4,3,6,12,18,9,15,8\},\\
+d=3:&\ \{3,1,4,8,6,12,10,9,15,18\},\\
+d=1:&\ \{1,3,4,6,8,9,10,12,15,18\}.
+\end{aligned}
+\]
+\fi
 
 \item \textbf{（真题风格，综合题）} 有 8 个初始归并段，各段记录数依次为 $\{9,30,12,18,3,24,6,15\}$。
 \begin{enumerate}
@@ -763,12 +872,28 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
     \item[(3)] 若归并过程中每趟需在 $k$ 个归并段中选最小值，简述败者树在 $k$ 较大时的优势。
 \end{enumerate}
 
+\ifshowsolutions\par\noindent\textbf{答案：} 3 路 Huffman 树要求叶结点数满足 $(n-1)\bmod(3-1)=0$。原有8段不满足，先补一个长度为0的虚段，再反复合并三个最小权值：
+\[
+0+3+6=9,\quad9+9+12=30,\quad15+18+24=57,
+\quad30+30+57=117.
+\]
+因此
+\[
+\mathrm{WPL}=9+30+57+117=213.
+\]
+若以“记录被读一次或写一次”为一次 I/O 单位，每层归并对参与记录各读、写一次，总记录 I/O 量为 $2\times\mathrm{WPL}=426$；若磁盘按块计数，还需再结合每块记录数换算。败者树建立后，每输出一个最小记录只需沿树调整 $O(\log k)$ 次比较，比逐次线性扫描 $k$ 个段的 $O(k)$ 比较更适合较大的 $k$。\fi
+
 \item \textbf{（真题风格，综合题）} 给定 $n$ 个元素的序列。
 \begin{enumerate}
     \item[(1)] 若要求排序算法是稳定的、时间复杂度 $O(n\log n)$ 且在最坏情况下不退化，应选用哪种排序算法？说明理由。
     \item[(2)] 若所有记录的关键字均不相同但已知序列基本有序（仅有个别元素不在正确位置），从时间效率角度应选哪种排序算法？说明理由。
     \item[(3)] 若空间极其有限（要求 $O(1)$ 额外空间），且要求在最坏情况下保证 $O(n\log n)$ 时间，应选哪种排序算法？
 \end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{答案：}
+(1) 选归并排序：稳定，最好、平均和最坏时间均为 $O(n\log n)$；代价是需要 $O(n)$ 辅助数组空间。
+(2) 选直接插入排序：其比较和移动次数与逆序程度相关，基本有序时接近 $O(n)$。
+(3) 选堆排序：额外空间 $O(1)$，最坏时间保证 $O(n\log n)$；它不稳定，但题设没有要求稳定性。\fi
 
 \end{enumerate}
 

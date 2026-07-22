@@ -75,7 +75,7 @@
 \subsection{中断与异常}
 
 \begin{conclusion}{中断与异常}{interrupt-exception}
-中断机制是 OS 实现并发的基础——没有中断就没有进程切换。
+中断机制是 OS 实现并发的重要基础，尤其是时钟中断使抢占式调度和分时成为可能。进程切换也可能由系统调用、异常、主动让出 CPU 或进程阻塞触发，因此不能把它绝对化为“没有外部中断就没有进程切换”。
 
 \begin{tablebox}{中断与异常对比}
 \centering
@@ -100,7 +100,7 @@
 \subsection{系统调用}
 
 \begin{mydef}{系统调用}{syscall}
-系统调用（System Call）是 OS 提供给用户程序的编程接口，是用户程序请求 OS 内核服务的唯一入口。程序通过系统调用从用户态陷入内核态，执行完毕后返回用户态。
+系统调用（System Call）是 OS 提供给用户程序的编程接口，是用户程序主动请求内核服务的规范入口。程序通过体系结构规定的陷入/系统调用机制从用户态进入内核态，执行完毕后返回用户态；中断和其他异常也能使 CPU 进入内核处理流程，但不属于应用主动请求服务的普通接口。
 
 常见系统调用：进程控制（\texttt{fork}, \texttt{exit}, \texttt{wait}）、文件操作（\texttt{open}, \texttt{read}, \texttt{write}）、设备管理（\texttt{ioctl}）、通信（\texttt{pipe}, \texttt{shmget}）。
 \end{mydef}
@@ -143,21 +143,31 @@
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 操作系统负责资源管理，为程序并发执行提供机制，并向用户和应用提供接口。\boxed{\textbf{答案：}(D)}\fi
+
 \item \textbf{（单项选择题）} 以下关于并发和并行的说法，正确的是
 \begin{center}
 \begin{tabular}{ll}
 (A) 单核 CPU 可以并行执行多个进程 \\[4pt]
 (B) 并发是指同一时刻多个程序同时运行 \\[4pt]
-(C) 并行需要多核硬件支持 \\[4pt]
+(C) 同一时刻真正执行多个 CPU 指令流需要多核或多处理器等并行硬件资源 \\[4pt]
 (D) 并发和并行是同一概念
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 并发描述多个任务在同一时间段交替推进；并行描述同一时刻真正同时执行。单核 CPU 可通过切换实现并发，但同一时刻只能执行一个 CPU 指令流。\boxed{\textbf{答案：}(C)}\fi
+
 \item \textbf{（填空题）} 中断来自 CPU \underline{\qquad} 部，异常来自 CPU \underline{\qquad} 部。系统调用属于 \underline{\qquad}（异常类型）。
+
+\ifshowsolutions\par\noindent\textbf{答案：} 外；内；陷阱（Trap）。外部中断与当前指令异步，异常由指令执行或程序主动触发并与当前指令同步。\fi
 
 \item \textbf{（简答题）} 简述微内核和大内核的区别，各举一个代表性操作系统。
 
+\ifshowsolutions\par\noindent\textbf{答案：} 大内核把进程管理、内存管理、文件系统和大量驱动等主要服务放在内核态，模块间调用开销低，但故障隔离较弱，代表如传统 UNIX/Linux（Linux 是模块化单体内核）。微内核只保留调度、进程间通信、基本地址空间和中断等最小机制，文件系统和驱动等运行在用户态服务中，隔离和可扩展性较好，但 IPC 与态切换开销更大，代表如 MINIX 3、QNX。具体归类可能因混合内核设计而有边界。\fi
+
 \item \textbf{（简答题）} 简述操作系统为用户提供的三种用户接口。
+
+\ifshowsolutions\par\noindent\textbf{答案：} 常见教材分类为：命令接口（联机命令/命令解释器和脱机作业控制语言）、图形用户接口，以及供程序请求内核服务的程序接口，即系统调用。前两类面向最终用户，系统调用面向应用程序。\fi
 
 \end{enumerate}
 
@@ -173,6 +183,8 @@
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 磁盘 I/O 完成由外设控制器异步发出外部中断；系统调用是陷阱，除零和缺页属于同步异常。\boxed{\textbf{答案：}(D)}\fi
+
 \item \textbf{（真题风格，单项选择题）} 下列指令中，只能在内核态执行的是
 \begin{center}
 \begin{tabular}{ll}
@@ -181,13 +193,30 @@
 \end{tabular}
 \end{center}
 
-\item \textbf{（真题风格，综合题）} 某单道批处理系统中，有 3 个作业 A、B、C，各自的计算时间和 I/O 时间如下：
+\ifshowsolutions\par\noindent\textbf{解析：} 修改时钟/定时器会影响系统调度和保护，属于特权操作；普通读取、取数和寄存器运算可在用户态按体系结构权限执行。\boxed{\textbf{答案：}(B)}\fi
+
+\item \textbf{（真题风格，综合题）} 有 3 个同时到达的作业 A、B、C，各自的 CPU 计算时间和 I/O 时间如下：
 \begin{itemize}
     \item A：计算 30ms，I/O 40ms，计算 10ms
     \item B：计算 20ms，I/O 30ms，计算 20ms
     \item C：计算 10ms，I/O 20ms，计算 30ms
 \end{itemize}
-问：(1) 若三道作业按 A$\to$B$\to$C 顺序单道执行，总时间是多少？(2) 若引入多道程序设计（假设内存可同时容纳三道作业），画出三道作业并发执行的甘特图并计算总时间。
+问：(1) 若三道作业按 A$\to$B$\to$C 顺序单道执行，总时间是多少？(2) 若引入多道程序设计，假定内存可同时容纳三道作业，系统只有一个 CPU，CPU 调度采用非抢占 FCFS，初始顺序为 A、B、C；各作业的 I/O 可彼此并行且可与 CPU 重叠，切换开销忽略不计。画出 CPU 甘特图并计算总时间。
+
+\ifshowsolutions\par\noindent\textbf{答案：}
+(1) 单道执行时，CPU 在每个作业 I/O 期间也空闲，总时间为
+\[
+(30+40+10)+(20+30+20)+(10+20+30)=210\text{ ms}.
+\]
+
+(2) CPU 时间线为
+\[
+\begin{array}{c|ccccccc}
+\text{时间段/ms}&0\!\sim\!30&30\!\sim\!50&50\!\sim\!60&60\!\sim\!70&70\!\sim\!80&80\!\sim\!100&100\!\sim\!130\\ \hline
+\text{CPU}&A&B&C&\text{空闲}&A&B&C
+\end{array}
+\]
+A、B、C 的 I/O 分别发生在30--70、50--80、60--80 ms。60 ms 时三者都在等待 I/O，CPU 空闲至70 ms；80 ms 时 B、C 同时就绪，按题设初始 FCFS 次序先运行 B。总时间为130 ms。\fi
 
 \end{enumerate}
 

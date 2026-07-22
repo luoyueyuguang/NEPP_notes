@@ -1258,7 +1258,7 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(A)。完全二叉树$n_0=\lceil n/2\rceil$。$124=\lceil n/2\rceil\to n=247$或$248$。最多$n=248$（此时$n_1=0,n_2=123$）。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}(A)。完全二叉树$n_0=\lceil n/2\rceil$。$124=\lceil n/2\rceil\to n=247$或$248$。最多$n=248$；此时编号为124的结点只有左孩子，故$n_1=1,n_2=123$，并满足$n_0=n_2+1$。\fi
 
 \vspace{6pt}
 
@@ -1600,7 +1600,7 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 
 \vspace{6pt}
 
-\noindent\textbf{32.} 资源分配图中有环是死锁的
+\noindent\textbf{32.} 在每类资源可能有多个实例的一般资源分配图中，有环是死锁的
 \begin{center}
 \begin{tabular}{ll}
 (A) 充分必要条件 & (B) 充分非必要条件 \\[6pt]

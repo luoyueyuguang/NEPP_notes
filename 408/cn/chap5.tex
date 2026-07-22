@@ -152,7 +152,7 @@ D_{\mathrm{new}}&=(1-\beta)D_{\mathrm{old}}+\beta\lvert S-E_{\mathrm{old}}\rvert
 \mathrm{RTO}&=E_{\mathrm{new}}+4D_{\mathrm{new}}.&&
 \end{align}
 
-\textbf{Karn 算法（重点）：} 当发生超时重传时，该报文段的确认无法区分是原始报文还是重传报文的 ACK，因此\textbf{不将重传报文的 SampleRTT 用于更新 EstimatedRTT}。同时，每次重传时将超时时间\textbf{加倍}（指数退避），直到收到非重传的确认后才重新用公式计算。
+\textbf{Karn 算法（重点）：} 当报文段发生重传时，其确认无法区分对应原始发送还是重传副本，因此\textbf{不使用这类有歧义的 SampleRTT 更新 EstimatedRTT}。发生重传超时时，对 RTO 采用指数退避；收到能够取得无歧义 RTT 样本的新数据确认后，再恢复按估计公式更新。
 
 \textbf{408 要点：} 超时重传 + Karn 算法结合考察。选择题经常给出 SampleRTT 序列，其中某一跳是重传的，问更新后的 EstimatedRTT。
 \end{conclusion}
@@ -508,7 +508,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 
 \vspace{8pt}
 
-\item \textbf{（真题风格·选择题）} TCP使用慢开始和拥塞避免算法。设TCP的慢开始门限ssthresh的初始值为8（单位为报文段）。当拥塞窗口上升到12时，网络发生了超时，TCP开始使用慢开始和拥塞避免。第1次到第5次成功传输时拥塞窗口大小依次为
+\item \textbf{（真题风格·选择题）} TCP使用慢开始和拥塞避免算法。设TCP的慢开始门限ssthresh的初始值为8（单位为报文段）。当拥塞窗口上升到12时，网络发生超时。采用408教材化模型：超时后将ssthresh置为当前cwnd的一半、cwnd置为1；每轮开始时若cwnd小于ssthresh，则该轮按慢开始增长，否则按拥塞避免增长。从超时重置后的cwnd开始记录5个窗口值，其依次为
 \begin{center}
 \begin{tabular}{ll}
 (A) 1,2,4,8,9 & (B) 1,2,4,6,8 \\[6pt]
@@ -516,7 +516,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 超时时cwnd$=1$，ssthresh$=12/2=6$。慢开始：1$\to$2$\to$4$\to$6（达阈值）$\to$拥塞避免：7。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 超时后ssthresh$=12/2=6$，cwnd$=1$。记录值从1开始：$1\to2\to4$；当某轮开始时cwnd$=4<6$，该轮仍按慢开始近似翻倍为8，并不会人为截断为6。此后cwnd已不小于门限，按拥塞避免增至9。因此序列为1,2,4,8,9。\boxed{\textbf{答案：}(A)}\fi
 
 \vspace{8pt}
 
@@ -542,7 +542,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 发送窗口$=\min(\text{cwnd},\text{rwnd})$。rwnd始终$=10$ KB。超时后ssthresh$=4$，cwnd$=1$$\to$慢开始。RTT:1$\to$2$\to$4$\to$(拥塞避免)5$\to$6$\to$7$\to$8$\to$9$\to$10$\to$11。但rwnd=10限制窗口为10。第9个RTT后cwnd=10已达rwnd，后续不再增长。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 发送窗口$=\min(\text{cwnd},\text{rwnd})$，且 rwnd 始终为10 KB。超时后ssthresh$=4$ KB、cwnd$=1$ KB。按本章教材化的逐 RTT 规则，10个成功 RTT 后 cwnd 依次增长为 $2,4,5,6,7,8,9,10,11,12$ KB；即使拥塞窗口继续增长，接收窗口仍把实际发送窗口限制为 $\min(12,10)=10$ KB。\boxed{\textbf{答案：}(A)}\fi
 
 \end{enumerate}
 
@@ -565,7 +565,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \item \textbf{（真题风格·综合题）} TCP 的拥塞窗口 cwnd 和门限 ssthresh 的初始值分别为 1 和 16（单位为 MSS）。本题采用本章的教材化计算规则：收到 3 个重复 ACK 后，ssthresh 取当时 cwnd 的一半，cwnd 置为 ssthresh 后进入拥塞避免。按时间顺序，连续成功传输使 cwnd 分别变为 $2,4,8,16,17,18,19,20$，随后发生 3 次重复 ACK（快重传），之后又经历 2 个成功 RTT。
 \begin{enumerate}
     \item[(1)] 画出cwnd随传输轮次变化的折线图；
-    \item[(2)] 标注每次状态转换（慢开始$\to$拥塞避免$\to$快恢复$\to$拥塞避免）；
+    \item[(2)] 标注每次状态转换，并说明 3 个重复 ACK 后本题是否单独建模 Reno 快恢复阶段；
     \item[(3)] 第2次成功传输后cwnd的值是多少？
 \end{enumerate}
 
@@ -573,7 +573,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 (1) 慢开始：$1\to2\to4\to8\to16$（达到 ssthresh）；随后拥塞避免：$17\to18\to19\to20$。
 3 次重复 ACK 触发快重传：ssthresh$=20/2=10$，按题设的教材化规则，cwnd$=10$，随后继续拥塞避免：$11\to12$。
 
-(2) cwnd 从 1 增至 16 的阶段为慢开始；从 16 增至 20 的阶段为拥塞避免；3 个重复 ACK 触发快重传并把窗口降到 10；此后仍按拥塞避免线性增长。
+(2) cwnd 从 1 增至 16 的阶段为慢开始；从 16 增至 20 的阶段为拥塞避免；3 个重复 ACK 触发快重传并把窗口降到 10，此后按拥塞避免线性增长。题干已经明确采用“cwnd 直接置为 ssthresh”的教材化规则，因此这里不再单独套用 TCP Reno 中暂时令 cwnd 增至 $\mathrm{ssthresh}+3$ MSS 的快恢复细节。
 (3) 事件发生后的第 2 个成功 RTT 结束时，cwnd$=12$。\fi
 
 \end{enumerate}

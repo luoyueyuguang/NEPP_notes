@@ -546,6 +546,8 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} CPU/驱动先初始化 DMA 控制器并启动设备；DMA 控制器完成磁盘到主存的数据传送；完成后发出中断请求，CPU 再执行 DMA 完成中断服务程序。\boxed{\textbf{答案：}(B)}\fi
+
 \item \textbf{（真题风格·选择题）} 在系统内存中设置磁盘缓冲区的主要目的是
 \begin{center}
 \begin{tabular}{ll}
@@ -553,6 +555,8 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 (C) 提高磁盘数据可靠性 & (D) 实现设备无关性
 \end{tabular}
 \end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 内存中的磁盘缓冲/缓存可暂存近期数据、合并或延后部分访问，从而减少实际设备 I/O，并缓和设备与 CPU 的速度差异。它不能直接缩短磁头的一次物理寻道。\boxed{\textbf{答案：}(A)}\fi
 
 \item \textbf{（真题风格·选择题）} 下列关于驱动程序的叙述中，\textbf{不正确}的是
 \begin{center}
@@ -564,9 +568,15 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 驱动程序必须了解控制器寄存器和程序查询、中断、DMA 等具体 I/O 控制方式，不能说与控制方式无关。其余叙述符合驱动负责设备初始化和提交具体 I/O 命令的职责。\boxed{\textbf{答案：}(A)}\fi
+
 \item \textbf{（填空题）} I/O 软件的四个层次自底向上依次为：\underline{\qquad}、\underline{\qquad}、\underline{\qquad} 和 \underline{\qquad}。其中，SPOOLing 系统属于 \underline{\qquad} 层；设备独立性软件负责将 \underline{\qquad} 设备名映射到物理设备；向上提供统一接口、向下操作设备寄存器的是 \underline{\qquad}。
 
+\ifshowsolutions\par\noindent\textbf{答案：} 中断处理程序、设备驱动程序、设备独立性软件、用户层 I/O 软件；用户层 I/O 软件；逻辑；设备驱动程序。驱动向设备独立层接受规范化请求，再把它转换为控制器能够执行的设备特定命令。\fi
+
 \item \textbf{（简答题）} 简述 DMA 控制方式与中断驱动方式的核心区别（至少三点），并说明为什么 DMA 方式更适合高速块设备。
+
+\ifshowsolutions\par\noindent\textbf{答案：} 中断驱动方式通常由 CPU 在每个字/小批数据就绪时进入中断处理并搬运或协调传送；DMA 由 CPU 一次设置主存地址、传送方向和计数后，由 DMA 控制器在设备与主存之间完成整块传送。DMA 占用总线/存储周期但不让数据逐字经过 CPU 通用寄存器，通常每块完成后才中断一次；因此 CPU 中断和指令开销更少、可与设备工作更充分重叠，适合磁盘等高速块设备。实际控制器也可能使用 FIFO 或突发传送，不能把中断方式绝对化为任何硬件都一次只传一个字节。\fi
 
 \end{enumerate}
 
@@ -584,6 +594,8 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} SPOOLing 使用磁盘输入/输出井和系统进程模拟共享独占设备；井与实际设备间的传送由系统控制，而不是由普通用户作业直接控制。\boxed{\textbf{答案：}(D)}\fi
+
 \item \textbf{（真题风格·选择题）} 用户程序发出磁盘 I/O 请求后，系统的正确处理流程是
 \begin{center}
 \begin{tabular}{ll}
@@ -594,6 +606,8 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 用户通过系统调用进入内核，设备独立层/系统调用处理再调用驱动提交设备命令；设备完成后才异步进入中断处理程序。四个选项中 (A) 表示这一主流程。\boxed{\textbf{答案：}(A)}\fi
+
 \item \textbf{（真题风格·选择题）} 设系统缓冲区和用户工作区均采用单缓冲，从外设读入 1 个数据块到系统缓冲区的时间为 100，从系统缓冲区读入 1 个数据块到用户工作区的时间为 5，对用户工作区中的 1 个数据块进行分析的时间为 90。进程从外设读入并分析 2 个数据块的最短时间是
 \begin{center}
 \begin{tabular}{ll}
@@ -601,6 +615,13 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 (C) 300 & (D) 390
 \end{tabular}
 \end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 单缓冲总时间为
+\[
+T+M+C+(N-1)[\max(T,C)+M]
+=100+5+90+(2-1)(100+5)=300.
+\]
+\boxed{\textbf{答案：}(C)}\fi
 
 \item \textbf{（真题风格·选择题）} 某文件占 10 个磁盘块，现要把该文件磁盘块逐个读入主存缓冲区，并送用户区进行分析。假设一个缓冲区与一个磁盘块大小相同，把一个磁盘块读入缓冲区的时间为 100 $\mu\text{s}$，将缓冲区的数据传送到用户区的时间是 50 $\mu\text{s}$，CPU 对一块数据进行分析的时间为 50 $\mu\text{s}$。在单缓冲区和双缓冲区结构下，读入并分析完该文件的时间分别是
 \begin{center}
@@ -610,13 +631,40 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：}
+\[
+T_{\rm single}=100+50+50+9[\max(100,50)+50]=1550\ \mu\text{s},
+\]
+\[
+T_{\rm double}=100+50+50+9\max(100,50+50)=1100\ \mu\text{s}.
+\]
+\boxed{\textbf{答案：}(B)}\fi
+
 \item \textbf{（真题风格，综合题）} 某文件占 200 个磁盘块，磁盘每块大小为 1 KB，缓冲区大小等于磁盘块大小。已知：磁盘将一块数据读入缓冲区的时间 $T = 0.2$ ms，系统将缓冲区数据传送到用户区的时间 $M = 0.01$ ms，CPU 处理一块数据的时间 $C = 0.3$ ms。
 
 \begin{enumerate}
     \item[(1)] 分别计算使用单缓冲和双缓冲时，读入并处理完整个文件需要的总时间。
-    \item[(2)] 若缓冲区大小为 2 KB（= 2 个磁盘块），在双缓冲下，读入并处理完整个文件需要多长时间？（设 $T$ 与块大小成正比，CPU 处理时间 $C$ 不变。）
-    \item[(3)] 以上两种缓冲大小下，哪种配置的 I/O 吞吐率更高？为什么？
+    \item[(2)] 若每个缓冲区扩大为 2 KB（每批容纳 2 个磁盘块），在双缓冲下，读入并处理完整个文件需要多长时间？假定各阶段耗时均与本批包含的块数成正比，因此每批 $T'=0.4$ ms、$M'=0.02$ ms、$C'=0.6$ ms，共100批。
+    \item[(3)] 在上述“各阶段时间严格按数据量线性增长、没有固定启动开销”的模型下，比较两种缓冲大小的稳态吞吐率，并解释完整文件总时间的细微差别。
 \end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{答案：}
+(1) 单缓冲：
+\[
+0.2+0.01+0.3+199[\max(0.2,0.3)+0.01]=62.20\text{ ms}.
+\]
+双缓冲：
+\[
+0.2+0.01+0.3+199\max(0.2,0.01+0.3)=62.20\text{ ms}.
+\]
+本组参数中 CPU 处理加内存搬移的 $0.31$ ms 正好成为两种流水线的瓶颈，因此结果相同。
+
+(2) 每批2块、共100批：
+\[
+0.4+0.02+0.6+99\max(0.4,0.02+0.6)=62.40\text{ ms}.
+\]
+
+(3) 1 KB 情况稳态每块需要 $0.31$ ms；2 KB 情况每批需要 $0.62$ ms，即折合每块仍为 $0.31$ ms，所以稳态吞吐率相同。2 KB 配置的完整文件时间略长0.20 ms，只来自流水线启动/排空边界，不能据此声称大缓冲在这个纯线性模型下提高了稳态吞吐率。若要体现大块 I/O 减少固定寻道、命令或中断开销，题目还必须给出非零的每批固定开销。\fi
 
 \end{enumerate}
 
@@ -624,7 +672,7 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 \noindent\textbf{解题提示：}
 \begin{itemize}
     \item 选择题中的单/双缓冲计算使用：单缓冲 $T+M+C+(N-1)[\max(C,T)+M]$；双缓冲 $T+M+C+(N-1)\max(T,M+C)$。
-    \item 随后的综合题中，$\max(T,M+C)=\max(0.2,0.31)=0.31$ ms，双缓冲总时间为 $0.2+0.01+0.3+199\times0.31=62.20$ ms。
+    \item 随后的综合题中，1 KB 单缓冲的稳态项为 $\max(C,T)+M=0.31$ ms，双缓冲为 $\max(T,M+C)=0.31$ ms，所以两者恰好同为 62.20 ms；2 KB 批量的稳态项为 $\max(0.4,0.62)=0.62$ ms/批。
 \end{itemize}
 
 \vspace{8pt}

@@ -337,6 +337,8 @@ $T_{\text{CPU}}$ & $N \times \text{CPI} \times T_{\text{clk}}$ & 终极性能指
 \end{tabularx}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 存储程序原理把指令和数据以同等地位放在统一编址的主存中，二者由指令执行语境区分；现代实现可在 Cache 层采用分离结构，但不改变该逻辑模型。\boxed{\textbf{答案：}(B)}\fi
+
 \item \textbf{（单项选择题）} 以下关于 CPU 组成的说法中，正确的是
 \begin{center}
 \begin{tabular}{ll}
@@ -344,6 +346,8 @@ $T_{\text{CPU}}$ & $N \times \text{CPI} \times T_{\text{clk}}$ & 终极性能指
 (C) CPU 包含运算器和控制器 & (D) CPU 包含运算器、控制器和主存储器
 \end{tabular}
 \end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} CPU 的核心组成是运算器和控制器，现代 CPU 通常还包含寄存器、Cache 等；主存不属于 CPU 的基本组成。\boxed{\textbf{答案：}(C)}\fi
 
 \item \textbf{（单项选择题）} 某计算机主频为 1.2 GHz，运行某程序的 CPI 为 2.0，则该计算机的 MIPS 为
 \begin{center}
@@ -353,6 +357,8 @@ $T_{\text{CPU}}$ & $N \times \text{CPI} \times T_{\text{clk}}$ & 终极性能指
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} $\mathrm{MIPS}=f/(\mathrm{CPI}\times10^6)=1.2\times10^9/(2\times10^6)=600$。\boxed{\textbf{答案：}(A)}\fi
+
 \item \textbf{（单项选择题）} 以下不属于系统软件的是
 \begin{center}
 \begin{tabular}{ll}
@@ -361,11 +367,27 @@ $T_{\text{CPU}}$ & $N \times \text{CPI} \times T_{\text{clk}}$ & 终极性能指
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 操作系统、编译器和数据库管理系统通常归为系统软件；浏览器属于应用软件。\boxed{\textbf{答案：}(D)}\fi
+
 \item \textbf{（填空题）} 在计算机系统的层次结构中，能直接被硬件识别和执行的层次是 \underline{\qquad\qquad} 级。汇编语言程序需要通过 \underline{\qquad\qquad} 翻译为机器语言。
+
+\ifshowsolutions\par\noindent\textbf{答案：} 机器语言；汇编程序（汇编器）。\fi
 
 \item \textbf{（简答题）} 简述冯·诺依曼结构的主要特点，并说明现代计算机结构与其最主要的区别是什么。
 
+\ifshowsolutions\par\noindent\textbf{答案：} 冯·诺依曼结构的要点包括：采用存储程序方式；指令和数据以二进制表示并存放在统一编址的存储器中；按地址访问；通常按指令顺序执行，除非遇到转移；由运算器、控制器、存储器、输入和输出五部分组成。现代通用计算机仍以该逻辑模型为基础，但通过指令/数据分离 Cache、流水线、乱序执行、多核和并行存储层次等手段缓解“冯·诺依曼瓶颈”。不能简单说现代计算机已经完全脱离冯·诺依曼结构。\fi
+
 \item \textbf{（计算题）} 某计算机主频为 2.5 GHz，运行基准测试程序中共执行了 $5\times 10^{9}$ 条指令，CPI 为 1.6。求：（1）CPU 执行时间；（2）该计算机的 MIPS。
+
+\ifshowsolutions\par\noindent\textbf{答案：}
+\[
+T=\frac{IC\times\mathrm{CPI}}{f}
+=\frac{5\times10^9\times1.6}{2.5\times10^9}=3.2\text{ s}.
+\]
+\[
+\mathrm{MIPS}=\frac{2.5\times10^9}{1.6\times10^6}=1562.5.
+\]
+\fi
 
 \end{enumerate}
 
@@ -373,13 +395,20 @@ $T_{\text{CPU}}$ & $N \times \text{CPI} \times T_{\text{clk}}$ & 终极性能指
 
 \begin{enumerate}[resume]
 
-\item \textbf{（真题风格，单项选择题）} 设某程序在计算机 A 上运行需 10 s，A 的主频为 2 GHz。设计算机 B 的目标是运行同一程序只需 6 s，且 B 的 CPI 为 A 的 1.2 倍，时钟周期为 A 的 0.9 倍，则 B 所需的主频至少为
+\item \textbf{（真题风格，单项选择题）} 某程序在计算机 A 上运行需 10 s，A 的主频为 2 GHz。计算机 B 执行该程序的指令条数与 A 相同，但平均 CPI 为 A 的 1.2 倍。若目标是在 B 上用 6 s 运行完该程序，则 B 所需的主频为
 \begin{center}
 \begin{tabular}{ll}
 (A) $2.56$ GHz & (B) $3.33$ GHz \\[6pt]
 (C) $4.00$ GHz & (D) $4.44$ GHz
 \end{tabular}
 \end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 指令条数相同，故
+\[
+\frac{T_B}{T_A}=\frac{\mathrm{CPI}_B}{\mathrm{CPI}_A}
+\frac{f_A}{f_B}=\frac{6}{10}.
+\]
+代入 $\mathrm{CPI}_B/\mathrm{CPI}_A=1.2$、$f_A=2$ GHz，得 $f_B=4$ GHz。\boxed{\textbf{答案：}(C)}\fi
 
 \item \textbf{（真题风格，单项选择题）} 某程序在某台计算机上运行，该程序包含 A、B、C 三类指令，其 CPI 分别为 1、2、3。已知程序中三类指令的条数之比为 $2:3:5$，则该程序的平均 CPI 为
 \begin{center}
@@ -389,6 +418,8 @@ $T_{\text{CPU}}$ & $N \times \text{CPI} \times T_{\text{clk}}$ & 终极性能指
 \end{tabular}
 \end{center}
 
+\ifshowsolutions\par\noindent\textbf{解析：} 加权平均 CPI 为 $(2\times1+3\times2+5\times3)/(2+3+5)=23/10=2.3$。\boxed{\textbf{答案：}(C)}\fi
+
 \item \textbf{（真题风格，综合题）} 某计算机的主频为 3.0 GHz，运行某程序时测得 MIPS 为 1200。回答以下问题：
 \begin{enumerate}
     \item[(1)] 求该程序运行时的平均 CPI；
@@ -396,12 +427,26 @@ $T_{\text{CPU}}$ & $N \times \text{CPI} \times T_{\text{clk}}$ & 终极性能指
     \item[(3)] 若通过编译器优化，将程序的指令条数减少 20\%，但 CPI 增加了 10\%，优化后的程序执行时间比优化前更快还是更慢？请给出计算过程。
 \end{enumerate}
 
+\ifshowsolutions\par\noindent\textbf{答案：}
+(1) $\mathrm{CPI}=f/(\mathrm{MIPS}\times10^6)=3.0\times10^9/(1200\times10^6)=2.5$。
+
+(2) $T=3.6\times10^9\times2.5/(3.0\times10^9)=3$ s。
+
+(3) 主频不变时，执行时间比为 $0.8\times1.1=0.88$。优化后为 $3\times0.88=2.64$ s，比原来快12\%。\fi
+
 \item \textbf{（真题风格，综合题）} 在计算机系统的层次结构中：
 \begin{enumerate}
     \item[(1)] 描述从 $L_4$（高级语言级）到 $L_1$（机器语言级）的转换过程，指出哪些步骤使用了翻译，哪些步骤使用了（或可能使用）解释；
     \item[(2)] 说明 Java 语言程序的执行过程如何体现「虚拟机」的概念；
     \item[(3)] 为什么说操作系统层（$L_2$）是虚拟机而非物理机？操作系统为上层提供了哪些抽象？
 \end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{答案：}
+(1) 高级语言源程序通常由编译器翻译为汇编代码或目标代码；汇编程序把汇编语言翻译为机器语言，链接器再把目标模块和库连接为可执行程序。某些语言也可先翻译为中间代码，再由解释器或虚拟机逐条解释/即时编译执行。机器语言最终由硬件直接执行。
+
+(2) Java 编译器先把源程序翻译为与具体 ISA 无关的字节码；JVM 对字节码进行解释或 JIT 编译，并向程序提供统一的类加载、内存管理和运行时服务，因此同一字节码可运行在不同物理机器上的 JVM 实现中。
+
+(3) OS 通过系统调用和资源管理把裸机扩展成更方便、安全的抽象机器，例如进程/线程、虚拟地址空间、文件、目录、套接字和逻辑设备；这些对象由软件构造，不是硬件直接提供的物理实体。\fi
 
 \item \textbf{（真题风格，综合题）} 某处理器包含 4 类指令，其 CPI 和在某个典型程序中的使用频度如下表：
 \begin{tablebox}{指令分布}
@@ -423,6 +468,21 @@ $T_{\text{CPU}}$ & $N \times \text{CPI} \times T_{\text{clk}}$ & 终极性能指
     \item[(2)] 若该处理器的主频为 2.0 GHz，求 MIPS；
     \item[(3)] 设计者计划将浮点运算的 CPI 从 4 降为 2，同时主频提升到 2.5 GHz，其他不变。改进后的整体性能提升为原来的多少倍？（用 $T_{\text{CPU}}$ 之比表示）
 \end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{答案：}
+(1) 平均 CPI 为
+\[
+1\times0.45+2\times0.30+4\times0.15+3\times0.10=1.95.
+\]
+(2) $\mathrm{MIPS}=2000/1.95\approx1025.64$。
+
+(3) 新平均 CPI 为 $1.95-4\times0.15+2\times0.15=1.65$。在指令条数不变时，性能提升倍数为
+\[
+\frac{T_{\text{old}}}{T_{\text{new}}}
+=\frac{1.95/(2.0\text{ GHz})}{1.65/(2.5\text{ GHz})}
+\approx1.477.
+\]
+即性能约提高到原来的1.48倍。\fi
 
 \end{enumerate}
 
