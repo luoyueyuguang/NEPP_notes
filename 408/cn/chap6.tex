@@ -1,0 +1,575 @@
+\section{应用层}
+
+\subsection{域名系统 DNS}
+
+\begin{mydef}{域名系统（DNS）}{dns-def}
+DNS（Domain Name System）是互联网的命名系统，将便于记忆的域名转换为机器使用的 IP 地址。DNS 采用\textbf{客户/服务器（C/S）}模型，运行在 UDP 的 53 号端口上（数据量小、要求快速响应）。当数据超过 512 字节或区域传送时使用 TCP。
+\end{mydef}
+
+\subsubsection{域名空间}
+
+\begin{conclusion}{域名的层次结构}{dns-hierarchy}
+域名采用层次树状结构，从右向左层次递增，各级之间用「.」分隔：
+\[
+\texttt{www.example.com.}
+\]
+最右边有隐含的根域「\texttt{.}」：
+\begin{itemize}
+    \item \textbf{根域}：用「\texttt{.}」表示，由 13 组根域名服务器管理。
+    \item \textbf{顶级域（TLD）}：\texttt{.com}（商业）、\texttt{.org}（非营利组织）、\texttt{.net}（网络服务）、\texttt{.cn}（中国）、\texttt{.edu}（教育）等。
+    \item \textbf{二级域（SLD）}：\texttt{example}（由组织注册）。
+    \item \textbf{三级域/子域}：\texttt{www}（具体主机名）。
+\end{itemize}
+域名不区分大小写，每级不超过 63 字符，总长不超过 255 字符。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考辨析：} 域 vs 区（Zone）。区是域名空间中一个服务器的管辖范围；一个域可能包含多个区，但一个区只属于一个域。区的概念用于 DNS 服务器的实际管理和区域传送。
+\end{attention}
+
+\subsubsection{域名服务器}
+
+\begin{conclusion}{DNS 服务器四层结构}{dns-servers}
+\begin{tablebox}{DNS 服务器的层次结构}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{类型} & \textbf{作用} & \textbf{管辖范围} \\
+\hline
+根域名服务器 & 返回顶级域服务器的 IP & 全球 13 组（a.root-servers.net $\sim$ m）\\
+顶级域服务器 & 返回权限域名服务器的 IP & .com, .org, .cn 等 \\
+权限域名服务器 & 返回域名—IP 的最终映射 & 特定组织/机构 \\
+本地域名服务器 & 代理主机进行查询 & ISP/局域网（非层次结构）\\
+\hline
+\end{tabular}
+\end{tablebox}
+\textbf{补充：} 本地域名服务器不属于 DNS 层次结构，但每个 ISP/大学/公司都有本地域名服务器，距离主机很近（通常在同一局域网）。
+\end{conclusion}
+
+\subsubsection{DNS 解析过程 — 递归查询 vs 迭代查询}
+
+\begin{conclusion}{DNS 查询的两种模式}{dns-resolution}
+\textbf{递归查询（Recursive Query）：} 主机向本地域名服务器发起查询后，\textbf{本地域名服务器以客户的身份逐级代理查询}，最终将\emph{完整结果}返回给主机。此时若本地域名服务器不知道结果，它自己向根服务器查询，而不是返回给主机让主机再去查。
+
+\[
+\text{主机} \xrightarrow[]{(1)递归} \text{本地DNS} \xrightarrow[]{(2)递归} \text{根DNS} \xrightarrow[]{(3)递归} \text{顶级DNS} \xrightarrow[]{(4)递归} \text{权限DNS}
+\]
+\[
+\text{权限DNS} \xrightarrow[]{(5)} \text{顶级DNS} \xrightarrow[]{(6)} \text{根DNS} \xrightarrow[]{(7)} \text{本地DNS} \xrightarrow[]{(8)} \text{主机}
+\]
+
+\textbf{迭代查询（Iterative Query）：} 当被查询的服务器没有所需记录时，\textbf{它返回下一步应查询的服务器的 IP 地址}，由请求者自己继续查询。本地域名服务器向根、顶级、权限服务器的查询通常为迭代。
+
+\[
+\text{主机} \xleftrightarrow[]{\text{递归}} \text{本地DNS} \xrightleftharpoons[\text{返回根IP}]{\text{迭代}} \text{根DNS} \xrightleftharpoons[\text{返回顶级IP}]{\text{迭代}} \text{顶级DNS} \xrightleftharpoons[\text{返回结果}]{\text{迭代}} \text{权限DNS}
+\]
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 重难点：递归 vs 迭代的辨析。}
+\begin{itemize}
+    \item \textbf{必需部分：} 主机 $\to$ 本地域名服务器，永远是\underline{递归查询}（主机不承担迭代负担）。
+    \item \textbf{可配置部分：} 本地域名服务器 $\to$ 其他服务器，可以是递归也可以是迭代。\textbf{实际互联网通常采用：} 主机递归 $\to$ 本地 DNS，本地 DNS \underline{迭代} $\to$ 根/顶级/权限。
+    \item 关键字：\textbf{递归 = 全套代劳}（给我结果，别让我再去问）；\textbf{迭代 = 指路}（我不知道，但你去问 XXX）。
+    \item 递归查询中每一层都向上一层递归请求，导致根服务器压力巨大，实际中很少使用从本地到根的递归。
+\end{itemize}
+\end{attention}
+
+\subsubsection{DNS 缓存}
+
+\begin{conclusion}{DNS 缓存机制}{dns-cache}
+为提高效率、减轻根服务器压力，DNS 广泛使用缓存：
+\begin{itemize}
+    \item 本地域名服务器获得一条映射后，将其\textbf{缓存}一段时间（由 TTL 字段决定），后续相同查询直接返回。
+    \item 主机本身也缓存 DNS 记录（浏览器缓存 + OS 缓存），如 \texttt{hosts} 文件。
+    \item \textbf{TTL（生存时间）}：由权限域名服务器设置，默认 TTL 到期后缓存条目被清除，需要重新查询。
+    \item 缓存可能导致不一致：当 IP 地址更改时，在 TTL 过期前缓存中的旧记录可能仍然生效。
+\end{itemize}
+\end{conclusion}
+
+\subsection{文件传输协议 FTP}
+
+\begin{mydef}{FTP 协议}{ftp-def}
+FTP（File Transfer Protocol）用于在网络上进行文件传输，采用 C/S 模型，提供交互式访问。FTP 使用 TCP 协议保证可靠传输。
+\end{mydef}
+
+\subsubsection{控制连接与数据连接}
+
+\begin{conclusion}{FTP 的双连接机制}{ftp-double-connection}
+FTP 的独到之处在于它使用\textbf{两个并行的 TCP 连接}：
+\begin{tablebox}{FTP 控制连接 vs 数据连接}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+ & \textbf{控制连接} & \textbf{数据连接} \\
+\hline
+端口号 & 服务器端口 21 & 服务器端口 20 \\
+持续时间 & 整个会话期间保持 & 每次文件传输时建立 \\
+传输内容 & FTP 命令与应答 & 文件数据/目录列表 \\
+协议 & 客户端发命令，服务器应答 & 直接传输数据 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{控制连接}：客户端通过端口 21 向服务器发起连接，发送 FTP 命令（USER, PASS, LIST, RETR, STOR 等）及接收服务器应答。
+
+\textbf{数据连接}：每当需要传输文件内容或目录列表时，动态建立一条新的数据连接。数据传输完成后，数据连接关闭，控制连接继续保持。
+
+这种「带外」（Out-of-Band）控制方式是 FTP 区别于其他协议（如 HTTP 把命令和数据混在同一条连接中）的核心特征。
+\end{conclusion}
+
+\subsubsection{主动模式 vs 被动模式}
+
+\begin{conclusion}{FTP 两种数据连接模式}{ftp-mode}
+根据数据连接建立的发起方不同，FTP 分为两种工作模式：
+
+\textbf{主动模式（Active Mode / PORT）：}
+\begin{itemize}
+    \item 客户端发送 PORT 命令，告知服务器自己在哪个端口（$N > 1023$）上监听。
+    \item \textbf{服务器主动}从端口 20 向客户端的 $N$ 端口发起 TCP 连接。
+    \item \textbf{问题：} 客户端通常在防火墙/NAT 后面，服务器反向主动连接常被防火墙拦截。
+\end{itemize}
+
+\textbf{被动模式（Passive Mode / PASV）：}
+\begin{itemize}
+    \item 客户端发送 PASV 命令，服务器响应一个随机端口号 $M > 1023$。
+    \item \textbf{客户端主动}向服务器的 $M$ 端口发起数据连接。
+    \item \textbf{优点：} 防火墙友好——所有连接都由客户端发起。现代 FTP 客户端默认使用被动模式。
+\end{itemize}
+
+\begin{attention}
+\textbf{408 常考：主动/被动模式的区分。}
+\begin{itemize}
+    \item \textbf{主动模式}：服务器从 20 端口 $\to$ 客户端端口（服务器主动发起数据连接）——属于从外到内的连接。
+    \item \textbf{被动模式}：客户端 $\to$ 服务器随机端口（客户端主动发起数据连接）——所有连接方向一致。
+    \item 区分关键：看数据连接由谁发起。无论哪种模式，控制连接始终由客户端发起（到 21 端口）。
+\end{itemize}
+\end{attention}
+\end{conclusion}
+
+\subsection{电子邮件}
+
+\begin{mydef}{电子邮件系统体系结构}{email-arch}
+电子邮件系统由三部分组成：
+\begin{enumerate}
+    \item \textbf{用户代理（UA，User Agent）}：用户与邮件系统的接口（Outlook, Thunderbird, Web Mail）。
+    \item \textbf{邮件服务器（Mail Server）}：存储和转发邮件。
+    \item \textbf{邮件协议}：SMTP（发送）、POP3/IMAP（接收）。
+\end{enumerate}
+邮件的整个生命周期：\textbf{发送方 UA} $\xrightarrow{\text{SMTP}}$ \textbf{发送方邮件服务器} $\xrightarrow{\text{SMTP}}$ \textbf{接收方邮件服务器} $\xrightarrow{\text{POP3/IMAP}}$ \textbf{接收方 UA}。
+\end{mydef}
+
+\subsubsection{SMTP — 简单邮件传送协议}
+
+\begin{conclusion}{SMTP 协议}{smtp}
+SMTP（Simple Mail Transfer Protocol）是\textbf{发送}邮件的协议，使用 TCP 端口 25（或 587 用于加密提交）。
+
+\begin{itemize}
+    \item \textbf{工作过程}：使用命令/应答方式。客户端发送命令（HELO, MAIL FROM, RCPT TO, DATA, QUIT），服务器应答（$220, 250, 354, 221$ 等）。
+    \item \textbf{报文格式}：信封（envelope）+ 内容。信封 = MAIL FROM + RCPT TO；内容 = 首部 + 空行 + 主体。
+    \item \textbf{首部字段}：\texttt{From:}（邮件是谁写的），\texttt{To:}（发给谁），\texttt{Subject:}（主题）等。注意：这些是邮件首部的文本内容，不是 SMTP 命令。
+    \item \textbf{SMTP 仅支持 7 位 ASCII}，不能直接传输二进制文件或非英文字符。需要 MIME 扩展解决。
+    \item SMTP 使用\textbf{持久连接}：同一连接中可以发送多封邮件。
+\end{itemize}
+
+\textbf{典型 SMTP 会话示例：}
+\begin{lstlisting}[style=plain]
+S: 220 smtp.example.com
+C: HELO client.com
+S: 250 Hello
+C: MAIL FROM: <alice@client.com>
+S: 250 OK
+C: RCPT TO: <bob@server.com>
+S: 250 OK
+C: DATA
+S: 354 Start mail input
+C: From: alice@client.com
+C: To: bob@server.com
+C: Subject: Hello
+C:
+C: This is the message body.
+C: .
+S: 250 OK
+C: QUIT
+S: 221 Bye
+\end{lstlisting}
+\end{conclusion}
+
+\subsubsection{POP3 与 IMAP — 邮件读取协议}
+
+\begin{conclusion}{POP3 vs IMAP}{pop3-imap}
+\begin{tablebox}{POP3 与 IMAP 对比}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+ & \textbf{POP3} & \textbf{IMAP} \\
+\hline
+TCP 端口 & 110（明文）/ 995（SSL） & 143（明文）/ 993（SSL） \\
+存储模型 & 下载到本地，默认删除服务器副本 & 服务器端管理，多设备同步 \\
+文件夹 & 不支持（仅收件箱） & 支持多文件夹、搜索 \\
+工作模式 & 下载—删除（或保留） & 联机操作 \\
+离线能力 & 强（邮件已下到本地） & 弱（需联机访问） \\
+适用场景 & 单设备收邮件 & 多设备同步邮件 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{POP3 的三个阶段：}
+\begin{enumerate}
+    \item \textbf{特许阶段（Authorization）}：发送用户名和密码（USER, PASS）。
+    \item \textbf{事务阶段（Transaction）}：列出邮件（LIST）、获取邮件（RETR）、删除邮件（DELE）。
+    \item \textbf{更新阶段（Update）}：QUIT 命令后服务器执行删除操作。
+\end{enumerate}
+
+\textbf{IMAP} 允许用户在服务器上创建文件夹、移动邮件、只下载邮件头等，比 POP3 复杂但更灵活。IMAPS 使用 TLS/SSL 加密。
+\end{conclusion}
+
+\subsubsection{MIME — 多用途互联网邮件扩展}
+
+\begin{conclusion}{MIME 扩展}{mime}
+由于 SMTP 仅支持 7 位 ASCII 文本，MIME（Multipurpose Internet Mail Extensions）通过在邮件首部增加字段来支持：
+\begin{itemize}
+    \item 非 ASCII 文本（如中文、日文等国际字符）；
+    \item 二进制附件（图片、音频、视频、PDF 等）；
+    \item 图文混合的邮件正文（multipart）。
+\end{itemize}
+
+\textbf{MIME 新增的首部字段：}
+\begin{itemize}
+    \item \texttt{MIME-Version: 1.0} — 声明使用 MIME。
+    \item \texttt{Content-Type: text/plain; charset="utf-8"} — 内容的 MIME 类型和字符编码。
+    \item \texttt{Content-Transfer-Encoding: base64} — 内容传输编码方式（Base64, Quoted-Printable）。
+\end{itemize}
+
+MIME 对 SMTP/POP3 协议本身不做改动，仅仅在邮件数据的首部增加了上述字段。发送方用 Base64 等将二进制编码为 7 位 ASCII，接收方解码还原。
+
+\textbf{常见 Content-Type：}
+\texttt{text/plain}, \texttt{text/html}, \texttt{image/jpeg}, \texttt{application/pdf}, \texttt{multipart/mixed}（混合多种内容），\texttt{multipart/alternative}（同一内容多种格式）。
+\end{conclusion}
+
+\subsection{万维网与 HTTP}
+
+\subsubsection{URL 的基本概念}
+
+\begin{mydef}{统一资源定位符 URL}{url-def}
+URL（Uniform Resource Locator）用于唯一定位互联网上的资源：
+\[
+\texttt{<protocol>://<host>:<port>/<path>}
+\]
+\textbf{示例：} \texttt{http://www.example.com:80/index.html}
+\begin{itemize}
+    \item \textbf{协议（protocol）}：http, https, ftp 等。
+    \item \textbf{主机（host）}：域名或 IP 地址。
+    \item \textbf{端口（port）}：可选，默认 HTTP 为 80，HTTPS 为 443。
+    \item \textbf{路径（path）}：服务器上的资源路径。
+\end{itemize}
+\end{mydef}
+
+\subsubsection{HTTP 报文格式}
+
+\begin{conclusion}{HTTP 请求报文格式}{http-request-format}
+HTTP 报文分为\textbf{请求报文}和\textbf{响应报文}，两者结构类似：起始行 + 首部行 + 空行 + 实体主体。
+
+\textbf{请求行（Request Line）：}
+\[
+\underbrace{\texttt{GET}}_{\text{方法}}\quad\underbrace{\texttt{/index.html}}_{\text{URL}}\quad\underbrace{\texttt{HTTP/1.1}}_{\text{版本}}
+\]
+
+\textbf{常见 HTTP 请求方法：}
+\begin{tablebox}{HTTP 请求方法}
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{方法} & \textbf{含义} \\
+\hline
+GET & 请求获取资源（幂等） \\
+POST & 向服务器提交数据（如表单） \\
+HEAD & 类似 GET 但只返回首部，不返回主体 \\
+PUT & 上传/替换指定资源 \\
+DELETE & 删除指定资源 \\
+OPTIONS & 查询服务器支持的方法 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{首部行（Header Lines）：} 格式为「字段名: 值」，常见：
+\begin{itemize}
+    \item \texttt{Host: www.example.com} — 目标主机（HTTP/1.1 必须，支持虚拟主机）。
+    \item \texttt{Connection: keep-alive} — 指定持久连接。
+    \item \texttt{User-Agent: Mozilla/5.0} — 客户端类型。
+    \item \texttt{Accept: text/html} — 客户端接受的内容类型。
+    \item \texttt{Content-Length: 348} — 实体主体的字节数。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{HTTP 响应报文格式}{http-response-format}
+\textbf{状态行（Status Line）：}
+\[
+\underbrace{\texttt{HTTP/1.1}}_{\text{版本}}\quad\underbrace{\texttt{200 OK}}_{\text{状态码 + 短语}}\quad
+\]
+
+\textbf{常见 HTTP 状态码：}
+\begin{tablebox}{HTTP 状态码分类}
+\centering
+\begin{tabular}{|c|l|l|}
+\hline
+\textbf{状态码} & \textbf{短语} & \textbf{含义} \\
+\hline
+200 & OK & 请求成功，响应包含请求的资源 \\
+301 & Moved Permanently & 永久重定向（URL 已更改） \\
+302 & Found & 临时重定向（原来 URL 仍可用） \\
+304 & Not Modified & 缓存有效，不需要重新传输 \\
+400 & Bad Request & 请求报文有误 \\
+401 & Unauthorized & 需要认证 \\
+403 & Forbidden & 服务器拒绝请求 \\
+404 & Not Found & 请求的资源不存在 \\
+500 & Internal Server Error & 服务器内部错误 \\
+502 & Bad Gateway & 网关/代理从上游收到无效响应 \\
+503 & Service Unavailable & 服务器暂时不可用（过载/维护）\\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{记忆规律：}
+\begin{itemize}
+    \item \textbf{2xx}：成功（200 正常，204 无内容，206 部分内容）。
+    \item \textbf{3xx}：重定向（301 永久，302 临时，304 缓存有效）。
+    \item \textbf{4xx}：客户端错误（400 请求有问题，404 找不到，403 无权限）。
+    \item \textbf{5xx}：服务器错误（500 内部错误，503 服务不可用）。
+\end{itemize}
+\end{conclusion}
+
+\subsubsection{非持久连接 vs 持久连接}
+
+\begin{conclusion}{HTTP 连接的两种方式}{http-connection}
+这是\textbf{408 计算题的核心考点}。
+
+\textbf{非持久连接（Non-persistent / HTTP/1.0 默认）：}
+每个 TCP 连接只传送一个对象（一个 HTML 文件 + 每个嵌入图片各需一个连接）。过程：
+\begin{enumerate}
+    \item 建立 TCP 连接（1 RTT）。
+    \item 发送 HTTP 请求，接收响应（1 RTT）。
+    \item 关闭 TCP 连接。
+\end{enumerate}
+传送 \textbf{1 个 HTML 文件 + $n$ 个内嵌对象}的时间：
+\[
+T_{\text{非持久}} = \underbrace{(2\text{RTT} + T_{\text{文件}})}_{\text{HTML文件}} \;+\; \underbrace{n \times (2\text{RTT} + T_{\text{对象}})}_{\text{内嵌对象}}
+\]
+\textbf{总时间为}：$2(n+1)$ RTT + 各对象传输时间。
+
+若使用并行连接（浏览器同时打开多个 TCP 连接，常见为 6-10 个），则时间减少。非持久连接按顺序串行发送是理论模型，实际有可能并行。
+
+\textbf{持久连接（Persistent / HTTP/1.1 默认）：}
+一个 TCP 连接上可以传送多个对象。过程：
+\begin{enumerate}
+    \item 建立 TCP 连接（1 RTT）。
+    \item 传送所有对象（HTML + 所有内嵌对象）依次发送和接收。
+    \item 超时后才关闭连接。
+\end{enumerate}
+
+传送时间：
+\[
+T_{\text{持久}} = 1\text{RTT} + \sum \text{各对象传输时间}
+\]
+
+\textbf{流水线方式（Pipelining）：} 持久连接的进一步优化——不需等前一个对象的响应，可以连续发送请求（类似滑动窗口）。传送时间进一步缩小为：
+\[
+T_{\text{流水线}} \approx 2\text{RTT} + \sum \text{各对象传输时间}
+\]
+（第一个 RTT 建连接，第二个 RTT 完成所有请求—响应。）
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高分技巧 — HTTP 时间计算题：}
+\begin{itemize}
+    \item \textbf{RTT（往返时间）}的定义：一个分组从客户端到服务器再返回的时间。
+    \item TCP 三次握手需要 1 RTT（前两次握手）后才开始发送数据。因此\textbf{建立连接本身消耗 1 RTT}。
+    \item 非持久连接，每个对象额外浪费 2 RTT（1 连接建立 + 1 请求—响应）。
+    \item \textbf{并行持久连接（HTTP/1.1 常用）}：打开 $k$ 个并行连接，每个连接上持久传输。需要综合考虑并行度和持久性。
+    \item 常见题型：给定网页包含一个 HTML 和 $n$ 个图片，使用非持久串行 / 非持久并行 / 持久 / 流水线方式，计算总时间。
+\end{itemize}
+\end{attention}
+
+\subsubsection{Cookie}
+
+\begin{conclusion}{HTTP Cookie 机制}{cookie}
+HTTP 本身是无状态协议，Cookie 是用来\textbf{在无状态协议上保持状态}的机制。
+
+\textbf{Cookie 的四个组件：}
+\begin{enumerate}
+    \item 在 HTTP 响应报文中的 \texttt{Set-Cookie} 首部行；
+    \item 在 HTTP 请求报文中的 \texttt{Cookie} 首部行；
+    \item 浏览器端存储的 Cookie 文件；
+    \item Web 站点后端数据库中的 Cookie 记录。
+\end{enumerate}
+
+\textbf{工作流程：}
+\begin{enumerate}
+    \item 客户端首次访问服务器（无 Cookie）。
+    \item 服务器在响应中加上：\texttt{Set-Cookie: 1678}（服务器生成唯一 ID）。
+    \item 浏览器将 Cookie 号存储在本地 Cookie 文件中。
+    \item 后续每次请求该站点时，浏览器自动携带 \texttt{Cookie: 1678} 首部。
+    \item 服务器根据 Cookie 号在数据库中查到用户的状态信息（购物车、登录态等），从而在无状态的 HTTP 上实现了有状态的会话。
+\end{enumerate}
+
+\textbf{Cookie 的属性：} \texttt{Expires}（过期时间），\texttt{Domain}（作用域），\texttt{Path}（路径），\texttt{Secure}（仅 HTTPS），\texttt{HttpOnly}（不可被 JavaScript 访问）。
+\end{conclusion}
+
+\subsection{动态主机配置协议 DHCP}
+
+\begin{mydef}{DHCP 协议}{dhcp-def}
+DHCP（Dynamic Host Configuration Protocol）用于为主机自动配置 IP 地址、子网掩码、默认网关、DNS 服务器等网络参数。运行在 UDP 端口 67（服务器）和 68（客户端）上。DHCP 是即插即用联网的关键协议。
+\end{mydef}
+
+\subsubsection{DHCP 工作过程 — 四步握手}
+
+\begin{conclusion}{DHCP 四步过程}{dhcp-four-steps}
+\textbf{这是 408 选择题的常考点，四个步骤的顺序和报文类型必须牢记。}
+
+\begin{tablebox}{DHCP 四步过程}
+\centering
+\begin{tabular}{|c|c|l|}
+\hline
+\textbf{步骤} & \textbf{报文} & \textbf{说明} \\
+\hline
+1 & DHCPDISCOVER & 客户端广播「发现」报文（源 IP 0.0.0.0，目标 255.255.255.255）寻找 DHCP 服务器 \\
+2 & DHCPOFFER & 服务器单播/广播「提供」报文，包含建议的 IP 地址、子网掩码、租用期 \\
+3 & DHCPREQUEST & 客户端广播「请求」报文，选择某个服务器提供的 IP 地址 \\
+4 & DHCPACK & 服务器「确认」报文，正式分配 IP 地址 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{详细过程：}
+\begin{enumerate}
+    \item \textbf{DHCPDISCOVER（发现阶段）}：客户端在物理子网内广播 UDP 报文（端口 67），源 IP = 0.0.0.0，目的 IP = 255.255.255.255（受限广播）。网络中可能有多个 DHCP 服务器都会响应。
+
+    \item \textbf{DHCPOFFER（提供阶段）}：每个 DHCP 服务器都回应 DHCPOFFER 报文（包含：可分配的 IP 地址 yiaddr、子网掩码、租用期、DHCP 服务器标识等）。客户端可能收到多个 OFFER。
+
+    \item \textbf{DHCPREQUEST（请求阶段）}：客户端选择一个 OFFER，再次向全网广播 DHCPREQUEST 报文，明确声明选择哪个 DHCP 服务器（报文中包含该服务器的标识符）。\textbf{广播的目的：} 让其他 DHCP 服务器知道自己未被选中，释放预留的 IP。
+
+    \item \textbf{DHCPACK（确认阶段）}：被选中的服务器发送 DHCPACK 确认分配。客户端收到后就可以正式使用该 IP 地址。租用期过半时客户端需要续租（发送 DHCPREQUEST 直接到服务器）。
+\end{enumerate}
+
+\textbf{记忆口诀：} \textbf{「D-O-R-A」}——Discover $\to$ Offer $\to$ Request $\to$ ACK。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常见陷阱：}
+\begin{itemize}
+    \item DHCPDISCOVER 和 DHCPREQUEST 都是广播（因为客户端此时还没有有效 IP），DHCPOFFER 和 DHCPACK 可以是广播或单播。
+    \item DHCP 基于 UDP，不是 TCP。DHCP 服务器用 67 端口，客户端用 68 端口。
+    \item DHCP 分配的 IP 地址是\underline{临时的}（有租用期），不是永久的。
+    \item 若 DHCP 服务器与客户端不在同一子网，需通过 \textbf{DHCP 中继代理}（Relay Agent）转发。
+    \item DHCP 是应用层协议，但它的配置直接影响网络层（IP 地址）和传输层的工作。
+\end{itemize}
+\end{attention}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{应用层 — 408常考点}{cn6-keypoints}
+\begin{enumerate}
+    \item \textbf{DNS 递归 vs 迭代查询}：主机到本地一定是递归；本地到其他通常是迭代。
+    \item \textbf{FTP 控制连接 (21) 和数据连接 (20)}：主动模式（服务器端口 20 发起）vs 被动模式（客户端主动连接服务器随机端口）。
+    \item \textbf{SMTP/POP3/IMAP 功能区分}：SMTP 只管「发」，POP3/IMAP 只管「收」。IMAP 多设备同步。
+    \item \textbf{HTTP 持久连接的时间计算}：RTT 的概念，非持久每个对象 $+2$RTT，持久一个 TCP 连接内传送所有对象。
+    \item \textbf{DHCP 四步过程 D-O-R-A}：DISCOVER(广播) $\to$ OFFER $\to$ REQUEST(广播) $\to$ ACK。
+    \item \textbf{HTTP 状态码分类}：$2\text{xx}$成功、$3\text{xx}$重定向、$4\text{xx}$客户端错误、$5\text{xx}$服务器错误。
+    \item \textbf{Cookie 机制}：无状态 HTTP 下保持会话状态的 4 个组件。
+    \item \textbf{MIME 的作用}：弥补 SMTP 仅支持 7 位 ASCII 的不足。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} DNS 协议在传输层使用的协议和端口号是
+\begin{center}
+\begin{tabular}{ll}
+(A) TCP 53 & (B) UDP 53 \\[6pt]
+(C) TCP 67 & (D) UDP 67
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 以下关于 FTP 的说法，\textbf{错误的是}
+\begin{center}
+\begin{tabular}{p{14cm}}
+(A) FTP 使用两条 TCP 连接：控制连接和数据连接 \\[4pt]
+(B) FTP 的控制连接使用端口 21，数据连接使用端口 20 \\[4pt]
+(C) FTP 被动模式下，服务器主动向客户端发起数据连接 \\[4pt]
+(D) FTP 的控制连接在整个会话期间始终保持
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在浏览器中输入 \texttt{www.example.com} 后，主机首先向本地 DNS 服务器发出的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 迭代查询 & (B) 递归查询 \\[6pt]
+(C) 直接查询根域名服务器 & (D) 区域传送
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} DHCP 协议的四步过程依次是 \underline{\qquad}（发现）、\underline{\qquad}（提供）、\underline{\qquad}（请求）和 \underline{\qquad}（确认），简称 D-O-R-A。
+
+\item \textbf{（填空题）} HTTP 状态码中，200 表示 \underline{\qquad}，301 表示 \underline{\qquad}，404 表示 \underline{\qquad}，500 表示 \underline{\qquad}。
+
+\item \textbf{（填空题）} 在电子邮件系统中，发送邮件使用 \underline{\qquad} 协议（端口 \underline{\qquad}），接收邮件可使用 \underline{\qquad} 协议（端口 110）或 \underline{\qquad} 协议（端口 143）。（填协议缩写）
+
+\item \textbf{（填空题）} FTP 的\textbf{主动模式}中，数据连接由 \underline{\qquad}（填「服务器」或「客户端」）从端口 \underline{\qquad} 向 \underline{\qquad}（填「服务器」或「客户端」）的端口发起。
+
+\item \textbf{（简答题）} 简要说明 SMTP 和 POP3 的区别，以及 MIME 扩展的作用。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 某主机通过本地域名服务器解析域名 \texttt{www.abc.com}，本地域名服务器依次向根域名服务器、.com 顶级域名服务器和 abc.com 权限域名服务器发出 DNS 查询。设每次查询的 RTT 均为 $R$，忽略其他时延，则解析过程的总时延至少为
+\begin{center}
+\begin{tabular}{ll}
+(A) 1R & (B) 2R \\[6pt]
+(C) 3R & (D) 4R
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 关于 DHCP 协议，以下说法\textbf{正确的是}
+\begin{center}
+\begin{tabular}{p{14cm}}
+(A) DHCP 服务器使用 TCP 协议与客户端通信 \\[4pt]
+(B) DHCPREQUEST 报文由客户端单播发送给选定的 DHCP 服务器 \\[4pt]
+(C) DHCPDISCOVER 报文的源 IP 地址为 0.0.0.0 \\[4pt]
+(D) DHCP 分配的 IP 地址是永久的
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 一个 HTML 网页（大小为 $H$）中包含 5 个内嵌图片（大小均为 $P$）。客户端到服务器的 RTT 均为 $R$，忽略传输时间（$H,P \approx 0$）。回答以下问题：
+\begin{enumerate}
+    \item[(1)] 若使用非持久 HTTP/1.0（串行），从客户端请求网页到收到网页中所有内容，总共需要多长时间？
+    \item[(2)] 若使用持久 HTTP/1.1（流水线），总共需要多长时间？
+    \item[(3)] 若使用持久 HTTP/1.1，但非流水线方式，总共需要多长时间？
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 假设主机 A 要通过 FTP 从服务器 S 下载一个文件。回答以下问题：
+\begin{enumerate}
+    \item[(1)] 控制连接和数据连接各使用哪个端口号？
+    \item[(2)] 若 A 位于 NAT 后面且未配置端口映射，FTP 应选择主动模式还是被动模式？请说明理由。
+    \item[(3)] 简要说明 FTP 使用双连接的原因（即控制连接和数据连接分离的好处）。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 描述从主机开机（无 IP 地址）到通过 DHCP 获得 IP 地址并可访问互联网的完整过程，包括 DHCP 四个阶段及后续 DNS 解析过程。（要求：说明各阶段报文的发送方式为广播还是单播。）
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item Kurose \& Ross《计算机网络：自顶向下方法》第 2 章（应用层）——内容最为丰富，从 DNS 到 HTTP 到 P2P 覆盖所有应用层核心协议，例题和习题质量极高，适合深入理解 HTTP 持久连接的计算。
+    \item 谢希仁《计算机网络》第 6 章（应用层）——DNS、FTP、电子邮件、万维网等基础协议的标准国内表述，用于对齐 408 术语和考点。
+    \item RFC 1034/1035（DNS）、RFC 959（FTP）、RFC 5321（SMTP）、RFC 1939（POP3）、RFC 3501（IMAP）、RFC 2616/7230-7235（HTTP/1.1）、RFC 2131（DHCP）——协议设计的原始文档，想深入理解协议细节时可查阅。
+    \item 陈海波《现代操作系统》——可以作为操作系统和网络交叉（如 Socket 编程、网络 I/O 模型）的补充参考。
+\end{itemize}

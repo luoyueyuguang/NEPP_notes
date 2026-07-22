@@ -1,0 +1,780 @@
+\section{排序}
+
+\subsection{排序的基本概念}
+
+\begin{mydef}{排序}{sorting-def}
+排序（Sorting）是将一个数据元素的任意序列重新排列成一个按关键字有序的序列。设含 $n$ 个记录的序列为
+\[
+\{R_1,R_2,\ldots,R_n\},
+\]
+其对应的关键字序列为 $\{k_1,k_2,\ldots,k_n\}$。排序即确定一种排列 $p(1),p(2),\ldots,p(n)$ 使得
+\[
+k_{p(1)}\leqslant k_{p(2)}\leqslant\cdots\leqslant k_{p(n)}.
+\]
+\end{mydef}
+
+\begin{mydef}{排序的稳定性}{stability}
+若待排序记录中存在两个或两个以上关键字相等的记录 $R_i$ 与 $R_j$（$i<j$，即 $R_i$ 在序列中先于 $R_j$），排序后二者的相对次序保持不变（即 $R_i$ 仍在 $R_j$ 之前），则称该排序算法是\textbf{稳定的}；否则称\textbf{不稳定的}。
+\end{mydef}
+
+\begin{attention}
+\textbf{稳定性是 408 高频考点。} 408 选择题常给出一组记录，要求判断某排序算法执行后相同关键字记录的相对次序。稳定的算法：直接插入排序、冒泡排序、归并排序、基数排序。不稳定的：希尔排序、简单选择排序、快速排序、堆排序。
+\end{attention}
+
+\begin{formula}{内部排序与外部排序}{internal-external}
+\begin{itemize}
+    \item \textbf{内部排序}：排序过程中全部记录存放在内存。本章第2--7节均属内部排序。
+    \item \textbf{外部排序}：待排序记录数量太大，无法一次全部装入内存，排序过程中需在内、外存之间多次交换数据。典型场景：大文件排序。
+\end{itemize}
+\textbf{排序算法的评价指标：}
+\begin{itemize}
+    \item \textbf{时间复杂度}：比较次数 + 移动次数。
+    \item \textbf{空间复杂度}：除存储待排序记录之外所需的辅助空间。
+    \item \textbf{稳定性}：见上文。
+\end{itemize}
+
+408 考试中，内部排序是绝对重点，外部排序仅考查基本概念与简单计算。
+\end{formula}
+
+\subsection{插入排序}
+
+\subsubsection{直接插入排序（Straight Insertion Sort）}
+
+\begin{conclusion}{直接插入排序——算法原理与代码}{straight-insertion}
+核心思想：将待排序记录逐个插入到已排好序的有序序列中。类似打扑克牌时理牌的过程。
+
+\begin{lstlisting}[language=C]
+// 直接插入排序（升序）
+void InsertSort(int A[], int n) {
+    int i, j, temp;
+    for (i = 1; i < n; i++) {           // A[0..i-1] 有序，插入 A[i]
+        temp = A[i];                     // 暂存待插入记录
+        for (j = i - 1; j >= 0 && A[j] > temp; j--)
+            A[j + 1] = A[j];             // 大于 temp 的记录后移
+        A[j + 1] = temp;                // 插入到正确位置
+    }
+}
+\end{lstlisting}
+
+\textbf{算法过程（以 $[5,2,4,6,1,3]$ 为例）：}
+\begin{center}
+\small
+\begin{tabular}{|c|c|l|}
+\hline
+$i$ & 哨兵 & 当前序列 \\
+\hline
+初始 & -- & \texttt{[5 | 2, 4, 6, 1, 3]} \\
+1 & 2 & \texttt{[2, 5 | 4, 6, 1, 3]} \\
+2 & 4 & \texttt{[2, 4, 5 | 6, 1, 3]} \\
+3 & 6 & \texttt{[2, 4, 5, 6 | 1, 3]} \\
+4 & 1 & \texttt{[1, 2, 4, 5, 6 | 3]} \\
+5 & 3 & \texttt{[1, 2, 3, 4, 5, 6]} \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{复杂度分析：}
+\begin{itemize}
+    \item 最好情况（初始有序）：每趟只比较 1 次，不移动，共 $n-1$ 次比较 $\Rightarrow O(n)$。
+    \item 最坏情况（初始逆序）：第 $i$ 趟比较 $i$ 次，共 $\sum_{i=1}^{n-1}i = n(n-1)/2$ 次比较；移动次数同量级 $\Rightarrow O(n^2)$。
+    \item 平均情况：$O(n^2)$。
+\end{itemize}
+\textbf{空间复杂度}：$O(1)$（仅一个辅助变量 \texttt{temp}）。\textbf{稳定性}：稳定（判断条件 \texttt{A[j] > temp} 保证相等时不移位）。
+\end{conclusion}
+
+\subsubsection{折半插入排序（Binary Insertion Sort）}
+
+\begin{conclusion}{折半插入排序}{binary-insertion}
+在直接插入排序中，查找插入位置时使用\textbf{二分查找}代替顺序查找，以减少比较次数。但移动次数不变。
+
+\begin{lstlisting}[language=C]
+void BinInsertSort(int A[], int n) {
+    int i, j, low, high, mid, temp;
+    for (i = 1; i < n; i++) {
+        temp = A[i];
+        low = 0; high = i - 1;
+        while (low <= high) {            // 二分查找插入位置
+            mid = (low + high) / 2;
+            if (A[mid] > temp) high = mid - 1;
+            else               low  = mid + 1;  // 相等时插在后面 → 稳定
+        }
+        for (j = i - 1; j >= low; j--)   // 统一后移
+            A[j + 1] = A[j];
+        A[low] = temp;
+    }
+}
+\end{lstlisting}
+
+\textbf{复杂度分析：}
+\begin{itemize}
+    \item 比较次数：$\sum_{i=1}^{n-1}\lceil\log_2 i\rceil \approx n\log_2 n = O(n\log n)$。
+    \item 移动次数：仍为 $O(n^2)$（最坏和平均）。
+    \item 总时间复杂度：仍为 $O(n^2)$，因为移动仍是瓶颈。
+\end{itemize}
+\textbf{稳定性}：稳定（当 \texttt{A[mid] == temp} 时，继续在右半区查找，保证相对次序不变）。
+\end{conclusion}
+
+\subsubsection{希尔排序（Shell Sort）}
+
+\begin{conclusion}{希尔排序——缩小增量排序}{shell-sort}
+希尔排序是对直接插入排序的改进：先将整个序列按某个\textbf{增量} $d$ 分成若干子序列，分别进行直接插入排序；然后缩小增量，再进行排序；直至增量 $d=1$ 时，整体做一次直接插入排序。
+
+\begin{lstlisting}[language=C]
+void ShellSort(int A[], int n) {
+    int d, i, j, temp;
+    for (d = n / 2; d >= 1; d /= 2) {    // 增量序列，每次减半
+        for (i = d; i < n; i++) {         // 对各子表插入排序
+            temp = A[i];
+            for (j = i - d; j >= 0 && A[j] > temp; j -= d)
+                A[j + d] = A[j];
+            A[j + d] = temp;
+        }
+    }
+}
+\end{lstlisting}
+
+\textbf{关键理解：}
+\begin{itemize}
+    \item 增量序列的选择影响效率。常用的有 $d_1=n/2$，$d_{k+1}=\lfloor d_k/2\rfloor$（希尔原始增量）；更好的有 Hibbard 增量 $1,3,7,\ldots,2^k-1$。
+    \item 当 $d=1$ 时就是一次直接插入排序，但由于前面的预处理使序列「基本有序」，最后一次排序工作量大减。
+\end{itemize}
+
+\textbf{复杂度分析：}
+\begin{itemize}
+    \item 时间复杂度：与增量序列有关。最坏 $O(n^2)$（希尔原始增量），Hibbard 增量最坏 $O(n^{3/2})$。平均约为 $O(n^{1.3})$。
+    \item 空间复杂度：$O(1)$。
+    \item \textbf{稳定性：不稳定。} 相同关键字可能被分到不同子序列中，相对次序可能改变。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考——希尔排序的手工模拟：} 给出初始序列和增量序列，要求写出每趟排序后的结果。注意不同增量下子序列的划分方式：第 $i$ 个子序列的下标为 $i, i+d, i+2d, \ldots$。同组内元素进行直接插入排序，不同组之间交替进行。
+\end{attention}
+
+\boxed{\textbf{例}} 对序列 $\{49,38,65,97,76,13,27,49',55,4\}$ 进行希尔排序（增量 $5,3,1$）：\\
+第一趟（$d=5$）：子序列 $\{49,13\}$、$\{38,27\}$、$\{65,49'\}$、$\{97,55\}$、$\{76,4\}$ 排序后得 $\{13,27,49',55,4,49,38,65,97,76\}$。注意 $49$ 和 $49'$ 的相对次序已变化——\textbf{不稳定}。
+
+\subsection{交换排序}
+
+\subsubsection{冒泡排序（Bubble Sort）}
+
+\begin{conclusion}{冒泡排序——算法原理与代码}{bubble-sort}
+每趟从前往后两两比较相邻元素，若逆序则交换。每趟可将当前未排序部分的最大元素「冒」到最后。若某一趟没有发生交换，说明已有序，可提前结束。
+
+\begin{lstlisting}[language=C]
+void BubbleSort(int A[], int n) {
+    int i, j, temp;
+    bool swapped;
+    for (i = 0; i < n - 1; i++) {
+        swapped = false;
+        for (j = 0; j < n - 1 - i; j++) {  // 每趟缩小比较范围
+            if (A[j] > A[j + 1]) {          // 升序，注意不是 >=
+                temp = A[j];
+                A[j] = A[j + 1];
+                A[j + 1] = temp;
+                swapped = true;
+            }
+        }
+        if (!swapped) break;                // 本趟无交换，已有序
+    }
+}
+\end{lstlisting}
+
+\textbf{复杂度分析：}
+\begin{itemize}
+    \item 最好情况（初始有序）：比较 $n-1$ 次，移动 $0$ 次 $\Rightarrow O(n)$。
+    \item 最坏情况（初始逆序）：比较 $\frac{n(n-1)}{2}$ 次，移动 $\frac{3n(n-1)}{2}$ 次（每次交换 3 步）$\Rightarrow O(n^2)$。
+\end{itemize}
+\textbf{空间复杂度}：$O(1)$。\textbf{稳定性}：稳定（严格大于才交换，\texttt{A[j] > A[j+1]} 而非 \texttt{>=}）。
+\end{conclusion}
+
+\subsubsection{快速排序（Quick Sort）}
+
+\begin{conclusion}{快速排序——算法原理}{quick-sort}
+快速排序是实际应用中最快的通用内排序算法之一。核心思想是\textbf{分治}：
+\begin{enumerate}
+    \item \textbf{划分（Partition）}：从序列中选一个\textbf{枢轴（pivot）}，将序列分为左右两部分——左边全部 $\leqslant$ pivot，右边全部 $\geqslant$ pivot。pivot 落位到最终位置。
+    \item 递归地对左右子序列进行快速排序。
+\end{enumerate}
+\end{conclusion}
+
+\begin{formula}{一趟划分（Partition）过程——Lomuto 版}{partition-lomuto}
+以第一个元素为枢轴。交替从右找小、从左找大，直到两指针相遇。
+
+\begin{lstlisting}[language=C]
+int Partition(int A[], int low, int high) {
+    int pivot = A[low];                    // 选第一个元素为枢轴
+    while (low < high) {
+        while (low < high && A[high] >= pivot) // 从右找小于 pivot 的
+            high--;
+        A[low] = A[high];                  // 将小数移到左边
+        while (low < high && A[low] <= pivot)  // 从左找大于 pivot 的
+            low++;
+        A[high] = A[low];                  // 将大数移到右边
+    }
+    A[low] = pivot;                        // pivot 落位
+    return low;                            // 返回枢轴最终位置
+}
+\end{lstlisting}
+
+\textbf{划分过程演示（pivot = A[0] = 49）：}
+\begin{center}
+\small\ttfamily
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\multicolumn{10}{|c|}{初始：49, 38, 65, 97, 76, 13, 27, 49'} \\
+\hline
+右找小 & 49 & 38 & 65 & 97 & 76 & 13 & 27 & 49' \\
+low$\uparrow$ &  &  &  &  &  &  & $\leftarrow$high &  \\[2pt]
+\hline
+交换 & 27 & 38 & 65 & 97 & 76 & 13 & \colorbox{yellow}{27} & 49' \\
+ & $\uparrow$low &  &  &  &  &  & $\uparrow$high &  \\[2pt]
+\hline
+左找大 & 27 & 38 & 65 & 97 & 76 & 13 & & 49' \\
+ &  &  & $\rightarrow$low &  &  &  & $\uparrow$high &  \\[2pt]
+\hline
+交换 & 27 & 38 & \colorbox{yellow}{65} & 97 & 76 & 13 & 65 & 49' \\
+ &  &  & $\uparrow$low &  &  & $\uparrow$high &  &  \\[2pt]
+\hline
+右找小 & 27 & 38 & 65 & 97 & 76 & 13 & & 49' \\
+ &  &  & $\uparrow$low &  &  & $\leftarrow$high &  &  \\[2pt]
+\hline
+交换 & 27 & 38 & 13 & 97 & 76 & \colorbox{yellow}{13} & 65 & 49' \\
+ &  &  &  & $\rightarrow$low &  & $\uparrow$high &  &  \\[2pt]
+\hline
+左找大 & 27 & 38 & 13 & 97 & 76 & 13 & 65 & 49' \\
+ &  &  &  & $\uparrow$low &  & $\uparrow$high &  &  \\
+ &  &  &  &  & $\leftarrow$high &  &  &  \\[2pt]
+\hline
+相遇 & 27 & 38 & 13 & \colorbox{yellow}{49} & 76 & 97 & 65 & 49' \\
+\hline
+\end{tabular}
+\end{center}
+一趟划分结果：$\{27,38,13\}\;49\;\{76,97,65,49'\}$，枢轴 49 落位。注意 $49$ 和 $49'$ 的相对次序可能改变——\textbf{快排不稳定}。
+\end{formula}
+
+\begin{conclusion}{快速排序——完整代码}{quick-sort-code}
+\begin{lstlisting}[language=C]
+void QuickSort(int A[], int low, int high) {
+    if (low < high) {
+        int pivotpos = Partition(A, low, high);
+        QuickSort(A, low, pivotpos - 1);   // 左半部分递归
+        QuickSort(A, pivotpos + 1, high);  // 右半部分递归
+    }
+}
+\end{lstlisting}
+\end{conclusion}
+
+\begin{formula}{快速排序——复杂度分析}{quick-sort-complexity}
+设 $T(n)$ 为排序 $n$ 个记录所需时间，一趟 Partition 需要 $O(n)$ 时间。
+
+\begin{itemize}
+    \item \textbf{最好情况}（每次划分均匀，pivot 恰在中位）：
+    \[
+    T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n).
+    \]
+    \item \textbf{最坏情况}（每次划分极不均衡，如初始有序/逆序且 pivot 固定选首元素）：
+    \[
+    T(n) = T(n-1) + O(n) \;\Longrightarrow\; T(n) = O(n^2).
+    \]
+    \item \textbf{平均情况}：假设 pivot 等概率落在任一位置，可以证明 $T(n) = O(n\log n)$。
+\end{itemize}
+
+\textbf{空间复杂度：} 递归工作栈深度。最好 $\lceil\log_2 (n+1)\rceil = O(\log n)$；最坏 $O(n)$（需 $n-1$ 次递归调用）；平均 $O(\log n)$。
+
+\textbf{稳定性：不稳定。} Partition 过程中，跳跃式交换会打乱相同关键字的相对次序。
+\end{formula}
+
+\begin{attention}
+\textbf{408 核心考点——快排的 Partition：}
+\begin{itemize}
+    \item \textbf{给定序列，写出每趟排序后的结果。} 注意：408 的快排一趟通常指一次 Partition 执行完毕（pivot 落位，左右分好），而不是一次递归调用。
+    \item \textbf{最坏情况的触发条件}：初始序列基本有序或基本逆序，且 pivot 选法固定（如始终选第一个/最后一个）时退化为 $O(n^2)$。优化方法：随机选 pivot、三数取中。
+    \item \textbf{递归次数 ≠ 比较次数}：递归深度 = 栈深度，每趟比较次数 $\approx$ 子序列长度。
+    \item \textbf{快排的趟数与初始序列有关}：有序时需 $n$ 趟（每趟定一个位置），随机时约 $\log_2 n$ 趟。
+\end{itemize}
+\end{attention}
+
+\subsection{选择排序}
+
+\subsubsection{简单选择排序（Simple Selection Sort）}
+
+\begin{conclusion}{简单选择排序}{simple-selection}
+每趟从待排序部分选出最小元素，与待排序部分的第一个元素交换。
+
+\begin{lstlisting}[language=C]
+void SelectSort(int A[], int n) {
+    int i, j, min, temp;
+    for (i = 0; i < n - 1; i++) {
+        min = i;
+        for (j = i + 1; j < n; j++)
+            if (A[j] < A[min]) min = j;
+        if (min != i) {
+            temp = A[i]; A[i] = A[min]; A[min] = temp;
+        }
+    }
+}
+\end{lstlisting}
+
+\textbf{复杂度分析：}
+\begin{itemize}
+    \item 比较次数：$\sum_{i=0}^{n-2}(n-1-i)=\frac{n(n-1)}{2}$，与初始序列无关——始终 $O(n^2)$。
+    \item 移动次数：最好 $0$，最坏 $3(n-1)$ 次。
+\end{itemize}
+\textbf{空间复杂度：}$O(1)$。\textbf{稳定性：不稳定。} 例如 $[5,5',2] \to [2,5',5]$，第一个 5 被换到了后面。
+\end{conclusion}
+
+\subsubsection{堆排序（Heap Sort）}
+
+\begin{mydef}{堆}{heap-def}
+堆是一棵\textbf{完全二叉树}，且满足任一非叶结点的关键字均不大于（或不小于）其左右孩子结点的关键字。
+\begin{itemize}
+    \item \textbf{小根堆（Min-Heap）}：$A[i]\leqslant A[2i+1]$ 且 $A[i]\leqslant A[2i+2]$（根最小）。
+    \item \textbf{大根堆（Max-Heap）}：$A[i]\geqslant A[2i+1]$ 且 $A[i]\geqslant A[2i+2]$（根最大）。
+\end{itemize}
+堆排序通常用\textbf{大根堆}实现升序排序。
+\end{mydef}
+
+\begin{formula}{堆的存储}{heap-storage}
+完全二叉树适合顺序存储（数组）。对下标从 $0$ 开始的数组 $A[0..n-1]$：
+\begin{itemize}
+    \item $A[i]$ 的左孩子：$A[2i+1]$；右孩子：$A[2i+2]$。
+    \item $A[i]$ 的双亲：$A[\lfloor (i-1)/2\rfloor]$。
+    \item 第一个非叶结点下标：$\lfloor n/2\rfloor - 1$。
+    \item 第一个叶子结点下标：$\lfloor n/2\rfloor$。
+\end{itemize}
+\textbf{408 注意：} 408 教材可能用下标 $1$ 开始（$A[1..n]$），此时左孩子 $2i$，右孩子 $2i+1$，双亲 $\lfloor i/2\rfloor$，考场上务必看清下标约定。
+\end{formula}
+
+\begin{conclusion}{向下调整算法（\texttt{HeapAdjust} / \texttt{SiftDown}）}{heap-adjust}
+假设以 $A[k]$ 为根的子树，除 $A[k]$ 本身外，\textbf{左右子树均已满足堆性质}。调整 $A[k]$ 下沉到合适位置，使整棵子树满足堆性质。
+
+\begin{lstlisting}[language=C]
+// 大根堆向下调整：将 A[k] 向下调整到合适位置
+void HeapAdjust(int A[], int k, int n) {
+    int temp = A[k];                     // 暂存根结点
+    for (int i = 2 * k + 1; i < n; i = 2 * i + 1) {
+        // i 指向左孩子；选较大的孩子
+        if (i + 1 < n && A[i] < A[i + 1])  // 右孩子存在且更大
+            i++;
+        if (temp >= A[i]) break;          // 已满足堆性质
+        A[k] = A[i];                      // 大孩子上移
+        k = i;                            // 继续向下筛选
+    }
+    A[k] = temp;
+}
+\end{lstlisting}
+
+\textbf{时间复杂度：} 每次调整沿树高下降，比较次数 $\leqslant 2\lfloor\log_2 n\rfloor$，即 $O(\log n)$。
+\end{conclusion}
+
+\begin{conclusion}{建堆过程}{build-heap}
+从最后一个非叶结点（$\lfloor n/2\rfloor - 1$，下标 0 开始）开始，向前遍历到根，对每个结点执行一次向下调整。
+
+\begin{lstlisting}[language=C]
+void BuildMaxHeap(int A[], int n) {
+    for (int i = n / 2 - 1; i >= 0; i--)
+        HeapAdjust(A, i, n);
+}
+\end{lstlisting}
+
+\textbf{建堆时间复杂度：$O(n)$。}
+
+\boxed{\textbf{例}} 序列 $\{4,10,3,5,1,2\}$（$n=6$）建大根堆过程：
+\begin{center}
+\ttfamily\small
+第一个非叶：$i=2$（值为 3），子树 $\{3,2\}$ 已满足大根堆 $\checkmark$\\
+$i=1$（值为 10），子树 $\{10,5,1\}$ 满足 $\checkmark$\\
+$i=0$（值为 4），调整：4 与 10 交换 $\to$ $\{10,4,3,5,1,2\}$；\\
+\hspace*{4em}4 再与 5 交换 $\to$ $\{10,5,3,4,1,2\}$ ——建堆完成。
+\end{center}
+\end{conclusion}
+
+\begin{conclusion}{堆排序——完整算法}{heap-sort}
+堆排序分为两步：① 建初堆（$O(n)$）；② 反复输出堆顶，将堆尾元素移至堆顶后向下调整（$n-1$ 次，每次 $O(\log n)$）。
+
+\begin{lstlisting}[language=C]
+void HeapSort(int A[], int n) {
+    BuildMaxHeap(A, n);                  // ① 建大根堆
+    for (int i = n - 1; i > 0; i--) {
+        // 交换堆顶和堆尾（当前未排序部分最后一个）
+        int temp = A[0]; A[0] = A[i]; A[i] = temp;
+        HeapAdjust(A, 0, i);             // ② 调整剩余 i 个元素为新堆
+    }
+}
+\end{lstlisting}
+
+\boxed{\textbf{例}} 续上例建堆后 $\{10,5,3,4,1,2\}$：\\
+输出 10，堆尾 2 移至堆顶 $\{2,5,3,4,1\}$ $\to$ 调整 $\{5,4,3,2,1\}$；\\
+输出 5，堆尾 1 移至堆顶 $\{1,4,3,2\}$ $\to$ 调整 $\{4,2,3,1\}$；\\
+依此类推，最终得 $\{1,2,3,4,5,10\}$。
+
+\textbf{复杂度分析：}
+\begin{itemize}
+    \item 时间复杂度：建堆 $O(n)$ + $n-1$ 次调整 $O(n\log n) = O(n\log n)$。最好/最坏/平均均为 $O(n\log n)$。
+    \item 空间复杂度：$O(1)$（仅用一个辅助变量）。
+    \item \textbf{稳定性：不稳定。} 堆排序中元素沿着树中路径跳跃移动，相同关键字相对次序可能改变。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 核心考点——堆排序：}
+\begin{itemize}
+    \item \textbf{建堆过程的手工模拟}：给定初始序列，逐步画出完全二叉树并自底向上调整。
+    \item \textbf{堆排序各趟结果}：交换堆顶与堆尾 $\to$ 剩余元素重新调整为堆。每趟确定一个最大元素在末尾。
+    \item \textbf{堆的插入与删除}（堆本身的操作，不一定是堆排序）：
+    \begin{itemize}
+        \item 插入：新元素放末尾，然后\textbf{向上调整}（上浮）；
+        \item 删除堆顶：堆尾元素移置堆顶，然后\textbf{向下调整}。
+    \end{itemize}
+    \item \textbf{建堆 $O(n)$ 的证明思路}：第 $h$ 层最多 $2^{h-1}$ 个结点，每结点最多下移 $(H-h)$ 层（$H=\lfloor\log_2 n\rfloor + 1$），总调整次数 $\sum_{h=1}^H 2^{h-1}(H-h) = O(n)$。
+\end{itemize}
+\end{attention}
+
+\subsection{归并排序（Merge Sort）}
+
+\begin{conclusion}{二路归并排序——原理与代码}{merge-sort}
+归并排序是分治法的又一典型。基本思想：将两个（或以上）有序表合并为一个新的有序表。
+
+\textbf{二路归并（Merge）——合并两个相邻有序段：}
+
+\begin{lstlisting}[language=C]
+// 将 A[low..mid] 和 A[mid+1..high] 两个有序段合并为一段
+void Merge(int A[], int low, int mid, int high) {
+    int *B = (int*)malloc((high - low + 1) * sizeof(int));
+    int i = low, j = mid + 1, k = 0;
+    while (i <= mid && j <= high) {      // 两段均未取完
+        if (A[i] <= A[j]) B[k++] = A[i++];  // 注意 <= 保证稳定性
+        else              B[k++] = A[j++];
+    }
+    while (i <= mid)  B[k++] = A[i++];   // 剩余左段
+    while (j <= high) B[k++] = A[j++];   // 剩余右段
+    for (i = low, k = 0; i <= high; i++, k++)
+        A[i] = B[k];
+    free(B);
+}
+\end{lstlisting}
+
+\textbf{递归归并排序：}
+
+\begin{lstlisting}[language=C]
+void MergeSort(int A[], int low, int high) {
+    if (low < high) {
+        int mid = (low + high) / 2;
+        MergeSort(A, low, mid);          // 左半排序
+        MergeSort(A, mid + 1, high);     // 右半排序
+        Merge(A, low, mid, high);        // 合并
+    }
+}
+\end{lstlisting}
+
+\textbf{复杂度分析：}
+\[
+T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n).
+\]
+\begin{itemize}
+    \item 时间复杂度：$O(n\log n)$，与初始序列无关——每趟归并均需 $O(n)$，共 $\lceil\log_2 n\rceil$ 趟。
+    \item 空间复杂度：$O(n)$（归并过程需要辅助数组）。
+    \item \textbf{稳定性：稳定。} Merge 中 \texttt{A[i] <= A[j]} 保证左段元素优先，相等时不改变相对次序。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考——归并排序各趟结果：} 给定初始序列，写出每趟归并后的结果。例如 $\{49,38,65,97,76,13,27\}$：\\
+趟1（段长1$\to$2）：$\{38,49,\;65,97,\;13,76,\;27\}$（最后一段只有 27 单独成段）\\
+趟2（段长2$\to$4）：$\{38,49,65,97,\;13,27,76\}$\\
+趟3（段长4$\to$8）：$\{13,27,38,49,65,76,97\}$
+
+另外，归并排序也可用迭代（非递归）实现（自底向上），程序结构适合用 \texttt{for} 循环控制段长逐步翻倍。
+\end{attention}
+
+\subsection{基数排序（Radix Sort）}
+
+\begin{mydef}{基数排序}{radix-sort}
+基数排序是一种\textbf{不基于比较}的排序算法。它借助\textbf{多关键字排序}思想，将单关键字按各位的值进行排序。
+\end{mydef}
+
+\begin{conclusion}{基数排序原理}{radix-principle}
+以十进制整数为例。设每个关键字由 $d$ 位十进制数字组成，每位的取值范围为 $[0,9]$（即基数 $r=10$）。
+
+\textbf{两种策略：}
+\begin{itemize}
+    \item \textbf{最高位优先（MSD, Most Significant Digit）}：先按最高位排，再递归对各组排次高位。
+    \item \textbf{最低位优先（LSD, Least Significant Digit）}：先按最低位排，再排次低位……最后排最高位。LSD 需要每趟排序是稳定的。
+\end{itemize}
+
+\textbf{LSD 基数排序过程（以 $\{278,109,63,930,589,184,505,269,8,83\}$ 为例）：}
+\begin{center}
+\begin{enumerate}
+    \item 第一趟（个位）：按个位数分配到 10 个队列（0--9），收集。\\
+    结果：$\{930, 63, 83, 184, 505, 278, 8, 109, 589, 269\}$。
+    \item 第二趟（十位）：按十位数分配、收集。\\
+    结果：$\{505, 8, 109, 930, 63, 269, 278, 83, 184, 589\}$。
+    \item 第三趟（百位）：按百位数分配、收集。\\
+    结果：$\{8, 63, 83, 109, 184, 269, 278, 505, 589, 930\}$（有序）。
+\end{enumerate}
+\end{center}
+\textbf{关键：} 每趟的分配和收集必须是\textbf{稳定的}（通常用队列实现，先进先出），否则前一趟的排序成果会被破坏。
+\end{conclusion}
+
+\begin{conclusion}{基数排序复杂度分析}{radix-complexity}
+设待排序记录数为 $n$，关键字有 $d$ 位，基数为 $r$（每位有 $r$ 种取值）。
+
+\begin{itemize}
+    \item \textbf{时间复杂度}：$O(d(n+r))$。每趟分配 $O(n)$（扫描全部记录），收集 $O(r)$（扫描每个队列）。共 $d$ 趟。
+    \item \textbf{空间复杂度}：$O(r)$（$r$ 个队列的头尾指针）+ $O(n)$（队列结点）$= O(n+r)$。
+    \item \textbf{稳定性}：稳定（若每趟采用的分配/收集方法保持稳定）。
+\end{itemize}
+
+\textbf{适用场景：}
+\begin{itemize}
+    \item 关键字可分解为多个独立「位」，且每位取值范围不大。
+    \item $d$ 较小、$r$ 较小、$n$ 较大时效率优于基于比较的 $O(n\log n)$。
+    \item 典型应用：字符串排序、多关键字排序（如先按班级排再按成绩排）。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+408 常考——基数排序不是基于比较的排序，其复杂度可以突破基于比较的 $\Omega(n\log n)$ 下界！排序趟数取决于关键字的位数（或「基数分解」方式），每趟排序不改变相同关键字记录的相对次序。
+\end{attention}
+
+\subsection{各种内部排序算法的比较}
+
+\begin{tablebox}{内部排序算法综合比较表}
+\centering
+\small
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+算法 & 最好时间 & 平均时间 & 最坏时间 & 空间 & 稳定性 \\
+\hline
+直接插入排序 & $O(n)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & 稳定 \\
+折半插入排序 & $O(n\log n)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & 稳定 \\
+希尔排序 & $O(n^{1.3})$ & $O(n^{1.3})$ & $O(n^2)$ & $O(1)$ & 不稳定 \\
+\hline
+冒泡排序 & $O(n)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & 稳定 \\
+快速排序 & $O(n\log n)$ & $O(n\log n)$ & $O(n^2)$ & $O(\log n)$ & 不稳定 \\
+\hline
+简单选择排序 & $O(n^2)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & 不稳定 \\
+堆排序 & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ & $O(1)$ & 不稳定 \\
+\hline
+归并排序 & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ & $O(n)$ & 稳定 \\
+\hline
+基数排序 & $O(d(n+r))$ & $O(d(n+r))$ & $O(d(n+r))$ & $O(n+r)$ & 稳定 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\begin{conclusion}{排序算法选择策略}{sorting-choice}
+\begin{enumerate}
+    \item \textbf{$n$ 较小时}（如 $n\leqslant 50$）：直接插入排序或简单选择排序。移动次数：直接插入 $>$ 直接选择，但直接选择比较次数固定。
+    \item \textbf{$n$ 较大时}：选 $O(n\log n)$ 算法。
+    \begin{itemize}
+        \item \textbf{快速排序}：平均最快，是通用内排序的首选。但初始基本有序时退化，需用随机化或三数取中优化。
+        \item \textbf{堆排序}：不会退化，辅助空间少（$O(1)$），但实际常数因子较大，通常比快排慢。适合空间受限且需保证 $O(n\log n)$ 的场景。
+        \item \textbf{归并排序}：稳定，适合外部排序的基础。但需要 $O(n)$ 辅助空间。
+    \end{itemize}
+    \item \textbf{初始序列基本有序}：直接插入排序或冒泡排序可达 $O(n)$。
+    \item \textbf{记录规模大、关键字位数少}：基数排序可能优于 $O(n\log n)$。
+    \item \textbf{要求稳定}：直接插入、冒泡、归并、基数排序。
+\end{enumerate}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频选择题考点——排序趟数：}
+\begin{itemize}
+    \item 冒泡排序趟数与初始序列有关：最好 1 趟（无交换即停），最坏 $n-1$ 趟。
+    \item 快速排序趟数与初始序列有关，取决于递归树深度（最好 $\approx \log_2 n$，最坏 $n$）。
+    \item 简单选择排序/堆排序每趟确定 1 个元素的最终位置：共 $n-1$ 趟。
+    \item 归并排序趟数 = $\lceil\log_2 n\rceil$，与初始序列无关。
+    \item 基数排序趟数 = 关键字位数 $d$。
+\end{itemize}
+\end{attention}
+
+\subsection{外部排序（External Sorting）}
+
+\begin{mydef}{外部排序}{external-sort}
+外部排序指待排序文件太大，无法一次全部装入内存，需要多次在内存与外存之间交换数据。通常采用\textbf{归并排序}的思想。
+\end{mydef}
+
+\begin{conclusion}{外部排序基本过程}{external-process}
+以二路平衡归并为例：
+\begin{enumerate}
+    \item 将大文件按内存缓冲区大小分成若干段，每段读入内存进行内部排序，得到若干\textbf{初始归并段（run）}，写回外存。
+    \item 对归并段进行多趟归并，每趟将归并段两两合并，段数减少，段长增大，直到只剩一个归并段（有序文件）。
+\end{enumerate}
+
+\textbf{总时间 = 内部排序时间 + 外存读写时间 + 内部归并时间。} 其中外存 I/O 时间通常占主导。
+
+\textbf{增大归并路数 $k$} 可减少归并趟数（趟数 $=\lceil\log_k m\rceil$，$m$ 为初始段数），但增大 $k$ 会使每趟内部归并时选最小元的代价变大——需用败者树优化。
+\end{conclusion}
+
+\begin{conclusion}{败者树（Loser Tree）}{loser-tree}
+败者树是一棵完全二叉树，用于在 $k$ 路归并中高效选出 $k$ 个归并段当前首记录中的最小值。
+
+\begin{itemize}
+    \item \textbf{结构}：$k$ 个叶结点对应 $k$ 个归并段的当前元素；$k-1$ 个内部结点存放「失败者」（即比较中较大者）。树根上方额外放一个结点存放最终胜者（最小值）。
+    \item \textbf{重建}：输出胜者后，从对应叶结点到根路径上重赛，每次只需比较兄弟结点（或当前值与父结点值）。每选一个最小元的代价为 $O(\log k)$。
+    \item 与 \textbf{胜者树（Winner Tree）} 的区别：败者树中兄弟结点比较后「失败者」留存在父结点，重建时只需与路径上的父结点（保存的失败者）比较即可，比胜者树少访问兄弟结点，效率略高。
+\end{itemize}
+
+\textbf{败者树的比较次数：} 每趟归并共比较 $(n-1)\lceil\log_2 k\rceil$ 次（$n$ 为记录总数），与 $k$ 无关的调整只需 $(n-1)\times 1$ 次关键比较（败者树的优势）。
+\end{conclusion}
+
+\begin{conclusion}{置换--选择排序（Replacement-Selection Sort）}{replacement-selection}
+产生初始归并段的算法。目的：在内存缓冲区大小受限的情况下，生成尽可能长的初始归并段（减少段数 $m$，进而减少归并趟数）。
+
+\textbf{基本思想：} 在内存中维护一个大小为 $W$ 的缓冲区（即堆）。
+\begin{enumerate}
+    \item 读入 $W$ 个记录建立小根堆。
+    \item 输出堆顶（当前段的最小记录）到当前初始段。
+    \item 读入下一记录，若其关键字 $\geqslant$ 刚输出的记录，则插入堆中继续参与当前段；否则标记为「下一段」暂存。
+    \item 堆空时当前段结束，用「下一段」暂存记录建新堆，开始新归并段。
+\end{enumerate}
+\textbf{效果：} 当输入接近有序时，可生成远大于缓冲区 $W$ 的初始归并段，显著减少段数。
+\end{conclusion}
+
+\begin{conclusion}{最佳归并树（Optimal Merge Tree）}{optimal-merge-tree}
+当各初始归并段的\textbf{长度不相等}时，以归并段长度为权，建立一棵带权路径长度（WPL）最小的 $k$ 叉 Huffman 树，称为\textbf{最佳归并树}。按此树的归并顺序可使总 I/O 次数最少。
+
+\begin{itemize}
+    \item 对于 $k$ 路归并，若初始段数 $m$ 不满足 $(m-1)\bmod(k-1)=0$（即不是严格 $k$ 叉 Huffman 树），需添加长度为 $0$ 的虚拟段补足。
+    \item \textbf{总磁盘 I/O 次数 = $2\times \mathrm{WPL}$}（每归并一次，每个记录读写各一次。\textit{注：408 有时只统计归并趟数对应的读写次数}）。
+\end{itemize}
+
+\textbf{408 常考：} 给定若干归并段长度和归并路数 $k$，计算最佳归并树的 WPL 或总 I/O 次数。
+\end{conclusion}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{排序——408 选择题常考点}{sort-408-keypoints}
+\begin{enumerate}
+    \item \textbf{稳定性判断}：会背表还不够——要能根据算法过程推理解释。希尔排序（跳跃分组）、快排（跳跃交换）、堆排序（沿树跳跃）、简单选择（远距离交换）不稳定。
+    \item \textbf{快排的 Partition}：给定序列和 pivot 选法，写出每趟 Partition 结果（pivot 落位）。
+    \item \textbf{堆排序之建堆与调整}：给定序列，画出完全二叉树，模拟自底向上建堆过程。写出每趟排序后序列。
+    \item \textbf{各排序算法的趟/轮次}：冒泡、快排与初始序列相关；归并、基数与初始序列无关。
+    \item \textbf{时间复杂度对比}：哪些是 $O(n\log n)$？哪些最好可 $O(n)$？哪三个 $O(n^2)$？
+    \item \textbf{基于比较的排序下界}：基于比较的排序算法最坏情况时间下界为 $\Omega(n\log n)$。因此堆排序和归并排序在比较模型中是最优的。基数排序突破此下界因为它不基于比较。
+    \item \textbf{外部排序的败者树与最佳归并树}：概念辨析与简单计算。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 以下排序算法中，\textbf{不稳定}的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 直接插入排序 & (B) 冒泡排序 \\[4pt]
+(C) 归并排序 & (D) 快速排序
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 对 $n$ 个记录进行快速排序，平均情况下的时间复杂度为
+\begin{center}
+\begin{tabular}{ll}
+(A) $O(n)$ & (B) $O(n\log n)$ \\[6pt]
+(C) $O(n^2)$ & (D) $O(\log n)$
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 堆排序中，对 $n$ 个元素的序列建初堆，时间复杂度为
+\begin{center}
+\begin{tabular}{ll}
+(A) $O(1)$ & (B) $O(n)$ \\[6pt]
+(C) $O(n\log n)$ & (D) $O(n^2)$
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 初始序列基本有序时，以下排序算法中效率最高的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 快速排序 & (B) 直接插入排序 \\[4pt]
+(C) 简单选择排序 & (D) 堆排序
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 基于比较的排序算法在最坏情况下的时间下界为 \underline{\qquad\qquad}（用大 $O$ 或大 $\Omega$ 记法）。
+
+\item \textbf{（填空题）} 希尔排序的最后一趟增量必须为 \underline{\qquad\qquad}。
+
+\item \textbf{（填空题）} 对序列 $\{6,5,3,1,8,7,2,4\}$ 进行二路归并排序，第一趟归并后的序列为 \underline{\qquad\qquad}。
+
+\item \textbf{（简答题）} 简述堆排序中建堆过程为什么可以达到 $O(n)$ 的时间复杂度而非 $O(n\log n)$。给出证明思路即可。
+
+\item \textbf{（算法设计）} 编写算法，用单链表实现直接插入排序。说明时间与空间复杂度。
+
+\item \textbf{（算法设计）} 编写算法，将两个按升序排列的整型数组 $A[0..m-1]$ 与 $B[0..n-1]$ 归并到数组 $C[0..m+n-1]$ 中。要求 $O(m+n)$ 时间。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 对序列 $\{45,38,66,90,88,10,25,45'\}$ 以第一个元素 45 为枢轴进行一趟快速排序（Partition），得到的序列是
+\begin{center}
+\begin{tabular}{ll}
+(A) $\{10,25,38,45,88,90,66,45'\}$ & (B) $\{25,38,10,45,88,90,66,45'\}$ \\[6pt]
+(C) $\{10,38,25,45',45,90,66,88\}$ & (D) $\{25,38,10,45',45,90,88,66\}$
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 已知序列 $\{12,10,15,8,20,6,25,18\}$，将其调整为一个小根堆，则调整后堆对应的序列是
+\begin{center}
+\begin{tabular}{ll}
+(A) $\{6,8,12,10,20,15,25,18\}$ & (B) $\{6,8,15,10,20,12,25,18\}$ \\[6pt]
+(C) $\{6,10,12,8,20,15,25,18\}$ & (D) $\{6,8,12,15,20,10,25,18\}$
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 以下关于堆排序的说法中，正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 堆排序是稳定的 & \\[4pt]
+(B) 堆排序在最坏情况下的时间复杂度为 $O(n\log n)$ & \\[4pt]
+(C) 建堆的时间复杂度为 $O(\log n)$ & \\[4pt]
+(D) 堆排序每趟确定一个最小元素放在末尾
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 设待排序记录的关键字序列为 $\{49,38,65,97,76,13,27,49'\}$。
+\begin{enumerate}
+    \item[(1)] 以第一个元素 49 为枢轴，写出一趟快速排序（Partition）的结果；
+    \item[(2)] 写出快速排序各趟排序完成后的完整序列；
+    \item[(3)] 写出归并排序（二路）各趟归并后的完整序列；
+    \item[(4)] 分析上述两种算法中 $49$ 与 $49'$ 的相对次序变化，说明算法的稳定性。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 设有关键字序列 $\{10,18,4,3,6,12,1,9,15,8\}$。
+\begin{enumerate}
+    \item[(1)] 画出建初堆（大根堆）的过程（每步调整后画出对应的完全二叉树）；
+    \item[(2)] 写出堆排序输出前 3 个最大元素后剩余元素构成的堆序列；
+    \item[(3)] 写出希尔排序（增量序列 $5,3,1$）每趟排序后的序列。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 有 8 个初始归并段，各段记录数依次为 $\{9,30,12,18,3,24,6,15\}$。
+\begin{enumerate}
+    \item[(1)] 采用 3 路平衡归并，画出最佳归并树（即三叉 Huffman 树）；
+    \item[(2)] 计算最佳归并树的 WPL，并说明总 I/O 次数与 WPL 的关系；
+    \item[(3)] 若归并过程中每趟需在 $k$ 个归并段中选最小值，简述败者树在 $k$ 较大时的优势。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 给定 $n$ 个元素的序列。
+\begin{enumerate}
+    \item[(1)] 若要求排序算法是稳定的、时间复杂度 $O(n\log n)$ 且在最坏情况下不退化，应选用哪种排序算法？说明理由。
+    \item[(2)] 若所有记录的关键字均不相同但已知序列基本有序（仅有个别元素不在正确位置），从时间效率角度应选哪种排序算法？说明理由。
+    \item[(3)] 若空间极其有限（要求 $O(1)$ 额外空间），且要求在最坏情况下保证 $O(n\log n)$ 时间，应选哪种排序算法？
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item 邓俊辉《数据结构（C++语言版）》第 10 章「排序」——快速排序的三种轴点选取策略（随机法、三者取中法），$k$-选取问题与选取中位数算法，希尔排序的增量序列理论分析，以及外部排序的完整讨论。
+    \item Sedgewick《算法》第 2.1 节「初级排序算法」（选择/插入/希尔），第 2.2 节「归并排序」，第 2.3 节「快速排序」，第 2.4 节「优先队列」（堆与堆排序）——对每种算法的性能和稳定性有深入的实验分析和数学推导，第 2.5 节亦有排序算法综合对比。
+\end{itemize}

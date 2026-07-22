@@ -1,0 +1,172 @@
+\section{文件管理}
+
+\subsection{文件系统的基本概念}
+
+\begin{mydef}{文件与文件系统}{file-system}
+\textbf{文件}是具有符号名的一组相关信息的集合，是外存中数据组织的基本单位。\textbf{文件系统}是 OS 中负责文件存储、检索、保护和共享的子系统。
+\end{mydef}
+
+\begin{conclusion}{文件的逻辑结构}{file-logical-struct}
+\begin{itemize}
+    \item \textbf{无结构文件（流式文件）}：以字节流为单位（如 UNIX/DOS 文件），灵活性最高。
+    \item \textbf{有结构文件（记录式文件）}：由若干记录组成。分为定长记录和变长记录。
+\end{itemize}
+\end{conclusion}
+
+\subsection{文件的物理结构（文件的分配方式）}
+
+\begin{conclusion}{三种文件物理结构}{file-physical}
+\begin{tablebox}{文件分配方式对比}
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+分配方式 & 实现 & 优点 & 缺点 & FAT \\
+\hline
+连续分配 & 每个文件占连续盘块 & 顺序访问快 & 有外部碎片，难扩展 & — \\
+链接分配（隐式）& 每块含下一块指针 & 无外部碎片 & 随机访问慢 & — \\
+链接分配（显式/FAT）& FAT 集中存指针 & 随机访问快，无碎片 & FAT 需常驻内存，大文件遍历慢 & FAT12/16/32 \\
+索引分配 & 索引块存所有块号 & 直接/间接支持大文件 & 索引块开销 & UNIX i-node \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{UNIX i-node 混合索引：}
+\begin{itemize}
+    \item 直接块（通常 10-12 个）：存文件数据块号，小文件直接访问。
+    \item 一级间接块：存指向数据块的指针（指向一个块，该块中存数据块号）。
+    \item 二级间接块：存指向一级间接块的指针。
+    \item 三级间接块：存指向二级间接块的指针。
+\end{itemize}
+\textbf{408 常考：}给定块大小和指针大小，计算 i-node 支持的最大文件大小。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 重点辨析：FCB（文件控制块）与 i-node。} FCB 包含文件名和索引指针等信息。UNIX 将文件名和索引指针分离：目录项只存文件名和 i-node 号，i-node 存除文件名外的所有信息。这样做的好处是支持文件硬链接（多个目录项指向同一 i-node）。
+\end{attention}
+
+\subsection{目录结构}
+
+\begin{conclusion}{目录结构演化}{directory-struct}
+\begin{itemize}
+    \item \textbf{单级目录}：所有文件在一个目录下。不允许重名，查找慢。
+    \item \textbf{两级目录}：主文件目录（MFD）+ 用户文件目录（UFD）。不同用户可有同名文件。
+    \item \textbf{树形目录（多级目录）}：目录以树形组织。使用\textbf{绝对路径}（/a/b/file）和\textbf{相对路径}（当前目录为基准）。
+    \item \textbf{无环图目录}：允许一个文件或目录出现在多个父目录下（共享）。需引入引用计数防止删除正在使用的文件。
+\end{itemize}
+\end{conclusion}
+
+\subsection{文件存储空间管理}
+
+\begin{conclusion}{外存空闲空间管理方法}{free-space}
+\begin{itemize}
+    \item \textbf{空闲表法}：类似内存动态分区，维护空闲盘块表。分配用首次适应等算法。
+    \item \textbf{空闲链表法}：所有空闲盘块连成链表。分配/回收效率低（需 I/O）。
+    \item \textbf{位示图（Bitmap）}：每位对应一个盘块（0=空闲，1=已分配）。$m$ 个盘块需 $m$ bit。\textbf{408 常考：}给定盘块号，计算在位示图中的行列号。
+    \item \textbf{成组链接法（UNIX 采用）}：空闲盘块分组管理，每组第一块存下一组空闲块的块号和块数。兼顾效率和空间。
+\end{itemize}
+\end{conclusion}
+
+\subsection{文件共享与保护}
+
+\begin{conclusion}{文件共享}{file-sharing}
+\begin{itemize}
+    \item \textbf{硬链接（Hard Link）}：多个目录项指向同一 i-node。无法跨文件系统，不能链接目录（防止循环）。
+    \item \textbf{软链接（Symbolic Link）}：独立文件，存放目标文件路径。可跨文件系统、可链接目录。删除原文件后软链接失效（悬空链接）。
+\end{itemize}
+\end{conclusion}
+
+\subsection{磁盘调度算法}
+
+\begin{conclusion}{磁盘访问时间与调度}{disk-scheduling}
+磁盘访问时间 $T = T_s$（寻道时间）+ $T_r$（旋转延迟）+ $T_t$（传输时间）。
+
+\textbf{寻道时间远大于后两者}，因此调度算法以优化寻道为目标。
+
+\begin{tablebox}{磁盘调度算法对比}
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+算法 & 策略 & 优点 & 缺点 \\
+\hline
+FCFS & 按请求顺序 & 公平 & 性能差 \\
+SSTF & 最短寻道优先 & 性能好 & 饥饿 \\
+SCAN（电梯算法）& 磁头单向移动，到端点折返 & 无饥饿 & 端点附近不公平 \\
+C-SCAN & 单向服务，到端点跳回起点 & 等待时间均匀 & — \\
+LOOK/C-LOOK & 类似 SCAN/C-SCAN，但到最远请求即折返 & 更实用 & — \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{408 常考：}给定磁盘请求序列和当前磁头位置/方向，用 SSTF/SCAN/C-SCAN 画出磁头移动轨迹，计算总寻道长度和平均寻道长度。
+\end{conclusion}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{文件管理 — 408常考点}{os4-keypoints}
+\begin{enumerate}
+    \item \textbf{i-node 混合索引}：最大文件长度计算。
+    \item \textbf{位示图}：盘块号 $\leftrightarrow$ 字号/位号的换算（$b=n\times\text{字长}+m$）。
+    \item \textbf{磁盘调度}：SSTF/SCAN/C-SCAN 的磁头移动序列和总寻道长度。
+    \item \textbf{硬链接 vs 软链接}：引用计数、跨文件系统、删除行为。
+    \item \textbf{FAT 文件系统}：FAT 表大小计算（给定盘块数和 FAT 表项位数）。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} UNIX 操作系统中，文件的索引结构采用
+\begin{center}
+\begin{tabular}{ll}
+(A) 连续分配 & (B) 链接分配 \\[6pt]
+(C) 索引分配 & (D) 混合索引分配
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 位示图可用于管理磁盘空闲空间。若磁盘有 1000 个盘块，字长为 32 位，位示图需占用的字数为
+\begin{center}
+\begin{tabular}{ll}
+(A) 31 & (B) 32 \\[6pt]
+(C) 1000 & (D) 32000
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 磁盘访问时间由 \underline{\qquad}、\underline{\qquad} 和 \underline{\qquad} 三部分组成，其中 \underline{\qquad} 所占比重最大。
+
+\item \textbf{（简答题）} 简述硬链接和软链接（符号链接）的区别。
+
+\item \textbf{（计算题）} 某 UNIX 文件系统 i-node 包含 10 个直接块指针、1 个一级间接块指针、1 个二级间接块指针。盘块大小为 1 KB，每个块指针占 4 字节。求该文件系统支持的最大文件大小。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 设磁盘的磁头当前在 100 号磁道，由外向内的移动方向，请求序列为 55, 58, 39, 18, 90, 160, 150, 38, 184。用 SCAN 算法，磁头共移动的磁道数为
+\begin{center}
+\begin{tabular}{ll}
+(A) 248 & (B) 252 \\[6pt]
+(C) 284 & (D) 322
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 某文件系统采用混合索引分配，i-node 包含 8 个直接块指针和 1 个一级间接块指针、1 个二级间接块指针。盘块大小为 4 KB，每个块指针占 4 字节。
+\begin{enumerate}
+    \item[(1)] 该文件系统支持的最大文件大小是多少？
+    \item[(2)] 若要访问文件偏移量为 100 KB 处的数据，需要几次磁盘 I/O？
+    \item[(3)] 若要访问文件偏移量为 5 MB 处的数据，需要几次磁盘 I/O？
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item OSTEP 第 39-40 章「文件和目录」+「文件系统实现」——从 VSFS 出发理解 i-node 和目录的完整实现。
+    \item 陈海波《现代操作系统：原理与实现》第 7 章「文件系统」——含 Ext4 和 F2FS 的现代实现。
+\end{itemize}

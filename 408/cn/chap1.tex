@@ -1,0 +1,215 @@
+\section{计算机网络体系结构}
+
+\subsection{计算机网络的概念与分类}
+
+\begin{mydef}{计算机网络}{cn-def}
+计算机网络是将分布在不同地理位置、具有独立功能的计算机系统，通过通信设备和线路连接起来，以网络协议实现资源共享和数据通信的系统。
+\end{mydef}
+
+\begin{conclusion}{计算机网络的分类}{cn-class}
+\begin{itemize}
+    \item \textbf{按覆盖范围}：广域网 WAN、城域网 MAN、局域网 LAN、个域网 PAN。
+    \item \textbf{按传输技术}：广播式网络 vs 点对点网络。
+    \item \textbf{按拓扑结构}：星形、总线形、环形、树形、网状。
+    \item \textbf{按交换技术}：电路交换、报文交换、分组交换。
+\end{itemize}
+\textbf{408 中主要使用按覆盖范围的分类。}
+\end{conclusion}
+
+\subsection{电路交换、报文交换与分组交换}
+
+\begin{conclusion}{三种交换技术的对比}{switching}
+\begin{tablebox}{交换技术对比}
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+ & 电路交换 & 报文交换 & 分组交换 \\
+\hline
+建立连接 & 需要 & 不需要 & 不需要（虚电路需要）\\
+传输单位 & 比特流 & 整个报文 & 分组（包）\\
+存储转发 & 否 & 是 & 是 \\
+时延 & 最小（仅传播时延）& 最大 & 中等 \\
+灵活性 & 差（专用线路）& 好 & 好 \\
+典型应用 & 传统电话 & 电报 & 互联网（IP）\\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{分组交换的优点：} (1) 线路利用率高（统计复用）；(2) 不同速率/格式的终端可互通；(3) 优先级。
+
+\textbf{分组交换的缺点：} (1) 额外开销（首部）；(2) 存储转发引入排队时延，不适合实时通信。
+
+\textbf{408 常考：}给定场景，判断应使用哪种交换方式。
+\end{conclusion}
+
+\subsection{计算机网络的性能指标}
+
+\begin{formula}{网络性能指标}{cn-metrics}
+\begin{itemize}
+    \item \textbf{速率（Data Rate）}：每秒传输的比特数（bps）。$1\text{K}=10^3$，$1\text{M}=10^6$（通信领域，非 $2^{10}$）。
+    \item \textbf{带宽（Bandwidth）}：信道允许通过的频率范围（Hz），或网络通信线路所能传送数据的能力（bps）。
+    \item \textbf{吞吐量（Throughput）}：单位时间内实际通过网络的数据量。
+    \item \textbf{时延（Delay/Latency）}：$d_{\text{总}} = d_{\text{发送}} + d_{\text{传播}} + d_{\text{处理}} + d_{\text{排队}}$
+    \begin{itemize}
+        \item \textbf{发送时延}：$\dfrac{\text{数据帧长度}}{\text{发送速率}}$（与传输距离无关）
+        \item \textbf{传播时延}：$\dfrac{\text{信道长度}}{\text{电磁波传播速率}}$（与发送速率无关）
+    \end{itemize}
+    \item \textbf{时延带宽积}：$d_{\text{传播}} \times \text{带宽}$ = 链路中最多容纳的比特数。
+    \item \textbf{往返时间 RTT}：数据从发送端发出到收到确认的时间。
+    \item \textbf{利用率}：信道利用率 = 有数据通过时间 / 总时间。利用率趋近 1 时时延急剧增大（排队论）。
+\end{itemize}
+\end{formula}
+
+\begin{attention}
+\textbf{408 高频计算：发送时延 vs 传播时延。} 发送时延 = 数据量/带宽（瓶颈在发送速率）；传播时延 = 距离/光速（瓶颈在物理距离）。两者影响的变因完全不同，选择题经常混合考察。
+\end{attention}
+
+\subsection{OSI 参考模型（7层）}
+
+\begin{mydef}{OSI 七层模型}{osi-model}
+国际标准化组织（ISO）提出的开放系统互连参考模型：
+\[
+\text{应用层} \to \text{表示层} \to \text{会话层} \to \text{传输层} \to \text{网络层} \to \text{数据链路层} \to \text{物理层}
+\]
+记忆口诀：\textbf{All People Seem To Need Data Processing}（从高到低）。
+\end{mydef}
+
+\begin{tablebox}{OSI 各层功能}
+\centering
+\begin{tabular}{|c|l|l|}
+\hline
+层次 & 功能 & 数据单元 \\
+\hline
+物理层 & 比特传输，定义机械/电气/功能/规程特性 & 比特（bit）\\
+数据链路层 & 相邻结点间可靠传输，成帧、差错控制、流量控制 & 帧（Frame）\\
+网络层 & 路由选择、拥塞控制、网际互连 & 分组/数据报（Packet）\\
+传输层 & 端到端可靠/不可靠传输，复用与分用 & 报文段/用户数据报 \\
+会话层 & 会话管理、同步 & — \\
+表示层 & 数据格式转换、加密解密、压缩 & — \\
+应用层 & 为应用程序提供网络服务 & 报文（Message）\\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\subsection{TCP/IP 模型（4层）}
+
+\begin{conclusion}{TCP/IP 四层模型}{tcpip-model}
+TCP/IP 是事实上的工业标准，而非法律上的国际标准（OSI 是法律标准但未流行）。
+
+\begin{tablebox}{OSI 与 TCP/IP 对应关系}
+\centering
+\begin{tabular}{|c|c|l|}
+\hline
+OSI & TCP/IP & 典型协议 \\
+\hline
+应用层、表示层、会话层 & 应用层 & HTTP, DNS, SMTP, FTP \\
+传输层 & 传输层 & TCP, UDP \\
+网络层 & 网际层 & IP, ICMP, ARP, OSPF, BGP \\
+数据链路层、物理层 & 网络接口层 & Ethernet, PPP \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{五层参考模型（教学用，408采用）：} 物理层 $\to$ 数据链路层 $\to$ 网络层 $\to$ 传输层 $\to$ 应用层。
+\end{conclusion}
+
+\subsection{协议与服务}
+
+\begin{mydef}{协议三要素}{protocol-triple}
+网络协议（Protocol）是为进行数据交换而建立的规则，由三个要素组成：
+\begin{enumerate}
+    \item \textbf{语法（Syntax）}：数据与控制信息的结构或格式；
+    \item \textbf{语义（Semantics）}：每种控制信息的含义以及应完成的动作；
+    \item \textbf{同步/时序（Timing）}：事件实现顺序的详细说明。
+\end{enumerate}
+\end{mydef}
+
+\begin{conclusion}{协议与服务的关系}{protocol-service}
+\begin{itemize}
+    \item \textbf{协议是「水平的」}：控制两个对等实体之间的通信规则。
+    \item \textbf{服务是「垂直的」}：下层通过层间接口向上层提供功能。
+    \item 第 $n$ 层实体向第 $n+1$ 层提供服务（Service），使用的对等协议在第 $n$ 层。
+    \item \textbf{SAP（服务访问点）}：相邻层间交换信息的逻辑接口。数据链路层的 SAP 是 MAC 地址，网络层是 IP 地址，传输层是端口号。
+\end{itemize}
+\end{conclusion}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{体系结构 — 408常考点}{cn1-keypoints}
+\begin{enumerate}
+    \item \textbf{发送时延 vs 传播时延}：计算公式、影响因素。
+    \item \textbf{OSI 7层 vs TCP/IP 4层 vs 五层模型}：各层名称、功能、典型协议、数据单元名称。
+    \item \textbf{协议三要素}：语法、语义、时序。
+    \item \textbf{分组交换 vs 电路交换}：各自时延构成、适用场景。
+    \item \textbf{各层中间设备}：物理层（中继器/集线器）、数据链路层（网桥/交换机）、网络层（路由器）、传输层及以上（网关）。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} TCP/IP 参考模型中，与 OSI 参考模型的网络层对应的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 网络接口层 & (B) 网际层 \\[6pt]
+(C) 传输层 & (D) 应用层
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在 OSI 参考模型中，负责路由选择的层是
+\begin{center}
+\begin{tabular}{ll}
+(A) 物理层 & (B) 数据链路层 \\[6pt]
+(C) 网络层 & (D) 传输层
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 网络协议的三要素是 \underline{\qquad}、\underline{\qquad} 和 \underline{\qquad}。
+
+\item \textbf{（填空题）} 发送时延取决于 \underline{\qquad} 和 \underline{\qquad}；传播时延取决于 \underline{\qquad} 和 \underline{\qquad}。
+
+\item \textbf{（计算题）} 一个长度为 1000 字节的分组，从主机 A 经过一段 1000 km 的光纤链路（传播速率 $2\times 10^8$ m/s）发送到主机 B，链路带宽为 100 Mbps。求发送时延和传播时延。
+
+\item \textbf{（简答题）} 简要说明电路交换、报文交换和分组交换的主要区别。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 在 OSI 参考模型中，自下而上第一个提供端到端服务的层次是
+\begin{center}
+\begin{tabular}{ll}
+(A) 数据链路层 & (B) 网络层 \\[6pt]
+(C) 传输层 & (D) 应用层
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 在一个采用电路交换的网络中，从主机 A 到主机 B 经过 3 段链路，每段链路的传播时延均为 10 ms。若忽略处理时延和连接建立时间，则从 A 开始发送一个 1000 比特的分组到 B 收到该分组的时延（链路带宽均为 1 Mbps）为
+\begin{center}
+\begin{tabular}{ll}
+(A) 1 ms & (B) 30 ms \\[6pt]
+(C) 31 ms & (D) 33 ms
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 某网络的拓扑结构如下：主机 A—路由器 R1—路由器 R2—主机 B。每段链路长度 1000 km，电磁波传播速率为 $2\times 10^8$ m/s，链路带宽均为 100 Mbps。A 向 B 发送一个大小为 $10^6$ 字节的文件。
+\begin{enumerate}
+    \item[(1)] 若采用报文交换（整个文件作为一个报文），求从 A 开始发送到 B 完全收完的总时延（忽略处理时延）；
+    \item[(2)] 若将文件分成 1000 个分组（每个 1000 字节），采用分组交换（存储转发），求总时延（忽略首部开销和排队时延）；
+    \item[(3)] 对比两种交换方式的结果，说明分组交换的优势。
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item Kurose \& Ross《计算机网络：自顶向下方法》第 1 章——极其生动的 Internet 全景介绍，包括分组交换 vs 电路交换的定量分析。
+    \item 谢希仁《计算机网络》第 1 章——OSI 和 TCP/IP 体系结构的国内标准表述，用于对齐 408 术语。
+\end{itemize}

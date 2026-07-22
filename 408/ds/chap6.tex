@@ -1,0 +1,747 @@
+\section{查找}
+
+\subsection{查找的基本概念}
+
+\begin{mydef}{查找表与关键字}{search-table}
+\textbf{查找表}（Search Table）是由同一类型的数据元素（或记录）构成的集合。对查找表常进行的操作有：
+\begin{itemize}
+    \item \textbf{查询}：查找某个「特定的」数据元素是否在表中；
+    \item \textbf{检索}：检索某个「特定的」数据元素的各种属性；
+    \item \textbf{插入/删除}：在表中插入或删除一个数据元素。
+\end{itemize}
+若只做前两类操作，称查找表为\textbf{静态查找表}（Static Search Table）；若同时涉及插入/删除操作，则称为\textbf{动态查找表}（Dynamic Search Table）。
+
+\textbf{关键字}（Key）：数据元素中某个数据项的值，用以标识该数据元素。
+\begin{itemize}
+    \item \textbf{主关键字}（Primary Key）：能唯一标识一个数据元素的关键字。
+    \item \textbf{次关键字}（Secondary Key）：不能唯一标识数据元素的关键字。
+\end{itemize}
+\textbf{查找}：在查找表中确定一个其关键字等于给定值的数据元素（或记录）。若找到，称查找成功，返回该元素的位置；否则称查找失败（不成功），返回某种失败标志。
+\end{mydef}
+
+\begin{formula}{平均查找长度 ASL}{asl-def}
+查找算法的主要评价指标是\textbf{平均查找长度}（Average Search Length），定义为查找过程中对关键字执行比较次数的期望值：
+\[
+\mathrm{ASL} = \sum_{i=1}^{n} P_i \cdot C_i
+\]
+其中 $P_i$ 为查找第 $i$ 个元素的概率（通常假定等概率，即 $P_i=1/n$），$C_i$ 为查找第 $i$ 个元素所需的比较次数。
+
+\textbf{ASL$_{\text{成功}}$} 与 \textbf{ASL$_{\text{不成功}}$} 是 408 考试中的两个核心计算量——前者对所有表中存在的元素的查找长度求期望；后者对表中不存在的所有「可能的」查找值求期望，通常依赖查找判定树的结构。
+\end{formula}
+
+\begin{attention}
+408 考试中，ASL$_{\text{成功}}$ 计算通常假定等概率；ASL$_{\text{不成功}}$ 的计算需要构造判定树（或散列表的探测序列），外结点（失败结点）代表查找不成功的区间或位置，取的是外结点到根的比较次数，但\textbf{不计最后一次与空指针的比较}。不同教材对「比较次数」的定义略有差异——\textbf{以题干说明为准}。
+\end{attention}
+
+\subsection{顺序查找与折半查找}
+
+\subsubsection{顺序查找（Sequential Search）}
+
+\begin{mydef}{顺序查找}{seq-search}
+从表的一端开始，依次将每个元素的关键字与给定值进行比较。若找到，返回位置；若遍历完毕仍未找到，则返回查找失败。又称为线性查找，是最基本的查找方法。
+\end{mydef}
+
+\begin{formula}{带哨兵的顺序查找}{seq-search-sentinel}
+\textbf{哨兵技巧（Sentinel）}：将待查关键字存入表头（或表尾）作为「监视哨」，省去循环中每次都判断是否越界的开销，可使内层循环平均节省约一半的比较时间。
+
+以下给出在 ST[1..n] 中查找 key 的带哨兵实现（ST[0] 为哨兵）：
+\begin{lstlisting}[language=C]
+typedef struct {
+    ElemType *elem;   // 元素存储空间基址，0号单元留空
+    int TableLen;     // 表长
+} SSTable;
+
+int Search_Seq(SSTable ST, KeyType key) {
+    ST.elem[0].key = key;                // 设置哨兵
+    int i;
+    for (i = ST.TableLen; ST.elem[i].key != key; i--);
+    return i;                            // i=0 则查找失败
+}
+\end{lstlisting}
+\textbf{时间复杂度}：$O(n)$。\textbf{空间复杂度}：$O(1)$。
+\end{formula}
+
+\begin{conclusion}{顺序查找的 ASL 分析}{asl-seq}
+等概率下：
+\[
+\mathrm{ASL}_{\text{成功}} = \sum_{i=1}^{n} \frac{1}{n}\cdot i = \frac{n+1}{2}
+\]
+查找不成功时（带哨兵版本哨兵在0号位置），比较次数为 $n+1$（关键值从 ST[n] 比较到 ST[0] 哨兵，但哨兵比较也算一次）。故 $\mathrm{ASL}_{\text{不成功}}=n+1$（若不计哨兵则 $=n$，以教材为准）。
+
+\textbf{优点：} 对数据元素是否有序无要求；顺序表/链表均可实现；插入可在 $O(1)$ 完成（表尾追加）。
+\textbf{缺点：} $n$ 较大时效率低。
+\end{conclusion}
+
+\subsubsection{折半查找（Binary Search）}
+
+\begin{mydef}{折半查找}{binary-search}
+\textbf{前提：} 线性表必须采用\textbf{顺序存储}且\textbf{按关键字有序}（递增或递减）。
+
+基本思想：每次将待查区间分为两半，将中间位置的关键字与给定值比较：
+\begin{itemize}
+    \item 相等 → 查找成功；
+    \item 给定值小于中间关键字 → 在前半区间继续查找；
+    \item 给定值大于中间关键字 → 在后半区间继续查找。
+\end{itemize}
+\end{mydef}
+
+\begin{formula}{折半查找的代码实现}{binary-search-code}
+\begin{lstlisting}[language=C]
+int Binary_Search(SSTable ST, KeyType key) {
+    int low = 1, high = ST.TableLen;
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        if (ST.elem[mid].key == key)
+            return mid;                  // 查找成功
+        else if (ST.elem[mid].key > key)
+            high = mid - 1;              // 在前半区间
+        else
+            low = mid + 1;               // 在后半区间
+    }
+    return 0;                            // 查找失败
+}
+\end{lstlisting}
+\textbf{注意：} \texttt{mid = (low + high) / 2} 在极端情况下可能溢出（low+high 超出 int 范围），工程中推荐 \texttt{mid = low + (high - low) / 2}。408 考试中默认不会出现溢出情况。
+\end{formula}
+
+\begin{conclusion}{折半查找的判定树与 ASL}{binary-search-tree}
+折半查找的过程可以用一棵\textbf{判定树}（Decision Tree）描述：
+\begin{itemize}
+    \item 树中每个\textbf{圆形结点}对应表中一个元素（成功查找）。
+    \item 每个\textbf{方形结点}（外结点/失败结点）对应一个查找不成功的区间，总数为 $n+1$。
+    \item 判定树是一棵\textbf{平衡二叉树}——左右子树高度之差不超过 1。
+\end{itemize}
+
+对于 $n$ 个元素，判定树的高度为 $\lceil\log_2(n+1)\rceil$。
+
+\textbf{查找成功时的 ASL：} 等于判定树中所有圆形结点所在层次之和除以 $n$（根在第 1 层），即
+\[
+\mathrm{ASL}_{\text{成功}} = \frac{1}{n} \sum_{i=1}^{n} l_i
+\]
+其中 $l_i$ 为第 $i$ 个元素在判定树中的层次。
+
+\textbf{查找不成功时的 ASL：} 等于所有方形结点所在层次之和除以 $n+1$，但\textbf{方形结点的层次以其父结点的层次计}——即查找不成功时比较到圆形结点为止（不再与方形结点的空指针比较）。部分教材定义为「方形结点层次 = 父结点层次 + 1」——需根据题干说明判断。
+
+等概率下，$n$ 较大时：
+\[
+\mathrm{ASL}_{\text{成功}} \approx \log_2(n+1) - 1
+\]
+\textbf{时间复杂度}：$O(\log n)$。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点——折半查找的判定树构造：}
+\begin{itemize}
+    \item 对于偶数个元素，\texttt{mid = floor((low+high)/2)} 和 \texttt{mid = ceil((low+high)/2)} 对应的判定树\textbf{不同}——前者右子树结点数 $\geqslant$ 左子树；后者左子树结点数 $\geqslant$ 右子树。408 真题中两种取整方式都出现过，需根据题干中\textbf{给定序列或查找过程}反推使用的是哪种取整。
+    \item 判定树的后继与前驱：折半查找的判定树中，任一结点的中序前驱/后继即有序线性表中该元素的前一个/后一个元素。
+\end{itemize}
+\end{attention}
+
+\subsubsection{分块查找（索引顺序查找）}
+
+\begin{mydef}{分块查找}{block-search}
+分块查找（Block Search / Indexed Sequential Search）在顺序查找和折半查找之间取得折中：
+\begin{itemize}
+    \item 将查找表分为若干\textbf{块}（子表），块内元素可以无序，但\textbf{块间必须有序}——即前一块中所有元素的最大关键字小于后一块中所有元素的最小关键字。
+    \item 建立\textbf{索引表}：每个索引项包含对应块的最大关键字和该块第一个元素的地址。
+\end{itemize}
+\textbf{查找过程：}
+\begin{enumerate}
+    \item 先在索引表中确定关键字可能所在的块（索引表有序，可用折半查找或顺序查找）；
+    \item 再在对应块内顺序查找。
+\end{enumerate}
+\end{mydef}
+
+\begin{formula}{分块查找的 ASL}{asl-block}
+设表长为 $n$，均匀分为 $b$ 块，每块 $s$ 个元素（$n=bs$）。索引表用顺序查找，块内也用顺序查找，则等概率下：
+
+\begin{itemize}
+    \item 索引表查找的 ASL：$(b+1)/2$
+    \item 块内查找的 ASL：$(s+1)/2$
+    \item 总 $\mathrm{ASL} = \dfrac{b+1}{2} + \dfrac{s+1}{2} = \dfrac{s^2 + 2s + n}{2s}$（代入 $b=n/s$）
+\end{itemize}
+当 $s=\sqrt{n}$ 时取得最小值 $\mathrm{ASL}_{\min} = \sqrt{n} + 1$。
+
+若索引表采用折半查找：
+\[
+\mathrm{ASL} \approx \log_2(b+1) - 1 + \frac{s+1}{2} \approx \log_2\left(\frac{n}{s}+1\right) + \frac{s}{2}
+\]
+\end{formula}
+
+\subsection{二叉排序树（BST）}
+
+\subsubsection{BST 的定义与查找}
+
+\begin{mydef}{二叉排序树}{bst-def}
+二叉排序树（Binary Search Tree, BST）或者是一棵空树，或者是满足以下性质的二叉树：
+\begin{enumerate}
+    \item 若左子树非空，则左子树上所有结点的关键字值均\textbf{小于}根结点的关键字值；
+    \item 若右子树非空，则右子树上所有结点的关键字值均\textbf{大于}根结点的关键字值；
+    \item 左、右子树本身也各是一棵二叉排序树。
+\end{enumerate}
+\textbf{注意：} 408 默认 BST 中\textbf{不允许等值}结点——即没有两个结点具有相同的关键字。若存在等值，按定义要么统一放在左子树，要么统一放在右子树，需看题设。
+\end{mydef}
+
+\begin{formula}{BST 的查找算法}{bst-search-code}
+\begin{lstlisting}[language=C]
+typedef struct BSTNode {
+    KeyType key;
+    struct BSTNode *lchild, *rchild;
+} BSTNode, *BSTree;
+
+BSTNode *BST_Search(BSTree T, KeyType key) {
+    while (T != NULL && T->key != key) {
+        if (key < T->key)
+            T = T->lchild;
+        else
+            T = T->rchild;
+    }
+    return T;   // 成功则返回结点指针，失败返回 NULL
+}
+\end{lstlisting}
+递归版同理，本质是二分查找思想在树结构上的推广。\textbf{时间复杂度}：最好 $O(1)$，最坏 $O(h)$（$h$ 为树高）。平衡时 $h=O(\log n)$，退化成单链时 $h=n$。
+\end{formula}
+
+\begin{conclusion}{BST 查找的 ASL 分析}{bst-asl}
+BST 的 ASL 取决于树的形态：
+\begin{itemize}
+    \item \textbf{最好情况}（平衡 BST，$h=\lceil\log_2(n+1)\rceil$）：$\mathrm{ASL}=O(\log n)$，与折半查找的判定树相同。
+    \item \textbf{最坏情况}（退化为单链表，$h=n$）：$\mathrm{ASL}=(n+1)/2$，退化为顺序查找。
+    \item \textbf{平均情况}：随机插入下期望树高 $O(\log n)$，$\mathrm{ASL}\approx 1.38\log_2 n$。
+\end{itemize}
+\end{conclusion}
+
+\subsubsection{BST 的插入与删除}
+
+\begin{conclusion}{BST 的插入}{bst-insert}
+新结点\textbf{一定作为叶子结点}插入。过程：若树空则直接插入为根；否则沿树查找，若关键字已存在则不插入（或按题设处理），若不存在则在查找失败的位置（空指针处）插入新结点。
+\begin{lstlisting}[language=C]
+bool BST_Insert(BSTree *T, KeyType key) {
+    if (*T == NULL) {
+        *T = (BSTNode*)malloc(sizeof(BSTNode));
+        (*T)->key = key;
+        (*T)->lchild = (*T)->rchild = NULL;
+        return true;
+    }
+    if (key == (*T)->key) return false;          // 已存在
+    if (key < (*T)->key)
+        return BST_Insert(&(*T)->lchild, key);
+    else
+        return BST_Insert(&(*T)->rchild, key);
+}
+\end{lstlisting}
+\textbf{时间复杂度}：$O(h)$，主要开销在查找插入位置。
+\end{conclusion}
+
+\begin{conclusion}{BST 的删除（三种情况）}{bst-delete}
+删除结点 \texttt{z}，分三种情况处理：
+
+\textbf{情况①：z 为叶子结点} —— 直接删除，令其父结点对应指针置为 NULL。
+
+\textbf{情况②：z 只有一棵子树（左或右）} —— 用 z 的唯一子树的根替代 z。
+
+\textbf{情况③：z 有两棵子树} —— 两种等价做法：
+\begin{itemize}
+    \item \textbf{方案 A（直接前驱替代）：} 找到 z 在中序序列中的\textbf{直接前驱}（即左子树中的最右结点 p），\textbf{将 p 的关键字复制到 z}，然后删除 p。由于 p 没有右子树（它是最右结点），删除 p 退化为情况①或②。
+    \item \textbf{方案 B（直接后继替代）：} 找到 z 在中序序列中的\textbf{直接后继}（即右子树中的最左结点 s），将 s 的关键字复制到 z，然后删除 s。s 没有左子树，退化为情况①或②。
+\end{itemize}
+408 两种方案均可，除非题目指定用哪一种。\textbf{注意：} 删除操作总是归结为删除一个至多只有一棵子树的结点。
+\end{conclusion}
+
+\begin{attention}
+408 常考 BST 删除后的中序遍历序列——无论用前驱替代还是后继替代，删除后其余结点的\textbf{中序相对次序不变}（因为替代结点本身就是被删结点的中序前驱或后继）。
+\end{attention}
+
+\subsection{平衡二叉树（AVL）}
+
+\begin{mydef}{AVL 树的定义}{avl-def}
+\textbf{平衡二叉树}（Balanced Binary Tree），又称 AVL 树（由 Adelson-Velsky 和 Landis 提出）：
+\begin{enumerate}
+    \item 或者是一棵空树；
+    \item 或者是满足以下条件的二叉排序树：\textbf{任意结点的左、右子树高度之差（平衡因子）的绝对值不超过 1}。
+\end{enumerate}
+
+\textbf{平衡因子 $bf$} = 左子树高度 $-$ 右子树高度。AVL 中 $bf\in\{-1,0,1\}$。含有 $n$ 个结点的 AVL 树，最大高度为 $O(\log n)$，最坏情况下 $h\approx 1.44\log_2 n$。
+\end{mydef}
+
+\begin{formula}{AVL 结点的定义}{avl-struct}
+\begin{lstlisting}[language=C]
+typedef struct AVLNode {
+    KeyType key;
+    int bf;                        // 平衡因子
+    struct AVLNode *lchild, *rchild;
+} AVLNode, *AVLTree;
+\end{lstlisting}
+\end{formula}
+
+\subsubsection{AVL 的四种旋转}
+
+\begin{conclusion}{LL 型 —— 右单旋转}{avl-ll}
+\textbf{情况：} 在结点 A 的\textbf{左子树的左子树}上插入新结点导致 A 的平衡因子变为 $+2$。
+
+\textbf{调整：} 对 A 执行\textbf{右旋}（Right Rotation）——将 A 的左孩子 B 上提为根，A 成为 B 的右孩子，B 的原右子树挂为 A 的左子树。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=1.8cm]
+\node[draw, circle] (A) at (0,0) {A};
+\node[draw, circle] (B) at (-0.8,1.2) {B};
+\node[draw, circle] (BL) at (-1.6,2.4) {BL};
+\node[draw, circle] (BR) at (0,2.4) {BR};
+\node[draw, circle] (AR) at (0.8,1.2) {AR};
+\draw[->] (A) -- (B);
+\draw[->] (A) -- (AR);
+\draw[->] (B) -- (BL);
+\draw[->] (B) -- (BR);
+\node at (0, -0.8) {插入前（A的$bf=-1$）};
+\node at (0, -1.3) {在BL中插入后A的$bf=+2$, LL型};
+
+\node[draw, circle] (B2) at (5,1) {B};
+\node[draw, circle] (BL2) at (4.2,2.2) {BL};
+\node[draw, circle] (A2) at (5.8,2.2) {A};
+\node[draw, circle] (BR2) at (4.2,-0.2) {BR};
+\node[draw, circle] (AR2) at (5.8,-0.2) {AR};
+\draw[->] (B2) -- (BL2);
+\draw[->] (B2) -- (A2);
+\draw[->] (A2) -- (BR2);
+\draw[->] (A2) -- (AR2);
+\node at (5, -0.8) {右旋后恢复平衡};
+\end{tikzpicture}
+\end{center}
+\textbf{旋转操作：}
+\begin{lstlisting}[language=C]
+// 右旋：以p为轴，将p的左孩子上提
+AVLNode *RotateRight(AVLNode *p) {
+    AVLNode *L = p->lchild;
+    p->lchild = L->rchild;
+    L->rchild = p;
+    return L;                        // 返回新根
+}
+\end{lstlisting}
+\end{conclusion}
+
+\begin{conclusion}{RR 型 —— 左单旋转}{avl-rr}
+\textbf{情况：} 在结点 A 的\textbf{右子树的右子树}上插入新结点导致 A 的平衡因子变为 $-2$。
+
+\textbf{调整：} 对 A 执行\textbf{左旋}（Left Rotation）——将 A 的右孩子 B 上提为根，A 成为 B 的左孩子，B 的原左子树挂为 A 的右子树。LL 与 RR 互为镜像。
+\begin{lstlisting}[language=C]
+AVLNode *RotateLeft(AVLNode *p) {
+    AVLNode *R = p->rchild;
+    p->rchild = R->lchild;
+    R->lchild = p;
+    return R;                        // 返回新根
+}
+\end{lstlisting}
+\end{conclusion}
+
+\begin{conclusion}{LR 型 —— 先左旋后右旋}{avl-lr}
+\textbf{情况：} 在结点 A 的\textbf{左子树的右子树}（即 B 的右子树 C）上插入新结点导致 A 不平衡。
+
+\textbf{调整：} 先对 B（A 的左孩子）执行\textbf{左旋}，使 B 的左子树变为 C 的左子树，C 代替 B 成为 A 的左孩子；再对 A 执行\textbf{右旋}。即「先左后右」双旋转。
+\begin{lstlisting}[language=C]
+// LR: 先左旋 L，再右旋 p
+p->lchild = RotateLeft(p->lchild);
+return RotateRight(p);
+\end{lstlisting}
+\end{conclusion}
+
+\begin{conclusion}{RL 型 —— 先右旋后左旋}{avl-rl}
+\textbf{情况：} 在结点 A 的\textbf{右子树的左子树}上插入新结点导致 A 不平衡。
+
+\textbf{调整：} 先对 B（A 的右孩子）执行\textbf{右旋}，再对 A 执行\textbf{左旋}。即「先右后左」双旋转。为 LR 的镜像。
+\begin{lstlisting}[language=C]
+// RL: 先右旋 R，再左旋 p
+p->rchild = RotateRight(p->rchild);
+return RotateLeft(p);
+\end{lstlisting}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点——AVL 旋转小结：}
+\begin{itemize}
+    \item 从\textbf{插入位置}向上回溯，找到第一个 $|bf|=2$ 的结点（最小不平衡子树的根），以它为轴进行调整。
+    \item 判断旋转类型看「从被破坏平衡的结点出发，沿插入方向走两步」：两步都向左 → LL；先左后右 → LR；都向右 → RR；先右后左 → RL。
+    \item LR 和 RL 中，新结点插入到 C 的左子树还是右子树会影响旋转后各结点平衡因子的具体值（$0/\pm 1$），408 选择题和综合题均可能考察。
+    \item AVL 的\textbf{删除}也可能导致不平衡，调整方法类似——从被删结点的父结点开始向上检查，对每个失衡结点依据其较高子树的方向执行对应旋转（可能需要多次调整，不同于插入只需调整一次）。
+\end{itemize}
+\end{attention}
+
+\subsection{B-树与B+树}
+
+\subsubsection{B-树}
+
+\begin{mydef}{$m$ 阶 B-树}{btree-def}
+一棵 $m$ 阶（order）B-树，或者为空树，或者是满足以下性质的\textbf{平衡多路查找树}：
+\begin{enumerate}
+    \item 每个结点至多有 $m$ 棵子树（即至多 $m-1$ 个关键字）。
+    \item \textbf{除根结点外}，每个非终端结点至少有 $\lceil m/2\rceil$ 棵子树（即至少 $\lceil m/2\rceil - 1$ 个关键字）。根结点若非叶结点，则至少有 2 棵子树。
+    \item 每个结点中的关键字\textbf{有序排列}：$K_1 < K_2 < \cdots < K_n$；对每个关键字 $K_i$，其左侧指针 $P_{i-1}$ 所指子树中所有关键字均 $< K_i$，右侧指针 $P_i$ 所指子树中所有关键字均 $> K_i$。
+    \item 所有\textbf{叶结点}（失败结点/外结点）出现在同一层，且不带信息（可视为空指针）。
+\end{enumerate}
+
+\textbf{408 表述约定：} B-树的高度 $h$ 通常指从根到叶结点所经过的边数（类似于树高的标准定义），但\textbf{不包含失败结点}这一层。即含有 $n$ 个关键字的 B-树，叶结点（失败结点）在第 $h+1$ 层。部分教材把叶结点本身也算一层——做题时请以题干描述为准。
+\end{mydef}
+
+\begin{formula}{B-树的结点结构}{btree-node}
+\begin{lstlisting}[language=C]
+#define MAXM 5           // B-树的阶
+typedef struct BTNode {
+    int keynum;                        // 结点中关键字个数
+    KeyType key[MAXM - 1];             // 关键字数组
+    struct BTNode *ptr[MAXM];          // 子树指针数组
+    // 可包含指向数据记录的指针
+} BTNode, *BTree;
+\end{lstlisting}
+\textbf{408 常考性质：} $n$ 个关键字的 $m$ 阶 B-树，除根以外的非叶结点关键字数 $k$ 满足：
+\[
+\big\lceil \tfrac{m}{2}\big\rceil - 1 \;\leqslant\; k \;\leqslant\; m-1
+\]
+\end{formula}
+
+\begin{conclusion}{B-树的查找}{btree-search}
+B-树的查找与 BST 类似，但每个结点内还需\textbf{在有序关键字数组中查找}（可用顺序或折半查找）：
+\begin{enumerate}
+    \item 在根结点中查找，若找到则成功；
+    \item 否则，根据关键字大小关系确定应在哪个子树中继续查找；
+    \item 重复直到找到（成功）或到达叶结点（失败结点，不成功）。
+\end{enumerate}
+\textbf{时间复杂度}：$O(\log_m n)$ 级别（$O(h)$，$h$ 为 B-树高度）。
+\end{conclusion}
+
+\begin{conclusion}{B-树的插入与分裂}{btree-insert}
+插入操作先将关键字插入到对应的\textbf{叶结点}（注意不是失败结点，而是最底层的非叶结点）：
+\begin{enumerate}
+    \item 找到该关键字应插入的叶结点位置；
+    \item 若该结点关键字个数 $< m-1$，直接插入；
+    \item 若插入后关键字个数 $= m$（超出上限），则进行\textbf{分裂}（Split）：
+    \begin{itemize}
+        \item 将结点从中间位置 $\lceil m/2\rceil$ 处分裂为两个结点，中间关键字提升到父结点；
+        \item 若父结点也因此超上限，则父结点继续分裂，\textbf{分裂可能向上传播至根}；
+        \item 若根也分裂，则产生新根，B-树高度增加 1。
+    \end{itemize}
+\end{enumerate}
+\textbf{408 典型操作题：} 给定一个初始 B-树（通常 3 阶或 5 阶），依次插入若干关键字，画出每一步的结果。
+\end{conclusion}
+
+\begin{conclusion}{B-树的删除}{btree-delete}
+删除分为两步：先\textbf{找到}待删关键字所在结点，然后执行删除。若待删关键字不在叶结点中，则用其直接前驱（或直接后继）替代后删除替代结点（归结为删除叶结点中的关键字）。
+
+删除后可能导致结点关键字个数低于下限（$\lceil m/2\rceil - 1$，根除外），需进行\textbf{调整}：
+\begin{itemize}
+    \item \textbf{借（Borrow）：} 若左/右兄弟结点富裕（关键字数 $\geqslant \lceil m/2\rceil$），从兄弟「借」一个关键字过来——通过父结点中转。
+    \item \textbf{合并（Merge）：} 若左/右兄弟都不富裕，则与兄弟（及父结点中的分隔关键字）合并为一个结点。合并可能导致父结点关键字也低于下限，向上递归。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点——B-树性质：}
+\begin{itemize}
+    \item $n$ 个关键字（非叶结点数 $\geqslant 1$）的 $m$ 阶 B-树，\textbf{最大高度}（不含失败结点层）满足：
+    \[
+    h_{\max} \leqslant \log_{\lceil m/2\rceil}\!\left(\frac{n+1}{2}\right) + 1
+    \]
+    \item \textbf{最小高度}：$h_{\min} \geqslant \lceil\log_m(n+1)\rceil$。
+    \item 结点分裂时，若 $m$ 为奇数，中间关键字 $\lceil m/2\rceil$ 上升；若 $m$ 为偶数，$\lceil m/2\rceil$ 或 $\lceil m/2\rceil+1$ 均可（取决于实现，但通常取 $\lceil m/2\rceil$，即中间偏左）。
+    \item B-树的所有叶结点在同一层，这是其「平衡性」的体现。
+\end{itemize}
+\end{attention}
+
+\subsubsection{B+树}
+
+\begin{mydef}{$m$ 阶 B+树}{bplus-tree}
+B+树是 B-树的一种变形，广泛应用于数据库索引。与 B-树的主要区别：
+\begin{enumerate}
+    \item 每个非叶结点至多有 $m$ 棵子树，至少有 $\lceil m/2\rceil$ 棵（根除外）。
+    \item 非叶结点\textbf{仅起索引作用}，不存储指向数据记录的指针，只存储关键字和子树指针。
+    \item \textbf{所有关键字都出现在叶结点中}，叶结点包含全部关键字及指向数据记录的指针。
+    \item 叶结点之间按关键字大小\textbf{顺序链接}（通常为单链表），支持高效的范围查询。
+    \item 查找时即使中间结点有关键字匹配，也\textbf{必须继续走到叶结点}才能确认——因为 B+树中非叶结点的关键字只是索引项，不一定对应实际存在的记录（被删除的记录可能仍在非叶结点中作为分界值）。
+\end{enumerate}
+\end{mydef}
+
+\begin{tablebox}{B-树与 B+树的对比（408 常考）}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{对比维度} & \textbf{B-树} & \textbf{B+树} \\
+\hline
+关键字存储 & 每个结点都存关键字+记录指针 & 非叶仅存关键字（索引），叶存全部+记录指针 \\
+\hline
+查找成功结束位置 & 任意层（找到即停） & 必须到叶结点 \\
+\hline
+叶结点结构 & 无链接 & 有指向下一叶结点的指针 \\
+\hline
+范围查询效率 & 需中序遍历 & $O(\log_m n + k)$，沿叶结点链直接扫描 \\
+\hline
+根结点关键字数 & $[1, m-1]$（非叶时至少 2 个子树） & $[1, m-1]$ \\
+\hline
+每个关键字出现次数 & 仅一次 & 非叶结点中可出现多次（作为索引分界值） \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\begin{attention}
+\textbf{408 常考对比题：}
+\begin{itemize}
+    \item B+树支持\textbf{顺序访问}和\textbf{随机访问}两种方式——顺序访问通过叶结点链表实现；B-树只能通过中序遍历顺序访问。
+    \item B+树更适合文件系统和数据库索引的原因是：叶结点链支持高效范围查询（Range Query）；非叶结点不存数据，每个结点可容纳更多关键字，树更矮，减少磁盘 I/O。
+    \item B-树更适合「单点查询」，因为可能在非叶结点就命中。
+\end{itemize}
+\end{attention}
+
+\subsection{散列表（Hash Table）}
+
+\begin{mydef}{散列表与散列函数}{hash-def}
+\textbf{散列表}（Hash Table）：根据关键字直接计算存储位置的数据结构。基本思想：以关键字 $key$ 为自变量，通过\textbf{散列函数}（Hash Function）$H(key)$ 计算出对应的存储地址。
+
+理想情况下，查找无需比较即可直接定位——期望时间复杂度 $O(1)$。但不同的关键字可能映射到同一地址，称为\textbf{冲突}（Collision）。散列技术的核心问题：设计好的散列函数和冲突处理方法。
+\end{mydef}
+
+\begin{formula}{散列函数的构造方法}{hash-funcs}
+常见的散列函数设计方法：
+\begin{enumerate}
+    \item \textbf{除留余数法}（Division Method）：
+    \[
+    H(key) = key \bmod p
+    \]
+    $p$ 为不大于表长 $m$ 的素数（或不包含小于 20 的质因数的合数）。408 中最常见的方法。
+
+    \item \textbf{平方取中法}（Mid-Square Method）：取关键字平方后的中间几位作为散列地址。适用于关键字的每一位分布都不够均匀的场景。
+
+    \item \textbf{直接定址法}：$H(key)=a\cdot key+b$（$a,b$ 为常数）。适用于关键字基本连续的情况，不会产生冲突，但空间利用率低。
+
+    \item \textbf{数字分析法}：选取关键字中分布较均匀的若干位作为散列地址。适用于关键字位数较多且某些位分布均匀的场景。
+
+    \item \textbf{折叠法}：将关键字分割为位数相等的几段，叠加后取后几位。如移位叠加和边界叠加。
+\end{enumerate}
+\textbf{408 考试中}，除留余数法是最常考的散列函数构造方法。
+\end{formula}
+
+\subsubsection{冲突处理方法}
+
+\begin{formula}{开放定址法（Open Addressing）}{open-addressing}
+发生冲突时，按某种探测序列在散列表中寻找下一个空闲位置：
+\[
+H_i = \big(H(key) + d_i\big) \bmod m,\quad i=0,1,2,\ldots
+\]
+三种常见的探测方式：
+
+\textbf{① 线性探测法（Linear Probing）：} $d_i = i$（即 $0, 1, 2, 3, \ldots$）。
+\begin{itemize}
+    \item 优点：实现简单。
+    \item 缺点：容易产生\textbf{聚集}（Clustering）现象——冲突的关键字会聚集在相邻的位置，降低查找效率。
+\end{itemize}
+
+\textbf{② 二次探测法（Quadratic Probing）：} $d_i = 1^2, -1^2, 2^2, -2^2, \ldots$（即 $0, 1, -1, 4, -4, \ldots$），即
+\[
+H_i = \big(H(key) + i^2\big) \bmod m \quad\text{或}\quad H_i = \big(H(key) \pm i^2\big) \bmod m
+\]
+可以缓解聚集现象，但要求表长 $m$ 为满足 $4k+3$ 的素数以探测所有位置。
+
+\textbf{③ 双重散列法（Double Hashing）：} $d_i = i \times H_2(key)$，其中 $H_2(key)$ 是另一个散列函数。$H_2(key)$ 应与 $m$ 互质。是最有效的开放定址法之一。
+
+\textbf{通用规则：} 无论哪种探测方式，开放定址法\textbf{不能真正删除}元素——删除只能做逻辑删除（标记删除），否则会切断探测序列导致后续查找失败。
+\end{formula}
+
+\begin{formula}{链地址法（Separate Chaining）}{separate-chaining}
+将所有散列地址相同的关键字链接在同一个\textbf{单链表}中。散列表的每个槽位是一个链表的头指针。
+\begin{lstlisting}[language=C]
+typedef struct HashNode {
+    KeyType key;
+    struct HashNode *next;
+} HashNode;
+
+typedef struct {
+    HashNode *table[MAXSIZE];   // 链表头指针数组
+    int size;
+} HashTable;
+\end{lstlisting}
+\textbf{优点：}
+\begin{itemize}
+    \item 不会出现「堆积」现象；
+    \item 删除操作简单（直接链表删除）；
+    \item 装填因子 $\alpha$ 可大于 1（但太大影响效率）；
+    \item 适用于表长不确定的场景。
+\end{itemize}
+\textbf{缺点：} 需要额外的指针空间。
+\end{formula}
+
+\subsubsection{散列表的 ASL 与装填因子}
+
+\begin{mydef}{装填因子}{load-factor}
+\textbf{装填因子}（Load Factor）$\alpha$ = （表中填入的记录数）/（散列表长度）。$\alpha$ 越大，表明表越满，冲突的可能性越大，查找效率越低。
+\end{mydef}
+
+\begin{conclusion}{散列表的 ASL 计算}{hash-asl}
+\textbf{开放定址法——线性探测：}
+\begin{itemize}
+    \item ASL$_{\text{成功}} \approx \dfrac{1}{2}\left(1 + \dfrac{1}{1-\alpha}\right)$
+    \item ASL$_{\text{不成功}} \approx \dfrac{1}{2}\left(1 + \dfrac{1}{(1-\alpha)^2}\right)$
+\end{itemize}
+
+\textbf{链地址法：}
+\begin{itemize}
+    \item ASL$_{\text{成功}} \approx 1 + \dfrac{\alpha}{2}$
+    \item ASL$_{\text{不成功}} \approx \alpha + e^{-\alpha} \approx \alpha$（近似为平均链表长度）
+\end{itemize}
+
+\textbf{408 实际计算要求：} 通常不直接套用上述近似公式，而是要求\textbf{手工计算}具体散列表的 ASL。
+\textbf{计算步骤（ASL$_{\text{成功}}$）：}
+\begin{enumerate}
+    \item 根据给定的关键字序列、散列函数和冲突处理方法，构造完整的散列表；
+    \item 对每个关键字，统计查找它所需的\textbf{探测次数}（含第一次散列）；
+    \item 求平均值：$\mathrm{ASL}_{\text{成功}} = \frac{1}{n}\sum_{i=1}^{n} \text{探测次数}_i$。
+\end{enumerate}
+\textbf{计算步骤（ASL$_{\text{不成功}}$）：}
+\begin{enumerate}
+    \item 对散列表的每个槽位（$0$ 到 $m-1$），分别计算：若查找一个\textbf{散列到该槽位但不存在的关键字}，需要多少次探测才能判定「不存在」；
+    \item 对所有槽位的探测次数求和再除以 $m$。
+\end{enumerate}
+\textbf{注意：} ASL$_{\text{不成功}}$ 的分母是表长 $m$（不是 $n$），因为查找不成功的可能性是均匀分布在所有散列地址上的。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点——散列表 ASL 的关键细节：}
+\begin{itemize}
+    \item \textbf{查找成功的探测次数} = 从第一次散列算起到找到目标的探测次数（含第一次）。
+    \item \textbf{查找不成功的探测次数} = 从某槽位第一次散列算起，沿探测序列直到遇到\textbf{空位置}（表明该关键字一定不存在）的探测次数。线性探测中若全表满则需探测 $m$ 次。
+    \item 链地址法中，\textbf{ASL$_{\text{不成功}}$} 等于在每个槽位的链表中查找不存在的关键字所需的比较次数——即该链表长度（因为需要遍历完整个链表才能确定不存在）。
+    \item 二次探测法和双重散列法中，ASL$_{\text{不成功}}$ 的判断条件是「探测到空槽」或「探测完整个表仍未找到」。
+\end{itemize}
+\end{attention}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{查找 —— 408 选择题常考点}{search-408-keypoints}
+\begin{enumerate}
+    \item \textbf{折半查找的判定树}：$n$ 个元素对应判定树中 $n$ 个圆形结点和 $n+1$ 个方形结点；树形是平衡 BST；不同取整方式对应不同判定树形态。
+    \item \textbf{ASL 计算}：折半查找 ASL$_{\text{成功}}$ 和 ASL$_{\text{不成功}}$ ——前者分母 $n$，后者分母 $n+1$（方形结点数）。
+    \item \textbf{AVL 旋转判断}：从插入点向上找第一个 $|bf|=2$ 的结点，根据「自上而下两步」判断 LL/LR/RL/RR。
+    \item \textbf{B-树性质}：除根外每个非叶结点至少 $\lceil m/2\rceil$ 棵子树；所有叶结点同层；插入可能导致连锁分裂。
+    \item \textbf{B+树 vs B-树}：B+树非叶仅索引、叶链、查找必须到叶；B-树任意层可命中。
+    \item \textbf{散列表 ASL}：手工计算成功/不成功 ASL，区分分母（$n$ vs $m$），区分探测次数起算点。
+    \item \textbf{装填因子 $\alpha$}：$\alpha = n/m$；决定散列表效率的核心参数。
+    \item \textbf{BST 删除}：度 2 结点转换为度 0/1 结点的删除；中序前驱/后继替代。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 对一个长度为 $n$ 的有序顺序表进行折半查找，查找成功时的 ASL 约等于
+\begin{center}
+\begin{tabular}{ll}
+(A) $\log_2 n$ & (B) $\log_2(n+1)-1$ \\[6pt]
+(C) $(n+1)/2$ & (D) $\sqrt{n}$
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在含有 $n$ 个结点的二叉排序树中查找一个关键字，以下说法正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 时间复杂度恒为 $O(\log n)$ \\[4pt]
+(B) 等概率下 ASL$_{\text{成功}} = \frac{n+1}{2}$ \\[4pt]
+(C) 最坏情况下时间复杂度为 $O(n)$ \\[4pt]
+(D) 查找过程一定沿着一条从根到叶子的路径进行
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在下列平衡二叉树中插入一个结点后造成了不平衡，其中需要进行先左旋、后右旋（LR 型）操作的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 在 A 的左子树的左子树上插入 \\[4pt]
+(B) 在 A 的右子树的右子树上插入 \\[4pt]
+(C) 在 A 的左子树的右子树上插入 \\[4pt]
+(D) 在 A 的右子树的左子树上插入
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 一棵 5 阶 B-树中，除根以外的每个非叶结点至少包含的关键字个数为
+\begin{center}
+\begin{tabular}{ll}
+(A) $1$ & (B) $2$ \\[6pt]
+(C) $3$ & (D) $4$
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 设散列表长 $m=14$，散列函数 $H(key)=key \bmod 13$。表中已有关键字 $15, 28, 41, 54$，用线性探测法处理冲突，则关键字 $67$ 的散列地址是
+\begin{center}
+\begin{tabular}{ll}
+(A) $2$ & (B) $3$ \\[6pt]
+(C) $4$ & (D) $5$
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 在一个长度为 $n$ 的顺序表中进行顺序查找，等概率下查找成功时的平均比较次数为 \underline{\qquad\qquad}，查找不成功时的比较次数为 \underline{\qquad\qquad}。
+
+\item \textbf{（填空题）} 具有 $n$ 个关键字的 $m$ 阶 B-树，其\textbf{最大高度}（不含失败结点层）的表达式为 \underline{\qquad\qquad}。
+
+\item \textbf{（简答题）} 简述 B+树与 B-树的主要区别，并说明为什么数据库索引通常使用 B+树而非 B-树。
+
+\item \textbf{（计算题）} 设有关键字序列 $\{5, 16, 20, 27, 30, 36, 44, 55, 60, 67, 71\}$，画出对其进行折半查找的判定树，并计算 ASL$_{\text{成功}}$。
+
+\item \textbf{（算法设计）} 编写非递归算法，在二叉排序树中插入一个关键字 $k$，返回插入后树的根结点指针。若关键字已存在，则不插入。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 设有序顺序表中有 $1000$ 个元素，用折半查找方法进行查找，查找成功时关键字比较次数的最大值为
+\begin{center}
+\begin{tabular}{ll}
+(A) $9$ & (B) $10$ \\[6pt]
+(C) $11$ & (D) $1000$
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 下列关于散列表查找的说法中，正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 散列表的装填因子越小，发生冲突的可能性越小，查找效率越高 \\[4pt]
+(B) 开放定址法中删除一个元素可以直接将其位置清空 \\[4pt]
+(C) 链地址法中装填因子不能大于 1 \\[4pt]
+(D) 二次探测法不会产生聚集现象
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 设散列表长 $m=11$，散列函数 $H(key)=key \bmod 11$，采用线性探测法处理冲突。依次插入关键字序列 $\{13, 24, 35, 46, 57, 68, 79\}$。
+\begin{enumerate}
+    \item[(1)] 构造该散列表；
+    \item[(2)] 计算等概率下的 ASL$_{\text{成功}}$；
+    \item[(3)] 计算等概率下的 ASL$_{\text{不成功}}$。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 依次将关键字 $10, 20, 30, 25, 5, 35, 15, 28$ 插入一棵初始为空的 AVL 树。
+\begin{enumerate}
+    \item[(1)] 画出每次插入并调整后的 AVL 树，标注旋转类型及旋转结点；
+    \item[(2)] 计算该 AVL 树查找成功的 ASL（等概率）。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 设有一棵 3 阶 B-树，初始为空，依次插入关键字序列 $\{45, 24, 53, 90, 12, 30, 26, 37, 61\}$。
+\begin{enumerate}
+    \item[(1)] 画出最终 B-树的结构；
+    \item[(2)] 在(1)的结果上删除关键字 $24$，画出删除后的 B-树；
+    \item[(3)] 继续删除关键字 $45$，画出最终 B-树。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 已知二叉排序树中结点的关键字值均不相同。设计算法：
+\begin{enumerate}
+    \item[(1)] 判断一棵二叉树是否为二叉排序树；
+    \item[(2)] 分析算法的时间复杂度。
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item 邓俊辉《数据结构（C++语言版）》第 7 章「二叉搜索树」—— BST 的完整 ADT 实现，包括前驱后继的查找、带旋转的插入删除统一框架（3+4 重构）。
+    \item 邓俊辉《数据结构（C++语言版）》第 8 章「高级搜索树」—— AVL 树的详细旋转分析、伸展树（Splay Tree）自调整策略、B-树的完整实现与复杂度证明。
+    \item Sedgewick《算法》第 3.2 节「二叉查找树」—— BST 的递归实现、基于 Hibbard 删除法的完整讨论、性能分析。
+    \item Sedgewick《算法》第 3.3 节「平衡查找树」—— 2-3 树到红黑树的自然过渡、红黑树的插入删除操作与代码实现，以及 B-树在文件系统中的实际应用。
+\end{itemize}

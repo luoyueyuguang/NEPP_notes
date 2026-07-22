@@ -1,0 +1,259 @@
+\section{中央处理器（CPU）}
+
+\subsection{CPU 的功能与基本结构}
+
+\begin{mydef}{CPU 的组成}{cpu-structure}
+CPU 由\textbf{运算器（ALU）}和\textbf{控制器（CU）}两大部分组成：
+\begin{itemize}
+    \item \textbf{运算器}：执行算术和逻辑运算。核心部件：ALU、累加器 ACC、通用寄存器组、状态寄存器 PSW（标志位：ZF/CF/OF/SF）。
+    \item \textbf{控制器}：取指令、分析指令、执行指令，控制各部件协调工作。核心部件：PC（程序计数器）、IR（指令寄存器）、ID（指令译码器）、时序发生器、微操作信号发生器。
+\end{itemize}
+CPU 与主存通过 MAR（存储器地址寄存器）和 MDR（存储器数据寄存器）交互。
+\end{mydef}
+
+\begin{conclusion}{CPU 中的专用寄存器}{cpu-registers}
+\begin{tablebox}{CPU 主要寄存器}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+寄存器 & 缩写 & 功能 \\
+\hline
+程序计数器 & PC & 存放下一条指令的地址，自动 +1（或 + 指令长度）\\
+指令寄存器 & IR & 存放当前执行的指令 \\
+存储器地址寄存器 & MAR & 存放访存地址（连接地址总线）\\
+存储器数据寄存器 & MDR & 存放与主存交换的数据（连接数据总线）\\
+累加器 & ACC & 存放 ALU 运算结果 \\
+程序状态字 & PSW & 存放标志位（ZF/CF/OF/SF/IF）\\
+通用寄存器 & R0-Rn & 存放操作数和中间结果 \\
+\hline
+\end{tabular}
+\end{tablebox}
+\textbf{408 常考：}哪些寄存器程序员可见（通用寄存器、PSW、PC 部分可见），哪些透明（MAR、MDR、IR）。
+\end{conclusion}
+
+\subsection{指令执行过程}
+
+\begin{conclusion}{指令周期}{instruction-cycle}
+每条指令的执行分为几个阶段：
+\[
+\text{取指（Fetch）} \to \text{间址（Indirect）} \to \text{执行（Execute）} \to \text{中断（Interrupt）}
+\]
+\begin{itemize}
+    \item \textbf{取指周期（FE）}：PC$\to$MAR $\to$ 读主存 $\to$ MDR$\to$IR，PC+1。
+    \item \textbf{间址周期（IND）}：若指令含间接寻址，取操作数地址。
+    \item \textbf{执行周期（EX）}：根据操作码执行具体操作。
+    \item \textbf{中断周期（INT）}：保存断点（PC 入栈），加载中断向量。
+\end{itemize}
+
+\begin{attention}
+\textbf{408 常考数据通路分析题}：给定 CPU 数据通路图和控制信号，写出某条指令（如 \texttt{ADD R1, (R2)}）在\textbf{每个时钟周期}的数据流动路径和有效控制信号。
+\end{attention}
+\end{conclusion}
+
+\subsection{数据通路}
+
+\begin{mydef}{数据通路}{datapath}
+数据通路是 CPU 中执行单元（ALU、寄存器堆、多路选择器）和它们之间的互连总线。分为：
+\begin{itemize}
+    \item \textbf{单总线结构}：所有部件共享一条内部总线，一个时钟周期只能传送一个数据。结构简单但速度慢。
+    \item \textbf{多总线结构}：多条总线并行传送，速度快但控制复杂。
+    \item \textbf{专用数据通路}：各部件之间有专用连接，并行度高但硬件代价大。
+\end{itemize}
+\end{mydef}
+
+\subsection{控制器}
+
+\begin{conclusion}{硬布线控制器 vs 微程序控制器}{hardwire-microprogram}
+\begin{tablebox}{两种控制器对比}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+ & 硬布线控制器 & 微程序控制器 \\
+\hline
+实现方式 & 组合逻辑电路 & 微程序（控制存储器 CM）\\
+速度 & 快 & 较慢（需多次读 CM）\\
+可修改性 & 困难（需重新设计电路）& 容易（修改微程序）\\
+设计复杂度 & 复杂（需化简逻辑表达式）& 规整 \\
+典型应用 & RISC & CISC \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{微程序控制器的核心概念：}
+\begin{itemize}
+    \item \textbf{微指令}：控制存储器中的一个字，控制一个时钟周期内的所有微操作。
+    \item \textbf{微程序}：实现一条机器指令的微指令序列。
+    \item \textbf{CM（控制存储器）}：存放全部微程序（通常在 CPU 内部 ROM）。
+    \item \textbf{$\mu$PC（微程序计数器）}：顺序执行微程序时 +1；遇到转移微指令时加载新地址。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{微指令的编码方式}{microinstruction-encoding}
+\begin{itemize}
+    \item \textbf{直接编码}：微指令的每一位直接控制一个微操作。简单快速，但微指令字长过长。
+    \item \textbf{字段直接编码}：互斥的微操作放在同一字段，通过译码器选择。折中方案，408 常考。
+    \item \textbf{字段间接编码}：一个字段的含义由另一个字段的值决定。进一步缩短字长但译码更复杂。
+\end{itemize}
+
+\textbf{微指令格式：}
+\begin{itemize}
+    \item \textbf{水平型微指令}：一次能控制多个并行微操作，字长较长。
+    \item \textbf{垂直型微指令}：类似机器指令格式，一次只控制一个微操作，需多步完成一条机器指令。
+\end{itemize}
+\end{conclusion}
+
+\subsection{指令流水线}
+
+\begin{mydef}{流水线}{pipeline}
+将指令执行过程分解为多个子过程，每个子过程由独立的硬件部件完成。多条指令的不同阶段在时间上重叠执行，提高 CPU 吞吐率（非单条指令执行速度）。
+\end{mydef}
+
+\begin{conclusion}{经典五级流水线}{five-stage-pipeline}
+\[
+\text{IF（取指）} \to \text{ID（译码/读寄存器）} \to \text{EX（执行/计算地址）} \to \text{MEM（访存）} \to \text{WB（写回）}
+\]
+
+\textbf{流水线性能指标：}
+\begin{itemize}
+    \item \textbf{吞吐率（TP）}：单位时间完成的指令数。理想情况 $TP = \dfrac{1}{\max\{T_i\}}$。
+    \item \textbf{加速比（S）}：$S = \dfrac{\text{非流水线执行时间}}{\text{流水线执行时间}}$。$k$ 段流水线执行 $n$ 条指令：$S = \dfrac{n \cdot k \cdot T}{k \cdot T + (n-1) \cdot T} = \dfrac{nk}{k+n-1}$（各段等长时间 $T$）。
+    \item \textbf{效率（E）}：$E = \dfrac{\text{时空图中有效面积}}{\text{总面积}}$。
+\end{itemize}
+\end{conclusion}
+
+\subsection{流水线冒险（Hazard）}
+
+\begin{conclusion}{三种流水线冒险}{pipeline-hazards}
+\begin{enumerate}
+    \item \textbf{结构冒险（Structural Hazard）}：硬件资源冲突——多条指令同时访问同一功能部件（如单端口存储器）。\textbf{解决：}增加硬件资源（如指令 Cache 与数据 Cache 分离）、流水化功能部件。
+    
+    \item \textbf{数据冒险（Data Hazard）}：指令间存在数据依赖。类型：
+    \begin{itemize}
+        \item \textbf{RAW（写后读）}：I1 写入后 I2 才读，但 I2 在 I1 写入前就进入读阶段。
+        \item \textbf{WAW（写后写）}：两条指令写同一位置，顺序错。
+        \item \textbf{WAR（读后写）}：I2 在 I1 读之前就写入。
+    \end{itemize}
+    \textbf{解决：}
+    \begin{itemize}
+        \item \textbf{转发/旁路（Forwarding/Bypassing）}：将 ALU 结果直接从 EX/MEM 流水线寄存器「转发」回 EX 阶段输入，无需等 WB 写回。可解决大部分 RAW。
+        \item \textbf{阻塞/气泡（Stall/Bubble）}：硬件插入空操作周期。LW 指令后紧跟使用该数据的指令时，即使转发也需阻塞 1 个周期（Load-use Hazard）。
+        \item \textbf{编译器调度}：重排指令顺序以消除依赖。
+    \end{itemize}
+    
+    \item \textbf{控制冒险（Control Hazard）}：分支/跳转指令导致 PC 值不确定。\textbf{解决：}
+    \begin{itemize}
+        \item \textbf{分支预测}：静态预测（总是预测不跳转）、动态预测（基于历史的分支预测缓冲器 BHT/BTB）。
+        \item \textbf{延迟分支}：在分支指令后插入不受影响的指令（延迟槽）。
+    \end{itemize}
+\end{enumerate}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 最常考的数据冒险场景：} 
+\begin{enumerate}
+    \item 相邻 RAW：\texttt{add R1,R2,R3; sub R4,R1,R5} — 可通过转发解决（无需阻塞）。
+    \item Load-use：\texttt{lw R1,0(R2); add R3,R1,R4} — 必须阻塞 1 个周期（转发不够，数据在 MEM 阶段才就绪）。
+\end{enumerate}
+\end{attention}
+
+\subsection{多核处理器基本概念}
+
+\begin{mydef}{多核处理器}{multi-core}
+在一个芯片上集成多个处理器核心（Core），各核心共享最后一级 Cache 和主存，通过片内互连通信。多核实现的是真正的\textbf{并行}（不是并发）。
+
+\textbf{408 了解即可：} SISD/SIMD/MIMD（Flynn 分类法）、共享 Cache 的一致性协议（MESI 协议基本思想）、Amdahl 定律（加速比上限由不可并行部分决定）。
+\end{mydef}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{CPU — 408 常考点}{co5-keypoints}
+\begin{enumerate}
+    \item \textbf{数据通路分析}：给定 CPU 结构图，分析指令执行过程中各周期的数据流动。
+    \item \textbf{流水线性能计算}：吞吐率、加速比、效率的公式和套用。
+    \item \textbf{流水线冒险}：特别是数据冒险（RAW/WAW/WAR）的判别和转发/阻塞方案的时钟周期计算。
+    \item \textbf{微程序控制器}：微指令的编码方式、CM 容量计算、$\mu$PC 的工作过程。
+    \item \textbf{CISC/RISC 在流水线实现上的差异}。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} CPU 中跟踪下一条指令地址的寄存器是
+\begin{center}
+\begin{tabular}{ll}
+(A) 指令寄存器 IR & (B) 程序计数器 PC \\[6pt]
+(C) 地址寄存器 MAR & (D) 数据寄存器 MDR
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 以下关于指令流水线的说法，错误的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 流水线提高的是 CPU 吞吐率而非单条指令执行时间 \\[4pt]
+(B) 结构冒险可以通过增加硬件资源解决 \\[4pt]
+(C) Load-use 数据冒险一定可以通过转发完全解决 \\[4pt]
+(D) 分支预测可以缓解控制冒险
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 5 段流水线（IF/ID/EX/MEM/WB）执行 100 条指令，若不发生任何阻塞，需要的时钟周期数为 \underline{\qquad}。
+
+\item \textbf{（简答题）} 简述 RAW、WAW 和 WAR 三种数据冒险的含义，并指出经典五级流水线中哪些可能发生。
+
+\item \textbf{（简答题）} 说明微程序控制器中微指令的字段直接编码法的基本原理及其优缺点。
+
+\item \textbf{（计算题）} 某 5 段流水线每段时间分别为：IF=10ns, ID=8ns, EX=10ns, MEM=10ns, WB=8ns。求：(1) 流水线时钟周期；(2) 执行 1000 条指令的总时间；(3) 加速比（相比非流水线）。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 在经典五级流水线中，以下哪种冒险即使采用转发技术也无法完全避免阻塞
+\begin{center}
+\begin{tabular}{ll}
+(A) \texttt{add R1,R2,R3} 与 \texttt{sub R4,R1,R5} 之间的 RAW \\[4pt]
+(B) \texttt{lw R1,0(R2)} 与 \texttt{add R3,R1,R4} 之间的 RAW \\[4pt]
+(C) 两条指令同时访问同一存储器端口的结构冒险 \\[4pt]
+(D) 分支指令引起的控制冒险
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 下图为某 CPU 的部分数据通路，采用单总线结构。图中 R0-R3 为通用寄存器，ALU 有两个输入端 A 和 B，一个输出端 OUT。所有控制信号高电平有效。
+\begin{enumerate}
+    \item[(1)] 写出指令 \texttt{ADD R1, R2}（(R1)+(R2)$\to$R1）在取指周期的数据流动路径和控制信号序列；
+    \item[(2)] 写出该指令在执行周期的数据流动路径和控制信号；
+    \item[(3)] 若改为 \texttt{ADD R1, (R2)}（R1 + Mem[R2] $\to$ R1），指令周期中需要增加什么阶段？新增哪些数据通路？
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 某经典五级流水线处理器的流水段如下：
+\[
+\text{IF} \xrightarrow{200\text{ps}} \text{ID} \xrightarrow{150\text{ps}} \text{EX} \xrightarrow{200\text{ps}} \text{MEM} \xrightarrow{150\text{ps}} \text{WB}
+\]
+执行以下指令序列：
+\begin{lstlisting}
+I1: lw  R1, 0(R2)
+I2: add R3, R1, R4
+I3: sub R5, R6, R7
+I4: sw  R5, 0(R8)
+\end{lstlisting}
+\begin{enumerate}
+    \item[(1)] 若不存在任何转发机制，需要插入几个阻塞周期？画出流水线时空图。
+    \item[(2)] 若存在转发机制（但不能消除 Load-use 冒险），需要插入几个阻塞周期？
+    \item[(3)] 计算两种情况下执行这 4 条指令的总时间。
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item Patterson \& Hennessy《计算机组成与设计》第 4 章「处理器」——MIPS 五级流水线的完整数据通路设计和冒险处理。408 的数据通路题几乎均源自此章的习题。
+    \item CS:APP 第 4 章「处理器体系结构」——从顺序 Y86-64 到流水线实现，含转发逻辑的完整推导。
+\end{itemize}

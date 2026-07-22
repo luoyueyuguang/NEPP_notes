@@ -1,0 +1,863 @@
+\section{内存管理}
+
+\subsection{内存管理的基本概念}
+
+\begin{mydef}{内存管理的目标与任务}{mem-mgmt-goals}
+操作系统内存管理（Memory Management）负责\textbf{主存（Main Memory）}的分配与回收、地址变换、内存保护和虚拟内存的扩展。其核心目标：
+\begin{enumerate}
+    \item \textbf{分配与回收}：高效地为进程分配内存空间，进程结束后回收；
+    \item \textbf{地址变换}：将程序中的逻辑地址转换为物理地址；
+    \item \textbf{内存保护}：确保进程只能访问自己的地址空间；
+    \item \textbf{内存扩充}：通过虚拟内存技术，使程序获得比实际物理内存更大的地址空间。
+\end{enumerate}
+\end{mydef}
+
+\subsubsection{逻辑地址与物理地址}
+
+\begin{mydef}{地址空间的两层抽象}{addr-spaces}
+\begin{itemize}
+    \item \textbf{逻辑地址（Logical Address）}：也叫虚拟地址（Virtual Address），是 CPU 在执行指令时生成的地址，是程序视角的地址。每个进程拥有独立的逻辑地址空间，从 0 开始编址。
+    \item \textbf{物理地址（Physical Address）}：内存单元的实际地址，是内存芯片视角的地址。整个系统只有一个物理地址空间，所有进程共享。
+    \item \textbf{地址空间（Address Space）}：一个进程可用的所有逻辑地址的集合。32 位系统上，逻辑地址空间通常为 $0 \sim 2^{32}-1$（4 GB）。
+\end{itemize}
+\end{mydef}
+
+\begin{attention}
+\textbf{408 常考点辨析：逻辑地址 vs 物理地址。} 
+编译时和链接时，程序中出现的是逻辑地址（符号地址经链接后变为可重定位地址）；程序装入内存运行时，CPU 发出的访存地址也是逻辑地址，需经 MMU（Memory Management Unit，内存管理单元）转换为物理地址后才送到地址总线上。
+\end{attention}
+
+\subsubsection{地址重定位}
+
+\begin{mydef}{地址重定位}{addr-relocation}
+地址重定位（Address Relocation）是将逻辑地址转换为物理地址的过程，也叫\textbf{地址映射}。分为三种方式：
+\begin{enumerate}
+    \item \textbf{静态重定位（Static Relocation）}：在程序\textbf{装入时}一次性完成地址变换。装入程序根据装入的起始物理地址，修改程序中所有与地址相关的指令。装入后地址不再改变。
+    \begin{itemize}
+        \item 优点：无需硬件支持，简单。
+        \item 缺点：程序装入后不能移动（不支持换入换出）；不允许程序在内存中浮动。
+    \end{itemize}
+    
+    \item \textbf{动态重定位（Dynamic Relocation）}：在程序\textbf{执行时}，每次访存都由硬件（MMU 中的\textbf{重定位寄存器}）将逻辑地址加上基址得到物理地址。
+    \[
+    \boxed{\text{物理地址} = \text{逻辑地址} + \text{重定位寄存器（基址）}}
+    \]
+    \begin{itemize}
+        \item 优点：程序可以在内存中移动（支持交换和紧凑）；无需修改程序代码。
+        \item 缺点：需要硬件支持（MMU），每次访存有微小的地址计算开销。
+    \end{itemize}
+    
+    \item \textbf{运行时动态链接（Run-time Dynamic Linking）}：将链接推迟到运行时。程序执行到某外部模块的调用时，OS 才将该模块装入内存并链接。Linux 的 \texttt{.so}、Windows 的 \texttt{.dll} 即采用此方式。
+\end{enumerate}
+\end{mydef}
+
+\begin{attention}
+\textbf{408 高频辨析：三种地址变换时机。}
+\begin{itemize}
+    \item 编译时：编译器知道进程驻留在内存的\textbf{确切位置} → 生成\textbf{绝对代码}（Absolute Code）。
+    \item 装入时（静态重定位）：编译器不知道确切位置 → 生成\textbf{可重定位代码}（Relocatable Code），装入时修改。
+    \item 执行时（动态重定位）：进程可在执行期间从一内存段移到另一内存段 → 需要 MMU 硬件。
+\end{itemize}
+\textbf{注意：}现代通用 OS 均采用\textbf{执行时动态重定位 + 运行时动态链接}的组合。
+\end{attention}
+
+\subsubsection{内存保护}
+
+\begin{conclusion}{内存保护的实现机制}{mem-protection}
+内存保护防止一个进程访问不属于它的内存区域。常见实现：
+\begin{enumerate}
+    \item \textbf{界限寄存器（Limit Register）}：存放逻辑地址的最大值。每次访存，MMU 检查逻辑地址是否 $<$ 界限寄存器值。若越界，触发\textbf{地址越界异常}。
+    \item \textbf{基址-界限寄存器对}：重定位寄存器存基址，界限寄存器存长度。硬件检查：$\text{逻辑地址} < \text{界限值}$。
+\end{enumerate}
+
+现代系统更多使用\textbf{分页}中的页表保护位（读/写/执行权限）来实现细粒度的内存保护。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 考点：} CPU 在用户态执行时发出的地址是逻辑地址。若该逻辑地址超出界限寄存器值，则 MMU 产生\textbf{地址越界中断}，CPU 进入内核态处理。这一过程是硬件完成的，称为\textbf{存储保护}。
+\end{attention}
+
+\subsubsection{程序的链接}
+
+\begin{conclusion}{三种链接方式}{link-types}
+\begin{tablebox}{静态链接、装入时动态链接与运行时动态链接}
+\centering
+\begin{tabular}{|l|p{5.5cm}|p{5.5cm}|}
+\hline
+链接方式 & 时机 & 特点 \\
+\hline
+静态链接 & 程序装入前（编译后） & 所有库模块链接成完整可执行文件；\\
+ &  & 占用磁盘和内存空间大，但运行快 \\
+\hline
+装入时动态链接 & 程序装入内存时 & 装入时链接所需模块；\\
+ &  & 便于模块共享和更新 \\
+\hline
+运行时动态链接 & 程序执行过程中 & 用到时才链接（如 \texttt{dlopen}）；\\
+ &  & 最灵活，节省内存；Linux \texttt{.so} 文件 \\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\subsection{连续分配存储管理方式}
+
+\begin{mydef}{连续分配}{contiguous-allocation}
+连续分配（Contiguous Allocation）是指为一个进程分配一段\textbf{连续}的物理内存空间。按分区方式分为三类：单一连续分配、固定分区分配和动态分区分配。
+\end{mydef}
+
+\subsubsection{单一连续分配}
+
+\begin{conclusion}{单一连续分配}{single-contiguous}
+内存分为\textbf{系统区}（低地址，存放 OS）和\textbf{用户区}（高地址，存放一道用户程序）。一次只能装入一道用户程序。
+\begin{itemize}
+    \item \textbf{优点}：简单，无需复杂的内存管理。
+    \item \textbf{缺点}：内存利用率极低（用户区剩余空间浪费）；单用户单任务，无并发。
+    \item \textbf{适用}：早期单用户单任务 OS（如 MS-DOS）。
+\end{itemize}
+\end{conclusion}
+
+\subsubsection{固定分区分配}
+
+\begin{conclusion}{固定分区分配}{fixed-partition}
+将用户空间划分为若干个\textbf{固定大小}的分区（各分区大小可相等也可不等）。每个分区只装入一道程序。
+\begin{itemize}
+    \item \textbf{分区说明表}：记录每个分区的起始地址、大小和状态（已分配/未分配）。
+    \item \textbf{优点}：实现简单，无外部碎片（External Fragmentation）。
+    \item \textbf{缺点}：存在\textbf{内部碎片（Internal Fragmentation）}——分配的分区大于程序实际需要的空间，浪费的部分即为内部碎片；分区总数固定，限制了并发进程数。
+\end{itemize}
+\end{conclusion}
+
+\subsubsection{动态分区分配}
+
+\begin{mydef}{动态分区分配}{dynamic-partition}
+根据进程的实际需要，动态地从空闲内存中分配一块\textbf{大小恰好合适}的连续空间。初始时整个用户区是一个大空闲块；随着进程的装入和退出，内存中出现多个大小不等的空闲块和已分配块。
+\end{mydef}
+
+\begin{conclusion}{动态分区分配算法}{partition-algorithms}
+在动态分区中，空闲块通常组织为\textbf{空闲分区链（Free List）}。当新进程请求大小为 $n$ 的内存时，OS 需要从空闲链中选择一个合适的空闲块。常用算法：
+
+\begin{tablebox}{动态分区分配算法对比}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+算法 & 策略 & 特点 \\
+\hline
+\textbf{首次适应（FF）} & 从低地址开始，选第一个 & 简单快速，低地址端易产生小碎片；\\
+First Fit & $\ge n$ 的空闲块 & 高地址端保留大空闲块 \\
+\hline
+\textbf{最佳适应（BF）} & 选所有 $\ge n$ 的空闲块中 & 产生的外部碎片最小，但每次需遍历全链；\\
+Best Fit & \textbf{最小}的那个 & 会产生许多难以利用的微小碎片 \\
+\hline
+\textbf{最坏适应（WF）} & 选所有 $\ge n$ 的空闲块中 & 剩余空闲块仍较大，可继续分配；\\
+Worst Fit & \textbf{最大}的那个 & 但大空闲块被迅速消耗，仍需遍历全链 \\
+\hline
+\textbf{邻近适应（NF）} & 从\textbf{上次分配的位置} & 类似 FF 但不用每次从链头开始；\\
+Next Fit & 继续搜索第一个 $\ge n$ 的块 & 空闲分布更均匀，但会更快消耗大块 \\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考：首次适应 vs 最佳适应。}
+\textbf{首次适应（FF）通常是最快且综合性能最好的算法}——它不需要遍历整个空闲链。最佳适应（BF）虽然单次分配产生的碎片最小，但每次都找最接近的，剩余部分小到几乎无法再被利用，且需要遍历整条链。在实际 OS（如 Linux 早期版本）中，首次适应或其变种更常见。
+\end{attention}
+
+\subsubsection{碎片问题与紧凑}
+
+\begin{conclusion}{外部碎片与内部碎片}{fragmentation}
+\begin{itemize}
+    \item \textbf{外部碎片（External Fragmentation）}：空闲内存总量足够，但由于不连续，无法满足一个连续分配的请求。动态分区会产生外部碎片。
+    \item \textbf{内部碎片（Internal Fragmentation）}：分配给进程的空间比进程实际需要的稍大（通常因按固定大小单元分配），浪费的是已分配区域内部的空间。固定分区和分页（最后一页）会产生内部碎片。
+\end{itemize}
+
+\textbf{解决外部碎片的方法：}
+\begin{enumerate}
+    \item \textbf{紧凑（Compaction）}：通过移动已在内存中的进程，将空闲块合并成一个大连续块。需要\textbf{动态重定位}支持（进程移动后基址寄存器更新）。
+    \item \textbf{离散分配}：允许进程分散在内存的不连续区域（分页、分段），从根本上消除外部碎片。
+\end{enumerate}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考辨析：内部碎片 vs 外部碎片。}
+\begin{itemize}
+    \item 固定分区产生\textbf{内部碎片}（无外部碎片）；
+    \item 动态分区产生\textbf{外部碎片}（无内部碎片，除非分配策略浪费）；
+    \item 分页系统产生\textbf{内部碎片}（最后一页的页内碎片）；
+    \item 分段系统产生\textbf{外部碎片}（段长可变，类似动态分区）。
+\end{itemize}
+\end{attention}
+
+\subsection{离散分配——分页存储管理}
+
+\begin{mydef}{分页存储管理}{paging}
+分页（Paging）将进程的逻辑地址空间划分为若干\textbf{大小相等}的块，称为\textbf{页（Page）}；将物理内存也划分为同样大小的块，称为\textbf{页框（Page Frame）}或\textbf{物理块}。页面和页框的大小通常为 4 KB（$2^{12}$ B）。
+
+进程的页面离散地装入内存中\textbf{任意空闲}的页框，通过\textbf{页表（Page Table）}记录页号与页框号的映射关系。
+\end{mydef}
+
+\subsubsection{地址结构}
+
+\begin{formula}{分页地址结构}{paging-addr-struct}
+给定页面大小 $P = 2^{p}$，逻辑地址 $A$（$m$ 位）被拆分为两部分：
+
+\[
+\boxed{\text{逻辑地址} = (\text{页号 } p_n,\; \text{页内偏移 } d)}
+\]
+
+\begin{itemize}
+    \item \textbf{页号} $p_n = \lfloor A / P \rfloor$ （高位部分，$m-p$ 位）
+    \item \textbf{页内偏移} $d = A \bmod P$ （低位部分，$p$ 位）
+\end{itemize}
+
+物理地址同样由\textbf{页框号} $f_n$（页表中查得）和\textbf{页内偏移} $d$ 拼接而成：
+
+\[
+\boxed{\text{物理地址} = f_n \times P + d}
+\]
+
+实际硬件中，页内偏移 $d$ 在地址变换前后\textbf{保持不变}——仅页号替换为页框号。
+\end{formula}
+
+\begin{attention}
+\textbf{408 计算核心：页面大小 = $2^p$ 时，逻辑地址低 $p$ 位为页内偏移，其余高位为页号。}
+例如页面大小 4 KB（$p=12$），逻辑地址为 32 位，则页号占高 20 位（$2^{20}$ 个页），页内偏移占低 12 位（$0\sim4095$）。
+
+\textbf{常考题型：} 给出页面大小和逻辑地址，求页号和页内偏移 → 逻辑地址除以页面大小。
+\end{attention}
+
+\subsubsection{页表与地址变换}
+
+\begin{mydef}{页表}{page-table}
+每个进程拥有一张\textbf{页表}，存放在内存中。页表项（PTE，Page Table Entry）通常包含：
+\begin{itemize}
+    \item \textbf{页框号（Frame Number）}：该页映射到哪个物理页框；
+    \item \textbf{有效位（Valid/Present Bit）}：该页是否在内存中（$1$ = 在内存，$0$ = 不在，即缺页）；
+    \item \textbf{保护位（Protection Bits）}：读/写/执行权限；
+    \item \textbf{引用位（Reference/Accessed Bit）}：该页是否被访问过（用于页面置换）；
+    \item \textbf{修改位（Dirty/Modified Bit）}：该页是否被修改过（换出时决定是否写回磁盘）。
+\end{itemize}
+
+\textbf{页表寄存器（PTBR，Page Table Base Register）}指向当前进程页表的起始物理地址。
+\end{mydef}
+
+\begin{formula}{分页地址变换过程}{paging-addr-trans}
+CPU 发出逻辑地址 $A$，MMU 执行以下变换：
+
+\begin{enumerate}
+    \item 从 $A$ 中提取页号 $p$ 和页内偏移 $d$；
+    \item 以 $p$ 为索引，在页表中找到对应的页表项（$\text{PTBR} + p \times \text{PTE 大小}$）；
+    \item 检查有效位：若 $=0$，触发\textbf{缺页中断}；
+    \item 取出页框号 $f$，与偏移 $d$ 拼接：$\text{物理地址} = f \times \text{页面大小} + d$。
+\end{enumerate}
+
+\[
+\boxed{\text{物理地址} = (\text{页框号} \ll p)\;|\;\text{页内偏移}}
+\]
+
+其中 $\ll p$ 表示左移 $p$ 位（即乘 $2^p$），$|$ 表示拼接。
+\end{formula}
+
+\begin{attention}
+\textbf{408 综合题中的地址变换：} 分页系统的每次数据/指令访问都需要至少\textbf{两次访存}——第一次访问页表（读 PTE），第二次访问实际数据。这是分页的主要性能开销。TLB 正是为了解决这一问题引入的（见下文）。
+\end{attention}
+
+\subsubsection{TLB（快表）}
+
+\begin{mydef}{TLB}{tlb}
+\textbf{TLB（Translation Lookaside Buffer，快表/地址变换后备缓冲器）}是一个\textbf{高速、小容量}的硬件 Cache，缓存最近使用的页表项。TLB 位于 MMU 内部，采用\textbf{全相联或组相联}映射，访问速度接近 CPU 寄存器。
+
+每次地址变换时，首先在 TLB 中查找页号（并行比较）；若命中（TLB Hit）则直接获取页框号，无需访问内存中的页表；若缺失（TLB Miss）则需访问内存页表，并将新 PTE 装入 TLB。
+\end{mydef}
+
+\begin{formula}{引入 TLB 后的有效访存时间}{tlb-eat}
+设：
+\begin{itemize}
+    \item 一次内存访问的时间为 $t_{\text{mem}}$
+    \item TLB 查找时间为 $t_{\text{TLB}}$（通常远小于 $t_{\text{mem}}$，可嵌入访存流水线）
+    \item TLB 命中率为 $h$
+\end{itemize}
+
+\textbf{TLB 命中时的访存时间：} $t_{\text{TLB}} + t_{\text{mem}}$（TLB 查找 + 一次访存）。
+
+\textbf{TLB 缺失时的访存时间：} $t_{\text{TLB}} + 2 \times t_{\text{mem}}$（TLB 查找 + 访问页表 + 访问数据）。
+
+\textbf{有效访存时间（EAT，Effective Access Time）：}
+\[
+\boxed{\text{EAT} = h \times (t_{\text{TLB}} + t_{\text{mem}}) + (1-h) \times (t_{\text{TLB}} + 2t_{\text{mem}})}
+\]
+
+若 $t_{\text{TLB}}$ 可忽略：
+\[
+\boxed{\text{EAT} \approx h \times t_{\text{mem}} + (1-h) \times 2t_{\text{mem}} = (2-h) \times t_{\text{mem}}}
+\]
+
+当 TLB 命中率很高（$\ge 99\%$）时，EAT 仅略大于一次访存时间，性能损耗极小。
+\end{formula}
+
+\begin{attention}
+\textbf{408 高频计算：TLB + 页表 + Cache 综合题。}
+典型考题流程：CPU 发出逻辑地址 → \textcircled{1} TLB 查找（命中/缺失）→ \textcircled{2} （若缺失）访问页表 → \textcircled{3} 得到物理地址 → \textcircled{4} 访问 Cache（命中/缺失）→ \textcircled{5} （若缺失）访问主存。\textbf{关键：理解每一步的先后依赖关系和各自的命中率。}
+\end{attention}
+
+\subsubsection{多级页表}
+
+\begin{formula}{二级页表与多级页表}{multi-level-pagetable}
+现代 64 位系统（逻辑地址空间极大，如 48 位虚拟地址）不可能使用单级页表（页表本身会占巨量内存）。解决方案是将页表本身也分页存储，形成多级页表。
+
+\textbf{二级页表的地址变换：}
+\[
+\boxed{\text{逻辑地址} = (\text{一级页号 } p_1,\; \text{二级页号 } p_2,\; \text{页内偏移 } d)}
+\]
+\begin{enumerate}
+    \item 以 $p_1$ 为索引，查\textbf{一级页表（页目录）}，得到二级页表的基址；
+    \item 以 $p_2$ 为索引，查\textbf{二级页表}，得到页框号；
+    \item 拼接页框号和 $d$，得到物理地址。
+\end{enumerate}
+
+\textbf{多级页表的优势：}
+\begin{itemize}
+    \item \textbf{节省内存}：只将实际使用的页表部分保留在内存中。未使用的页表项对应的二级页表不需要分配。
+    \item \textbf{页表本身可以离散存放}：二级页表不需要连续的物理内存。
+\end{itemize}
+
+\textbf{多级页表的代价：}
+\begin{itemize}
+    \item 地址变换需要更多次访存（$k$ 级页表需要 $k$ 次内存访问取 PTE + 1 次访问数据）。TLB 命中可消除这一开销。
+\end{itemize}
+\end{formula}
+
+\begin{attention}
+\textbf{408 重点：二级页表的地址变换计算。}
+以 32 位逻辑地址、页面大小 4 KB 为例。典型划分：一级页号 10 位（$2^{10}$ 个页目录项），二级页号 10 位（$2^{10}$ 个页表项），页内偏移 12 位（4 KB）。每级页表恰好占一个页面（$2^{10} \times 4\text{ B/PTE} = 4\text{ KB}$）。考察方式：给定多级页表结构，计算各级页号、访存次数、访问的物理地址。
+\end{attention}
+
+\subsection{离散分配——分段存储管理}
+
+\begin{mydef}{分段存储管理}{segmentation}
+分段（Segmentation）按程序的\textbf{自然逻辑单元}（如代码段、数据段、堆栈段）来划分地址空间。每个段有不同的\textbf{段名}和\textbf{段长}（可变），有独立的逻辑意义和访问权限。
+
+每个进程拥有一张\textbf{段表（Segment Table）}，每项包含：
+\begin{itemize}
+    \item \textbf{段基址（Base）}：该段在物理内存中的起始地址；
+    \item \textbf{段界限（Limit）}：该段的长度；
+    \item \textbf{保护位}：读/写/执行权限。
+\end{itemize}
+\end{mydef}
+
+\begin{formula}{分段地址变换}{seg-addr-trans}
+逻辑地址由\textbf{段号} $s$ 和\textbf{段内偏移} $d$ 组成：
+\[
+\boxed{\text{逻辑地址} = (\text{段号 } s,\; \text{段内偏移 } d)}
+\]
+
+地址变换过程：
+\begin{enumerate}
+    \item 以段号 $s$ 为索引，查段表得到段基址 $b$ 和段界限 $l$；
+    \item 检查 $d < l$（越界检查），否则触发\textbf{段越界中断}；
+    \item $\text{物理地址} = b + d$。
+\end{enumerate}
+
+\[
+\boxed{\text{物理地址} = \text{段基址} + \text{段内偏移}}
+\]
+\end{formula}
+
+\begin{attention}
+\textbf{408 辨析：分段地址变换 vs 分页地址变换。}
+分页中，页内偏移直接拼接在页框号后（二者位宽固定）；分段中，段内偏移与段基址是\textbf{相加}关系。此外，分段需要越界检查（$d < \text{段长}$），而分页不需要（因为所有页面大小相同，偏移不会越界）。
+\end{attention}
+
+\begin{conclusion}{分页与分段的对比}{paging-vs-seg}
+\begin{tablebox}{分页 vs 分段}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+维度 & 分页 & 分段 \\
+\hline
+划分依据 & 物理单位（固定大小） & 逻辑单位（可变大小）\\
+地址空间 & 一维（连续的逻辑地址） & 二维（段号 $+$ 段内偏移）\\
+程序员可见性 & 不可见（透明） & 可见（程序员划分段）\\
+共享与保护 & 按页（不方便，一页可能包含多种数据） & 按段（方便，段有逻辑意义）\\
+碎片 & 内部碎片（最后一页） & 外部碎片（段长可变）\\
+地址变换 & 拼接（页框号 $\parallel$ 偏移） & 加法（段基址 $+$ 偏移）\\
+越界检查 & 不需要 & 需要（$d < \text{段长}$）\\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\subsection{段页式存储管理}
+
+\begin{mydef}{段页式存储管理}{segmented-paging}
+段页式存储管理将分页和分段结合：先将用户程序按逻辑划分为若干\textbf{段}，每段再划分为若干\textbf{页}；物理内存按\textbf{页框}划分。
+
+逻辑地址变为三维结构：
+\[
+\boxed{\text{逻辑地址} = (\text{段号 } s,\; \text{页号 } p,\; \text{页内偏移 } d)}
+\]
+
+每个进程有一张\textbf{段表}，每段有一张\textbf{页表}。段表项指向该段的页表起始地址和页表长度。
+\end{mydef}
+
+\begin{formula}{段页式地址变换过程}{seg-paging-addr-trans}
+\begin{enumerate}
+    \item 以段号 $s$ 为索引查段表，得到该段的页表基址和页表长度；
+    \item 检查页号 $p$ 是否小于页表长度（越界检查）；
+    \item 以 $p$ 为索引查该段的页表，得到页框号 $f$；
+    \item 物理地址 $= f \times \text{页面大小} + d$。
+\end{enumerate}
+
+\textbf{访存次数：} 段页式一次访存需要\textbf{三次}访存——段表 + 页表 + 数据。同样需要 TLB 来减少开销。
+\end{formula}
+
+\begin{attention}
+\textbf{408 考点：段页式的优势。} 
+段页式兼具分段和分页的优点——既按逻辑单元分段（便于共享和保护），又通过分页消除外部碎片。但增加了地址变换的复杂度和访存次数（三次访存）。Linux/x86 实际采用的是段页式（虽然 Linux 将段基址设为 0，实质上退化为纯分页模型）。
+\end{attention}
+
+\subsection{虚拟内存}
+
+\subsubsection{局部性原理}
+
+\begin{mydef}{局部性原理}{locality-principle}
+局部性原理（Principle of Locality）是虚拟内存系统得以工作的理论基础，由 Denning 系统阐述：
+\begin{itemize}
+    \item \textbf{时间局部性（Temporal Locality）}：如果某个指令/数据被访问，那么在不久的将来它很可能再次被访问。典型例子：循环中的指令和变量。
+    \item \textbf{空间局部性（Spatial Locality）}：如果某个存储单元被访问，那么其附近的存储单元也很可能很快被访问。典型例子：数组的顺序访问、指令的顺序执行。
+\end{itemize}
+
+\textbf{局部性是 Cache 和虚拟内存设计的基石。} 正是因为程序具有局部性，我们才可以将进程的\textbf{部分页面}装入内存而正常运行——大部分访存都落在当前活跃的页面集合（工作集）中。
+\end{mydef}
+
+\begin{attention}
+\textbf{408 常考辨析：时间局部性 vs 空间局部性。}
+\begin{itemize}
+    \item 循环中的求和变量 → \textbf{时间局部性}（反复访问同一变量）；
+    \item 遍历数组 \texttt{a[0..N-1]} → \textbf{空间局部性}（依次访问相邻元素）；
+    \item 循环体中的指令 → \textbf{时间局部性}（反复执行同一条指令）\textbf{+ 空间局部性}（指令顺序存放）。
+\end{itemize}
+\end{attention}
+
+\subsubsection{虚拟内存的概念}
+
+\begin{mydef}{虚拟内存}{virtual-memory}
+虚拟内存（Virtual Memory）是一种内存管理技术，它允许进程在\textbf{不需要全部装入物理内存}的情况下运行。程序被划分为页面，仅有当前需要的页面驻留在物理内存中，其余页面存放在磁盘（交换区/Swap）上。当访问不在内存的页面时，由 OS 将其调入。
+
+\textbf{核心特征：}
+\begin{enumerate}
+    \item \textbf{离散性}：进程在内存中不必连续存放（分页/分段的基础）；
+    \item \textbf{多次性}：进程分多次装入内存（而非一次性全部装入）；
+    \item \textbf{对换性}：进程的页面可在内存和磁盘之间换入换出；
+    \item \textbf{虚拟性}：从逻辑上扩充内存容量，使进程可用的逻辑地址空间远大于物理内存。
+\end{enumerate}
+\end{mydef}
+
+\begin{attention}
+\textbf{408 考点：虚拟内存的最大容量}由\textbf{地址结构}（CPU 寻址位数）决定，与实际物理内存大小无关。例如 32 位系统，最大虚拟地址空间为 $2^{32}=4\text{ GB}$。虚拟内存的\textbf{实际容量}受 $\min(\text{CPU 寻址范围},\; \text{内存容量} + \text{外存交换区容量})$ 制约。
+\end{attention}
+
+\subsubsection{请求分页}
+
+\begin{mydef}{请求分页系统}{demand-paging}
+请求分页（Demand Paging）是最基本的虚拟内存实现方式。基本思想：
+\begin{itemize}
+    \item 进程开始时，仅将少量必要的页面装入内存（甚至可以先不装入任何页面——纯粹按需调页）；
+    \item 当 CPU 访问的页面不在内存时（页表项有效位 $= 0$），触发\textbf{缺页中断（Page Fault）}；
+    \item OS 缺页中断处理程序从磁盘中调入缺失的页面，更新页表，然后重新执行导致缺页的指令。
+\end{itemize}
+\end{mydef}
+
+\begin{conclusion}{缺页中断处理流程}{page-fault-handler}
+缺页中断是一种特殊的\textbf{异常（Fault）}，其处理流程如下：
+\begin{enumerate}
+    \item 硬件检测到缺页（页表项有效位 $=0$），触发缺页异常，陷入内核；
+    \item OS 保存现场（寄存器、程序计数器等）；
+    \item OS 判断该逻辑地址是否合法（属于该进程的地址空间）。若非法→终止进程；若合法→继续：
+    \item 从空闲页框中分配一个（若无空闲→执行页面置换算法，选出换出页面）；
+    \item 若换出页面被修改过（Dirty 位 $=1$），将其写回磁盘；
+    \item 从磁盘将缺失的页面读入分配到的页框；
+    \item 更新页表（设置页框号、有效位 $=1$），更新 TLB；
+    \item 恢复现场，重新执行导致缺页的指令。
+\end{enumerate}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考：缺页中断与普通中断的区别。}
+\begin{itemize}
+    \item 缺页中断在\textbf{指令执行过程中}产生（属于异常/Fault），而非下一条指令开始前（属于中断）；
+    \item 缺页中断处理完成后，需要\textbf{重新执行}导致缺页的那条指令（而不是执行下一条）；
+    \item 一条指令可能导致\textbf{多次}缺页（如跨页的指令本身、多个操作数各自跨页等）。
+\end{itemize}
+\end{attention}
+
+\subsubsection{页面置换算法}
+
+\begin{mydef}{页面置换算法}{page-replacement-algorithms}
+当缺页发生且无空闲页框时，OS 需要选择一个已在内存中的页面换出（Evict）。置换算法的目标是使\textbf{缺页率（Page Fault Rate）}最低。选择哪个页面换出由页面置换算法决定。
+\end{mydef}
+
+\begin{formula}{有效访问时间（含缺页处理）}{eat-with-pagefault}
+设：
+\begin{itemize}
+    \item $t_{\text{mem}}$：一次内存访问时间
+    \item $t_{\text{pf}}$：缺页处理时间（主要是磁盘 I/O，通常为 ms 级）
+    \item $p$：缺页率（Page Fault Rate）
+    \item $t_{\text{TLB}}$ 忽略不计
+\end{itemize}
+
+\[
+\boxed{\text{EAT} = (1-p) \times t_{\text{mem}} + p \times t_{\text{pf}}}
+\]
+
+由于 $t_{\text{pf}} \gg t_{\text{mem}}$（数量级差 $10^5 \sim 10^6$），即使缺页率很低，也会显著影响性能。例如：$t_{\text{mem}} = 100\text{ ns}$，$t_{\text{pf}} = 8\text{ ms}$，缺页率 $p = 0.001\%$ 时：
+\[
+\text{EAT} \approx 0.99999 \times 100\text{ ns} + 0.00001 \times 8\text{ ms} \approx 180\text{ ns}
+\]
+性能下降近一倍。
+\end{formula}
+
+% --- OPT ---
+\begin{conclusion}{最优页面置换算法 OPT}{opt-algorithm}
+\textbf{OPT（Optimal Page Replacement，最佳置换算法）}：选择\textbf{在未来最长时间内不再被访问}的页面换出。
+
+OPT 是所有算法中缺页率最低的，但它是\textbf{不可实现的}（需要预知未来的访问序列）。OPT 仅作为理论上的\textbf{性能标尺}，用于衡量其他算法的优劣。
+
+\boxed{\textbf{例}} 内存可容纳 3 个页面，访问序列：$7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1$。OPT 置换过程：共 9 次缺页（\textbf{Belady 异常不会在 OPT 中发生}）。
+\end{conclusion}
+
+% --- FIFO ---
+\begin{conclusion}{先进先出置换算法 FIFO}{fifo-algorithm}
+\textbf{FIFO（First-In First-Out）}：维护一个 FIFO 队列，选择\textbf{最早进入内存}的页面换出。
+
+\begin{itemize}
+    \item \textbf{优点}：实现简单（只需一个循环队列）。
+    \item \textbf{缺点}：完全忽略了页面的访问频率和使用情况；可能置换出频繁使用的页面。
+    \item \textbf{Belady 异常（Belady's Anomaly）}：对于 FIFO，增加物理页框数有时反而导致\textbf{缺页次数增加}。
+\end{itemize}
+
+\boxed{\textbf{例（Belady 异常）}} 访问序列：$1,2,3,4,1,2,5,1,2,3,4,5$。3 个页框时缺页 9 次，4 个页框时缺页 10 次。\textbf{LRU 和 OPT 不会出现 Belady 异常}（它们属于栈类算法）。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点：Belady 异常。} 
+仅有\textbf{FIFO}算法可能出现 Belady 异常。OPT 和 LRU 是\textbf{栈类算法（Stack Algorithm）}——$n$ 个页框时的驻留集始终是 $n+1$ 个页框时驻留集的子集，因此不会出现缺页反而增加的情况。CLOCK 算法（LRU 的近似）也不会出现 Belady 异常。
+\end{attention}
+
+% --- LRU ---
+\begin{conclusion}{最近最久未使用置换算法 LRU}{lru-algorithm}
+\textbf{LRU（Least Recently Used）}：选择\textbf{最近最久未被访问}的页面换出。基于「过去不常使用的页面未来也不太可能被使用」的局部性原理。
+
+\textbf{LRU 实现方式：}
+\begin{enumerate}
+    \item \textbf{计数器法}：为每个页表项关联一个时间戳（逻辑时钟）。每次页面被访问时，将当前时钟值写入该 PTE。置换时选择时间戳最小的页面。
+    \item \textbf{栈法}：维护一个按访问时间排序的页面号栈。每次访问将页面移至栈顶；置换时选择栈底页面。
+\end{enumerate}
+
+\begin{itemize}
+    \item \textbf{优点}：性能接近 OPT，是实际可实现的算法中效果最好的。
+    \item \textbf{缺点}：每次访存都需更新计数器或调整栈，纯硬件支持成本高（TLB 可辅助）。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频计算：LRU 置换过程与缺页次数统计。} 
+考题通常给出内存容量（页框数）和页面访问序列，要求模拟 LRU 置换过程，统计缺页次数。技巧：维护一个 LRU 栈（或访问顺序表），每次访问后将当前页面移到队尾（最远被访问的一端），队头即为最久未使用的页面。
+
+\textbf{注意区分「LRU 栈」和「FIFO 队列」：} FIFO 中页面进入顺序不变（仅在置换时才变化）；LRU 中每次\textbf{访问命中}都会改变页面的顺序。
+\end{attention}
+
+% --- CLOCK ---
+\begin{conclusion}{CLOCK 置换算法（NRU）}{clock-algorithm}
+\textbf{CLOCK 算法}（又称 NRU，Not Recently Used）是 LRU 的一种\textbf{近似实现}，几乎所有现代 OS 都采用 CLOCK 或其变种。它利用 PTE 中的\textbf{访问位（Reference/Accessed Bit）}，避免了 LRU 每次访问都要更新的开销。
+
+\textbf{基本 CLOCK 算法：}
+\begin{enumerate}
+    \item 将所有驻留页面组织成\textbf{环形链表}（类似时钟面盘），维护一个指针（时钟指针）；
+    \item 发生缺页需置换时：
+    \begin{itemize}
+        \item 检查当前指针所指页面的访问位；
+        \item 若访问位 $=0$：选择该页换出，指针前进一位，结束；
+        \item 若访问位 $=1$：将访问位清 $0$（「给第二次机会」），指针前进一位，重新检查。
+    \end{itemize}
+    \item 如果遍历一圈全为 $1$，则所有访问位都被清 $0$，第二轮必定找到 $0$。
+\end{enumerate}
+
+\textbf{直观理解：} CLOCK 就像给每个页面「一次免死金牌」。如果最近被访问过（访问位 $=1$），则暂时放过（清 $0$），除非一\
+轮下来仍无其他候选。
+\end{conclusion}
+
+% --- Improved CLOCK ---
+\begin{conclusion}{改进型 CLOCK 算法}{improved-clock}
+\textbf{改进型 CLOCK（Enhanced Second-Chance）}增加了\textbf{修改位（Dirty/Modified Bit）}的考量。选择换出页面时，优先选择\textbf{既未访问也未修改}的页面（避免写回磁盘的开销）。
+
+考虑（访问位 $A$，修改位 $M$）组合，优先级从高到低：
+\begin{tablebox}{改进型 CLOCK 置换优先级}
+\centering
+\begin{tabular}{|c|c|c|l|}
+\hline
+优先级 & $A$ & $M$ & 含义 \\
+\hline
+第一（最优选） & $0$ & $0$ & 最近未访问，未修改——直接丢弃 \\
+第二 & $0$ & $1$ & 最近未访问，但被修改——需写回磁盘 \\
+第三 & $1$ & $0$ & 最近访问过，未修改——可能很快再被访问 \\
+第四（最后选） & $1$ & $1$ & 最近访问过且修改过——最不该淘汰 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{扫描过程：}
+\begin{enumerate}
+    \item \textbf{第一轮扫描}：寻找 $(A=0, M=0)$ 的页面，不修改任何访问位。找到即换出。
+    \item \textbf{第二轮扫描}：寻找 $(A=0, M=1)$ 的页面，同时将遇到的页面的 $A$ 清 $0$。找到即换出。
+    \item \textbf{第三轮扫描}：重复第一轮（此时所有 $A$ 已被清 $0$，必能找到）。
+    \item （若仍无，重复第二轮，此时必有 $(0,1)$ 被找到。）
+\end{enumerate}
+
+\textbf{优势：}减少了对磁盘的写操作（只有修改过的页面才需要写回磁盘），使页面置换的 I/O 开销尽可能小。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点：CLOCK 与改进 CLOCK 的置换过程模拟。}
+考试通常给出各页面的 $A$ 和 $M$ 位的当前值，以及时钟指针位置，要求找出下一个被换出的页面及扫描过程中各标志位的变化。\textbf{重点掌握：}改进 CLOCK 中，第一轮不看 $M$，只找 $(0,0)$；第二轮不仅找 $(0,1)$，还\textbf{顺便清 $A$}。
+\end{attention}
+
+\subsection{页面分配策略与抖动}
+
+\subsubsection{页面分配策略}
+
+\begin{conclusion}{页面分配策略}{page-allocation-strategies}
+OS 在多个进程之间分配物理页框时，有三种基本策略：
+
+\begin{tablebox}{页面分配策略对比}
+\centering
+\begin{tabular}{|l|p{6cm}|p{3cm}|}
+\hline
+策略 & 含义 & 特点 \\
+\hline
+\textbf{固定分配 + 局部置换} & 每个进程固定数量的页框；缺页时仅从自身页面中选择换出 & 分配数确定后不变 \\
+\hline
+\textbf{可变分配 + 全局置换} & 不预先限制各进程的页框数；缺页时从\textbf{所有进程}的页面中选一个换出（可从别的进程「抢」页框） & 灵活，但一个进程的行为可能影响其他进程 \\
+\hline
+\textbf{可变分配 + 局部置换} & 动态调整各进程页框数；缺页时仅从自身页面中置换，但 OS 会定期评估并调整分配数 & 最常用；平衡灵活性和隔离性 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{引入/调入页面的时机：}
+\begin{itemize}
+    \item \textbf{请求调页（Demand Paging）}：仅在访问缺页时才调入（最常用）。
+    \item \textbf{预调页（Prepaging）}：在缺页发生时，除调入缺失页面外，也调入其相邻的若干页面（利用空间局部性，减少后续缺页）。
+\end{itemize}
+\end{conclusion}
+
+\subsubsection{抖动与工作集}
+
+\begin{mydef}{抖动}{thrashing}
+\textbf{抖动（Thrashing）}是指系统中频繁发生缺页，以至于进程花费在页面换入换出上的时间超过了实际执行计算的时间，CPU 利用率急剧下降的现象。
+
+\textbf{抖动产生的原因：} 并发进程过多，每个进程分配的物理页框数少于其\textbf{工作集（Working Set）}所需的最小页数。进程不断缺页，从其他进程抢页面，引发连锁反应。
+
+\textbf{抖动的特征：}
+\begin{itemize}
+    \item CPU 利用率骤降（因为进程都在等待磁盘 I/O）；
+    \item 磁盘忙于处理页面换入换出；
+    \item 系统吞吐量极低。
+\end{itemize}
+\end{mydef}
+
+\begin{conclusion}{工作集模型}{working-set-model}
+\textbf{工作集（Working Set）}由 Denning 提出，定义为：
+
+\[
+\boxed{W(t, \Delta) = \{\text{进程在时间区间 } [t-\Delta, t] \text{ 内访问过的页面集合}\}}
+\]
+
+其中 $\Delta$ 称为\textbf{工作集窗口（Window Size）}。工作集的大小 $|W(t, \Delta)|$ 随程序执行的阶段不同而变化。
+
+\textbf{工作集模型的应用：}
+\begin{enumerate}
+    \item \textbf{防止抖动}：OS 监视每个进程的工作集大小，确保分配的页框数 $\ge$ 工作集大小。如果所有进程的工作集之和超过物理内存总量，则需要挂起（Suspend）某些进程。
+    \item \textbf{页面置换决策}：优先保留工作集内的页面，换出不在工作集中的页面。
+\end{enumerate}
+
+\textbf{页框数的确定：}
+\begin{itemize}
+    \item \textbf{最少页框数}：由硬件（指令集结构）决定——保证一条指令能正常执行所需的最少页面数（如跨页指令 + 跨页操作数，最多可能需要 6 个页面）。
+    \item \textbf{最大页框数}：进程的\textbf{全部页面数}。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点：抖动与工作集。}
+\begin{itemize}
+    \item 抖动可以通过\textbf{工作集模型}或\textbf{缺页频率（PFF，Page Fault Frequency）}策略来预防。
+    \item PFF 策略：若进程缺页率太高 → 增加其页框数；若缺页率太低 → 减少其页框数。
+    \item 408 常考判断：「系统频繁换页，CPU 利用率低」→ 系统发生了抖动，应\textbf{减少并发进程数}，而不是增加。
+\end{itemize}
+\end{attention}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{内存管理 — 408 常考点总结}{mem-keypoints}
+\begin{enumerate}
+    \item \textbf{地址变换计算}：给定逻辑地址和页面大小 → 求页号、页内偏移；查页表 → 求物理地址。\textbf{必考题}。
+    \item \textbf{TLB + 页表 + Cache 综合}：理解 TLB 命中/缺失后的访存流程，计算不同命中率下的有效访存时间。
+    \item \textbf{多级页表}：给定多级页表结构和逻辑地址，求各级索引和最终物理地址；计算多级页表节省的内存量。
+    \item \textbf{页面置换算法}：OPT、FIFO（注意 Belady 异常）、LRU、CLOCK、改进 CLOCK 的置换过程模拟和缺页次数统计。\textbf{高频计算题}。
+    \item \textbf{分段 vs 分页 vs 段页式}：地址变换方式的区别（拼接 vs 加法）、碎片类型、访存次数。
+    \item \textbf{碎片问题}：固定分区（内部碎片）、动态分区（外部碎片 + 紧凑）、分页（内部碎片）、分段（外部碎片）。
+    \item \textbf{抖动与工作集}：抖动的现象、原因和解决方案。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 在分页系统中，逻辑地址长度为 32 位，页面大小为 4 KB，则页号占多少位？
+\begin{center}
+\begin{tabular}{ll}
+(A) 12 位 & (B) 20 位 \\[4pt]
+(C) 22 位 & (D) 32 位
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 以下关于分页和分段的说法，\textbf{错误}的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 分页对程序员透明，分段对程序员可见 \\[4pt]
+(B) 分页按固定大小划分，分段按逻辑单元划分 \\[4pt]
+(C) 分页会产生外部碎片，分段会产生内部碎片 \\[4pt]
+(D) 分段有利于共享和保护，分页有利于消除外部碎片
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在动态分区分配中，以下哪种算法会产生最多的外部碎片？
+\begin{center}
+\begin{tabular}{ll}
+(A) 首次适应（FF） & (B) 最佳适应（BF） \\[4pt]
+(C) 最坏适应（WF） & (D) 邻近适应（NF）
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 关于虚拟内存，以下说法正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 虚拟内存的容量由物理内存大小决定 \\[4pt]
+(B) 请求分页系统中，进程必须一次性装入全部页面 \\[4pt]
+(C) 局部性原理是虚拟内存实现的理论基础 \\[4pt]
+(D) 缺页中断属于外中断
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在改进型 CLOCK 置换算法中，具有以下哪种（访问位 $A$，修改位 $M$）组合的页面\textbf{最优先}被淘汰？
+\begin{center}
+\begin{tabular}{ll}
+(A) $A=0, M=0$ & (B) $A=0, M=1$ \\[4pt]
+(C) $A=1, M=0$ & (D) $A=1, M=1$
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} Belady 异常可能出现在以下哪种页面置换算法中？
+\begin{center}
+\begin{tabular}{ll}
+(A) LRU & (B) OPT \\[4pt]
+(C) FIFO & (D) CLOCK
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 在分页系统中，每次访存（不考虑 TLB）需要 \underline{\qquad} 次内存访问；引入 TLB 后，若 TLB 命中，则每次访存需要 \underline{\qquad} 次内存访问。
+
+\item \textbf{（填空题）} 动态分区分配中，\underline{\qquad} 算法从上次分配结束的位置开始查找第一个合适的空闲块。当内存中出现许多难以利用的微小空闲块时，称产生了\textbf{\underline{\qquad}}。
+
+\item \textbf{（简答题）} 简述静态重定位和动态重定位的区别，并说明为什么现代 OS 需要动态重定位。
+
+\item \textbf{（简答题）} 简述二级页表的工作原理及其比单级页表节省内存的原因。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 某计算机系统按字节编址，逻辑地址和物理地址均为 32 位，页面大小为 4 KB。某时刻进程的页表部分内容如下（未列出的页表项有效位均为 0）：
+
+\begin{tablebox}{页表部分内容}
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+页号 & 页框号 & 有效位 \\
+\hline
+0 & 2 & 1 \\
+1 & 5 & 1 \\
+2 & — & 0 \\
+3 & 7 & 1 \\
+4 & — & 0 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+若 CPU 依次访问逻辑地址 2049 和 12288（十进制），则两次访存对应的物理地址分别是多少？
+\begin{center}
+\begin{tabular}{ll}
+(A) 10241 和 28672 & (B) 10241 和 缺页 \\[4pt]
+(C) 6145 和 28672 & (D) 6145 和 缺页
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 某请求分页系统，页面大小 4 KB，某进程的页表如下（含访问位 $A$ 和修改位 $M$）：
+
+\begin{tablebox}{进程页表}
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+页号 & 页框号 & 有效位 & $A$ & $M$ \\
+\hline
+0 & 3 & 1 & 1 & 0 \\
+1 & 6 & 1 & 0 & 1 \\
+2 & 9 & 1 & 1 & 1 \\
+3 & — & 0 & 0 & 0 \\
+4 & 2 & 1 & 0 & 0 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+问：(1) 逻辑地址 5000（十进制）对应的物理地址是多少？(2) 若此时发生缺页，采用改进型 CLOCK 算法选择置换页面，当前时钟指针指向 2 号页框（顺时针扫描），扫描过程中 $A$ 和 $M$ 位如何变化？最终淘汰哪个页面？
+
+\item \textbf{（真题风格，综合题）} 某计算机系统的主存按字节编址，逻辑地址和物理地址均为 32 位，页面大小为 4 KB，采用二级页表的分页存储管理方式。逻辑地址格式为：一级页号（10 位）$|$ 二级页号（10 位）$|$ 页内偏移（12 位）。
+
+问：(1) 一级页表（页目录）共有多少个表项？每个表项至少占多少字节（假设表项中只有页框号）？(2) 一个进程的页目录和二级页表共占多少页框（假设该进程只使用了页号为 $0\sim1023$ 的页面，即连续的前 1024 页）？(3) 计算该进程访问逻辑地址 \texttt{0x0040 3000} 时，一级页号和二级页号分别是多少（十六进制或十进制）？
+
+\item \textbf{（真题风格，综合题）} 在一个请求分页系统中，系统为某进程分配了 3 个物理页框，页面访问序列为：
+\[
+3, 2, 1, 0, 3, 2, 4, 3, 2, 1, 0, 4
+\]
+初始时 3 个页框均为空。请分别采用 FIFO、LRU 和 OPT 算法，给出缺页中断次数，并说明是否有算法发生了 Belady 异常（若将页框数增加到 4 个，FIFO 的缺页次数是多少？）。
+
+\item \textbf{（真题风格，综合题）} 某计算机系统采用请求分页虚拟存储管理，TLB 命中率为 $98\%$，Cache 命中率为 $95\%$。一次 TLB 访问时间为 $1\text{ ns}$，一次主存访问时间为 $100\text{ ns}$，一次磁盘访问时间为 $8\text{ ms}$（含缺页处理）。已知缺页率为 $0.01\%$。求：
+\begin{enumerate}
+    \item 若 TLB 命中，获得物理地址后访问 Cache 也命中，共需多少时间？
+    \item 若 TLB 缺失但缺页不发生，Cache 也缺失，共需多少时间？
+    \item 该系统的有效访存时间（EAT）是多少？
+\end{enumerate}
+
+\item \textbf{（真题风格，简答题）} 系统出现「抖动」时有哪些典型症状？导致抖动的根本原因是什么？有哪些方法可以预防或解除抖动？
+
+\item \textbf{（真题风格，综合题）} 在动态分区分配中，假设空闲分区链的初始状态为一个大小为 1024 KB 的空闲块。依次有以下请求序列：
+\begin{center}
+\texttt{A 请求 200 KB} $\to$ \texttt{B 请求 300 KB} $\to$ \texttt{C 请求 150 KB} $\to$ \texttt{A 释放} $\to$ \texttt{D 请求 80 KB} $\to$ \texttt{E 请求 250 KB} $\to$ \texttt{B 释放}
+\end{center}
+请分别用首次适应（FF）和最佳适应（BF）算法画出每次分配和释放后的空闲分区链状态，并比较最终的空闲块分布。
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item OSTEP 第 13--22 章「内存虚拟化」——从地址空间、分页、TLB、分段到页面置换的完整讲授；第 21--22 章对交换机制、页面置换策略有深入讨论；
+    \item 陈海波《现代操作系统：原理与实现》第 5 章「内存管理」——涵盖虚拟地址空间、物理内存管理、缺页处理与页面置换的现代 OS 视角，结合 ChCore 实验环境实现。
+\end{itemize}

@@ -1,0 +1,247 @@
+\section{串}
+
+\subsection{串的定义与ADT}
+
+\begin{mydef}{串}{string-def}
+串（String）是由零个或多个字符组成的有限序列，记作：
+\[
+S = \texttt{'}a_{1}a_{2}\cdots a_{n}\texttt{'}\qquad (n \geqslant 0)
+\]
+其中 $S$ 为串名，$n$ 为串长，$n=0$ 时为空串，记作 $\varepsilon$。
+
+\textbf{相关术语：}
+\begin{itemize}
+    \item \textbf{子串}：串中任意连续字符组成的子序列。
+    \item \textbf{主串}：包含子串的串。
+    \item \textbf{串相等}：长度相等且对应位置字符均相同。
+    \item \textbf{空格串}：由一个或多个空格组成的串（不是空串）。
+\end{itemize}
+\end{mydef}
+
+\begin{attention}
+\textbf{408 辨析重点：空串 vs 空格串。} 空串 $\varepsilon$ 长度为 0；空格串由空格字符组成，长度 $\geqslant 1$。
+\end{attention}
+
+\subsection{朴素的模式匹配（BF算法）}
+
+\begin{mydef}{模式匹配}{pattern-matching}
+给定主串 $S$（长 $n$）和模式串 $T$（长 $m$，$n\geqslant m$），在 $S$ 中寻找首次等于 $T$ 的子串的过程称为\textbf{模式匹配}。
+\end{mydef}
+
+\begin{conclusion}{BF（Brute-Force）算法}{bf-algorithm}
+从主串每个位置开始，逐个字符与模式串比较；失配则主串回溯到下一位置，模式串回到首字符。
+
+\begin{lstlisting}[language=C]
+int Index_BF(SString S, SString T) {
+    int i = 1, j = 1;
+    while (i <= S.length && j <= T.length) {
+        if (S.ch[i] == T.ch[j]) { i++; j++; }
+        else { i = i - j + 2; j = 1; }  // i回溯, j复位
+    }
+    if (j > T.length) return i - T.length;
+    else return 0;
+}
+\end{lstlisting}
+
+\textbf{回溯公式 $i = i-j+2$ 的理解：} $i-j+1$ 是本轮起始位置，$+1$ 即下一位置。
+
+\textbf{时间复杂度：} 最好 $O(n)$，最坏 $O(nm)$（如 $S=$"aaaa…a"，$T=$"aaaab"），平均 $O(n+m)$。
+\end{conclusion}
+
+\subsection{KMP算法}
+
+\begin{mydef}{KMP算法}{kmp-def}
+KMP（Knuth-Morris-Pratt）利用已匹配部分的信息，使主串指针 $i$ 不回溯，模式串 $j$ 根据 \textbf{next 数组}跳转。时间复杂度 $O(n+m)$。
+\end{mydef}
+
+\begin{conclusion}{KMP 核心思想}{kmp-intuition}
+当 $S[i]\neq T[j]$ 失配时，已匹配的 $T[1..j-1]=S[i-j+1..i-1]$。若 $T[1..j-1]$ 的某个真前缀等于某个真后缀，则 $T$ 可「滑动」使该前缀对齐到后缀位置，$i$ 不动，$j$ 跳到该前缀长度 $+1$ 处继续比较。
+\end{conclusion}
+
+\subsubsection{next 数组的定义与手算}
+
+\begin{mydef}{next 数组（下标从 1 开始）}{next-def}
+\[
+\text{next}[j] = \begin{cases}
+0, & j = 1 \\
+\max\{k \mid 1<k<j,\; T[1..k-1] = T[j-k+1..j-1]\}, & \text{集合非空} \\
+1, & \text{其他}
+\end{cases}
+\]
+即 $\text{next}[j]$ = 前 $j-1$ 个字符的最长相等真前后缀长度 $+1$。
+\end{mydef}
+
+\begin{attention}
+\textbf{408 默认下标从 1 开始，next[1]=0, next[2]=1 恒成立。} 若下标从 0 开始，则 next[0]=$-1$，next[1]=0（每个值减 1）。
+\end{attention}
+
+\begin{conclusion}{手算 next 数组示例}{next-example}
+以 $T=$ "abaabcac" 为例：
+
+\[
+\begin{array}{c|cccccccc}
+j & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\
+\hline
+T[j] & a & b & a & a & b & c & a & c \\
+\hline
+\text{next}[j] & 0 & 1 & 1 & 2 & 2 & 3 & 1 & 2
+\end{array}
+\]
+
+计算过程（以 $j=6$ 为例）：前 5 个字符 "abaab" 的最长公共前后缀为 "ab"（长度 2），故 next[6]=3。
+\end{conclusion}
+
+\subsubsection{KMP 匹配算法}
+
+\begin{conclusion}{KMP 匹配代码}{kmp-match}
+\begin{lstlisting}[language=C]
+int Index_KMP(SString S, SString T) {
+    int i = 1, j = 1;
+    int next[MAXSTRLEN];
+    GetNext(T, next);
+    while (i <= S.length && j <= T.length) {
+        if (j == 0 || S.ch[i] == T.ch[j])
+            { i++; j++; }
+        else
+            j = next[j];       // i不动！仅j回溯
+    }
+    if (j > T.length) return i - T.length;
+    else return 0;
+}
+\end{lstlisting}
+\textbf{$j=0$ 的含义：} next[1]=0，当首字符失配时 $j$ 变 0，下一轮 $i$++、$j$++ 使 $j$ 恢复为 1。
+\end{conclusion}
+
+\subsubsection{next 数组的递推求法}
+
+\begin{conclusion}{GetNext 算法}{get-next}
+利用已知的 next 值递推计算：
+
+\begin{lstlisting}[language=C]
+void GetNext(SString T, int next[]) {
+    int j = 1, k = 0;
+    next[1] = 0;
+    while (j < T.length) {
+        if (k == 0 || T.ch[j] == T.ch[k]) {
+            j++; k++;
+            next[j] = k;
+        } else {
+            k = next[k];       // 失配时k回溯
+        }
+    }
+}
+\end{lstlisting}
+时间复杂度 $O(m)$。核心：$k$ 始终表示「当前已匹配的最长公共前后缀长度」。
+\end{conclusion}
+
+\subsubsection{nextval 数组}
+
+\begin{conclusion}{nextval 改进}{nextval}
+若 $T[j]=T[\text{next}[j]]$，则失配跳到 next[j] 后字符相同仍会失配。nextval 在此情况下继续向前跳：
+
+\begin{lstlisting}[language=C]
+void GetNextVal(SString T, int nextval[]) {
+    int j = 1, k = 0;
+    nextval[1] = 0;
+    while (j < T.length) {
+        if (k == 0 || T.ch[j] == T.ch[k]) {
+            j++; k++;
+            nextval[j] = (T.ch[j] != T.ch[k]) ? k : nextval[k];
+        } else {
+            k = nextval[k];
+        }
+    }
+}
+\end{lstlisting}
+\end{conclusion}
+
+\begin{conclusion}{408 高频考点汇总}{string-408-keypoints}
+\begin{enumerate}
+    \item next 数组的手工计算——选择题必考，重点是下标约定（从 1 开始）。
+    \item next[1]=0, next[2]=1 恒成立，可用于快速排除选项。
+    \item KMP 匹配过程中 $i$ 永不回溯，比较次数 $\leqslant 2n$。
+    \item BF 的最坏时间复杂度 $O(nm)$ 及其触发条件。
+    \item nextval 的计算（偶尔出现）。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 串的长度是指
+\begin{center}
+\begin{tabular}{ll}
+(A) 串中所含不同字母的个数 & (B) 串中所含字符的个数 \\[6pt]
+(C) 串中所含不同字符的个数 & (D) 串中所含非空格字符的个数
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 设有两个串 $p$ 和 $q$，求 $q$ 在 $p$ 中首次出现的位置的运算称为
+\begin{center}
+\begin{tabular}{ll}
+(A) 连接 & (B) 模式匹配 \\[6pt]
+(C) 求子串 & (D) 求串长
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 空串与空格串的区别是：空串的长度为 \underline{\qquad}，空格串的长度 \underline{\qquad}。
+
+\item \textbf{（填空题）} 设模式串 $T=$ "ababaa"，下标从 1 开始，则 next[4] = \underline{\qquad}，next[5] = \underline{\qquad}。
+
+\item \textbf{（简答题）} 已知主串 $S=$ "aaabaaaab"，模式串 $T=$ "aaaab"。用 BF 算法进行匹配，写出每趟匹配的过程，统计总的字符比较次数。
+
+\item \textbf{（计算题）} 求模式串 $T=$ "abcabca" 的 next 数组和 nextval 数组（下标从 1 开始）。
+
+\item \textbf{（简答题）} KMP 算法相对于 BF 算法的优势是什么？什么情况下 KMP 的优势最明显？
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 已知模式串 $T=$ "ababaabab"，下标从 1 开始，则 next[6] 和 next[7] 的值分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) 3 和 2 & (B) 3 和 3 \\[6pt]
+(C) 4 和 2 & (D) 4 和 3
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 设主串 $S$ 的长度为 $n$，模式串 $T$ 的长度为 $m$。KMP 算法在匹配过程中的时间复杂度为
+\begin{center}
+\begin{tabular}{ll}
+(A) $O(n)$ & (B) $O(n+m)$ \\[6pt]
+(C) $O(nm)$ & (D) $O(m)$
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 设有模式串 $T=$ "aaab"，下标从 1 开始，以下关于 nextval 数组的说法中正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) nextval[2] = 0 & (B) nextval[3] = 0 \\[6pt]
+(C) nextval[2] = 1 & (D) nextval[4] = 1
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 设主串 $S=$ "ababcabcacbab"，模式串 $T=$ "abcac"。
+\begin{enumerate}
+    \item[(1)] 计算 $T$ 的 next 数组（下标从 1 开始）；
+    \item[(2)] 用 KMP 算法写出匹配过程（画表格，标出每趟的 $i$、$j$ 起始值和匹配结果）；
+    \item[(3)] 统计总的字符比较次数。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 给出求模式串 next 数组的算法（GetNext），分析其时间复杂度。若模式串为 $T=$ "aaaaab"，该算法的时间复杂度是否会退化为 $O(m^2)$？说明理由。
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item 邓俊辉《数据结构（C++语言版）》第 9 章「串」——KMP 算法的完整推导，包括 next 数组的改进（nextval）。
+    \item Sedgewick《算法》第 5.3 节「子字符串查找」——KMP 的 DFA 视角理解。
+\end{itemize}

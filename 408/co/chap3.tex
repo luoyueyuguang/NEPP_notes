@@ -1,0 +1,837 @@
+\section{存储系统}
+
+\subsection{存储器概述与分类}
+
+\begin{mydef}{存储器的分类维度}{mem-classify}
+从多个维度对存储器进行分类：
+\begin{enumerate}
+    \item \textbf{按存储介质}：半导体存储器（SRAM/DRAM/ROM/Flash）、磁表面存储器（磁盘）、光存储器（光盘）。
+    \item \textbf{按存取方式}：
+    \begin{itemize}
+        \item \textbf{随机存取（RAM）}：存取时间与物理位置无关，访问任意单元时间相等。如 SRAM、DRAM。
+        \item \textbf{顺序存取（SAM）}：按物理顺序线性访问，存取时间与位置相关。如磁带。
+        \item \textbf{直接存取（DAM）}：先大致定位到某个区域，再在该区域内顺序查找——兼有随机和顺序的特点。如磁盘（磁头先寻道，再在磁道上顺序旋转）。
+        \item \textbf{相联存取（Associative）}：按内容而非地址访问，给定数据的一部分匹配存储单元。如 Cache 中的 TAG 比较、TLB。
+    \end{itemize}
+    \item \textbf{按信息的可保存性}：
+    \begin{itemize}
+        \item \textbf{易失性}（Volatile）：断电后信息丢失，如 SRAM、DRAM。
+        \item \textbf{非易失性}（Non-volatile）：断电不丢失，如 ROM、Flash、磁盘。
+    \end{itemize}
+    \item \textbf{按在计算机中的位置}：寄存器（CPU 内部）、主存（内存）、辅存（外存）。
+\end{enumerate}
+\end{mydef}
+
+\begin{attention}
+\textbf{408 常考区分：}
+\begin{itemize}
+    \item 「随机存取」$\neq$「RAM」。ROM 也是随机存取的（可按地址直接访问），但它是非易失性的，不属于 RAM。
+    \item 磁盘是「直接存取」，不是随机存取——因为寻道和旋转延迟使不同位置的访问时间不同。
+    \item 相联存储器按\textbf{内容}检索，不是按地址；Cache 的 TAG 比较即相联查找。
+\end{itemize}
+\end{attention}
+
+\begin{conclusion}{半导体存储器分类}{semi-mem-classify}
+\begin{tablebox}{半导体存储器分类}
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+类型 & 典型器件 & 读写特性 & 易失性 \\
+\hline
+RAM（随机存取）& SRAM & 可读可写 & 易失 \\
+                 & DRAM & 可读可写 & 易失 \\
+ROM（只读存储器）& MROM & 出厂固化的只读 & 非易失 \\
+                 & PROM & 用户一次编程 & 非易失 \\
+                 & EPROM & 紫外线擦除后可重写 & 非易失 \\
+                 & EEPROM & 电擦除可重写 & 非易失 \\
+Flash & NAND/NOR Flash & 块擦除、页编程 & 非易失 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{Flash 的两种类型：}
+\begin{itemize}
+    \item \textbf{NOR Flash}：支持按字节随机读，读取速度快，擦除慢，适合代码存储（如固件）。
+    \item \textbf{NAND Flash}：按页读写，按块擦除，密度高，适合大容量数据存储（如 SSD、U 盘）。
+\end{itemize}
+\end{conclusion}
+
+\subsection{存储系统的层次结构}
+
+\begin{mydef}{存储层次（Memory Hierarchy）}{mem-hierarchy}
+现代计算机采用多级存储结构，从上到下容量递增、速度递减、每字节成本递减：
+
+\begin{center}
+\begin{tikzpicture}[node distance=1.5cm, auto]
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!10] (reg) {寄存器（CPU 内部）};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!20, below of=reg] (cache) {Cache（SRAM）};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!30, below of=cache] (mem) {主存（DRAM）};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!40, below of=mem] (disk) {辅存（磁盘/SSD）};
+\node[right of=reg, node distance=4cm] (speed) {\small 速度：$<1$ns};
+\node[right of=cache, node distance=4cm] (speed2) {\small $\sim 1$--$10$ns};
+\node[right of=mem, node distance=4cm] (speed3) {\small $\sim 50$--$100$ns};
+\node[right of=disk, node distance=4cm] (speed4) {\small $\sim 10$ms（磁盘）/$\sim100\mu$s（SSD）};
+\node[left of=reg, node distance=5cm] (size) {\small 容量：$\sim$KB};
+\node[left of=cache, node distance=5cm] (size2) {\small $\sim$MB};
+\node[left of=mem, node distance=5cm] (size3) {\small $\sim$GB};
+\node[left of=disk, node distance=5cm] (size4) {\small $\sim$TB};
+\end{tikzpicture}
+\end{center}
+
+每一层都是下一层的「缓存」——Cache 缓存主存、主存缓存磁盘。上层是下层的子集（包含关系）。
+\end{mydef}
+
+\begin{conclusion}{局部性原理（Principle of Locality）}{locality}
+存储层次之所以有效，根本原因是程序的\textbf{局部性原理}（CS:APP \S6.2）：
+
+\begin{enumerate}
+    \item \textbf{时间局部性}（Temporal Locality）：被引用过一次的存储位置在不久的将来很可能被再次引用。
+    \begin{itemize}
+        \item 典型来源：循环中的指令和数据、临时变量、频繁调用的函数。
+    \end{itemize}
+    \item \textbf{空间局部性}（Spatial Locality）：被引用过的存储位置的\textbf{附近}位置在不久的将来很可能被引用。
+    \begin{itemize}
+        \item 典型来源：顺序执行的指令、数组的顺序访问、结构体字段。
+    \end{itemize}
+\end{enumerate}
+
+\textbf{「步长为 $k$ 的引用模式」}的局部性：若 $k=1$（连续访问）则空间局部性好；$k$ 越大空间局部性越差；完全不规则的访问（如哈希表）局部性最差。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点：}判断一段代码的局部性。关注：
+\begin{itemize}
+    \item 数组访问是按行还是按列——C 语言按行存储，按行访问空间局部性好，按列访问则差。
+    \item 循环体内的指令具有时间局部性（重复执行）。
+    \item 函数递归调用：参数和返回地址有空间局部性（栈帧连续），递归调用本身时间局部性较弱（每次调用参数不同）。
+\end{itemize}
+\end{attention}
+
+\begin{conclusion}{命中率与平均访问时间}{hit-rate}
+设 $t_H$ 为上层命中访问时间，$t_M$ 为下层命中（上层缺失后从下层调入）的访问时间：
+\begin{itemize}
+    \item \textbf{命中率} $H$：访问上层命中的概率。
+    \item \textbf{缺失率} $M = 1-H$。
+    \item \textbf{平均访问时间}：$T_{\mathrm{avg}} = H \cdot t_H + (1-H)\cdot t_M = t_H + M \cdot t_M$。
+\end{itemize}
+
+两级存储（Cache--主存）情况下，$t_H$ 即 Cache 命中时间，$t_M$ 即缺失代价（从主存取一整块到 Cache 的时间）。
+\end{conclusion}
+
+\subsection{主存储器的基本结构}
+
+\begin{mydef}{存储单元与寻址}{mem-cell}
+主存由 $M$ 个存储单元组成，每个单元有一个唯一的地址。常见的编址方式：
+\begin{itemize}
+    \item \textbf{按字节编址}：每个地址对应一个字节（8位）。现代计算机普遍采用。
+    \item \textbf{按字编址}：每个地址对应一个字（如 32 位或 64 位）。
+\end{itemize}
+若地址线有 $n$ 根，则可寻址 $2^n$ 个存储单元。
+
+存储芯片的关键参数：
+\begin{itemize}
+    \item \textbf{地址线数} $a$：确定片内寻址范围，共 $2^a$ 个单元。
+    \item \textbf{数据线数} $d$：每个存储单元的位数（字长）。
+    \item \textbf{容量}：$2^a \times d$ 位。
+\end{itemize}
+\end{mydef}
+
+\subsubsection{存储芯片的扩展}
+
+\begin{conclusion}{位扩展}{bit-expand}
+多片存储芯片的数据线并联，实现字长的扩展。
+
+\textbf{例：}用 $16\mathrm{K}\times 4$ 位芯片构成 $16\mathrm{K}\times 8$ 位存储器。需 2 片，地址线和控制线并联，数据线分别接 D$_0$--D$_3$ 和 D$_4$--D$_7$。
+
+位扩展后容量变大为原来的 $k$ 倍，地址线数不变。
+\end{conclusion}
+
+\begin{conclusion}{字扩展}{word-expand}
+地址线增加（高位地址通过译码器产生片选信号），实现寻址范围的扩展。
+
+\textbf{例：}用 $16\mathrm{K}\times 8$ 位芯片构成 $64\mathrm{K}\times 8$ 位存储器。需 4 片。地址线增加 2 根（高位地址经 2-4 译码器产生 4 个片选信号 $\overline{\mathrm{CS}}_0$--$\overline{\mathrm{CS}}_3$），数据线并联即可。
+
+字扩展后容量变大为原来的 $k$ 倍，数据线数不变。
+\end{conclusion}
+
+\begin{conclusion}{字位同时扩展}{word-bit-expand}
+\textbf{例：}用 $16\mathrm{K}\times 4$ 位芯片构成 $64\mathrm{K}\times 8$ 位存储器。需 $4\times 2=8$ 片。芯片每 2 片一组做位扩展（得到 $16\mathrm{K}\times 8$ 位模块），4 组之间做字扩展。
+
+设地址线共 $A_{15}$--$A_0$（16 根，$2^{16}=64\mathrm{K}$），其中：
+\begin{itemize}
+    \item $A_{13}$--$A_0$（14 根）给每组芯片的片内地址（$2^{14}=16\mathrm{K}$）；
+    \item $A_{15}$--$A_{14}$（2 根）经 2-4 译码器产生 4 个片选，分别选通 4 组。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考计算：}
+\begin{itemize}
+    \item 给定若干芯片和所需总容量，求所需的芯片数量和地址线分配方案。
+    \item 注意区分「地址线数」和「数据线数」：位扩展改变数据线数，字扩展改变地址线数。
+    \item 片选信号由高位地址经译码产生，低地址给片内寻址。区分「片内地址线」和「片选地址线」。
+\end{itemize}
+\end{attention}
+
+\subsection{半导体存储器：SRAM 与 DRAM}
+
+\begin{mydef}{SRAM（静态随机存取存储器）}{sram}
+SRAM 的基本存储单元是\textbf{六管 CMOS 双稳态触发器}（6-T cell）：两个交叉耦合的反相器构成锁存器，4 个晶体管做读写控制。只要持续供电，数据就稳定保持。特点：
+\begin{itemize}
+    \item \textbf{速度快}：读/写延迟 $\sim 1$--$10$ns，不需要刷新。
+    \item \textbf{功耗较高}：每个 bit 需要 $6$ 个晶体管持续耗电维持状态。
+    \item \textbf{密度低}：集成度远低于 DRAM，每 bit 成本高。
+    \item \textbf{用途}：CPU 内部的 Cache（L1/L2/L3），要求极低延迟。
+\end{itemize}
+\end{mydef}
+
+\begin{mydef}{DRAM（动态随机存取存储器）}{dram}
+DRAM 的基本存储单元是\textbf{单晶体管 + 一个微小电容}（1T1C cell）：
+\begin{itemize}
+    \item 数据以电荷形式存储在电容上——有电荷为「1」，无电荷为「0」。
+    \item 电容会缓慢漏电，因此需要\textbf{定期刷新}（refresh）以保持数据。
+    \item \textbf{刷新周期}：通常在 64ms 内必须对所有行刷新一次。
+\end{itemize}
+
+\textbf{DRAM 的读操作是破坏性的}——读出时会消耗电容上的电荷，读后必须立即重写（读后恢复）。
+
+\textbf{刷新方式：}
+\begin{itemize}
+    \item \textbf{集中刷新}：在一个刷新周期内留出一段专门时间，一次性对所有行刷新。这段期间内不能响应 CPU 访问（「死时间」），死时间 $= \text{刷新行数} \times \text{每行刷新时间}$。
+    \item \textbf{分散刷新}：将刷新操作分散到系统周期的「空闲时间」中。每经过一定时间刷新一行，CPU 不用专门等待。
+    \item \textbf{异步刷新}：将刷新行均匀分散到整个刷新周期内，每隔 $(64\,\mathrm{ms})/(\text{行数})$ 刷新一行。兼有二者的优点有，对 CPU 影响最小，最为常见。
+\end{itemize}
+\end{mydef}
+
+\begin{conclusion}{SRAM vs DRAM 对比（408 重点）}{sram-dram-compare}
+\begin{tablebox}{SRAM 与 DRAM 对比}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+特性 & SRAM & DRAM \\
+\hline
+基本单元 & 六管触发器 & 单管 + 电容 \\
+是否需要刷新 & 否 & 是（$\sim 64$ms 刷新周期）\\
+读写速度 & 快（$\sim 1$--$10$ns）& 较慢（$\sim 50$--$100$ns）\\
+集成度 & 低（6 管/bit）& 高（1 管+1 电容/bit）\\
+每 bit 成本 & 高 & 低 \\
+功耗（静态）& 较高 & 较低（但需刷新功耗）\\
+破坏性读出 & 否 & 是 \\
+典型用途 & Cache & 主存 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{408 常见辨析：}
+\begin{itemize}
+    \item 「SRAM 速度快、成本高」→ 用于 Cache。
+    \item 「DRAM 需要刷新」→ 这是 DRAM 的「动态」含义。
+    \item 「DRAM 破坏性读出」→ 读后必须重写。
+    \item 「SRAM 不需要刷新」→ 但不等于非易失——断电数据仍丢失。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频概念区分：}
+\begin{itemize}
+    \item \textbf{存取周期（Memory Cycle Time）}：两次独立存储器操作之间所需的最小间隔时间。DRAM 的存取周期 $>$ 存取时间，因为读后需要恢复。
+    \item \textbf{存取时间（Access Time）}：从给出地址到数据出现在数据线上的时间。
+    \item \textbf{带宽（Bandwidth）}：单位时间内传输的数据量（字节/秒），$\mathrm{BW} = \text{数据宽度}/\text{存取周期}$。
+\end{itemize}
+\end{attention}
+
+\subsection{双口 RAM 与多模块存储器}
+
+\begin{mydef}{双口 RAM（Dual-Port RAM）}{dual-port-ram}
+双口 RAM 有两套独立的地址线、数据线和读写控制线，允许两个设备\textbf{同时}访问不同的存储单元。若两个端口同时访问\textbf{同一存储单元}：
+\begin{itemize}
+    \item 同时读：允许。
+    \item 一读一写或同时写：冲突，需仲裁逻辑处理（写优先或读优先）。
+\end{itemize}
+Cache 中的多端口实现常基于双口 RAM。
+\end{mydef}
+
+\subsubsection{多模块存储器}
+
+\begin{conclusion}{单体多字存储器}{mono-multi-word}
+在单个存储周期内从同一模块读出多个字。优点是带宽高（一次取出多条指令/数据），缺点是：
+\begin{itemize}
+    \item 需要更宽的数据通路（总线宽度增大）。
+    \item 遇到转移指令时，多取出的指令可能被废弃，效率降低。
+    \item 要求访问地址连续——若指令流发生跳转则效益丧失。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{多体并行存储器——交叉编址}{interleaving}
+将主存分成多个独立的存储体（bank），各体有自己的地址寄存器和数据寄存器，可以\textbf{重叠}操作。关键是不同体之间的\textbf{地址分配}方式。
+
+\subsubsection*{高位交叉编址（High-Order Interleaving）}
+
+用地址的高位选择存储体，低位作为体内地址。即连续的存储单元位于\textbf{同一存储体}中：
+\[
+\text{体号} = \text{高位地址},\quad \text{体内地址} = \text{低位地址}
+\]
+
+\textbf{特点：}一个连续的程序段通常在单个存储体中，各体只能串行工作。适合多道程序环境（不同程序分布在不同体中），但不能提高单道程序的带宽。
+
+\subsubsection*{低位交叉编址（Low-Order Interleaving）}
+
+用地址的低位选择存储体，高位作为体内地址。即连续的存储单元分布在\textbf{不同}存储体上：
+\[
+\text{体号} = \text{低位地址},\quad \text{体内地址} = \text{高位地址}
+\]
+
+\textbf{特点：}连续访存时可多个存储体\textbf{流水线}工作，大幅提高带宽，是主存储器主要的并行化技术。
+
+\subsubsection*{带宽分析（408 高频计算）}
+
+设存储体数量为 $m$，每个存储体的存取周期为 $T$（从给出地址到数据就绪的时间），数据宽度为 $W$ 字节。
+
+\begin{itemize}
+    \item \textbf{单体单字}带宽：$\mathrm{BW} = W/T$。
+    \item \textbf{$m$ 体低位交叉流水}：每间隔 $T/m$ 启动一个体，数据连续输出。流水启动后，持续带宽为：
+    \[
+    \mathrm{BW}_{\mathrm{interleave}} = \frac{m\cdot W}{T}\quad (\text{流水稳态})
+    \]
+    即带宽提升 $m$ 倍。
+\end{itemize}
+
+\begin{tablebox}{交叉编址对比}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+特征 & 高位交叉 & 低位交叉 \\
+\hline
+体号由 & 高位地址 & 低位地址 \\
+连续单元分布 & 同一体内 & 不同体 \\
+流水线工作 & 否 & 是 \\
+提高单程序带宽 & 否 & 是 \\
+典型应用 & 多道程序 & 向量/流式访存 \\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频计算——低位交叉编址存取的时机：}设 $m=4$，存取周期 $T$，总线传输周期 $\tau$（数据线上稳定数据所需的时间），则：
+\begin{itemize}
+    \item 每隔 $\tau$ 可以启动一个存储体。
+    \item 若 $\tau = T/4$，则在 $T$ 时间内可以连续启动 4 个体，数据连续输出，带宽 $= 4W/T$（理想 $4$ 倍）。
+    \item 若 $\tau > T/4$，则流水线会有气泡，带宽提升因子 $< m$。
+    \item 408 真题常考：给定 $T$、$\tau$ 和 $m$，求连续读取 $n$ 个字所需时间。
+\end{itemize}
+
+\textbf{计算公式：}启动第一个体后，每隔 $\tau$ 启动下一个体。读取 $n$ 个字的总时间为：
+\[
+t = T + (n-1)\times \max(\tau,\, T/m)
+\]
+其中 $T$ 为第一个体存取周期（流水线填充时间），后续每字以 $\max(\tau,\, T/m)$ 的间隔取出。
+\end{attention}
+
+\subsection{Cache 高速缓冲存储器}
+
+\begin{mydef}{Cache 的基本原理}{cache-basic}
+Cache 位于 CPU 和主存之间，基于\textbf{局部性原理}：将当前最可能被访问的指令和数据放在 Cache 中，CPU 绝大部分访存请求由 Cache 满足。
+
+Cache 按\textbf{块（Block / Cache Line）}为单位与主存交换数据。设 Cache 有 $C$ 行，每行 $B$ 字节（块大小），总容量 $C\times B$ 字节。
+
+\medskip
+\begin{center}
+\begin{tikzpicture}[node distance=1.2cm, auto]
+\node[draw, rectangle, minimum width=2cm, minimum height=0.7cm] (cpu) {CPU};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.7cm, right of=cpu, node distance=3.5cm] (cache) {Cache（SRAM）};
+\node[draw, rectangle, minimum width=4cm, minimum height=0.7cm, right of=cache, node distance=5cm] (mem) {主存（DRAM）};
+\draw[<->, thick] (cpu) -- node[above] {字传输} (cache);
+\draw[<->, thick] (cache) -- node[above] {块传输} (mem);
+\end{tikzpicture}
+\end{center}
+
+CPU 与 Cache 之间以\textbf{字}为单位传输（字长 = 机器字长），Cache 与主存之间以\textbf{块}为单位传输（块大小通常 32--128 字节）。
+\end{mydef}
+
+\subsubsection{Cache 的地址映射}
+
+设主存地址位数为 $n$，Cache 有 $C$ 行，每行（块）$B$ 字节。主存被分成 $2^n/B$ 个块，每个块与 Cache 中的一行对应。
+
+\begin{conclusion}{直接映射（Direct-Mapped Cache）}{direct-mapped-cache}
+每个主存块只能映射到 Cache 中\textbf{唯一}的一行：$\text{Cache行号} = (\text{主存块号}) \bmod C$。
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.8cm, auto]
+\node[draw, rectangle, minimum width=10cm, minimum height=1.2cm, fill=gray!10] (addr) {主存地址划分（按字节编址）};
+\node[draw, rectangle, minimum width=3.5cm, minimum height=0.8cm, right of=addr, node distance=0cm, fill=blue!15] (tag) {标记（Tag）};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, right of=tag, node distance=0cm, fill=green!15] (index) {索引（Index）};
+\node[draw, rectangle, minimum width=3.5cm, minimum height=0.8cm, right of=index, node distance=0cm, fill=yellow!15] (offset) {块内偏移（Offset）};
+\end{tikzpicture}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{块内偏移}：$\log_2 B$ 位。确定数据在块内的具体字节位置。
+    \item \textbf{索引（Index）}：$\log_2 C$ 位。确定块映射到 Cache 中的哪一行。
+    \item \textbf{标记（Tag）}：剩余高位。与 Cache 该行的 Tag 比较，判断是否命中。
+\end{itemize}
+
+\textbf{直接映射的优缺点：}
+\begin{itemize}
+    \item 硬件简单，查找速度快（只需比较一个 Tag）。
+    \item 冲突缺失（Conflict Miss）率高——若两个频繁访问的块映射到同一行则互相颠簸（thrashing）。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{全相联映射（Fully-Associative Cache）}{fully-assoc-cache}
+每个主存块可以映射到 Cache 中的\textbf{任意}一行。
+
+主存地址只分为\textbf{标记（Tag）}和\textbf{块内偏移（Offset）}两部分——没有 Index 字段。查找时需要将 Tag 与 Cache 中所有行并行比较（相联查找）。
+
+\begin{itemize}
+    \item 冲突缺失率最低（只有容量缺失和强制缺失）。
+    \item 硬件代价高——每行都要配备一个比较器，大规模 Cache 中不可行。仅用于小容量 Cache（如 TLB）。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{组相联映射（Set-Associative Cache）}{set-assoc-cache}
+折中方案：将 Cache 分成若干组（Set），每组内有 $W$ 行（$W$ 路组相联）。每个主存块映射到\textbf{唯一的一组}，但可以放入该组中的任意一行。
+
+\[
+\text{组号} = (\text{主存块号}) \bmod S,\quad \text{其中 } S \text{ 为组数}
+\]
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.8cm, auto]
+\node[draw, rectangle, minimum width=12cm, minimum height=1.2cm, fill=gray!10] (addr) {主存地址划分（$W$ 路组相联）};
+\node[draw, rectangle, minimum width=4cm, minimum height=0.8cm, right of=addr, node distance=0cm, fill=blue!15] (tag) {标记（Tag）};
+\node[draw, rectangle, minimum width=3.5cm, minimum height=0.8cm, right of=tag, node distance=0cm, fill=green!15] (index) {组号（Set Index）};
+\node[draw, rectangle, minimum width=4.5cm, minimum height=0.8cm, right of=index, node distance=0cm, fill=yellow!15] {块内偏移（Offset）};
+\end{tikzpicture}
+\end{center}
+
+\textbf{特殊情况：}
+\begin{itemize}
+    \item $W=1$ 时：就是直接映射（$S=C$，每组 1 行）。
+    \item $W=C$ 时（$S=1$，所有行属于同一组）：就是全相联映射。
+\end{itemize}
+
+\textbf{地址位划分：}
+\begin{itemize}
+    \item \textbf{块内偏移}：$\log_2 B$ 位。
+    \item \textbf{组号}：$\log_2 S = \log_2(C/W)$ 位。
+    \item \textbf{标记}：$n - \log_2 S - \log_2 B$ 位。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点——Cache 地址位划分的计算：}
+给定主存容量、Cache 容量、块大小和相联度，计算地址中 Tag / Index / Offset 各占多少位。步骤：
+\begin{enumerate}
+    \item 确认主存总地址位数 $N$（按字节编址时 $N=\log_2(\text{主存容量})$）。
+    \item 块内偏移位数 $=\log_2(\text{块大小})$。
+    \item 计算组数 $S= \text{Cache行数} / W$，组号位数 $=\log_2 S$。
+    \item Tag 位数 $= N - \log_2 S - \log_2(\text{块大小})$。
+\end{enumerate}
+\textbf{注意区分：「Cache 总容量」和「Cache 数据区容量」——前者还包含 Tag 和有效位等额外开销。}
+\end{attention}
+
+\subsubsection{Cache 替换算法}
+
+当需要调入新块而组内（或全相联 Cache 中）无空闲行时，需要淘汰一个已有块。
+
+\begin{conclusion}{LRU（Least Recently Used）替换算法}{lru-algo}
+淘汰\textbf{最近最少使用}的块。基于时间局部性——最近用过的块更可能再次被使用。
+
+\textbf{硬件实现：}
+\begin{itemize}
+    \item 为每行维护一个计数器（或时间戳），每次命中或新装入时将计数器清零，其他行计数器加 1。计数器最大的行即为最近最少使用。
+    \item $W$ 路组相联时，每行需要 $\lceil\log_2 W\rceil$ 位的计数器。
+\end{itemize}
+
+LRU 是实际 Cache 中最常用的替换算法，命中率接近最优（Belady 算法）。
+\end{conclusion}
+
+\begin{conclusion}{FIFO（First-In First-Out）替换算法}{fifo-algo}
+淘汰\textbf{最早装入}的块。不反映程序的局部性，命中率通常低于 LRU。
+
+缺点：一个很早装入但频繁使用的块会被错误淘汰。
+\end{conclusion}
+
+\begin{conclusion}{随机替换（Random）}{random-algo}
+随机选择一个块淘汰。硬件最简单，不维护任何历史信息。在大容量高相联度 Cache 中，随机替换的效果与 LRU 相差不大。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考动手题：}给定一个访问序列和 Cache 配置（容量/块大小/相联度），模拟 Cache 的访问过程，统计命中次数和命中率。需要：
+\begin{enumerate}
+    \item 正确划分地址（确定每个地址对应的 Tag / Index）；
+    \item 按替换策略维护每行/每组的状态；
+    \item 每步判断命中/缺失。
+\end{enumerate}
+\textbf{常见陷阱：}地址按字节编址时，需将地址除以块大小得到块号；注意区分「组号」和「Cache 行号」。
+\end{attention}
+
+\subsubsection{Cache 的写策略}
+
+\begin{conclusion}{写命中策略}{write-hit-policy}
+当 CPU 要写入的数据在 Cache 中命中时：
+\begin{itemize}
+    \item \textbf{写直达（Write-Through）}：同时写入 Cache 和主存。主存数据始终与 Cache 一致（简单、一致性好），但每次写都需要访问主存，速度慢。
+    \item \textbf{写回（Write-Back）}：只写入 Cache，并标记该行为「脏」（dirty）。该行被替换时再写回主存。写操作快，但 Cache 和主存可能不一致。
+\end{itemize}
+\textbf{408 重点：}写回需要为每行维护一个「脏位」（dirty bit）；替换脏行时需要额外的写回开销；多核环境下写回策略带来缓存一致性问题。
+\end{conclusion}
+
+\begin{conclusion}{写缺失策略}{write-miss-policy}
+当 CPU 要写入的数据不在 Cache 中时：
+\begin{itemize}
+    \item \textbf{写分配（Write-Allocate）}：先将对应块从主存调入 Cache，再写入 Cache（即「读缺失 + 写命中」）。依据空间局部性——写入的地址附近可能再次被访问。
+    \item \textbf{非写分配（Write-No-Allocate / Write-Around）}：绕过 Cache，直接写入主存，不调入 Cache。
+\end{itemize}
+
+\textbf{常见搭配：}写回 + 写分配；写直达 + 非写分配。这是两种最典型的组合。
+\end{conclusion}
+
+\begin{conclusion}{写缓冲（Write Buffer）}{write-buffer}
+写直达策略中，每次写都要等候主存的慢速写入周期，严重拖慢 CPU。解决方法是在 Cache 和主存之间加一个\textbf{写缓冲}（小型 FIFO 队列）：
+\begin{itemize}
+    \item CPU 写 Cache 的同时将数据写入写缓冲，然后立即继续执行——主存的写入由写缓冲异步完成。
+    \item 写缓冲满时 CPU 才需要 stall（停顿）。
+    \item 后续读操作需先检查写缓冲中是否有待写回的对应地址数据。
+\end{itemize}
+\end{conclusion}
+
+\subsubsection{Cache 性能分析}
+
+\begin{formula}{Cache 平均访问时间}{cache-avg-time}
+\begin{itemize}
+    \item $t_c$：Cache 命中时间（包括 Tag 比较和选择）
+    \item $t_m$：主存访问时间（缺失代价）
+    \item $h$：命中率（Hit Rate）
+    \item $m=1-h$：缺失率（Miss Rate）
+\end{itemize}
+\[
+T_{\mathrm{avg}} = h\cdot t_c + (1-h)\cdot t_m = t_c + m\cdot t_m
+\]
+
+\textbf{两级 Cache（L1 + L2）：}
+\[
+T_{\mathrm{avg}} = h_1\cdot t_{c1} + (1-h_1)\cdot h_2\cdot t_{c2} + (1-h_1)(1-h_2)\cdot t_m
+\]
+其中 $t_{c1}$ 为 L1 命中时间，$t_{c2}$ 为 L2 命中时间（L1 缺失但 L2 命中时的访问时间），$t_m$ 为主存访问时间。
+
+\textbf{注意（408 易错）：}L1 缺失后从 L2 调入时，$t_{c2}$ 已包含了从 L2 读块并传回 L1 的时间，不是单独读 L2 的时间。
+\end{formula}
+
+\begin{attention}
+\textbf{408 综合题常考——Cache 容量计算：}Cache 的总容量 $=$ 数据区容量 $+$ Tag 容量 $+$ 有效位 $+$（若有写回）脏位。
+
+设 Cache 有 $C$ 行，每行 $B$ 字节，Tag 宽度 $T$ 位：
+\begin{itemize}
+    \item 数据区：$C\times B$ 字节。
+    \item Tag 存储：$C\times T$ 位 $= C\times T/8$ 字节。
+    \item 有效位：$C\times 1$ 位 $= C/8$ 字节。
+    \item 脏位（写回时）：$C\times 1$ 位。
+    \item LRU 计数器（组相联时）：每行 $\lceil\log_2 W\rceil$ 位。
+\end{itemize}
+所有项求和得 Cache 总容量。408 真题多次考察这种计算——算出 SRAM 总容量再推片数。
+\end{attention}
+
+\subsection{虚拟存储器（Virtual Memory）}
+
+\begin{mydef}{虚拟存储器的动机与基本原理}{vm-basic}
+虚拟存储器将\textbf{主存}用作\textbf{磁盘}的「缓存」：
+\begin{itemize}
+    \item 每个程序拥有独立的\textbf{虚拟地址空间}（如 32 位系统为 $2^{32}$ 字节 = 4GB），远大于物理主存的实际容量。
+    \item 程序使用虚拟地址（Virtual Address，VA），由硬件（MMU，Memory Management Unit）在运行时转换为物理地址（Physical Address，PA）。
+    \item 虚拟地址空间中只有当前\textbf{活跃}部分被载入物理主存，其余部分暂存磁盘上的交换区（swap）。
+\end{itemize}
+
+\textbf{与 Cache 的类比：}
+\begin{tablebox}{Cache 与虚拟存储器的对应关系}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+概念 & Cache & 虚拟存储器 \\
+\hline
+上层（快的）& Cache & 主存（DRAM） \\
+下层（慢的）& 主存（DRAM）& 磁盘/SSD \\
+块大小 & Cache 块（32--128B）& 页（4KB--2MB）\\
+缺失 & Cache Miss & Page Fault \\
+缺失代价 & $\sim 100$ 个周期 & $\sim 10^6$--$10^7$ 个周期（磁盘）\\
+映射方式 & 硬件实现 & 软件（OS）+ 硬件（MMU）\\
+替换策略 & 硬件 LRU & OS 页置换算法（如 Clock）\\
+写策略 & 写直达/写回 & 始终写回（Write-Back）\\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{虚拟存储器中始终使用写回策略}——写直达对磁盘而言代价太高。虚拟存储器由 OS 管理，Cache 由硬件管理。
+\end{mydef}
+
+\subsubsection{页式虚拟存储器}
+
+\begin{conclusion}{页式（Paging）虚拟存储器}{paging}
+将虚拟地址空间和物理地址空间都划分为固定大小的\textbf{页（Page）}，虚拟页（Virtual Page，VP）映射到物理页框（Physical Page Frame，PP）。典型页大小：4KB（$2^{12}$ 字节）。
+
+\textbf{虚拟地址构成：}
+\begin{center}
+\begin{tikzpicture}[node distance=0.8cm, auto]
+\node[draw, rectangle, minimum width=10cm, minimum height=1.2cm, fill=gray!10] (addr) {虚拟地址（$N$ 位）};
+\node[draw, rectangle, minimum width=5cm, minimum height=0.8cm, right of=addr, node distance=0cm, fill=blue!15] (vpn) {虚拟页号（VPN）};
+\node[draw, rectangle, minimum width=5cm, minimum height=0.8cm, right of=vpn, node distance=0cm, fill=yellow!15] (vpo) {页内偏移（VPO）};
+\end{tikzpicture}
+\end{center}
+
+\textbf{页表（Page Table）：}OS 为每个进程维护一张页表，记录每个虚拟页对应的物理页框号（PPN）和状态信息（有效位、脏位、访问权限等）。
+
+\[
+\text{物理地址} = \text{PPN}\;\|\;\text{VPO}
+\]
+
+页表存放于主存。每次访存理论上需要\textbf{两次}访问主存：先查页表（读 PTE），再访问数据。这是页式管理的根本开销。
+\end{conclusion}
+
+\subsubsection{TLB（Translation Lookaside Buffer）}
+
+\begin{mydef}{TLB}{tlb}
+TLB 是页表的专用 Cache，缓存最近用过的页表项（PTE）。通常采用全相联或高组相联设计，命中时间极短（$<1$ 个时钟周期）。
+
+TLB 中的每项记录：
+\begin{itemize}
+    \item Tag：虚拟页号（VPN）
+    \item Data：物理页框号（PPN）+ 权限位 + 脏位
+\end{itemize}
+
+TLB 命中时，翻译（VA→PA）在一个时钟周期内完成，不再需要访问主存中的页表。TLB 缺失时，硬件（或 OS）从主存中的页表找到对应 PTE 并装入 TLB。
+\end{mydef}
+
+\begin{conclusion}{TLB + Cache 的综合访存流程}{tlb-cache-flow}
+\textbf{这是 408 高频综合题的主题。}在同时有 TLB 和 Cache 的系统中，CPU 访存的完整流程：
+
+\begin{enumerate}
+    \item CPU 发出虚拟地址 VA。
+    \item \textbf{TLB 查找：}用 VPN 查找 TLB。
+    \begin{itemize}
+        \item TLB 命中：获得 PPN，构成物理地址 PA。
+        \item TLB 缺失：访问主存中的页表获取 PTE，装入 TLB，重新执行。
+    \end{itemize}
+    \item \textbf{Cache 查找：}用物理地址 PA 的 Index 和 Offset 查找 Cache。
+    \begin{itemize}
+        \item Cache 命中：返回数据。
+        \item Cache 缺失：从主存/下级 Cache 装入块。
+    \end{itemize}
+\end{enumerate}
+
+\textbf{四种典型情况的时间开销（408 常考）：}
+\begin{tablebox}{TLB + Cache 访存分类}
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+情况 & TLB & Cache \\
+\hline
+最佳 & 命中 & 命中 \\
+TLB 缺失后命中 & 缺失（需访存页表一次）& 命中（用页表查出的 PA 再查 Cache）\\
+TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
+最差 & 缺失 & 缺失 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{注意：}若 TLB 和 Cache 都命中，则访存只需一次真正的 Cache 访问（$<1$--$2$ 周期），无需访问主存。这就是存储层次设计的理想目标。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频辨析——物理寻址 Cache vs 虚拟寻址 Cache：}
+\begin{itemize}
+    \item \textbf{物理寻址 Cache（PIPT, Physically Indexed, Physically Tagged）：}用 PA 的 Index 选组、Tag 比较。需先完成地址翻译（TLB 查完），TLB 在关键路径上。
+    \item \textbf{虚拟寻址 Cache（VIVT, Virtually Indexed, Virtually Tagged）：}直接用 VA 的 Index 和 Tag，省去 TLB。难点：虚拟地址的同义/别名（同一物理地址可能对应多个虚拟地址）。
+    \item \textbf{虚拟索引物理标记 Cache（VIPT, Virtually Indexed, Physically Tagged）：}用 VA 的低位（Index + Offset）选组，PA 的 Tag 比较——Index 和 Offset 位在虚拟和物理地址中相同（因为页大小对齐）。可以在 TLB 翻译的同时开始 Cache 的组选择，TLB 翻译完成后用 PPN 的高位做 Tag 比较。这是现代处理器 L1 Cache 的常见设计。
+\end{itemize}
+\end{attention}
+
+\subsubsection{段式与段页式}
+
+\begin{conclusion}{段式（Segmentation）与段页式（Segmented Paging）}{segmentation}
+\textbf{段式虚拟存储器：}按程序的逻辑结构（代码段、数据段、栈段等）划分变长段，段表（Segment Table）记录段的基址（base）和界限（limit）。虚拟地址 $=$ 段号 + 段内偏移。
+
+优点：与程序结构一致，便于共享和保护。缺点：变长分配导致外部碎片。
+
+\textbf{段页式虚拟存储器：}先按逻辑分段，每段内再分页。虚拟地址 $=$ 段号 + 段内页号 + 页内偏移。结合了两者的优点——逻辑清晰、无外部碎片。
+\end{conclusion}
+
+\subsubsection{缺页中断（Page Fault）}
+
+\begin{conclusion}{缺页处理流程}{page-fault}
+当页表中的有效位（Valid bit）为 0（即该虚拟页不在物理主存中）时，触发缺页异常（Page Fault）：
+
+\begin{enumerate}
+    \item CPU 保存当前指令的 PC 和必要现场。
+    \item 转入 OS 的缺页处理程序（ISR / Fault Handler）。
+    \item OS 在磁盘（swap 区）中找到对应页，在物理主存中分配一个空闲页框。
+    \item 若主存已满，OS 执行\textbf{页面置换算法}（如 LRU、Clock、改进的 Clock 算法）选出一个牺牲页写回磁盘（若脏）。
+    \item 将所需页从磁盘读入分配的物理页框。
+    \item 更新页表（VPN→PPN，标记 Valid），刷新 TLB 中对应项。
+    \item 返回被中断的指令，重新执行。
+\end{enumerate}
+
+整个过程中，CPU 可能执行\textbf{数千万}条其他指令（磁盘 IO 极慢），对其他进程完全透明。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考辨析——Cache 缺失 vs 缺页：}
+\begin{itemize}
+    \item Cache 缺失\textbf{完全由硬件处理}（硬件自动从主存取块装入 Cache），对 OS 透明。
+    \item 缺页\textbf{由 OS 软件处理}（发出异常→OS 缺页处理程序→磁盘 IO→页表更新→返回），代价巨大。
+    \item 二者在存储层次中处于不同级别：Cache 缺失是第 2--3 层之间，缺页是第 3--4 层之间。
+\end{itemize}
+\end{attention}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{存储系统 — 408 选择题常考点}{mem-408-keypoints}
+\begin{enumerate}
+    \item \textbf{SRAM vs DRAM}：SRAM 六管、快、贵、Cache；DRAM 单管+电容、需刷新、主存。DRAM 破坏性读出。
+    \item \textbf{ROM 系列}：MROM/PROM/EPROM/EEPROM/Flash 的可编程性和擦除方式。
+    \item \textbf{Cache 地址划分}：Tag / Index / Offset 各占多少位——给定参数必会计算。
+    \item \textbf{直接映射/全相联/组相联}：映射规则、冲突缺失率对比、地址划分。
+    \item \textbf{LRU 替换}：手动模拟命中/缺失过程，统计命中率。
+    \item \textbf{写策略组合}：写回+写分配，写直达+非写分配。
+    \item \textbf{低位交叉编址}：连续访问的流水线带宽计算（$T$、$\tau$、$m$ 的关系）。
+    \item \textbf{TLB + Cache + 页表的综合访存流程}：虚拟地址→TLB→PA→Cache→数据。
+    \item \textbf{缺页处理}：由 OS 而非硬件处理，属于异常（fault）类。
+    \item \textbf{局部性判断}：数组按行 vs 按列访问的空间局部性差异。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 以下存储器中，属于易失性存储器的是
+\begin{center}
+\begin{tabular}{ll}
+(A) Flash 存储器 & (B) EEPROM \\[4pt]
+(C) DRAM & (D) 磁盘
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 某 SRAM 芯片有 14 根地址线、8 根数据线，则该芯片的容量为
+\begin{center}
+\begin{tabular}{ll}
+(A) $16\mathrm{K}\times 8$ 位 & (B) $14\mathrm{K}\times 8$ 位 \\[4pt]
+(C) $16\mathrm{K}\times 14$ 位 & (D) $14\times 8$ 位
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 需要用 $16\mathrm{K}\times 4$ 位的存储芯片构成 $64\mathrm{K}\times 8$ 位的存储器，所需芯片数量为
+\begin{center}
+\begin{tabular}{ll}
+(A) 4 & (B) 6 \\[4pt]
+(C) 8 & (D) 16
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 下列关于 DRAM 的说法中，错误的是
+\begin{center}
+\begin{tabular}{ll}
+(A) DRAM 需要定期刷新以保持数据 \\[4pt]
+(B) DRAM 的读写操作是破坏性的 \\[4pt]
+(C) DRAM 的集成度高于 SRAM \\[4pt]
+(D) DRAM 的存取速度比 SRAM 快
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在 Cache 的各种地址映射方式中，冲突缺失率最低的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 直接映射 & (B) 2 路组相联 \\[4pt]
+(C) 4 路组相联 & (D) 全相联映射
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 某计算机主存按字节编址，Cache 采用 4 路组相联映射，共有 128 行，块大小为 32 字节。则主存地址中，块内偏移占 \underline{\qquad} 位，组号占 \underline{\qquad} 位，Tag 占 \underline{\qquad} 位（设主存地址为 32 位）。
+
+\item \textbf{（填空题）} 一个由 4 个存储体构成的低位交叉编址存储器，每个存储体的存取周期为 $40\,\mathrm{ns}$，总线传输周期为 $10\,\mathrm{ns}$。连续读取 8 个字所需的时间为 \underline{\qquad} ns。
+
+\item \textbf{（简答题）} 简述时间局部性和空间局部性的含义，并各举出一个程序中的典型例子。
+
+\item \textbf{（简答题）} 说明 Cache 的写直达和写回策略的区别，以及它们各自通常搭配的写缺失策略。
+
+\item \textbf{（简答题）} 简述缺页中断的处理过程。为何缺页中断不能由硬件处理而必须由操作系统介入？
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 某计算机主存按字节编址，地址空间为 256MB。Cache 容量为 64KB，块大小为 32 字节，采用直接映射方式。则主存地址中 Tag 所占的位数为
+\begin{center}
+\begin{tabular}{ll}
+(A) 11 & (B) 13 \\[4pt]
+(C) 15 & (D) 17
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 某计算机的 Cache 共有 16 行，块大小为 16 字节，采用 2 路组相联映射（每组 2 行），主存按字节编址。以下主存地址中，与 0x0123 映射到同一组的地址是
+\begin{center}
+\begin{tabular}{ll}
+(A) 0x012B & (B) 0x0137 \\[4pt]
+(C) 0x0143 & (D) 0x0156
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 某计算机的主存地址空间为 256MB，按字节编址。指令 Cache 和数据 Cache 分离，其中数据 Cache 容量为 8KB，块大小为 16 字节，采用 4 路组相联映射。
+\begin{enumerate}
+    \item[(1)] 求主存地址中 Tag、组号（Set Index）和块内偏移各占多少位。
+    \item[(2)] 设 CPU 依次访问以下地址（十进制）：$0, 16, 32, 0, 64, 16, 128, 0$。初始 Cache 为空。若采用 LRU 替换策略，求 Cache 命中次数和命中率。
+    \item[(3)] 若替换策略改为 FIFO，求命中次数。
+    \item[(4)] 比较 (2) 和 (3) 的结果，分析 LRU 和 FIFO 的特点。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 某计算机主存由 8 个存储体构成，采用低位交叉编址。每个存储体的存取周期为 $80\,\mathrm{ns}$，总线传输周期为 $20\,\mathrm{ns}$，每个存储体一次可读写 4 字节。
+\begin{enumerate}
+    \item[(1)] 求该存储器的最大带宽（MB/s）。
+    \item[(2)] 若 CPU 连续从地址 0 开始读取 64 字节数据，需要多少时间？
+    \item[(3)] 若改用高位交叉编址，同样读取 64 字节连续数据，需要多少时间？比较结果并说明原因。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 某计算机系统具有 TLB 和两级 Cache。虚拟地址 32 位，物理地址 28 位，页大小 4KB。
+\begin{enumerate}
+    \item[(1)] 虚拟地址中 VPN 和 VPO 各占多少位？物理地址中 PPN 和 PPO 各占多少位？
+    \item[(2)] L1 Cache 为 8 路组相联，容量 32KB，块大小 64 字节。主存地址中 Tag、组号和块内偏移各占多少位？
+    \item[(3)] 设 TLB 采用全相联，共 16 项。当 CPU 执行一条加载指令 \texttt{ld R1, [R2]}，R2 中的虚拟地址为 0x12345678 时，若 TLB 命中且 L1 Cache 命中，描述从虚拟地址到数据返回的完整过程。
+    \item[(4)] 若 TLB 命中而 L1 Cache 缺失，L2 Cache 命中，设 TLB 命中时间 $1$ 个周期，L1 命中时间 $2$ 个周期，L2 命中时间（含从 L2 调入 L1 的时间）$15$ 个周期，求这次访问的总延迟。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 分析以下两段 C 代码的局部性，并比较二者在 Cache 方面的表现（设 Cache 块大小为 64 字节，\texttt{int} 占 4 字节）：
+\begin{lstlisting}[language=C]
+// 代码A: 按行访问
+int sum = 0;
+for (int i = 0; i < N; i++)
+    for (int j = 0; j < N; j++)
+        sum += a[i][j];
+
+// 代码B: 按列访问
+int sum = 0;
+for (int j = 0; j < N; j++)
+    for (int i = 0; i < N; i++)
+        sum += a[i][j];
+\end{lstlisting}
+设 $N=1024$，假设 Cache 初始为空。
+\begin{enumerate}
+    \item[(1)] 分别指出代码 A 和代码 B 的空间局部性和时间局部性表现。
+    \item[(2)] 估算代码 A 的缺失率（忽略 \texttt{sum} 和循环变量的访问）。
+    \item[(3)] 估算代码 B 的缺失率。
+    \item[(4)] 若将循环顺序颠倒（即如代码 B），除了 Cache 缺失率增加，在虚拟存储中有无其他影响？为什么？
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item Patterson \& Hennessy《计算机组成与设计（RISC-V 版）》第 5 章「大而快：层次化存储系统」——完整论述存储层次、Cache 四种映射方式和性能分析，含 RISC-V 处理器的实际 Cache 设计。
+    \item CS:APP（深入理解计算机系统）第 6 章「存储器层次结构」——\S6.2 局部性原理的形式化讨论与量化实验；\S6.3--\S6.4 存储层次和 Cache 的设计；\S6.5 编写 Cache 友好的代码；\S6.6 从主存到 Cache 的地址映射详解。
+    \item CS:APP 第 9 章「虚拟内存」——\S9.3--\S9.4 页表和 TLB 的详细工作机制；\S9.5 缺页处理和内存映射；\S9.6 地址翻译的综合案例（Core i7 的完整地址翻译过程，含 TLB、多级页表、多级 Cache 的协同，极好的 408 信息源）。
+\end{itemize}

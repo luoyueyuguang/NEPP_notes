@@ -1,0 +1,450 @@
+\section{线性表}
+
+\subsection{线性表的定义与ADT}
+
+\begin{mydef}{线性表}{linear-list}
+线性表（Linear List）是由 $n\ (n\geqslant 0)$ 个数据元素 $a_1,a_2,\ldots,a_n$ 构成的有限序列，满足：
+\begin{enumerate}
+    \item 除首元素 $a_1$ 外，每个元素有且仅有一个直接前驱；
+    \item 除末元素 $a_n$ 外，每个元素有且仅有一个直接后继；
+    \item 元素个数 $n$ 称为表长，$n=0$ 时为空表。
+\end{enumerate}
+线性表是逻辑结构概念，不规定存储方式。实现时可选择顺序存储或链式存储。
+\end{mydef}
+
+\begin{conclusion}{线性表的抽象数据类型（ADT）}{adt-linear-list}
+线性表 ADT 的核心操作集（以 C 风格描述）：
+\begin{tablebox}{线性表 ADT 操作}
+\centering
+\begin{tabular}{|c|l|}
+\hline
+操作 & 语义 \\
+\hline
+\texttt{InitList(\&L)} & 初始化空表 \\
+\texttt{DestroyList(\&L)} & 销毁表，释放空间 \\
+\texttt{ClearList(\&L)} & 清空为初始状态 \\
+\texttt{ListEmpty(L)} & 判空，返回 bool \\
+\texttt{ListLength(L)} & 返回元素个数 \\
+\texttt{GetElem(L, i, \&e)} & 取第 $i$ 个元素（$1\leqslant i\leqslant n$）\\
+\texttt{LocateElem(L, e)} & 定位第一个等于 $e$ 的元素位置 \\
+\texttt{PriorElem(L, cur, \&pre)} & 取前驱 \\
+\texttt{NextElem(L, cur, \&next)} & 取后继 \\
+\texttt{ListInsert(\&L, i, e)} & 在第 $i$ 位前插入 $e$ \\
+\texttt{ListDelete(\&L, i, \&e)} & 删除第 $i$ 位元素，用 $e$ 返回 \\
+\texttt{ListTraverse(L)} & 遍历访问 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+408 考试中重点关注 \texttt{GetElem}、\texttt{LocateElem}、\texttt{ListInsert}、\texttt{ListDelete} 的算法实现与复杂度，且要能区分类似 \texttt{LocateElem} 与 \texttt{GetElem} 的差异（按值 vs 按位）。
+\end{conclusion}
+
+\subsection{顺序表（Sequential List）}
+
+\begin{mydef}{顺序表}{seq-list}
+用一组\textbf{地址连续}的存储单元依次存储线性表的数据元素。若每个元素占 $s$ 个存储单元，首地址为 $\mathtt{LOC}(a_1)$，则第 $i$ 个元素的地址为：
+\[
+\mathtt{LOC}(a_i) = \mathtt{LOC}(a_1) + (i-1)\times s,\qquad 1\leqslant i \leqslant n.
+\]
+这一性质称为\textbf{随机存取}（Random Access）：任意位置元素的访问时间为 $O(1)$。
+\end{mydef}
+
+\begin{formula}{顺序表的存储结构（C 实现）}{seq-list-struct}
+\begin{lstlisting}[language=C]
+#define MaxSize 100          // 最大容量
+typedef int ElemType;        // 元素类型，可按需替换
+typedef struct {
+    ElemType data[MaxSize];  // 存储空间
+    int length;              // 当前长度
+} SqList;                    // 顺序表类型
+\end{lstlisting}
+\textbf{关键点：} \texttt{data} 是静态数组，预先分配 \texttt{MaxSize}；\texttt{length} 记录实际元素个数（不是最后一个元素的下标）。408 常考「\texttt{length} 与下标的关系」——第 $i$ 个元素对应 \texttt{data[i-1]}。
+\end{formula}
+
+\subsubsection{顺序表的基本操作}
+
+\begin{conclusion}{顺序表的插入操作}{seq-list-insert}
+在第 $i$（$1\leqslant i \leqslant n+1$）位插入新元素 $e$：
+\begin{enumerate}
+    \item 检查 $i$ 是否合法，以及表是否已满；
+    \item 将第 $i$ 到第 $n$ 个元素依次后移一位；
+    \item 在位置 $i-1$ 处放入 $e$，\texttt{length++}。
+\end{enumerate}
+
+\begin{lstlisting}[language=C]
+bool ListInsert(SqList *L, int i, ElemType e) {
+    if (i < 1 || i > L->length + 1) return false;
+    if (L->length >= MaxSize)        return false;
+    for (int j = L->length; j >= i; j--)
+        L->data[j] = L->data[j-1];
+    L->data[i-1] = e;
+    L->length++;
+    return true;
+}
+\end{lstlisting}
+
+\textbf{时间复杂度：}
+\[
+T(n) = \frac{1}{n+1}\sum_{i=1}^{n+1}(n-i+1) = \frac{n}{2}.
+\]
+等概率下平均移动 $n/2$ 个元素，为 $O(n)$。最好情况（插在末尾）$O(1)$，最坏情况（插在表头）$O(n)$。
+\end{conclusion}
+
+\begin{conclusion}{顺序表的删除操作}{seq-list-delete}
+删除第 $i$（$1\leqslant i \leqslant n$）位元素并用 $e$ 返回：
+
+\begin{lstlisting}[language=C]
+bool ListDelete(SqList *L, int i, ElemType *e) {
+    if (i < 1 || i > L->length) return false;
+    *e = L->data[i-1];
+    for (int j = i; j < L->length; j++)
+        L->data[j-1] = L->data[j];
+    L->length--;
+    return true;
+}
+\end{lstlisting}
+
+等概率下平均移动 $(n-1)/2$ 个元素，为 $O(n)$。
+\end{conclusion}
+
+\begin{conclusion}{顺序表按值查找}{seq-list-locate}
+\begin{lstlisting}[language=C]
+int LocateElem(SqList L, ElemType e) {
+    for (int i = 0; i < L.length; i++)
+        if (L.data[i] == e) return i + 1;  // 返回位序
+    return 0;  // 未找到
+}
+\end{lstlisting}
+平均比较次数 $(n+1)/2$，时间复杂度 $O(n)$。
+
+\textbf{与按位查找的区别：} \texttt{GetElem(L, i, \&e)} 直接通过下标访问 \texttt{L.data[i-1]}，时间复杂度 $O(1)$——顺序表的随机存取特性。
+\end{conclusion}
+
+\subsection{单链表（Singly Linked List）}
+
+\begin{mydef}{单链表}{linked-list}
+用一组\textbf{任意}的存储单元存放线性表元素，每个结点包含：
+\begin{itemize}
+    \item \textbf{数据域}（data）：存放元素值；
+    \item \textbf{指针域}（next）：指向直接后继结点的指针。
+\end{itemize}
+$n$ 个结点通过指针链成一个链表。最后一个结点的指针域为 \texttt{NULL}。
+
+单链表不再支持随机存取——访问第 $i$ 个元素需从头沿链走 $i-1$ 步，时间复杂度 $O(n)$。
+\end{mydef}
+
+\begin{formula}{单链表的结点定义}{linked-list-node}
+\begin{lstlisting}[language=C]
+typedef struct LNode {
+    ElemType data;
+    struct LNode *next;
+} LNode, *LinkList;
+\end{lstlisting}
+\texttt{LinkList} 是指向 \texttt{LNode} 的指针，即头指针。后续代码中的 \texttt{L} 通常指头指针。
+\end{formula}
+
+\subsubsection{头结点 vs 无头结点}
+
+\begin{conclusion}{头结点的作用}{head-node}
+408 考试中单链表通常\textbf{带头结点}（head node），即第一个结点（头结点）的 \texttt{data} 无实际意义，\texttt{next} 指向首元结点。好处：
+\begin{enumerate}
+    \item 空表/非空表的操作代码统一——头指针 \texttt{L} 始终非空（至少指向头结点）；
+    \item 链表头部的插入/删除不需要单独判定边界。
+\end{enumerate}
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=1.8cm, auto]
+\node[draw, rectangle] (H) {头结点}; 
+\node[draw, rectangle, right of=H] (A) {$a_1$};
+\node[draw, rectangle, right of=A] (B) {$a_2$};
+\node[right of=B] (dots) {$\cdots$};
+\node[draw, rectangle, right of=dots] (Z) {$a_n$};
+\node[draw, rectangle, right of=Z] (N) {NULL};
+\draw[->] (H) -- (A);
+\draw[->] (A) -- (B);
+\draw[->] (B) -- (dots);
+\draw[->] (dots) -- (Z);
+\draw[->] (Z) -- (N);
+\node[above of=H, yshift=-0.8cm] {L（头指针）};
+\draw[->] (0.3,0.8) -- (H);
+\end{tikzpicture}
+\end{center}
+\textbf{注意：} 408 真题中也有不带头结点的题目，务必看清题设。
+\end{conclusion}
+
+\subsubsection{单链表的基本操作}
+
+\begin{conclusion}{头插法建表}{head-insert}
+每次将新结点插入到\textbf{头结点之后}，形成逆序链表：
+\begin{lstlisting}[language=C]
+LinkList CreateListHead(int n) {
+    LinkList L = (LinkList)malloc(sizeof(LNode));
+    L->next = NULL;                     // 头结点
+    for (int i = 0; i < n; i++) {
+        LNode *s = (LNode*)malloc(sizeof(LNode));
+        scanf("%d", &s->data);
+        s->next = L->next;              // ① s 后继 = 原首元
+        L->next = s;                    // ② 头→s
+    }
+    return L;
+}
+\end{lstlisting}
+时间复杂度 $O(n)$。输入顺序与结果顺序相反。
+\end{conclusion}
+
+\begin{conclusion}{尾插法建表}{tail-insert}
+每次将新结点接到链表\textbf{末尾}，保持插入顺序：
+\begin{lstlisting}[language=C]
+LinkList CreateListTail(int n) {
+    LinkList L = (LinkList)malloc(sizeof(LNode));
+    LNode *r = L;                       // r 始终指向当前尾结点
+    for (int i = 0; i < n; i++) {
+        LNode *s = (LNode*)malloc(sizeof(LNode));
+        scanf("%d", &s->data);
+        r->next = s;                    // 尾结点指向新结点
+        r = s;                          // 更新尾指针
+    }
+    r->next = NULL;
+    return L;
+}
+\end{lstlisting}
+时间复杂度 $O(n)$，输入与结果顺序相同。
+\end{conclusion}
+
+\begin{conclusion}{单链表按位查找}{linked-list-get-elem}
+从第一个\textbf{数据结点}（不是头结点）开始计数：
+\begin{lstlisting}[language=C]
+LNode *GetElem(LinkList L, int i) {
+    if (i < 0) return NULL;
+    LNode *p = L;                // p 指向头结点（第0个）
+    int j = 0;
+    while (p && j < i) {         // j=i 时 p 指向第i个结点
+        p = p->next;
+        j++;
+    }
+    return p;                    // 若 i>表长 则返回 NULL
+}
+\end{lstlisting}
+\textbf{注意：}\texttt{GetElem(L, 0)} 返回头结点；\texttt{GetElem(L, 1)} 返回首元结点。时间复杂度 $O(n)$。
+\end{conclusion}
+
+\begin{conclusion}{单链表插入操作}{linked-list-insert}
+在第 $i-1$ 个结点后插入新结点（即插入为第 $i$ 个）：
+\begin{lstlisting}[language=C]
+bool ListInsert(LinkList L, int i, ElemType e) {
+    LNode *p = GetElem(L, i-1);       // 找第 i-1 个结点
+    if (!p) return false;
+    LNode *s = (LNode*)malloc(sizeof(LNode));
+    s->data = e;
+    s->next = p->next;                // ① 新结点先接后继
+    p->next = s;                      // ② 前驱再接新结点
+    return true;
+}
+\end{lstlisting}
+\textbf{关键：} 语句①②的顺序不能颠倒！若先执行 \texttt{p->next = s}，则原后继链丢失。时间复杂度：查找 $O(n)$，插入本身 $O(1)$。
+\end{conclusion}
+
+\begin{conclusion}{单链表删除操作}{linked-list-delete}
+删除第 $i$ 个结点：
+\begin{lstlisting}[language=C]
+bool ListDelete(LinkList L, int i, ElemType *e) {
+    LNode *p = GetElem(L, i-1);       // 找第 i-1 个结点（前驱）
+    if (!p || !p->next) return false; // p不存在或p无后继
+    LNode *q = p->next;               // q 指向第 i 个结点
+    *e = q->data;
+    p->next = q->next;                // 前驱跳过 q
+    free(q);
+    return true;
+}
+\end{lstlisting}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考陷阱——删除指定结点 p 本身：} 若只给指向 p 的指针（不知道前驱），可以将 p 的后继结点的 data 复制到 p，然后删除后继结点。但此方法\textbf{不适用于 p 是最后一个结点}，也不适用于结点 data 量过大或包含不能简单复制的资源（如指针/文件句柄）。
+\end{attention}
+
+\subsection{双链表（Doubly Linked List）}
+
+\begin{mydef}{双链表}{double-linked-list}
+每个结点有两个指针域：\texttt{prior} 指向前驱，\texttt{next} 指向后继。
+\begin{lstlisting}[language=C]
+typedef struct DNode {
+    ElemType data;
+    struct DNode *prior, *next;
+} DNode, *DLinkList;
+\end{lstlisting}
+双链表可以从任意结点出发沿两个方向遍历，但存储密度低于单链表（多一个指针域）。
+\end{mydef}
+
+\begin{conclusion}{双链表的插入操作}{dlink-insert}
+在结点 \texttt{p} 之后插入新结点 \texttt{s}：
+\begin{lstlisting}[language=C]
+s->next = p->next;                   // ① s接p的后继
+s->prior = p;                        // ② s接p
+if (p->next) p->next->prior = s;     // ③ p后继的前驱指向s
+p->next = s;                         // ④ p接s
+\end{lstlisting}
+四条语句缺一不可，且顺序有讲究：先建立 s 的两个指针，再修改原链中指向 s 的两个指针。若 p 为尾结点则跳过③。
+\end{conclusion}
+
+\begin{conclusion}{双链表的删除操作}{dlink-delete}
+删除结点 \texttt{p} 的后继结点 \texttt{q}：
+\begin{lstlisting}[language=C]
+DNode *q = p->next;
+p->next = q->next;                   // p跳过q
+if (q->next) q->next->prior = p;     // q后继的前驱指向p
+free(q);
+\end{lstlisting}
+注意 \texttt{q} 不存在和 \texttt{q} 为尾结点的边界处理。
+\end{conclusion}
+
+\subsection{循环链表（Circular Linked List）}
+
+\begin{mydef}{循环链表}{circular-list}
+将单链表（或双链表）的最后一个结点的指针域指向头结点（而不是 NULL），形成一个环。
+\begin{itemize}
+    \item \textbf{循环单链表}：尾结点 \texttt{next} 指向头结点。判空条件：\texttt{L->next == L}。
+    \item \textbf{循环双链表}：头结点的 \texttt{prior} 指向尾结点；尾结点的 \texttt{next} 指向头结点。判空条件：\texttt{L->next == L \&\& L->prior == L}。
+\end{itemize}
+循环链表适合需要\textbf{循环遍历}或\textbf{从任意位置快速到达任意位置}的场景。
+\end{mydef}
+
+\subsection{静态链表（Static Linked List）}
+
+\begin{mydef}{静态链表}{static-list}
+用\textbf{数组}模拟链表：数组元素即结点，包含 \texttt{data} 和 \texttt{next}（记录后继结点的数组下标，-1 表示 NULL）。
+\begin{lstlisting}[language=C]
+#define MaxSize 100
+typedef struct {
+    ElemType data;
+    int next;            // 后继下标
+} SLinkList[MaxSize];
+\end{lstlisting}
+静态链表不需要动态内存分配（\texttt{malloc/free}），适用于不支持指针的语言或内存受限场景。408 中偶尔以选择题形式考察。
+\end{mydef}
+
+\subsection{顺序表 vs 链表的比较}
+
+\begin{tablebox}{顺序表与链表的对比}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+比较维度 & 顺序表 & 链表 \\
+\hline
+存储方式 & 连续地址 & 任意地址，指针链接 \\
+存取方式 & 随机存取 $O(1)$ & 顺序存取 $O(n)$ \\
+插入/删除 & 需移动元素 $O(n)$ & 修改指针 $O(1)$（已定位时）\\
+存储密度 & $\approx 1$（纯数据） & $<1$（含指针域）\\
+缓存性能 & 好（局部性好） & 差（结点分散）\\
+动态扩容 & 静态数组需整体搬移 & 可按需分配单个结点 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\subsection{408 高频考点与真题风格}
+
+\begin{conclusion}{线性表 408 选择题常考点}{ds-chap1-keypoints}
+\begin{enumerate}
+    \item \textbf{顺序表插入/删除的元素移动次数}：平均 $\approx n/2$，注意区分插入与删除的差别。
+    \item \textbf{头结点与无头结点}：空表判定、边界处理的代码差异。
+    \item \textbf{单链表插入语句的顺序}：先连后继，再断前驱链。
+    \item \textbf{「删除 p 所指结点」陷阱}：无前驱时可否用复制后继法、何时失效。
+    \item \textbf{双链表/循环链表判空条件}：\texttt{L->next == L} 等。
+    \item \textbf{时间复杂度辨析}：已定位结点的插入/删除是 $O(1)$，但\textbf{定位本身}需要时间——单链表按位查找 $O(n)$，顺序表按值查找 $O(n)$。
+    \item \textbf{静态链表}：\texttt{next} 域存的是下标而非指针，增删元素不移动数据元素。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 在 $n$ 个元素的顺序表中插入一个新元素，等概率下需要移动的元素个数的期望值为
+\begin{center}
+\begin{tabular}{ll}
+(A) $n$ & (B) $\dfrac{n}{2}$ \\[6pt]
+(C) $\dfrac{n-1}{2}$ & (D) $\dfrac{n+1}{2}$
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在一个长度为 $n$ 的带头结点的单链表中，在值为 $x$ 的结点之后插入一个新结点的时间复杂度为
+\begin{center}
+\begin{tabular}{ll}
+(A) $O(1)$ & (B) $O(\log n)$ \\[6pt]
+(C) $O(n)$ & (D) $O(n^2)$
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 对于单链表，以下操作中时间复杂度为 $O(1)$ 的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 访问第 $i$ 个结点 & (B) 在第 $i$ 个结点前插入 \\[4pt]
+(C) 删除已知结点 \texttt{p} 的后继结点 & (D) 删除已知结点 \texttt{p} 本身
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 带头结点的双循环链表 $L$ 为空表的判定条件是 \underline{\qquad\qquad}。
+
+\item \textbf{（填空题）} 在一个长度为 $n$ 的顺序表中删除第 $i$（$1\leqslant i\leqslant n$）个元素，需要向前移动 \underline{\qquad\qquad} 个元素。
+
+\item \textbf{（算法设计）} 设计一个算法，将带头结点的单链表 $L$ 就地逆置（不允许使用辅助数组）。分析算法的时间复杂度与空间复杂度。
+
+\item \textbf{（算法设计）} 已知两个带头结点的单链表 $A$ 与 $B$ 均按元素值递增排列。设计算法将 $A$ 与 $B$ 合并为一个按元素值递增排列的链表 $C$，要求不另建新结点（利用原结点拼接）。分析时间复杂度。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 在一个长度为 $n$ 的顺序表中，若要在第 $i$ 个元素（$1\leqslant i \leqslant n+1$）之前插入一个元素，则需要向后移动的元素个数为
+\begin{center}
+\begin{tabular}{ll}
+(A) $n-i$ & (B) $n-i+1$ \\[6pt]
+(C) $n-i-1$ & (D) $i$
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 设有一个带头结点的循环双链表，其结点结构为 \texttt{[prior | data | next]}。若指针 \texttt{p} 指向链表中的某个结点，且链表非空，则以下能正确删除 \texttt{p} 所指结点的语句序列是
+\begin{center}
+\begin{tabular}{ll}
+(A) \texttt{p->prior->next = p->next; p->next->prior = p->prior;} \\[4pt]
+(B) \texttt{p->next->prior = p->prior; p->prior->next = p->next;} \\[4pt]
+(C) \texttt{p->prior->next = p->next; p->next->prior = p->prior; free(p);} \\[4pt]
+(D) \texttt{p->next->prior = p->prior; p->prior->next = p->next; free(p);}
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 已知表头指针为 \texttt{L} 的带头结点非空单链表，以下能实现删除首元结点（第一个数据结点）的正确操作是
+\begin{center}
+\begin{tabular}{ll}
+(A) \texttt{L = L->next; free(L);} \\[4pt]
+(B) \texttt{LNode *q = L; L = L->next; free(q);} \\[4pt]
+(C) \texttt{LNode *q = L->next; L->next = q->next; free(q);} \\[4pt]
+(D) \texttt{LNode *q = L->next; L = q->next; free(q);}
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 设单链表的结点结构为 \texttt{[data | next]}，头指针为 \texttt{L}（带头结点）。
+\begin{enumerate}
+    \item[(1)] 编写算法，删除链表中所有值为 $x$ 的结点，并分析时间复杂度；
+    \item[(2)] 若链表为递增有序链表，上述算法是否可以改进？说明理由。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 已知长度为 $n$ 的线性表 $A$ 采用顺序存储结构。
+\begin{enumerate}
+    \item[(1)] 编写算法，删除 $A$ 中所有值重复的元素（保留第一次出现的元素），使表中元素各不相同；
+    \item[(2)] 分析算法的时间复杂度与空间复杂度；
+    \item[(3)] 若 $A$ 初始有序，能否设计 $O(n)$ 的算法？简要说明思路。
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item 邓俊辉《数据结构（C++语言版）》第 2 章「向量」和第 3 章「列表」——从 ADT 分层视角理解线性表，包括可扩充向量和有序列表。
+    \item Sedgewick《算法》第 1.3 节「背包、队列和栈」——基于链表的实现技巧和迭代器设计。
+\end{itemize}

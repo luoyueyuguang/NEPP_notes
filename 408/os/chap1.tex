@@ -1,0 +1,199 @@
+\section{操作系统概述}
+
+\subsection{操作系统的概念与功能}
+
+\begin{mydef}{操作系统}{os-def}
+操作系统（Operating System, OS）是管理计算机硬件与软件资源的系统软件，也是用户与计算机之间的接口。它提供：
+\begin{enumerate}
+    \item \textbf{资源管理}：处理器、存储器、I/O设备和文件的分配与调度；
+    \item \textbf{抽象}：将底层硬件细节封装为简洁一致的接口（虚拟化）；
+    \item \textbf{服务}：为用户和应用程序提供运行环境。
+\end{enumerate}
+\end{mydef}
+
+\begin{conclusion}{操作系统的四大功能}{os-four-functions}
+\begin{tablebox}{OS 四大管理功能}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+功能 & 管理对象 & 核心问题 \\
+\hline
+进程管理 & CPU & 进程调度、同步、通信、死锁 \\
+内存管理 & 主存 & 分配回收、地址变换、虚拟内存、保护 \\
+文件管理 & 外存 & 文件目录、存储空间、共享保护 \\
+设备管理 & I/O设备 & 缓冲、分配、驱动、SPOOLing \\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\subsection{操作系统的特征}
+
+\begin{conclusion}{OS 的四个基本特征}{os-features}
+\begin{enumerate}
+    \item \textbf{并发（Concurrency）}：多个程序在同一时间间隔内同时运行（宏观并行、微观串行）。\textbf{与并行（Parallelism）的区别}：并行是同一时刻真正同时执行（需多核）。
+    \item \textbf{共享（Sharing）}：多个进程共享系统资源。分为互斥共享（如打印机）和同时访问（如磁盘）。
+    \item \textbf{虚拟（Virtualization）}：将物理实体映射为多个逻辑对应物（虚拟CPU、虚拟内存、虚拟设备）。
+    \item \textbf{异步（Asynchrony）}：进程以不可预知的速度推进（走走停停），OS 需保证结果可再现。
+\end{enumerate}
+\textbf{并发和共享是 OS 最基本的两个特征}，互为存在条件。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考辨析：并发 vs 并行。} 单核 CPU 通过时间片轮转实现并发，不是并行。多核系统才能实现真正的并行。
+\end{attention}
+
+\subsection{操作系统的发展与分类}
+
+\begin{tablebox}{OS 发展历程}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+阶段 & 特征 & 典型系统 \\
+\hline
+手工操作 & 人机矛盾突出 & — \\
+单道批处理 & 监督程序（Monitor），自动作业过渡 & — \\
+多道批处理 & 多道程序并发，资源利用率高，无交互 & IBM OS/360 \\
+分时系统 & 时间片轮转，交互性强 & UNIX \\
+实时系统 & 严格的响应时间约束 & RTOS \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{多道程序设计的核心：} 内存中同时存放多道程序，CPU 在等待 I/O 时切换到另一道程序，提高 CPU 利用率。
+
+\subsection{操作系统内核}
+
+\begin{mydef}{内核}{kernel}
+操作系统最核心的部分，常驻内存。分为两大类型：
+\begin{itemize}
+    \item \textbf{大内核（Monolithic Kernel）}：将 OS 主要功能模块（进程管理、内存管理、文件系统等）都运行在内核态。优点是性能高；缺点是内核庞大，一个模块崩溃可能导致整个系统崩溃。
+    \item \textbf{微内核（Microkernel）}：仅将最基本功能（中断处理、进程调度、进程通信）放入内核，其余（文件系统、设备驱动等）作为用户进程运行。优点是可靠性高、易扩展；缺点是频繁的用户态/内核态切换导致性能开销。
+\end{itemize}
+\end{mydef}
+
+\subsection{中断与异常}
+
+\begin{conclusion}{中断与异常}{interrupt-exception}
+中断机制是 OS 实现并发的基础——没有中断就没有进程切换。
+
+\begin{tablebox}{中断与异常对比}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+ & 中断（Interrupt）& 异常（Exception）\\
+\hline
+来源 & 外设（硬件）& CPU 内部（指令执行）\\
+与指令的关系 & 异步（与当前指令无关）& 同步（由当前指令触发）\\
+响应方式 & 下一条指令开始前检测 & 指令执行过程中检测\\
+示例 & 时钟中断、I/O完成中断 & 缺页、除零、断点\\
+分类 & 可屏蔽/不可屏蔽 & 故障(Fault)/陷阱(Trap)/终止(Abort)\\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频辨析：中断 vs 异常（内中断 vs 外中断）。} 缺页异常属于 Fault（故障），处理后可恢复；除零属于 Abort（终止），无法恢复。系统调用（如 \texttt{int 0x80} 或 \texttt{syscall}）属于 Trap（陷阱），由程序主动触发。
+\end{attention}
+
+\subsection{系统调用}
+
+\begin{mydef}{系统调用}{syscall}
+系统调用（System Call）是 OS 提供给用户程序的编程接口，是用户程序请求 OS 内核服务的唯一入口。程序通过系统调用从用户态陷入内核态，执行完毕后返回用户态。
+
+常见系统调用：进程控制（\texttt{fork}, \texttt{exit}, \texttt{wait}）、文件操作（\texttt{open}, \texttt{read}, \texttt{write}）、设备管理（\texttt{ioctl}）、通信（\texttt{pipe}, \texttt{shmget}）。
+\end{mydef}
+
+\subsection{操作系统的体系结构}
+
+\begin{conclusion}{OS 体系结构演化}{os-arch}
+\begin{itemize}
+    \item \textbf{简单结构}（MS-DOS）：无模块划分，用户程序可直接访问硬件。
+    \item \textbf{模块化结构}：按功能划分模块，模块间通过接口调用。
+    \item \textbf{层次结构}：底层为硬件相关，高层为用户接口，每层仅调用相邻下层。
+    \item \textbf{外核结构（Exokernel）}：内核仅负责资源隔离和保护，资源管理策略交给应用程序。
+\end{itemize}
+\end{conclusion}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{操作系统概述 — 408常考点}{os1-keypoints}
+\begin{enumerate}
+    \item \textbf{并发 vs 并行}：单核 CPU 分时 = 并发；多核 = 并行。
+    \item \textbf{中断 vs 异常}：来源（外 vs 内）、同步性、典型例子。
+    \item \textbf{用户态 vs 内核态}：系统调用/中断/异常触发态切换；特权指令只能在内核态执行。
+    \item \textbf{微内核 vs 大内核}：各有哪些 OS 模块在内核中。
+    \item \textbf{系统调用与库函数的区别}：系统调用需陷入内核；库函数（如 \texttt{printf}）在用户态执行，内部可能调用系统调用（如 \texttt{write}）。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 操作系统的主要功能是
+\begin{center}
+\begin{tabular}{ll}
+(A) 实现程序并发执行 & (B) 管理计算机系统中的资源 \\[4pt]
+(C) 提供用户界面 & (D) 以上都是
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 以下关于并发和并行的说法，正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 单核 CPU 可以并行执行多个进程 \\[4pt]
+(B) 并发是指同一时刻多个程序同时运行 \\[4pt]
+(C) 并行需要多核硬件支持 \\[4pt]
+(D) 并发和并行是同一概念
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 中断来自 CPU \underline{\qquad} 部，异常来自 CPU \underline{\qquad} 部。系统调用属于 \underline{\qquad}（异常类型）。
+
+\item \textbf{（简答题）} 简述微内核和大内核的区别，各举一个代表性操作系统。
+
+\item \textbf{（简答题）} 简述操作系统为用户提供的三种用户接口。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 下列事件中，属于中断的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 用户程序执行系统调用 & (B) 除零错误 \\[4pt]
+(C) 缺页异常 & (D) 磁盘 I/O 完成
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 下列指令中，只能在内核态执行的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 读时钟 & (B) 置时钟 \\[4pt]
+(C) 取数指令 & (D) 寄存器清零
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 某单道批处理系统中，有 3 个作业 A、B、C，各自的计算时间和 I/O 时间如下：
+\begin{itemize}
+    \item A：计算 30ms，I/O 40ms，计算 10ms
+    \item B：计算 20ms，I/O 30ms，计算 20ms
+    \item C：计算 10ms，I/O 20ms，计算 30ms
+\end{itemize}
+问：(1) 若三道作业按 A→B→C 顺序单道执行，总时间是多少？(2) 若引入多道程序设计（假设内存可同时容纳三道作业），画出三道作业并发执行的甘特图并计算总时间。
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item OSTEP 第 1-2 章「操作系统介绍」和「虚拟化」——经典的 OS 全景图和设计哲学；
+    \item 陈海波《现代操作系统：原理与实现》第 1 章——现代 OS 的架构演变和 ChCore 实验环境。
+\end{itemize}

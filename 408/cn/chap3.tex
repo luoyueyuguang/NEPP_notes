@@ -1,0 +1,211 @@
+\section{数据链路层}
+
+\subsection{数据链路层的功能}
+
+\begin{mydef}{数据链路层}{dll-def}
+数据链路层在物理层提供的比特流基础上，为网络层提供\textbf{帧}（Frame）的透明传输。主要功能：
+\begin{enumerate}
+    \item \textbf{成帧（Framing）}：将比特流划分为帧。
+    \item \textbf{差错控制}：检测并（可选地）纠正传输错误。
+    \item \textbf{流量控制}：协调发送方和接收方的速率（速率匹配）。
+    \item \textbf{介质访问控制（MAC）}：广播网络中决定谁可以使用共享信道。
+\end{enumerate}
+\end{mydef}
+
+\subsection{组帧方法}
+
+\begin{conclusion}{四种组帧方法}{framing-methods}
+\begin{itemize}
+    \item \textbf{字符计数法}：帧首部包含帧中字符数。缺点：计数字段一旦出错，后续全部帧错位。
+    \item \textbf{字符填充法（字节填充）}：用特殊字符标记帧边界，数据中出现的边界字符用转义字符 ESC 替换。
+    \item \textbf{零比特填充法（Bit Stuffing）}：帧边界标记为 \texttt{01111110}（6 个连续 1）。发送方每 5 个连续的 1 后插入 0，接收方每 5 个连续的 1 后删除 0。\textbf{HDLC 和 PPP 使用。}
+    \item \textbf{违规编码法}：利用物理层的冗余编码（如曼彻斯特编码中非法跳变）。仅适用于物理层编码特殊的网络。
+\end{itemize}
+\end{conclusion}
+
+\subsection{差错控制}
+
+\begin{formula}{CRC 循环冗余校验}{crc}
+\textbf{原理：}将 $k$ 位数据后拼接 $r$ 位校验位，构成 $n=k+r$ 位码字，使其能被生成多项式 $G(x)$ 整除。接收方用同一 $G(x)$ 除码字，余数非零表示出错。
+
+\textbf{408 计算方法：}给定数据比特串 $M$ 和生成多项式 $G(x)$（如 $G(x)=x^3+x+1$，即 1011）：
+\begin{enumerate}
+    \item $M$ 后补 $r$ 个 0（$r$ 是 $G(x)$ 的次数），得 $2^r M$。
+    \item $2^r M$ 除以 $G(x)$（模 2 除法，即异或运算），得 $r$ 位余数 $R$。
+    \item 发送码字 = $M\parallel R$（$M$ 后拼接 $R$）。
+\end{enumerate}
+\end{formula}
+
+\begin{attention}
+\textbf{408 CRC 计算题的几个注意点：}
+\begin{itemize}
+    \item CRC 是\textbf{检错码}（非纠错码）。能检测所有单比特错误和绝大多数突发错误。
+    \item 模 2 除法 = 异或（不进位、不借位）。
+    \item $r$ 次生成多项式产生的 CRC 校验位为 $r$ 位。
+\end{itemize}
+\end{attention}
+
+\subsection{介质访问控制（MAC）子层}
+
+\begin{conclusion}{信道划分协议}{channel-partition}
+\begin{itemize}
+    \item \textbf{频分复用（FDM）}：各用户占用不同频段。
+    \item \textbf{时分复用（TDM）}：各用户分配不同时隙。统计 TDM（STDM）按需分配，效率更高。
+    \item \textbf{波分复用（WDM）}：光的频分复用。
+    \item \textbf{码分复用（CDM/CDMA）}：每用户分配唯一码片序列，各用户同时同频传输。接收方用码片序列内积提取数据。
+\end{itemize}
+\end{conclusion}
+
+\subsection{CSMA/CD 协议（以太网核心）}
+
+\begin{conclusion}{CSMA/CD 协议}{csma-cd}
+CSMA/CD（Carrier Sense Multiple Access with Collision Detection）是以太网的核心协议。
+
+\textbf{工作流程}（四句话）：
+\begin{enumerate}
+    \item \textbf{先听后发}：发送前先监听信道，信道空闲则发送。
+    \item \textbf{边发边听}：发送过程中持续监听。
+    \item \textbf{冲突停发}：检测到冲突立即停止发送。
+    \item \textbf{随机重发}：等待随机时间后重新尝试（\textbf{二进制指数退避算法}）。
+\end{enumerate}
+
+\textbf{争用期（Contention Period）}：$2\tau$（$\tau$ 为端到端传播时延）。在争用期内若未检测到冲突，则后续不会冲突。
+
+\textbf{最短帧长}：$L_{\min} = 2\tau \times \text{数据率}$。若帧过短（小于 $L_{\min}$），发送方在检测到冲突前就已发完，无法重传。
+
+\textbf{二进制指数退避：}第 $k$ 次重传（$k\leqslant 10$）的等待时间为从 $[0, 2^k-1]$ 中随机选一个 $r$，等待 $r\times 2\tau$。$k>10$ 后 $r$ 范围锁定为 $[0,2^{10}-1]$。重传 16 次仍失败则丢弃帧。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 CSMA/CD 必考计算：}
+\begin{enumerate}
+    \item 给定数据率和最大距离，求最短帧长。
+    \item 给定最短帧长和数据率，求最大传输距离。
+    \item 二进制指数退避的等待时间和 $k$ 值的对应关系。
+\end{enumerate}
+\end{attention}
+
+\subsection{以太网与交换机}
+
+\begin{conclusion}{以太网帧格式}{ethernet-frame}
+\[
+\begin{array}{|c|c|c|c|c|c|c|}
+\hline
+\text{前导码} & \text{目的MAC} & \text{源MAC} & \text{类型} & \text{数据} & \text{填充} & \text{CRC} \\
+\text{(8B)} & \text{(6B)} & \text{(6B)} & \text{(2B)} & \text{(46-1500B)} & & \text{(4B)} \\
+\hline
+\end{array}
+\]
+最短帧长 64B = 8+6+6+2+46+4（数据至少 46B 凑足最短帧长）。
+\end{conclusion}
+
+\begin{conclusion}{交换机与网桥}{switch-bridge}
+\begin{itemize}
+    \item \textbf{网桥（Bridge）}：工作在数据链路层，根据 MAC 地址转发帧。可隔离冲突域，但无法隔离广播域。
+    \item \textbf{交换机（Switch）}：多端口网桥。每个端口是一个独立的冲突域。
+    \item \textbf{自学习算法}：交换机通过源 MAC 地址学习端口-地址映射，构建\textbf{交换表（MAC 地址表）}。未知目的地址的帧\textbf{泛洪}（flood）到除接收端口外的所有端口。
+\end{itemize}
+
+\begin{tablebox}{冲突域 vs 广播域}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+设备 & 隔离冲突域？& 隔离广播域？\\
+\hline
+中继器/集线器（物理层）& 否 & 否 \\
+网桥/交换机（数据链路层）& \textbf{是} & 否 \\
+路由器（网络层）& 是 & \textbf{是} \\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\subsection{ARP 协议}
+
+\begin{mydef}{ARP}{arp}
+ARP（Address Resolution Protocol）将 IP 地址映射为 MAC 地址。工作过程：主机广播 ARP 请求（「谁的 IP 是 xxx？请告诉你的 MAC」），目标主机单播 ARP 响应。结果缓存于 ARP 表（有老化时间）。
+\end{mydef}
+
+\subsection{PPP 协议}
+
+\begin{conclusion}{PPP}{ppp}
+点对点协议（Point-to-Point Protocol）是目前最广泛使用的数据链路层协议（如电话线拨号、PPPoE）。特点：
+\begin{itemize}
+    \item 不提供可靠传输（不编号、不确认），差错检测仅用 CRC。
+    \item 面向字节，使用字节填充（转义字符 \texttt{0x7D}）。
+    \item 支持多种网络层协议（LCP + NCP）。
+\end{itemize}
+\end{conclusion}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{数据链路层 — 408常考点}{cn3-keypoints}
+\begin{enumerate}
+    \item \textbf{CSMA/CD}：最短帧长计算、争用期 $2\tau$ 的概念、二进制指数退避。
+    \item \textbf{交换机自学习}：给定帧转发序列和初始空交换表，写出交换表项的变化过程。
+    \item \textbf{CRC 校验}：给定生成多项式，计算 CRC 校验码（模 2 除法）。
+    \item \textbf{冲突域 vs 广播域}：各设备隔离哪个域。
+    \item \textbf{ARP}：工作原理、是否跨网络（ARP 仅在同一广播域内有效）。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 以下设备中，可以隔离冲突域但不能隔离广播域的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 中继器 & (B) 集线器 \\[6pt]
+(C) 交换机 & (D) 路由器
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 以太网中，CSMA/CD 协议的争用期为
+\begin{center}
+\begin{tabular}{ll}
+(A) $\tau$ & (B) $2\tau$ \\[6pt]
+(C) $3\tau$ & (D) 随机值
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 数据链路层的传输单元是 \underline{\qquad}；物理层的传输单元是 \underline{\qquad}。
+
+\item \textbf{（计算题）} 数据 $M=101001$，生成多项式 $G(x)=x^3+x^2+1$（即 1101）。求 CRC 校验码和最终发送的码字。
+
+\item \textbf{（计算题）} 某以太网的传输速率为 100 Mbps，信号传播速率为 $2\times10^8$ m/s，最大电缆长度为 2.5 km。求该以太网的最短帧长。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 在一个采用 CSMA/CD 的以太网中，站点 A 和 B 位于同一网段的两端，单向传播时延为 10 $\mu$s。A 首先开始发送一个数据帧，在 A 发送了 5 $\mu$s 后 B 也开始发送。以下说法正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) A 和 B 都能成功发送 & (B) A 和 B 都会检测到冲突 \\[4pt]
+(C) 只有 A 会检测到冲突 & (D) 只有 B 会检测到冲突
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 一个局域网通过一个交换机连接了 4 台主机 A、B、C、D，分别连接到端口 1、2、3、4。交换机的交换表初始为空。按以下顺序发生帧传输：
+\begin{enumerate}
+    \item[(1)] A 发送一个帧给 B；
+    \item[(2)] B 收到后回复一个帧给 A；
+    \item[(3)] C 发送一个帧给 A；
+    \item[(4)] D 发送一个帧给 C。
+\end{enumerate}
+详细描述每一步后交换表的变化，以及帧的转发方式（明确转发/泛洪/过滤）。
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item Kurose \& Ross《计算机网络：自顶向下方法》第 6 章「链路层和局域网」——从 CRC 到 CSMA/CD 再到交换机的全景。
+    \item 谢希仁《计算机网络》第 3 章——PPP 协议和 CSMA/CD 的国内标准表述。
+\end{itemize}

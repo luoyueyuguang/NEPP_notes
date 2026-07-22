@@ -1,0 +1,190 @@
+% 408 计算机学科专业基础综合 复习讲义
+\documentclass[a4paper,oneside]{ctexbook}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{bookmark}
+\usepackage{hyperref}
+\usepackage{cases}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\usepackage{times}
+\usepackage{fontspec}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[fontsize=13.5pt]{fontsize}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue
+}
+
+% 代码排版
+\usepackage{listings}
+\lstset{
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	backgroundcolor=\color{gray!5},
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	frame=single,
+	tabsize=2,
+	captionpos=b,
+	breaklines=true,
+	breakatwhitespace=false,
+	escapeinside={\%*}{*)},
+	language=C,
+	morekeywords={bool,status,LinkList,SqList,ElemType},
+}
+
+% 定理/定义/结论 环境
+\usepackage{tcolorbox}
+\usepackage{fancybox}
+\tcbuselibrary{skins, breakable, theorems, most, breakable}
+
+\usepackage{caption}
+\usepackage{chngcntr}
+\usepackage{booktabs}
+\usepackage{extarrows}
+
+% 页眉页脚
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% 字体
+\setmainfont{Noto Serif}
+\setCJKmainfont{Noto Serif CJK SC}[BoldFont=Noto Sans CJK SC]
+
+\renewcommand{\textbf}[1]{\textcolor{blue}{\textsf{#1}}}
+
+\setlength{\headheight}{13pt}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.5em}
+
+\ctexset{
+	section={
+		name={,},
+		number={\arabic{section}},
+		format=\Large\bfseries,
+		beforeskip=1.5ex plus .2ex minus .2ex,
+		afterskip=1.5ex plus .2ex minus .2ex
+	},
+	subsection={
+		name={,},
+		number={\arabic{section}.\arabic{subsection}},
+		format=\large\bfseries,
+		beforeskip=1.5ex plus .2ex minus .2ex,
+		afterskip=1.5ex plus .2ex minus .2ex
+	}
+}
+
+\counterwithin{section}{part}
+
+\title{408 计算机学科专业基础综合笔记}
+\author{luoyue \\
+	\href{https://github.com/luoyueyuguang/}{GitHub:luoyueyugaung}
+}
+\date{}
+
+% 定义框
+\newtcbtheorem[number within=section]{mydef}{定义}%
+  {colback=blue!5,colframe=cyan!60!blue,fonttitle=\bfseries}{th}
+
+% 公式/要点框
+\newtcbtheorem[number within=section]{formula}{要点}%
+{
+	colback=blue!5,colframe=white!30!pink,fonttitle=\bfseries,
+	coltitle=cyan!30!black,
+	breakable,
+}{fo}
+
+% 结论框
+\newtcbtheorem[number within=section]{conclusion}{结论}%
+{
+	colback=blue!5,colframe=blue!50!black,fonttitle=\bfseries,
+	breakable,
+}{cu}
+
+% 注意框
+\newtcolorbox{attention}{
+	enhanced,
+	colback=yellow!5,
+	colframe=yellow!50!black,
+	fonttitle=\bfseries,
+	title=注意,
+	breakable,
+}
+
+% 例题框
+\newtcolorbox{examplebox}{
+	enhanced,
+	colback=gray!5,
+	colframe=gray!50!black,
+	fonttitle=\bfseries,
+	title=例,
+	breakable,
+}
+
+% 表格样式
+\newtcolorbox{tablebox}[2][]{
+  enhanced,
+  arc=1mm,
+  boxrule=0.5pt,
+  colback=white,
+  colframe=teal!50!black,
+  fonttitle=\bfseries\sffamily\centering,
+  colbacktitle=blue!40!cyan,
+  coltitle=white,
+  title={\tablename~\arabic{table}: #2},
+  boxed title style={
+    sharp corners,
+    rounded corners=northeast
+  },
+  #1,
+  breakable,
+}
+
+\newtheorem{definition}{定义}
+\setcounter{definition}{1}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\part{数据结构}
+\input{ds/ds.tex}
+
+\part{计算机组成原理}
+\input{co/co.tex}
+
+\part{操作系统}
+\input{os/os.tex}
+
+\part{计算机网络}
+\input{cn/cn.tex}
+
+\part{408 模拟试卷}
+\input{exams.tex}
+
+\part{附录}
+\input{appendix-exams.tex}
+\end{document}

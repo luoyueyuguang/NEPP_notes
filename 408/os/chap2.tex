@@ -1,0 +1,320 @@
+\section{进程管理}
+
+\subsection{进程的概念}
+
+\begin{mydef}{进程}{process-def}
+进程（Process）是程序的一次执行实例。与程序的区别：
+\begin{itemize}
+    \item \textbf{程序是静态的}：存放在磁盘上的指令和数据集合。
+    \item \textbf{进程是动态的}：程序在 CPU 上的执行过程，包含程序计数器、寄存器、堆栈等运行时上下文。
+\end{itemize}
+一个程序可对应多个进程（如多个终端同时运行 \texttt{vim}）。
+\end{mydef}
+
+\begin{conclusion}{进程的组成}{process-composition}
+进程由三部分组成：
+\begin{enumerate}
+    \item \textbf{程序段（Text/Code）}：存放 CPU 执行的指令。
+    \item \textbf{数据段（Data）}：全局变量、静态变量等。
+    \item \textbf{PCB（进程控制块）}：OS 管理进程的数据结构，包含 PID、进程状态、PC 值、寄存器现场、内存管理信息、打开文件列表等。
+\end{enumerate}
+\end{conclusion}
+
+\subsection{进程的状态与转换}
+
+\begin{conclusion}{三状态模型 + 五状态模型}{process-states}
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=2.5cm, auto]
+\node[draw, circle, fill=green!15] (N) {新建};
+\node[draw, circle, right of=N, fill=yellow!15] (R) {就绪};
+\node[draw, circle, right of=R, fill=blue!15] (E) {运行};
+\node[draw, circle, below of=R, fill=gray!15] (B) {阻塞};
+\node[draw, circle, right of=E] (T) {终止};
+\draw[->] (N) -- node[above] {创建} (R);
+\draw[->] (R) -- node[above] {调度} (E);
+\draw[->] (E) -- node[right] {等待事件} (B);
+\draw[->] (B) -- node[below] {事件发生} (R);
+\draw[->] (E) -- node[above] {时间片完} (R);
+\draw[->] (E) -- node[above] {结束} (T);
+\end{tikzpicture}
+\end{center}
+
+\begin{tablebox}{进程状态说明}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+状态 & 说明 & PCB 所在队列 \\
+\hline
+新建（New）& 进程正在创建 & — \\
+就绪（Ready）& 等待 CPU 调度 & 就绪队列 \\
+运行（Running）& 正在 CPU 上执行 & — \\
+阻塞（Blocked/Waiting）& 等待某事件（I/O 等）& 阻塞队列 \\
+终止（Terminated）& 执行完毕 & — \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\begin{attention}
+\textbf{408 高频辨析：}
+\begin{itemize}
+    \item 就绪 $\to$ 运行：进程被调度程序（Scheduler）选中，获得 CPU。
+    \item 运行 $\to$ 就绪：时间片用完（分时系统），或被更高优先级进程抢占。
+    \item 运行 $\to$ 阻塞：主动等待某事件（如 \texttt{read()} 系统调用等待磁盘 I/O）。
+    \item \textbf{阻塞 $\to$ 运行从不直接发生}——必须先经过就绪状态。
+    \item \textbf{运行 $\to$ 就绪和运行 $\to$ 阻塞不能同时发生。}
+\end{itemize}
+\end{attention}
+
+\end{conclusion}
+\subsection{进程控制块（PCB）}
+
+\begin{conclusion}{PCB 的内容}{pcb-contents}
+\begin{tablebox}{PCB 主要字段}
+\centering
+\begin{tabular}{|l|l|}
+\hline
+字段类别 & 内容 \\
+\hline
+标识信息 & PID（进程 ID）、父进程 PPID、用户 ID \\
+处理机状态 & 通用寄存器、PC、PSW、栈指针 \\
+调度信息 & 进程状态、优先级、已等待时间 \\
+内存管理 & 基址/限长寄存器、页表指针 \\
+I/O 状态 & 打开文件表、I/O 请求队列 \\
+\hline
+\end{tabular}
+\end{tablebox}
+PCB 是 OS 感知进程存在的唯一标志——创建进程 = 创建 PCB；撤销进程 = 释放 PCB。
+\end{conclusion}
+
+\subsection{进程调度}
+
+\begin{mydef}{三级调度}{three-level-scheduling}
+\begin{enumerate}
+    \item \textbf{高级调度（作业调度/长程调度）}：从外存后备队列选作业装入内存。频率低（分钟级）。\textbf{批处理系统有，分时/实时系统通常没有。}
+    \item \textbf{中级调度（内存调度/中程调度）}：将暂时不能运行的进程挂起到外存（挂起/激活），待条件满足再调回内存。涉及\textbf{交换（Swapping）}。
+    \item \textbf{低级调度（进程调度/短程调度）}：从就绪队列选进程分配 CPU。频率最高（毫秒级）。\textbf{任何 OS 都必须有。}
+\end{enumerate}
+\end{mydef}
+
+\begin{conclusion}{进程调度时机}{scheduling-timing}
+\begin{itemize}
+    \item \textbf{主动放弃}：进程终止、进程主动阻塞（如 I/O 请求）。
+    \item \textbf{被动剥夺}：时间片用完、更高优先级进程就绪、中断返回时。
+\end{itemize}
+\textbf{不能进行调度的时刻：}中断处理中、OS 内核临界区中、原子操作过程中。
+\end{conclusion}
+
+\subsection{调度算法}
+
+\begin{conclusion}{经典调度算法}{scheduling-algorithms}
+\begin{tablebox}{调度算法对比}
+\centering
+\resizebox{\linewidth}{!}{\begin{tabular}{|l|c|c|c|c|}
+\hline
+算法 & 抢占 & 饥饿 & 优点 & 缺点 \\
+\hline
+FCFS & 否 & 无 & 简单公平 & 护航效应 \\
+SJF/SPF & 否 & 可能 & 平均等待时间最短 & 长作业饥饿 \\
+SRTF & 是 & 可能 & 最优平均等待 & 实现复杂 \\
+HRRN & 否 & 无 & 折中方案 & — \\
+RR & 是 & 无 & 公平 & $q$ 太大$\to$FCFS, 太小$\to$开销 \\
+优先级 & 可配置 & 可能 & 灵活 & 低优先级饥饿 \\
+多级队列 & 是 & 视实现 & 分类调度 & — \\
+多级反馈队列 & 是 & 可防 & 自适应, 综合最佳 & 参数配置复杂 \\
+\hline
+\end{tabular}}
+\end{tablebox}
+
+\textbf{关键公式：}
+\begin{itemize}
+    \item \textbf{周转时间} = 完成时间 $-$ 到达时间 = 等待时间 + 运行时间
+    \item \textbf{带权周转时间} = 周转时间 / 运行时间
+    \item \textbf{响应比} $R_p = \dfrac{\text{等待时间} + \text{要求服务时间}}{\text{要求服务时间}} = 1 + \dfrac{\text{等待时间}}{\text{要求服务时间}}$
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 调度算法计算题的核心：}给定进程到达时间和运行时间表，用指定算法计算平均周转时间、平均带权周转时间。\textbf{关键陷阱}：抢占式算法（SRTF、RR）需在每个进程到达时或时间片结束时重新检查。
+\end{attention}
+
+\subsection{进程同步与互斥}
+
+\begin{mydef}{临界资源与临界区}{critical-section}
+\begin{itemize}
+    \item \textbf{临界资源}：一次仅允许一个进程访问的共享资源（如打印机、共享变量）。
+    \item \textbf{临界区（Critical Section）}：进程中访问临界资源的代码段。
+    \item \textbf{互斥}：任何时刻最多一个进程进入临界区。
+    \item \textbf{同步}：多个进程按特定顺序执行（如生产者-消费者）。
+\end{itemize}
+\textbf{临界区使用原则：}空闲让进、忙则等待、有限等待、让权等待。
+\end{mydef}
+
+\subsection{信号量（Semaphore）与 PV 操作}
+
+\begin{mydef}{信号量}{semaphore}
+Dijkstra 提出的同步原语：
+\begin{itemize}
+    \item \textbf{整型信号量}：一个整数变量 $S$，只能通过 P/V（或 wait/signal）操作访问。
+    \item \textbf{记录型信号量}：在整型基础上增加等待队列（进程链表），实现\textbf{让权等待}（阻塞而非忙等）。
+\end{itemize}
+
+\begin{lstlisting}[language=C]
+// P 操作（wait / down / proberen）：申请资源
+void P(semaphore *S) {
+    S->value--;
+    if (S->value < 0) block(S->queue);  // 无可用资源，阻塞
+}
+
+// V 操作（signal / up / verhogen）：释放资源
+void V(semaphore *S) {
+    S->value++;
+    if (S->value <= 0) wakeup(S->queue); // 有等待进程，唤醒
+}
+\end{lstlisting}
+
+\textbf{信号量值的含义}（记录型信号量）：
+\begin{itemize}
+    \item $S.\text{value} > 0$：表示还有 $S.\text{value}$ 个可用资源。
+    \item $S.\text{value} = 0$：无可用资源且无等待进程。
+    \item $S.\text{value} < 0$：$|S.\text{value}|$ 是阻塞队列中等待的进程数。
+\end{itemize}
+\end{mydef}
+
+\begin{conclusion}{经典同步问题}{sync-problems}
+\begin{enumerate}
+    \item \textbf{生产者-消费者（有界缓冲区）}：
+    \begin{lstlisting}[language=C]
+semaphore mutex = 1;       // 缓冲区互斥
+semaphore empty = N;       // 空位数
+semaphore full  = 0;       // 产品数
+    \end{lstlisting}
+    
+    \item \textbf{读者-写者问题}：读者优先 vs 写者优先 vs 公平竞争。核心是\textbf{第一个读者负责加锁，最后一个读者负责解锁}。
+    
+    \item \textbf{哲学家进餐}：5 个哲学家 5 根筷子。死锁预防方案：(1) 最多允许 4 个哲学家同时进餐；(2) 奇数号先拿左筷、偶数号先拿右筷；(3) 只有两根筷子都可用时才拿起。
+\end{enumerate}
+\end{conclusion}
+
+\subsection{死锁}
+
+\begin{mydef}{死锁的四个必要条件}{deadlock-conditions}
+\begin{enumerate}
+    \item \textbf{互斥}：资源只能互斥使用。
+    \item \textbf{持有并等待}：已占有资源的进程可继续请求新资源。
+    \item \textbf{不可剥夺}：已分配的资源不能被强制剥夺。
+    \item \textbf{循环等待}：存在进程-资源的环形等待链。
+\end{enumerate}
+\textbf{四个条件缺一不可。}
+\end{mydef}
+
+\begin{conclusion}{死锁处理策略}{deadlock-strategies}
+\begin{tablebox}{死锁处理}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+策略 & 时机 & 方法 \\
+\hline
+预防（Prevention）& 系统设计阶段 & 破坏四个必要条件之一 \\
+避免（Avoidance）& 运行时 & 银行家算法 \\
+检测（Detection）& 运行时 & 资源分配图化简 \\
+恢复（Recovery）& 检测后 & 终止进程或剥夺资源 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{银行家算法（408 高频）：} $n$ 进程、$m$ 种资源类型。数据结构：Available[m]、Max[n][m]、Allocation[n][m]、Need[n][m]（Need = Max $-$ Allocation）。安全序列：存在一个进程执行序列，使每个进程均可完成而不导致死锁。\textbf{银行家算法即检测是否存在安全序列。}
+\end{conclusion}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{进程管理 — 408 常考点}{os2-keypoints}
+\begin{enumerate}
+    \item \textbf{进程状态转换}：五种状态的合法转换路径，特别是阻塞→运行不合法。
+    \item \textbf{调度算法}：给定进程表计算平均周转时间，注意抢占 vs 非抢占的差异。
+    \item \textbf{PV 操作}：生产者-消费者、读者-写者的信号量设计和代码补全。
+    \item \textbf{银行家算法}：给定 Allocation/Max/Available 表，判断系统是否安全，列出安全序列。
+    \item \textbf{死锁必要条件}：判断场景是否会导致死锁，破坏哪个条件可预防死锁。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 以下状态转换中，不可能发生的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 就绪 $\to$ 运行 & (B) 运行 $\to$ 就绪 \\[6pt]
+(C) 运行 $\to$ 阻塞 & (D) 阻塞 $\to$ 运行
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 若信号量 $S$ 的当前值为 $-3$，则表示
+\begin{center}
+\begin{tabular}{ll}
+(A) 有 3 个进程在等待该信号量 & (B) 有 3 个可用资源 \\[4pt]
+(C) 有 3 个进程正在临界区中 & (D) 等待进程数为 0
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 死锁的四个必要条件是 \underline{\qquad}、\underline{\qquad}、\underline{\qquad} 和 \underline{\qquad}。
+
+\item \textbf{（简答题）} 简述 P 操作和 V 操作的物理意义，并说明为何 PV 操作必须是原语（原子操作）。
+
+\item \textbf{（计算题）} 四个作业的到达时间和运行时间如下表。分别用 FCFS 和 SJF（非抢占）计算平均周转时间和平均带权周转时间。
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+作业 & J1 & J2 & J3 & J4 \\
+\hline
+到达时间 & 0 & 1 & 2 & 3 \\
+运行时间 & 8 & 4 & 9 & 5 \\
+\hline
+\end{tabular}
+\end{center}
+
+\item \textbf{（PV 设计题）} 用信号量实现：一空盘最多放 3 个水果。父亲每次往盘中放一个苹果，母亲每次放一个橘子，儿子每次取一个苹果吃，女儿每次取一个橘子吃。写出各进程的伪代码。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 系统中有 3 个进程共享 4 台同类打印机，每个进程最多需要 2 台。该系统
+\begin{center}
+\begin{tabular}{ll}
+(A) 一定会死锁 & (B) 不可能死锁 \\[6pt]
+(C) 可能死锁 & (D) 以上都不对
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 设系统有 5 个进程 P0-P4 和 3 类资源 (A,B,C)，资源数量为 (10,5,7)。当前 Allocation 和 Max 矩阵如下：
+\[
+\begin{array}{c|ccc|ccc}
+ & \text{Allocation} & & & \text{Max} & \\
+ & A & B & C & A & B & C \\
+\hline
+P0 & 0 & 1 & 0 & 7 & 5 & 3 \\
+P1 & 2 & 0 & 0 & 3 & 2 & 2 \\
+P2 & 3 & 0 & 2 & 9 & 0 & 2 \\
+P3 & 2 & 1 & 1 & 2 & 2 & 2 \\
+P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
+\end{array}
+\]
+(1) 计算 Need 矩阵；(2) 系统当前是否安全？若安全，给出一个安全序列；(3) 若 P1 再请求 (1,0,2)，可否分配？
+
+\item \textbf{（真题风格，综合题）} 面包师问题：面包店有一个最多放 $N$ 个面包的柜台。面包师不断烤面包放入柜台，顾客不断从柜台取面包。用信号量写出面包师和顾客进程的同步代码，并说明每个信号量的作用。
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item OSTEP 第 4-8 章「进程」+「调度」+「锁与信号量」——经典同步问题的完整推导和 C 代码。
+    \item 陈海波《现代操作系统：原理与实现》第 3 章「进程与线程」——含 ARM 体系结构下的上下文切换细节。
+\end{itemize}

@@ -1,0 +1,620 @@
+\section{I/O管理}
+
+\subsection{I/O设备分类}
+
+\begin{mydef}{I/O设备的分类}{io-device-classification}
+计算机的I/O设备按传输速率、信息交换单位、设备共享属性等维度可分为多种类型。
+
+\begin{tablebox}{I/O设备分类}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+分类维度 & 类型 & 典型设备 \\
+\hline
+\multirow{2}{*}{按信息交换单位} & \textbf{块设备（Block Device）} & 磁盘、光盘 \\
+                              & \textbf{字符设备（Character Device）} & 键盘、鼠标、打印机 \\
+\hline
+\multirow{2}{*}{按传输速率} & 低速设备 & 键盘、鼠标（每秒几个~几百字节）\\
+                            & 中速设备 & 打印机（每秒数千~数万字节）\\
+                            & 高速设备 & 磁盘（每秒数十万~数百万字节）\\
+\hline
+\multirow{2}{*}{按共享属性} & \textbf{独占设备} & 打印机（临界资源，需互斥使用）\\
+                            & \textbf{共享设备} & 磁盘（可多个进程同时交叉访问）\\
+                            & \textbf{虚拟设备} & SPOOLing 将独占设备改造为共享设备 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{块设备 vs 字符设备的核心区别：}
+\begin{itemize}
+    \item \textbf{块设备}：以数据块为单位传输，支持随机访问（可寻址），有缓冲区缓存机制。如磁盘以扇区（通常512B/4KB）为基本I/O单位。
+    \item \textbf{字符设备}：以字符流为单位传输，不可寻址，通常无缓存或仅有行缓冲。如键盘输入、串口通信。
+\end{itemize}
+\end{mydef}
+
+\begin{attention}
+\textbf{408 辨析：} 块设备 ≠ 独占设备。磁盘是块设备同时又是共享设备；打印机是字符设备同时又是独占设备。设备分类维度不同，不可混淆。\textbf{块设备的典型特征是可寻址（可以 lseek），字符设备不可寻址。}
+\end{attention}
+
+\subsection{I/O控制方式}
+
+\begin{conclusion}{四种I/O控制方式演进}{io-control-methods}
+I/O控制方式的发展本质上是\textbf{将CPU从I/O任务中逐步解放}的过程——每次演进都减少了CPU参与I/O的程度。
+
+\begin{tablebox}{I/O控制方式对比}
+\centering
+\resizebox{\linewidth}{!}{\begin{tabular}{|l|c|c|c|c|}
+\hline
+控制方式 & CPU干预频率 & 数据传送单位 & 适用场景 & 特点 \\
+\hline
+\textbf{程序直接控制（轮询）} & 每字节/每字都要轮询 & 字/字节 & 简单系统 & CPU 忙等，利用率极低 \\
+\textbf{中断驱动} & 每字节/每字完成后中断 & 字/字节 & 低速字符设备 & CPU 可并行处理其他任务 \\
+\textbf{DMA} & 每块数据传输完成后中断一次 & 块（多字节）& 高速块设备 & CPU 仅参与开始和结束 \\
+\textbf{I/O通道} & 每批I/O任务完成后中断一次 & 一组块 & 大型机 & 通道有自己的指令，可执行通道程序 \\
+\hline
+\end{tabular}}
+\end{tablebox}
+\end{conclusion}
+
+\subsubsection{程序直接控制（轮询，Polling）}
+
+\begin{mydef}{程序直接控制}{programmed-io}
+CPU 不断循环检测设备状态寄存器（\texttt{busy/wait} 标志位），当设备就绪时执行一次数据传送（读/写数据寄存器），传送完毕后将设备状态置为就绪（\texttt{command-ready}），然后继续轮询。
+
+\textbf{工作流程：}
+\begin{enumerate}
+    \item CPU 向设备控制器发送 I/O 命令（如 Read）。
+    \item CPU 反复读取状态寄存器，检查设备是否就绪（\texttt{busy == 0}）。
+    \item 设备就绪后，CPU 从数据寄存器读取一个字到内存。
+    \item 重复第2--3步直到所有数据传输完成。
+\end{enumerate}
+
+\textbf{致命缺陷：CPU 忙等（Busy-Waiting）}——在设备完成I/O之前，CPU无法执行任何有意义的计算，CPU利用率极低。
+\end{mydef}
+
+\subsubsection{中断驱动方式（Interrupt-Driven I/O）}
+
+\begin{conclusion}{中断驱动I/O}{interrupt-io}
+\textbf{核心思想：}CPU 发出 I/O 命令后继续执行其他进程；当设备完成当前数据传输（一个字/字节）后，向 CPU 发出\textbf{中断信号}；CPU 响应中断，在中断处理程序中执行数据传送，然后恢复原进程。
+
+\textbf{工作流程：}
+\begin{enumerate}
+    \item CPU 向设备控制器发出 Read 命令，然后切换到其他进程运行。
+    \item 设备控制器将数据读入自己的数据寄存器，完成后发出中断信号。
+    \item CPU 检测到中断，保存当前进程上下文，转去执行中断处理程序。
+    \item 中断处理程序将设备数据寄存器中的字/字节传送到内存指定位置。
+    \item 若还有数据未传输，CPU 再次启动设备，然后恢复原进程。
+\end{enumerate}
+
+\textbf{与轮询的对比：}
+\begin{itemize}
+    \item 轮询：CPU 主动等设备，浪费 CPU；但响应快（无中断开销）。
+    \item 中断：CPU 可以并行做其他事，但每次中断有上下文切换开销。每次只能传输一个字/字节。
+\end{itemize}
+
+\textbf{适用场景：}低速字符设备（键盘输入、鼠标、串口通信）。对于高速块设备（磁盘），每次只传一个字且每字都中断，中断过于频繁，开销太大。
+\end{conclusion}
+
+\subsubsection{DMA方式（Direct Memory Access）}
+
+\begin{conclusion}{DMA控制方式}{dma-io}
+DMA 是\textbf{中断驱动的升级版}——引入专门的 DMA 控制器，在设备和内存之间直接传输\textbf{一整块数据}，CPU 仅在传输开始和结束时参与。数据传输单位从字/字节跃升到块。
+
+\textbf{DMA 控制器的四个寄存器：}
+\begin{tablebox}{DMA控制器寄存器}
+\centering
+\begin{tabular}{|l|l|}
+\hline
+寄存器 & 功能 \\
+\hline
+DR（数据寄存器）& 暂存设备与内存之间每次传输的数据 \\
+MAR（内存地址寄存器）& 存放目标内存地址，每传输一个字后自动递增 \\
+DC（数据计数器）& 存放剩余要传输的字节数/字数，递减至0则传输完成 \\
+CR（命令/状态寄存器）& 存放 CPU 发出的命令或设备的状态 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{DMA 工作流程：}
+\begin{enumerate}
+    \item CPU 设置 DMA 控制器的 MAR、DC 和命令寄存器，然后继续执行其他进程。
+    \item DMA 控制器控制设备将数据块逐字传送到内存：每传一个字，MAR++，DC--。
+    \item 当 DC 减至 0 时，DMA 控制器向 CPU 发出\textbf{一次中断}，通知 CPU 传送完成。
+    \item CPU 响应中断，执行后处理（如唤醒等待该 I/O 的进程）。
+\end{enumerate}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频辨析：DMA 与中断驱动的关键区别。}
+\begin{enumerate}
+    \item \textbf{中断频率：}中断驱动每字/字节中断一次；DMA 每块数据仅中断一次。
+    \item \textbf{数据传送：}中断驱动由 CPU 执行数据传送（从设备寄存器到内存）；DMA 由 DMA 控制器直接完成，CPU \textbf{不参与数据传输}。
+    \item \textbf{总线占用：}DMA 传送期间，DMA 控制器需占用系统总线（周期窃取/周期挪用，Cycle Stealing）。若 CPU 也需要访存，DMA 优先级更高。
+    \item \textbf{内存地址：}DMA 传送的是物理地址（不是虚拟地址），因此 DMA 需要连续的物理内存块。
+\end{enumerate}
+\end{attention}
+
+\begin{formula}{DMA周期窃取时的CPU停顿分析}{dma-cycle-stealing}
+设内存周期为 $t_c$，DMA 传送一个字需占用一个内存周期。若 CPU 每执行 $k$ 条指令需访存一次，则 CPU 因 DMA 窃取周期的降速比为：
+
+\[
+\text{降速比} = \frac{1}{1 + \frac{1}{k}} \quad \text{（DMA占用总线比例为 } \frac{1}{k+1}\text{）}
+\]
+
+当 $k$ 很大（CPU 指令大多访问 Cache）时，DMA 的影响可忽略。这也是现代系统中 Cache 对 DMA 效率的关键意义。
+\end{formula}
+
+\subsubsection{I/O通道方式（Channel I/O）}
+
+\begin{mydef}{I/O通道}{io-channel}
+\textbf{I/O通道}是一种\textbf{专门负责I/O的协处理器}，有自己的指令集（通道指令），可以执行\textbf{通道程序}来控制一组 I/O 设备完成复杂的 I/O 任务。
+
+\textbf{与 DMA 的区别：}
+\begin{itemize}
+    \item \textbf{DMA：}只能执行简单的块传输（从设备到固定内存区间），无分支/条件判断能力。
+    \item \textbf{通道：}可以执行包含分支、循环的通道程序，能够控制多个设备并发 I/O，CPU 仅需发一条 I/O 指令启动通道即可。
+\end{itemize}
+
+\textbf{通道类型：}
+\begin{itemize}
+    \item \textbf{字节多路通道}：以字节为单位交叉为多台低速设备服务（如多个终端）。
+    \item \textbf{数组选择通道}：以块为单位为一台高速设备服务，但通道利用率低（设备独占通道）。
+    \item \textbf{数组多路通道}：结合前两者优点，以块为单位交叉为多台高速设备服务（现代大型机主流方案）。
+\end{itemize}
+\end{mydef}
+
+\begin{attention}
+\textbf{408 辨析：} I/O通道方式属于408考试范围，但只在组成原理中详细考查。OS 视角只需了解其层次位置和与DMA的本质区别（通道有指令，可执行通道程序）。
+\end{attention}
+
+\subsection{I/O软件层次结构}
+
+\begin{conclusion}{I/O软件的四个层次}{io-software-layers}
+I/O 软件采用分层设计，每层对上层屏蔽下层细节，是 OS 分层的典范。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=1.2cm]
+\node[draw, fill=blue!10, minimum width=8cm, minimum height=1cm] (U) {\textbf{用户层 I/O 软件}（\texttt{printf, scanf}等库函数 + SPOOLing 系统）};
+\node[draw, fill=green!10, minimum width=8cm, minimum height=1cm, below of=U] (I) {\textbf{设备独立性软件}（命名、保护、阻塞、缓冲、分配）};
+\node[draw, fill=yellow!10, minimum width=8cm, minimum height=1cm, below of=I] (D) {\textbf{设备驱动程序}（设备寄存器操作，与硬件直接通信）};
+\node[draw, fill=red!10, minimum width=8cm, minimum height=1cm, below of=D] (H) {\textbf{中断处理程序}（保存现场、处理中断、恢复现场）};
+\node[draw, fill=gray!10, minimum width=8cm, minimum height=0.8cm, below of=H] (HW) {硬件（设备控制器 + 设备本身）};
+\end{tikzpicture}
+\end{center}
+
+\noindent\textbf{各层职责详解：}
+\begin{enumerate}
+    \item \textbf{中断处理程序（Interrupt Handler）——最底层软件}
+    \begin{itemize}
+        \item I/O 完成后，设备控制器发出中断信号。
+        \item CPU 响应中断：硬件保存 PC 和 PSW，然后跳转到中断向量表指定的中断处理程序入口。
+        \item 中断处理程序：保存寄存器上下文 → 处理中断（读取设备状态，唤醒等待进程）→ 恢复上下文 → 中断返回。
+        \item \textbf{关键要求：中断处理程序必须尽可能短}，复杂性推迟到下半部（Bottom Half）处理。
+    \end{itemize}
+
+    \item \textbf{设备驱动程序（Device Driver）——设备相关}
+    \begin{itemize}
+        \item 每种设备（或每类设备）对应一个驱动程序，由设备制造商提供。
+        \item 负责将 OS 的通用 I/O 请求（如 ``读第 n 块''）翻译为设备控制器的具体命令序列（操作设备寄存器）。
+        \item 向上提供统一接口（open, read, write, ioctl, release），向下操作设备控制器的\textbf{控制寄存器、状态寄存器、数据寄存器}。
+        \item \textbf{驱动程序是内核的一部分}（运行在内核态），但代码量和 bug 占比极高。
+    \end{itemize}
+
+    \item \textbf{设备独立性软件（Device-Independent Software）——核心层}
+    \begin{itemize}
+        \item 执行所有设备共用的 I/O 功能，为上层提供\textbf{统一的逻辑设备名}到物理设备的映射。
+        \item \textbf{主要功能：}
+        \begin{itemize}
+            \item \textbf{设备命名与保护}：将逻辑设备名（如 \texttt{/dev/sda}）映射到对应的驱动程序。
+            \item \textbf{设备分配与回收}：管理独占设备（如打印机）的分配，防止死锁。
+            \item \textbf{缓冲管理}：实现单缓冲、双缓冲、缓冲池，平滑 CPU 和 I/O 设备的速度差异。
+            \item \textbf{差错处理}：处理一般的 I/O 错误（如磁盘读错重试）。
+            \item \textbf{提供统一块大小}：向上层屏蔽不同磁盘扇区大小的差异。
+        \end{itemize}
+        \item \textbf{典型实现：}UNIX/Linux 的文件系统层即承担了设备独立性软件的角色。
+    \end{itemize}
+
+    \item \textbf{用户层 I/O 软件（User-Level I/O Software）}
+    \begin{itemize}
+        \item 库函数：\texttt{printf} 调用 \texttt{write} 系统调用，\texttt{scanf} 调用 \texttt{read}。
+        \item SPOOLing 系统：在用户层将独占设备虚拟化为共享设备（详见下一节）。
+        \item 假脱机管理程序（如打印守护进程 \texttt{lpd}）通常以用户进程形式运行。
+    \end{itemize}
+\end{enumerate}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频辨析：各层的归属。}
+\begin{itemize}
+    \item 中断处理程序、设备驱动程序 \textbf{运行在内核态}（属于内核）。
+    \item 设备独立性软件 \textbf{运行在内核态}（属于内核）。
+    \item SPOOLing 系统 \textbf{通常在用户层}（以守护进程形式），但也涉及内核态的系统调用。
+\end{itemize}
+
+\textbf{关键题眼：} ``向上提供统一接口，向下操作设备寄存器'' → 这是在描述 \textbf{设备驱动程序}。
+\end{attention}
+
+\subsection{SPOOLing系统（假脱机技术）}
+
+\begin{mydef}{SPOOLing}{spooling-def}
+\textbf{SPOOLing（Simultaneous Peripheral Operations On-Line，假脱机/外部设备联机并行操作）} 是一种将\textbf{独占设备（如打印机）改造为可共享的虚拟设备}的技术。
+
+\textbf{核心思想：}用磁盘（共享设备）作为中转站，截获对独占设备的输出请求，先写入磁盘上的\textbf{SPOOLing 文件}，再由 SPOOLing 守护进程在后台逐个传输到物理设备。用户进程以为自己在独占设备，实际只是写入了磁盘。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=2.5cm]
+\node[draw, fill=yellow!20, minimum width=3cm] (P1) {进程 P1};
+\node[draw, fill=yellow!20, minimum width=3cm, below of=P1, yshift=0.5cm] (P2) {进程 P2};
+\node[draw, fill=gray!20, minimum width=4cm, right of=P1, xshift=2cm] (DISK) {磁盘（SPOOLing 井）};
+\node[draw, fill=green!20, minimum width=4cm, right of=DISK, xshift=2cm] (DAEMON) {SPOOLing 守护进程};
+\node[draw, fill=red!20, minimum width=3cm, right of=DAEMON, xshift=1.5cm] (DEV) {打印机};
+\draw[->] (P1) -- node[above] {输出到井} (DISK);
+\draw[->] (P2) -- node[below] {输出到井} (DISK);
+\draw[->] (DISK) -- node[above] {逐个取出} (DAEMON);
+\draw[->] (DAEMON) -- node[above] {实际打印} (DEV);
+\end{tikzpicture}
+\end{center}
+\end{mydef}
+
+\begin{conclusion}{SPOOLing系统的组成}{spooling-components}
+SPOOLing 系统由三部分组成：
+
+\begin{enumerate}
+    \item \textbf{输入井和输出井}：磁盘上开辟的两块区域。
+    \begin{itemize}
+        \item \textbf{输入井（Input Well）}：暂存输入设备（如读卡机）的数据，供进程按需读取。
+        \item \textbf{输出井（Output Well）}：暂存进程的输出数据，等待输出设备空闲时送出。
+    \end{itemize}
+
+    \item \textbf{输入进程和输出进程（SPOOLing守护进程）}：
+    \begin{itemize}
+        \item \textbf{输入进程（预输入程序/SPi）}：将数据从物理输入设备预先读入输入井。
+        \item \textbf{输出进程（缓输出程序/SPo）}：当输出设备空闲时，将输出井中的数据送到物理设备。
+        \item 输出进程通常以后台守护进程形式运行。
+    \end{itemize}
+
+    \item \textbf{井管理程序}：管理输入/输出井中的空间分配和数据调度。
+\end{enumerate}
+\end{conclusion}
+
+\begin{conclusion}{SPOOLing的工作原理与效果}{spooling-workflow}
+\textbf{以共享打印机为例的完整流程：}
+
+\begin{enumerate}
+    \item 用户进程调用 \texttt{print()} —— 系统并不直接分配打印机，而是在输出井中创建 SPOOLing 文件，将打印数据写入磁盘。
+    \item 用户进程感觉 ``打印完成''，继续运行（实际上只是写盘完成）。
+    \item 打印守护进程（如 UNIX 的 \texttt{lpd}）轮询输出井，发现有待打印文件，且打印机能接收数据时，将文件内容逐个发送给打印机。
+    \item 多个进程的打印请求在磁盘上排队（Spooling Queue），物理打印机串行服务。
+\end{enumerate}
+
+\textbf{SPOOLing 的效果：}
+\begin{itemize}
+    \item \textbf{将独占设备改造为共享设备}：多个进程可同时 ``使用'' 打印机（实际是同时写磁盘）。
+    \item \textbf{将低速 I/O 操作变为高速 I/O 操作}：对于用户进程，写磁盘比等待打印机快得多。
+    \item \textbf{实现了虚拟设备功能}：每个进程都觉得自己独占了打印机。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 核心考点：SPOOLing 的本质。}
+\begin{enumerate}
+    \item SPOOLing 的``假脱机''中，``假''在\textbf{用户进程以为在与物理 I/O 设备直接交互，实际上是在与磁盘交互}。
+    \item SPOOLing 输入/输出井 \textbf{位于磁盘上}（不是内存中！）。
+    \item SPOOLing 是一种典型的\textbf{虚拟化技术}——与虚拟内存（将磁盘空间当内存用）互为镜像：\textbf{虚拟内存把磁盘当内存用；SPOOLing 把磁盘当设备用。}
+    \item \textbf{408 真题中常见的 SPOOLing 问题：}哪些设备不能通过 SPOOLing 实现共享？——只有独占设备（打印机、读卡机）才有必要用 SPOOLing；本身就可以共享的设备（磁盘）不需要 SPOOLing。
+\end{enumerate}
+\end{attention}
+
+\subsection{缓冲区管理}
+
+\begin{mydef}{缓冲的引入动机}{buffer-motivation}
+\textbf{为什么需要缓冲？}
+\begin{enumerate}
+    \item \textbf{缓和 CPU 与 I/O 设备的速度不匹配}：CPU 处理速度远快于 I/O 设备，缓冲让两者可以并行工作。
+    \item \textbf{减少对 CPU 的中断频率}：没有缓冲时，每传一个字节就中断一次；有缓冲后，可等缓冲区满（或半满）再中断。
+    \item \textbf{解决 DMA 和中断的数据粒度不匹配}：DMA 按块传输，但进程可能按字节处理数据，缓冲区桥接了两者。
+    \item \textbf{提高 CPU 和 I/O 设备的并行性}：CPU 处理上一块数据的同时，设备可以将下一块数据送入缓冲区。
+\end{enumerate}
+
+\textbf{缓冲实现的位置：}缓冲区通常在内核空间的内存中分配。
+\end{mydef}
+
+\subsubsection{单缓冲（Single Buffer）}
+
+\begin{conclusion}{单缓冲的工作原理与时间分析}{single-buffer}
+\textbf{结构：}在设备与用户进程之间设置一个缓冲区。设备和进程轮流使用该缓冲区——两者\textbf{不能同时操作同一缓冲区}。
+
+\textbf{设以下参数：}
+\begin{itemize}
+    \item $T$：设备将一块数据输入到缓冲区所需时间（I/O传输时间）
+    \item $M$：OS 将缓冲区的数据传送到用户工作区所需时间（数据搬移时间）
+    \item $C$：CPU/用户进程处理一块数据所需时间
+\end{itemize}
+
+\textbf{单缓冲下的数据处理时序（以输入为例）：}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth]
+\draw[->] (0,0) -- (12,0) node[right] {$t$};
+% Block 1
+\draw[fill=blue!20] (0,0.5) rectangle (2,1.2) node[midway] {\small $T$ (读块1)};
+\draw[fill=green!20] (2,0.5) rectangle (2.8,1.2) node[midway] {\tiny $M$};
+\draw[fill=yellow!20] (2.8,0.5) rectangle (5.2,1.2) node[midway] {\small $C$ (处理块1)};
+% Block 2
+\draw[fill=blue!20] (5.2,-0.5) rectangle (7.2,0.2) node[midway] {\small $T$ (读块2)};
+\draw[fill=green!20] (7.2,-0.5) rectangle (8,0.2) node[midway] {\tiny $M$};
+\draw[fill=yellow!20] (8,-0.5) rectangle (10.4,0.2) node[midway] {\small $C$ (处理块2)};
+\end{tikzpicture}
+\end{center}
+
+\text{处理完一块数据的时间（稳态）}：
+\[
+\text{每块时间} = \max(C, T) + M
+\]
+
+\textbf{原因分析：}
+\begin{itemize}
+    \item 若 $C \geqslant T$：设备读下一块数据到缓冲区时，CPU 正在处理上一块数据，两者可以并行。但因为只有一个缓冲区，设备写完后需等 CPU 处理完 + $M$ 搬移后才能释放缓冲区 → 瓶颈在 CPU。
+    \item 若 $C < T$：CPU 处理完上一块后需要等设备读完下一块数据 → 瓶颈在设备。
+    \item $M$ 与 $T$ 不能并行（因为 $M$ 需要访问缓冲区，和设备写缓冲区冲突），$M$ 与 $C$ 也不能并行（都要访问内存中的用户工作区）。
+\end{itemize}
+
+\textbf{处理 $N$ 块数据的总时间：}
+\[
+T_{\text{total}} = T + N \times [\max(C, T) + M]
+\]
+（第一块的 $T$ 没有前置处理可并行）
+\end{conclusion}
+
+\subsubsection{双缓冲（Double Buffer）}
+
+\begin{conclusion}{双缓冲的工作原理与时间分析}{double-buffer}
+\textbf{结构：}设置两个缓冲区：Buffer0 和 Buffer1（又称\textbf{缓冲对换}，Buffer Swapping）。设备向一个缓冲区填数据时，CPU 可从另一个缓冲区取数据并处理。
+
+\textbf{双缓冲下的数据处理时序：}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth]
+\draw[->] (0,0) -- (12,0) node[right] {$t$};
+% Buffer0: device fills, CPU processes
+\draw[fill=blue!20] (0,0.5) rectangle (2,1.2) node[midway] {\small $T$ (B0: 读块1)};
+\draw[fill=green!20] (2,0.5) rectangle (2.8,1.2) node[midway] {\tiny $M$};
+\draw[fill=yellow!20] (2.8,0.5) rectangle (5.2,1.2) node[midway] {\small $C$ (B0: 处理块1)};
+% Buffer1: device fills in parallel
+\draw[fill=blue!20] (2,-0.5) rectangle (4,0.2) node[midway] {\small $T$ (B1: 读块2)};
+\draw[fill=green!20] (4,-0.5) rectangle (4.8,0.2) node[midway] {\tiny $M$};
+\draw[fill=yellow!20] (5.2,-0.5) rectangle (7.6,0.2) node[midway] {\small $C$ (B1: 处理块2)};
+\end{tikzpicture}
+\end{center}
+
+\text{处理完一块数据的时间（稳态）}：
+\[
+\text{每块时间} = \max(C, T)
+\]
+
+\textbf{原因分析：}
+\begin{itemize}
+    \item \textbf{若 $C > T$（CPU 瓶颈）}：设备速率跟不上 CPU，CPU 偶尔需要等设备读完下一块。每块处理时间 $\approx C$。
+    \item \textbf{若 $C < T$（设备瓶颈）}：设备速率跟不上 CPU 处理，CPU 处理完一块后马上可以处理下一块（另一缓冲区已就绪）。每块处理时间 $\approx T$。
+    \item $M$可以在 $T$ 完成后与下一个$T$重叠（因为缓冲区已交换）。
+\end{itemize}
+
+\textbf{处理 $N$ 块数据的总时间：}
+\[
+T_{\text{total}} = T + N \times \max(C, T) + M
+\]
+（第一个 $T$ 是冷启动，最后的 $M$ 是最后一块的搬移，中间每一块的时间为 $\max(C, T)$）
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 计算题关键区分——单缓冲 vs 双缓冲：}
+
+\noindent\fcolorbox{red}{white}{\begin{minipage}{0.9\linewidth}
+\textbf{真题场景：} 文件占 $N$ 个磁盘块，每块大小等于缓冲区大小。分别计算单缓冲和双缓冲下读入并处理整个文件的时间。
+
+\textbf{单缓冲：} $T_{\text{total}} = N \times [\max(C, T) + M] + T$（首块多一个 $T$，每块瓶颈为 $\max(C,T)+M$）
+
+\textbf{双缓冲：} $T_{\text{total}} = N \times \max(C, T) + T + M$（稳态每块 $\max(C,T)$，首尾各有开销）
+
+\textbf{陷阱：} 如果题目没有给出 $M$（系统搬移时间），默认 $M=0$ 或 $M$ 已包含在 $C$ 或 $T$ 中。此时：
+\begin{itemize}
+    \item 单缓冲每块时间 = $\max(C, T)$（$M=0$时两者公式一致...）——等等，此时单双缓冲的区别在于并行度。
+    \item 实际上当 $M$ 忽略不计时，处理 $N$ 块：
+    \begin{itemize}
+        \item 单缓冲总时间 $= N \times \max(C, T) + T$
+        \item 双缓冲总时间 $= N \times \max(C, T) + T$
+    \end{itemize}
+    这在 $C$ 和 $T$ 两者中一个独占主导时确实相同；但当 $C$ 和 $T$ 比较接近时，双缓冲的并行优势才显现，此时双缓冲 $\approx N \times \max(C, T)$，而单缓冲中 $M$ 不可并行。
+\end{itemize}
+\end{minipage}}
+\end{attention}
+
+\subsubsection{循环缓冲（Circular Buffer）}
+
+\begin{mydef}{循环缓冲}{circular-buffer}
+\textbf{结构：}在双缓冲的基础上，将多个缓冲区组织成一个环形队列。每个缓冲区有一个状态标记：空（Empty）、满（Full）、正在使用（In-Use）。
+
+\begin{center}
+\begin{tikzpicture}
+\foreach \i in {0,...,7} {
+    \node[draw, circle, minimum size=1cm] (B\i) at ({360/8*\i}:2cm) {Buf\i};
+}
+\draw[->] (B0) -- (B1);
+\draw[->] (B1) -- (B2);
+\draw[->] (B2) -- (B3);
+\draw[->] (B3) -- (B4);
+\draw[->] (B4) -- (B5);
+\draw[->] (B5) -- (B6);
+\draw[->] (B6) -- (B7);
+\draw[->] (B7) -- (B0);
+\node[draw, fill=yellow!20, below=1.5cm] at (B3) {in: 设备写入指针};
+\node[draw, fill=green!20, below=1.5cm] at (B7) {out: CPU读出指针};
+\draw[->, thick, blue] (B3) -- node[right] {\small \texttt{in}} ++(0,-1);
+\draw[->, thick, red] (B7) -- node[right] {\small \texttt{out}} ++(0,-1);
+\end{tikzpicture}
+\end{center}
+
+\textbf{关键指针：}
+\begin{itemize}
+    \item \textbf{NextIn（输入指针）}：指向设备下一个要填入数据的空缓冲区。
+    \item \textbf{NextOut（输出指针）}：指向 CPU 下一个要取数据的满缓冲区。
+    \item \textbf{Current}：指向当前正在被 CPU 处理的缓冲区（已从 NextOut 取出）。
+\end{itemize}
+
+\textbf{与生产者-消费者的关系：}循环缓冲本质上是生产者-消费者问题在 I/O 缓冲中的具体应用。设备是生产者（填满缓冲区），CPU 是消费者（取空缓冲区）。管理和同步由 OS 的缓冲区管理程序负责。
+\end{mydef}
+
+\subsubsection{缓冲池（Buffer Pool）}
+
+\begin{conclusion}{缓冲池}{buffer-pool}
+\textbf{缓冲池}是系统级的大型缓冲区集合，可以被多种设备和进程共享使用，而不是专属于某个特定设备。
+
+\textbf{缓冲池中的三种缓冲区队列：}
+\begin{tablebox}{缓冲池的三种队列}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+队列类型 & 状态 & 用途 \\
+\hline
+空缓冲队列（emq）& 空闲，可分配 & 设备和进程均可从此获取空缓冲区 \\
+输入队列（inq）& 装满输入数据 & 设备将数据填入后挂入此队列；CPU从此取出数据 \\
+输出队列（outq）& 装满输出数据 & 进程将输出数据填入后挂入此队列；设备从此取出并输出 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{缓冲池的操作原语：}
+\begin{itemize}
+    \item \textbf{收容输入（GetBuf\_Input）}：从 emq 取一个空缓冲区 → 挂入 inq。
+    \item \textbf{提取输入（ReleaseBuf\_Input）}：从 inq 取一个满缓冲区 → 供进程使用 → 回收后挂入 emq。
+    \item \textbf{收容输出（GetBuf\_Output）}：从 emq 取一个空缓冲区 → 挂入 outq。
+    \item \textbf{提取输出（ReleaseBuf\_Output）}：从 outq 取一个满缓冲区 → 供设备输出 → 回收后挂入 emq。
+\end{itemize}
+
+\textbf{与专用缓冲的对比：}
+\begin{itemize}
+    \item \textbf{专用缓冲（单/双/循环缓冲）}：为特定设备静态分配，利用率可能不足（设备空闲时缓冲区浪费）或不足（高峰期不够用）。
+    \item \textbf{缓冲池}：所有设备共享，动态分配，利用率高，但管理开销更大。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 辨析：四个缓冲区概念的区别。}
+\begin{itemize}
+    \item \textbf{单缓冲}：一个缓冲区，设备和 CPU 串行使用。适合简单场景，处理每块时间 $= \max(C, T) + M$。
+    \item \textbf{双缓冲}：两个缓冲区，设备和 CPU 可交替使用。处理每块时间 $= \max(C, T)$。适合连续 I/O（如磁盘顺序读）。
+    \item \textbf{循环缓冲}：多个缓冲区环形组织，适合生产者-消费者速率不稳定的场景。
+    \item \textbf{缓冲池}：系统全局共享的缓冲区集合，通过收容/提取操作管理。
+\end{itemize}
+\textbf{408 经常考察：} 给定 $C$ 和 $T$ 的值，判断单缓冲和双缓冲的总处理时间差异。当 $C$ 和 $T$ 接近时，双缓冲的优势最大（并行度最高）。
+\end{attention}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{I/O管理 — 408常考点}{os5-keypoints}
+\begin{enumerate}
+    \item \textbf{四种 I/O 控制方式}：轮询→中断→DMA→通道，每次演进减少了 CPU 参与 I/O 的程度和中断频率。DMA 与中断的最关键区别：\textbf{DMA 的数据传输不由 CPU 完成，且每块只中断一次}。
+
+    \item \textbf{I/O 软件层次}：四层自底向上依次是中断处理程序→设备驱动程序→设备独立性软件→用户层 I/O 软件。SPOOLing 属于用户层（守护进程形式）。
+
+    \item \textbf{SPOOLing 系统}：独占设备→共享设备的虚拟化技术。输入/输出井\textbf{在磁盘上}。原理：截获输出请求写入磁盘井，后台守护进程逐个送往物理设备。
+
+    \item \textbf{缓冲区处理时间计算}：
+    \begin{itemize}
+        \item 单缓冲每块时间 $= \max(C, T) + M$；$N$ 块总时间 $= T + N \times [\max(C, T) + M]$
+        \item 双缓冲每块时间 $= \max(C, T)$；$N$ 块总时间 $= T + N \times \max(C, T) + M$
+    \end{itemize}
+
+    \item \textbf{块设备 vs 字符设备}：块设备可寻址（支持 lseek），以块为单位；字符设备不可寻址，以字符流为单位。
+
+    \item \textbf{DMA 周期窃取}：DMA 传送期间需占用总线，与 CPU 争用内存周期，但每块只窃取少量周期，总体影响不大。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 以下设备中，属于块设备的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 键盘 & (B) 鼠标 \\[6pt]
+(C) 磁盘 & (D) 打印机
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在 I/O 控制方式中，由 DMA 控制器直接完成数据传输，CPU 仅在传输开始和结束时参与。DMA 方式每传送完一整块数据后，通过以下哪种方式通知 CPU？
+\begin{center}
+\begin{tabular}{ll}
+(A) 由 CPU 不断轮询 DMA 控制器的状态寄存器 & (B) DMA 控制器向 CPU 发出一次中断 \\[6pt]
+(C) 由驱动程序定期检查 DREQ 信号 & (D) 通过修改内存中的标志位
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} SPOOLing 系统中，输入井和输出井位于
+\begin{center}
+\begin{tabular}{ll}
+(A) 内存 & (B) 磁盘 \\[6pt]
+(C) 设备控制器的缓冲区 & (D) CPU 的 Cache
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} I/O 软件的四个层次自底向上依次为：\underline{\qquad}、\underline{\qquad}、\underline{\qquad} 和 \underline{\qquad}。其中，SPOOLing 系统属于 \underline{\qquad} 层。
+
+\item \textbf{（简答题）} 简述 DMA 控制方式与中断驱动方式的核心区别（至少三点）。
+
+\item \textbf{（计算题）} 设磁盘块大小为 2 KB，缓冲区大小等于磁盘块大小。磁盘 I/O 传输一块数据的时间 $T = 0.1$ ms，系统将缓冲区内数据传送到用户工作区的时间 $M = 0.02$ ms，CPU 处理一块数据的时间 $C = 0.05$ ms。现有 100 块数据需要读入并处理，分别使用单缓冲和双缓冲方式，计算总处理时间。
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 下列关于 SPOOLing 技术的叙述中，\textbf{错误}的是
+\begin{center}
+\begin{tabular}{ll}
+(A) SPOOLing 技术可以将独占设备改造为共享设备 \\[4pt]
+(B) SPOOLing 输出并位于磁盘上，用于暂存用户进程的输出数据 \\[4pt]
+(C) SPOOLing 系统中的输出进程负责将数据从磁盘输出井送至物理设备 \\[4pt]
+(D) SPOOLing 技术可以用于加速磁盘 I/O 的性能
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 某系统采用双缓冲技术实现磁盘 I/O。设磁盘将一块数据读入缓冲区的时间为 $T$，操作系统将缓冲区数据传送到用户区的时间为 $M$，CPU 处理一块数据的时间为 $C$。若 $T = 80 \; \mu\text{s}$，$C = 100 \; \mu\text{s}$，$M = 10 \; \mu\text{s}$，则系统处理完一块数据的平均时间约为
+\begin{center}
+\begin{tabular}{ll}
+(A) $100 \; \mu\text{s}$ & (B) $110 \; \mu\text{s}$ \\[6pt]
+(C) $130 \; \mu\text{s}$ & (D) $180 \; \mu\text{s}$
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 某文件占 200 个磁盘块，磁盘每块大小为 1 KB，缓冲区大小等于磁盘块大小。已知：磁盘将一块数据读入缓冲区的时间 $T = 0.2$ ms，系统将缓冲区数据传送到用户区的时间 $M = 0.01$ ms，CPU 处理一块数据的时间 $C = 0.3$ ms。
+
+\begin{enumerate}
+    \item[(1)] 分别计算使用单缓冲和双缓冲时，读入并处理完整个文件需要的总时间。
+    \item[(2)] 若缓冲区大小为 2 KB（= 2 个磁盘块），在双缓冲下，读入并处理完整个文件需要多长时间？（设 $T$ 与块大小成正比，CPU 处理时间 $C$ 不变。）
+    \item[(3)] 以上两种缓冲大小下，哪种配置的 I/O 吞吐率更高？为什么？
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 一个 SPOOLing 打印系统，由三个用户进程 P1、P2、P3 同时请求打印。各进程打印数据量分别为 100 KB、50 KB 和 200 KB，打印机输出速率为 100 KB/s。不考虑磁盘读写时间。
+
+\begin{enumerate}
+    \item[(1)] 若三个进程同时发出打印请求，在没有 SPOOLing 的情况下（即进程独占打印机），从第一个进程开始打印到所有进程打印完成需要多长时间？
+    \item[(2)] 在 SPOOLing 系统下，三个用户进程从发出打印请求到各自返回（即 ``感觉'' 打印完成）分别需要多长时间？（设输出井写入速率为无限大——不阻塞）
+    \item[(3)] 打印守护进程从开始打印到所有文件打印完成需要多少时间？
+    \item[(4)] 对比 (1) 和 (2) 的结果，说明 SPOOLing 如何改善了用户体验。
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item OSTEP 第 36--37 章「I/O设备」和「磁盘驱动器」——从设备控制器、驱动程序到 RAID 的完整故事。
+    \item 陈海波《现代操作系统：原理与实现》第 8 章「设备管理」——Linux 设备驱动模型和中断下半部机制。
+    \item Brooks《人月神话》第 2 章（名著阅读）——经典的设备独立性思想来源。
+\end{itemize}

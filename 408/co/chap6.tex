@@ -1,0 +1,544 @@
+\section{总线}
+
+\subsection{总线的基本概念与分类}
+
+\begin{mydef}{总线（Bus）}{bus-def}
+\textbf{总线}是连接计算机各功能部件（CPU、存储器、I/O 设备）的一组公共信息传输线，是各部件共享的传输介质。总线采用\textbf{分时共享}的方式：同一时刻只允许一个部件向总线发送信息，但多个部件可以同时从总线接收信息。
+
+总线传输的两种基本方式：
+\begin{enumerate}
+    \item \textbf{串行传输}：数据在一条数据线上逐位传输，适合远距离通信（如 USB、PCIe），抗干扰能力强，成本低。
+    \item \textbf{并行传输}：数据在多条数据线上同时传输多位，近距离传输速率高，但需解决线间串扰和信号偏斜（skew）问题（如传统 PCI）。
+\end{enumerate}
+\end{mydef}
+
+\begin{conclusion}{总线的分类}{bus-classification}
+\textbf{一、按连接部件的不同（按所处位置）：}
+
+\begin{enumerate}
+    \item \textbf{片内总线（Internal Bus / On-Chip Bus）}：CPU 芯片内部各部件（寄存器、ALU、控制器等）之间的连接线，由芯片制造商设计。属于芯片内部实现细节，对外不可见。
+    \item \textbf{系统总线（System Bus）}：连接 CPU、主存和 I/O 接口的总线，是计算机系统主板的核心。按传输信息类型又可分为三类（见下）。
+    \item \textbf{通信总线（Communication Bus）}：用于计算机系统之间或计算机与外部设备之间的数据传输。标准繁多，如 PCIe、USB、SATA、RS-232 等。
+\end{enumerate}
+
+\textbf{二、按传输信息类型——系统总线的三类信号线：}
+
+\begin{enumerate}
+    \item \textbf{地址总线（Address Bus, AB）}：
+    \begin{itemize}
+        \item 传输\textbf{地址信息}，由 CPU（或 DMA 控制器等总线主设备）向存储器或 I/O 端口发出。
+        \item \textbf{单向}传输（从总线主设备到从设备）。
+        \item 地址总线的位数 $n$ 决定了存储器最大可寻址空间 $= 2^{n}$ 个单元（按字节编址时，最多可寻址 $2^{n}$ 字节）。
+    \end{itemize}
+    \item \textbf{数据总线（Data Bus, DB）}：
+    \begin{itemize}
+        \item 传输\textbf{数据信息}，数据可以双向流动（读操作时从存储器/IO 到 CPU；写操作时从 CPU 到存储器/IO）。
+        \item \textbf{双向}传输（三态门实现）。
+        \item 数据总线的位数（宽度）通常与机器字长一致，决定了一次可以传输的二进制位数。
+    \end{itemize}
+    \item \textbf{控制总线（Control Bus, CB）}：
+    \begin{itemize}
+        \item 传输控制信号和时序信号，如读/写信号（MEMREAD、MEMWRITE、IOR、IOW）、中断请求（INTR）、中断响应（INTA）、总线请求（BUSREQ）、总线允许（BUSACK）、时钟（CLK）、复位（RESET）等。
+        \item 每条控制线的方向是\textbf{固定单向}的，但不同控制线的方向可以不同——有的从 CPU 发出到外设，有的从外设发送到 CPU。
+    \end{itemize}
+\end{enumerate}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考辨析：}
+\begin{itemize}
+    \item \textbf{地址总线是单向的}（CPU$\to$存储器/IO）；\textbf{数据总线是双向的}；\textbf{控制总线各线方向固定但不统一}——不能说「控制总线是单向的」或「控制总线是双向的」。
+    \item 地址总线的位数决定的是\textbf{可寻址的最大范围}（地址空间大小），而非实际的物理内存容量。
+    \item 「总线宽度」一般指的是\textbf{数据总线的位数}。
+\end{itemize}
+\end{attention}
+
+\begin{conclusion}{总线主设备与从设备}{bus-master-slave}
+\textbf{总线主设备（Bus Master）}：可以主动发起总线操作的设备（如 CPU、DMA 控制器）。\\
+\textbf{总线从设备（Bus Slave）}：只能在主设备控制下进行信息传输的设备（如存储器、I/O 接口）。
+
+一次总线传输中，主设备首先发出地址和读/写命令，然后与从设备交换数据。仲裁机制决定了在多个主设备竞争总线时由谁获得控制权。
+\end{conclusion}
+
+\subsection{总线结构}
+
+总线的物理连接方式决定了系统的整体性能、可扩展性和成本。典型的总线结构有三种。
+
+\begin{conclusion}{单总线结构（Single Bus Architecture）}{single-bus}
+CPU、主存和所有 I/O 设备都连接在\textbf{同一条系统总线}上。
+
+\begin{itemize}
+    \item \textbf{优点：}结构简单，成本低，易于扩展（增加新设备只需连接到总线上）。
+    \item \textbf{缺点：}
+    \begin{itemize}
+        \item 总线成为系统瓶颈——所有部件共享同一带宽，高速设备（如 CPU-主存）与低速设备（如 I/O）竞争总线；
+        \item I/O 操作会阻塞 CPU 与主存的通信（或反之），整体吞吐量受限。
+    \end{itemize}
+    \item \textbf{典型应用：}早期微型计算机（如 Apple II、IBM PC 早期型号）。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{双总线结构（Dual Bus Architecture）}{dual-bus}
+在 CPU 和主存之间增加一条专用的\textbf{存储总线（Memory Bus）}，将 CPU-主存的通信与 I/O 通信分离开来。
+
+\textbf{典型连接方式：}
+\begin{itemize}
+    \item \textbf{存储总线：}连接 CPU 与主存，专门用于指令和数据的高速存取。
+    \item \textbf{I/O 总线：}连接 CPU 与 I/O 设备。I/O 设备与主存之间的数据传输需要通过 CPU 中转（PIO 方式），或者增加 DMA 控制器实现 I/O 与主存的直接传输。
+\end{itemize}
+
+\textbf{优点：}CPU 访问主存时不会受到 I/O 设备的干扰，提高了 CPU-主存的带宽利用率。\\
+\textbf{缺点：}I/O 设备与主存的交互仍需通过 CPU（除非增加 DMA 通道），结构复杂度略增。
+\end{conclusion}
+
+\begin{conclusion}{三总线结构（Triple Bus Architecture）}{triple-bus}
+在双总线基础上进一步分离，使 CPU、主存和 I/O 各自拥有独立通道。
+
+\textbf{典型的三种总线：}
+\begin{enumerate}
+    \item \textbf{局部总线（Local Bus）}：连接 CPU 与 Cache/局部设备，速度最快。
+    \item \textbf{存储总线（Memory Bus）}：连接主存（Cache 与主存之间的通道）。
+    \item \textbf{扩展总线（Expansion Bus / I/O Bus）}：连接各种 I/O 设备，速度相对较慢。
+\end{enumerate}
+
+\textbf{典型实现：}现代 PC 的芯片组架构（North Bridge / South Bridge 或 Platform Controller Hub）。
+
+\textbf{优点：}三级总线分工明确，各自可运行在不同频率和带宽下，避免速度不匹配的瓶颈；高速设备和低速设备在物理上分离。\\
+\textbf{缺点：}结构复杂，成本较高。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考点（总线结构对比）：}
+\begin{itemize}
+    \item \textbf{单总线}的核心问题是\textbf{总线竞争}——所有设备抢一条总线。
+    \item \textbf{双总线}的主要改进是将 CPU-主存通路与 I/O 通路分离。
+    \item \textbf{三总线}在双总线基础上进一步将局部设备与主存分离，形成速度分级。
+    \item 考题中常出现「某总线结构下，DMA 传送时 CPU 能否同时访问主存」——这取决于该总线结构中 CPU 和 DMA 是否共享同一总线。
+\end{itemize}
+\end{attention}
+
+\subsection{总线的性能指标}
+
+\begin{formula}{总线的核心性能指标}{bus-perf-metrics}
+衡量总线性能的三个基本参数及其关系：
+
+\[
+\boxed{\text{总线带宽} = \text{总线宽度} \times \text{总线工作频率}}
+\]
+
+\textbf{各单位说明：}
+\begin{itemize}
+    \item \textbf{总线宽度（Data Bus Width）}：数据总线的位数（位，bit），即总线一次能并行传输的数据量。如 32 位、64 位。
+    \item \textbf{总线工作频率（Bus Frequency）}：总线时钟的频率，单位为 Hz；其倒数即总线周期（总线时钟的周期时间）。
+    \item \textbf{总线带宽（Bus Bandwidth）}：总线在单位时间内可以传输的数据总量，单位为 B/s（字节/秒）或 bps（位/秒）。是衡量总线性能的最终指标。
+\end{itemize}
+
+\textbf{注意区分：}
+\begin{itemize}
+    \item 若每个总线周期传输一次数据：$\text{带宽} = \text{宽度} \times \text{频率}$
+    \item 若一个时钟周期传输多次数据（如 DDR 技术在上升沿和下降沿各传一次）：$\text{带宽} = \text{宽度} \times \text{频率} \times \text{每周期传输次数}$
+    \item 对于串行总线，带宽 = 有效传输速率（需扣除编码开销，如 PCIe 的 8b/10b 或 128b/130b 编码）。
+\end{itemize}
+\end{formula}
+
+\begin{conclusion}{总线带宽计算实例}{bus-bw-example}
+\boxed{\textbf{例 1}} 某总线宽度为 32 位，工作频率为 66 MHz，每个时钟周期传输一次数据。求总线带宽。
+
+\textbf{解：}$\text{带宽} = 32\ \text{bit} \times 66 \times 10^{6}\ \text{Hz} = 2.112 \times 10^{9}\ \text{bps} = 264\ \text{MB/s}$。
+
+\boxed{\textbf{例 2}} 某 DDR 内存总线宽度为 64 位，工作频率为 200 MHz（实际时钟频率），每个时钟周期在上升沿和下降沿各传输一次数据。求总线带宽。
+
+\textbf{解：}$\text{带宽} = 64\ \text{bit} \times 200 \times 10^{6}\ \text{Hz} \times 2 = 25.6 \times 10^{9}\ \text{bps} = 3.2\ \text{GB/s}$。
+
+\textbf{注意：}DDR（Double Data Rate）的等效数据速率是时钟频率的两倍。上例中常用标注「DDR-400」，即等效频率 400 MHz。
+\end{conclusion}
+
+\begin{conclusion}{其他总线性能指标}{bus-other-metrics}
+除了宽度、频率、带宽三个核心指标，评价总线性能还需关注：
+
+\begin{itemize}
+    \item \textbf{总线复用（Bus Multiplexing）}：地址线和数据线分时共享同一组物理线（如 PCI 总线复用 AD 线）。优点：减少引脚数和 PCB 走线；缺点：增加额外时序开销。
+    \item \textbf{总线猝发传输（Burst Transfer）}：发出一次地址后连续传输多个数据单元（如一个 Cache 块的多个字），适合连续地址访问。
+    \item \textbf{信号线数}：地址线、数据线和控制线的总数。
+    \item \textbf{负载能力}：总线上可以挂接的设备数量上限。
+    \item \textbf{总线标准}：不同标准的电压、时序、协议等规范。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频计算考点——总线带宽计算：}
+\begin{itemize}
+    \item 带宽公式：$\text{带宽} = \text{宽度（Byte）} \times \text{频率（Hz）} = \text{宽度（bit）} \times \text{频率（Hz）} / 8$。
+    \item 注意 \textbf{单位换算：}1 MHz $= 10^{6}$ Hz，1 MB/s = $10^{6}$ B/s（408 中使用十进制换算，除非明确说明）。
+    \item 若题目给出「总线时钟频率」和「总线周期数」，需先求出一个传输操作所需的时间，再反推每秒的传输次数。
+\end{itemize}
+\end{attention}
+
+\subsection{总线仲裁}
+
+当多个总线主设备同时请求使用总线时，需要仲裁机制决定哪个设备获得总线控制权。仲裁方式分为\textbf{集中式仲裁}和\textbf{分布式仲裁}两大类。
+
+\begin{mydef}{集中式仲裁}{centralized-arbitration}
+总线控制逻辑集中在一个仲裁器中，三种典型实现：
+\end{mydef}
+
+\begin{conclusion}{链式查询（Daisy Chain）}{daisy-chain}
+\textbf{信号线：}总线请求 BR（Bus Request），总线忙 BS（Bus Busy），总线允许 BG（Bus Grant）。
+
+\textbf{工作原理：}所有主设备共享一根 BR 线（线或），仲裁器收到请求后通过 BG 线发出允许信号。BG 信号按物理连接顺序\textbf{串行}依次经过每个主设备——距离仲裁器最近的设备具有最高优先级，若该设备没有请求，则将 BG 信号传给下一个设备。
+
+\textbf{优点：}控制线少（只需 3 根信号线），实现简单，可以方便地增加设备。\\
+\textbf{缺点：}
+\begin{itemize}
+    \item 优先级固定（最近的设备优先级最高），可能造成「饥饿」——远端的低优先级设备长期得不到总线。
+    \item BG 信号串行传递，若某段链路断开则后面所有设备都无法获得总线。
+    \item 对电路故障敏感。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{计数器定时查询（Polling Count）}{counter-polling}
+\textbf{信号线：}总线请求 BR，总线忙 BS（与链式查询相同）。不设 BG 线，改为一组\textbf{设备地址线}（$\lceil\log_2 n\rceil$ 根，$n$ 为主设备数）。
+
+\textbf{工作原理：}当有设备通过 BR 请求总线时，仲裁器中的计数器开始计数，将计数值通过设备地址线发送给各设备。设备将自己的编号与计数值比较：\textbf{匹配}且\textbf{有请求}的设备获得总线使用权，同时 BS 置位以阻止新仲裁。
+
+\textbf{优先级策略灵活：}
+\begin{itemize}
+    \item 计数器每次从 0 计数——固定优先级（编号越小优先级越高）。
+    \item 计数器从上一次获得总线的设备编号开始——循环优先级（各设备机会均等）。
+    \item 计数器可从任意初始值开始——程序可控优先级。
+\end{itemize}
+
+\textbf{优点：}优先级可编程控制，灵活性比链式查询好。\\
+\textbf{缺点：}需要 $\lceil\log_2 n\rceil$ 根设备地址线，设备数多时信号线较多；计数器计数过程增加了仲裁延迟（最坏需数到最大编号）。
+\end{conclusion}
+
+\begin{conclusion}{独立请求方式（Independent Request）}{independent-request}
+\textbf{信号线：}每个主设备拥有自己独立的\textbf{总线请求线 BR}$_i$ 和\textbf{总线允许线 BG}$_i$（共 $2n$ 根信号线）。
+
+\textbf{工作原理：}每个设备可以独立地向仲裁器发出请求。仲裁器内部根据预设的优先级逻辑（可由硬件实现也可由程序设定），在所有发出请求的设备中选择优先级最高的一个，通过对应的 BG$_i$ 线向该设备发送允许信号。
+
+\textbf{优点：}
+\begin{itemize}
+    \item \textbf{响应最快}——仲裁器直接选择，无需串行传递或计数器扫描。
+    \item 优先级可灵活设定（甚至可通过程序动态修改）。
+\end{itemize}
+
+\textbf{缺点：}信号线数量最多（$2n$ 根），设备多时成本高。
+\end{conclusion}
+
+\begin{tablebox}{三种集中式仲裁方式对比}
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+特性 & 链式查询 & 计数器定时查询 & 独立请求 \\
+\hline
+控制线数（$n$ 个设备） & $3$ & $2 + \lceil\log_2 n\rceil$ & $2n$ \\
+响应速度 & 慢（串行） & 中等（计数） & 快（并行选择） \\
+优先级灵活性 & 固定（物理位置） & 可编程 & 可编程（最灵活） \\
+电路可靠性 & 差（链断全废） & 较好 & 较好 \\
+可扩展性 & 好（增减容易） & 中等 & 差（增加需增线） \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\begin{conclusion}{分布式仲裁}{distributed-arbitration}
+分布式仲裁不需要中央仲裁器，每个主设备都有自己的仲裁逻辑电路，通过设备编号或仲裁号竞争总线。
+
+\textbf{工作原理：}每个主设备都有一个唯一的\textbf{仲裁号（优先级号）}。所有请求总线的设备将自己的仲裁号发到共享的仲裁线上。各设备通过比较逻辑，判断自己是否是当前请求者中优先级最高的——如果是，则获得总线控制权；否则等待。仲裁号较大的或较小的为高优先级（取决于设计约定）。
+
+\textbf{典型实现：}PCI 总线的分布式仲裁——每个设备在仲裁阶段将自身的仲裁号（GRANT\# 信号）与 GNT\# 线结合，通过线与逻辑实现分布式判决。
+
+\textbf{优点：}不需要中央仲裁器，可靠性高（单点故障不影响全局），易于扩展。\\
+\textbf{缺点：}每个设备都需要仲裁电路，实现较集中式复杂。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考点——三种集中式仲裁的对比选择题：}
+\begin{itemize}
+    \item \textbf{「链式查询中，离仲裁器最近的设备优先级最高」}——判断题常考点。
+    \item \textbf{「独立请求方式的信号线数最多」}——$n$ 个设备需要 $2n$ 条线。
+    \item \textbf{「计数器定时查询中，计数器的初始值可以决定优先级策略」}——这是其区别于链式查询的灵活性关键。
+    \item 注意区分：链式查询的 BG 线是\textbf{一根线串行传递}，不是每个设备一根 BG 线。
+\end{itemize}
+\end{attention}
+
+\subsection{总线定时——同步通信与异步通信}
+
+总线定时（Bus Timing）规定了总线上各信号之间的时序关系，确保主设备和从设备之间能够正确地收发数据。主要分为\textbf{同步通信}和\textbf{异步通信}两种方式。
+
+\begin{mydef}{同步通信（Synchronous Communication）}{sync-comm}
+系统采用统一的时钟信号来控制数据传输的节奏。总线上的所有操作都在时钟信号的固定节拍下进行，主设备和从设备按照统一的时钟周期完成发送和接收。
+
+\textbf{特点：}
+\begin{itemize}
+    \item 主设备在时钟的某固定沿（如上升沿）发出地址和控制信号，从设备在随后的若干个固定时钟周期内将数据放到总线上。
+    \item 每个总线周期完成的步骤和时间均固定不变（地址周期、数据周期等由时钟数决定）。
+\end{itemize}
+
+\textbf{优点：}实现简单，控制逻辑清晰，适合速度相近的设备之间通信。\\
+\textbf{缺点：}
+\begin{itemize}
+    \item \textbf{时钟偏斜（Clock Skew）问题}：当总线较长或频率较高时，时钟信号到达不同设备的时刻不一致，可能导致时序错误。
+    \item \textbf{速度匹配困难}：快慢设备必须按统一的最慢设备的时钟频率工作，限制了高速设备的性能。
+\end{itemize}
+\end{mydef}
+
+\begin{mydef}{异步通信（Asynchronous Communication）}{async-comm}
+不使用统一的时钟信号，而是通过\textbf{握手信号（Handshake）}来协调主设备和从设备之间的数据传送。
+
+\textbf{握手信号的基本交互过程}（全互锁/全握手方式）：
+\begin{enumerate}
+    \item 主设备将数据（或地址+命令）放到总线上，然后发出\textbf{数据就绪}（Ready / Data Valid）信号。
+    \item 从设备检测到数据就绪信号后，读取数据，然后发出\textbf{应答}（Acknowledge / Accept）信号。
+    \item 主设备收到应答信号后，撤销数据就绪信号（表示知道数据已被取走）。
+    \item 从设备检测到数据就绪信号撤销后，撤销应答信号（恢复到初始状态，准备下一次传输）。
+\end{enumerate}
+
+\textbf{优缺点：}
+\begin{itemize}
+    \item \textbf{优点：}不同速度的设备可以灵活通信，快慢自适应，不需要统一时钟，总线长度可以更长。
+    \item \textbf{缺点：}控制逻辑复杂（需要额外的握手电路），每次传输的握手开销降低了传输效率（尤其在大批量数据传输时）。
+\end{itemize}
+\end{mydef}
+
+\begin{conclusion}{同步与异步通信对比}{sync-vs-async}
+\begin{tablebox}{同步通信 vs 异步通信}
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+特性 & 同步通信 & 异步通信 \\
+\hline
+时钟信号 & 需要统一时钟 & 无需统一时钟 \\
+控制方式 & 固定时序（时钟节拍） & 握手应答 \\
+传输速率 & 固定（由时钟决定） & 可变（由慢方决定） \\
+速度匹配 & 困难（快慢均按最慢） & 灵活（自动适配） \\
+电路复杂度 & 低 & 高 \\
+适用场景 & 部件间/板级高速通信 & 远距离/跨机箱通信 \\
+典型标准 & 处理器-内存总线 & RS-232、早期的 I/O 总线 \\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考点：}
+\begin{itemize}
+    \item \textbf{同步通信必须有时钟信号}，异步通信通过握手信号取代时钟。
+    \item \textbf{「同步通信比异步通信快」}——未必正确！在设备速度差异性大的场景下，同步通信受制于最慢设备反而效率更低。
+    \item 扩展概念：\textbf{半同步通信}——在同步通信基础上引入「等待信号」（WAIT），允许慢速设备在约定的时钟周期内向主设备发出等待请求以插入等待周期，兼顾简单性和灵活性。
+    \item 扩展概念：\textbf{分离式通信}——将总线传输拆分为「请求」阶段和「为请求提供服务」阶段，两个阶段之间总线可以释放给其他主设备使用，提高总线利用率。
+\end{itemize}
+\end{attention}
+
+\subsection{总线标准}
+
+\begin{mydef}{总线标准的含义}{bus-standard}
+总线标准是指计算机系统中各部件通过总线连接时必须遵循的\textbf{协议规范}，包括机械尺寸（插槽形状、引脚排列）、电气特性（电压、信号电平）、时序关系和通信协议等。标准化使得不同厂商的设备可以兼容。
+\end{mydef}
+
+\begin{conclusion}{PCI 总线（Peripheral Component Interconnect）}{pci}
+\textbf{PCI 总线}是一种由 Intel 在 1992 年推出的局部总线标准，曾长期作为 PC 中的标准扩展总线。
+
+\begin{itemize}
+    \item \textbf{并行总线：}数据宽度 32 位（可扩展为 64 位），地址和数据复用（AD 线分时复用），减少了引脚数。
+    \item \textbf{工作频率与带宽：}33 MHz 时钟下，32 位 PCI 带宽为 133 MB/s；66 MHz 下 64 位 PCI 带宽为 533 MB/s。
+    \item \textbf{支持猝发传输（Burst Transfer）：}一次地址后可连续传输大量数据（不限于单个地址），故实际数据传输带宽比仅按单次地址-数据方式计算要高。
+    \item \textbf{即插即用（Plug and Play）：}支持设备的自动配置——BIOS/OS 在启动时自动分配 I/O 地址、内存空间和中断号。
+    \item \textbf{总线仲裁：}采用集中式独立请求仲裁方式，支持多个主设备。
+    \item \textbf{与 CPU 独立：}PCI 总线独立于处理器类型（不绑定特定 CPU），通过桥接芯片与处理器总线连接。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{PCI Express（PCIe）总线}{pcie}
+\textbf{PCIe} 是 PCI 的替代标准，采用\textbf{串行点对点}双工连接方式，完全不同于 PCI 的并行共享总线架构。
+
+\begin{itemize}
+    \item \textbf{串行传输：}使用差分信号对（一对发送 + 一对接收），每个方向一个\textbf{通道（Lane）}，可组合 1、2、4、8、16、32 条通道（PCIe $\times$1、$\times$4、$\times$8、$\times$16）。
+    \item \textbf{全双工：}每个通道可同时进行发送和接收。
+    \item \textbf{数据编码与带宽：}
+    \begin{itemize}
+        \item PCIe 1.x/2.x：8b/10b 编码（每 8 位数据用 10 位传输，20\% 编码开销）。
+        \item PCIe 3.0：128b/130b 编码（编码开销降至约 1.5\%）。
+        \item \textbf{带宽计算示例：} PCIe 3.0 $\times$1 的原始速率 8 GT/s（Giga Transfers per second），考虑 128b/130b 编码后有效带宽 $\approx 8 \times 128/130 \times 1/8 \approx 0.985\ \text{GB/s}$（单向）。PCIe 3.0 $\times$16 双向总带宽约 32 GB/s。
+    \end{itemize}
+    \item \textbf{交换式架构：}不同于 PCI 的共享总线拓扑，PCIe 采用基于\textbf{交换器（Switch）}的点对点拓扑，每个设备独占与交换器的通信通道，不存在总线竞争问题。
+    \item \textbf{分层协议：}事务层（Transaction Layer）、数据链路层（Data Link Layer）、物理层（Physical Layer）。
+    \item \textbf{差分信号与嵌入式时钟：}数据与时钟编码在一起，无需单独的时钟线。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{USB 总线（Universal Serial Bus）}{usb}
+\textbf{USB} 是连接计算机与外部设备的标准串行接口总线，支持热插拔（Hot Plug）。
+
+\textbf{拓扑结构：}树形星型拓扑，单一主机（Host）控制所有通信。一个 USB 系统有一个主机控制器，通过集线器（Hub）连接最多 127 个设备（含集线器）。
+
+\textbf{传输模式：}USB 支持四种传输类型以适应不同设备需求：
+\begin{enumerate}
+    \item \textbf{控制传输（Control Transfer）}：用于设备的初始配置和命令/状态通信（如设备枚举阶段）。
+    \item \textbf{批量传输（Bulk Transfer）}：用于大批量数据的可靠传输，无带宽保证，利用总线空闲传输（如 U 盘、打印机）。
+    \item \textbf{中断传输（Interrupt Transfer）}：用于小批量、有延迟保证的周期性数据传输（如键盘、鼠标）。
+    \item \textbf{同步传输（Isochronous Transfer）}：用于实时数据流，保证带宽但无纠错重传（如音频、视频设备）。
+\end{enumerate}
+
+\textbf{版本演进与速率：}
+\begin{itemize}
+    \item USB 1.1：低速 1.5 Mbps，全速 12 Mbps。
+    \item USB 2.0：高速 480 Mbps。
+    \item USB 3.0：超高速 5 Gbps（增加独立的发送/接收通道，实现全双工）。
+    \item USB 3.1/3.2：10 Gbps / 20 Gbps。
+    \item USB4：最高 40 Gbps（基于 Thunderbolt 3 协议）。
+\end{itemize}
+\end{conclusion}
+
+\begin{conclusion}{常见总线标准速查表}{bus-standards-table}
+\begin{tablebox}{常见总线标准对比}
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+总线 & 类型 & 传输方式 & 典型带宽 & 适用场景 \\
+\hline
+PCI & 并行 & 共享总线/半双工 & 133 MB/s (32bit@33MHz) & 传统扩展卡 \\
+PCIe 3.0 $\times$16 & 串行 & 点对点/全双工 & $\approx 16$ GB/s & 显卡/SSD \\
+USB 2.0 & 串行 & 共享/半双工 & 480 Mbps & 外设（键鼠/U盘） \\
+USB 3.0 & 串行 & 全双工 & 5 Gbps & 高速外设 \\
+SATA 3.0 & 串行 & 点对点 & 6 Gbps & 硬盘/SSD \\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频辨析——PCI vs PCIe：}
+\begin{itemize}
+    \item PCI 是\textbf{并行}共享总线，PCIe 是\textbf{串行}点对点连接。这是二者最本质的架构差异。
+    \item PCI 使用地址/数据复用（AD 线），PCIe 使用数据包（Packet）交换。
+    \item PCIe $\times n$ 中的 $n$ 指的是通道（Lane）数，不是总线宽度（bit）。每条通道为全双工差分信号对。
+    \item PCIe 没有传统的「总线仲裁」概念——采用交换式拓扑，各设备独立通道。
+    \item USB 是\textbf{主从式}（Host-Device）——所有通信由主机发起，设备不能主动发送数据。
+\end{itemize}
+\end{attention}
+
+% =============================
+% 基础过关题
+% =============================
+\subsection{基础过关题}
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{（总线分类）} 以下关于系统总线中三种信号线的描述，正确的是（ ）。
+
+\begin{center}
+\begin{tabular}{ll}
+(A) 地址总线和数据总线都是双向的 \\[6pt]
+(B) 地址总线是单向的，数据总线是双向的 \\[6pt]
+(C) 控制总线是双向的 \\[6pt]
+(D) 地址总线、数据总线和控制总线都是单向的
+\end{tabular}
+\end{center}
+
+\item \textbf{（总线结构）} 在三总线结构中，连接 CPU 与 Cache 的是（ ）。
+
+\begin{center}
+\begin{tabular}{ll}
+(A) 局部总线 & (B) 存储总线 \\[6pt]
+(C) 扩展总线 & (D) 系统总线
+\end{tabular}
+\end{center}
+
+\item \textbf{（总线仲裁）} 链式查询（Daisy Chain）方式的总线仲裁中，以下说法\textbf{错误}的是（ ）。
+
+\begin{center}
+\begin{tabular}{ll}
+(A) 离仲裁器最近的设备优先级最高 \\[6pt]
+(B) 只需要 3 根控制线 \\[6pt]
+(C) 各设备的优先级可以编程改变 \\[6pt]
+(D) BG 信号串行经过每个设备
+\end{tabular}
+\end{center}
+
+\item \textbf{（总线定时）} 同步通信与异步通信的根本区别在于（ ）。
+
+\begin{center}
+\begin{tabular}{ll}
+(A) 是否有数据总线 \\[6pt]
+(B) 是否有统一的时钟信号 \\[6pt]
+(C) 传输速率是否固定 \\[6pt]
+(D) 是否需要应答信号
+\end{tabular}
+\end{center}
+
+\item \textbf{（总线带宽）} 某总线宽度为 64 位，工作频率为 100 MHz，每个时钟周期传输一次数据。该总线的带宽为（ ）。
+
+\begin{center}
+\begin{tabular}{ll}
+(A) 200 MB/s & (B) 400 MB/s \\[6pt]
+(C) 800 MB/s & (D) 1600 MB/s
+\end{tabular}
+\end{center}
+
+\item \textbf{（总线标准）} 以下关于 PCIe 总线的描述中，正确的是（ ）。
+
+\begin{center}
+\begin{tabular}{ll}
+(A) PCIe 是并行共享总线 \\[6pt]
+(B) PCIe $\times$8 表示数据宽度为 8 位 \\[6pt]
+(C) PCIe 采用串行点对点全双工传输 \\[6pt]
+(D) PCIe 采用与 PCI 相同的总线仲裁方式
+\end{tabular}
+\end{center}
+
+\end{enumerate}
+
+% =============================
+% 真题风格综合训练
+% =============================
+\subsection{真题风格综合训练}
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{（真题风格，单项选择题）} 某计算机系统采用三总线结构，CPU 通过局部总线与 Cache 连接，通过存储总线与主存连接，I/O 设备连接在扩展总线上。当 DMA 控制器（作为总线主设备）通过扩展总线进行 I/O 设备与主存之间的数据传送时，以下说法正确的是（ ）。
+
+\begin{center}
+\begin{tabular}{ll}
+(A) CPU 此时不能访问 Cache \\[4pt]
+(B) CPU 此时可以同时通过局部总线访问 Cache \\[4pt]
+(C) CPU 此时可以同时通过存储总线访问主存 \\[4pt]
+(D) DMA 控制器与 CPU 共享同一条物理总线
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 某总线支持 4 个主设备，采用独立请求方式进行集中式仲裁，则该仲裁器至少需要多少根控制线？
+
+\begin{center}
+\begin{tabular}{ll}
+(A) 3 根 & (B) 4 根 \\[6pt]
+(C) 8 根 & (D) 10 根
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 某计算机的总线宽度为 32 位，总线时钟频率为 66 MHz。该总线支持猝发传输（Burst Transfer）：一次猝发传输中，先发送一个地址（占用 1 个总线时钟周期），随后连续传输 4 个 32 位数据字（每个数据字占用 1 个总线时钟周期），时钟频率保持不变。
+
+\begin{enumerate}
+    \item[(1)] 该总线完成一次猝发传输共需要多少个总线时钟周期？
+    \item[(2)] 计算在一次猝发传输期间，该总线的实际数据传输带宽（以 MB/s 为单位）。
+    \item[(3)] 如果采用单次传输方式（每个地址后只传送 1 个数据字），该总线的最大数据传输带宽是多少？（以 MB/s 为单位）
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 某 USB 3.0 设备的最大传输速率为 5 Gbps。该设备的编码方式为 8b/10b（每 8 位数据用 10 位编码传输）。
+
+\begin{enumerate}
+    \item[(1)] 求该设备传输用户数据的有效带宽（以 MB/s 为单位，设 1 MB = $10^{6}$ B）。
+    \item[(2)] 若该设备以有效带宽持续传输，传输一个大小为 1 GB 的文件至少需要多少秒？（设 1 GB = $10^{9}$ B）
+    \item[(3)] 相对于同步通信，USB 作为异步串行总线在速度适配方面有何优势？简要说明。
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item \textbf{Patterson \& Hennessy《计算机组成与设计（RISC-V 版）》}第 4 章「处理器」中 4.9 节「并行性与高级指令级并行」（含总线结构在现代处理器中的角色）；第 6 章「从客户机到云的并行处理器」6.4 节涉及 GPU 中的互连总线架构。
+    \item \textbf{唐朔飞《计算机组成原理》（第 3 版）}第 4 章「总线」——4.1 总线的基本概念，4.2 总线的结构，4.3 总线仲裁，4.4 总线定时，4.5 总线标准。全程覆盖 408 总线考点，仲裁方式对比表与本节一致。
+    \item \textbf{PCI-SIG 官方规范}（pcisig.com）——PCIe 基本规范的权威来源，含通道架构（Lane）、数据编码和分层协议的详细说明。
+    \item \textbf{USB-IF 官方规范}（usb.org）——USB 标准定义的权威来源，含四种传输类型的完整定义和版本演进历程。
+\end{itemize}

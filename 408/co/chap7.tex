@@ -1,0 +1,558 @@
+\section{输入输出系统}
+
+\subsection{I/O 接口的功能与基本结构}
+
+I/O 设备种类繁多——键盘、鼠标、显示器、磁盘、网卡等，其工作速度、信号形式、数据格式各不相同。CPU 不能直接与每一种设备直接相连，而是通过\textbf{I/O 接口（I/O Interface）}来实现 CPU 与 I/O 设备之间的数据交换。
+
+\begin{mydef}{I/O 接口的主要功能}{io-interface-func}
+I/O 接口是连接 CPU（或系统总线）与外部设备的桥梁，其核心功能包括：
+
+\begin{enumerate}
+    \item \textbf{数据缓冲与锁存}：解决 CPU 与外设速度不匹配的问题。接口中的\textbf{数据缓冲寄存器（DBR）}暂存 CPU 与外设之间传送的数据。
+    \item \textbf{地址译码与设备选择}：接收 CPU 发出的地址信号，经译码后选中指定的 I/O 端口（即接口中的某个寄存器）。
+    \item \textbf{信号电平与格式转换}：将外设的非 TTL 电平信号转换为 CPU 可接受的 TTL 电平，进行串—并转换、A/D—D/A 转换等。
+    \item \textbf{传送控制信息}：接收并解释 CPU 发来的控制命令（读/写、启动/停止等），向外设发出操作控制信号。
+    \item \textbf{反映设备状态}：向 CPU 提供设备当前状态（忙/闲、就绪/未就绪、出错等），CPU 通过读状态寄存器来获知。
+    \item \textbf{中断管理}：当外设需要 CPU 服务时，向 CPU 发出中断请求；接口中包含中断屏蔽逻辑和中断类型号（或向量地址）的生成电路。
+\end{enumerate}
+\end{mydef}
+
+\begin{conclusion}{I/O 接口的典型内部结构}{io-interface-structure}
+一个典型的 I/O 接口内部包含以下寄存器（即 I/O 端口）：
+
+\begin{tablebox}{I/O 接口中的典型寄存器}
+\centering
+\begin{tabular}{|c|l|l|}
+\hline
+寄存器 & 名称 & 功能 \\
+\hline
+\textbf{数据缓冲寄存器（DBR）} & Data Buffer Register & 暂存输入/输出的数据 \\
+\textbf{控制寄存器（CR）} & Control Register & 存放 CPU 发来的控制命令 \\
+\textbf{状态寄存器（SR）} & Status Register & 反映设备当前状态（就绪/忙/出错）\\
+\textbf{设备地址选择电路} & Address Decoder & 识别本接口是否被 CPU 选中 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\noindent 其中数据缓冲寄存器、控制寄存器和状态寄存器都是\textbf{I/O 端口（I/O Port）}，每个端口都有一个独立的地址（端口地址），CPU 通过端口地址来访问它们。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考点——I/O 端口 vs I/O 接口：}
+\begin{itemize}
+    \item \textbf{I/O 接口}是一个功能实体（一块电路或芯片），通常包含多个\textbf{I/O 端口}。
+    \item \textbf{I/O 端口}是 I/O 接口中\textbf{可被 CPU 直接访问的寄存器}，每个端口有独立地址。
+    \item 选择题典型陷阱：「一个 I/O 接口就是一个 I/O 端口」——错误，一个接口通常包含多个端口（数据端口 + 控制端口 + 状态端口）。
+\end{itemize}
+\end{attention}
+
+\subsection{I/O 端口编址方式}
+
+CPU 如何访问 I/O 端口？关键问题是：I/O 端口的地址与主存地址的关系——两者如何编址？408 考试要求熟练掌握两种编址方式及其对比。
+
+\begin{mydef}{统一编址 vs 独立编址}{io-addressing}
+I/O 端口的编址方式决定了 CPU 通过什么指令和什么地址空间来访问 I/O 端口。
+
+\begin{enumerate}
+    \item \textbf{统一编址（存储器映射 I/O，Memory-Mapped I/O）}：
+    \begin{itemize}
+        \item I/O 端口地址与主存地址\textbf{统一编址}，即把 I/O 端口看作主存的一个单元（或区域）。
+        \item CPU 用\textbf{访问存储器的指令}（如 LOAD/STORE、MOV）来访问 I/O 端口——无需专用 I/O 指令。
+        \item \textbf{优点}：指令丰富、编程灵活；不需专门的 I/O 指令和 I/O 控制信号。
+        \item \textbf{缺点}：I/O 端口占用了一部分主存地址空间，减少了可用的内存容量；访问 I/O 时地址译码可能更复杂（因为地址范围大了）。
+        \item 典型代表：ARM 系列、MIPS、Motorola 68K。
+    \end{itemize}
+
+    \item \textbf{独立编址（I/O 映射 I/O，Port-Mapped I/O / Isolated I/O）}：
+    \begin{itemize}
+        \item I/O 端口地址与主存地址\textbf{分开编址}，各有一套地址空间，互不重叠。
+        \item CPU 使用\textbf{专用的 I/O 指令}（如 x86 中的 IN、OUT）来访问 I/O 端口；使用访存指令（如 MOV）来访问内存。CPU 通过不同的控制信号（$\overline{\text{MEMR}}/\overline{\text{MEMW}}$ vs $\overline{\text{IOR}}/\overline{\text{IOW}}$）来区分。
+        \item \textbf{优点}：不占用主存地址空间；I/O 地址空间较小，译码简单；程序易读（I/O 操作一眼可辨）。
+        \item \textbf{缺点}：需要专门的 I/O 指令（指令种类少、功能受限）；需要额外的控制信号线。
+        \item 典型代表：x86（Intel 8086 系列）。
+    \end{itemize}
+\end{enumerate}
+\end{mydef}
+
+\begin{tablebox}{统一编址与独立编址的对比}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+比较项 & 统一编址（Memory-Mapped I/O）& 独立编址（Port-Mapped I/O）\\
+\hline
+地址空间 & I/O 与主存统一编址 & I/O 与主存各自独立 \\
+访问指令 & 访存指令（LOAD/STORE 等）& 专用 I/O 指令（IN/OUT）\\
+优点 & 指令丰富，编程灵活 & 不占主存空间，译码简单 \\
+缺点 & 占用主存地址空间 & 需要专用指令，功能受限 \\
+典型架构 & ARM、MIPS & x86 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\begin{attention}
+\textbf{408 常考点——两种编址方式的核心区别：}
+\begin{itemize}
+    \item 最本质的区分标准：\textbf{CPU 使用什么类型的指令来访问 I/O 端口}。用访存指令 → 统一编址；用专用 I/O 指令 → 独立编址。
+    \item 注意：x86 实际上两种方式都支持（早期 x86 以独立编址为主，但也可以通过 Memory-Mapped I/O 将部分外设映射到内存空间），但 408 考试中通常将 x86 归类为独立编址的典型代表。
+    \item 判断题陷阱：「统一编址方式中，I/O 端口不需要地址」——错误，统一编址中 I/O 端口同样有地址，只是与主存共用地址空间而已。
+\end{itemize}
+\end{attention}
+
+\subsection{I/O 控制方式：程序查询（轮询）}
+
+计算机发展过程中，I/O 控制方式经历了从简单到复杂的演变：程序查询 → 程序中断 → DMA → 通道/IO 处理器。每一种方式都为了解决前一种方式的不足而提出。
+
+\begin{mydef}{程序查询方式（轮询，Polling）}{programmed-io}
+程序查询方式是最简单的 I/O 控制方式。CPU 通过执行一段 I/O 查询程序，不断检测外设的状态寄存器，当设备就绪时执行数据传送；若设备未就绪，则 CPU 原地等待（或循环检测）。
+
+\textbf{工作流程：}
+\begin{enumerate}
+    \item CPU 向 I/O 接口发出读/写命令，启动外设。
+    \item CPU 反复读取状态寄存器，检测「就绪（Ready）」位。
+    \item 就绪后，CPU 执行数据传送（从数据缓冲寄存器读出/写入）。
+    \item 若还有数据需传送，回到步骤 1；否则结束。
+\end{enumerate}
+\end{mydef}
+
+\begin{conclusion}{程序查询方式的特点}{polling-features}
+\begin{itemize}
+    \item \textbf{CPU 与外设串行工作}：CPU 在查询等待期间不能做其他有用工作，效率极低。
+    \item \textbf{硬件开销最小}：不需要额外的中断控制逻辑或 DMA 控制器，仅需基本 I/O 接口电路。
+    \item \textbf{适用于慢速外设和简单系统}：如单片机中对LED、按键的检测。
+    \item \textbf{「独占式查询」}：CPU 完全被 I/O 操作占用，不适用于多任务系统。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+408 选择题中，程序查询方式的核心特征是「\textbf{CPU 与外设串行工作、CPU 主动查询}」。这是它与中断方式（CPU 与外设可部分并行）和 DMA 方式（CPU 与外设高度并行）的根本区别。
+\end{attention}
+
+\subsection{I/O 控制方式：程序中断}
+
+程序查询方式的最大问题是 CPU 必须「原地踏步」等待慢速外设。中断方式的核心思想是：当外设准备好时\textbf{主动通知 CPU}，CPU 在此期间可以做其他事情。这实现了 CPU 与外设的\textbf{部分并行}。
+
+\begin{mydef}{程序中断的基本概念}{interrupt-basics}
+\textbf{程序中断}是指在计算机执行程序的过程中，当出现异常情况或特殊请求（外设就绪、运算溢出、非法指令等）时，CPU 暂停当前程序的执行，转去执行相应的中断服务程序（Interrupt Service Routine，ISR），处理完毕后再返回原程序继续执行。
+
+这一过程与「子程序调用」类似，但中断是\textbf{随机发生}的（由外部事件触发），而非由程序主动安排。
+
+\textbf{中断的分类（按来源）：}
+\begin{enumerate}
+    \item \textbf{外部中断（硬件中断）}：来自 CPU 外部（如 I/O 设备、时钟、电源故障等）。又称可屏蔽中断和不可屏蔽中断（NMI）。
+    \item \textbf{内部中断（异常）}：来自 CPU 内部，由指令执行引发（如除零、溢出、非法指令、缺页等）。在 CS:APP 术语中称为「异常」（Exception）。
+\end{enumerate}
+\end{mydef}
+
+\begin{conclusion}{中断与异常的对比}{interrupt-vs-exception}
+\begin{tablebox}{中断（Interrupt）vs 异常（Exception）}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+比较项 & 中断（硬件中断）& 异常（软件中断/陷阱）\\
+\hline
+触发来源 & CPU 外部（I/O 设备等）& CPU 内部（指令执行）\\
+是否异步 & 异步（与当前指令无关）& 同步（由当前指令引起）\\
+返回位置 & 下一条指令 & 当前指令（故障）或下一条（陷阱）\\
+典型例子 & 键盘输入、磁盘 I/O 完成 & 除零、缺页、系统调用 \\
+CS:APP 分类 & 中断 & 故障（Fault）/陷阱（Trap）/终止（Abort）\\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\subsubsection{中断向量表}
+
+\begin{mydef}{中断向量与中断向量表}{interrupt-vector-table}
+当 CPU 响应某个中断时，需要知道对应的中断服务程序（ISR）的入口地址。这个信息通过\textbf{中断向量表（Interrupt Vector Table，IVT）}来获得。
+
+\begin{itemize}
+    \item \textbf{中断类型号（中断向量号）}：为每一种中断源分配的唯一编号（通常为 8 位，即 0--255）。
+    \item \textbf{中断向量}：即中断服务程序的\textbf{入口地址}（CS:IP 或一个完整的内存地址）。每个中断向量通常占 4 字节（段地址 2B + 偏移地址 2B，实模式下）或 8 字节（保护模式/64 位模式下）。
+    \item \textbf{中断向量表}：将所有中断向量按中断类型号为索引集中存储在一个连续的内存区域中。通常位于内存的\textbf{低地址区}（x86 实模式下为 0--1023，即 $4\times 256$ 字节）。
+\end{itemize}
+
+\textbf{中断向量地址的计算（x86 实模式）：}
+\[
+\text{中断向量表基址} + \text{中断类型号} \times 4
+\]
+即：取中断类型号为 $n$，则中断向量存放在内存地址 $n\times 4$ 处（4 字节：前 2 字节为 IP，后 2 字节为 CS）。
+\end{mydef}
+
+\begin{attention}
+\textbf{408 重要考点——中断向量表：}
+\begin{itemize}
+    \item 中断向量 = 中断服务程序入口地址，\textbf{不是}向量号/类型号本身。
+    \item 中断向量表\textbf{在内存中的位置}（通常是低地址区 0--1023）和\textbf{每个表项的大小}需要记住。
+    \item 常考计算：已知中断类型号 $n$ 和向量表基址，求该中断向量的存储地址：$\text{Address} = \text{Base} + n \times 4$（实模式）。
+\end{itemize}
+\end{attention}
+
+\subsubsection{中断响应过程}
+
+这是 408 的\textbf{核心考点}之一，要求完整掌握 CPU 响应中断的硬件操作序列。
+
+\begin{conclusion}{CPU 响应中断的完整过程（硬件自动完成）}{interrupt-response}
+\textbf{「中断响应周期」}是指从 CPU 接收到中断请求信号到开始执行中断服务程序第一条指令之间的硬件操作序列。以下步骤由 CPU 硬件自动完成（不需程序干预）：
+
+\[
+\boxed{\textbf{中断响应七步曲}}
+\]
+
+\begin{enumerate}
+    \item \textbf{关中断}：CPU 自动清除中断允许标志（IF = 0），禁止在本次中断响应过程中再响应新的中断请求。
+    \item \textbf{保护断点}：将当前程序的\textbf{程序计数器（PC/IP）}和\textbf{程序状态字（PSW/FLAGS）}压入堆栈保存，以便中断处理完毕后能正确返回。
+    \item \textbf{识别中断源}：CPU 通过中断控制器（如 8259A PIC）获取当前请求中断的\textbf{中断类型号}。中断控制器根据优先级裁决，将最高优先级的中断类型号发送给 CPU。
+    \item \textbf{获取中断向量}：根据中断类型号 $n$，从中断向量表中读出对应的中断服务程序入口地址（中断向量）。
+    \item \textbf{转入中断服务程序}：将中断向量加载到 PC/IP 和 CS（或相应寄存器），CPU 开始执行 ISR 的第一条指令。
+    \item \textbf{执行中断服务程序}：ISR 通常包含保护现场（PUSH 各寄存器）、中断处理核心逻辑、恢复现场（POP 各寄存器）。
+    \item \textbf{返回断点}：执行 IRET（中断返回指令），从堆栈中弹出 PSW 和 PC/IP，恢复原程序的执行，同时\textbf{开中断}（IF = 1）。
+\end{enumerate}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点精细辨析：}
+\begin{itemize}
+    \item \textbf{「保护断点」vs「保护现场」}：\textbf{前者由 CPU 硬件自动完成}（压栈 PSW + PC/IP）；\textbf{后者由 ISR 开头/结尾的 PUSH/POP 指令完成}——这是两种不同层次的操作，408 选择题中经常把两者混淆来考。
+    \item \textbf{中断向量表的初始化}：由操作系统在启动时完成。ISR 的入口地址由 OS 写入中断向量表（不全是硬件行为）。
+    \item \textbf{中断类型号的来源}：由\textbf{中断控制器}或\textbf{中断接口电路}提供，CPU 根据该类型号查向量表。
+    \item 关中断是为了保证中断响应过程不被嵌套打断（避免断点/现场信息被破坏）。但可以在 ISR 中适当位置\textbf{开中断}以支持多重中断（见下文）。
+\end{itemize}
+\end{attention}
+
+\subsubsection{多重中断与中断嵌套}
+
+\begin{mydef}{多重中断}{nested-interrupts}
+\textbf{多重中断（中断嵌套）}是指 CPU 在执行某个中断服务程序的过程中，又响应了新的、优先级更高的中断请求，形成中断嵌套。
+
+实现多重中断的关键条件：
+\begin{enumerate}
+    \item 在 ISR 中适当时机（通常在保护现场之后）执行\textbf{开中断}指令（STI，IF = 1），允许响应新的中断请求。
+    \item 中断系统必须有\textbf{优先级裁决机制}：只有优先级更高的中断请求才能打断当前 ISR（同级或低级中断被屏蔽）。
+\end{enumerate}
+\end{mydef}
+
+\begin{conclusion}{多重中断的嵌套执行示意}{nested-interrupt-flow}
+设优先级：$A > B > C$（$A$ 最高，$C$ 最低）。执行序列如下：
+
+\begin{center}
+\begin{tabular}{|c|cccccccc|}
+\hline
+时间线 & \multicolumn{8}{c|}{处理过程} \\
+\hline
+主程序 & ——————— & & & & & & $\longrightarrow$ & ——————— \\
+& & $\searrow$ & & & $\nearrow$ & $\searrow$ & & \\
+ISR $C$ & & & ————— & $\searrow$ & & & ————— & \\
+& & & & & $\searrow$ & & $\nearrow$ & \\
+ISR $B$ & & & & & ————— & & & \\
+& & & & & & $\nwarrow$ & & \\
+ISR $A$ & & & & ————— & & & & \\
+\hline
+事件 & $C$ 请求 & CPU 响应 $C$ & $A$ 请求 & CPU 响应 $A$ & $A$ 处理完 & $B$ 请求 & CPU 响应 $B$ & 返回主程序 \\
+\hline
+\end{tabular}
+\end{center}
+
+说明：$C$ 执行过程中 $A$ 请求到来（优先级更高），CPU 暂停 $C$ 转去处理 $A$；$A$ 处理完毕后返回 $C$ 继续执行；$C$ 恢复后 $B$ 请求到来（$B > C$），再次嵌套。
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考辨析——实现多重中断的必要条件：}
+\begin{enumerate}
+    \item \textbf{ISR 中必须有开中断指令}（否则新的中断请求无法被响应）。
+    \item \textbf{必须有中断优先级裁决}（只有优先级更高的请求才能获得响应）。
+    \item 注意：在保护现场之前\textbf{不能开中断}——否则如果新中断修改了寄存器，恢复现场时会用被改写的值覆盖 ISR 的现场，导致原程序执行出错。
+\end{enumerate}
+\end{attention}
+
+\subsection{I/O 控制方式：DMA（直接存储器访问）}
+
+程序查询和程序中断方式的共同问题是：数据的传送仍然需要 CPU 执行指令来完成（读端口→写内存，或者读内存→写端口）。当需要高速大批量数据传送时（如磁盘读写），CPU 的指令执行开销成为瓶颈。DMA 方式通过\textbf{专门的硬件控制器}直接实现内存与外设之间的数据传送，CPU 仅在传送开始和结束时进行干预。
+
+\begin{mydef}{DMA 方式的基本原理}{dma-basics}
+\textbf{DMA（Direct Memory Access，直接存储器访问）}是指外部设备通过\textbf{DMA 控制器（DMAC）}直接与主存储器进行数据交换，数据传送过程\textbf{不经过 CPU}（CPU 不参与逐字节/逐字的传送），从而大幅提升传送速率。
+
+\textbf{DMA 控制器的基本组成：}
+\begin{enumerate}
+    \item \textbf{地址寄存器（AR）}：存放要访问的内存单元地址（初始值由 CPU 设定，每传送一个数据自动递增或递减）。
+    \item \textbf{字计数器（WC）}：存放要传送的数据字数（初始值由 CPU 设定，每传送一个数据自动减 1，减到 0 时传送结束）。
+    \item \textbf{数据缓冲寄存器（DR）}：暂存每次传送的数据。
+    \item \textbf{控制/状态逻辑}：接收 CPU 发来的控制命令，发出 DMA 请求（DREQ）和总线请求（HOLD/BR），接收 DMA 响应（HLDA/BG）。
+\end{enumerate}
+\end{mydef}
+
+\subsubsection{DMA 传送过程}
+
+这是 408 的另一个\textbf{核心考点}。DMA 传送过程分为三个阶段：预处理、数据传送、后处理。
+
+\begin{conclusion}{DMA 传送的三阶段}{dma-three-stages}
+
+\boxed{\textbf{阶段一：预处理（初始化，CPU 完成）}}
+\begin{enumerate}
+    \item CPU 执行 I/O 指令，对 DMAC 进行初始化：
+    \begin{itemize}
+        \item 将内存起始地址写入 DMAC 的地址寄存器（AR）；
+        \item 将传送字数写入 DMAC 的字计数器（WC）；
+        \item 设置读/写方向和传送模式。
+    \end{itemize}
+    \item CPU 向 I/O 接口发出启动命令，外设开始准备数据。
+    \item CPU 继续执行原来的程序（与外设并行工作）。
+\end{enumerate}
+
+\boxed{\textbf{阶段二：数据传送（DMAC 完成，CPU 不参与）}}
+\begin{enumerate}
+    \item 外设准备就绪，向 DMAC 发出\textbf{DMA 请求（DREQ）}。
+    \item DMAC 向 CPU 发出\textbf{总线请求（HOLD 或 BR）}——请求 CPU 让出总线控制权。
+    \item CPU 在当前总线周期结束后，释放总线控制权（将地址总线、数据总线、控制总线置为高阻态），向 DMAC 发出\textbf{总线响应（HLDA 或 BG）}。
+    \item DMAC 接管总线，向外设发出 DMA 应答（DACK），然后：
+    \begin{itemize}
+        \item 将 AR 的内容送到地址总线（给出内存地址）；
+        \item 发出读/写控制信号；
+        \item 在内存与外设之间完成一个数据字的传送；
+        \item AR $\leftarrow$ AR + 1（或 -1），WC $\leftarrow$ WC - 1。
+    \end{itemize}
+    \item 若 WC $\neq$ 0 且外设继续就绪，重复步骤 4（继续传送下一个数据）；若 WC = 0，则传送完毕。
+    \item DMAC 撤销总线请求，将总线控制权交还 CPU。
+\end{enumerate}
+
+\boxed{\textbf{阶段三：后处理（CPU 完成）}}
+\begin{enumerate}
+    \item 当 WC = 0 时，DMAC 向 CPU 发出\textbf{中断请求}（注意：这是 DMA 传送结束的中断信号，不同于阶段二中每传送一个字的中断）。
+    \item CPU 响应中断，执行中断服务程序：
+    \begin{itemize}
+        \item 检查传送过程中是否有错误；
+        \item 决定是否启动下一次 DMA 传送。
+    \end{itemize}
+\end{enumerate}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 核心考点——DMA 预处理与后处理由 CPU 完成，数据传送由 DMAC 完成：}
+\begin{itemize}
+    \item \textbf{预处理}：CPU 初始化 DMAC 的 AR、WC 等寄存器（通过 I/O 指令写 DMAC 的端口）。
+    \item \textbf{数据传送}：完全由 DMAC 硬件完成，CPU\textbf{不参与}每一个字的传送。
+    \item \textbf{后处理}：DMAC 向 CPU 发中断请求（\textbf{仅一次}，而非每传送一个字就中断一次），CPU 检查传送结果。
+    \item 选择题典型陷阱：「DMA 方式中，CPU 完全不参与任何工作」——错误，CPU 参与了预处理和后处理。
+\end{itemize}
+\end{attention}
+
+\subsubsection{DMA 与中断的区别}
+
+\begin{conclusion}{DMA 方式与程序中断方式的全面对比}{dma-vs-interrupt}
+\begin{tablebox}{DMA 与程序中断的对比（408 高频综合考点）}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+比较项 & 程序中断方式 & DMA 方式 \\
+\hline
+\textbf{数据传送单位} & 以字或字节为单位 & 以数据块为单位 \\
+\textbf{数据传送路径} & CPU（外设 $\leftrightarrow$ CPU $\leftrightarrow$ 内存）& 不经 CPU（外设 $\leftrightarrow$ 内存）\\
+\textbf{CPU 参与程度} & 每传送一个数据都需 CPU 执行 ISR & 只在预处理和后处理时参与 \\
+\textbf{中断请求} & 每完成一个数据传送请求一次中断 & 整个数据块传送结束后才请求一次中断 \\
+\textbf{适用场景} & 低速/中速字符设备（键盘、鼠标）& 高速块设备（磁盘、网卡、显卡）\\
+\textbf{CPU 与外设并行} & 部分并行（CPU 可在数据传送间工作）& 高度并行（CPU 与数据传送完全并行）\\
+\textbf{硬件开销} & 需要中断控制器（PIC/APIC）& 需要 DMA 控制器（DMAC）\\
+\textbf{是否窃取总线周期} & 否 & 是（周期挪用/周期窃取）\\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\begin{conclusion}{DMA 中的数据传送方式（周期挪用）}{cycle-stealing}
+DMA 传送需要占用总线。根据 DMAC 与 CPU 对总线的使用方式，分为三种策略：
+
+\begin{enumerate}
+    \item \textbf{周期挪用（Cycle Stealing）}：DMAC 在 CPU\textbf{不使用总线}的时钟周期内偷偷进行数据传送（即「挪用」一个总线周期）。CPU 和 DMAC 交替使用总线。这是\textbf{最常用}的方式。
+    \item \textbf{停止 CPU 访问内存（Burst / Block Mode）}：DMAC 申请总线后，一直占用直到整个数据块传送完毕才释放。传送期间 CPU 不能访问内存（但可以继续使用 Cache 中的指令和数据）。适用于高速大批量传送。
+    \item \textbf{DMA 与 CPU 交替访存}：将总线时间分成固定的两个部分，轮流分配给 CPU 和 DMAC。不需要总线申请和释放过程，但总线利用率可能不高。
+\end{enumerate}
+\end{conclusion}
+
+\begin{formula}{DMA 传送时间计算}{dma-time}
+408 考试中可能出现 DMA 传送时间相关的计算题。
+
+设传送一个字所需的时间为 $t$（即一个总线周期），数据块大小为 $N$ 个字，则 DMA 数据传送阶段的时间为：
+\[
+\boxed{T_{\text{DMA data transfer}} = N \times t}
+\]
+注意：预处理时间和后处理时间不计入数据传送阶段。
+
+\textbf{典型计算场景：} 比较中断方式和 DMA 方式下完成相同数据传送所需的 CPU 时间开销。中断方式下每传送一个字 CPU 都要执行 ISR（约几十到几百条指令）；DMA 方式下 CPU 只在开始和结束时各执行少量指令。
+\end{formula}
+
+\subsection{I/O 控制方式：通道方式与 I/O 处理器}
+
+\begin{mydef}{通道方式}{channel-mode}
+\textbf{通道（Channel）}是一个具有\textbf{特殊功能的处理器}（或称为 I/O 处理器，IOP），它有自己的指令系统（通道指令），专门负责 I/O 操作的管理和控制。CPU 只需向通道发出 I/O 命令（通道程序），通道即可独立完成整个 I/O 操作，操作完成后向 CPU 发中断。
+
+\begin{itemize}
+    \item 通道的出现进一步将 CPU 从 I/O 管理的繁重任务中解放出来。
+    \item 通道执行的程序称为\textbf{通道程序}（存放在主存中），由一系列通道命令字（CCW）组成。
+    \item 通道与 DMA 的区别：DMA 控制器只能实现简单的数据传送（固定源/目标地址，连续传送），而通道可以执行复杂的通道程序（如查找、分支转移等）。
+\end{itemize}
+\end{mydef}
+
+\begin{conclusion}{四种 I/O 控制方式的演进}{io-evolution}
+从 CPU 参与程度和并行性两个维度来看四种方式的演进：
+
+\begin{tablebox}{四种 I/O 控制方式的对比}
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+特点 & 程序查询 & 程序中断 & DMA & 通道 \\
+\hline
+数据传送单位 & 字/字节 & 字/字节 & 数据块 & 数据块/多个块 \\
+是否经 CPU 传送数据 & 是 & 是 & 否 & 否 \\
+CPU 干预频度 & 全程 & 每传送一字 & 仅开始和结束 & 仅开始和结束 \\
+CPU 与外设并行度 & 无 & 部分并行 & 高度并行 & 高度并行 \\
+是否有专用处理器 & 否 & 否 & 否（仅有控制器）& 是（I/O 处理器）\\
+硬件复杂度 & 最低 & 低 & 中 & 高 \\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\subsection{408 高频考点与答题策略}
+
+\begin{conclusion}{本章 408 核心考点总结}{chap7-keypoints}
+\begin{enumerate}
+    \item \textbf{I/O 端口编址方式}：统一编址（用访存指令）vs 独立编址（用专用 I/O 指令）——本质区别在于 CPU 使用什么指令访问 I/O 端口。典型选择题陷阱：混淆端口与接口、混淆指令类型。
+    \item \textbf{中断响应过程（七步曲）}：关中断 → 保护断点（PSW + PC 自动压栈）→ 识别中断源（获取中断类型号）→ 查向量表获取 ISR 入口 → 执行 ISR → 恢复现场 → 中断返回（IRET）。\textbf{保护断点由硬件完成，保护现场由软件（ISR 指令）完成}——这是最高频的辨析考点。
+    \item \textbf{中断向量表}：向量表在内存低地址区（0--1023），每个向量占 4 字节（实模式 8086），地址 = 类型号 $\times$ 4。中断向量 = ISR 入口地址（≠ 类型号）。
+    \item \textbf{多重中断}：ISR 中开中断 + 优先级裁决 = 可实现嵌套。注意：保护现场前不能开中断。
+    \item \textbf{DMA 三阶段}：预处理（CPU 初始化 DMAC 寄存器）→ 数据传送（DMAC 控制，CPU 不参与）→ 后处理（DMAC 发中断，CPU 检查结果）。
+    \item \textbf{DMA 与中断的区别}：DMA 只在数据块传送结束时发一次中断（vs 中断方式每个字都中断）；DMA 的数据不经过 CPU（vs 中断方式需经 CPU）；DMA 响应在指令执行周期结束后（vs 中断在每条指令执行结束后）。
+    \item \textbf{周期挪用}：DMAC 在 CPU 不使用总线时挪用总线周期进行数据传送，这是 DMA 实现高速传送的核心机制。
+\end{enumerate}
+\end{conclusion}
+
+\begin{attention}
+\textbf{常见易错点：}
+\begin{itemize}
+    \item DMA 方式中数据传送路径是「外设 $\leftrightarrow$ 内存」，\textbf{不经过 CPU}。不是「外设 $\leftrightarrow$ DMAC $\leftrightarrow$ 内存」——DMAC 只提供控制信号和地址，数据直接在外设与内存之间流动。
+    \item 中断响应周期中，CPU 完成当前指令后才会检查中断请求——也就是说，中断响应发生在\textbf{指令周期结束}时；而 DMA 请求的响应发生在\textbf{总线周期结束}时，DMA 可以在一条指令执行过程中（当 CPU 暂时不使用总线时）插入。
+    \item 通道与 DMA 的区别不在传送速度，而在于通道是一个\textbf{有指令系统的处理器}（可执行通道程序），DMA 只是一个\textbf{硬件控制器}。
+    \item 对于「中断隐指令」——它实际上并不是一条真正的机器指令，而是 CPU 在中断响应周期中由硬件自动执行的一系列操作（保护断点、获取中断向量等），408 中可能以「不属于指令系统中的指令」来描述。
+\end{itemize}
+\end{attention}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 以下关于 I/O 端口编址方式的说法中，错误的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 统一编址方式中，CPU 用访存指令访问 I/O 端口 \\[4pt]
+(B) 独立编址方式中，CPU 用专用 I/O 指令访问 I/O 端口 \\[4pt]
+(C) 统一编址会占用一部分主存地址空间 \\[4pt]
+(D) 独立编址方式中，I/O 端口不需要地址，只需要控制信号
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在中断响应周期中，由 CPU 硬件自动完成的操作是
+\begin{center}
+\begin{tabular}{ll}
+(A) 保护各通用寄存器的内容到堆栈 & (B) 保护程序计数器（PC）和程序状态字（PSW）到堆栈 \\[4pt]
+(C) 执行中断服务程序 & (D) 恢复各通用寄存器的内容
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 8086 实模式下，中断向量表存放在内存的 0 地址处。若某中断的类型号为 20H，则该中断的中断向量存放在内存地址（十六进制）
+\begin{center}
+\begin{tabular}{ll}
+(A) $20\text{H}$ & (B) $40\text{H}$ \\[6pt]
+(C) $80\text{H}$ & (D) $100\text{H}$
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} DMA 方式实现数据传送的路径是
+\begin{center}
+\begin{tabular}{ll}
+(A) 外设 $\to$ CPU $\to$ 内存 & (B) 外设 $\to$ DMAC $\to$ 内存 \\[4pt]
+(C) 外设 $\leftrightarrow$ 内存（不经 CPU）& (D) 外设 $\to$ 通道 $\to$ 内存
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 下列关于 DMA 与中断方式比较的说法，正确的是
+\begin{center}
+\begin{tabular}{l}
+(A) DMA 方式在数据传送过程中不需要 CPU 的任何干预 \\
+(B) 中断方式下，CPU 与外设可以完全并行工作 \\
+(C) DMA 方式在数据块传送结束时才向 CPU 发一次中断请求 \\
+(D) DMA 方式不需要申请总线使用权
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} I/O 接口中可供 CPU 直接读写的寄存器称为 \underline{\qquad\qquad}。一个 I/O 接口通常包含 \underline{\qquad\qquad} 端口、\underline{\qquad\qquad} 端口和 \underline{\qquad\qquad} 端口。
+
+\item \textbf{（简答题）} 简述中断响应周期中 CPU 硬件自动完成的操作序列，并说明「保护断点」和「保护现场」有什么区别。
+
+\item \textbf{（计算题）} 某计算机系统中，中断方式下一次中断响应和处理共需执行 50 条指令（含保护/恢复现场和实际数据处理），每条指令的 CPI = 2.0，主频为 1.0 GHz。若某外设以 100 KB/s 的速率输入数据，每次中断传送一个字（2 字节）。问：
+
+\begin{enumerate}
+    \item[(1)] 每秒需要多少次中断？
+    \item[(2)] CPU 用于该外设 I/O 处理的时间占 CPU 总时间的百分比是多少？
+\end{enumerate}
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 某计算机主频为 500 MHz，某外设以 2 MB/s 的速度与主机进行 DMA 数据传送。若 DMA 预处理和后处理的总时间开销为 1000 个时钟周期（CPU 在整个 DMA 传送过程的开头和结尾各执行一次预处理和后处理），采用周期挪用方式，DMA 传送过程中 CPU 的主频降为原来的 $1/2$（但外设速率和 DMA 传送速率不变）。若传送 64 KB 的数据块，DMA 传送期间 CPU 被 DMA 请求占用的时钟周期为 DMA 数据传送所用周期的 5\%，则整个 DMA 过程中 CPU 用于该外设 I/O 处理的时间开销约为
+
+\begin{center}
+\begin{tabular}{ll}
+(A) $2\ \mu\text{s}$ & (B) $4\ \mu\text{s}$ \\[6pt]
+(C) $8\ \mu\text{s}$ & (D) $16\ \mu\text{s}$
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，简答题）} 简述程序查询、程序中断、DMA 三种 I/O 控制方式下，CPU 启动一次 I/O 操作后的工作状态有何不同。从 CPU 与 I/O 设备并行性的角度，比较三者的优劣。
+
+\item \textbf{（真题风格，综合题）} 某计算机系统的中断系统支持多重中断，中断优先级从高到低依次为：$A > B > C > D$。CPU 正在执行主程序时，先后发生了以下事件：
+
+\begin{itemize}
+    \item $t_1$ 时刻：设备 $C$ 发出中断请求，CPU 响应；
+    \item $t_2$ 时刻：CPU 正在执行 $C$ 的中断服务程序（已开中断），设备 $A$ 发出中断请求；
+    \item $t_3$ 时刻：CPU 正在执行 $A$ 的中断服务程序（已开中断），设备 $B$ 发出中断请求；
+    \item $t_4$ 时刻：CPU 执行完 $A$ 的中断服务程序并返回；
+    \item $t_5$ 时刻：CPU 正在继续执行 $C$ 的中断服务程序，设备 $D$ 发出中断请求。
+\end{itemize}
+
+\begin{enumerate}
+    \item[(1)] 画出从 $t_1$ 到所有中断处理完毕的时间线上 CPU 执行程序的切换过程。
+    \item[(2)] 设备 $B$ 的中断请求在哪个时刻被 CPU 响应？为什么不是在 $t_3$ 时刻立即响应？
+    \item[(3)] 设备 $D$ 的中断请求能否在 $t_5$ 时刻被响应？为什么？
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 某计算机系统的 DMA 控制器结构如下：地址寄存器（AR）为 32 位，字计数器（WC）为 16 位，数据线宽度为 32 位（每次传送 4 字节），总线时钟频率为 100 MHz，每个总线周期传送一个数据。CPU 主频为 2.0 GHz。
+
+\begin{enumerate}
+    \item[(1)] 该 DMA 控制器一次最多可传送多少字节的数据？
+    \item[(2)] 若 DMA 传送速率为 400 MB/s（实际数据传送速率），DMA 预处理需 CPU 执行 20 条指令（CPI = 1.5），后处理需 30 条指令（CPI = 2.0）。现需从磁盘读入 256 KB 数据到内存，磁盘的数据传输率为 50 MB/s。求完成这次传送，CPU 用于 DMA 处理的总时间为多少？
+    \item[(3)] 若将上述 256 KB 数据改用程序中断方式传送，每次中断传送 4 字节，每次中断处理需执行 100 条指令（CPI = 2.0）。比较中断方式和 DMA 方式下 CPU 的时间开销（CPU 主频均为 2.0 GHz），说明 DMA 方式的优势所在。
+\end{enumerate}
+
+\item \textbf{（真题风格，综合题）} 在计算机系统的层次化 I/O 架构中，应用程序、操作系统、DMA 控制器和外设各自承担不同的角色。回答以下问题：
+
+\begin{enumerate}
+    \item[(1)] 应用程序发起一次磁盘读操作（如 C 语言的 \texttt{fread} 函数调用），描述从应用层到硬件层的完整调用路径。
+    \item[(2)] 操作系统中 I/O 软件通常分为几个层次？每个层次的功能是什么？
+    \item[(3)] 在 DMA 方式下，磁盘控制器从磁盘读取数据到内存的过程中，CPU 是否完全空闲？请说明理由。
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item Patterson \& Hennessy《计算机组成与设计：硬件/软件接口》（RISC-V / MIPS 版）第 4 章「处理器」4.7--4.9 节——异常与中断的硬件实现；第 5 章「存储器层次结构」中有关 I/O 与总线系统的内容。
+    \item Bryant \& O'Hallaron《深入理解计算机系统》（CS:APP）第 8 章「异常控制流」——8.1 节（异常）、8.5 节（信号与非本地跳转的主要机制），从操作系统的视角理解异常控制流，包括中断、陷阱、故障和终止的分类与处理。
+    \item Patterson \& Hennessy《计算机组成与设计》第 5 章 5.5--5.6 节——DMA 与 I/O 总线的详细工作流程，包含周期挪用（Cycle Stealing）的时序分析。
+    \item 董社勤《计算机组成原理》——第 7 章「输入输出系统」（中断向量表的 x86 实模式实现、8259A 中断控制器原理）可在国内教材中找到更贴合 408 风格的详细讲解。
+\end{itemize}

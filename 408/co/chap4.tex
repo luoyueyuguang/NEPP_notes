@@ -1,0 +1,184 @@
+\section{指令系统}
+
+\subsection{指令格式}
+
+\begin{mydef}{指令的基本格式}{instruction-format}
+一条机器指令由\textbf{操作码（Opcode）}和\textbf{地址码（Address）}两部分组成：
+\[
+\underbrace{\text{操作码 OP}}_{\text{指定操作类型}}\quad \underbrace{\text{地址码 A}_1\;\text{A}_2\;\cdots\;\text{A}_n}_{\text{指定操作数地址}}
+\]
+
+按地址码数量分类：
+\begin{itemize}
+    \item \textbf{三地址指令}：OP A1, A2, A3 —— (A1)OP(A2) $\to$ A3
+    \item \textbf{二地址指令}：OP A1, A2 —— (A1)OP(A2) $\to$ A1（或 A2）
+    \item \textbf{一地址指令}：OP A —— 如 ACC OP (A) $\to$ ACC
+    \item \textbf{零地址指令}：无地址码——如堆栈操作、空操作 NOP
+\end{itemize}
+\end{mydef}
+
+\begin{conclusion}{定长操作码 vs 扩展操作码}{opcode-encoding}
+\begin{itemize}
+    \item \textbf{定长操作码}：所有指令操作码位数相同，译码简单、控制方便，但指令条数受限。
+    \item \textbf{扩展操作码（哈夫曼编码思想）}：操作码位数可变，短操作码留给高频指令，长操作码对应更多寻址方式或低频指令。\textbf{这是 408 选择题中的高频考点}——给定指令字长和地址码位数，计算最多能有多少条指令。
+\end{itemize}
+
+\textbf{扩展操作码的设计约束：} 短操作码不能是长操作码的前缀（类似 Huffman 编码的前缀性质），否则译码歧义。
+\end{conclusion}
+
+\subsection{寻址方式}
+
+\begin{mydef}{寻址方式}{addressing-modes}
+指令中获取操作数（或跳转地址）的方式。分为指令寻址和数据寻址两大类。
+\end{mydef}
+
+\begin{conclusion}{常见数据寻址方式}{data-addressing}
+设指令字中的形式地址为 $A$，有效地址为 $EA$。
+
+\begin{tablebox}{寻址方式汇总}
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+寻址方式 & EA 计算 & 访存次数（取操作数）& 用途 \\
+\hline
+立即寻址 & 操作数 = A（无需访存）& 0 & 常量 \\
+直接寻址 & EA = A & 1 & 简单变量 \\
+间接寻址 & EA = (A) & $\geqslant 2$ & 指针 \\
+寄存器寻址 & 操作数 = $R_A$ & 0 & 频繁使用变量 \\
+寄存器间接 & EA = $(R_A)$ & 1 & 数组遍历 \\
+变址寻址 & EA = $(R_X) + A$ & 1 & 循环/数组 \\
+基址寻址 & EA = $(R_B) + A$ & 1 & 程序重定位 \\
+相对寻址 & EA = (PC) + A & 1 & 转移指令 \\
+堆栈寻址 & 栈顶隐含 & 0 & 表达式求值 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{变址寻址 vs 基址寻址：} 两者形式相同（$EA = \text{寄存器} + A$），但语义不同：
+\begin{itemize}
+    \item \textbf{变址}：$A$ 为基准，$R_X$ 为偏移（可修改），用于数组。
+    \item \textbf{基址}：$R_B$ 为基准，$A$ 为偏移，用于程序重定位（OS 管理）。
+\end{itemize}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 高频考点：给定一段 C 代码，分析其中某变量的访问使用了哪种寻址方式。} 例如 \texttt{for(i=0; i<n; i++) sum += a[i];} 中 \texttt{a[i]} 通常使用变址寻址（基址寄存器 = a 的首地址，变址寄存器 = i）。
+\end{attention}
+
+\subsection{CISC vs RISC}
+
+\begin{conclusion}{CISC 与 RISC 对比}{cisc-risc}
+\begin{tablebox}{CISC vs RISC}
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+特征 & CISC & RISC \\
+\hline
+指令长度 & 变长 & 定长（通常 32 位）\\
+指令数量 & 多（200+）& 少（100 以内）\\
+寻址方式 & 多 & 少（仅 LOAD/STORE 访存）\\
+指令执行周期 & 多变（单周期到多周期）& 基本单周期 \\
+微程序控制 & 广泛使用 & 较少（通常硬布线）\\
+寄存器数量 & 少 & 多（如 32 个通用寄存器）\\
+流水线实现 & 困难 & 容易 \\
+典型代表 & x86 & MIPS, ARM, RISC-V \\
+设计哲学 & 用硬件复杂度换编译器简单性 & 用编译器复杂度换硬件简单性 \\
+\hline
+\end{tabular}
+\end{tablebox}
+\end{conclusion}
+
+\begin{attention}
+\textbf{408 常考：} x86 是 CISC 的代表，但现代 x86 处理器内部将 CISC 指令「翻译」为类 RISC 微操作（$\mu$ops）执行，融合了两者优势。
+\end{attention}
+
+\subsection{408 高频考点速查}
+
+\begin{conclusion}{指令系统 — 408常考点}{co4-keypoints}
+\begin{enumerate}
+    \item \textbf{扩展操作码设计}：给定指令字长和地址码字段，求最大指令数。
+    \item \textbf{寻址方式}：根据访存次数、EA 计算公式区分不同寻址方式。
+    \item \textbf{CISC vs RISC}：对比表每条都要记住。
+    \item \textbf{指令字长}：定长 vs 变长，与操作码、地址码字段位数的关系。
+    \item \textbf{大端/小端（Endianness）}：给定一条指令或数据在内存中的字节存储顺序，判断是大端还是小端。
+\end{enumerate}
+\end{conclusion}
+
+\newpage
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 某计算机指令字长为 16 位，采用扩展操作码设计。若二地址指令有 15 条，一地址指令有 62 条，则零地址指令最多有
+\begin{center}
+\begin{tabular}{ll}
+(A) 8 条 & (B) 16 条 \\[6pt]
+(C) 32 条 & (D) 64 条
+\end{tabular}
+\end{center}
+
+\item \textbf{（单项选择题）} 在指令寻址方式中，直接寻址方式的有效地址为
+\begin{center}
+\begin{tabular}{ll}
+(A) 程序计数器 PC 的值 & (B) 指令中给出的形式地址 \\[4pt]
+(C) 形式地址所指主存单元的内容 & (D) 变址寄存器与形式地址之和
+\end{tabular}
+\end{center}
+
+\item \textbf{（填空题）} 变址寻址中，操作数的有效地址 = \underline{\qquad} + \underline{\qquad}。
+
+\item \textbf{（填空题）} 在 RISC 处理器中，只有 \underline{\qquad} 和 \underline{\qquad} 指令可以访问存储器。
+
+\item \textbf{（简答题）} 解释变址寻址和基址寻址在功能上的区别。
+
+\item \textbf{（计算题）} 某计算机指令字长为 32 位，采用二地址指令。操作码字段占 8 位，两个地址字段各占 12 位。求：(1) 最多可有多少条二地址指令？(2) 若改为扩展操作码，保留 100 条二地址指令，一地址指令最多多少条？
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格，单项选择题）} 以下关于 CISC 和 RISC 的说法，正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) CISC 的指令长度固定 \\[4pt]
+(B) RISC 的寻址方式种类更多 \\[4pt]
+(C) RISC 只有 LOAD/STORE 指令可以访问存储器 \\[4pt]
+(D) CISC 比 RISC 更容易实现流水线
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，单项选择题）} 一条指令的地址码字段给出的是操作数在寄存器中的编号，则该寻址方式是
+\begin{center}
+\begin{tabular}{ll}
+(A) 直接寻址 & (B) 立即寻址 \\[6pt]
+(C) 寄存器寻址 & (D) 寄存器间接寻址
+\end{tabular}
+\end{center}
+
+\item \textbf{（真题风格，综合题）} 某 16 位计算机采用单字长定长指令，指令格式如下：
+\[
+\begin{array}{|c|c|c|c|}
+\hline
+\text{OP(4位)} & \text{Md(2位)} & \text{Rd(2位)} & \text{Ms(2位)} \\
+\hline
+\end{array}
+\]
+其中 OP 为操作码，Md 为目的寻址方式，Rd 为目的寄存器号，Ms 为源操作数。Md=00 表示寄存器寻址，01 表示寄存器间接寻址，10 表示变址寻址（变址寄存器为 R0），11 表示立即寻址。
+\begin{enumerate}
+    \item[(1)] 该指令系统最多可有多少条指令？
+    \item[(2)] 写出指令 \texttt{ADD R1, (R2)}（将 R1 与 R2 指向的内存单元内容相加，结果存 R1）的机器码（二进制）。
+    \item[(3)] 若某指令 Ms=10，源形式地址=5，R0=1000，求源操作数的有效地址。
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{8pt}
+\noindent\textbf{拓展阅读：}
+\begin{itemize}
+    \item Patterson \& Hennessy《计算机组成与设计》第 2 章「指令：计算机的语言」——MIPS/RISC-V 指令集详解，含寻址方式与指令格式设计原理。
+    \item CS:APP 第 3 章「程序的机器级表示」——从 x86-64 汇编出发，建立一个程序如何被翻译为机器指令的完整心智模型。
+\end{itemize}
