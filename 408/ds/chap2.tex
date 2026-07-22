@@ -644,17 +644,17 @@ void LevelOrder(BiTree T) {
 
 \begin{enumerate}
 
-\item \textbf{（单项选择题）} 对于一个初始为空的栈，其入栈序列为 $1,2,3,\ldots,n$，若出栈序列的第一个元素是 $k$（$1\leqslant k\leqslant n$），则以下说法正确的是
+\item \textbf{（2009年·单选·2）} 设栈S的初始状态为空，入栈序列为$1,2,3,\ldots,n$，若出栈序列的第一个元素是$k$（$1\leqslant k\leqslant n$），则以下说法正确的是
 \begin{center}
 \begin{tabular}{ll}
-(A) 出栈序列由 $k$ 唯一确定 \\
-(B) 第 $i$ 个出栈元素是 $n-i+1$ \\
-(C) 出栈序列的可能个数随 $k$ 变化 \\
-(D) 元素 $1$ 不可能第 $k$ 个出栈
+(A) 此时元素$1,2,\ldots,k-1$必定全部在栈中，且$1$在栈底 \\
+(B) 第$i$个出栈元素必定是$n-i+1$ \\
+(C) 出栈序列的个数与$k$无关 \\
+(D) 出栈序列的可能个数为$C_{n-1}^{k-1}$
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 设循环队列的存储空间为 $Q[0..m-1]$，\texttt{front} 指向队头元素，\texttt{rear} 指向队尾元素的下一位置。则元素入队时 \texttt{rear} 的变化为
+\item \textbf{（2010年·单选·1）} 设循环队列的存储空间为$Q[0..m-1]$，\texttt{front}指向队头元素，\texttt{rear}指向队尾元素的下一位置。则元素入队时\texttt{rear}的变化为
 \begin{center}
 \begin{tabular}{ll}
 (A) \texttt{rear = rear + 1} & (B) \texttt{rear = (rear + 1) \% (m - 1)} \\[6pt]
@@ -662,7 +662,15 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 设栈 S 和队列 Q 的初始状态均为空。元素 $a,b,c,d,e,f,g$ 依次进入栈 S。若每个元素出栈后立即进入队列 Q，且出队的顺序是 $b,d,c,f,e,a,g$，则栈 S 的容量至少为
+\item \textbf{（2012年·单选·2）} 中缀表达式$A+B*(C-D)-E/F$对应的后缀表达式是
+\begin{center}
+\begin{tabular}{ll}
+(A) $ABCD-*+EF/-$ & (B) $AB+CD-*EF/-$ \\[6pt]
+(C) $ABCD-*+EF/$ & (D) $AB+CD-*E-F/$
+\end{tabular}
+\end{center}
+
+\item \textbf{（2023年·单选·1）} 对后缀表达式$ab+c*d-ef+/$进行求值（设$a,b,c,d,e,f$均为操作数），在从左到右扫描求值的过程中，操作数栈中元素个数的最大值为
 \begin{center}
 \begin{tabular}{ll}
 (A) 2 & (B) 3 \\[6pt]
@@ -670,71 +678,47 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\item \textbf{（填空题）} 中缀表达式 $A+B*(C-D)-E/F$ 对应的后缀表达式为 \underline{\qquad\qquad}。
+\item \textbf{（2018年·单选·2）} 设用数组$A[0..n-1]$实现两个栈共享存储空间的共享栈。栈1的栈底在$A[0]$处，从低地址向高地址增长；栈2的栈底在$A[n-1]$处，从高地址向低地址增长。\texttt{top1}指向栈1的栈顶元素，\texttt{top2}指向栈2的栈顶元素。则栈满的条件是
+\begin{center}
+\begin{tabular}{ll}
+(A) $\texttt{top1} + \texttt{top2} = n$ & (B) $\texttt{top1} + 1 = \texttt{top2}$ \\[6pt]
+(C) $\texttt{top1} = \texttt{top2}$ & (D) $\texttt{top1} + 1 < \texttt{top2}$
+\end{tabular}
+\end{center}
 
-\item \textbf{（填空题）} 在一个链队列中，若 \texttt{front} 和 \texttt{rear} 分别为队头指针和队尾指针，则插入一个新结点时，需要修改 \underline{\qquad\qquad} 个指针域（\texttt{next} 域，不计 \texttt{front/rear} 本身）。
-
-\item \textbf{（填空题）} 用数组 $Q[0..n-1]$ 实现循环队列，\texttt{front} 指向队头元素前一位置，\texttt{rear} 指向队尾元素。若采用「牺牲一个单元」判满，则队列最多容纳 \underline{\qquad\qquad} 个元素，判空条件为 \underline{\qquad\qquad}。
-
-\item \textbf{（简答题）} 入栈序列为 $1,2,3,4$，写出所有合法的出栈序列（共 $C_4=14$ 种中的 14 种，无需枚举全部——但请给出 $4,2,3,1$ 和 $3,1,2,4$ 是否为合法出栈序列并说明原因）。
-
-\item \textbf{（算法设计）} 利用两个栈 \texttt{S1} 和 \texttt{S2} 模拟一个队列。写出入队和出队操作的算法，并分析出队操作的时间复杂度（$n$ 个元素时）。
+\item \textbf{（2014年·单选·1）} 设循环队列的存储空间为$Q[0..m-1]$，\texttt{front}指向队头元素，\texttt{rear}指向队尾元素的下一位置。在采用「牺牲一个存储单元」判满策略时，队列为空的判定条件是
+\begin{center}
+\begin{tabular}{ll}
+(A) $\texttt{front} = \texttt{rear}$ & (B) $(\texttt{rear}+1) \bmod m = \texttt{front}$ \\[6pt]
+(C) $\texttt{front} = 0$ 且 $\texttt{rear} = 0$ & (D) $\texttt{front} = (\texttt{rear}+1) \bmod m$
+\end{tabular}
+\end{center}
 
 \end{enumerate}
 
-\subsection{真题风格与综合训练}
+\subsection{综合训练}
 
 \begin{enumerate}[resume]
 
-\item \textbf{（真题风格，单项选择题）} 循环队列存储在数组 $A[0..n-1]$ 中，\texttt{front} 指向队头元素，\texttt{rear} 指向队尾元素的后一位置。假设队列非空，则队列中元素个数的计算公式为
+\item \textbf{（2019年·单选·3）} 以下算法中，需要使用队列作为辅助数据结构的是
 \begin{center}
 \begin{tabular}{ll}
-(A) \texttt{rear - front} & (B) \texttt{(rear - front + n) \% n} \\[6pt]
-(C) \texttt{(rear - front + n + 1) \% n} & (D) \texttt{(rear - front + 1 + n) \% n}
+(A) 二叉树的先序遍历 & (B) 二叉树的层次遍历 \\[6pt]
+(C) 图的深度优先遍历 & (D) 中缀表达式转后缀表达式
 \end{tabular}
 \end{center}
 
-\item \textbf{（真题风格，单项选择题）} 已知一个栈的入栈序列是 $1,2,3,4$，其出栈序列为 $p_1,p_2,p_3,p_4$，则 $p_2=3$ 时 $p_3$ 不可能取值为
-\begin{center}
-\begin{tabular}{ll}
-(A) 1 & (B) 2 \\[6pt]
-(C) 4 & (D) 5
-\end{tabular}
-\end{center}
-
-\item \textbf{（真题风格，单项选择题）} 设用数组 $A[0..M-1]$ 实现两个栈共享存储空间的共享栈。栈 1 从低地址向高地址增长，栈 2 从高地址向低地址增长。栈 1 的栈顶指针为 \texttt{top1}（指向栈顶元素），栈 2 的栈顶指针为 \texttt{top2}（指向栈顶元素）。则两个栈均不满的条件是
-\begin{center}
-\begin{tabular}{ll}
-(A) \texttt{top1 + top2 == M} & (B) \texttt{top1 + 1 == top2} \\[6pt]
-(C) \texttt{top1 + 1 < top2} & (D) \texttt{top1 < top2}
-\end{tabular}
-\end{center}
-
-\item \textbf{（综合题）} 用栈实现递归函数的非递归计算。
+\item \textbf{（综合题）} 给定入栈序列$\{1,2,3,4,5\}$，请：
 \begin{enumerate}
-    \item[(1)] 将以下递归函数改写为非递归算法（用栈保存参数 $n$）：
-\begin{lstlisting}[language=C]
-double P(int n, double x) {
-    if (n == 0) return 1;
-    if (n == 1) return x;
-    return ((2*n-1)*x*P(n-1,x) - (n-1)*P(n-2,x)) / n;
-}
-\end{lstlisting}
-    \item[(2)] 分析改写后算法的时间复杂度与空间复杂度。
+    \item[(1)] 列出所有以3开头、以5结尾的合法出栈序列；
+    \item[(2)] 说明推导过程与判断合法性的关键原则。
 \end{enumerate}
 
-\item \textbf{（综合题，真题风格）} 某表达式求值系统需要处理含 \texttt{+、-、*、/、\^（幂运算，右结合）} 五种运算符和圆括号的表达式。
+\item \textbf{（综合题）} 设循环队列$Q[0..M-1]$，\texttt{front}指向队头元素，\texttt{rear}指向队尾元素的下一个空位。回答以下问题：
 \begin{enumerate}
-    \item[(1)] 画出处理运算符时运算符栈的操作流程图；
-    \item[(2)] 给出中缀表达式 $a+b\text{\textasciicircum}c*d$ 转化为后缀表达式的过程（写出每一步栈的状态和输出）；
-    \item[(3)] 说明右结合运算符 \texttt{\textasciicircum} 与左结合运算符在入栈判定规则上的区别。
-\end{enumerate}
-
-\item \textbf{（综合题）} 设计一个算法，判定给定的字符串是否为形如 $a\text{@}b$ 的模式，其中 $b$ 是 $a$ 的逆序（$a$ 和 $b$ 不含字符 \texttt{@}）。要求：
-\begin{enumerate}
-    \item[(1)] 利用栈设计算法（可借助 \texttt{@} 作为分隔符）；
-    \item[(2)] 分析时间复杂度；
-    \item[(3)] 若去掉 \texttt{@} 分隔符（即只给字符串，判断是否为回文），是否可以同样使用栈？
+    \item[(1)] 写出队列中元素个数的计算公式；
+    \item[(2)] 若$M=10$，$\texttt{front}=6$，$\texttt{rear}=3$，求队列中元素个数；
+    \item[(3)] 若采用「牺牲一个单元」策略，分别写出判空和判满条件。
 \end{enumerate}
 
 \end{enumerate}
@@ -742,6 +726,6 @@ double P(int n, double x) {
 \vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item 邓俊辉《数据结构（C++语言版）》第 4 章「栈与队列」——栈的应用（括号匹配、表达式求值、试探回溯法）和队列的循环实现细节。
-    \item Sedgewick《算法》第 1.3 节「背包、队列和栈」——链表实现栈与队列的迭代器模式，Dijkstra 双栈表达式求值算法。
+    \item 邓俊辉《数据结构（C++语言版）》第4章「栈与队列」——表达式求值的完整实现。
+    \item Sedgewick《算法》第1.3节——栈与队列的ADT定义与迭代器设计。
 \end{itemize}

@@ -631,59 +631,94 @@ typedef struct {
 
 \begin{enumerate}
 
-\item \textbf{（单项选择题）} 对一个长度为 $n$ 的有序顺序表进行折半查找，查找成功时的 ASL 约等于
+\item \textbf{（2010年·选择题·第9题）} 已知一个长度为$16$的顺序表$L$，其元素按关键字有序排列。若采用折半查找法查找一个不存在的元素，则比较次数最多为
 \begin{center}
 \begin{tabular}{ll}
-(A) $\log_2 n$ & (B) $\log_2(n+1)-1$ \\[6pt]
-(C) $(n+1)/2$ & (D) $\sqrt{n}$
+(A) 4 & (B) 5 \\[6pt]
+(C) 6 & (D) 7
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 在含有 $n$ 个结点的二叉排序树中查找一个关键字，以下说法正确的是
+\ifshowsolutions\par\noindent\textbf{解析：} 折半查找最多比较次数$=\lfloor\log_2 n\rfloor+1=\lfloor\log_2 16\rfloor+1=5$。判定树高度为$h=\lfloor\log_2 16\rfloor+1=5$。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2011年·选择题·第10题）} 在一棵$m$阶B-树中，除根结点外的所有非终端结点至少有多少棵子树？
 \begin{center}
 \begin{tabular}{ll}
-(A) 时间复杂度恒为 $O(\log n)$ \\[4pt]
-(B) 等概率下 ASL$_{\text{成功}} = \frac{n+1}{2}$ \\[4pt]
-(C) 最坏情况下时间复杂度为 $O(n)$ \\[4pt]
-(D) 查找过程一定沿着一条从根到叶子的路径进行
+(A) $\lfloor m/2\rfloor$ & (B) $\lceil m/2\rceil$ \\[6pt]
+(C) $\lfloor m/2\rfloor+1$ & (D) $m-1$
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 在下列平衡二叉树中插入一个结点后造成了不平衡，其中需要进行先左旋、后右旋（LR 型）操作的是
+\ifshowsolutions\par\noindent\textbf{解析：} $m$阶B-树定义：除根外每个非终端结点至少有$\lceil m/2\rceil$棵子树（即至少$\lceil m/2\rceil-1$个关键字）。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2012年·选择题·第9题）} 已知一棵$3$阶B-树如下图所示，删除关键字$78$后得到一棵新的$3$阶B-树，新树中所含的关键字个数是
+（图略：原B-树包含关键字55,60,78等）
 \begin{center}
 \begin{tabular}{ll}
-(A) 在 A 的左子树的左子树上插入 \\[4pt]
-(B) 在 A 的右子树的右子树上插入 \\[4pt]
-(C) 在 A 的左子树的右子树上插入 \\[4pt]
-(D) 在 A 的右子树的左子树上插入
+(A) 8 & (B) 9 \\[6pt]
+(C) 10 & (D) 11
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 一棵 5 阶 B-树中，除根以外的每个非叶结点至少包含的关键字个数为
+\ifshowsolutions\par\noindent\textbf{解析：} 3阶B-树至少$\lceil3/2\rceil=2$棵子树，删除$78$后若结点关键字数不足（$\lceil m/2\rceil-1=1$），需从兄弟借或合并。最终关键字数减少1个。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2013年·选择题·第9题）} 设散列表长$m=14$，散列函数$H(k)=k\bmod 11$。表中已有4个记录：15,38,61,84，用线性探测法处理冲突。则关键字49的地址是
 \begin{center}
 \begin{tabular}{ll}
-(A) $1$ & (B) $2$ \\[6pt]
-(C) $3$ & (D) $4$
+(A) 8 & (B) 3 \\[6pt]
+(C) 5 & (D) 9
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 设散列表长 $m=14$，散列函数 $H(key)=key \bmod 13$。表中已有关键字 $15, 28, 41, 54$，用线性探测法处理冲突，则关键字 $67$ 的散列地址是
+\ifshowsolutions\par\noindent\textbf{解析：} $H(15)=4$占4，$H(38)=5$占5，$H(61)=6$占6，$H(84)=7$占7。$H(49)=5$，5已被占→探测6已占→探测7已占→探测8空，故49在地址8。\boxed{\textbf{答案：}(A)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2015年·选择题·第9题）} 下列选项中，属于B+树特点的是
 \begin{center}
 \begin{tabular}{ll}
-(A) $2$ & (B) $3$ \\[6pt]
-(C) $4$ & (D) $5$
+(A) 非叶结点包含关键字，也包含指向记录的指针 \\[4pt]
+(B) 叶结点仅包含关键字，不包含指向记录的指针 \\[4pt]
+(C) 所有叶结点通过指针链接成有序链表 \\[4pt]
+(D) 结点中的关键字个数可以任意
 \end{tabular}
 \end{center}
 
-\item \textbf{（填空题）} 在一个长度为 $n$ 的顺序表中进行顺序查找，等概率下查找成功时的平均比较次数为 \underline{\qquad\qquad}，查找不成功时的比较次数为 \underline{\qquad\qquad}。
+\ifshowsolutions\par\noindent\textbf{解析：} B+树特点：(1)所有关键字出现在叶结点中，非叶结点仅起索引作用；(2)叶结点包含全部关键字及指向记录的指针；(3)叶结点按关键字顺序链接。\boxed{\textbf{答案：}(C)}\fi
 
-\item \textbf{（填空题）} 具有 $n$ 个关键字的 $m$ 阶 B-树，其\textbf{最大高度}（不含失败结点层）的表达式为 \underline{\qquad\qquad}。
+\vspace{8pt}
 
-\item \textbf{（简答题）} 简述 B+树与 B-树的主要区别，并说明为什么数据库索引通常使用 B+树而非 B-树。
+\item \textbf{（2016年·选择题·第10题）} B-树中所有叶结点（失败结点）均在同一层上，这是由B-树的什么特点决定的？
+\begin{center}
+\begin{tabular}{ll}
+(A) 所有结点至少$\lceil m/2\rceil$棵子树 \\[4pt]
+(B) 所有关键字按递增顺序排列 \\[4pt]
+(C) 从根到叶的所有路径上关键字个数相同 \\[4pt]
+(D) 插入和删除操作始终保持树的平衡
+\end{tabular}
+\end{center}
 
-\item \textbf{（计算题）} 设有关键字序列 $\{5, 16, 20, 27, 30, 36, 44, 55, 60, 67, 71\}$，画出对其进行折半查找的判定树，并计算 ASL$_{\text{成功}}$。
+\ifshowsolutions\par\noindent\textbf{解析：} B-树是一种\textbf{平衡}的多路查找树，插入和删除操作通过分裂和合并保持所有叶结点在同一层。这正是B-树的\textbf{自平衡}特性。\boxed{\textbf{答案：}(D)}\fi
 
-\item \textbf{（算法设计）} 编写非递归算法，在二叉排序树中插入一个关键字 $k$，返回插入后树的根结点指针。若关键字已存在，则不插入。
+\vspace{8pt}
+
+\item \textbf{（2023年·选择题·第9题）} 下列关于B-树与B+树的比较中，错误的是
+\begin{center}
+\begin{tabular}{ll}
+(A) B-树的非叶结点也包含指向记录的指针 \\[4pt]
+(B) B+树的所有关键字都出现在叶结点中 \\[4pt]
+(C) B+树的叶结点通过指针链接在一起 \\[4pt]
+(D) B-树的叶结点（失败结点）在同一层，B+树的叶结点也在同一层
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} B-树的非叶结点只包含关键字和子树指针，\textbf{不包含指向数据记录的指针}（除非关键字本身即记录）。B-树的叶结点（失败结点）在同一层但不是数据层。\boxed{\textbf{答案：}(A)}\fi
 
 \end{enumerate}
 
@@ -691,57 +726,50 @@ typedef struct {
 
 \begin{enumerate}[resume]
 
-\item \textbf{（真题风格，单项选择题）} 设有序顺序表中有 $1000$ 个元素，用折半查找方法进行查找，查找成功时关键字比较次数的最大值为
-\begin{center}
-\begin{tabular}{ll}
-(A) $9$ & (B) $10$ \\[6pt]
-(C) $11$ & (D) $1000$
-\end{tabular}
-\end{center}
-
-\item \textbf{（真题风格，单项选择题）} 下列关于散列表查找的说法中，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 散列表的装填因子越小，发生冲突的可能性越小，查找效率越高 \\[4pt]
-(B) 开放定址法中删除一个元素可以直接将其位置清空 \\[4pt]
-(C) 链地址法中装填因子不能大于 1 \\[4pt]
-(D) 二次探测法不会产生聚集现象
-\end{tabular}
-\end{center}
-
-\item \textbf{（真题风格，综合题）} 设散列表长 $m=11$，散列函数 $H(key)=key \bmod 11$，采用线性探测法处理冲突。依次插入关键字序列 $\{13, 24, 35, 46, 57, 68, 79\}$。
+\item \textbf{（真题风格·综合题）} 依次输入关键字序列$(30,15,25,40,10,20,35)$，构造一棵二叉排序树（BST）。
 \begin{enumerate}
-    \item[(1)] 构造该散列表；
-    \item[(2)] 计算等概率下的 ASL$_{\text{成功}}$；
-    \item[(3)] 计算等概率下的 ASL$_{\text{不成功}}$。
+    \item[(1)] 画出该BST；
+    \item[(2)] 计算等概率下查找成功的平均查找长度ASL；
+    \item[(3)] 删除关键字$25$后画出BST（用前驱替代）。
 \end{enumerate}
 
-\item \textbf{（真题风格，综合题）} 依次将关键字 $10, 20, 30, 25, 5, 35, 15, 28$ 插入一棵初始为空的 AVL 树。
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) BST: 30为根，15在其左，15的右为25，15的左为10，20在25左；30的右为40，40的左为35。
+(2) 深度：30(1),15(2),25(3),40(2),10(3),20(4),35(3)。ASL$=(1+2+3+2+3+4+3)/7=18/7\approx2.57$。
+(3) 删除25（度为1，仅有左孩子20），将其左孩子20替代25的位置。\fi
+
+\vspace{8pt}
+
+\item \textbf{（真题风格·综合题）} 设散列表长$m=13$，散列函数$H(k)=k\bmod 13$。用线性探测法处理冲突。依次插入关键字序列$(19,14,23,1,68,20,84,27,55,11,10,79)$。
 \begin{enumerate}
-    \item[(1)] 画出每次插入并调整后的 AVL 树，标注旋转类型及旋转结点；
-    \item[(2)] 计算该 AVL 树查找成功的 ASL（等概率）。
+    \item[(1)] 画出最终的散列表；
+    \item[(2)] 计算等概率下查找成功的平均查找长度ASL；
+    \item[(3)] 计算查找不成功的平均查找长度ASL。
 \end{enumerate}
 
-\item \textbf{（真题风格，综合题）} 设有一棵 3 阶 B-树，初始为空，依次插入关键字序列 $\{45, 24, 53, 90, 12, 30, 26, 37, 61\}$。
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 插入过程：$H(19)=6$→6；$H(14)=1$→1；$H(23)=10$→10；$H(1)=1$冲突→2；$H(68)=3$→3；$H(20)=7$→7；$H(84)=6$冲突→7冲突→8；$H(27)=1$冲突→2冲突→3冲突→4；$H(55)=3$冲突→4冲突→5；$H(11)=11$→11；$H(10)=10$冲突→11冲突→12；$H(79)=1$冲突→2冲突→3冲突→4冲突→5冲突→6冲突→7冲突→8冲突→9。
+
+(2) 成功ASL：各关键字查找次数为1+1+1+2+1+1+3+4+3+1+3+9=30，ASL$_{\text{成功}}=30/12=2.5$。
+
+(3) 不成功ASL：对每个地址0-12，计算查找不成功时的探测次数（即从该地址起连续被占的个数+1）。\fi
+
+\vspace{8pt}
+
+\item \textbf{（真题风格·综合题）} 设有关键字序列$(40,30,20,60,50,80,70,10)$，依次插入一棵初始为空的AVL树。
 \begin{enumerate}
-    \item[(1)] 画出最终 B-树的结构；
-    \item[(2)] 在(1)的结果上删除关键字 $24$，画出删除后的 B-树；
-    \item[(3)] 继续删除关键字 $45$，画出最终 B-树。
+    \item[(1)] 画出每次插入后AVL树的变化过程，标注旋转类型（LL/RR/LR/RL）；
+    \item[(2)] 写出该AVL树的中序遍历序列。
 \end{enumerate}
 
-\item \textbf{（真题风格，综合题）} 已知二叉排序树中结点的关键字值均不相同。设计算法：
-\begin{enumerate}
-    \item[(1)] 判断一棵二叉树是否为二叉排序树；
-    \item[(2)] 分析算法的时间复杂度。
-\end{enumerate}
+\ifshowsolutions\par\noindent\textbf{解析：}
+插入40→插入30（40的左）→插入20：40的平衡因子=2，LL型，右旋40→30为根，20在30左，40在30右→插入60（40右）→插入50（60左）：30平衡因子=-2，先RL（40左旋，再30右旋）→插入80（60右）→插入70（80左）：30平衡因子=-2，先RL→插入10（20左）。中序：10,20,30,40,50,60,70,80。\fi
 
 \end{enumerate}
 
 \vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item 邓俊辉《数据结构（C++语言版）》第 7 章「二叉搜索树」—— BST 的完整 ADT 实现，包括前驱后继的查找、带旋转的插入删除统一框架（3+4 重构）。
-    \item 邓俊辉《数据结构（C++语言版）》第 8 章「高级搜索树」—— AVL 树的详细旋转分析、伸展树（Splay Tree）自调整策略、B-树的完整实现与复杂度证明。
-    \item Sedgewick《算法》第 3.2 节「二叉查找树」—— BST 的递归实现、基于 Hibbard 删除法的完整讨论、性能分析。
-    \item Sedgewick《算法》第 3.3 节「平衡查找树」—— 2-3 树到红黑树的自然过渡、红黑树的插入删除操作与代码实现，以及 B-树在文件系统中的实际应用。
+    \item 邓俊辉《数据结构（C++语言版）》第7章「二叉搜索树」、第8章「高级搜索树」（含AVL和B-树）。
+    \item Sedgewick《算法》第3.2节（二叉查找树）、第3.3节（平衡查找树——红黑树和B-树）。
 \end{itemize}

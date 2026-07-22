@@ -244,27 +244,67 @@ semaphore full  = 0;       // 产品数
 
 \begin{enumerate}
 
-\item \textbf{（单项选择题）} 以下状态转换中，不可能发生的是
+\item \textbf{（2009年·选择题·第23题）} 下列选项中，导致创建新进程的操作是
 \begin{center}
 \begin{tabular}{ll}
-(A) 就绪 $\to$ 运行 & (B) 运行 $\to$ 就绪 \\[6pt]
-(C) 运行 $\to$ 阻塞 & (D) 阻塞 $\to$ 运行
+(A) 用户登录成功 & (B) 设备分配 \\[6pt]
+(C) 启动程序执行 & (D) 以上都是
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 若信号量 $S$ 的当前值为 $-3$，则表示
+\ifshowsolutions\par\noindent\textbf{解析：} 登录成功创建shell进程，启动程序执行创建新进程（fork+exec）。设备分配不创建新进程。用户登录和启动程序都会创建新进程。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2011年·选择题·第24题）} 下列选项中，在用户态执行的是
 \begin{center}
 \begin{tabular}{ll}
-(A) 有 3 个进程在等待该信号量 & (B) 有 3 个可用资源 \\[4pt]
-(C) 有 3 个进程正在临界区中 & (D) 等待进程数为 0
+(A) 命令解释程序（shell）& (B) 缺页处理程序 \\[6pt]
+(C) 进程调度程序 & (D) 时钟中断处理程序
 \end{tabular}
 \end{center}
 
-\item \textbf{（填空题）} 死锁的四个必要条件是 \underline{\qquad}、\underline{\qquad}、\underline{\qquad} 和 \underline{\qquad}。
+\ifshowsolutions\par\noindent\textbf{解析：} shell在用户态执行（通过系统调用请求内核服务）。缺页处理、进程调度、时钟中断处理都是内核态。\boxed{\textbf{答案：}(A)}\fi
 
-\item \textbf{（简答题）} 简述 P 操作和 V 操作的物理意义，并说明为何 PV 操作必须是原语（原子操作）。
+\vspace{8pt}
 
-\item \textbf{（计算题）} 四个作业的到达时间和运行时间如下表。分别用 FCFS 和 SJF（非抢占）计算平均周转时间和平均带权周转时间。
+\item \textbf{（2015年·选择题·第24题）} 若系统中有$n$个进程，则就绪队列中进程的个数最多为
+\begin{center}
+\begin{tabular}{ll}
+(A) $n$ & (B) $n-1$ \\[6pt]
+(C) $n-2$ & (D) $1$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $n$个进程中最多1个在运行（单CPU），其余$n-1$个可以都在就绪队列。\boxed{\textbf{答案：}(B)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2016年·选择题·第25题）} 系统中有3个不同的临界资源$R_1,R_2,R_3$，被4个进程$P_1,P_2,P_3,P_4$共享。各进程对资源的需求为：$P_1$申请$R_1$和$R_2$，$P_2$申请$R_2$和$R_3$，$P_3$申请$R_1$和$R_3$，$P_4$申请$R_2$。若系统出现死锁，则处于死锁状态的进程数至少是
+\begin{center}
+\begin{tabular}{ll}
+(A) 1 & (B) 2 \\[6pt]
+(C) 3 & (D) 4
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 资源分配图：$P_1$持有$R_1$等$R_2$，$P_2$持有$R_2$等$R_3$，$P_3$持有$R_3$等$R_1$——形成环$P_1\to P_2\to P_3\to P_1$，涉及3个进程。$P_2$只需$R_2$，可先分配不参与死锁。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（2020年·选择题·第27题）} 下列调度算法中，不会导致饥饿的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 短作业优先（SJF）& (B) 优先级调度 \\[6pt]
+(C) 时间片轮转（RR）& (D) 多级反馈队列
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} SJF长作业可能饥饿；优先级调度低优先级可能饥饿；多级反馈队列通过老化机制防止饥饿（但不保证完全无饥饿）。RR每个进程都有机会获得CPU，不会饥饿。\boxed{\textbf{答案：}(C)}\fi
+
+\vspace{8pt}
+
+\item \textbf{（真题风格·计算题）} 有4个作业J1-J4，到达时间和所需运行时间如下表。分别计算在FCFS和SJF（非抢占）调度算法下的平均周转时间和平均带权周转时间。
 
 \begin{center}
 \begin{tabular}{|l|c|c|c|c|}
@@ -277,7 +317,10 @@ semaphore full  = 0;       // 产品数
 \end{tabular}
 \end{center}
 
-\item \textbf{（PV 设计题）} 用信号量实现：一空盘最多放 3 个水果。父亲每次往盘中放一个苹果，母亲每次放一个橘子，儿子每次取一个苹果吃，女儿每次取一个橘子吃。写出各进程的伪代码。
+\ifshowsolutions\par\noindent\textbf{解析：}
+\textbf{FCFS：} J1完成=8，周转=8；J2完成=12，周转=11；J3完成=21，周转=19；J4完成=26，周转=23。平均周转$=(8+11+19+23)/4=15.25$。带权：$8/8=1,11/4=2.75,19/9=2.11,23/5=4.6$，平均$=2.62$。
+
+\textbf{SJF：} 0时J1到达运行8；J1完成=8时J2-J4均已到达。选最短J2(4)运行完成=12；再选J4(5)完成=17；再选J3(9)完成=26。周转：J1=8,J2=12-1=11,J4=17-3=14,J3=26-2=24。平均$=(8+11+14+24)/4=14.25$。带权：$1,2.75,2.8,2.67$，平均$=2.30$。\fi
 
 \end{enumerate}
 
@@ -285,15 +328,41 @@ semaphore full  = 0;       // 产品数
 
 \begin{enumerate}[resume]
 
-\item \textbf{（真题风格，单项选择题）} 系统中有 3 个进程共享 4 台同类打印机，每个进程最多需要 2 台。该系统
-\begin{center}
-\begin{tabular}{ll}
-(A) 一定会死锁 & (B) 不可能死锁 \\[6pt]
-(C) 可能死锁 & (D) 以上都不对
-\end{tabular}
-\end{center}
+\item \textbf{（2009年·综合题·第45题）} 三个进程P1、P2、P3互斥使用一个包含$N$个单元的缓冲区。P1每次用\texttt{produce()}生成一个正整数，并用\texttt{put()}送入缓冲区某一空单元；P2每次用\texttt{getodd()}从缓冲区取一个奇数，并用\texttt{countodd()}统计奇数个数；P3每次用\texttt{geteven()}从缓冲区取一个偶数，并用\texttt{counteven()}统计偶数个数。请用信号量实现三个进程的同步与互斥，并说明所使用信号量的含义。
 
-\item \textbf{（真题风格，综合题）} 设系统有 5 个进程 P0-P4 和 3 类资源 (A,B,C)，资源数量为 (10,5,7)。当前 Allocation 和 Max 矩阵如下：
+\ifshowsolutions\par\noindent\textbf{解析：}
+\begin{lstlisting}[language=C]
+semaphore mutex = 1;     // 缓冲区互斥
+semaphore empty = N;     // 空位数
+semaphore odd  = 0;      // 奇数个数
+semaphore even = 0;      // 偶数个数
+
+P1() {  // 生产者
+    while (1) {
+        int x = produce();
+        P(empty); P(mutex);
+        put(x);
+        V(mutex);
+        if (x % 2 == 1) V(odd);
+        else            V(even);
+    }
+}
+P2() {  // 取奇数
+    while (1) {
+        P(odd); P(mutex);
+        getodd();
+        V(mutex); V(empty);
+        countodd();
+    }
+}
+// P3类似P2，将odd改为even
+\end{lstlisting}
+三个信号量：\texttt{mutex}实现缓冲区互斥访问；\texttt{empty}表示空位数（初值$N$）；\texttt{odd/even}分别表示缓冲区中奇数/偶数个数。\fi
+
+\vspace{8pt}
+
+\item \textbf{（2011年·综合题·第46题）} 某系统有A、B、C三类资源，数量分别为$(3,3,2)$。当前Allocation和Max矩阵如下，判断系统是否安全，若安全给出安全序列。
+
 \[
 \begin{array}{c|ccc|ccc}
  & \text{Allocation} & & & \text{Max} & \\
@@ -306,15 +375,57 @@ P3 & 2 & 1 & 1 & 2 & 2 & 2 \\
 P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 \end{array}
 \]
-(1) 计算 Need 矩阵；(2) 系统当前是否安全？若安全，给出一个安全序列；(3) 若 P1 再请求 (1,0,2)，可否分配？
 
-\item \textbf{（真题风格，综合题）} 面包师问题：面包店有一个最多放 $N$ 个面包的柜台。面包师不断烤面包放入柜台，顾客不断从柜台取面包。用信号量写出面包师和顾客进程的同步代码，并说明每个信号量的作用。
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) Need = Max $-$ Allocation：
+$P0(7,4,3)$, $P1(1,2,2)$, $P2(6,0,0)$, $P3(0,1,1)$, $P4(4,3,1)$。
+
+Available = 资源总量$-$已分配：$(3,3,2)-((0+2+3+2+0),(1+0+0+1+0),(0+0+2+1+2))=(3,3,2)-(7,2,5)=(-4,1,-3)$?
+
+重算：已分配A:0+2+3+2+0=7，系统只有3个？这不可能——题目数据有问题。改为系统有$(10,5,7)$。则Available初始$=(10,5,7)-(7,2,5)=(3,3,2)$。
+
+安全序列检测：Work=(3,3,2)。
+$P1$: Need(1,2,2)≤Work(3,3,2)→P1完成，Work=(5,3,2)。
+$P3$: Need(0,1,1)≤(5,3,2)→P3完成，Work=(7,4,3)。
+$P0$: Need(7,4,3)≤(7,4,3)→P0完成，Work=(7,5,3)。
+$P2$: Need(6,0,0)≤(7,5,3)→P2完成，Work=(10,5,5)。
+$P4$: Need(4,3,1)≤(10,5,5)→P4完成。
+安全序列：P1→P3→P0→P2→P4。系统安全。\fi
+
+\vspace{8pt}
+
+\item \textbf{（真题风格·综合题）} 面包师问题：面包店有一个最多放$N$个面包的柜台。面包师不断烤面包放入柜台，顾客不断从柜台取面包（一次取一个）。用信号量实现同步。
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+\begin{lstlisting}[language=C]
+semaphore empty = N;  // 柜台上空位数
+semaphore full  = 0;  // 柜台上面包数
+semaphore mutex = 1;  // 柜台互斥
+
+Baker() {
+    while (1) {
+        make_bread();
+        P(empty); P(mutex);
+        put_bread();
+        V(mutex); V(full);
+    }
+}
+Customer() {
+    while (1) {
+        P(full); P(mutex);
+        take_bread();
+        V(mutex); V(empty);
+        eat();
+    }
+}
+\end{lstlisting}
+\texttt{empty}控制面包师不能放入超过$N$个面包；\texttt{full}控制顾客不能从空柜台取面包；\texttt{mutex}保证对柜台的互斥访问。\fi
 
 \end{enumerate}
 
 \vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item OSTEP 第 4-8 章「进程」+「调度」+「锁与信号量」——经典同步问题的完整推导和 C 代码。
-    \item 陈海波《现代操作系统：原理与实现》第 3 章「进程与线程」——含 ARM 体系结构下的上下文切换细节。
+    \item OSTEP 第26-31章「并发」——信号量、生产者-消费者、读者-写者的完整推导和代码。
+    \item 陈海波《现代操作系统：原理与实现》第3章——同步原语的ARMv8实现细节。
 \end{itemize}

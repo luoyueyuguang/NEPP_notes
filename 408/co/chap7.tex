@@ -438,121 +438,182 @@ CPU 与外设并行度 & 无 & 部分并行 & 高度并行 & 高度并行 \\
 \newpage
 \section{习题}
 
+\newif\ifshowsolutions
+\showsolutionstrue
+
 \subsection{基础过关题}
 
-\begin{enumerate}
+\begin{enumerate}[leftmargin=*]
 
-\item \textbf{（单项选择题）} 以下关于 I/O 端口编址方式的说法中，错误的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 统一编址方式中，CPU 用访存指令访问 I/O 端口 \\[4pt]
-(B) 独立编址方式中，CPU 用专用 I/O 指令访问 I/O 端口 \\[4pt]
-(C) 统一编址会占用一部分主存地址空间 \\[4pt]
-(D) 独立编址方式中，I/O 端口不需要地址，只需要控制信号
-\end{tabular}
-\end{center}
+\item \textbf{（2014年·选择题·第21题）} 下列有关 I/O 接口的叙述中，\textbf{错误}的是
 
-\item \textbf{（单项选择题）} 在中断响应周期中，由 CPU 硬件自动完成的操作是
-\begin{center}
-\begin{tabular}{ll}
-(A) 保护各通用寄存器的内容到堆栈 & (B) 保护程序计数器（PC）和程序状态字（PSW）到堆栈 \\[4pt]
-(C) 执行中断服务程序 & (D) 恢复各通用寄存器的内容
-\end{tabular}
-\end{center}
-
-\item \textbf{（单项选择题）} 8086 实模式下，中断向量表存放在内存的 0 地址处。若某中断的类型号为 20H，则该中断的中断向量存放在内存地址（十六进制）
-\begin{center}
-\begin{tabular}{ll}
-(A) $20\text{H}$ & (B) $40\text{H}$ \\[6pt]
-(C) $80\text{H}$ & (D) $100\text{H}$
-\end{tabular}
-\end{center}
-
-\item \textbf{（单项选择题）} DMA 方式实现数据传送的路径是
-\begin{center}
-\begin{tabular}{ll}
-(A) 外设 $\to$ CPU $\to$ 内存 & (B) 外设 $\to$ DMAC $\to$ 内存 \\[4pt]
-(C) 外设 $\leftrightarrow$ 内存（不经 CPU）& (D) 外设 $\to$ 通道 $\to$ 内存
-\end{tabular}
-\end{center}
-
-\item \textbf{（单项选择题）} 下列关于 DMA 与中断方式比较的说法，正确的是
 \begin{center}
 \begin{tabular}{l}
-(A) DMA 方式在数据传送过程中不需要 CPU 的任何干预 \\
-(B) 中断方式下，CPU 与外设可以完全并行工作 \\
-(C) DMA 方式在数据块传送结束时才向 CPU 发一次中断请求 \\
-(D) DMA 方式不需要申请总线使用权
+(A) 状态寄存器和控制寄存器可以合用同一个寄存器（不同位段） \\[4pt]
+(B) I/O 端口是指 I/O 接口中 CPU 可访问的寄存器 \\[4pt]
+(C) 独立编址方式下，I/O 端口地址和主存地址可以相同 \\[4pt]
+(D) 统一编址方式下，CPU 不能用访存指令访问 I/O 端口
 \end{tabular}
 \end{center}
 
-\item \textbf{（填空题）} I/O 接口中可供 CPU 直接读写的寄存器称为 \underline{\qquad\qquad}。一个 I/O 接口通常包含 \underline{\qquad\qquad} 端口、\underline{\qquad\qquad} 端口和 \underline{\qquad\qquad} 端口。
+\ifshowsolutions\par\noindent\textbf{答案：}(D)
 
-\item \textbf{（简答题）} 简述中断响应周期中 CPU 硬件自动完成的操作序列，并说明「保护断点」和「保护现场」有什么区别。
+\textbf{解析：} (D) 是\textbf{错误}的——统一编址（Memory-Mapped I/O）的精髓恰恰是将 I/O 端口映射到主存地址空间，CPU 用\textbf{普通访存指令}（LOAD/STORE）访问 I/O 端口，不需要专门的 I/O 指令。这是「统一」二字的含义。(A) 正确：状态字段和控制字段常合用同一寄存器不同位段，节省接口寄存器数，但端口数不因此而减少。(B) 正确：I/O 端口的标准定义就是「I/O 接口中 CPU 可寻址、可读写的寄存器」。(C) 正确：独立编址下 I/O 地址空间与主存地址空间完全独立，即使地址值相同也走不同译码通路，不会冲突。\textbf{对比速记：}统一编址 → 访存指令访问 I/O（ARM/MIPS）；独立编址 → 专用 I/O 指令 IN/OUT（x86）。\fi
 
-\item \textbf{（计算题）} 某计算机系统中，中断方式下一次中断响应和处理共需执行 50 条指令（含保护/恢复现场和实际数据处理），每条指令的 CPI = 2.0，主频为 1.0 GHz。若某外设以 100 KB/s 的速率输入数据，每次中断传送一个字（2 字节）。问：
+\item \textbf{（2017年·选择题·第21题）} I/O 指令实现的数据传送通常发生在
 
-\begin{enumerate}
-    \item[(1)] 每秒需要多少次中断？
-    \item[(2)] CPU 用于该外设 I/O 处理的时间占 CPU 总时间的百分比是多少？
-\end{enumerate}
+\begin{center}
+\begin{tabular}{ll}
+(A) I/O 端口和 I/O 设备之间 & (B) 通用寄存器和 I/O 设备之间 \\[6pt]
+(C) I/O 端口之间 & (D) 通用寄存器和 I/O 端口之间
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(D)
+
+\textbf{解析：} I/O 指令（如 x86 的 IN/OUT）的本质是在\textbf{通用寄存器和 I/O 端口之间}搬数据。完整 I/O 路径为：
+\[
+\text{CPU 通用寄存器}\;\overset{\text{I/O 指令}}{\longleftrightarrow}\;\text{I/O 端口（接口寄存器）}\;\overset{\text{控制器}}{\longleftrightarrow}\;\text{I/O 设备本体}
+\]
+(A) 错误——端口和设备之间的数据流是控制器自动处理的，不是 I/O 指令直接驱动。(B) 错误——CPU 不能直接访问 I/O 设备内部硬件状态，必须经端口中转。(C) 错误——端口之间不会直接互相搬数据，需经 CPU 中转（端口→寄存器→另一个端口）。\textbf{口诀：}IN/OUT 指令只负责「寄存器↔端口」，端口以下的交互由控制器自治。\fi
+
+\item \textbf{（2017年·选择题·第22题）} 下列关于多重中断系统的叙述中，\textbf{错误}的是
+
+\begin{center}
+\begin{tabular}{l}
+(A) 在一条指令执行结束时响应中断 \\[4pt]
+(B) 中断处理期间 CPU 处于关中断状态 \\[4pt]
+(C) 中断请求的产生与当前正在执行的指令无关 \\[4pt]
+(D) CPU 通过采样中断请求信号来检测是否有中断请求
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(B)
+
+\textbf{解析：} 关键区分「单级中断」与「多重中断」。多重中断允许嵌套——必须在 ISR 内\textbf{适当时机开中断}（保护现场之后、恢复现场之前），让更高优先级中断能够打断当前 ISR。所以 ISR 期间 CPU 既有关中断阶段也有开中断阶段，并非「全程关中断」。(B) 把单级中断的行为套到多重中断上是错误的。(A) 正确——中断响应必须在指令边界，以保证断点信息完整保存。(C) 正确——外中断由外部设备触发，与 CPU 当前跑哪条指令无关（这是中断区别于异常的核心特征）。(D) 正确——CPU 在中断响应周期采样中断请求引脚。\textbf{多重中断标准时序：}关中断→保护现场→开中断→处理（可嵌套）→关中断→恢复现场→IRET 返回。\fi
+
+\item \textbf{（2013年·选择题·第22题）} 下列关于中断 I/O 方式和 DMA 方式比较的叙述中，\textbf{错误}的是
+
+\begin{center}
+\begin{tabular}{l}
+(A) 中断 I/O 方式请求的是 CPU 时间，DMA 方式请求的是总线使用权 \\[4pt]
+(B) 中断 I/O 方式在指令执行结束后响应，DMA 方式在总线事务结束后响应 \\[4pt]
+(C) 中断 I/O 方式下数据传送由软件完成，DMA 方式下数据传送由硬件完成 \\[4pt]
+(D) 中断 I/O 方式适用于所有外部设备，DMA 方式仅适用于快速外部设备
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(D)
+
+\textbf{解析：} (D) 中有两个绝对化判断都不准确：(1)「中断适用于\textbf{所有}外设」——对数据率极高的设备（如 SSD、万兆网卡），中断方式每字节都触发 ISR，CPU 大部分时间被切换开销吃掉，理论「适用」但实际不可行。(2)「DMA \textbf{仅}适用于快速外设」——DMA 的本质优势是块传送时不打扰 CPU，只要设备支持 DMA 协议就能用，无关速度快慢。408 中看到「\textbf{仅}」「\textbf{所有}」「\textbf{任何}」等绝对化表述，先怀疑。(A) 正确——两种方式抢占的核心资源不同：中断要的是 CPU 处理能力，DMA 要的是总线物理通道。(B) 正确——同步粒度不同：中断在指令边界，DMA 在总线周期边界（更细粒度）。(C) 正确——中断由 ISR 代码逐字节搬，DMA 由控制器硬件电路自动搬整块。\fi
+
+\item \textbf{（2019年·选择题·第22题）} 下列关于 DMA 方式的叙述中，正确的是
+
+\begin{center}
+\begin{tabular}{l}
+I.\ \ DMA 传送前由设备驱动程序设置传送参数 \\[4pt]
+II.\ \ 数据传送前由 DMA 控制器请求总线使用权 \\[4pt]
+III.\ 数据传送由 DMA 控制器直接控制总线完成 \\[4pt]
+IV.\ \ DMA 传送结束后的处理由中断服务程序完成
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ll}
+(A) 仅 I、II & (B) 仅 I、II、III \\[6pt]
+(C) 仅 II、III、IV & (D) I、II、III、IV
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(D)
+
+\textbf{解析：} 这是 408 少见的「全选」题，完美覆盖 DMA 三阶段。\textbf{预处理}（I）：CPU 执行设备驱动程序，设置 DMAC 的源/目的地址、字节数、方向等参数——DMA 不是读心术，必须有人告诉它搬什么。\textbf{数据传送}（II + III）：DMA 控制器向总线仲裁器申请使用权，拿到总线后直接在设备↔主存之间搬数据，CPU 全程不参与。\textbf{后处理}（IV）：数据块传送结束，DMAC 向 CPU 发中断请求（仅一次），CPU 跑 ISR 做收尾（关设备、唤醒进程）。\textbf{关键区分：}驱动程序在\textbf{预处理}阶段设置参数，ISR 在\textbf{后处理}阶段处理完成——两者都是 CPU 软件工作，但 DMA 真正搬运数据的传送阶段完全是硬件行为。\fi
 
 \end{enumerate}
 
 \subsection{真题风格与综合训练}
 
-\begin{enumerate}[resume]
+\begin{enumerate}[leftmargin=*,resume]
 
-\item \textbf{（真题风格，单项选择题）} 某计算机主频为 500 MHz，某外设以 2 MB/s 的速度与主机进行 DMA 数据传送。若 DMA 预处理和后处理的总时间开销为 1000 个时钟周期（CPU 在整个 DMA 传送过程的开头和结尾各执行一次预处理和后处理），采用周期挪用方式，DMA 传送过程中 CPU 的主频降为原来的 $1/2$（但外设速率和 DMA 传送速率不变）。若传送 64 KB 的数据块，DMA 传送期间 CPU 被 DMA 请求占用的时钟周期为 DMA 数据传送所用周期的 5\%，则整个 DMA 过程中 CPU 用于该外设 I/O 处理的时间开销约为
+\item \textbf{（2020年·选择题·第22题）} 若设备采用周期挪用 DMA 方式进行输入输出，每次 DMA 传送的数据块大小为 512 字节，相应的 I/O 接口中有一个 32 位数据缓冲寄存器，对于数据输入过程，下列叙述中\textbf{错误}的是
 
 \begin{center}
-\begin{tabular}{ll}
-(A) $2\ \mu\text{s}$ & (B) $4\ \mu\text{s}$ \\[6pt]
-(C) $8\ \mu\text{s}$ & (D) $16\ \mu\text{s}$
+\begin{tabular}{l}
+(A) 每准备好 32 位数据，DMA 控制器就发出一次总线请求 \\[4pt]
+(B) 若 CPU 和 DMA 控制器同时请求总线，DMA 控制器优先级更高 \\[4pt]
+(C) 在整个数据块的传送过程中，CPU 不可以访问主存 \\[4pt]
+(D) 数据块传送结束后，DMA 控制器向 CPU 发出中断请求
 \end{tabular}
 \end{center}
 
-\item \textbf{（真题风格，简答题）} 简述程序查询、程序中断、DMA 三种 I/O 控制方式下，CPU 启动一次 I/O 操作后的工作状态有何不同。从 CPU 与 I/O 设备并行性的角度，比较三者的优劣。
+\ifshowsolutions\par\noindent\textbf{答案：}(C)
 
-\item \textbf{（真题风格，综合题）} 某计算机系统的中断系统支持多重中断，中断优先级从高到低依次为：$A > B > C > D$。CPU 正在执行主程序时，先后发生了以下事件：
+\textbf{解析：} \textbf{核心概念——周期挪用 vs 停止 CPU：}
 
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+方式 & 占用粒度 & CPU 能否访存 & 适用场景 \\
+\hline
+\textbf{周期挪用} & 每次 1 个总线周期 & 非挪用周期\textbf{可以}访存 & 中速 I/O（磁盘、网卡）\\
+停止 CPU & 整块一直占用 & 整块期间\textbf{不可以}访存 & 极高速 I/O \\
+\hline
+\end{tabular}
+\end{center}
+
+(C) 描述的是「停止 CPU」方式而非题面规定的「周期挪用」。周期挪用中 DMA 每次搬 32 位（4 字节）只占用 1 个总线周期——512 字节共需 128 次挪用，其余大量周期 CPU 均可正常访问主存。(A) 正确：32 位缓冲满即发请求，$512/4=128$ 次。(B) 正确：DMA 优先级高于 CPU——设备数据等不起，丢了就永久丢失；CPU 让一个周期影响微乎其微。(D) 正确：数据块传完，DMAC 发中断触发后处理。\textbf{「挪用」二字的精髓：}借一个周期就还，不是霸占整段时间。\fi
+
+\item \textbf{（2023年·选择题·第22题）} 下列关于 I/O 控制方式的叙述中，\textbf{错误}的是
+
+\begin{center}
+\begin{tabular}{l}
+(A) 程序查询方式中，CPU 通过执行查询程序完成 I/O 操作 \\[4pt]
+(B) 程序中断方式中，CPU 通过执行中断服务程序完成数据传送 \\[4pt]
+(C) DMA 方式中，CPU 通过执行 DMA 传送程序完成数据传送 \\[4pt]
+(D) 对于 SSD 和网络适配器等高速设备，一般采用 DMA 方式进行 I/O
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{答案：}(C)
+
+\textbf{解析：} (C) 是经典「矛盾说法」——DMA 方式的核心恰恰是「\textbf{绕过 CPU 让 DMA 控制器自己搬}」。没有「DMA 传送程序」这种东西：传送阶段是 DMA 控制器的硬件电路在自动控总线搬数据，CPU 全程不执行任何与传送相关的指令。(A) 正确：程序查询由 CPU 轮询状态寄存器 + IN/OUT 完成。(B) 正确：中断方式由 CPU 在 ISR 中用 IN/OUT 逐字节搬——传送主体仍是 CPU。(D) 正确：SSD（数百 MB/s～GB/s）和万兆网卡只有 DMA 能胜任。\textbf{三种方式 CPU 参与度对比：}程序查询——全程 CPU 软件；程序中断——每字节中断一次（CPU 执行 ISR）；DMA——仅头尾 CPU 参与，传送阶段硬件自动。\fi
+
+\item \textbf{（2009年·综合题·第43题 改编·综合计算）} 某计算机的 CPU 主频为 500 MHz，CPI 为 1.5。某外设通过中断方式进行数据输入，每次中断传送 4 字节，每次中断处理（包括保护/恢复现场和实际数据传送）共需执行 100 条指令。外设的数据传输率为 2 MB/s。
+
+\begin{enumerate}
+    \item[(1)] 每秒需要多少次中断？每次中断处理的 CPU 时间是多少？
+    \item[(2)] CPU 用于该外设 I/O 处理的时间占 CPU 总时间的百分比是多少？
+    \item[(3)] 若改为 DMA 方式，DMA 预处理需 CPU 执行 20 条指令（CPI = 1.5），后处理（中断处理）需执行 40 条指令（CPI = 2.0），DMA 采用周期挪用方式，每次 DMA 传送 4096 字节的数据块。求 DMA 方式下 CPU 用于该外设的时间百分比，并与 (2) 比较，说明 DMA 的优势。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{答案：}
+
+(1) 外设速率 2 MB/s，每次中断传 4 B，故每秒中断次数 $=2\times10^{6}/4=5\times10^{5}=50$ 万次。
+
+每次中断处理 100 条指令 $\times$ CPI 1.5 $=150$ 个时钟周期。时钟周期 $T=1/500\ \text{MHz}=2$ ns，每次中断时间 $=150\times2=300$ ns。
+
+(2) 每秒总中断处理时间 $=5\times10^{5}\times300\ \text{ns}=0.15$ s。CPU 时间占比 $=0.15/1.0=15\%$。
+
+(3) DMA 方式下，每秒需传 $2\times10^{6}/4096\approx 488.3$ 个数据块，即每秒约 489 次 DMA 传送。
+
+每次 DMA 的 CPU 开销：
 \begin{itemize}
-    \item $t_1$ 时刻：设备 $C$ 发出中断请求，CPU 响应；
-    \item $t_2$ 时刻：CPU 正在执行 $C$ 的中断服务程序（已开中断），设备 $A$ 发出中断请求；
-    \item $t_3$ 时刻：CPU 正在执行 $A$ 的中断服务程序（已开中断），设备 $B$ 发出中断请求；
-    \item $t_4$ 时刻：CPU 执行完 $A$ 的中断服务程序并返回；
-    \item $t_5$ 时刻：CPU 正在继续执行 $C$ 的中断服务程序，设备 $D$ 发出中断请求。
+    \item 预处理：20 条 $\times$ 1.5 $=30$ 个时钟周期 $\to 30\times 2\ \text{ns}=60$ ns
+    \item 后处理：40 条 $\times$ 2.0 $=80$ 个时钟周期 $\to 80\times 2\ \text{ns}=160$ ns
+    \item 合计：$60+160=220$ ns/次
 \end{itemize}
 
-\begin{enumerate}
-    \item[(1)] 画出从 $t_1$ 到所有中断处理完毕的时间线上 CPU 执行程序的切换过程。
-    \item[(2)] 设备 $B$ 的中断请求在哪个时刻被 CPU 响应？为什么不是在 $t_3$ 时刻立即响应？
-    \item[(3)] 设备 $D$ 的中断请求能否在 $t_5$ 时刻被响应？为什么？
-\end{enumerate}
+每秒 CPU 开销 $=489\times 220\ \text{ns}\approx 1.076\times 10^{-4}$ s。CPU 时间占比 $\approx 0.0108\%$。
 
-\item \textbf{（真题风格，综合题）} 某计算机系统的 DMA 控制器结构如下：地址寄存器（AR）为 32 位，字计数器（WC）为 16 位，数据线宽度为 32 位（每次传送 4 字节），总线时钟频率为 100 MHz，每个总线周期传送一个数据。CPU 主频为 2.0 GHz。
-
-\begin{enumerate}
-    \item[(1)] 该 DMA 控制器一次最多可传送多少字节的数据？
-    \item[(2)] 若 DMA 传送速率为 400 MB/s（实际数据传送速率），DMA 预处理需 CPU 执行 20 条指令（CPI = 1.5），后处理需 30 条指令（CPI = 2.0）。现需从磁盘读入 256 KB 数据到内存，磁盘的数据传输率为 50 MB/s。求完成这次传送，CPU 用于 DMA 处理的总时间为多少？
-    \item[(3)] 若将上述 256 KB 数据改用程序中断方式传送，每次中断传送 4 字节，每次中断处理需执行 100 条指令（CPI = 2.0）。比较中断方式和 DMA 方式下 CPU 的时间开销（CPU 主频均为 2.0 GHz），说明 DMA 方式的优势所在。
-\end{enumerate}
-
-\item \textbf{（真题风格，综合题）} 在计算机系统的层次化 I/O 架构中，应用程序、操作系统、DMA 控制器和外设各自承担不同的角色。回答以下问题：
-
-\begin{enumerate}
-    \item[(1)] 应用程序发起一次磁盘读操作（如 C 语言的 \texttt{fread} 函数调用），描述从应用层到硬件层的完整调用路径。
-    \item[(2)] 操作系统中 I/O 软件通常分为几个层次？每个层次的功能是什么？
-    \item[(3)] 在 DMA 方式下，磁盘控制器从磁盘读取数据到内存的过程中，CPU 是否完全空闲？请说明理由。
-\end{enumerate}
+\textbf{对比：}中断方式 CPU 占比 $15\%$，DMA 方式仅约 $0.01\%$——DMA 将 CPU 从 I/O 处理中解放了约 1400 倍。优势根源：(1) DMA 每次传 4096 字节而非 4 字节（块粒度大 1024 倍），中断次数从 50 万次降至约 489 次；(2) CPU 只在块传送的头尾参与，中间由 DMAC 硬件自动完成。\textbf{核心结论：}数据块越大、设备速率越高，DMA 的优势越显著。
+\fi
 
 \end{enumerate}
 
 \vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item Patterson \& Hennessy《计算机组成与设计：硬件/软件接口》（RISC-V / MIPS 版）第 4 章「处理器」4.7--4.9 节——异常与中断的硬件实现；第 5 章「存储器层次结构」中有关 I/O 与总线系统的内容。
-    \item Bryant \& O'Hallaron《深入理解计算机系统》（CS:APP）第 8 章「异常控制流」——8.1 节（异常）、8.5 节（信号与非本地跳转的主要机制），从操作系统的视角理解异常控制流，包括中断、陷阱、故障和终止的分类与处理。
-    \item Patterson \& Hennessy《计算机组成与设计》第 5 章 5.5--5.6 节——DMA 与 I/O 总线的详细工作流程，包含周期挪用（Cycle Stealing）的时序分析。
-    \item 董社勤《计算机组成原理》——第 7 章「输入输出系统」（中断向量表的 x86 实模式实现、8259A 中断控制器原理）可在国内教材中找到更贴合 408 风格的详细讲解。
+    \item \textbf{Patterson \& Hennessy《计算机组成与设计》}第 5 章 5.5--5.6 节——DMA 与 I/O 总线的详细工作流程，包含周期挪用（Cycle Stealing）的时序分析。
+    \item \textbf{Bryant \& O'Hallaron《深入理解计算机系统》（CS:APP）}第 8 章「异常控制流」——8.1 节（异常）、8.5 节（信号），从 OS 视角理解中断、陷阱、故障和终止的分类与处理。
+    \item \textbf{CodeBrick 408 真题可视化}（codebrick.tech）——DMA 方式共 10 道真题（累计 41 分），程序中断方式共 10 道，I/O 接口共 5 道，均配交互式可视化演示。
 \end{itemize}
