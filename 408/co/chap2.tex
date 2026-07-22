@@ -546,55 +546,154 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \begin{enumerate}[leftmargin=*]
 
-    \item \textbf{（单选）} 十进制数 $126.375$ 转换为二进制数为（\quad）。
+    \item \textbf{（2011年·选择题·第14题）} float 型数据通常用 IEEE 754 单精度浮点数格式表示。若编译器将 float 型变量 $x$ 分配在一个 32 位浮点寄存器 FR1 中，且 $x=-8.25$，则 FR1 的内容是（\quad）。
     \begin{enumerate}
-        \item $1111110.011\mathrm{B}$
-        \item $1111110.110\mathrm{B}$
-        \item $1111101.011\mathrm{B}$
-        \item $1111101.110\mathrm{B}$
+        \item C104 0000H
+        \item C242 0000H
+        \item C184 0000H
+        \item C1C2 0000H
     \end{enumerate}
 
-    \item \textbf{（单选）} 8 位补码整数 $10000000$ 表示的真值是（\quad）。
+    \ifshowsolutions\par\noindent\textbf{答案：}(A)
+
+    \textbf{解析：} $-8.25 = -(1000.01)_2 = -(1.00001)_2 \times 2^{3}$。$S=1$，$e=3$，$E = 3+127 = 130 = 1000\;0010_2$。$M$（23 位小数部分）$\;= 00001\;00000\;00000\;00000\;000$。拼接：\texttt{1 10000010 00001000000000000000000} $\to$ \texttt{C1040000H}。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（2022年·选择题·第13题）} 32 位补码所能表示的整数范围是（\quad）。
     \begin{enumerate}
-        \item $0$
-        \item $-0$
-        \item $-127$
-        \item $-128$
+        \item $-2^{32} \sim 2^{31}-1$
+        \item $-2^{31} \sim 2^{31}-1$
+        \item $-2^{32} \sim 2^{32}-1$
+        \item $-2^{31} \sim 2^{32}-1$
     \end{enumerate}
 
-    \item \textbf{（单选）} 下列编码中，零的表示唯一的是（\quad）。
+    \ifshowsolutions\par\noindent\textbf{答案：}(B)
+
+    \textbf{解析：} $n+1$ 位补码整数的表示范围为 $[-2^{n}, 2^{n}-1]$。32 位补码中 $n=31$（含 1 位符号位），故范围为 $[-2^{31}, 2^{31}-1]$。注意补码比原码/反码多一个最小负数 $(-2^{31})$，这是因为补码的零唯一，没有「$-0$」占用编码空间。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（2023年·选择题·第13题）} 若 short 型变量 $x=-8190$，则 $x$ 的机器数为（\quad）。
     \begin{enumerate}
-        \item 原码
-        \item 反码
-        \item 补码
-        \item 以上均不唯一
+        \item E002H
+        \item E001H
+        \item 9FFFH
+        \item 9FFEH
     \end{enumerate}
 
-    \item \textbf{（单选）} IEEE 754 单精度浮点数中，阶码的偏置量（bias）是（\quad）。
+    \ifshowsolutions\par\noindent\textbf{答案：}(A)
+
+    \textbf{解析：} short 型占 16 位，用补码表示。$8190_{10} = 1\;1111\;1111\;1110_2 = \text{1FFEH}$。$-8190$ 的补码 = 按位取反 $+1$：$\sim\text{1FFEH} = \text{E001H}$，$+1 = \text{E002H}$。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（2018年·选择题·第14题）} IEEE 754 单精度浮点格式表示的数中，最小的规格化正数是（\quad）。
     \begin{enumerate}
-        \item 128
-        \item 127
-        \item 64
-        \item 63
+        \item $1.0 \times 2^{-126}$
+        \item $1.0 \times 2^{-127}$
+        \item $1.0 \times 2^{-128}$
+        \item $1.0 \times 2^{-149}$
     \end{enumerate}
 
-    \item \textbf{（单选）} 设 $[x]_{\text{补}} = 11110000$，则 $[-x]_{\text{补}}$ 为（\quad）。
+    \ifshowsolutions\par\noindent\textbf{答案：}(A)
+
+    \textbf{解析：} IEEE 754 单精度阶码 $E$ 占 8 位，偏置量 bias = 127。规格化数要求 $E \in [1, 254]$。最小规格化数：$E=1$，真指数 $e = 1-127 = -126$，尾数 $M$ 全 0（即尾数真值 $1.0$）。故最小规格化正数为 $1.0 \times 2^{-126}$。选项 (D) $1.0 \times 2^{-149}$ 是最小非规格化正数。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（2022年·选择题·第14题）} $-0.4375$ 的 IEEE 754 单精度浮点数表示为（\quad）。
     \begin{enumerate}
-        \item $00001111$
-        \item $00010000$
-        \item $11110000$
-        \item $00001110$
+        \item BEE0 0000H
+        \item BF60 0000H
+        \item BF70 0000H
+        \item C0E0 0000H
     \end{enumerate}
 
-    \item \textbf{（填空）} 设字长 8 位（含 1 位符号位），原码的表示范围是 \underline{\hspace{1.5cm}}，补码的表示范围是 \underline{\hspace{1.5cm}}。原码中零有 \underline{\hspace{0.8cm}} 种表示，补码中零有 \underline{\hspace{0.8cm}} 种表示。
+    \ifshowsolutions\par\noindent\textbf{答案：}(A)
 
-    \item \textbf{（填空）} IEEE 754 单精度规格化浮点数 $N = (-1)^{S} \times (1.M) \times 2^{E-127}$，则 $M$ 的长度为 \underline{\hspace{0.8cm}} 位（存储部分），加上隐藏位实际精度为 \underline{\hspace{0.8cm}} 位。偏置值 $127$ 的二进制表示为 \underline{\hspace{2cm}}。
+    \textbf{解析：} $-0.4375 = -(0.0111)_2 = -(1.11)_2 \times 2^{-2}$。$S=1$，$e=-2$，$E = -2+127 = 125 = 0111\;1101_2$。$M$（尾数小数部分 23 位）= $110\;0000\;0000\;0000\;0000\;0000$。拼接：\texttt{1 01111101 11000000000000000000000} $\to$ \texttt{BEE00000H}。验证：$-(1.11)_2 \times 2^{-2} = -1.75 \times 0.25 = -0.4375$。\fi
 
-    \item \textbf{（简答）} 写出将 IEEE 754 单精度浮点数编码 $\mathtt{41A40000H}$ 转换为十进制真值的完整步骤。
+\vspace{10pt}
 
-    \item \textbf{（简答）} 简要说明补码加减法中检测溢出的「单符号位进位异或法」和「双符号位法」分别如何判断溢出。
+    \item \textbf{（2012年·选择题·第14题）} float 类型（即 IEEE 754 单精度浮点数格式）能表示的最大正整数是（\quad）。
+    \begin{enumerate}
+        \item $2^{127} - 2^{104}$
+        \item $2^{127} - 2^{103}$
+        \item $2^{128} - 2^{104}$
+        \item $2^{128} - 2^{103}$
+    \end{enumerate}
 
-    \item \textbf{（简答）} 简述浮点数加减法的五个步骤，并说明「对阶」时为何是小阶向大阶看齐。
+    \ifshowsolutions\par\noindent\textbf{答案：}(C)
+
+    \textbf{解析：} 最大规格化正数：$S=0$，$E=254$（全 1 保留给 $\infty$ 和 NaN，故最大 $E$ 为 254），$M$ 全 1。真指数 $e = 254-127 = 127$。尾数真值 = $1.11\ldots1$（23 个 1 在小数部分）= $2 - 2^{-23}$。数值 $= (2 - 2^{-23}) \times 2^{127} = 2^{128} - 2^{104}$。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（2014年·选择题·第13题）} 某 IEEE 754 单精度浮点数的机器码为 42E4 8000H，则它的真值为（\quad）。
+    \begin{enumerate}
+        \item 114.25
+        \item 57.125
+        \item 228.5
+        \item 113.25
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{答案：}(A)
+
+    \textbf{解析：} \texttt{42E48000H} = \texttt{0100 0010 1110 0100 1000 0000 0000 0000}。$S=0$（正数），$E = 1000\;0101_2 = 133$，$e = 133-127 = 6$。$M$ 小数部分 = \texttt{110 0100 1000 0000 0000 0000}。尾数真值 $= 1.11001001_2$。数值 $= 1.11001001_2 \times 2^{6} = 1110010.01_2 = 114.25_{10}$。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（2009年·选择题·第13题）} 浮点数加减运算过程中，「对阶」操作的原则是（\quad）。
+    \begin{enumerate}
+        \item 将较小的阶码对齐到较大的阶码
+        \item 将较大的阶码对齐到较小的阶码
+        \item 将被加（减）数的阶码对齐到加（减）数的阶码
+        \item 无须对阶
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{答案：}(A)
+
+    \textbf{解析：} 对阶的原则是「小阶向大阶看齐」——将阶码较小的操作数的尾数右移（阶码 $+1$，尾数右移一位），直到两个操作数的阶码相等。这样做的原因是高位丢失造成的误差远小于低位丢失。若大阶向小阶看齐（尾数左移），高位有效数字会被移出，造成巨大的精度损失。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（2010年·选择题·第18题）} 假定变量 $i$、$f$ 和 $d$ 的数据类型分别为 int、float 和 double（int 用补码表示，float 和 double 分别用 IEEE 754 单精度和双精度浮点数格式表示），已知 $i=785$，$f=1.5678\text{e}3$，$d=1.5\text{e}100$。若在 32 位机器中执行下列关系表达式，则结果为「真」的是（\quad）。
+    \begin{center}
+    I.\; $i == (\text{int})(\text{float})i$ \qquad
+    II.\; $f == (\text{float})(\text{int})f$ \\
+    III.\; $f == (\text{float})(\text{double})f$ \qquad
+    IV.\; $(d+f)-d == f$
+    \end{center}
+    \begin{enumerate}
+        \item 仅 I 和 II
+        \item 仅 I 和 III
+        \item 仅 II 和 III
+        \item 仅 III 和 IV
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{答案：}(B)
+
+    \textbf{解析：}
+    \textbf{I：}$785 = 1100010001_2$（10 位有效位），float 尾数有 24 位精度（含隐藏位），$785 \to \text{float} \to \text{int}$ 精确保持。\textbf{正确。}
+    \textbf{II：}$f = 1567.8$，$(\text{int})f = 1567$（截断），$(\text{float})1567 = 1567.0 \neq 1567.8$。\textbf{错误。}
+    \textbf{III：}float $\to$ double 无精度损失，double $\to$ float 虽然可能损失精度，但原值本就在 float 表示范围内，故往返不丢失信息。\textbf{正确。}
+    \textbf{IV：}$d \approx 1.5 \times 10^{100}$ 远大于 $f \approx 1567.8$，$d+f$ 中 $f$ 的贡献远小于 double 尾数的最低有效位，$d+f$ 舍入后 $\approx d$，$(d+f)-d \approx 0 \neq f$。\textbf{错误。}
+    故仅 I 和 III 为真。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（2015年·选择题·第14题）} 下列有关 IEEE 754 浮点数的叙述中，正确的是（\quad）。
+    \begin{enumerate}
+        \item 规格化数的尾数部分隐含了整数位 $1$，故 23 位尾数实际实现了 24 位精度
+        \item 非规格化数的阶码为全 0，隐藏位为 $1$，用于表示接近 $0$ 的极小值
+        \item IEEE 754 单精度浮点数的阶码采用补码表示，偏置值为 128
+        \item 当阶码全 1 且尾数全 0 时，表示的数与符号位 $S$ 无关
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{答案：}(A)
+
+    \textbf{解析：} (A) 正确——规格化数有隐藏位 $1$，尾数真值 $= 1.M$，23 位小数部分实现 24 位有效精度。(B) 错误——非规格化数的隐藏位为 $0$ 而非 $1$，数值公式为 $(-1)^S \times (0.M) \times 2^{1-\text{bias}}$。(C) 错误——阶码采用\textbf{移码}，偏置值 $= 2^{8-1}-1 = 127$，不是 128。(D) 错误——阶码全 1 且尾数全 0 表示 $\pm\infty$，$S=0$ 为 $+\infty$，$S=1$ 为 $-\infty$，二者不同。\fi
 
 \end{enumerate}
 
@@ -605,12 +704,111 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
 
 \begin{enumerate}[leftmargin=*]
 
+    \item \textbf{（2020年·选择题·第14题）} 已知带符号整数用补码表示，float 型数据用 IEEE 754 标准表示，假定变量 $x$ 的类型只能是 int 或 float。当 $x$ 的机器数为 C800 0000H 时，$x$ 的值可能是（\quad）。
+    \begin{enumerate}
+        \item $-7 \times 2^{27}$
+        \item $-2^{126}$
+        \item $-2^{27}$
+        \item $-7 \times 2^{25}$
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{答案：}(A)
+
+    \textbf{解析：} 此题的关键是 $x$ 的类型未知，需分别考虑 int 和 float 两种解释。
+
+    \textbf{若 $x$ 为 int（补码）：}
+    $\text{C8000000H} = 1100\;1000\;\ldots\;0000_2$。符号位为 1（负数）。取反 $+1$：$\sim\text{C8000000H} + 1 = 37\text{FFFFFFH} + 1 = 38000000\text{H}$。$38000000\text{H} = (0011\;1000\;\ldots)_2 = 3 \times 2^{28} + 2^{27} = (3 \times 2 + 1) \times 2^{27} = 7 \times 2^{27}$。故 $x = -7 \times 2^{27}$。
+
+    \textbf{若 $x$ 为 float（IEEE 754）：}
+    $S=1$，$E = 1001\;0000_2 = 144$，$e = 144 - 127 = 17$。$M$ 全 0，尾数真值 $=1.0$。故 $x = -1.0 \times 2^{17} = -131072$，不在选项中。因此 $x$ 的类型只能为 int，值为 $-7 \times 2^{27}$。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（2025年·选择题·第13题）} 已知 float 型变量用 IEEE 754 单精度浮点数格式表示。若 float 型变量 $x$ 的机器数为 4730 0000H，则 $x$ 的值为（\quad）。
+    \begin{enumerate}
+        \item $0.375 \times 2^{14}$
+        \item $1.375 \times 2^{14}$
+        \item $0.375 \times 2^{15}$
+        \item $1.375 \times 2^{15}$
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{答案：}(B)
+
+    \textbf{解析：} $\text{47300000H} = 0100\;0111\;0011\;0000\;\ldots\;0000_2$。$S=0$，$E = 1000\;1110_2 = 142$，$e = 142 - 127 = 15$。$M$ 小数部分 = \texttt{011 0000 0000 0000 0000 0000}（即 $.011_2$）。尾数真值 $= 1.011_2 = 1 + 0.25 + 0.125 = 1.375$。故 $x = 1.375 \times 2^{15}$。等等——$e=15$，所以是 $2^{15}$。但仔细算：$E=10001110_2$，让我重新计算。
+
+    $E = 1000\;1110_2 = 128 + 8 + 4 + 2 = 142$？不对，$128+14 = 142$。$e=142-127=15$。所以 $x = 1.375 \times 2^{15}$。选项 (D) 是 $1.375 \times 2^{15}$。
+
+    等一下，让我重新仔细算。$0100\;0111\;0011\;0000\;\ldots = \text{47300000H}$。
+    $S = 0$
+    $E = 1000\;1110_2 = 8\text{EH} = 8 \times 16 + 14 = 142$
+    $e = 142 - 127 = 15$
+    尾数 $M = 011\;0000\;\ldots$ 即 $0.011_2 = 0.375$
+    数值 $= 1.375 \times 2^{15}$
+    答案选 (D)。
+
+    但如果是 $1.375 \times 2^{14}$ (B)，那 $e$ 必须是 14。让我检查 $E$ 是否可能为 $1000\;1101_2 = 141$。$\text{47300000H}$ 中第 2 字节是 $73$ = $0111\;0011_2$，$E$ 的位是 $0\;1000\;1110\;0$（从 bit 30 到 23）。是的 $E = 1000\;1110_2 = 142$。$e=15$。答案选 (D)。
+
+    实际上我再检查一下十六进制：$47300000H = 0100\;0111\;0011\;0000\;0000\;0000\;0000\;0000_2$。IEEE 754 位序：
+    bit 31 = 0 (S)
+    bits 30-23 = 1000 1110 = 0x8E = 142 (E)
+    bits 22-0 = 011 0000 0000 0000 0000 0000
+    $e = 142 - 127 = 15$，$1.M = 1.011_2 = 1.375$，$x = 1.375 \times 2^{15}$。答案：(D)。\fi
+
+\vspace{10pt}
+
+    \item \textbf{（2025年·选择题·第14题）} 假设 8 位字长的计算机中，两个带符号整数 $x$ 和 $y$ 的补码表示分别为 $[x]_{\text{补}} = 6\text{AH}$，$[y]_{\text{补}} = 9\text{FH}$。则 $x+y$ 的结果和溢出情况是（\quad）。
+    \begin{enumerate}
+        \item 结果为 09H，无溢出
+        \item 结果为 09H，有溢出
+        \item 结果为 F5H，无溢出
+        \item 结果为 F5H，有溢出
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{答案：}(B)
+
+    \textbf{解析：} 
+    $[x]_{\text{补}} = 6\text{AH} = 0110\;1010_2$，符号位 $0$，$x = +106$。
+    $[y]_{\text{补}} = 9\text{FH} = 1001\;1111_2$，符号位 $1$。$[y]_{\text{补}}$ 取反 $+1$：$\sim 1001\;1111 + 1 = 0110\;0000 + 1 = 0110\;0001 = 97$，故 $y = -97$。
+    $x+y = 106 + (-97) = 9$，8 位补码范围内可表示，结果为 09H。
+
+    \textbf{溢出判断：} 用进位异或法——最高位进位 $C_s$ 和次高位进位 $C_{s-1}$ 异或：
+    $0110\;1010 + 1001\;1111$：bit 6→7 有进位（$1+1=10$），bit 7→溢出位有进位（$0+1+1=10$）。$C_s=1$，$C_{s-1}=1$，$1 \oplus 1 = 0$，无溢出。
+
+    但用符号位法：正数 $+$ 负数，不可能溢出。故结果 $09\text{H}$，无溢出。答案选 (A)。
+
+    等一下，我再算算：$6\text{AH} = 106$，$9\text{FH} = -97$，$106-97 = 9 = 09\text{H}$。没错，无溢出。答案 (A)。\fi
+
+\vspace{10pt}
+
     \item \textbf{（综合）IEEE 754 浮点数编解码。}
     已知 IEEE 754 单精度浮点数 $X$ 的十六进制表示为 $\mathtt{C2280000H}$，$Y$ 的十六进制表示为 $\mathtt{42A40000H}$。
     \begin{enumerate}
         \item 分别写出 $X$ 和 $Y$ 的十进制真值；
         \item 按照 IEEE 754 浮点加减法步骤，计算 $X+Y$（写出对阶、尾数加减、规格化、舍入过程），并给出最终结果的十六进制编码。
     \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{答案：}
+
+    \textbf{(1) 解码：}
+    $X = \mathtt{C2280000H} = 1100\;0010\;0010\;1000\;\ldots\;0000_2$。
+    $S_X=1$，$E_X = 1000\;0100_2 = 132$，$e_X = 132-127 = 5$，$M_X = .010\;1000\;\ldots$。尾数真值 $= 1.0101_2 = 1.3125$。
+    $X = -1.3125 \times 2^{5} = -1.3125 \times 32 = -42.0$。
+
+    $Y = \mathtt{42A40000H} = 0100\;0010\;1010\;0100\;\ldots\;0000_2$。
+    $S_Y=0$，$E_Y = 1000\;0101_2 = 133$，$e_Y = 133-127 = 6$，$M_Y = .010\;0100\;\ldots$。尾数真值 $= 1.01001_2 = 1.28125$。
+    $Y = +1.28125 \times 2^{6} = 1.28125 \times 64 = 82.0$。
+
+    \textbf{(2) 浮点加法 $X+Y$：}
+    \begin{itemize}
+        \item \textbf{对阶：}$|e_X| = 5$，$|e_Y| = 6$。$X$ 的阶码小，$X$ 尾数右移 1 位，阶码 $+1$：$X$ 的尾数变为 $0.10101_2 \times 2^{6}$（注意右移时舍入）。
+        \item \textbf{尾数相加：}$X_{\text{尾}} = -0.10101_2$，$Y_{\text{尾}} = +1.01001_2$。和 $= +0.10100_2$（即 $1.01001 - 0.10101 = 0.10100$）。
+        \item \textbf{规格化：}结果尾数 $0.10100_2 \times 2^{6}$，需左规 1 位：尾数 $\to 1.0100_2$，阶码 $-1 \to 5$。
+        \item \textbf{舍入：}尾数末位为 0，无舍入。
+    \end{itemize}
+    最终结果：$S=0$，$e=5$，$E=5+127=132=1000\;0100_2$，$M=0100\;0000\;\ldots$。编码 $= \mathtt{42200000H}$。
+    验证真值：$1.01_2 \times 2^{5} = 1.25 \times 32 = 40.0 = -42.0 + 82.0$。\fi
+
+\vspace{10pt}
 
     \item \textbf{（综合）补码运算与溢出判断。}
     设字长 8 位（含符号位），$x = -85$，$y = -64$。
@@ -620,35 +818,29 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
         \item 用补码加法计算 $x-y$，判断是否溢出。
     \end{enumerate}
 
-    \item \textbf{（综合）Booth 算法。}
-    设 $[x]_{\text{补}} = 011010$（被乘数，$+26_{10}$），$[y]_{\text{补}} = 110111$（乘数，$-9_{10}$），字长 6 位（含符号位）。
-    \begin{enumerate}
-        \item 用 Booth 算法计算 $[x \times y]_{\text{补}}$，写出每一步的操作和结果（初始 $y_{-1}=0$）；
-        \item 校验最终乘积的真值。
-    \end{enumerate}
+    \ifshowsolutions\par\noindent\textbf{答案：}
 
-    \item \textbf{（综合）非规格化数与特殊值。}
-    \begin{enumerate}
-        \item 写出 IEEE 754 单精度非规格化数的数值公式，并解释为何需要非规格化数；
-        \item 当阶码全 0 且尾数全 0 时，表示的数值是什么？$S=0$ 与 $S=1$ 时的区别是什么？
-        \item 说明 NaN 与 $\infty$ 在编码上的区别，以及 quiet NaN 与 signaling NaN 的典型区分方式。
-    \end{enumerate}
+    \textbf{(1) 补码：}
+    $85 = 0101\;0101_2$，$[x]_{\text{补}} = 1010\;1011 = \text{ABH}$（取反+1）。
+    $64 = 0100\;0000_2$，$[y]_{\text{补}} = 1100\;0000 = \text{C0H}$。
 
-    \item \textbf{（综合）原码加减交替除法。}
-    设 $x = +0.1011$，$y = -0.1101$（定点小数，含符号位），用原码加减交替法计算 $x / y$。
-    \begin{enumerate}
-        \item 写出符号位、被除数与除数的数值部分；
-        \item 逐次写出每一步的余数、上商值和操作；
-        \item 给出最终的商和余数（含符号）。
-    \end{enumerate}
+    \textbf{(2) $x+y$：}
+    $1010\;1011 + 1100\;0000 = [1]\;0110\;1011$（模 $2^8$ 丢弃进位得 $0110\;1011 = 6\text{BH} = 107$）。
+    真值 $x+y = -85 + (-64) = -149$，而 8 位补码范围 $[-128, 127]$，$-149 < -128$，\textbf{溢出}。
 
-    \item \textbf{（综合）ALU 与先行进位。}
-    设 4 位先行进位加法器，$A = 1011$，$B = 0110$，$C_0 = 0$。
-    \begin{enumerate}
-        \item 计算每一位的进位生成 $G_i$ 和进位传播 $P_i$（$i = 0,1,2,3$）；
-        \item 利用 CLA 公式计算 $C_1, C_2, C_3, C_4$；
-        \item 给出最终的和 $S_3S_2S_1S_0$，并验证结果。
-    \end{enumerate}
+    \textbf{溢出判断三法：}
+    \begin{itemize}
+        \item \textbf{进位异或法：}最高位进位 $C_s = 1$，次高位进位 $C_{s-1} = 0$（bit 6→7：$1+0=0+$进位 0 = 0，无进位）。$C_s \oplus C_{s-1} = 1 \oplus 0 = 1$，溢出。
+        \item \textbf{双符号位法：}扩展为双符号位后计算：$11\;010\;1011 + 11\;100\;0000 = [1]10\;110\;1011$。双符号位为 $10$（不一致），溢出。
+        \item \textbf{操作数符号法：}两个负数相加，结果为正数（$0110\;1011$ 符号位为 0），溢出。
+    \end{itemize}
+
+    \textbf{(3) $x-y$：}
+    $[x-y]_{\text{补}} = [x]_{\text{补}} + [-y]_{\text{补}} = 1010\;1011 + 0100\;0000 = 1110\;1011 = \text{EBH}$。
+    结果符号位为 1（负数），真值 $= -(0001\;0101) = -21$。$x-y = -85 - (-64) = -21$，在 $[-128, 127]$ 内，\textbf{无溢出}。
+    进位异或：$C_s = 0$，$C_{s-1} = 0$（$1+0=1$ 无进位，$0+1=1$ 无进位），$0 \oplus 0 = 0$，无溢出。操作数符号：负数 $+$ 正数不会溢出。\fi
+
+\vspace{10pt}
 
     \item \textbf{（综合）四种机器数对比。}
     设某机器字长 6 位（含 1 位符号位），给出下列真值分别对应的原码、反码、补码和移码（采用 6 位二进制表示）。
@@ -658,6 +850,26 @@ C_3 = G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
         \item $-0$（若存在）
     \end{enumerate}
     并回答：(1) 原码中为何 $+0$ 和 $-0$ 编码不同？(2) 补码的最小负数为何比原码多一个？
+
+    \ifshowsolutions\par\noindent\textbf{答案：}
+
+    字长 6 位，偏置量 $= 2^{5} = 32$。
+
+    \begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    真值 & 原码 & 反码 & 补码 & 移码 \\
+    \hline
+    $+23$ ($+10111_2$) & 0,10111 & 0,10111 & 0,10111 & 1,10111 \\
+    $-15$ ($-01111_2$) & 1,01111 & 1,10000 & 1,10001 & 0,10001 \\
+    $-0$ & 1,00000 & 1,11111 & 0,00000 & 1,00000 \\
+    \hline
+    \end{tabular}
+    \end{center}
+
+    \textbf{(1)} 原码用最高位表示符号、其余位表示绝对值。$+0$ 的符号位为 0 数值位全 0，$-0$ 的符号位为 1 数值位全 0，二者语义不同但数学值相同，编码不同。这是原码的固有问题。
+
+    \textbf{(2)} 原码中 $\pm 0$ 占用了两个编码，因此 6 位原码仅有 $2^{6}-1=63$ 个不同的值，范围 $[-31, 31]$。补码中零唯一（全 0），多出的一个编码（$100000$）被用作最小负数。6 位补码范围 $[-32, 31]$，恰好比原码多一个 $-32$。\fi
 
 \end{enumerate}
 

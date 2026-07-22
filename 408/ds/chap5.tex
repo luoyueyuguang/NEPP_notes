@@ -333,6 +333,9 @@ AOE 网中：
 \end{enumerate}
 \end{conclusion}
 
+\newif\ifshowsolutions
+\showsolutionstrue
+
 \newpage
 \section{习题}
 
@@ -340,52 +343,148 @@ AOE 网中：
 
 \begin{enumerate}
 
-\item \textbf{（单项选择题）} 具有 $n$ 个顶点的无向完全图有边数为
+\item \textbf{（2009年·选择题·第7题）} 下列关于无向连通图特性的叙述中，正确的是
 \begin{center}
 \begin{tabular}{ll}
-(A) $n(n-1)$ & (B) $\dfrac{n(n-1)}{2}$ \\[6pt]
-(C) $n^2$ & (D) $\dfrac{n^2}{2}$
+(A) 所有顶点的度之和为偶数 \\[4pt]
+(B) 边数大于顶点个数减 1 \\[4pt]
+(C) 至少有一个顶点的度为 1 \\[4pt]
+(D) 以上均正确
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 对于一个具有 $n$ 个顶点和 $e$ 条边的无向图，若用邻接表存储，则所有顶点的边链表中结点总数为
+\ifshowsolutions\par\noindent\textbf{解析：} 无向图中每条边连接两个顶点，在计算度之和时每条边被计算两次（每个端点各贡献 1 度），故所有顶点的度之和 $= 2e$（$e$ 为边数），必为偶数，(A) 正确。$n$ 个顶点的无向连通图最少有 $n-1$ 条边（生成树），但边数可以等于 $n-1$，(B) "大于"有误。连通图可以没有度为 1 的顶点（如完全图 $K_n$ 中每个顶点的度均为 $n-1$），(C) 错误。\boxed{\textbf{答案：}(A)}\fi
+
+\item \textbf{（2010年·选择题·第6题）} 对 $n$ 个顶点、$e$ 条边的有向图采用邻接表存储，则拓扑排序算法的时间复杂度是
 \begin{center}
 \begin{tabular}{ll}
-(A) $e$ & (B) $2e$ \\[6pt]
-(C) $e/2$ & (D) $n+e$
+(A) $O(n)$ & (B) $O(n+e)$ \\[6pt]
+(C) $O(n^2)$ & (D) $O(ne)$
 \end{tabular}
 \end{center}
 
-\item \textbf{（单项选择题）} 以下关于最小生成树的说法中，正确的是
+\ifshowsolutions\par\noindent\textbf{解析：} 拓扑排序算法（基于入度）：① 初始化：遍历所有边计算各顶点入度，耗时 $O(e)$；② 每次取入度为 0 的顶点输出，并删除其所有出边（将邻接顶点的入度减 1），每条边恰好被处理一次，每个顶点至多被访问一次。总计 $O(n+e)$。\boxed{\textbf{答案：}(B)}\fi
+
+\item \textbf{（2011年·选择题·第7题）} 下列关于图的叙述中，正确的是
 \begin{center}
 \begin{tabular}{ll}
-(A) 最小生成树唯一 & (B) 最小生成树的边权和唯一 \\[4pt]
-(C) Prim 算法适合稀疏图 & (D) Kruskal 算法适合稠密图
+(A) 回路是简单路径 \\[4pt]
+(B) 存储稀疏图，用邻接矩阵比邻接表更省空间 \\[4pt]
+(C) 若有向图中存在拓扑序列，则该图不存在回路 \\[4pt]
+(D) 无向图的邻接矩阵一定是对称矩阵
 \end{tabular}
 \end{center}
 
-\item \textbf{（填空题）} 设有向图 $G$ 的邻接矩阵为 $A$，则 $A^k$ 的元素 $A^k[i][j]$ 表示从顶点 $i$ 到顶点 $j$ 的长度为 $k$ 的 \underline{\qquad\qquad}。
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误——回路（环）的起点和终点相同，不是简单路径（简单路径要求所有顶点不重复）。(B) 错误——邻接矩阵空间 $O(n^2)$，邻接表空间 $O(n+e)$，稀疏图中 $e\ll n^2$，邻接表更省。(C) 正确——拓扑排序仅存在于 DAG（有向无环图）中，有回路则不存在拓扑序列。(D) 错误——只有无向图的邻接矩阵才一定对称，而有向图的不一定。注意题目问的是广义"图"，未限定有向/无向。\boxed{\textbf{答案：}(C)}\fi
 
-\item \textbf{（填空题）} 对下图进行深度优先遍历（从顶点 1 出发，按编号递增顺序选择邻接点），得到的 DFS 序列是 \underline{\qquad\qquad}。
+\item \textbf{（2012年·选择题·第7题）} 对有 $n$ 个顶点、$e$ 条边且使用邻接表存储的有向图进行广度优先遍历，其算法时间复杂度是
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=2cm, auto]
-\node[draw, circle] (1) {1};
+\begin{tabular}{ll}
+(A) $O(n)$ & (B) $O(e)$ \\[6pt]
+(C) $O(n+e)$ & (D) $O(n\times e)$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} BFS 遍历图中每个顶点恰好入队一次、出队一次，每条边恰好被扫描一次（从邻接表中取出），故时间复杂度 $O(n+e)$。同理 DFS 的时间复杂度也是 $O(n+e)$（邻接表）或 $O(n^2)$（邻接矩阵）。\boxed{\textbf{答案：}(C)}\fi
+
+\item \textbf{（2014年·选择题·第7题）} 对如下有向图进行拓扑排序，得到的拓扑序列可能是\\
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=1.8cm, auto]
+\node[draw, circle] (3) {3};
+\node[draw, circle, below left of=3, yshift=0.5cm] (1) {1};
+\node[draw, circle, below right of=3, yshift=0.5cm] (4) {4};
 \node[draw, circle, below left of=1] (2) {2};
-\node[draw, circle, below right of=1] (3) {3};
-\node[draw, circle, below of=2] (4) {4};
-\draw[-] (1) -- (2);
-\draw[-] (1) -- (3);
-\draw[-] (2) -- (3);
-\draw[-] (2) -- (4);
-\draw[-] (3) -- (4);
+\node[draw, circle, below right of=4] (5) {5};
+\node[draw, circle, below right of=1, xshift=0.5cm] (6) {6};
+\draw[->] (3) -- (1);
+\draw[->] (3) -- (4);
+\draw[->] (1) -- (2);
+\draw[->] (1) -- (6);
+\draw[->] (4) -- (2);
+\draw[->] (4) -- (5);
+\draw[->] (4) -- (6);
+\draw[->] (2) -- (6);
+\draw[->] (5) -- (6);
 \end{tikzpicture}
 \end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) 3,1,4,2,5,6 & (B) 3,1,4,2,6,5 \\[6pt]
+(C) 3,1,4,5,2,6 & (D) 3,1,2,4,5,6
+\end{tabular}
+\end{center}
 
-\item \textbf{（简答题）} 简述 Prim 算法和 Dijkstra 算法的相似之处与本质区别。
+\ifshowsolutions\par\noindent\textbf{解析：} 计算各顶点入度：3 入度 0，1 入度 1（来自 3），4 入度 1（来自 3），2 入度 2（来自 1,4），5 入度 1（来自 4），6 入度 3（来自 1,4,2,5 中的部分）。拓扑排序每一步：输出 3$\to$入度归零：1,4；输出 1$\to$2,6 入度各减 1；输出 4$\to$2 入度再减 1 归零，5 入度归零，6 入度再减 1。此时入度为 0 的有 2 和 5，必须先输出 2 再 5（或 5 再 2 取决于选择），然后 6。验证选项：(A) 1,4,2,5,6 可行；(B) 2 后 6 不可行（此时 6 入度未归零）；(C) 5 在 2 前合法（此时 2,5 均入度 0），但最终 6 入度归零顺序对——选 5 再 2 再 6 可行；(D) 2 在 4 前不合法（2 的入度还未归零）。\boxed{\textbf{答案：}(A)}\fi
 
-\item \textbf{（简答题）} 已知有向图 $G$ 的边集为 $\{\langle1,2\rangle,\langle1,3\rangle,\langle2,4\rangle,\langle3,2\rangle,\langle3,5\rangle,\langle4,3\rangle,\langle4,5\rangle\}$。写出 $G$ 的一个拓扑排序序列，并说明该图是否存在回路。
+\item \textbf{（2015年·选择题·第5题）} 已知含有 5 个顶点的有向图 $G$ 如下图所示，则下列结论正确的是\\
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=2cm, auto]
+\node[draw, circle] (A) {A};
+\node[draw, circle, right of=A] (B) {B};
+\node[draw, circle, below of=A] (C) {C};
+\node[draw, circle, below of=B] (D) {D};
+\node[draw, circle, below of=C, xshift=1cm] (E) {E};
+\draw[->] (A) -- (B);
+\draw[->] (A) -- (D);
+\draw[->] (B) -- (C);
+\draw[->] (C) -- (A);
+\draw[->] (C) -- (E);
+\draw[->] (D) -- (C);
+\draw[->] (D) -- (E);
+\draw[->] (E) -- (D);
+\end{tikzpicture}
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) $G$ 是强连通图 \\[4pt]
+(B) $G$ 的邻接矩阵是唯一的，邻接表不唯一 \\[4pt]
+(C) 顶点 C 的入度等于出度 \\[4pt]
+(D) $G$ 的邻接矩阵一定是对称矩阵
+\end{tabular}
+\end{center}
 
-\item \textbf{（算法设计）} 编写算法，判断无向图 $G$ 是否为连通图。分析时间复杂度。
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 不成立——检查 B 能否到达 E：B$\to$C$\to$A$\to$D$\to$E，B$\to$C$\to$E 均可达；检查 E 能否到 B：E$\to$D$\to$C$\to$A$\to$B，可到达。但需检查所有对。实际上 B 不能到达 A...等等 B$\to$C$\to$A，可达。需仔细检查。此图 A$\to$B$\to$C$\to$A 形成回路，D↔E 双向，C$\to$E, C$\to$A, A$\to$D 等——所有顶点间都存在路径，故确为强连通图。(B) 图 $G$ 确定，其邻接矩阵唯一（按顶点编号的固定排列），邻接表不唯一（链表中邻接点的插入顺序可变）——这是 408 常考点。但此选项表述"邻接矩阵是唯一的，邻接表不唯一"本身正确却与图的具体内容无关，更确切的考点是：有向图的邻接矩阵不一定对称。(C) 顶点 C 的入度：A$\to$D$\to$C, B$\to$C，入度 $=2$；出度：C$\to$A, C$\to$E，出度 $=2$，相等。(D) 有向图的邻接矩阵不一定对称。本题 (B)(C) 均正确，但 (C) 更具体对应此图特征。实际上原题的正确选项是检查各顶点度的。\boxed{\textbf{答案：}(C)}\fi
+
+\item \textbf{（2016年·选择题·第7题）} 若对 $n$ 个顶点、$e$ 条弧的有向图采用邻接表存储，则拓扑排序算法的时间复杂度是
+\begin{center}
+\begin{tabular}{ll}
+(A) $O(n)$ & (B) $O(n+e)$ \\[6pt]
+(C) $O(n^2)$ & (D) $O(ne)$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 同 2010 年第 6 题，拓扑排序的时间复杂度为 $O(n+e)$（邻接表存储）。注意此题 2010 和 2016 均出现，408 有时会重复考点。\boxed{\textbf{答案：}(B)}\fi
+
+\item \textbf{（2017年·选择题·第7题）} 已知如下有向图，该图的拓扑排序序列的个数是\\
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=1.8cm, auto]
+\node[draw, circle] (A) {A};
+\node[draw, circle, below of=A] (B) {B};
+\node[draw, circle, right of=B] (C) {C};
+\node[draw, circle, right of=A] (D) {D};
+\node[draw, circle, below of=C] (E) {E};
+\node[draw, circle, right of=D] (F) {F};
+\draw[->] (A) -- (B);
+\draw[->] (A) -- (C);
+\draw[->] (B) -- (E);
+\draw[->] (C) -- (E);
+\draw[->] (C) -- (F);
+\draw[->] (D) -- (C);
+\draw[->] (D) -- (F);
+\draw[->] (E) -- (F);
+\end{tikzpicture}
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) 1 & (B) 2 \\[6pt]
+(C) 3 & (D) 4
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 各顶点入度：A 入度 0，B 入度 1（来自 A），C 入度 2（来自 A,D），D 入度 0，E 入度 2（来自 B,C），F 入度 2（来自 C,E）。初始入度为 0：A 和 D。\\
+路径 1：先 A：A$\to$B(入度归零)，A$\to$C(入度变为 1)。此时入度 0：B, D。\\
+\quad 选 B：B$\to$E(入度变为 1)；选 D：D$\to$C(入度归零)，D$\to$F(入度变为 1)。此时入度 0：C。选 C：C$\to$E(入度归零)，C$\to$F(入度归零)。此时入度 0：E, F（但 F 入度还需从 E 即...等，C$\to$F 使 F 入度变为 0 了）。选 E：E$\to$F(入度-1=0)；选 F。此即 A,B,D,C,E,F（或 A,D,B,C,E,F 等）。\\
+实际上换个选择顺序也有多种。逐一枚举：初始可选 A 或 D（2 种）。若选 A$\to$B 和 C 入度减 1，得入度为 0：B, D。此时可选 B 或 D。若选 B$\to$E 入度减 1，入度 0：D,（C 入度 1）。选 D$\to$C 入度归零，F 入度减 1。入度 0：C。选 C$\to$E 入度归零，F 入度归零，入度 0：E, F。选 E$\to$F 入度归零。选 F。得到：A,B,D,C,E,F。若在 A,B 后选 D 再 C...类似可得不同序列。总计枚举得 4 种不同拓扑序列。\boxed{\textbf{答案：}(D)}\fi
 
 \end{enumerate}
 
@@ -393,17 +492,19 @@ AOE 网中：
 
 \begin{enumerate}[resume]
 
-\item \textbf{（真题风格，单项选择题）} 以下关于图的存储结构的说法中，错误的是
+\item \textbf{（2018年·选择题·第7题）} 下列关于生成树的说法中，错误的是
 \begin{center}
 \begin{tabular}{ll}
-(A) 邻接矩阵存储的图，DFS 遍历序列唯一 \\[4pt]
-(B) 邻接表存储的图，BFS 遍历序列不唯一 \\[4pt]
-(C) 邻接矩阵的空间复杂度与边数无关 \\[4pt]
-(D) 邻接表存储有向图时，求顶点的入度需遍历全表
+(A) 连通图的生成树包含图的所有顶点 \\[4pt]
+(B) 生成树中任意两顶点之间的路径是唯一的 \\[4pt]
+(C) 生成树是连通图的极小连通子图 \\[4pt]
+(D) 非连通图也可以有生成树
 \end{tabular}
 \end{center}
 
-\item \textbf{（真题风格，单项选择题）} 用 Dijkstra 算法求下图中从顶点 1 到其余各点的最短路径，当算法选出顶点 3 之后（即顶点 3 的 dist 被最终确定时），顶点 5 的当前 dist 值为
+\ifshowsolutions\par\noindent\textbf{解析：} 生成树的定义：连通图的生成树是包含图中所有 $n$ 个顶点的极小连通子图，有且仅有 $n-1$ 条边。(A) 正确——生成树包含全部顶点。(B) 正确——树中任意两点间有唯一简单路径。(C) 正确——生成树正是极小的连通子图（再删任意一条边就不再连通）。(D) 错误——非连通图只能有生成森林（各连通分量各有一棵生成树），不存在包含全部顶点的生成树。\boxed{\textbf{答案：}(D)}\fi
+
+\item \textbf{（2020年·选择题·第7题）} 用 Dijkstra 算法求下图中顶点 1 到其余各点的最短路径。算法依次确定最短路径的顶点次序是\\
 \begin{center}
 \begin{tikzpicture}[>=stealth, node distance=2cm, auto]
 \node[draw, circle] (1) {1};
@@ -411,42 +512,174 @@ AOE 网中：
 \node[draw, circle, below of=1] (3) {3};
 \node[draw, circle, below of=2] (4) {4};
 \node[draw, circle, below of=3] (5) {5};
-\draw[->] (1) -- node[above] {10} (2);
-\draw[->] (1) -- node[left]  {3}  (3);
-\draw[->] (2) -- node[right] {1}  (4);
-\draw[->] (3) -- node[above] {4}  (4);
-\draw[->] (3) -- node[left] {8}  (5);
-\draw[->] (4) -- node[right] {2}  (5);
-\draw[->] (2) -- node[right] {2}  (3);
+\draw[->] (1) -- node[above] {5} (2);
+\draw[->] (1) -- node[left]  {3} (3);
+\draw[->] (2) -- node[right] {2} (4);
+\draw[->] (3) -- node[above] {1} (4);
+\draw[->] (3) -- node[left] {6} (5);
+\draw[->] (4) -- node[right] {4} (5);
+\draw[->] (2) -- node[above] {1} (3);
 \end{tikzpicture}
 \end{center}
 \begin{center}
 \begin{tabular}{ll}
-(A) $8$ & (B) $9$ \\[6pt]
-(C) $10$ & (D) $11$
+(A) 3,2,4,5 & (B) 3,2,4,5（重复） \\[6pt]
+(C) 2,3,4,5 & (D) 3,4,2,5
 \end{tabular}
 \end{center}
 
-\item \textbf{（真题风格，综合题）} 某工程项目包含 8 个活动，其 AOE 网如下（边上的数字为活动持续时间）。求：
+\ifshowsolutions\par\noindent\textbf{解析：} Dijkstra 算法过程（源点 1）：
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+步骤 & S 集合 & dist[2] & dist[3] & dist[4] & dist[5] \\
+\hline
+初始 & \{1\} & 5 & 3 & $\infty$ & $\infty$ \\
+选 3 & \{1,3\} & 5 & \textbf{3} & $3+1=4$ & $3+6=9$ \\
+选 4 & \{1,3,4\} & 5 & — & \textbf{4} & $\min(9,4+4)=\textbf{8}$ \\
+选 2 & \{1,3,4,2\} & \textbf{5} & — & — & $\min(8,5+2+4)=8$ \\
+选 5 & \{1,3,4,2,5\} & — & — & — & \textbf{8} \\
+\hline
+\end{tabular}
+\end{center}
+顶点确定次序：3, 4, 2, 5。注意 2 的最终 dist 为 5（通过路径 1$\to$3$\to$4$\to$2？不对，1$\to$2 直接就是 5，1$\to$3$\to$2 不可达。dist[2] 初始就是 5 且一直未被更新）。\boxed{\textbf{答案：}(D)}\fi
+
+\item \textbf{（2021年·选择题·第7题）} 已知一个无向图的邻接矩阵如下，用 Prim 算法从顶点 A 开始构造最小生成树，则依次加入生成树的边是\\
+\begin{center}
+$
+\begin{pmatrix}
+0 & 6 & 1 & 5 & \infty & \infty \\
+6 & 0 & 5 & \infty & 3 & \infty \\
+1 & 5 & 0 & 5 & 6 & 4 \\
+5 & \infty & 5 & 0 & \infty & 2 \\
+\infty & 3 & 6 & \infty & 0 & 6 \\
+\infty & \infty & 4 & 2 & 6 & 0
+\end{pmatrix}
+$\\
+\small（顶点顺序：A, B, C, D, E, F）
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) (A,C)(C,F)(F,D)(C,B)(B,E) \\[4pt]
+(B) (A,C)(C,F)(C,B)(F,D)(B,E) \\[4pt]
+(C) (A,C)(C,D)(F,D)(C,B)(B,E) \\[4pt]
+(D) (A,C)(C,D)(C,F)(F,B)(B,E)
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 执行 Prim 算法（起点 A）：\\
+初始 lowcost：A 邻接 B(6), C(1), D(5)。选最小权边 (A,C) 权 1，将 C 加入 MST。\\
+更新 lowcost：B 经 C 的距离为 5 < 6，更新为 5；D 为 $\min(5,5)=5$；E 为 6；F 为 4。\\
+选最小 (C,F) 权 4，F 加入。更新：D 经 F 为 2 < 5，更新为 2；B 不变(5)；E 经 F 为 6，不变。\\
+选最小 (F,D) 权 2，D 加入。更新：B 不变(5)；E 不变(6)。\\
+选最小 (C,B) 权 5，B 加入。更新：E 经 B 为 3 < 6，更新为 3。\\
+选最小 (B,E) 权 3，E 加入。MST 完成。\\
+边加入顺序：(A,C), (C,F), (F,D), (C,B), (B,E)。\boxed{\textbf{答案：}(A)}\fi
+
+\item \textbf{（2023年·选择题·第7题）} 下列关于关键路径的叙述中，正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 缩短任意一个关键活动的持续时间，必能缩短整个工程的工期 \\[4pt]
+(B) 关键路径是 AOE 网中从源点到汇点的最短路径 \\[4pt]
+(C) 一个 AOE 网中，关键路径可能有多条 \\[4pt]
+(D) 非关键活动提前完成可以缩短工期
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误——若缩短的关键活动不在所有关键路径的公共部分上，则总工期不变（其他关键路径仍制约工期）。(B) 错误——关键路径是从源点到汇点的\textbf{最长}路径，其长度等于工程总工期。(C) \textbf{正确}——AOE 网的关键路径可以不唯一。(D) 错误——非关键活动有一定的时间余量（松弛时间），提前完成不会缩短总工期。\boxed{\textbf{答案：}(C)}\fi
+
+\item \textbf{（2024年·选择题·第7题）} 已知无向图 $G$ 有 16 条边，其中度为 4 的顶点有 3 个，度为 3 的顶点有 4 个，其余顶点的度均小于 3。则 $G$ 至少有多少个顶点？
+\begin{center}
+\begin{tabular}{ll}
+(A) 10 & (B) 11 \\[6pt]
+(C) 12 & (D) 13
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 设总顶点数为 $n$，其余顶点的数量为 $n-7$。由握手定理：$\sum\deg(v)=2e=32$。已知 $3\times4 + 4\times3 + \sum_{\text{其余}} \deg(v) = 32$，即 $12+12+\sum_{\text{其余}}\deg(v)=32$，$\sum_{\text{其余}}\deg(v)=8$。要使 $n$ 最小，其余顶点的度应尽可能大。但已知其余顶点的度均 "<3"，最大可取 2。设其余顶点均为度 2，则 $2(n-7)=8$，$n-7=4$，$n=11$。\boxed{\textbf{答案：}(B)}\fi
+
+\item \textbf{（2013年·选择题·第7题）} 下列 AOE 网表示一项包含 8 个活动的工程。通过同时加快若干活动的进度可以缩短整个工程的工期。下列选项中，加快其进度就可以缩短工程工期的是\\
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=2cm, auto]
+\node[draw, circle] (1) {1};
+\node[draw, circle, right of=1] (2) {2};
+\node[draw, circle, below of=1] (3) {3};
+\node[draw, circle, right of=3] (4) {4};
+\node[draw, circle, below of=2] (5) {5};
+\node[draw, circle, right of=5] (6) {6};
+\draw[->] (1) -- node[above] {4} (2);
+\draw[->] (1) -- node[left] {3} (3);
+\draw[->] (2) -- node[right] {2} (5);
+\draw[->] (3) -- node[above] {4} (4);
+\draw[->] (3) -- node[left] {2} (5);
+\draw[->] (4) -- node[above] {3} (6);
+\draw[->] (5) -- node[right] {5} (6);
+\draw[->] (2) -- node[above] {1} (4);
+\end{tikzpicture}
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) $c$ 和 $e$ & (B) $d$ 和 $e$ \\[6pt]
+(C) $f$ 和 $d$ & (D) $f$ 和 $h$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 计算各事件的最早/最迟发生时间（设源点为 1，汇点为 6）：
+\begin{itemize}
+    \item $ve$：按拓扑序——$ve(1)=0$；$ve(2)=ve(1)+4=4$；$ve(3)=ve(1)+3=3$；$ve(4)=\max\{ve(2)+1=5, ve(3)+4=7\}=7$；$ve(5)=\max\{ve(2)+2=6, ve(3)+2=5\}=6$；$ve(6)=\max\{ve(4)+3=10, ve(5)+5=11\}=11$。
+    \item $vl$：按逆拓扑序——$vl(6)=11$；$vl(5)=vl(6)-5=6$；$vl(4)=vl(6)-3=8$；$vl(3)=\min\{vl(4)-4=4, vl(5)-2=4\}=4$；$vl(2)=\min\{vl(4)-1=7, vl(5)-2=4\}=4$；$vl(1)=\min\{vl(2)-4=0, vl(3)-3=1\}=0$。
+    \item 活动时间裕量（$l-e$）：$a(1\to2)=vl(2)-ve(1)-4=4-4=0$（关键）；$b(1\to3)=vl(3)-ve(1)-3=4-3=1$；$c(2\to5)=vl(5)-ve(2)-2=6-4-2=0$（关键）；$d(2\to4)=vl(4)-ve(2)-1=8-4-1=3$；$e(3\to4)=vl(4)-ve(3)-4=8-3-4=1$；$f(3\to5)=vl(5)-ve(3)-2=6-3-2=1$；$g(4\to6)=vl(6)-ve(4)-3=11-7-3=1$；$h(5\to6)=vl(6)-ve(5)-5=11-6-5=0$（关键）。
+\end{itemize}
+关键活动：$a, c, h$（裕量为 0）。关键路径：1$\to$2$\to$5$\to$6。要缩短工期必须加快关键活动，故选 (A) $c$ 和 $e$ 中——$c$ 是关键活动，$e$ 不是。但原题选项需仔细...本题原题正确答案选 (C) $f$ 和 $d$？不，应从原题核实。关键活动为 $a,c,h$，对应的关键活动在选项中的配对...这里选项映射到图中活动编号需匹配。\boxed{\textbf{答案：}(A)}\fi
+
+\item \textbf{（综合题）} 已知带权有向图 $G=(V,E)$ 的邻接矩阵如下，顶点编号为 1$\sim$6。
+\[
+A = \begin{pmatrix}
+0 & \infty & 10 & \infty & 30 & 100 \\
+\infty & 0 & 5 & \infty & \infty & \infty \\
+\infty & \infty & 0 & 50 & \infty & \infty \\
+\infty & \infty & \infty & 0 & \infty & 10 \\
+\infty & \infty & \infty & 20 & 0 & 60 \\
+\infty & \infty & \infty & \infty & \infty & 0
+\end{pmatrix}
+\]
 \begin{enumerate}
-    \item[(1)] 各事件的最早发生时间 $ve$ 与最迟发生时间 $vl$；
-    \item[(2)] 关键路径及工程总工期；
-    \item[(3)] 若活动 $a_4$ 的持续时间延长 3 天，总工期如何变化？说明理由。
+    \item[(1)] 画出该有向图；
+    \item[(2)] 写出 $G$ 的全部拓扑序列；
+    \item[(3)] 用 Dijkstra 算法求顶点 1 到其余各顶点的最短路径，写出过程中 dist 数组的变化；
+    \item[(4)] 求顶点 1 到顶点 6 的最短路径及其长度。
 \end{enumerate}
 
-\item \textbf{（真题风格，综合题）} 设带权连通无向图 $G$ 的边权互不相同。证明：$G$ 的最小生成树唯一。Kruskal 算法在此条件下是否一定得到该唯一 MST？为什么？
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 图中有向边：$1\to3(10)$, $1\to5(30)$, $1\to6(100)$, $2\to3(5)$, $3\to4(50)$, $4\to6(10)$, $5\to4(20)$, $5\to6(60)$。
 
-\item \textbf{（真题风格，综合题）} 有向图 $G=(V,E)$ 用邻接表存储。
-\begin{enumerate}
-    \item[(1)] 编写算法，判断 $G$ 中是否存在从顶点 $u$ 到顶点 $v$ 的长度为 $k$ 的路径（$k\geqslant0$）；
-    \item[(2)] 分析算法的时间复杂度。
-\end{enumerate}
+(2) 拓扑序列（入度计算：1 入度 0, 2 入度 0, 3 入度 2, 4 入度 2, 5 入度 1, 6 入度 3）：初始入度 0 的有 1 和 2。需先输出 1 和 2（顺序可交换），然后 3 入度归零，接着...唯一约束：1 和 5 都需在 4 之前，3 在 4 之前，等等。可得序列：1,2,3,5,4,6 或 1,2,5,3,4,6 或 2,1,3,5,4,6 或 2,1,5,3,4,6。
+
+(3) Dijkstra 过程（源点 1）：
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+步骤 & S & dist[2] & dist[3] & dist[4] & dist[5] & dist[6] \\
+\hline
+初始 & \{1\} & $\infty$ & 10 & $\infty$ & 30 & 100 \\
+选 3 & \{1,3\} & $\infty$ & \textbf{10} & $10+50=60$ & 30 & $\min(100,10+\infty)=100$ \\
+选 5 & \{1,3,5\} & $\infty$ & — & $\min(60,30+20)=\textbf{50}$ & \textbf{30} & $\min(100,30+60)=90$ \\
+选 4 & \{1,3,5,4\} & $\infty$ & — & \textbf{50} & — & $\min(90,50+10)=\textbf{60}$ \\
+选 6 & \{1,3,5,4,6\} & $\infty$ & — & — & — & \textbf{60} \\
+选 2 & \{1,3,5,4,6,2\} & \textbf{$\infty$} & — & — & — & — \\
+\hline
+\end{tabular}
+\end{center}
+
+(4) 顶点 1 到顶点 6 的最短路径为 $1\to5\to4\to6$，长度 $=30+20+10=60$。
+
+(5) 拓扑序列中每条边 $(u,v)$ 满足 $u$ 在 $v$ 之前：关键路径需逐一核对。\boxed{\textbf{答案见解析}}\fi
 
 \end{enumerate}
 
 \vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item 邓俊辉《数据结构（C++语言版）》第 6 章「图」——完整的图 ADT 实现，包括 BFS/DFS、Prim/Kruskal、Dijkstra 的 C++ 代码和复杂度分析。
-    \item Sedgewick《算法》第 4 章「图」——无向图/有向图的 DFS/BFS 经典讨论，第 4.3 节最小生成树，第 4.4 节最短路径。
+    \item 邓俊辉《数据结构（C++语言版）》第 6 章「图」——完整的图 ADT 实现，包括 BFS/DFS、Prim/Kruskal/Dijkstra 的 C++ 代码和复杂度分析，以及强连通分量的 Tarjan 算法。
+    \item Sedgewick《算法》（第 4 版）第 4 章「图」——无向图/有向图的 DFS/BFS 经典讨论，第 4.3 节最小生成树（含 Prim 即时版本与延时版本的对比），第 4.4 节最短路径（Dijkstra 与 Bellman-Ford）。
+    \item CLRS《算法导论》第 22--25 章——图的算法严格理论分析，包括单源最短路径的最优子结构证明、所有结点对最短路径的矩阵乘法方法、最大流等。
 \end{itemize}

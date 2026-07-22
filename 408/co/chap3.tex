@@ -705,107 +705,154 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
 
 \subsection{基础过关题}
 
-\begin{enumerate}
+\begin{enumerate}[leftmargin=*]
 
-\item \textbf{（单项选择题）} 以下存储器中，属于易失性存储器的是
-\begin{center}
-\begin{tabular}{ll}
-(A) Flash 存储器 & (B) EEPROM \\[4pt]
-(C) DRAM & (D) 磁盘
-\end{tabular}
-\end{center}
+    \item \textbf{（2009年·选择题·第15题）}
+    某计算机主存按字节编址，Cache 共有 16 个行，块大小为 8 字节，采用直接映射方式。
+    主存地址为 $\mathtt{1234E8F8H}$ 的单元装入 Cache 后，该单元所在 Cache 行的行号（从 0 开始）是\_\_\_\_\_\_。
+    \begin{enumerate}
+        \item $0$
+        \item $5$
+        \item $15$
+        \item 无法确定
+    \end{enumerate}
 
-\item \textbf{（单项选择题）} 某 SRAM 芯片有 14 根地址线、8 根数据线，则该芯片的容量为
-\begin{center}
-\begin{tabular}{ll}
-(A) $16\mathrm{K}\times 8$ 位 & (B) $14\mathrm{K}\times 8$ 位 \\[4pt]
-(C) $16\mathrm{K}\times 14$ 位 & (D) $14\times 8$ 位
-\end{tabular}
-\end{center}
+    \item \textbf{（2010年·选择题·第15题）}
+    某计算机的 Cache 共有 16 块，采用 2 路组相联映射（每组 2 块），每块大小为 32 字节，按字节编址。
+    主存 129 号单元所在的主存块应装入的 Cache 组号是\_\_\_\_\_\_。
+    \begin{enumerate}
+        \item $0$
+        \item $1$
+        \item $4$
+        \item $6$
+    \end{enumerate}
 
-\item \textbf{（单项选择题）} 需要用 $16\mathrm{K}\times 4$ 位的存储芯片构成 $64\mathrm{K}\times 8$ 位的存储器，所需芯片数量为
-\begin{center}
-\begin{tabular}{ll}
-(A) 4 & (B) 6 \\[4pt]
-(C) 8 & (D) 16
-\end{tabular}
-\end{center}
+    \item \textbf{（2011年·选择题·第11题）}
+    某计算机主存地址空间大小为 256MB，按字节编址。数据 Cache 有 8 个 Cache 行，行长为 64B，采用直接映射方式。
+    主存地址中 Tag 字段的位数是\_\_\_\_\_\_。
+    \begin{enumerate}
+        \item $11$
+        \item $17$
+        \item $19$
+        \item $28$
+    \end{enumerate}
 
-\item \textbf{（单项选择题）} 下列关于 DRAM 的说法中，错误的是
-\begin{center}
-\begin{tabular}{ll}
-(A) DRAM 需要定期刷新以保持数据 \\[4pt]
-(B) DRAM 的读写操作是破坏性的 \\[4pt]
-(C) DRAM 的集成度高于 SRAM \\[4pt]
-(D) DRAM 的存取速度比 SRAM 快
-\end{tabular}
-\end{center}
+    \item \textbf{（2018年·选择题·第16题）}
+    下列关于 Cache 映射方式的叙述中，错误的是\_\_\_\_\_\_。
+    \begin{enumerate}
+        \item 直接映射中，每个主存块只能映射到 Cache 的一个特定行
+        \item 全相联映射中，每个主存块可以映射到 Cache 的任意一行
+        \item 组相联映射中，每组包含多行，主存块映射到特定组后，可在组内任意一行存放
+        \item 组相联映射的冲突缺失率高于直接映射
+    \end{enumerate}
 
-\item \textbf{（单项选择题）} 在 Cache 的各种地址映射方式中，冲突缺失率最低的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 直接映射 & (B) 2 路组相联 \\[4pt]
-(C) 4 路组相联 & (D) 全相联映射
-\end{tabular}
-\end{center}
+    \item \textbf{（2020年·选择题·第17题）}
+    下列关于 Cache 映射方式的叙述中，正确的是\_\_\_\_\_\_。
+    \begin{enumerate}
+        \item 直接映射方式下，Cache 利用率最高
+        \item 全相联映射方式下，Cache 命中时也需要进行 Tag 比较
+        \item 组相联映射方式下，每组只有一行时即为直接映射
+        \item 组相联映射方式下，每组包含所有行时即为全相联映射
+    \end{enumerate}
 
-\item \textbf{（填空题）} 某计算机主存按字节编址，Cache 采用 4 路组相联映射，共有 128 行，块大小为 32 字节。则主存地址中，块内偏移占 \underline{\qquad} 位，组号占 \underline{\qquad} 位，Tag 占 \underline{\qquad} 位（设主存地址为 32 位）。
+    \item \textbf{（2023年·选择题·第15题）}
+    某计算机主存按字节编址，由 4 个存储体构成，采用低位交叉编址。每个存储体的存取周期为 $40\,\mathrm{ns}$，
+    总线传输周期为 $10\,\mathrm{ns}$。CPU 连续从地址 0 开始读取 16 个字节，需要的总时间是\_\_\_\_\_\_。
+    \begin{enumerate}
+        \item $40\,\mathrm{ns}$
+        \item $70\,\mathrm{ns}$
+        \item $80\,\mathrm{ns}$
+        \item $160\,\mathrm{ns}$
+    \end{enumerate}
 
-\item \textbf{（填空题）} 一个由 4 个存储体构成的低位交叉编址存储器，每个存储体的存取周期为 $40\,\mathrm{ns}$，总线传输周期为 $10\,\mathrm{ns}$。连续读取 8 个字所需的时间为 \underline{\qquad} ns。
+    \item \textbf{（填空题）}
+    某计算机主存按字节编址，主存地址为 32 位。数据 Cache 容量为 32KB，块大小为 64 字节，采用 4 路组相联映射。
+    则块内偏移占 \underline{\hspace{0.8cm}} 位，组号（Set Index）占 \underline{\hspace{0.8cm}} 位，Tag 占 \underline{\hspace{1.5cm}} 位。
 
-\item \textbf{（简答题）} 简述时间局部性和空间局部性的含义，并各举出一个程序中的典型例子。
+    \item \textbf{（填空题）}
+    一个由 8 个存储体构成的低位交叉编址存储器，每个存储体的存取周期为 $80\,\mathrm{ns}$，总线传输周期为 $10\,\mathrm{ns}$。
+    流水线方式下连续访问时，该存储器的最大带宽为 \underline{\hspace{1.5cm}} MB/s（设每个存储体每次可读写 4 字节）。
 
-\item \textbf{（简答题）} 说明 Cache 的写直达和写回策略的区别，以及它们各自通常搭配的写缺失策略。
+    \item \textbf{（简答题）}
+    简述时间局部性和空间局部性的含义，并各举出一个程序中的典型例子。说明为什么存储层次结构依赖于局部性原理。
 
-\item \textbf{（简答题）} 简述缺页中断的处理过程。为何缺页中断不能由硬件处理而必须由操作系统介入？
+    \item \textbf{（简答题）}
+    简述 Cache 的写直达（Write-Through）和写回（Write-Back）策略的区别，并说明它们各自通常搭配的写缺失（Write Miss）策略是什么，为什么这样搭配。
 
 \end{enumerate}
 
-\subsection{真题风格与综合训练}
+\subsection{真题风格综合训练}
 
-\begin{enumerate}[resume]
+\begin{enumerate}[leftmargin=*]
 
-\item \textbf{（真题风格，单项选择题）} 某计算机主存按字节编址，地址空间为 256MB。Cache 容量为 64KB，块大小为 32 字节，采用直接映射方式。则主存地址中 Tag 所占的位数为
-\begin{center}
-\begin{tabular}{ll}
-(A) 11 & (B) 13 \\[4pt]
-(C) 15 & (D) 17
-\end{tabular}
-\end{center}
+    \item \textbf{（2012年·综合题·第17题改编）Cache 映射与 LRU 替换。}
+    某计算机按字编址，Cache 共有 4 行，块大小为 1 个字。CPU 要访问的字地址序列为：
+    \[
+    0,\; 1,\; 2,\; 3,\; 1,\; 2,\; 3,\; 0,\; 1,\; 2,\; 3,\; 1,\; 2,\; 3,\; 0
+    \]
+    设 Cache 采用 2 路组相联映射，LRU 替换策略，初始 Cache 为空。
+    \begin{enumerate}
+        \item[(1)] 写出每次访问时，对应的 Cache 组号。
+        \item[(2)] 逐次模拟每次访问是否命中，计算 Cache 命中次数和命中率。
+        \item[(3)] 若改为 4 路组相联（全相联），同样采用 LRU 替换，命中率是多少？比较两种映射方式的命中率差异，并说明原因。
+    \end{enumerate}
 
-\item \textbf{（真题风格，单项选择题）} 某计算机的 Cache 共有 16 行，块大小为 16 字节，采用 2 路组相联映射（每组 2 行），主存按字节编址。以下主存地址中，与 0x0123 映射到同一组的地址是
-\begin{center}
-\begin{tabular}{ll}
-(A) 0x012B & (B) 0x0137 \\[4pt]
-(C) 0x0143 & (D) 0x0156
-\end{tabular}
-\end{center}
+    \item \textbf{（2014年·选择题·第16题改编）Cache 地址结构与命中分析。}
+    某计算机主存地址空间为 256MB，按字节编址。数据 Cache 容量为 8KB，块大小为 16 字节，
+    采用 4 路组相联映射。
+    \begin{enumerate}
+        \item[(1)] 求主存地址中 Tag、组号（Set Index）和块内偏移各占多少位。
+        \item[(2)] 设 CPU 依次访问以下地址（十进制）：$0,\; 16,\; 32,\; 0,\; 64,\; 16,\; 128,\; 0$。
+        初始 Cache 为空。若采用 LRU 替换策略，求 Cache 命中次数和命中率。
+        \item[(3)] 若替换策略改为 FIFO，求命中次数。比较 LRU 和 FIFO 的结果并说明原因。
+    \end{enumerate}
 
-\item \textbf{（真题风格，综合题）} 某计算机的主存地址空间为 256MB，按字节编址。指令 Cache 和数据 Cache 分离，其中数据 Cache 容量为 8KB，块大小为 16 字节，采用 4 路组相联映射。
-\begin{enumerate}
-    \item[(1)] 求主存地址中 Tag、组号（Set Index）和块内偏移各占多少位。
-    \item[(2)] 设 CPU 依次访问以下地址（十进制）：$0, 16, 32, 0, 64, 16, 128, 0$。初始 Cache 为空。若采用 LRU 替换策略，求 Cache 命中次数和命中率。
-    \item[(3)] 若替换策略改为 FIFO，求命中次数。
-    \item[(4)] 比较 (2) 和 (3) 的结果，分析 LRU 和 FIFO 的特点。
-\end{enumerate}
+    \item \textbf{（2013/2017/2021年综合）TLB + Cache + 页表综合。}
+    某计算机系统按字节编址，虚拟地址 32 位，物理地址 28 位，页大小 4KB。系统具有 TLB 和两级 Cache。
+    \begin{enumerate}
+        \item[(1)] 虚拟地址中 VPN 和 VPO 各占多少位？物理地址中 PPN 和 PPO 各占多少位？
+        \item[(2)] L1 数据 Cache 为 8 路组相联，容量 32KB，块大小 64 字节。写出物理地址中 Tag、组号和块内偏移各占多少位。
+        \item[(3)] 设 TLB 采用全相联映射，共 16 项。当 CPU 执行访存指令访问虚拟地址 0x12345678 时，
+        若 TLB 命中且 L1 Cache 命中，描述从虚拟地址到数据返回的完整过程（依次列出各步骤和各部件的输入/输出）。
+        \item[(4)] 若 TLB 命中时 L1 Cache 缺失、L2 Cache 命中，设 TLB 命中时间 1 个周期，
+        L1 命中时间 2 个周期，L2 命中时间（含从 L2 调入 L1）15 个周期，求这次访问的总延迟。
+    \end{enumerate}
 
-\item \textbf{（真题风格，综合题）} 某计算机主存由 8 个存储体构成，采用低位交叉编址。每个存储体的存取周期为 $80\,\mathrm{ns}$，总线传输周期为 $20\,\mathrm{ns}$，每个存储体一次可读写 4 字节。
-\begin{enumerate}
-    \item[(1)] 求该存储器的最大带宽（MB/s）。
-    \item[(2)] 若 CPU 连续从地址 0 开始读取 64 字节数据，需要多少时间？
-    \item[(3)] 若改用高位交叉编址，同样读取 64 字节连续数据，需要多少时间？比较结果并说明原因。
-\end{enumerate}
+    \item \textbf{（2016年·选择题·第17题改编）LRU 替换算法。}
+    某 Cache 采用 4 路组相联映射，每组有 4 个 Cache 行。对于某一特定组，初始为空。
+    该组依次访问的主存块号为：$5,\; 3,\; 7,\; 5,\; 2,\; 3,\; 4,\; 3,\; 5$。
+    \begin{enumerate}
+        \item[(1)] 采用 LRU 替换策略，逐次写出每次访问后该组中存放的主存块号，并统计命中次数。
+        \item[(2)] 采用 LRU 替换策略时，Cache 需要记录哪些信息？需要多少位来记录替换信息（设该组有 $k$ 行）？
+        \item[(3)] 为何在实际处理器中，4 路组相联通常使用近似 LRU（如二叉树伪 LRU）而非真正的 LRU？
+    \end{enumerate}
 
-\item \textbf{（真题风格，综合题）} 某计算机系统具有 TLB 和两级 Cache。虚拟地址 32 位，物理地址 28 位，页大小 4KB。
-\begin{enumerate}
-    \item[(1)] 虚拟地址中 VPN 和 VPO 各占多少位？物理地址中 PPN 和 PPO 各占多少位？
-    \item[(2)] L1 Cache 为 8 路组相联，容量 32KB，块大小 64 字节。主存地址中 Tag、组号和块内偏移各占多少位？
-    \item[(3)] 设 TLB 采用全相联，共 16 项。当 CPU 执行一条加载指令 \texttt{ld R1, [R2]}，R2 中的虚拟地址为 0x12345678 时，若 TLB 命中且 L1 Cache 命中，描述从虚拟地址到数据返回的完整过程。
-    \item[(4)] 若 TLB 命中而 L1 Cache 缺失，L2 Cache 命中，设 TLB 命中时间 $1$ 个周期，L1 命中时间 $2$ 个周期，L2 命中时间（含从 L2 调入 L1 的时间）$15$ 个周期，求这次访问的总延迟。
-\end{enumerate}
+    \item \textbf{（2023年·选择题·第15题改编）低位交叉编址综合。}
+    某计算机主存按字节编址，由 $m = 4$ 个存储体构成，采用低位交叉编址。每个存储体的存取周期 $T = 40\,\mathrm{ns}$，
+    总线传输周期 $\tau = 10\,\mathrm{ns}$，每个存储体一次可读写 4 字节。
+    \begin{enumerate}
+        \item[(1)] 求该存储器在流水线方式下的最大带宽（MB/s）。
+        \item[(2)] 若 CPU 连续从地址 0 开始读取 64 字节数据，需要多少时间？
+        \item[(3)] 若改用高位交叉编址，同样读取 64 字节连续数据，需要多少时间？比较 (2) 和 (3) 的结果，说明低位交叉编址的优势。
+        \item[(4)] 若总线传输周期变为 $20\,\mathrm{ns}$，而存取周期仍为 $40\,\mathrm{ns}$，最大带宽有何变化？这个变化对 $m$ 的取值有何启示？
+    \end{enumerate}
 
-\item \textbf{（真题风格，综合题）} 分析以下两段 C 代码的局部性，并比较二者在 Cache 方面的表现（设 Cache 块大小为 64 字节，\texttt{int} 占 4 字节）：
-\begin{lstlisting}[language=C]
+    \item \textbf{（2021年·选择题·第17题改编）虚拟存储器与 Cache 综合。}
+    某计算机按字节编址，虚拟地址 32 位，物理地址 24 位，页大小 4KB。数据 Cache 采用 2 路组相联映射，
+    容量 16KB，块大小 32 字节。
+    \begin{enumerate}
+        \item[(1)] 虚拟地址中，VPN 占多少位？VPO 占多少位？
+        \item[(2)] 物理地址中，PPN 占多少位？PPO 占多少位？
+        \item[(3)] Cache 中，块内偏移占多少位？组号占多少位？Tag 占多少位？
+        \item[(4)] 设某进程的页表部分内容为：虚页号 0x00123 $\to$ 实页号 0x0AB，虚页号 0x00124 $\to$ 实页号 0x0CD。
+        该进程访问虚拟地址 $\mathtt{0x00123456}$。若 TLB 命中，且 Cache 也命中，写出完整的地址转换流程，
+        并得出最终访问的 Cache 组号和 Tag。
+    \end{enumerate}
+
+    \item \textbf{（综合·局部性分析）}
+    分析以下两段 C 代码的局部性表现，并估算其在 Cache 中的缺失率。
+    设 Cache 块大小为 64 字节，\texttt{int} 占 4 字节，$N = 1024$，数组 \texttt{a} 按行优先存储。
+    \begin{lstlisting}[language=C]
 // 代码A: 按行访问
 int sum = 0;
 for (int i = 0; i < N; i++)
@@ -817,21 +864,26 @@ int sum = 0;
 for (int j = 0; j < N; j++)
     for (int i = 0; i < N; i++)
         sum += a[i][j];
-\end{lstlisting}
-设 $N=1024$，假设 Cache 初始为空。
-\begin{enumerate}
-    \item[(1)] 分别指出代码 A 和代码 B 的空间局部性和时间局部性表现。
-    \item[(2)] 估算代码 A 的缺失率（忽略 \texttt{sum} 和循环变量的访问）。
-    \item[(3)] 估算代码 B 的缺失率。
-    \item[(4)] 若将循环顺序颠倒（即如代码 B），除了 Cache 缺失率增加，在虚拟存储中有无其他影响？为什么？
-\end{enumerate}
+    \end{lstlisting}
+    \begin{enumerate}
+        \item[(1)] 分别指出代码 A 和代码 B 的时间局部性和空间局部性表现，并解释原因。
+        \item[(2)] 设 Cache 初始为空，容量远小于数组大小。估算代码 A 的缺失率（忽略 \texttt{sum} 和循环变量的访问）。
+        \item[(3)] 同等条件下，估算代码 B 的缺失率。
+        \item[(4)] 若将代码 B 在虚拟存储系统（含 TLB、页表）中运行，除了 Cache 缺失率增加外，还可能带来什么性能问题？为什么？
+    \end{enumerate}
 
 \end{enumerate}
 
-\vspace{8pt}
-\noindent\textbf{拓展阅读：}
+\subsection{拓展阅读}
+
 \begin{itemize}
-    \item Patterson \& Hennessy《计算机组成与设计（RISC-V 版）》第 5 章「大而快：层次化存储系统」——完整论述存储层次、Cache 四种映射方式和性能分析，含 RISC-V 处理器的实际 Cache 设计。
-    \item CS:APP（深入理解计算机系统）第 6 章「存储器层次结构」——\S6.2 局部性原理的形式化讨论与量化实验；\S6.3--\S6.4 存储层次和 Cache 的设计；\S6.5 编写 Cache 友好的代码；\S6.6 从主存到 Cache 的地址映射详解。
-    \item CS:APP 第 9 章「虚拟内存」——\S9.3--\S9.4 页表和 TLB 的详细工作机制；\S9.5 缺页处理和内存映射；\S9.6 地址翻译的综合案例（Core i7 的完整地址翻译过程，含 TLB、多级页表、多级 Cache 的协同，极好的 408 信息源）。
+    \item \textbf{Patterson \& Hennessy《计算机组成与设计（RISC-V 版）》}第 5 章「大而快：层次化存储系统」——完整论述存储层次、Cache 四种映射方式和性能分析，含 RISC-V 处理器的实际 Cache 设计。\textbf{必读：5.4--5.5 节的 Cache 地址映射与性能分析是 408 的直接来源。}
+
+    \item \textbf{Bryant \& O'Hallaron《深入理解计算机系统》（CS:APP）}第 6 章「存储器层次结构」——\S6.2 局部性原理的形式化讨论与量化实验；\S6.3--\S6.4 存储层次和 Cache 设计；\S6.5 编写 Cache 友好的代码；\S6.6 主存到 Cache 的地址映射详解。\textbf{CS:APP 对局部性的量化分析和 Cache 模拟实验是理解 408 Cache 题的极佳补充。}
+
+    \item \textbf{CS:APP 第 9 章「虚拟内存」}——\S9.3--\S9.4 页表和 TLB 的详细工作机制；\S9.5 缺页处理和内存映射；\S9.6 地址翻译综合案例（Core i7 的完整地址翻译过程，含 TLB、多级页表、多级 Cache 的协同，是 408 TLB+Cache 综合题的理想参考）。
+
+    \item \textbf{唐朔飞《计算机组成原理》}第 4 章「存储器」——4.1 概述，4.2 主存储器（SRAM/DRAM 对比、刷新方式），4.3 高速缓冲存储器（Cache 地址映射、替换算法、写策略），4.5 辅助存储器。唐教材的符号体系与 408 完全对齐。
+
+    \item \textbf{延伸思考：}现代处理器的 Cache 设计远不止 408 范围——多级 Cache 的包含策略（Inclusive/Exclusive/NINE）、硬件预取（Stride/Stream prefetcher）、非阻塞 Cache（MSHR）等。但 408 的核心始终是「给出参数→划分地址位→模拟访问序列→统计算命中率」这一基本功，务必练熟。
 \end{itemize}
