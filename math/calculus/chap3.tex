@@ -539,6 +539,7 @@
 \int \left(x^{3} + \frac{1}{x^{2}} + e^{x} + \cos x\right)\mathrm{d}x.
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 利用基本积分公式逐项积分：
 \[
 \begin{aligned}
@@ -555,8 +556,10 @@
 
 \boxed{\textbf{注}} 不定积分中的任意常数 $C$ 是各分项积分常数合并所得，只需写出一个 $C$ 即可。
 
+\fi%
 \item \textbf{（计算题，凑微分法）} 求不定积分 $\displaystyle\int \frac{x}{\sqrt{1+x^{2}}}\,\mathrm{d}x$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 令 $u = 1 + x^{2}$，则 $\mathrm{d}u = 2x\,\mathrm{d}x$，即 $x\,\mathrm{d}x = \frac{1}{2}\mathrm{d}u$。于是
 \[
 \int \frac{x}{\sqrt{1+x^{2}}}\,\mathrm{d}x = \int \frac{1}{\sqrt{u}} \cdot \frac{1}{2}\,\mathrm{d}u
@@ -573,8 +576,10 @@
 = \sqrt{1+x^{2}} + C.
 \]
 
+\fi%
 \item \textbf{（计算题，分部积分法）} 计算定积分 $\displaystyle\int_{0}^{1} x e^{x}\,\mathrm{d}x$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 用分部积分法，按 LIATE 法则，令 $u = x$，$\mathrm{d}v = e^{x}\mathrm{d}x$，则 $\mathrm{d}u = \mathrm{d}x$，$v = e^{x}$。
 \[
 \begin{aligned}
@@ -587,8 +592,10 @@
 
 \boxed{\textbf{注}} 定积分的分部积分公式为 $\displaystyle\int_{a}^{b} u\,\mathrm{d}v = uv\big|_{a}^{b} - \int_{a}^{b} v\,\mathrm{d}u$，注意上下限同时带入 $uv$ 项。
 
+\fi%
 \item \textbf{（计算题，定积分换元）} 计算 $\displaystyle\int_{0}^{\pi} \sin^{3}x\,\mathrm{d}x$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 将 $\sin^{3}x = \sin^{2}x \cdot \sin x = (1 - \cos^{2}x)\sin x$，则
 \[
 \int_{0}^{\pi} \sin^{3}x\,\mathrm{d}x = \int_{0}^{\pi} (1 - \cos^{2}x)\sin x\,\mathrm{d}x.
@@ -608,8 +615,10 @@
 
 \boxed{\textbf{注}} 此处利用了对称区间上偶函数的积分性质简化计算。也可直接换元不化简：$\int_{-1}^{1} (1-t^{2})\mathrm{d}t = [t - t^{3}/3]_{-1}^{1} = (1-1/3) - (-1+1/3) = 4/3$。
 
+\fi%
 \item \textbf{（计算题）} 求不定积分 $\displaystyle\int x\arctan x\,\mathrm{d}x$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 按 LIATE 法则，反三角函数优先于幂函数，故令
 \[
 u = \arctan x,\quad \mathrm{d}v = x\,\mathrm{d}x,
@@ -641,8 +650,10 @@ u = \arctan x,\quad \mathrm{d}v = x\,\mathrm{d}x,
 = \frac{x^{2}+1}{2}\arctan x - \frac{x}{2} + C.
 \]
 
+\fi%
 \item \textbf{（填空题）} 反常积分 $\displaystyle\int_{1}^{+\infty} \frac{1}{x^{p}}\mathrm{d}x$ 当且仅当 $\underline{\qquad}$ 时收敛；反常积分 $\displaystyle\int_{0}^{1} \frac{1}{x^{p}}\mathrm{d}x$ 当且仅当 $\underline{\qquad}$ 时收敛。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 填：$p > 1$；$p < 1$。
 
 这是经典的 $\bm{p}$-积分结论，务必牢记：
@@ -652,6 +663,7 @@ u = \arctan x,\quad \mathrm{d}v = x\,\mathrm{d}x,
 \end{itemize}
 两者正好"互补"：无穷区间上 $p$ 要大（$>1$），瑕积分处 $p$ 要小（$<1$）。这一对结论是反常积分比较判别法的基准，必须牢牢掌握。
 
+\fi%
 \end{enumerate}
 
 \subsection{综合提高题}
@@ -660,6 +672,7 @@ u = \arctan x,\quad \mathrm{d}v = x\,\mathrm{d}x,
 
 \item \textbf{（计算题，有理函数积分）} 求不定积分 $\displaystyle\int \frac{1}{x^{3}+1}\,\mathrm{d}x$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 首先对分母作因式分解：
 \[
 x^{3}+1 = (x+1)(x^{2}-x+1).
@@ -724,8 +737,10 @@ x^{3}+1 = (x+1)(x^{2}-x+1).
 
 \boxed{\textbf{注}} 此题系统展示了有理函数积分的标准流程：因式分解 $\to$ 待定系数法作部分分式 $\to$ 逐项积分。其中二次三项式分母的处理（配方 + $\arctan$ / $\ln$）是考研高频考点。
 
+\fi%
 \item \textbf{（计算题，三角有理式积分）} 计算 $\displaystyle\int_{0}^{\pi/2} \sin^{4}x\cos^{2}x\,\mathrm{d}x$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 方法一（降幂化为 $\sin^{n}x$ 积分）：利用 $\cos^{2}x = 1 - \sin^{2}x$，
 \[
 \begin{aligned}
@@ -772,8 +787,10 @@ I_6 = \frac{5!!}{6!!}\cdot\frac{\pi}{2} = \frac{5\cdot 3\cdot 1}{6\cdot 4\cdot 2
 
 \boxed{\textbf{注}} Wallis 公式（点火公式）是计算 $[0,\pi/2]$ 上 $\sin$、$\cos$ 幂次积分的高效工具，务必熟练掌握其使用条件（$m,n$ 的奇偶性决定是否乘以 $\pi/2$）。
 
+\fi%
 \item \textbf{（判断题，反常积分收敛性）} 讨论反常积分 $\displaystyle\int_{1}^{+\infty} \frac{\ln x}{x^{p}}\,\mathrm{d}x$ 的收敛性（其中 $p$ 为实常数）。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 以 $\displaystyle\int_{1}^{+\infty} \frac{1}{x^{q}}\mathrm{d}x$ 为比较基准（$p$-积分）。
 
 当 $x \to +\infty$ 时，对任意 $\varepsilon > 0$，有 $\ln x = o(x^{\varepsilon})$。因此
@@ -792,6 +809,7 @@ I_6 = \frac{5!!}{6!!}\cdot\frac{\pi}{2} = \frac{5\cdot 3\cdot 1}{6\cdot 4\cdot 2
     故\textbf{发散}。
     
     \item 当 $p < 1$ 时，取 $p < q < 1$，则当 $x$ 充分大时 $\displaystyle\frac{\ln x}{x^{p}} > \frac{1}{x^{q}}$（因为 $\ln x$ 增长比任意幂次慢，但比常数大）。$\displaystyle\int_{1}^{+\infty} \frac{1}{x^{q}}\mathrm{d}x$ 发散（$q < 1$），由比较判别法（取 $l = +\infty$），原积分\textbf{发散}。
+\fi%
 \end{enumerate}
 
 综上：$\displaystyle\int_{1}^{+\infty} \frac{\ln x}{x^{p}}\mathrm{d}x$ 当 $p > 1$ 时收敛，当 $p \leqslant 1$ 时发散。
@@ -800,6 +818,7 @@ I_6 = \frac{5!!}{6!!}\cdot\frac{\pi}{2} = \frac{5\cdot 3\cdot 1}{6\cdot 4\cdot 2
 
 \item \textbf{（计算题，平面图形面积）} 求由曲线 $y = x^{2}$ 与 $y = \sqrt{x}$ 所围成的平面图形的面积。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 两曲线的交点满足 $x^{2} = \sqrt{x}$，即 $x^{4} = x$，$x(x^{3}-1) = 0$，得 $x = 0$ 或 $x = 1$。在 $[0,1]$ 上，$\sqrt{x} \geqslant x^{2}$（例如 $x = \frac{1}{4}$ 时 $\frac{1}{2} > \frac{1}{16}$）。
 
 故所求面积为
@@ -814,8 +833,10 @@ A &= \int_{0}^{1} \bigl(\sqrt{x} - x^{2}\bigr)\,\mathrm{d}x
 
 \boxed{\textbf{注}} 求两曲线围成面积的一般步骤：(1) 求交点确定积分区间；(2) 判断区间上两曲线的高低以确定被积函数为"上减下"；(3) 代入公式 $A = \int_{a}^{b} |f(x) - g(x)|\,\mathrm{d}x$。若不确定高低关系，可直接用绝对值形式积分或分段处理。
 
+\fi%
 \item \textbf{（计算题，旋转体体积——柱壳法）} 求由曲线 $y = \ln x$，直线 $x = 1$，$x = e$ 及 $x$ 轴所围成的平面图形绕 $y$ 轴旋转一周所得旋转体的体积。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 采用\textbf{柱壳法}（绕 $y$ 轴旋转）。在 $x$ 处取厚度为 $\mathrm{d}x$ 的窄条，其绕 $y$ 轴旋转形成半径为 $x$、高为 $\ln x$ 的圆柱壳，体积微元为
 \[
 \mathrm{d}V = 2\pi x \cdot \ln x \cdot \mathrm{d}x.
@@ -848,6 +869,7 @@ V &= 2\pi\left[\frac{x^{2}}{2}\ln x - \frac{x^{2}}{4}\right]_{1}^{e} \\[4pt]
 
 \boxed{\textbf{注}} 绕 $y$ 轴旋转求体积有两种方法：(1) \textbf{柱壳法}（本题所用）：$\displaystyle V = 2\pi\int_{a}^{b} x f(x)\,\mathrm{d}x$，适用于 $y=f(x)$ 形式且 $x$ 范围明确；(2) \textbf{圆盘/垫圈法}：先解出 $x = \varphi(y)$，再用 $\displaystyle V = \pi\int_{c}^{d} [\varphi(y)]^{2}\,\mathrm{d}y$。本题若用圆盘法需分段（$0 \leqslant y \leqslant 1$ 时 $x$ 从 $e^{y}$ 到 $e$），不如柱壳法便捷。
 
+\fi%
 \end{enumerate}
 
 \subsection{真题风格与综合训练}
@@ -856,6 +878,7 @@ V &= 2\pi\left[\frac{x^{2}}{2}\ln x - \frac{x^{2}}{4}\right]_{1}^{e} \\[4pt]
 
 \item \textbf{（填空题）\boxed{\textbf{真题风格}}} 极限 $\displaystyle\lim_{n \to \infty} \left(\frac{1}{n+1} + \frac{1}{n+2} + \cdots + \frac{1}{n+n}\right) = \underline{\qquad}$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 将和式改写为：
 \[
 \frac{1}{n+1} + \frac{1}{n+2} + \cdots + \frac{1}{n+n}
@@ -880,8 +903,10 @@ V &= 2\pi\left[\frac{x^{2}}{2}\ln x - \frac{x^{2}}{4}\right]_{1}^{e} \\[4pt]
 \boxed{\textbf{注}} 此类"$n$ 项和的极限"问题，若每一项都含有 $\frac{k}{n}$ 的形式，通常通过提出 $\frac{1}{n}$ 将其转化为函数 $f(x)$ 在 $[0,1]$ 上的积分和式。这是考研高频题型，需熟练掌握。
 
 
+\fi%
 \item \textbf{（解答题）\boxed{\textbf{真题风格}}} 设 $f(x)$ 连续，$F(x) = \displaystyle\int_{0}^{x} (x-t)f(t)\,\mathrm{d}t$，求 $F'(x)$ 和 $F''(x)$，并指出 $F(x)$ 与 $f(x)$ 的关系。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 首先将 $F(x)$ 变形为便于求导的形式：
 \[
 F(x) = \int_{0}^{x} (x-t)f(t)\,\mathrm{d}t
@@ -912,12 +937,14 @@ F''(x) = \frac{\mathrm{d}}{\mathrm{d}x}\int_{0}^{x} f(t)\,\mathrm{d}t = f(x).
 本题中 $a(x)=0$，$b(x)=x$，$g(x,t) = (x-t)f(t)$，$\frac{\partial g}{\partial x} = f(t)$，带入即得相同结果。
 
 
+\fi%
 \item \textbf{（证明题）\boxed{\textbf{真题风格}}} 设 $\alpha > 0$，证明反常积分
 \[
 I(\alpha) = \int_{0}^{+\infty} \frac{\mathrm{d}x}{(1+x^{2})(1+x^{\alpha})}
 \]
 的值与 $\alpha$ 无关，并求出该值。
 
+\ifshowsolutions%
 \boxed{\textbf{证明}} 作变量代换 $x = \frac{1}{t}$，则 $\mathrm{d}x = -\frac{1}{t^{2}}\mathrm{d}t$。当 $x: 0 \to +\infty$ 时 $t: +\infty \to 0$。
 \[
 \begin{aligned}
@@ -955,4 +982,5 @@ I(\alpha) = \frac{1}{2} \cdot \frac{\pi}{2} = \frac{\pi}{4}.
 
 \boxed{\textbf{注}} 此题是经典的"倒代换"技巧在反常积分中的应用。核心思路是通过 $x = 1/t$ 的代换，利用 $1/(1+x^{\alpha})$ 与 $x^{\alpha}/(1+x^{\alpha}) = 1 - 1/(1+x^{\alpha})$ 的关系建立关于 $I(\alpha)$ 的方程。类似手法还可处理 $\displaystyle\int_{0}^{+\infty} \frac{\ln x}{(1+x^{2})(1+x^{\alpha})}\,\mathrm{d}x$ 等变体。
 
+\fi%
 \end{enumerate}

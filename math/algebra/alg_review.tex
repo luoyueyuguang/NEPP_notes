@@ -10,6 +10,7 @@
 
 \item \textbf{（行列式+矩阵）} 设 \(A = \begin{pmatrix} 1 & 2 & 1 \\ 2 & 5 & 2 \\ 1 & 2 & 3 \end{pmatrix}\)，\(B\) 为 \(3\) 阶方阵且 \(|B| = 2\)，计算 \(|2A^*B^{-1}A^{\mathsf{T}}|\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 先求 \(|A|\)：
 \[
@@ -40,8 +41,10 @@
 = 8 \cdot 4 \cdot \frac{1}{2} \cdot 2 = 32.
 \]
 
+\fi%
 \item \textbf{（行列式+矩阵）} 设 \(n\) 阶矩阵 \(A\) 满足 \(A^2 - 3A + 2I = O\)。求 \(|A - I|\) 与 \(|A + I|\) 的所有可能取值。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 由 \(A^2 - 3A + 2I = O\) 得
 \[
@@ -65,6 +68,7 @@
 
 \boxed{\text{注}} 此题将矩阵方程与特征值理论结合，核心在于将矩阵方程转化为特征值的约束条件。
 
+\fi%
 \item \textbf{（向量+方程组）} 设 \(\boldsymbol{\alpha}_1 = (1, 2, -1, 0)^{\mathsf{T}}\)，\(\boldsymbol{\alpha}_2 = (2, 5, a, 1)^{\mathsf{T}}\)，\(\boldsymbol{\alpha}_3 = (1, 1, -4, b)^{\mathsf{T}}\)，\(\boldsymbol{\beta} = (3, 8, 0, c)^{\mathsf{T}}\)。问 \(a, b, c\) 取何值时，
 
 \begin{enumerate}[label=(\roman*)]
@@ -73,6 +77,7 @@
     \item \(\boldsymbol{\beta}\) 不能由 \(\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3\) 线性表示？
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 该问题等价于非齐次线性方程组
 \[
@@ -118,6 +123,7 @@ x_1\boldsymbol{\alpha}_1 + x_2\boldsymbol{\alpha}_2 + x_3\boldsymbol{\alpha}_3 =
     \]
     故当且仅当 \(c-2 = \dfrac{(b+1)(-2a-1)}{a-1}\) 时方程组有唯一解；否则无解。
     \item 当 \(a = 1\) 时，第三行化为 \((0, 0, 0, -3)\)，矛盾！故此时无论 \(b,c\) 为何值，均无解。
+\fi%
 \end{enumerate}
 
 综上：(i) \(a \neq 1\) 且满足相容条件时唯一表示；(ii) 不可能出现无穷多解，因为所有相容情形均有 \(a\neq1\)，此时系数矩阵秩为 \(3\)；(iii) 其余情况均不可表示。需要注意，\(a=1\) 时方程组恒不相容，而向量组本身是否相关还取决于 \(b\)：仅当 \(b=-1\) 时系数矩阵秩降为 \(2\)。
@@ -129,6 +135,7 @@ x_1\boldsymbol{\alpha}_1 + x_2\boldsymbol{\alpha}_2 + x_3\boldsymbol{\alpha}_3 =
     \item \(A\boldsymbol{x} = \boldsymbol{b}\) 的任意 \(4\) 个解必线性相关。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (i) 设
 \[
@@ -159,6 +166,7 @@ k_0 + k_1 + k_2 = 0.
 
 \boxed{\text{注}} “解集是二维仿射子空间”不能推出任意三个解线性相关；当该仿射平面不经过原点时，其中完全可能存在三个线性无关向量。(i) 正是一个例子。
 
+\fi%
 \item \textbf{（特征值+二次型）} 设三阶实对称矩阵 \(A\) 的特征值为 \(\lambda_1 = 2\)，\(\lambda_2 = \lambda_3 = -1\)，且对应于 \(\lambda_1 = 2\) 的特征向量为 \(\boldsymbol{p}_1 = (1, 1, 1)^{\mathsf{T}}\)。
 
 \begin{enumerate}[label=(\roman*)]
@@ -166,6 +174,7 @@ k_0 + k_1 + k_2 = 0.
     \item 写出二次型 \(f(\boldsymbol{x}) = \boldsymbol{x}^{\mathsf{T}} A \boldsymbol{x}\) 在正交变换下的标准形。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (i) 实对称矩阵属于不同特征值的特征向量正交，因此 \(\lambda_2 = \lambda_3 = -1\) 对应的特征向量均与 \(\boldsymbol{p}_1 = (1,1,1)^{\mathsf{T}}\) 正交。求解 \(x_1+x_2+x_3 = 0\)，取基础解系：
 \[
@@ -212,8 +221,10 @@ f = \boldsymbol{x}^{\mathsf{T}} A \boldsymbol{x}
   = 2y_1^2 - y_2^2 - y_3^2.
 \]
 
+\fi%
 \item \textbf{（特征值+二次型）} 判断二次型 \(f(x_1, x_2, x_3) = 2x_1^2 + 2x_2^2 + 3x_3^2 + 2x_1x_2 + 2x_1x_3 + 2x_2x_3\) 的正定性，并写出其规范形。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 二次型矩阵为
 \[
@@ -250,6 +261,7 @@ f &= 2x_1^2 + 2x_2^2 + 3x_3^2 + 2x_1x_2 + 2x_1x_3 + 2x_2x_3 \\
 \end{align*}
 同样证得正定性。
 
+\fi%
 \end{enumerate}
 
 \subsection{提高综合题}
@@ -262,6 +274,7 @@ f &= 2x_1^2 + 2x_2^2 + 3x_3^2 + 2x_1x_2 + 2x_1x_3 + 2x_2x_3 \\
 \]
 当 \(A = \begin{pmatrix} 3 & 1 \\ 2 & 4 \end{pmatrix}\)，\(B = \begin{pmatrix} 1 & 2 \\ 3 & 1 \end{pmatrix}\) 时，计算分块行列式的值。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 利用分块矩阵的初等变换（打洞法）：
 \[
@@ -296,12 +309,14 @@ A-B = \begin{pmatrix} 2 & -1 \\ -1 & 3 \end{pmatrix},\ |A-B| = 6 - 1 = 5.
 
 \boxed{\text{注}} 「打洞法」是处理分块矩阵行列式的高频技巧，其本质是通过可逆行（列）变换将分块矩阵化为分块上（下）三角形式。
 
+\fi%
 \item \textbf{（拓展：秩方程与 Sylvester 不等式）} 设 \(A\) 为 \(m \times n\) 矩阵，\(B\) 为 \(n \times s\) 矩阵。证明：
 \[
 \operatorname{rank}(AB) = \operatorname{rank}(B) - \dim(\ker A \cap \operatorname{col}(B)).
 \]
 并由此推出 \(\operatorname{rank}(AB) \geq \operatorname{rank}(A) + \operatorname{rank}(B) - n\)（Sylvester 不等式）。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 考虑线性映射 \(B: \mathbb{R}^s \to \mathbb{R}^n\)，\(A: \mathbb{R}^n \to \mathbb{R}^m\)。考察 \(A\) 在 \(\operatorname{col}(B)\) 上的限制 \(A|_{\operatorname{col}(B)}: \operatorname{col}(B) \to \mathbb{R}^m\)。
 
@@ -332,6 +347,7 @@ A-B = \begin{pmatrix} 2 & -1 \\ -1 & 3 \end{pmatrix},\ |A-B| = 6 - 1 = 5.
 
 \boxed{\text{注}} Sylvester 不等式是线性代数中最重要的秩不等式之一，与 Frobenius 不等式 \(\operatorname{rank}(AB) + \operatorname{rank}(BC) \leq \operatorname{rank}(B) + \operatorname{rank}(ABC)\) 并列。
 
+\fi%
 \item \textbf{（含参方程组+特征值）} 设 \(A = \begin{pmatrix} 1 & a & 1 \\ a & 1 & -1 \\ 1 & -1 & 1 \end{pmatrix}\)，\(\boldsymbol{b} = \begin{pmatrix} 1 \\ 1 \\ -1 \end{pmatrix}\)。
 
 \begin{enumerate}[label=(\roman*)]
@@ -339,6 +355,7 @@ A-B = \begin{pmatrix} 2 & -1 \\ -1 & 3 \end{pmatrix},\ |A-B| = 6 - 1 = 5.
     \item 求 \(A\) 的特征值与 \(a\) 的关系，并讨论 \(A\) 何时可对角化。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (i) 写出增广矩阵并作行变换：
 \[
@@ -413,6 +430,7 @@ a & 1-\lambda & -1 \\
 \boxed{\text{注}} 当 \(a=-1\) 时，特征值为 \(0,0,3\)，故
 \(\operatorname{rank}(A)=1\)，与方程组讨论中的秩骤降一致；但增广矩阵秩为 \(2\)，所以非齐次方程组无解。
 
+\fi%
 \item \textbf{（矩阵多项式+对角化）} 设 \(A = \begin{pmatrix} 1 & -3 & 3 \\ 3 & -5 & 3 \\ 6 & -6 & 4 \end{pmatrix}\)。
 
 \begin{enumerate}[label=(\roman*)]
@@ -420,6 +438,7 @@ a & 1-\lambda & -1 \\
     \item 计算 \(A^{100}\)。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (i) 计算特征多项式：
 \begin{align*}
@@ -506,6 +525,7 @@ A^{100}
 
 \boxed{\text{注}} 此题综合了特征值计算、对角化判定和高次幂计算，是考研的经典综合题型。
 
+\fi%
 \item \textbf{（二次型标准形+正交变换+特征值）} 已知二次型
 \[
 f(x_1, x_2, x_3) = x_1^2 + x_2^2 + x_3^2 - 4x_1x_2 - 4x_1x_3 + 2x_2x_3.
@@ -516,6 +536,7 @@ f(x_1, x_2, x_3) = x_1^2 + x_2^2 + x_3^2 - 4x_1x_2 - 4x_1x_3 + 2x_2x_3.
     \item 指出 \(f = 1\) 表示何种二次曲面。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (i) 配方法：
 \begin{align*}
@@ -552,6 +573,7 @@ f = y_1^2 - 3y_2^2.
 
 \boxed{\text{注}} 配方法是化二次型为标准形的基本方法。虽然本题也可用正交变换法，但配方法在仅需标准形而无需正交变换时更简捷。
 
+\fi%
 \item \textbf{（\(A^2 = A\) 型证明+对角化+秩）} 设 \(A\) 为 \(n\) 阶方阵且 \(A^2 = A\)（幂等矩阵）。证明：
 
 \begin{enumerate}[label=(\roman*)]
@@ -560,6 +582,7 @@ f = y_1^2 - 3y_2^2.
     \item \(I - A\) 与 \(A\) 有相同的性质，且 \(\operatorname{rank}(A) + \operatorname{rank}(I - A) = n\)。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (i) 设 \(\lambda\) 为 \(A\) 的特征值，\(\boldsymbol{x} \neq \boldsymbol{0}\) 为对应特征向量，则
 \[
@@ -601,6 +624,7 @@ A = P\begin{pmatrix} I_r & 0 \\ 0 & 0 \end{pmatrix} P^{-1},
 
 \boxed{\text{注}} 幂等矩阵描述沿某个补空间到其像空间的投影，其秩等于迹，且与 \(I-A\) 互补。这组结论适合作为矩阵方程、秩与特征值关系的综合提高训练。
 
+\fi%
 \item \textbf{（拓展：Cayley--Hamilton + \(A^n\) + 特征值）} 设 \(A = \begin{pmatrix} 2 & 1 \\ -1 & 0 \end{pmatrix}\)。
 
 \begin{enumerate}[label=(\roman*)]
@@ -608,6 +632,7 @@ A = P\begin{pmatrix} I_r & 0 \\ 0 & 0 \end{pmatrix} P^{-1},
     \item 利用 \(A^n\) 的表达式，验证 \(A^n\) 的特征值等于 \(A\) 的特征值的 \(n\) 次幂。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (i) 特征多项式：
 \[
@@ -662,12 +687,14 @@ A^n = \begin{pmatrix} 2n & n \\ -n & 0 \end{pmatrix} - \begin{pmatrix} n-1 & 0 \
 
 \boxed{\text{注}} Cayley-Hamilton 定理将矩阵高次幂转化为多项式低次表示，是计算 \(A^n\) 的又一重要工具。对于特征值有重根的情况，C-H 定理尤其方便。
 
+\fi%
 \item \textbf{（拓展：正定矩阵同时对角化）} 设 \(A, B\) 均为 \(n\) 阶实对称矩阵，\(A\) 正定。证明存在可逆矩阵 \(P\) 使得
 \[
 P^{\mathsf{T}} A P = I,\quad P^{\mathsf{T}} B P = \operatorname{diag}(\mu_1, \mu_2, \ldots, \mu_n),
 \]
 其中 \(\mu_1, \ldots, \mu_n\) 为 \(A^{-1}B\) 的特征值。进一步，若 \(B\) 也正定，问 \(\mu_i\) 满足什么条件？
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 由于 \(A\) 正定，存在可逆矩阵 \(C\) 使得 \(C^{\mathsf{T}} A C = I\)（取 \(C = A^{-1/2}\)）。令 \(B_1 = C^{\mathsf{T}} B C\)，则 \(B_1\) 仍为实对称矩阵。
 
@@ -694,6 +721,7 @@ B(P\boldsymbol{e}_i) = \mu_i A(P\boldsymbol{e}_i).
 
 \boxed{\text{注}} 同时对角化（又称广义特征值问题）是多元统计分析中的核心理论工具。\(A^{-1}B\) 的实特征值与正定性是此类问题的关键结论。
 
+\fi%
 \end{enumerate}
 
 \subsection{证明题专项}
@@ -707,6 +735,7 @@ B(P\boldsymbol{e}_i) = \mu_i A(P\boldsymbol{e}_i).
     \item 利用 (i) 证明：若 \(A\) 列满秩，则 \(\operatorname{rank}(AB) = \operatorname{rank}(B)\)。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (i) 方法一（几何法）：将矩阵视为线性映射。\(B: \mathbb{R}^p \to \mathbb{R}^n\)，\(A: \mathbb{R}^n \to \mathbb{R}^m\)。考察限制映射 \(A|_{\operatorname{col}(B)}: \operatorname{col}(B) \to \mathbb{R}^m\)。
 
@@ -728,6 +757,7 @@ B(P\boldsymbol{e}_i) = \mu_i A(P\boldsymbol{e}_i).
 \]
 又因为 \(\operatorname{rank}(AB) \leq \min\{\operatorname{rank}(A), \operatorname{rank}(B)\} = \operatorname{rank}(B)\)，故 \(\operatorname{rank}(AB) = \operatorname{rank}(B)\)。
 
+\fi%
 \item \textbf{（\(\operatorname{rank}(A) = \operatorname{rank}(A^{\mathsf{T}}A)\) 证明）} 设 \(A\) 为 \(m \times n\) 实矩阵。证明：
 
 \begin{enumerate}[label=(\roman*)]
@@ -736,6 +766,7 @@ B(P\boldsymbol{e}_i) = \mu_i A(P\boldsymbol{e}_i).
     \item 对任意 \(\boldsymbol{x} \in \mathbb{R}^n\)，\(A\boldsymbol{x} = \boldsymbol{0} \iff A^{\mathsf{T}}A\boldsymbol{x} = \boldsymbol{0}\)。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (i) 先证 \(\ker(A^{\mathsf{T}}A) \subseteq \ker(A)\)。设 \(\boldsymbol{x} \in \ker(A^{\mathsf{T}}A)\)，即 \(A^{\mathsf{T}}A\boldsymbol{x} = \boldsymbol{0}\)。两边左乘 \(\boldsymbol{x}^{\mathsf{T}}\)：
 \[
@@ -756,6 +787,7 @@ B(P\boldsymbol{e}_i) = \mu_i A(P\boldsymbol{e}_i).
 
 \boxed{\text{注}} \(A^{\mathsf{T}}A\) 与 \(A\) 同秩是线性代数中最重要的秩等式之一，广泛应用于最小二乘法、广义逆和奇异值分解中。
 
+\fi%
 \item \textbf{（相似性与对角化证明）} 设 \(A, B\) 均为 \(n\) 阶方阵，且 \(A \sim B\)（相似）。证明：
 
 \begin{enumerate}[label=(\roman*)]
@@ -764,6 +796,7 @@ B(P\boldsymbol{e}_i) = \mu_i A(P\boldsymbol{e}_i).
     \item \(A^{\mathsf{T}} \sim B^{\mathsf{T}}\)。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 由 \(A \sim B\)，存在可逆矩阵 \(P\) 使得 \(B = P^{-1}AP\)。
 
@@ -785,8 +818,10 @@ B^{\mathsf{T}} = R^{-1}A^{\mathsf{T}}R,
 
 \boxed{\text{注}} 相似关系保持矩阵的大部分重要性质：特征值、行列式、迹、秩、可逆性、可对角化性等。但相似不保持对称性（除非相似变换矩阵是正交矩阵）。
 
+\fi%
 \item \textbf{（正定性证明）} 设 \(A\) 为 \(n\) 阶正定矩阵，\(S\) 为 \(n \times m\) 列满秩矩阵（\(m \leq n\)）。证明 \(S^{\mathsf{T}} A S\) 为正定矩阵。并给出反例说明若 \(S\) 不列满秩，结论不成立。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 对称性：\((S^{\mathsf{T}} A S)^{\mathsf{T}} = S^{\mathsf{T}} A^{\mathsf{T}} S = S^{\mathsf{T}} A S\)（\(A\) 对称），故 \(S^{\mathsf{T}} A S\) 为对称矩阵。
 
@@ -809,4 +844,5 @@ S^{\mathsf{T}}AS = \begin{pmatrix} 1 & 0 \\ 2 & 0 \end{pmatrix} \begin{pmatrix} 
 
 \boxed{\text{注}} 此题揭示了「二次型经线性变换后保持正定性」的充要条件是变换矩阵列满秩，这一结论在约束优化和多元统计中极为重要。
 
+\fi%
 \end{enumerate}

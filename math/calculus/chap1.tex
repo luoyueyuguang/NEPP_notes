@@ -486,6 +486,7 @@
     \item[(D)] 若 \(\{a_n\}\) 单调递增, 则 \(\{a_n\}\) 必有界
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 由极限的保号性可知, 若 \(a > b\), 则当 \(n\) 充分大时必有 \(a_n > b_n\), 故选 \textbf{(C)}。
 
 (A) 的反例: \(a_n = \frac{1}{n}\), \(b_n = 0\), 则 \(a_n > b_n\) 但 \(\lim a_n = \lim b_n = 0\);
@@ -494,8 +495,10 @@
 
 \medskip
 
+\fi%
 \textbf{2.} (填空题) \(\displaystyle\lim_{x \to 0} \frac{\sin 3x}{\tan 5x} = \underline{\hspace{2cm}}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 当 \(x \to 0\) 时, \(\sin 3x \sim 3x\), \(\tan 5x \sim 5x\), 故
 \[
 \lim_{x \to 0} \frac{\sin 3x}{\tan 5x} = \lim_{x \to 0} \frac{3x}{5x} = \frac{3}{5}.
@@ -503,8 +506,10 @@
 
 \medskip
 
+\fi%
 \textbf{3.} (计算题) 求极限 \(\displaystyle\lim_{n \to \infty} \frac{(n+1)(2n-1)}{3n^2 + n - 2}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 分子分母同除以 \(n^2\):
 \[
 \lim_{n \to \infty} \frac{(n+1)(2n-1)}{3n^2 + n - 2}
@@ -514,8 +519,10 @@
 
 \medskip
 
+\fi%
 \textbf{4.} (计算题) 求极限 \(\displaystyle\lim_{x \to 0} \frac{\sqrt{1+2x} - 1}{\ln(1+x)}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 当 \(x \to 0\) 时,
 \[
 \sqrt{1+2x} - 1 \sim \frac{1}{2} \cdot 2x = x, \qquad \ln(1+x) \sim x,
@@ -527,8 +534,10 @@
 
 \medskip
 
+\fi%
 \textbf{5.} (计算题) 求极限 \(\displaystyle\lim_{x \to 0} \frac{\ln(1+2x)}{e^{3x} - 1}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 当 \(x \to 0\) 时, \(\ln(1+2x) \sim 2x\), \(e^{3x} - 1 \sim 3x\), 故
 \[
 \lim_{x \to 0} \frac{\ln(1+2x)}{e^{3x} - 1} = \lim_{x \to 0} \frac{2x}{3x} = \frac{2}{3}.
@@ -536,11 +545,13 @@
 
 \medskip
 
+\fi%
 \textbf{6.} (计算题) 利用夹逼定理求极限
 \[
 \lim_{n \to \infty} \left( \frac{n}{n^2+1} + \frac{n}{n^2+2} + \cdots + \frac{n}{n^2+n} \right).
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 记 \(\displaystyle S_n = \sum_{k=1}^{n} \frac{n}{n^2+k}\)。注意到对每个 \(k = 1,2,\ldots,n\), 有
 \[
 \frac{n}{n^2+n} \leq \frac{n}{n^2+k} \leq \frac{n}{n^2+1},
@@ -557,10 +568,12 @@ n \cdot \frac{n}{n^2+n} \leq S_n \leq n \cdot \frac{n}{n^2+1}
 \]
 由夹逼定理得 \(\displaystyle\lim_{n \to \infty} S_n = 1\)。
 
+\fi%
 \subsection{综合提高题}
 
 \textbf{7.} (证明题) 用 \(\varepsilon\text{-}N\) 语言证明: \(\displaystyle\lim_{n \to \infty} \frac{2n+1}{3n-2} = \frac{2}{3}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} \(\forall \varepsilon > 0\), 要使当 \(n\) 充分大时成立
 \[
 \left| \frac{2n+1}{3n-2} - \frac{2}{3} \right| < \varepsilon.
@@ -588,8 +601,10 @@ n \cdot \frac{n}{n^2+n} \leq S_n \leq n \cdot \frac{n}{n^2+1}
 
 \medskip
 
+\fi%
 \textbf{8.} (计算题) 求极限 \(\displaystyle\lim_{x \to 0} (\cos x)^{\frac{1}{x^2}}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 这是 \(1^\infty\) 型未定式。利用重要极限 \(\displaystyle\lim_{u \to 0} (1+u)^{\frac{1}{u}} = e\):
 \[
 (\cos x)^{\frac{1}{x^2}} = \bigl[1 + (\cos x - 1)\bigr]^{\frac{1}{x^2}}
@@ -608,8 +623,10 @@ n \cdot \frac{n}{n^2+n} \leq S_n \leq n \cdot \frac{n}{n^2+1}
 
 \medskip
 
+\fi%
 \textbf{9.} (计算题) 设 \(x_1 = 1\), \(\displaystyle x_{n+1} = \frac{1}{2}\left(x_n + \frac{2}{x_n}\right)\) (\(n = 1,2,\ldots\)), 证明数列 \(\{x_n\}\) 收敛, 并求其极限。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 先证有下界: 由均值不等式,
 \[
 x_{n+1} = \frac{1}{2}\left(x_n + \frac{2}{x_n}\right) \geq \sqrt{x_n \cdot \frac{2}{x_n}} = \sqrt{2} \quad (n \geq 1),
@@ -634,6 +651,7 @@ A = \frac{1}{2}\left(A + \frac{2}{A}\right)
 
 故 \(\displaystyle\lim_{n \to \infty} x_n = \sqrt{2}\)。
 
+\fi%
 \begin{conclusion}{单调有界定理的应用步骤}{monotone-bounded-steps}
     对于递推数列 \(x_{n+1} = f(x_n)\) 的极限问题, 一般步骤为:
     \begin{enumerate}
@@ -648,6 +666,7 @@ A = \frac{1}{2}\left(A + \frac{2}{A}\right)
 
 \textbf{10.} (计算题) 求极限 \(\displaystyle\lim_{x \to 0} \frac{\tan x - \sin x}{x^3}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 
 
 \textbf{解法一（等价无穷小与三角恒等变换）:}
@@ -668,6 +687,7 @@ A = \frac{1}{2}\left(A + \frac{2}{A}\right)
 \]
 当 \(x \to 0\) 时 \(\cos x \to 1\), 分子 \(1 - \cos^3 x = (1 - \cos x)(1 + \cos x + \cos^2 x) \sim \frac{x^2}{2} \cdot 3 = \frac{3x^2}{2}\), 故极限为 \(\frac{3/2}{3} = \frac{1}{2}\)。
 
+\fi%
 \begin{formula}{$\tan x - \sin x$ 的等价无穷小}{tan-minus-sin-equiv}
     当 \(x \to 0\) 时, \(\displaystyle\tan x - \sin x \sim \frac{1}{2}x^3\)。这是一个常用结论, 建议记忆。
 \end{formula}
@@ -676,6 +696,7 @@ A = \frac{1}{2}\left(A + \frac{2}{A}\right)
 
 \textbf{11.}（\boxed{\textbf{真题风格}}，计算题） \(\displaystyle\lim_{x \to 0} \left( \frac{1}{\sin^2 x} - \frac{1}{x^2} \right) = \underline{\hspace{2cm}}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} \(\infty - \infty\) 型未定式, 通分:
 \[
 \frac{1}{\sin^2 x} - \frac{1}{x^2} = \frac{x^2 - \sin^2 x}{x^2 \sin^2 x}.
@@ -701,8 +722,10 @@ x - \sin x \sim \frac{x^3}{6}, \qquad x + \sin x \sim 2x,
 
 \medskip
 
+\fi%
 \textbf{12.}（\boxed{\textbf{真题风格}}，计算题） 求极限 \(\displaystyle\lim_{n \to \infty} \left( n \tan \frac{1}{n} \right)^{n^2}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 这是 \(1^\infty\) 型未定式。
 
 令 \(\displaystyle x = \frac{1}{n}\), 当 \(n \to \infty\) 时 \(x \to 0^+\), 原极限化为
@@ -732,6 +755,7 @@ L = \lim_{x \to 0^+} \left( \frac{\tan x}{x} \right)^{\frac{1}{x^2}}.
 \;\Longrightarrow\; L = e^{\frac{1}{3}} = \sqrt[3]{e}.
 \]
 
+\fi%
 \begin{conclusion}{$1^\infty$ 型极限的常用处理方法}{one-inf-limit-method}
     对于 \(\lim f(x)^{g(x)}\) 且 \(\lim f(x) = 1\), \(\lim g(x) = \infty\), 常用方法:
     \[

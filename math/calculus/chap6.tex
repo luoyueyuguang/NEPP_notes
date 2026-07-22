@@ -695,6 +695,7 @@
 
 \textbf{1.} 判断级数 $\displaystyle\sum_{n=2}^{\infty} \frac{(-1)^{n}}{\sqrt{n}+(-1)^{n}}$ 的敛散性。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 记 $u_{n}=\frac{(-1)^{n}}{\sqrt{n}+(-1)^{n}}$。将其有理化：
 \[
@@ -706,8 +707,10 @@ u_{n}=\frac{(-1)^{n}}{\sqrt{n}+(-1)^{n}} \cdot \frac{\sqrt{n}-(-1)^{n}}{\sqrt{n}
 而 $\sum_{n=2}^{\infty}\frac{1}{n-1}$ 发散（调和级数）。
 故原级数发散。
 
+\fi%
 \textbf{2.} 判断级数 $\displaystyle\sum_{n=1}^{\infty} \frac{2^{n}n!}{n^{n}}$ 的敛散性。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 由比值判别法，记 $a_{n}=\frac{2^{n}n!}{n^{n}}$，则
 \[
@@ -718,8 +721,10 @@ u_{n}=\frac{(-1)^{n}}{\sqrt{n}+(-1)^{n}} \cdot \frac{\sqrt{n}-(-1)^{n}}{\sqrt{n}
 由于 $\lim\limits_{n\to\infty}\bigl(\frac{n}{n+1}\bigr)^{n}=\lim\limits_{n\to\infty}\frac{1}{(1+1/n)^{n}}=\frac{1}{e}$，
 故 $\lim\limits_{n\to\infty}\frac{a_{n+1}}{a_{n}}=\frac{2}{e}<1$，级数收敛。
 
+\fi%
 \textbf{3.} 求幂级数 $\displaystyle\sum_{n=1}^{\infty} \frac{3^{n}+(-2)^{n}}{n}(x+1)^{n}$ 的收敛域。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 记 $t=x+1$，考虑 $\sum_{n=1}^{\infty}\frac{3^{n}+(-2)^{n}}{n}t^{n}$。
 记 $a_{n}=\frac{3^{n}+(-2)^{n}}{n}$，则
@@ -731,6 +736,7 @@ u_{n}=\frac{(-1)^{n}}{\sqrt{n}+(-1)^{n}} \cdot \frac{\sqrt{n}-(-1)^{n}}{\sqrt{n}
 
 考察端点：
 \begin{itemize}
+\fi%
 \item 当 $x=-\frac{4}{3}$ 时，$t=-\frac{1}{3}$，级数为 $\sum_{n=1}^{\infty}\frac{3^{n}+(-2)^{n}}{n}\bigl(-\frac{1}{3}\bigr)^{n}
 =\sum_{n=1}^{\infty}\frac{(-1)^{n}}{n}+\sum_{n=1}^{\infty}\frac{(2/3)^{n}}{n}$。
 前者为交错调和级数（收敛），后者通项 $\sim\frac{(2/3)^{n}}{n}$（由比值判别法收敛）。故 $x=-\frac{4}{3}$ 时收敛。
@@ -741,6 +747,7 @@ u_{n}=\frac{(-1)^{n}}{\sqrt{n}+(-1)^{n}} \cdot \frac{\sqrt{n}-(-1)^{n}}{\sqrt{n}
 
 \textbf{4.} 设 $a_{n}>0$，且级数 $\displaystyle\sum_{n=1}^{\infty}(-1)^{n}a_{n}$ 条件收敛。判断级数 $\displaystyle\sum_{n=1}^{\infty} a_{2n}$ 的敛散性，并证明你的结论。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 $\sum_{n=1}^{\infty} a_{2n}$ 发散。证明如下：
 
@@ -756,10 +763,12 @@ $\sum_{n=1}^{\infty} a_{2n}$ 发散。证明如下：
 故 $\sum_{n=1}^{\infty} a_{2n}$ 必发散。
 
 
+\fi%
 \subsection{综合提高题}
 
 \textbf{5.} 求幂级数 $\displaystyle\sum_{n=1}^{\infty} \frac{x^{n}}{n(n+1)}$ 的和函数，并指出收敛域。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 收敛半径 $R=1$。当 $|x|=1$ 时，通项绝对值 $\sim\frac{1}{n^{2}}$，故在 $x=\pm 1$ 处均（绝对）收敛，收敛域为 $[-1,1]$。
 
@@ -780,8 +789,10 @@ S(x)=\sum_{n=1}^{\infty}\frac{x^{n}}{n}-\sum_{n=1}^{\infty}\frac{x^{n}}{n+1}
 当 $x=0$ 时 $S(0)=0$（级数从 $n=1$ 起，各项含因子 $x^{n}$）。
 当 $x=1$ 时，由连续性与 $\lim\limits_{x\to 1^{-}}(1-x)\ln(1-x)=0$ 得 $S(1)=\sum_{n=1}^{\infty}\frac{1}{n(n+1)}=1$。
 
+\fi%
 \textbf{6.} 将函数 $f(x)=\dfrac{1}{x^{2}+3x+2}$ 展开为 $x$ 的幂级数，并指出收敛区间。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 分解为部分分式：
 \[
@@ -802,8 +813,10 @@ f(x)=\sum_{n=0}^{\infty}(-1)^{n}x^{n}-\sum_{n=0}^{\infty}\frac{(-1)^{n}}{2^{n+1}
 =\sum_{n=0}^{\infty}(-1)^{n}\Bigl(1-\frac{1}{2^{n+1}}\Bigr)x^{n},\quad |x|<1.
 \]
 
+\fi%
 \textbf{7.} 将 $f(x)=x^{2}$ 在 $[-\pi,\pi]$ 上展开为傅里叶级数，并利用展开式求级数 $\displaystyle\sum_{n=1}^{\infty}\frac{1}{n^{2}}$ 与 $\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n^{2}}$ 的和。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 $f(x)=x^{2}$ 为偶函数，故 $b_{n}=0$。
 \[
@@ -829,8 +842,10 @@ x=\pi:\quad \pi^{2}=\frac{\pi^{2}}{3}+4\sum_{n=1}^{\infty}\frac{(-1)^{n}}{n^{2}}
 \;\Longrightarrow\; \sum_{n=1}^{\infty}\frac{1}{n^{2}}=\frac{\pi^{2}}{6}.
 \]
 
+\fi%
 \textbf{8.} 求常数项级数 $\displaystyle\sum_{n=1}^{\infty}\frac{n+1}{n!}\,2^{n}$ 的和。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 利用 $e^{x}$ 的幂级数展开式 $e^{x}=\sum_{n=0}^{\infty}\frac{x^{n}}{n!}$：
 \[
@@ -842,6 +857,7 @@ x=\pi:\quad \pi^{2}=\frac{\pi^{2}}{3}+4\sum_{n=1}^{\infty}\frac{(-1)^{n}}{n^{2}}
 故原级数 $=2e^{2}+e^{2}-1=3e^{2}-1$。
 
 
+\fi%
 \subsection{真题风格与综合训练}
 
 \textbf{9.}（\boxed{\textbf{真题风格}}）讨论下列级数的敛散性（$p$ 为实参数）：
@@ -850,6 +866,7 @@ x=\pi:\quad \pi^{2}=\frac{\pi^{2}}{3}+4\sum_{n=1}^{\infty}\frac{(-1)^{n}}{n^{2}}
 \item[(2)] $\displaystyle\sum_{n=2}^{\infty}\frac{(-1)^{n}}{n\ln^{p}n}$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 用积分判别法。令 $f(x)=\frac{1}{x\ln^{p}x}\;(x\geq 2)$，$f$ 非负单调递减。
 \[
@@ -871,8 +888,10 @@ $g'(x)=\ln^{p}x+p\ln^{p-1}x>0$（$x>1$ 且 $p>0$），故 $g(x)$ 递增，$\frac
 
 综上：$p>1$ 时绝对收敛；$0<p\leq 1$ 时条件收敛；$p\leq 0$ 时发散。
 
+\fi%
 \textbf{10.}（\boxed{\textbf{真题风格}}）求幂级数 $\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}x^{2n}$ 的和函数，并求数项级数 $\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n\cdot 4^{n}}$ 的和。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 令 $S(x)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}(x^{2})^{n}=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}(x^{2})^{n}$。
 利用 $\ln(1+t)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}t^{n}\;(|t|<1)$，以 $t=x^{2}$ 代入得
@@ -889,12 +908,14 @@ S(x)=\ln(1+x^{2}),\quad |x|<1.
 =S\Bigl(\frac{1}{2}\Bigr)=\ln\Bigl(1+\frac{1}{4}\Bigr)=\ln\frac{5}{4}.
 \]
 
+\fi%
 \textbf{11.}（\boxed{\textbf{真题风格}}）设 $a_{n}=\displaystyle\int_{0}^{\pi/4}\tan^{n}x\,\mathrm{d}x\;(n=1,2,\ldots)$。
 \begin{enumerate}
 \item[(1)] 求 $a_{n}+a_{n+2}$；
 \item[(2)] 求级数 $\displaystyle\sum_{n=1}^{\infty}\frac{1}{n}(a_{n}+a_{n+2})$ 的和。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 
 \[
@@ -914,8 +935,10 @@ a_{n}+a_{n+2}=\int_{0}^{1}u^{n}\,\mathrm{d}u=\frac{1}{n+1}.
 \]
 部分和 $S_{N}=1-\frac{1}{N+1}\to 1\;(N\to\infty)$，故和为 $1$。
 
+\fi%
 \textbf{12.}（\boxed{\textbf{真题风格}}）将 $f(x)=|x|$ 在 $[-\pi,\pi]$ 上展开为傅里叶级数，并利用展开式求级数 $\displaystyle\sum_{n=0}^{\infty}\frac{1}{(2n+1)^{2}}$ 的和。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 $f(x)=|x|$ 为偶函数，故 $b_{n}=0$。
 \[
@@ -936,3 +959,5 @@ $f(x)$ 在 $[-\pi,\pi]$ 上连续且 $f(-\pi)=f(\pi)$，故
 \[
 \sum_{n=0}^{\infty}\frac{1}{(2n+1)^{2}}=\frac{\pi^{2}}{8}.
 \]
+
+\fi%

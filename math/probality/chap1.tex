@@ -303,17 +303,20 @@ $ 完全相同，即它们包含的结果完全一致 \\
     \item ``三个事件中至少有一个不发生''表示为 \underline{\qquad}.
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) $AB\bar{C} \cup A\bar{B}C \cup \bar{A}BC$;
 (2) $AB \cup AC \cup BC$;
 (3) $\bar{A} \cup \bar{B} \cup \bar{C}$（或 $\overline{ABC}$）.
 
+\fi%
 \item \textbf{（计算题）} 袋中有 $5$ 个红球和 $3$ 个白球，外观相同。现不放回地依次取出两个球。
 \begin{enumerate}[label=(\arabic*)]
     \item 求第二次取到红球的概率；
     \item 已知第二次取到了红球，求第一次也取到红球的概率.
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 设 $A_i = \{\text{第 }i\text{ 次取到红球}\}$，$i=1,2$.
 
 (1) 由全概率公式：
@@ -331,6 +334,7 @@ P(A_1 \mid A_2) = \frac{P(A_1 A_2)}{P(A_2)}
 
 \textbf{评注：} 第(1)问的结果等于初始红球比例 $\frac{5}{8}$，这不是巧合——抽签问题中，不放回情形下各人抽中的概率等于初始比例，与抽签顺序无关。
 
+\fi%
 \item \textbf{（计算题）} 设 $P(A) = 0.5$，$P(B) = 0.6$，$P(B \mid A) = 0.8$. 求：
 \begin{enumerate}[label=(\arabic*)]
     \item $P(AB)$；
@@ -338,6 +342,7 @@ P(A_1 \mid A_2) = \frac{P(A_1 A_2)}{P(A_2)}
     \item $P(A \mid B)$.
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) $P(AB) = P(A)P(B \mid A) = 0.5 \times 0.8 = 0.4$.
 
@@ -345,12 +350,14 @@ P(A_1 \mid A_2) = \frac{P(A_1 A_2)}{P(A_2)}
 
 (3) $P(A \mid B) = \dfrac{P(AB)}{P(B)} = \dfrac{0.4}{0.6} = \dfrac{2}{3}$.
 
+\fi%
 \item \textbf{（计算题）} 从一副去掉大小王的 $52$ 张扑克牌中随机抽取 $5$ 张。求：
 \begin{enumerate}[label=(\arabic*)]
     \item $5$ 张牌为同花（即花色全部相同）的概率；
     \item $5$ 张牌中至少有一张 A 的概率.
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 样本空间为从 $52$ 张牌中任选 $5$ 张，共 $C_{52}^5$ 种等可能结果。
 
 (1) 同花：先选一种花色（$C_4^1$ 种），再从该花色的 $13$ 张牌中选 $5$ 张（$C_{13}^5$ 种）：
@@ -368,6 +375,7 @@ P(\text{至少一张 A}) = 1 - P(D)
 \approx 0.3412.
 \]
 
+\fi%
 \end{enumerate}
 
 \subsection{综合提高题}
@@ -380,6 +388,7 @@ P(\text{至少一张 A}) = 1 - P(D)
     \item 已知抽到的是次品，求它来自工厂 1 的概率.
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 设 $B = \{\text{抽到次品}\}$，$A_i = \{\text{产品来自工厂 }i\}$，$i=1,2,3$.
 已知 $P(A_1)=0.25$，$P(A_2)=0.35$，$P(A_3)=0.40$，
 $P(B \mid A_1)=0.05$，$P(B \mid A_2)=0.04$，$P(B \mid A_3)=0.02$.
@@ -403,6 +412,7 @@ P(A_1 \mid B) = \frac{P(A_1)P(B \mid A_1)}{P(B)}
 
 \textbf{评注：} 贝叶斯公式的本质是``执果索因''——已知结果（次品），反推原因（来自哪个工厂）的概率。工厂 1 的次品率最高，先验概率仅有 $25\%$，后验概率升至约 $36.23\%$，体现了数据对先验信念的修正。
 
+\fi%
 \item \textbf{（判断题，$\star\star$ 独立性的深层理解）} 设 $P(A) > 0$, $P(B) > 0$. 判断以下命题的真伪并简要说理：
 \begin{enumerate}[label=(\arabic*)]
     \item 若 $A$ 与 $B$ 互不相容，则 $A$ 与 $B$ 必不独立；
@@ -410,6 +420,7 @@ P(A_1 \mid B) = \frac{P(A_1)P(B \mid A_1)}{P(B)}
     \item $P(A \mid B) = P(A \mid \bar{B})$ 是 $A$ 与 $B$ 独立的充要条件（设 $0 < P(B) < 1$）.
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) \textbf{真}. $A$ 与 $B$ 互不相容 $\Rightarrow P(AB) = 0$，但 $P(A)P(B) > 0$，故 $P(AB) \neq P(A)P(B)$，从而 $A$ 与 $B$ 不独立. 即：互不相容且概率均正的事件必不独立.
 
@@ -427,8 +438,10 @@ P(A \mid B) = P(A \mid \bar{B})
 
 \textbf{评注：} 第(1)(2)条合起来说明：对于概率均正的事件，``独立''和``互不相容''是互斥的概念，不能兼得. 第(3)条给出了独立性的等价刻画：$B$ 发生与否不影响 $A$ 的条件概率.
 
+\fi%
 \item \textbf{（计算题，$\star\star\star$ 几何概型——会面问题）} 甲、乙两人约定在 $[0, T]$ 时间段内到达某处见面，先到者等待 $t$（$0 < t < T$）时间后若对方仍未到则离开。设两人到达时刻相互独立且均服从 $[0, T]$ 上的均匀分布。求两人能成功见面的概率.
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 设甲到达时刻为 $x$，乙到达时刻为 $y$，则 $(x, y) \in \Omega = [0, T] \times [0, T]$.
 两人能见面当且仅当 $|x - y| \leq t$.
 
@@ -447,6 +460,7 @@ P = \frac{m(A)}{m(\Omega)} = \frac{2Tt - t^2}{T^2} = \frac{t(2T - t)}{T^2} = 1 -
 
 \textbf{评注：} 当 $t = T$ 时 $P = 1$（必然见面）；当 $t \to 0$ 时 $P \approx \frac{2t}{T}$. 几何概型的核心是将随机现象转化为几何区域上的均匀分布，用长度、面积或体积之比计算概率.
 
+\fi%
 \end{enumerate}
 
 \subsection{真题风格与综合训练}
@@ -459,6 +473,7 @@ P = \frac{m(A)}{m(\Omega)} = \frac{2Tt - t^2}{T^2} = \frac{t(2T - t)}{T^2} = 1 -
     \item 已知收到信号``0''，求实际发送的也是``0''的概率.
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 设 $A_0 = \{\text{发送 }0\}$，$A_1 = \{\text{发送 }1\}$，$B_0 = \{\text{收到 }0\}$.
 已知：$P(A_0) = 0.6$，$P(A_1) = 0.4$，$P(B_0 \mid A_0) = 0.9$，$P(B_0 \mid A_1) = 0.2$.
 
@@ -480,6 +495,7 @@ P(A_0 \mid B_0) = \frac{P(A_0)P(B_0 \mid A_0)}{P(B_0)}
 
 \textbf{评注：} 先验概率 $P(A_0) = 0.6$，收到``0''后后验概率提升到约 $0.871$——观测信息修正了我们对实际发送信号的信念，这是贝叶斯推断的核心思想.
 
+\fi%
 \item \textbf{（\boxed{\textbf{真题风格}}，证明题，$\star\star$ 独立性 + 条件概率）} 设 $0 < P(A) < 1$，$0 < P(B) < 1$，且
 \[
 P(A \mid B) + P(\bar{A} \mid \bar{B}) = 1.
@@ -523,6 +539,7 @@ x - xb + b - ab - b^2 + bx = b - b^2.
 
 \item \textbf{（\boxed{\textbf{真题风格}}，计算题，$\star\star$ 独立性 + 条件概率混合）} 甲、乙两人独立地对同一目标各射击一次，甲命中的概率为 $0.6$，乙命中的概率为 $0.5$. 现已知目标被命中，求目标是被甲命中的概率.
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 设 $A = \{\text{甲命中}\}$，$B = \{\text{乙命中}\}$，则 $A, B$ 独立且 $P(A) = 0.6$，$P(B) = 0.5$.
 
 目标被命中 $\Leftrightarrow A \cup B$，其概率为：
@@ -541,6 +558,7 @@ P(A \mid A \cup B) = \frac{P(A \cap (A \cup B))}{P(A \cup B)}
 
 \textbf{评注：} $A \cap (A \cup B) = A$ 始终成立（$A \subseteq A \cup B$）。已知目标被命中后，甲命中的条件概率 $0.75$ 高于其无条件概率 $0.6$——这是因为``目标被命中''排除了两人都未命中的情形，使甲的实际贡献占比增大.
 
+\fi%
 \item \textbf{（\boxed{\textbf{真题风格}}，计算题，$\star\star$ 抽签问题 + 全概率 + 贝叶斯）} 有 $10$ 个签，其中 $3$ 个有奖。甲、乙、丙三人依次不放回地各抽一签。求：
 \begin{enumerate}[label=(\arabic*)]
     \item 甲中奖的概率；
@@ -548,6 +566,7 @@ P(A \mid A \cup B) = \frac{P(A \cap (A \cup B))}{P(A \cup B)}
     \item 已知乙中奖，求甲也中奖的概率.
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 设 $A, B, C$ 分别表示甲、乙、丙中奖的事件.
 
 (1) 显然 $P(A) = \dfrac{3}{10}$.
@@ -568,4 +587,5 @@ P(A \mid B) = \frac{P(A)P(B \mid A)}{P(B)}
 
 \textbf{评注：} 第(1)(2)问结果相同并非偶然——不放回抽签中，每人中奖概率等于奖品初始比例 $\frac{3}{10}$，与抽签顺序无关，此即``抽签的公平性''。第(3)问中已知乙中奖，甲中奖概率降至 $\frac{2}{9}$：因为乙中奖``消耗''了一个奖品，留给甲的奖品减少了一个.
 
+\fi%
 \end{enumerate}

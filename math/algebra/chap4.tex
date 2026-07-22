@@ -371,6 +371,7 @@
 \item[(D)] 无法确定
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 选 \textbf{(C)}。
 
 齐次方程组 \(Ax = 0\) 恒有零解，故不会无解，排除 (A)。由秩定理，解空间维数 \(t = n - r(A) = 4 - 3 = 1 > 0\)，故存在非零解，且有无穷多解。
@@ -379,6 +380,7 @@
 
 \boxed{\text{注}} 齐次方程组 \(Ax = 0\) 仅当 \(r(A) = n\)（列满秩）时才有且仅有零解。
 
+\fi%
 \item \textbf{（计算题）} 求齐次线性方程组
 \[
 \begin{cases}
@@ -389,6 +391,7 @@ x_1 + 2x_2 - x_3 + 2x_4 = 0 \\
 \]
 的一个基础解系和通解。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 对系数矩阵作初等行变换：
 \[
 A = \begin{pmatrix}
@@ -449,6 +452,7 @@ x_3 = x_4
 
 通解：\(x = k_1 \xi_1 + k_2 \xi_2\)，其中 \(k_1, k_2\) 为任意常数。
 
+\fi%
 \item \textbf{（选择题）} 设 \(A\) 为 \(m \times n\) 矩阵，且 \(r(A) = r\)，则齐次方程组 \(Ax = 0\) 的解空间的维数为（~~~~）
 \begin{enumerate}
 \item[(A)] \(r\)
@@ -457,12 +461,15 @@ x_3 = x_4
 \item[(D)] \(n\)
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 选 \textbf{(C)}。
 
 由秩定理 \(\dim \ker(A) + r(A) = n\)，知解空间维数 \(= n - r\)。选项 (A) \(r\) 是系数矩阵的秩；(B) \(m - r\) 是系数矩阵列数减去行空间的维数；(D) \(n\) 是未知数个数，仅在 \(A = O\) 时正确。
 
+\fi%
 \item \textbf{（计算题）} 已知 \(\eta^* = (1, 2, 3)^{\mathrm{T}}\) 是非齐次方程组 \(Ax = b\) 的一个特解，\(\xi_1 = (1, 0, -1)^{\mathrm{T}},\ \xi_2 = (0, 1, 2)^{\mathrm{T}}\) 是其导出组 \(Ax = 0\) 的一个基础解系。写出 \(Ax = b\) 的通解。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 由通解结构公式：
 \[
 x = \eta^* + k_1\xi_1 + k_2\xi_2
@@ -475,13 +482,16 @@ x = \eta^* + k_1\xi_1 + k_2\xi_2
 x = \begin{pmatrix} 1 + k_1 \\ 2 + k_2 \\ 3 - k_1 + 2k_2 \end{pmatrix}.
 \]
 
+\fi%
 \item \textbf{（填空题）} 设 \(A\) 为 \(5 \times 4\) 矩阵，\(r(A) = 3\)，\(r(A \mid b) = 4\)，则方程组 \(Ax = b\) 的解的情况是\underline{~~~~~~~~~~}。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 应填 \textbf{无解}。
 
 由解的判定条件：\(r(A) < r(A \mid b)\)（即 \(3 < 4\)），秩不相等，故方程组无解。\\
 \boxed{\text{注}} \(r(A \mid b) = r(A) + 1\) 是典型的无解标志，表明 \(b\) 不在 \(A\) 的列空间中。
 
+\fi%
 \item \textbf{（计算题）} 用高斯消元法解非齐次线性方程组
 \[
 \begin{cases}
@@ -491,6 +501,7 @@ x_1 + 2x_2 + 3x_3 = 14 \\
 \end{cases}
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 写出增广矩阵并作初等行变换：
 \[
 (A \mid b) = \left(\begin{array}{ccc|c}
@@ -540,6 +551,7 @@ x_2 = 4
 x = \begin{pmatrix} 6 \\ 4 \\ 0 \end{pmatrix} + t \begin{pmatrix} -3 \\ 0 \\ 1 \end{pmatrix}, \quad t \in \mathbb{R}.
 \]
 
+\fi%
 \end{enumerate}
 
 \subsection{综合提高题}
@@ -557,6 +569,7 @@ x_1 + 2bx_2 + x_3 = 4
 \]
 其中 \(a, b\) 为参数。试讨论 \(a, b\) 取何值时，方程组无解？有唯一解？有无穷多解？并在有无穷多解时求出通解。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 写出增广矩阵并作初等行变换：
 \[
 (A \mid b) = \left(\begin{array}{ccc|c}
@@ -605,6 +618,7 @@ x_1 + x_3 = 2 \quad \text{（式二）}
   \item 当 \(b = \dfrac{1}{2}\) 时，\(0 = 0\) 恒成立。此时式二为 \(x_1 + x_3 = 2\)，式一与式二相同（因为 \(a=1\)），故方程组合并为两个独立方程，\(r(A) = r(A \mid b) = 2 < 3\)，方程组有\textbf{无穷多解}。
   \item 当 \(b \neq \dfrac{1}{2}\) 时，\(0 = 2 - \dfrac{1}{b} \neq 0\)，矛盾。方程组\textbf{无解}。
   \end{itemize}
+\fi%
 \end{enumerate}
 
 \textbf{有无穷多解时的通解}（\(a = 1,\ b = \dfrac{1}{2}\)）：
@@ -639,6 +653,7 @@ c_1\eta_1 + c_2\eta_2 + \cdots + c_k\eta_k
 \]
 也是 \(Ax = b\) 的解的\textbf{充要条件}是 \(c_1 + c_2 + \cdots + c_k = 1\)。
 
+\ifshowsolutions%
 \boxed{\textbf{证明}}
 
 \textbf{充分性：} 若 \(\sum_{i=1}^{k} c_i = 1\)，则
@@ -666,6 +681,7 @@ A\left(\sum_{i=1}^{k} c_i \eta_i\right) = b.
 
 \boxed{\text{注}} 这个结论在考研中多次出现。几何上，它表明 \(Ax = b\) 的解集是一个仿射空间，对该空间中点的"仿射组合"（系数和为1）仍在该空间中。系数和不为1的线性组合会"漂移"到别的仿射层。
 
+\fi%
 \item \textbf{（计算+证明）} 设 \(\xi_1, \xi_2, \ldots, \xi_{n-r}\) 是 \(Ax = 0\) 的一个基础解系，\(\eta^*\) 是 \(Ax = b\) 的一个特解。记
 \[
 \gamma_i = \eta^* + \xi_i, \quad i = 1, 2, \ldots, n - r.
@@ -676,6 +692,7 @@ A\left(\sum_{i=1}^{k} c_i \eta_i\right) = b.
 \item 证明 \(Ax = b\) 的任一解 \(\eta\) 可唯一地表为 \(\eta^*\) 与 \(\gamma_i - \eta^*\)（\(i=1,\ldots,n-r\)）的线性组合，并进一步说明 \(\eta\) 可表为 \(\eta^*, \gamma_1, \ldots, \gamma_{n-r}\) 的仿射组合（系数之和为 \(1\) 的线性组合）。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解与证明}}
 
 (1) 对每个 \(i = 1, 2, \ldots, n-r\)，
@@ -712,12 +729,14 @@ k_0 + \sum_{i=1}^{n-r} k_i = 1.
 
 \boxed{\text{注}} 这个结论是第8题结论在特定选择下的应用：取 \(\eta^*\) 和 \(\gamma_1, \ldots, \gamma_{n-r}\) 这 \(n-r+1\) 个解，它们的仿射组合张成整个解集（仿射超平面）。
 
+\fi%
 \item \textbf{（典型证明题）} 设 \(A\) 为 \(m \times n\) 实矩阵。证明：
 \[
 r(A^{\mathrm{T}}A) = r(A).
 \]
 （提示：考虑齐次方程组 \(Ax = 0\) 与 \(A^{\mathrm{T}}Ax = 0\) 的同解性。）
 
+\ifshowsolutions%
 \boxed{\textbf{证明}} 核心思路：证明 \(Ax = 0\) 与 \(A^{\mathrm{T}}Ax = 0\) 是同解方程组，从而解空间维数相同，由秩定理推出秩相等。
 
 \textbf{Step 1：} 若 \(x\) 满足 \(Ax = 0\)，则左乘 \(A^{\mathrm{T}}\) 得 \(A^{\mathrm{T}}Ax = 0\)。即
@@ -742,12 +761,14 @@ n - r(A) = n - r(A^{\mathrm{T}}A).
 
 \boxed{\text{注}} 这个结论是考研线性代数的"常青树"，几乎每年都有学校考察。关键步骤是利用范数的正定性：\(x^{\mathrm{T}}A^{\mathrm{T}}Ax = \|Ax\|^2 = 0 \Rightarrow Ax = 0\)。\textbf{仅对实矩阵成立}，因为复数域上内积的正定性不同。
 
+\fi%
 \item \textbf{（证明题）} 设 \(\alpha_1, \alpha_2, \alpha_3\) 是齐次线性方程组 \(Ax = 0\) 的一个基础解系。证明：
 \[
 \alpha_1 + \alpha_2,\quad \alpha_2 + \alpha_3,\quad \alpha_3 + \alpha_1
 \]
 也是 \(Ax = 0\) 的一个基础解系。
 
+\ifshowsolutions%
 \boxed{\textbf{证明}} 设 \(\beta_1 = \alpha_1 + \alpha_2\)，\(\beta_2 = \alpha_2 + \alpha_3\)，\(\beta_3 = \alpha_3 + \alpha_1\)。需证 \(\{\beta_1, \beta_2, \beta_3\}\) 也是 \(Ax = 0\) 的基础解系，即证：(i) 每个 \(\beta_i\) 是解；(ii) \(\beta_1, \beta_2, \beta_3\) 线性无关（个数 3 = 解空间维数，故线性无关即为基础解系）。
 
 (i) 由于 \(\alpha_i\) 是齐次方程组的解，解空间对加法封闭，故 \(\beta_i\) 也都是解。
@@ -785,6 +806,7 @@ k_2 + k_3 = 0
 
 \boxed{\text{注}} 更一般地，若 \(\{\alpha_1, \ldots, \alpha_t\}\) 是基础解系，\(P\) 为 \(t\) 阶可逆矩阵，则 \((\beta_1, \ldots, \beta_t) = (\alpha_1, \ldots, \alpha_t) P\) 给出的 \(\{\beta_i\}\) 也是基础解系。这就是"基变换"的语言。
 
+\fi%
 \end{enumerate}
 
 \subsection{真题风格与综合训练}
@@ -802,6 +824,7 @@ x_1 + \lambda x_2 + x_3 = \lambda
 \]
 其中 \(\lambda\) 为参数。讨论 \(\lambda\) 取何值时方程组无解？有唯一解？有无穷多解？并在有解时求出全部解。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 写出增广矩阵并作初等行变换：
 \[
 (A \mid b) = \left(\begin{array}{ccc|c}
@@ -887,6 +910,7 @@ x_1
 \end{array}\right)
 \]
 第 3 行出现 \(0 = 1\)，\(r(A) = 2\)，\(r(A \mid b) = 3\)，方程组\textbf{无解}。
+\fi%
 \end{enumerate}
 
 \boxed{\text{注}} 此题的系数矩阵行列式 \(\det(A) = \lambda(\lambda-1)\)（其中 \(A = \begin{pmatrix} 1 & 0 & 1 \\ \lambda & 1 & 1 \\ 1 & \lambda & 1 \end{pmatrix}\)），当 \(\det(A) \neq 0\) 即 \(\lambda \neq 0, 1\) 时用克拉默法则也可求唯一解。这是判断参数分界点的快速方法。
@@ -901,6 +925,7 @@ n, & \text{当 } r(A) = n, \\
 \]
 并说明当 \(r(A) = n - 1\) 时，\(A^*\) 的任意一个非零列向量构成 \(Ax = 0\) 的一个基础解系。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 回忆伴随矩阵的定义与基本性质：\(AA^* = A^*A = |A| \cdot I_n\)。
 
 \textbf{(1) 当 \(r(A) = n\) 时：}
@@ -927,6 +952,7 @@ r(A^*) \leq \dim \ker(A) = n - r(A) = 1.
 
 \boxed{\text{注}} 该结论是考研线性代数中的"三线定理"之一（伴随矩阵的秩），与 \(r(A+B) \leq r(A) + r(B)\)、\(r(AB) \geq r(A) + r(B) - n\) 并称为秩不等式三大经典结论。当 \(r(A) = n-1\) 时用伴随矩阵求基础解系是一个实用技巧。
 
+\fi%
 \item \textbf{（讨论题 \quad 参数讨论型）} \boxed{\textbf{真题风格}} 已知线性方程组
 \[
 \begin{cases}
@@ -937,6 +963,7 @@ x_1 + x_2 + \lambda x_3 = \lambda^2
 \]
 讨论 \(\lambda\) 取何值时方程组无解、有唯一解、有无穷多解，并在有无穷多解时求出通解。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 系数矩阵为典型对称矩阵：
 \[
 A = \begin{pmatrix}
@@ -1016,6 +1043,7 @@ x = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}
 + s \begin{pmatrix} -1 \\ 1 \\ 0 \end{pmatrix}
 + t \begin{pmatrix} -1 \\ 0 \\ 1 \end{pmatrix}, \quad s, t \in \mathbb{R}.
 \]
+\fi%
 \end{enumerate}
 
 \textbf{总结表：}

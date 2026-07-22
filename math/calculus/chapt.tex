@@ -426,6 +426,7 @@ F(x)=\int_{0}^{x} t f(x^{2}-t^{2})\,\mathrm{d}t.
 \item 求极限 $\displaystyle\lim_{x\to 0}\frac{F(x)}{x^{4}}$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 作变量代换 $u=x^{2}-t^{2}$，则 $\mathrm{d}u=-2t\,\mathrm{d}t$，$t\,\mathrm{d}t=-\frac{1}{2}\mathrm{d}u$。
 当 $t=0$ 时 $u=x^{2}$；$t=x$ 时 $u=0$。于是
@@ -450,12 +451,14 @@ F'(x)=\frac{1}{2}f(x^{2})\cdot 2x = xf(x^{2}).
 \]
 
 
+\fi%
 \textbf{2.}（导数与积分综合）设 $f(x)$ 可导，且满足积分方程
 \[
 \int_{0}^{x} (x-t)f'(t)\,\mathrm{d}t = f(x)-\sin x,
 \]
 以及 $f(0)=0$。求 $f(x)$ 的表达式。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 记 $I(x)=\displaystyle\int_{0}^{x}(x-t)f'(t)\,\mathrm{d}t$，则原方程为 $I(x)=f(x)-\sin x$。
 
@@ -485,11 +488,13 @@ f(x)=\frac{1}{2}(\sin x-\cos x)+\frac{1}{2}e^{x}.
 \]
 
 
+\fi%
 \textbf{3.}（极限与定积分综合）求极限
 \[
 \lim_{n\to\infty}\frac{1}{n^{2}}\sum_{k=1}^{n}\sqrt{n^{2}-k^{2}}.
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 将和式改写为 Riemann 和的形式：
 \[
@@ -507,6 +512,7 @@ f(x)=\frac{1}{2}(\sin x-\cos x)+\frac{1}{2}e^{x}.
 \]
 
 
+\fi%
 \subsection{综合提高题}
 
 \textbf{4.}（微分方程与级数综合）用幂级数方法求解初值问题
@@ -515,6 +521,7 @@ y''+xy'+y=0,\qquad y(0)=1,\; y'(0)=0.
 \]
 将解写成幂级数形式，写出前5项，并指出该级数的收敛半径。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 设 $y=\displaystyle\sum_{n=0}^{\infty} a_{n}x^{n}$，则
 \[
@@ -554,12 +561,14 @@ y(x)=1-\frac{x^{2}}{2}+\frac{x^{4}}{8}-\frac{x^{6}}{48}+\frac{x^{8}}{384}-\cdots
 （事实上，直接验证可知 $y=e^{-x^{2}/2}$ 满足原方程。）该级数为指数函数的幂级数，收敛半径 $R=+\infty$。
 
 
+\fi%
 \textbf{5.}（多元函数与曲线积分综合）验证曲线积分
 \[
 I=\int_{L} (3x^{2}y+e^{y})\,\mathrm{d}x+(x^{3}+xe^{y}-2y)\,\mathrm{d}y
 \]
 在全平面上与路径无关，并求从原点 $O(0,0)$ 到点 $A(1,1)$ 的积分值。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 记 $P=3x^{2}y+e^{y}$，$Q=x^{3}+xe^{y}-2y$。则
 \[
@@ -582,12 +591,14 @@ I=u(1,1)-u(0,0)=(1+e-1)-0=e.
 \]
 
 
+\fi%
 \textbf{6.}（积分与级数综合）将函数
 \[
 f(x)=\int_{0}^{x} \frac{\ln(1+t)}{t}\,\mathrm{d}t
 \]
 展开为 $x$ 的幂级数，并求常数项级数 $\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n^{2}}$ 的和。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 由对数函数的幂级数展开式 $\ln(1+t)=\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}t^{n}$（$|t|<1$），有
 \[
@@ -614,12 +625,14 @@ f(1)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n^{2}}.
 （也可由 $f(1)=\int_{0}^{1}\frac{\ln(1+t)}{t}\mathrm{d}t$ 及二重积分或 dilog 函数得知其值为 $\frac{\pi^{2}}{12}$。）
 
 
+\fi%
 \textbf{7.}（多元极值与重积分综合）设 $a,b,c>0$。在椭球面
 \[
 \frac{x^{2}}{a^{2}}+\frac{y^{2}}{b^{2}}+\frac{z^{2}}{c^{2}}=1
 \]
 的第一卦限部分上求一点 $P(x_{0},y_{0},z_{0})$，使得过该点的切平面与三个坐标平面所围成的四面体体积最小，并求该最小体积。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 椭球面在点 $P(x_{0},y_{0},z_{0})$ 处的切平面方程为
 \[
@@ -659,6 +672,7 @@ V_{\min}= \frac{a^{2}b^{2}c^{2}}{6}\cdot\frac{3\sqrt{3}}{abc}
 \]
 
 
+\fi%
 \subsection{真题风格与综合训练}
 
 \textbf{8.}（\boxed{\textbf{真题风格}}，极限与积分与级数综合）设 $F(x)=\displaystyle\int_{0}^{x} e^{-t^{2}}\,\mathrm{d}t$。
@@ -667,6 +681,7 @@ V_{\min}= \frac{a^{2}b^{2}c^{2}}{6}\cdot\frac{3\sqrt{3}}{abc}
 \item 求极限 $\displaystyle\lim_{x\to 0}\frac{F(x)-x+\frac{x^{3}}{3}}{x^{5}}$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 由指数函数的幂级数展开 $e^{u}=\displaystyle\sum_{n=0}^{\infty}\frac{u^{n}}{n!}$（$|u|<\infty$），令 $u=-t^{2}$ 得
 \[
@@ -694,6 +709,7 @@ F(x)-x+\frac{x^{3}}{3}
 \]
 
 
+\fi%
 \textbf{9.}（\boxed{\textbf{真题风格}}，曲线积分与微分方程综合）设 $f(x)$ 具有二阶连续导数，且对平面上任意一条分段光滑的简单闭曲线 $L$，均有
 \[
 \oint_{L} \bigl[e^{x}f'(x)+y^{2}\bigr]\,\mathrm{d}y
@@ -701,6 +717,7 @@ F(x)-x+\frac{x^{3}}{3}
 \]
 已知 $f(0)=0$，$f'(0)=1$，求 $f(x)$ 的表达式。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 记 $P=-y\,e^{x}f(x)$，$Q=e^{x}f'(x)+y^{2}$。由题设，对任意闭曲线 $L$ 积分恒为零，根据 Green 公式的逆定理（或曲线积分与路径无关的充要条件），在全平面上应有
 \[
@@ -738,6 +755,7 @@ f(x)=\frac{2}{\sqrt{3}}e^{-x/2}\sin\frac{\sqrt{3}}{2}x.
 \]
 
 
+\fi%
 \textbf{10.}（\boxed{\textbf{真题风格}}，极限与积分与级数综合）设 $a_{n}=\displaystyle\int_{0}^{1} x^{n}(1-x)^{n}\,\mathrm{d}x$，$n=0,1,2,\ldots$。
 \begin{enumerate}[label=(\arabic*)]
 \item 求 $a_{n}$ 的表达式（用 $n$ 表示）；
@@ -745,6 +763,7 @@ f(x)=\frac{2}{\sqrt{3}}e^{-x/2}\sin\frac{\sqrt{3}}{2}x.
 \item 求幂级数 $\displaystyle\sum_{n=0}^{\infty} a_{n}x^{n}$ 的收敛半径。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 作变量代换 $t=1-x$ 或直接利用 Beta 函数：
 \[
@@ -786,3 +805,5 @@ a_{n}&\sim\frac{2\pi n\left(\frac{n}{e}\right)^{2n}}
 \longrightarrow \frac{1}{4}\quad (n\to\infty).
 \]
 故 $R=4$，即幂级数的收敛半径为 $4$。
+
+\fi%

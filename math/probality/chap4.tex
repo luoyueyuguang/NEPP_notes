@@ -305,6 +305,7 @@ P & 0.2 & 0.3 & 0.3 & 0.2
     \item[(2)] 求$E(3X-2)$和$D(3X-2)$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1)
 \[
@@ -329,6 +330,7 @@ D(3X-2)=3^2D(X)=9\times 1.05=9.45.
 
 \vspace{0.4cm}
 
+\fi%
 \item 设二维随机变量$(X,Y)$的联合分布律为
 \[
 \begin{array}{c|cc}
@@ -344,6 +346,7 @@ X\setminus Y & 0 & 1 \\
     \item[(3)] 写出$(X,Y)$的协方差矩阵。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) $X$的边缘分布：$P(X=0)=0.1+0.2=0.3$，$P(X=1)=0.3+0.4=0.7$。
 \[
@@ -388,6 +391,7 @@ D(X) & \mathrm{Cov}(X,Y)\\
 
 \vspace{0.4cm}
 
+\fi%
 \item 设随机变量$X$的概率密度为
 \[
 f(x)=\begin{cases}
@@ -401,6 +405,7 @@ f(x)=\begin{cases}
     \item[(3)] 令$Y=2X+1$，求$E(Y)$和$D(Y)$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 注意到被积函数的奇偶性：
 \[
@@ -428,6 +433,7 @@ D(Y)=D(2X+1)=2^2D(X)=4\times\frac{3}{5}=\frac{12}{5}=2.4.
 
 \textbf{评注：}利用对称区间上奇函数的积分为零可大幅简化计算。$D(X+c)=D(X)$，常数平移不改变方差。
 
+\fi%
 \end{enumerate}
 
 \subsection{综合提高题}
@@ -440,6 +446,7 @@ D(Y)=D(2X+1)=2^2D(X)=4\times\frac{3}{5}=\frac{12}{5}=2.4.
     \item[(2)] 分别用$X$的分布和$Y$的分布求$E(Y)$和$D(Y)$，验证两种方法结果一致。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) $X\sim U(0,2)$，密度$f_X(x)=\frac{1}{2}\;(0<x<2)$。
 $Y=X^2$的值域为$(0,4)$。对$0<y<4$：
@@ -477,12 +484,14 @@ D(Y)=\frac{16}{5}-\frac{16}{9}=\frac{64}{45}.
 
 \vspace{0.4cm}
 
+\fi%
 \item 设随机变量$X$的期望$E(X)=\mu$，方差$D(X)=\sigma^2$。利用切比雪夫不等式证明：对任意$\varepsilon>0$，
 \[
 P(|X-\mu|<\varepsilon)\geq 1-\frac{\sigma^2}{\varepsilon^2}.
 \]
 若$\sigma^2=4$，欲使$P(|X-\mu|<\varepsilon)\geq 0.95$，$\varepsilon$至少应取多少？
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 由切比雪夫不等式，对任意$\varepsilon>0$：
 \[
@@ -504,12 +513,14 @@ P(|X-\mu|<\varepsilon)=1-P(|X-\mu|\geq\varepsilon)\geq 1-\frac{\sigma^2}{\vareps
 
 \vspace{0.4cm}
 
+\fi%
 \item 设随机变量$X\sim B(n,p)$。
 \begin{enumerate}
     \item[(1)] 求$X$的矩母函数$M_X(t)$；
     \item[(2)] 利用矩母函数求$E(X)$和$D(X)$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) $X\sim B(n,p)$，分布律为$P(X=k)=\binom{n}{k}p^k(1-p)^{n-k},\;k=0,1,\ldots,n$。
 \[
@@ -544,6 +555,7 @@ D(X)=E(X^2)-[E(X)]^2=n(n-1)p^2+np-n^2p^2=np(1-p).
 
 \vspace{0.4cm}
 
+\fi%
 \item 设随机变量$X$与$Y$相互独立，均服从参数为$\lambda$的指数分布$E(\lambda)$。令$U=\max(X,Y)$，$V=\min(X,Y)$。
 \begin{enumerate}
     \item[(1)] 求$U$和$V$的概率密度；
@@ -551,6 +563,7 @@ D(X)=E(X^2)-[E(X)]^2=n(n-1)p^2+np-n^2p^2=np(1-p).
     \item[(3)] 验证$E(U)+E(V)=E(X)+E(Y)$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 $X,Y\sim E(\lambda)$，密度$f(t)=\lambda e^{-\lambda t}\;(t>0)$，分布函数$F(t)=1-e^{-\lambda t}\;(t>0)$。
 
@@ -592,6 +605,7 @@ E(U)+E(V)=\frac{3}{2\lambda}+\frac{1}{2\lambda}=\frac{2}{\lambda}=\frac{1}{\lamb
 
 \textbf{评注：}$\max(X,Y)+\min(X,Y)=X+Y$恒成立（无论是否独立），两边取期望即得$E(U)+E(V)=E(X)+E(Y)$，这是更简洁的证明。
 
+\fi%
 \end{enumerate}
 
 \subsection{真题风格与综合训练}
@@ -612,6 +626,7 @@ f(x,y)=\begin{cases}
     \item[(4)] 判断$X$与$Y$是否独立、是否不相关。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 先验证规范性：$\displaystyle\int_{0}^{1}\int_{x}^{1}2\,\mathrm{d}y\,\mathrm{d}x=\int_{0}^{1}2(1-x)\,\mathrm{d}x=2\Bigl(1-\frac{1}{2}\Bigr)=1$。$\checkmark$
 
@@ -671,8 +686,10 @@ $\rho_{XY}=\frac{1}{2}\neq 0$，故$X$与$Y$相关，从而$X$与$Y$不独立。
     \item[(1)] 求$E(\bar{X}_n)$和$D(\bar{X}_n)$；
     \item[(2)] 用切比雪夫不等式证明：对任意$\varepsilon>0$，$\displaystyle\lim_{n\to\infty}P(|\bar{X}_n-\lambda|\geq\varepsilon)=0$；
     \item[(3)] 当$\lambda=2$，$n=100$时，用切比雪夫不等式估计$P(|\bar{X}_n-2|\geq 0.3)$的上界。
+\fi%
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 由$X_i\sim P(\lambda)$，$E(X_i)=\lambda$，$D(X_i)=\lambda$。
 \[
@@ -703,6 +720,7 @@ P(|\bar{X}_n-2|\geq 0.3)\leq\frac{D(\bar{X}_n)}{0.3^2}=\frac{2/100}{0.09}=\frac{
 
 \vspace{0.4cm}
 
+\fi%
 \item 设随机变量$X\sim N(0,1)$，令$Y=|X|$。
 \begin{enumerate}
     \item[(1)] 求$Y$的概率密度；
@@ -710,6 +728,7 @@ P(|\bar{X}_n-2|\geq 0.3)\leq\frac{D(\bar{X}_n)}{0.3^2}=\frac{2/100}{0.09}=\frac{
     \item[(3)] 求$\mathrm{Cov}(X,Y)$，并判断$X$与$Y$是否不相关、是否独立。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) $X\sim N(0,1)$，密度$\varphi(x)=\frac{1}{\sqrt{2\pi}}e^{-x^2/2}$，分布函数$\Phi(x)$。
 对$y>0$：
@@ -749,5 +768,6 @@ E(X|X|)=\int_{-\infty}^{\infty}x|x|\varphi(x)\,\mathrm{d}x=0.
 
 \textbf{评注：}不相关$\nRightarrow$独立！本题是一个经典反例：$X\sim N(0,1)$与$|X|$的相关系数为零（因$X|X|$的期望为零），但两者存在严格的函数关系，绝不独立。这再次说明相关系数只衡量\textbf{线性}相关程度。
 
+\fi%
 \end{enumerate}
 

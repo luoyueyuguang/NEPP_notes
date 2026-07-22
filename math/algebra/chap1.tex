@@ -483,8 +483,10 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
 
 \item \textbf{（填空题）} 设 \(A, B\) 均为 \(n\) 阶方阵，则 \((A+B)^2 = \underline{\qquad}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} \((A+B)^2 = (A+B)(A+B) = A^2 + AB + BA + B^2\)。注意：矩阵乘法一般不满足交换律，即 \(AB \neq BA\)，因此\textbf{不能}写成 \(A^2 + 2AB + B^2\)。仅当 \(AB = BA\) 时才有 \((A+B)^2 = A^2 + 2AB + B^2\)。
 
+\fi%
 \item \textbf{（选择题）} 设 \(A\) 为 \(n\) 阶方阵，则下列矩阵中必为对称矩阵的是 \underline{\qquad}。
 \begin{enumerate}[label=(\Alph*)]
     \item \(A + A^\mathrm{T}\)
@@ -493,6 +495,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
     \item \(A^\mathrm{T}A\)
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 选 (A)、(C)、(D)。
 
 \textbf{分析：}
@@ -504,6 +507,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
 \end{itemize}
 注：若题目为单选题，则常见的考法是考察 (A) 与 (B) 的区分。
 
+\fi%
 \item \textbf{（计算题）} 用高斯消元法求解含参数 \(a\) 的线性方程组，并讨论 \(a\) 取何值时方程组有唯一解、无解、无穷多解：
 \[
 \begin{cases}
@@ -513,6 +517,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
 \end{cases}
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 写出增广矩阵，作初等行变换：
 \[
 \begin{aligned}
@@ -560,6 +565,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
     \[
     x_1 = 1 - x_2 - x_3, \quad x_2, x_3 \text{ 为自由未知量}
     \]
+\fi%
 \end{enumerate}
 综上：\(a \neq 1\) 时唯一解；\(a = 1\) 时无穷多解；不存在无解情形。
 
@@ -571,6 +577,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
     \item \(\boldsymbol{\alpha}\) 在 \(\boldsymbol{\beta}\) 上的投影 \(\operatorname{proj}_{\boldsymbol{\beta}}\boldsymbol{\alpha}\)。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 \begin{enumerate}[label=(\arabic*)]
     \item \(\boldsymbol{\alpha} \cdot \boldsymbol{\beta} = 1 \times 2 + 0 \times (-1) + (-1) \times 3 + 2 \times 1 = 2 + 0 - 3 + 2 = 1\)。
@@ -601,6 +608,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
     =\left(\frac2{15},-\frac1{15},\frac15,\frac1{15}\right)^\mathrm T.
     \end{aligned}
     \]
+\fi%
 \end{enumerate}
 
 \item \textbf{（证明题）} 设 \(A\) 为任意 \(m \times n\) 实矩阵，证明：
@@ -609,6 +617,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
     \item \(A + A^\mathrm{T}\) 为对称矩阵，\(A - A^\mathrm{T}\) 为反对称矩阵（当 \(m = n\) 时）。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{证明}}
 \begin{enumerate}[label=(\arabic*)]
     \item 由转置性质：
@@ -629,6 +638,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
     (A - A^\mathrm{T})^\mathrm{T} = A^\mathrm{T} - (A^\mathrm{T})^\mathrm{T} = A^\mathrm{T} - A = -(A - A^\mathrm{T}),
     \]
     故 \(A - A^\mathrm{T}\) 为反对称矩阵。\(\square\)
+\fi%
 \end{enumerate}
 
 \item \textbf{（选择题）} 设 \(A, B\) 为 \(n\) 阶方阵，\(I\) 为 \(n\) 阶单位矩阵，则下列命题中\textbf{一定成立}的是 \underline{\qquad}。
@@ -639,6 +649,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
     \item \((A+I)(A-I) = A^2 - I\)
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 选 (D)。
 
 \textbf{分析：}
@@ -649,6 +660,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
     \item (D) 成立。\((A+I)(A-I) = A(A-I) + I(A-I) = A^2 - A + A - I = A^2 - I\)。这里 \(A\) 与 \(I\) 可交换，故展开式成立。
 \end{itemize}
 
+\fi%
 \end{enumerate}
 
 \subsection{综合提高题}
@@ -657,6 +669,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
 
 \item \textbf{（典型证明题）} 设 \(A\) 为 \(m \times n\) 实矩阵，证明：若 \(A^\mathrm{T}A = O\)，则 \(A = O\)。
 
+\ifshowsolutions%
 \boxed{\textbf{证明}} 记 \(A = (a_{ij})_{m\times n}\)。设 \(A\) 的列向量为 \(\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\ldots,\boldsymbol{\alpha}_n\)，则 \(A^\mathrm{T}A\) 的 \((i,j)\) 元为 \(\boldsymbol{\alpha}_i^\mathrm{T}\boldsymbol{\alpha}_j\)，其第 \(i\) 个对角元为
 \[
 (A^\mathrm{T}A)_{ii} = \boldsymbol{\alpha}_i^\mathrm{T}\boldsymbol{\alpha}_i = \|\boldsymbol{\alpha}_i\|^2 = \sum_{k=1}^{m} a_{ki}^2
@@ -670,6 +683,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
 
 \boxed{\text{注}} 此结论是线性代数核心结论之一。类似的还有：若 \(AA^\mathrm{T} = O\)，则 \(A = O\)。其证明思路完全相同——考察 \(AA^\mathrm{T}\) 的行范数。这一结论在讨论矩阵秩的性质以及最小二乘问题中反复出现。
 
+\fi%
 \item \textbf{（计算题）} 讨论 \(\lambda\) 取何值时，下列线性方程组有唯一解、无解或有无穷多解，并在有无穷多解时求出通解：
 \[
 \begin{cases}
@@ -679,6 +693,7 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
 \end{cases}
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 系数矩阵的行列式为
 \[
 \det A = \begin{vmatrix}
@@ -739,10 +754,12 @@ x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
     + k_1\begin{pmatrix} -1 \\ 1 \\ 0 \end{pmatrix}
     + k_2\begin{pmatrix} -1 \\ 0 \\ 1 \end{pmatrix}, \quad k_1,k_2 \in \mathbb{R}
     \]
+\fi%
 \end{enumerate}
 
 \item \textbf{（证明题）} 设 \(A\) 为任意 \(n\) 阶方阵，证明：\(A\) 可以唯一地表示为一个对称矩阵与一个反对称矩阵之和。
 
+\ifshowsolutions%
 \boxed{\textbf{证明}} 
 \textbf{存在性：} 令
 \[
@@ -761,12 +778,14 @@ S_1 - S_2 = K_2 - K_1
 
 \boxed{\text{注}} 此分解称为矩阵的\textbf{对称-反对称分解}（Cartesian decomposition），在矩阵分析和偏微分方程中有重要应用。特别的，\(\frac{A + A^\mathrm{T}}{2}\) 称为 \(A\) 的\textbf{对称部分}，\(\frac{A - A^\mathrm{T}}{2}\) 称为 \(A\) 的\textbf{反对称部分}。
 
+\fi%
 \item \textbf{（计算与证明题）} 利用二次型的判别式方法证明 Cauchy-Schwarz 不等式：
 \[
 \bigl(\sum_{i=1}^{n} a_i^2\bigr)\bigl(\sum_{i=1}^{n} b_i^2\bigr) \geq \bigl(\sum_{i=1}^{n} a_i b_i\bigr)^2
 \]
 并指出等号成立的条件。
 
+\ifshowsolutions%
 \boxed{\textbf{解与证明}} 构造关于 \(x\) 的二次三项式：
 \[
 f(x) = \sum_{i=1}^{n} (a_i x + b_i)^2 = \bigl(\sum_{i=1}^{n} a_i^2\bigr)x^2 + 2\bigl(\sum_{i=1}^{n} a_i b_i\bigr)x + \bigl(\sum_{i=1}^{n} b_i^2\bigr) \geq 0
@@ -789,6 +808,7 @@ f(x) = Ax^2 + 2Bx + C, \quad A = \sum a_i^2,\; B = \sum a_i b_i,\; C = \sum b_i^
 
 换言之，Cauchy-Schwarz 不等式等号成立当且仅当 \(\boldsymbol{a}\) 与 \(\boldsymbol{b}\) 线性相关。\(\square\)
 
+\fi%
 \end{enumerate}
 
 \subsection{真题风格与综合训练}
@@ -803,6 +823,7 @@ f(x) = Ax^2 + 2Bx + C, \quad A = \sum a_i^2,\; B = \sum a_i b_i,\; C = \sum b_i^
     \item 若行阶梯形中非零行数等于未知数个数，则方程组必有无穷多解
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 选 (C)。
 
 \textbf{分析：}
@@ -813,8 +834,10 @@ f(x) = Ax^2 + 2Bx + C, \quad A = \sum a_i^2,\; B = \sum a_i b_i,\; C = \sum b_i^
     \item (D) 错误。非零行数等于未知数个数时，每个未知数均可唯一确定，方程组有\textbf{唯一解}（前提是无矛盾行）。若非零行数小于未知数个数，才可能有无穷多解。
 \end{itemize}
 
+\fi%
 \item \textbf{（填空题，\boxed{\textbf{真题风格}}）} 设 \(A = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix}\)，则 \(A^{2025} = \underline{\qquad}\)。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 先计算 \(A\) 的前几次幂，寻找规律：
 \[
 A = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix},\quad
@@ -839,6 +862,7 @@ A^{2025} = A^{4 \times 506 + 1} = A = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatr
 
 \boxed{\text{注}} 处理矩阵幂时，可从低次幂或矩阵满足的多项式关系入手；验证周期后，再按指数对周期取模化简。矩阵的阶数本身不能决定幂的周期，不能据此猜测周期。
 
+\fi%
 \item \textbf{（计算题，\boxed{\textbf{真题风格}}，经典含参讨论）} 设线性方程组
 \[
 \begin{cases}
@@ -849,6 +873,7 @@ A^{2025} = A^{4 \times 506 + 1} = A = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatr
 \]
 讨论参数 \(k\) 取何值时方程组有唯一解、无解、无穷多解，并在有无穷多解时求出全部解。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 写出增广矩阵，作初等行变换：
 \[
 \begin{aligned}
@@ -924,6 +949,7 @@ A^{2025} = A^{4 \times 506 + 1} = A = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatr
     \end{array}\right)
     \]
     第三行出现 \(0 = 12\)，矛盾！故 \(k = -4\) 时也\textbf{无解}。
+\fi%
 \end{enumerate}
 
 综上：当 \(k \neq 1\) 且 \(k \neq -4\) 时唯一解；当 \(k = 1\) 或 \(k = -4\) 时无解；不存在无穷多解情形。

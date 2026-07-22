@@ -544,6 +544,7 @@ X\setminus Y & 0 & 1 & 2 \\
     \item[(3)] 求$E(X),E(Y),\Cov(X,Y)$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) $X$的边缘分布：
 \[
@@ -593,6 +594,7 @@ E(XY)
 
 \vspace{0.5cm}
 
+\fi%
 \textbf{2.} 设二维随机变量$(X,Y)$的联合概率密度为
 \[
 f(x,y)=\begin{cases}
@@ -606,6 +608,7 @@ f(x,y)=\begin{cases}
     \item[(3)] 求$P\!\left(X<\frac{1}{2}\;\middle|\;Y=\frac{3}{4}\right)$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 先求$f_X(x)$：对固定的$x\in(0,1)$，$y$的范围是$x<y<1$。
 \[
@@ -636,6 +639,7 @@ P\!\left(X<\frac12\;\middle|\;Y=\frac34\right)
 
 \vspace{0.5cm}
 
+\fi%
 \textbf{3.} 设随机变量$X\sim U(0,1)$，在$X=x$的条件下，$Y\sim U(0,x)$。
 \begin{enumerate}
     \item[(1)] 求$(X,Y)$的联合概率密度$f(x,y)$；
@@ -643,6 +647,7 @@ P\!\left(X<\frac12\;\middle|\;Y=\frac34\right)
     \item[(3)] 求$\Cov(X,Y)$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 已知$f_X(x)=1$（$0<x<1$），$f_{Y\mid X}(y\mid x)=\frac{1}{x}$（$0<y<x$）。
 由乘法公式：
@@ -679,6 +684,7 @@ E(XY)=\iint_{0<y<x<1}xy\cdot\frac{1}{x}\,dx\,dy
 
 \vspace{0.5cm}
 
+\fi%
 \textbf{4.} 设二维随机变量$(X,Y)$的联合分布律为
 \[
 \begin{array}{c|cc}
@@ -694,6 +700,7 @@ X\setminus Y & -1 & 1 \\
     \item[(3)] 此例说明了什么？
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) $X$的边缘分布：$P(X=0)=\frac{1}{2}$，$P(X=1)=\frac{1}{2}$。
 $Y$的边缘分布：$P(Y=-1)=\frac{1}{2}$，$P(Y=1)=\frac{1}{2}$。
@@ -724,10 +731,12 @@ E(XY)=\sum_{i,j}x_i y_j p_{ij}
 \vspace{0.5cm}
 
 
+\fi%
 \subsection{综合提高题}
 
 \textbf{5.} 设随机变量$X$与$Y$相互独立，$X\sim U(0,1)$，$Y$服从参数$\lambda=1$的指数分布，其密度为$f_Y(y)=e^{-y}$（$y>0$）。求$Z=X+Y$的概率密度。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 由卷积公式，当$X$与$Y$独立时：
 \[
@@ -766,6 +775,7 @@ e^{-z+1}-e^{-z}, & z>1.
 
 \vspace{0.5cm}
 
+\fi%
 \textbf{6.} 设$X\sim N(0,1)$，$Y\sim N(0,1)$，且$X$与$Y$相互独立。令
 \[
 U=X+Y,\quad V=X-Y.
@@ -775,6 +785,7 @@ U=X+Y,\quad V=X-Y.
     \item[(2)] 判断$U$与$V$是否独立。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 变换$\begin{cases}U=X+Y\\V=X-Y\end{cases}$，逆变换$\begin{cases}X=\frac{U+V}{2}\\Y=\frac{U-V}{2}\end{cases}$。
 
@@ -811,6 +822,7 @@ f_{U,V}(u,v)=f_{X,Y}\!\left(\frac{u+v}{2},\frac{u-v}{2}\right)\cdot |J|
 
 \vspace{0.5cm}
 
+\fi%
 \textbf{7.} 设二维随机变量$(X,Y)$服从二维正态分布$N(0,1;0,1;\rho)$，其联合密度为
 \[
 f(x,y)=\frac{1}{2\pi\sqrt{1-\rho^2}}\exp\!\left[-\frac{x^2-2\rho xy+y^2}{2(1-\rho^2)}\right].
@@ -821,6 +833,7 @@ f(x,y)=\frac{1}{2\pi\sqrt{1-\rho^2}}\exp\!\left[-\frac{x^2-2\rho xy+y^2}{2(1-\rh
     \item[(3)] 设$Z=aX+bY$（$a,b$为常数），求$Z$的分布。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 由二维正态分布的定义，参数$\rho$即为$X$与$Y$的相关系数，故
 \[
@@ -854,6 +867,7 @@ Z\sim N(0,\,a^2+b^2+2ab\rho).
 
 \vspace{0.5cm}
 
+\fi%
 \textbf{8.} 设$X\sim N(0,1)$，令$Y=X^2$。
 \begin{enumerate}
     \item[(1)] 求$\Cov(X,Y)$和$\rho_{XY}$；
@@ -861,6 +875,7 @@ Z\sim N(0,\,a^2+b^2+2ab\rho).
     \item[(3)] 此例说明了什么？
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1)
 \[
@@ -888,6 +903,7 @@ P(A\cap B)=p\neq p^2=P(A)P(B).
 \vspace{0.5cm}
 
 
+\fi%
 \subsection{真题风格与综合训练}
 
 \textbf{9.}（\boxed{\textbf{真题风格}}）设二维随机变量$(X,Y)$的联合概率密度为
@@ -903,6 +919,7 @@ f(x,y)=\begin{cases}
     \item[(3)] 求$E(X\mid Y=y)$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 联合密度可分解为
 \[
@@ -939,6 +956,7 @@ E(X\mid Y=y)=\int_{0}^{+\infty}x\cdot e^{-x}\,dx=1.
 
 \vspace{0.5cm}
 
+\fi%
 \textbf{10.}（\boxed{\textbf{真题风格}}）设随机变量$X$与$Y$相互独立，$X$的概率密度为
 \[
 f_X(x)=\begin{cases}
@@ -955,6 +973,7 @@ f_Y(y)=\begin{cases}
 \]
 记$U=XY$，求$U$的概率密度$f_U(u)$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 由$U=XY$的密度公式，当$X$与$Y$独立时：
 \[
@@ -991,6 +1010,7 @@ f_U(u)=\begin{cases}
 
 \vspace{0.5cm}
 
+\fi%
 \textbf{11.}（\boxed{\textbf{真题风格}}）设二维随机变量$(X,Y)$在区域$D=\{(x,y):0<y<x<1\}$上服从均匀分布。
 \begin{enumerate}
     \item[(1)] 求$(X,Y)$的联合概率密度；
@@ -999,6 +1019,7 @@ f_U(u)=\begin{cases}
     \item[(4)] 求$\rho_{XY}$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 区域$D$的面积为
 \[
@@ -1064,6 +1085,7 @@ E(XY)=\iint_{D}xy\cdot 2\,dx\,dy
 
 \vspace{0.5cm}
 
+\fi%
 \textbf{12.}（真题风格）设二维随机变量$(X,Y)$的联合概率密度为
 \[
 f(x,y)=\begin{cases}
@@ -1078,6 +1100,7 @@ f(x,y)=\begin{cases}
     \item[(4)] 求$E(Y)$和$E(Y\mid X)$。
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 (1) 验证：
 \[
@@ -1143,3 +1166,5 @@ E(Y\mid X=x)=\int_{0}^{x}y\cdot\frac{1}{x}\,dy=\frac{x}{2}.
     \item 条件期望$E(Y\mid X)$的计算与重期望公式
     \item 二维均匀分布与二维正态分布的特殊性质
 \end{itemize}
+
+\fi%

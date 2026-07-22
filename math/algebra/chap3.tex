@@ -520,6 +520,7 @@ D = \begin{vmatrix}
 \]
 通过初等行变换化为上三角行列式，$D = \underline{\qquad}$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 利用初等行变换将行列式化为上三角形式。
 \[
 \begin{aligned}
@@ -576,6 +577,7 @@ D &= \begin{vmatrix}
 \]
 \boxed{\textbf{答}} $D = 36$。
 
+\fi%
 \item \textbf{选择题} 下列哪种操作会使行列式变为原行列式的\textbf{相反数}？
 \begin{enumerate}[label=(\Alph*)]
     \item 交换两行
@@ -584,11 +586,13 @@ D &= \begin{vmatrix}
     \item 将行列式转置
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 交换行列式的两行，行列式变为原来的相反数；
 倍加变换和转置不改变行列式，将一行乘以 $k$ 则使行列式乘以 $k$。
 
 \boxed{\textbf{答}} 选 \textbf{(A)}。
 
+\fi%
 \item \textbf{计算题} 利用按行（列）展开定理，选择零元素最多的行或列，计算：
 \[
 D = \begin{vmatrix}
@@ -599,6 +603,7 @@ D = \begin{vmatrix}
 \end{vmatrix}
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 观察行列式，第2列除 $a_{22}=2$ 外其余均为 $0$，选择按第2列展开：
 \[
 \begin{aligned}
@@ -633,6 +638,7 @@ D &= 2 \cdot (-1)^{2+2} \begin{vmatrix}
 
 \boxed{\textbf{答}} $D = 10$。
 
+\fi%
 \item \textbf{计算题} 解关于 $x$ 的方程：
 \[
 \begin{vmatrix}
@@ -642,6 +648,7 @@ x-1 & 2 & 0 \\
 \end{vmatrix} = 0
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 计算三阶行列式：
 \[
 \begin{aligned}
@@ -664,6 +671,7 @@ x = 1,\quad x = 1 \pm 2\sqrt{2}.
 
 \boxed{\textbf{答}} $x = 1,\; 1+\sqrt{8},\; 1-\sqrt{8}$。
 
+\fi%
 \item \textbf{选择题} 设 $A$ 为 $n$ 阶方阵，$k$ 为常数，则下列等式中正确的是
 \begin{enumerate}[label=(\Alph*)]
     \item $|kA| = k|A|$
@@ -672,11 +680,13 @@ x = 1,\quad x = 1 \pm 2\sqrt{2}.
     \item $|kA| = |k|^n\cdot |A|$
 \end{enumerate}
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 由行列式的公因子提取性质：若将方阵 $A$ 的\textbf{每一行}都乘以 $k$，相当于从每一行提取公因子 $k$，共 $n$ 行，因此 $|kA| = k^n|A|$。\\
 选项 (C) 正确。注意 $|kA|$ 中 $k$ 是实数，不需加绝对值。(A) 丢掉了指数 $n$；(B) 多加了绝对值；(D) 错误。常见考研陷阱题。
 
 \boxed{\textbf{答}} 选\textbf{(C)}。
 
+\fi%
 \item \textbf{计算题} 利用范德蒙德行列式公式，计算：
 \[
 V = \begin{vmatrix}
@@ -687,6 +697,7 @@ V = \begin{vmatrix}
 \end{vmatrix}
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 该行列式第1行为 $(1,1,1,1)$，第2行为 $(x_1,x_2,x_3,x_4)$，第3行为 $(x_1^2,x_2^2,x_3^2,x_4^2)$，第4行为 $(x_1^3,x_2^3,x_3^3,x_4^3)$，这是一个 $4$ 阶范德蒙德行列式，其中
 \[
 x_1=1,\; x_2=2,\; x_3=-1,\; x_4=3.
@@ -703,11 +714,13 @@ V &= \prod_{1 \leq i < j \leq 4} (x_j - x_i) \\
 
 \boxed{\textbf{答}} $V = 48$。
 
+\fi%
 \item \textbf{填空题} 设 $A$ 为 $3$ 阶方阵且 $|A|=2$，则
 $|2A| = \underline{\qquad}$，
 $|A^{-1}| = \underline{\qquad}$，
 $|A^*| = \underline{\qquad}$（其中 $A^*$ 为伴随矩阵）。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 已知 $A$ 为 $3$ 阶方阵，$|A|=2$，$n=3$。
 \begin{itemize}
     \item $|2A| = 2^3 |A| = 8 \times 2 = 16$（从每一行提取公因子 $2$，共 $3$ 行）。
@@ -717,6 +730,7 @@ $|A^*| = \underline{\qquad}$（其中 $A^*$ 为伴随矩阵）。
 
 \boxed{\textbf{答}} $|2A|=16$，$|A^{-1}|=\frac{1}{2}$，$|A^*|=4$。
 
+\fi%
 \end{enumerate}
 
 \subsection{综合提高题}
@@ -727,6 +741,7 @@ $|A^*| = \underline{\qquad}$（其中 $A^*$ 为伴随矩阵）。
 且满足 $AB + A + B = O$（零矩阵）。求 $|A+B|$。
 \boxed{\text{注}} 提示：将原式移项得 $A+B = -AB$，再取行列式。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 由题设直接移项得
 \[
 A+B=-AB.
@@ -738,9 +753,11 @@ A+B=-AB.
 
 \boxed{\textbf{答}} $|A+B| = 6$。
 
+\fi%
 \item \textbf{证明题} 设 $A$ 为 $n$ 阶方阵（$n \geq 2$），$A^*$ 为 $A$ 的伴随矩阵。
 证明：$|A^*| = |A|^{n-1}$。
 
+\ifshowsolutions%
 \boxed{\textbf{证明}} 由伴随矩阵的性质，$AA^* = A^*A = |A|I_n$。
 
 若 $|A| \neq 0$（$A$ 可逆）：对 $AA^* = |A|I_n$ 两边取行列式：
@@ -755,6 +772,7 @@ A+B=-AB.
 
 \boxed{\textbf{证毕}} $|A^*| = |A|^{n-1}$。
 
+\fi%
 \item \textbf{计算题}（三对角行列式）计算 $n$ 阶行列式：
 \[
 D_n = \begin{vmatrix}
@@ -768,6 +786,7 @@ D_n = \begin{vmatrix}
 \]
 \boxed{\text{注}} 提示：按第一行展开，建立递推关系 $D_n = 2D_{n-1} - D_{n-2}$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 记 $n$ 阶三对角行列式为 $D_n$。当 $n=1$ 时，$D_1 = |2| = 2$。当 $n=2$ 时，
 \[
 D_2 = \begin{vmatrix} 2 & 1 \\ 1 & 2 \end{vmatrix} = 3.
@@ -797,9 +816,11 @@ c_1 + 2c_2 = 3,
 
 \boxed{\textbf{答}} $D_n = n+1$。
 
+\fi%
 \item \textbf{证明题} 设 $A$ 为 $n$ 阶反对称矩阵（即 $A^T = -A$），且 $n$ 为奇数。
 证明：$|A| = 0$。
 
+\ifshowsolutions%
 \boxed{\textbf{证明}} 设 $A$ 为 $n$ 阶反对称矩阵，即 $A^T = -A$，且 $n$ 为奇数。
 
 由行列式的转置不变性：$|A^T| = |A|$。\\
@@ -822,6 +843,7 @@ c_1 + 2c_2 = 3,
 
 \boxed{\textbf{证毕}} 奇数阶反对称矩阵的行列式为零。
 
+\fi%
 \item \textbf{计算题} 用克莱姆法则求解方程组，并用高斯消元法验证结果：
 \[
 \begin{cases}
@@ -831,6 +853,7 @@ x_1 - 3x_2 + 2x_3 = -1 \\
 \end{cases}
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 
 \textbf{法一：克莱姆法则。}
 
@@ -955,6 +978,7 @@ $2x_1 + x_2 - x_3 = 5 \implies 2x_1 + 1 = 5 \implies x_1 = 2$。
 
 \boxed{\textbf{答}} $x_1 = 2,\; x_2 = 1,\; x_3 = 0$。
 
+\fi%
 \end{enumerate}
 
 \subsection{真题风格与综合训练}
@@ -965,6 +989,7 @@ $2x_1 + x_2 - x_3 = 5 \implies 2x_1 + 1 = 5 \implies x_1 = 2$。
 $A = (\alpha_1,\alpha_2,\alpha_3)$，$B = (\alpha_1+2\alpha_2,\;\alpha_2+2\alpha_3,\;\alpha_3+2\alpha_1)$。
 若 $|A| = 3$，则 $|B| = \underline{\qquad}$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 由已知：
 \[
 B = (\alpha_1+2\alpha_2,\;\alpha_2+2\alpha_3,\;\alpha_3+2\alpha_1).
@@ -1010,6 +1035,7 @@ C = \begin{pmatrix}
 
 \boxed{\textbf{答}} $|B| = 27$。
 
+\fi%
 \item \textbf{计算题} $\boxed{\textbf{真题风格}}$ 计算 $n$ 阶行列式：
 \[
 D_n = \begin{vmatrix}
@@ -1022,6 +1048,7 @@ b & b & b & \cdots & a
 \]
 即主对角线元素均为 $a$，其余元素均为 $b$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}} 将第2至第 $n$ 列都加到第1列：
 \[
 D_n = \begin{vmatrix}
@@ -1062,6 +1089,7 @@ D_n = [a+(n-1)b] \cdot 1 \cdot (a-b)^{n-1} = [a + (n-1)b](a-b)^{n-1}.
 
 \boxed{\textbf{答}} $D_n = [a + (n-1)b](a-b)^{n-1}$。
 
+\fi%
 \item \textbf{证明题} $\boxed{\textbf{真题风格}}$ 设 $A$ 为 $n$ 阶方阵（$n \geq 2$），$A^*$ 为 $A$ 的伴随矩阵。
 证明：
 \[
@@ -1073,6 +1101,7 @@ n, & r(A) = n, \\
 \]
 其中 $r(\cdot)$ 表示矩阵的秩。
 
+\ifshowsolutions%
 \boxed{\textbf{证明}} 分三种情况讨论。
 
 \textbf{情况一：$r(A) = n$。} 此时 $A$ 满秩，$|A| \neq 0$。由 $AA^* = |A|I_n$，两边取行列式：
@@ -1102,4 +1131,5 @@ n, & r(A)=n, \\
 
 \boxed{\textbf{证毕}}
 
+\fi%
 \end{enumerate}

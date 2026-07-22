@@ -546,6 +546,7 @@
 \frac{\mathrm{d}y}{\mathrm{d}x} = \frac{1+y^{2}}{1+x^{2}},\quad y(0)=1.
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 分离变量得
 \[
@@ -563,11 +564,13 @@ y = \tan\!\Bigl(\arctan x + \frac{\pi}{4}\Bigr) = \frac{x+1}{1-x}.
 
 \bigskip
 
+\fi%
 \textbf{2.}（一阶线性方程）求解方程
 \[
 y' + \frac{2}{x}y = \frac{\sin x}{x^{2}},\quad x>0.
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 积分因子 $\mu(x)=e^{\int\frac{2}{x}\mathrm{d}x}=e^{2\ln x}=x^{2}$。方程两边同乘 $x^{2}$：
 \[
@@ -580,11 +583,13 @@ y = \frac{C-\cos x}{x^{2}}.
 
 \bigskip
 
+\fi%
 \textbf{3.}（齐次方程）求解方程
 \[
 (x^{2}+y^{2})\mathrm{d}x - xy\,\mathrm{d}y = 0.
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 化为 $\frac{\mathrm{d}y}{\mathrm{d}x} = \frac{x^{2}+y^{2}}{xy} = \frac{x}{y} + \frac{y}{x}$。这是齐次方程，令 $u=\frac{y}{x}$，则 $y=ux$，$y'=u+xu'$。代入：
 \[
@@ -597,11 +602,13 @@ u + x\frac{\mathrm{d}u}{\mathrm{d}x} = \frac{1}{u} + u \quad\Longrightarrow\quad
 
 \bigskip
 
+\fi%
 \textbf{4.}（伯努利方程）求解方程
 \[
 y' - \frac{2}{x}y = x^{2}y^{2},\quad x>0.
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 这是伯努利方程 ($n=2$)。令 $z = y^{1-2} = y^{-1}$，则 $z' = -y^{-2}y'$，即 $y' = -y^{2}z'$。代入原方程：
 \[
@@ -624,6 +631,7 @@ z = -\frac{x^{3}}{5} + \frac{C}{x^{2}}.
 y = \frac{1}{-\frac{x^{3}}{5} + \frac{C}{x^{2}}} = \frac{5x^{2}}{5C - x^{5}}.
 \]
 
+\fi%
 \newpage
 \subsubsection{综合提高题}
 
@@ -633,6 +641,7 @@ y'' - 4y' + 5y = e^{2x}\sin x
 \]
 的通解。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 齐次方程的特征方程为 $r^{2}-4r+5=0$，解得 $r=2\pm i$。故齐次通解
 \[
@@ -674,11 +683,13 @@ y = e^{2x}(C_{1}\cos x + C_{2}\sin x) - \frac{1}{2}x e^{2x}\cos x.
 
 \bigskip
 
+\fi%
 \textbf{6.}（欧拉方程）求解方程
 \[
 x^{2}y'' - 2xy' + 2y = x^{2}\ln x,\quad x>0.
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 令 $x=e^{t}$（即 $t=\ln x$），记 $D_{t}=\frac{\mathrm{d}}{\mathrm{d}t}$。由 $xy'=D_{t}y$，$x^{2}y''=D_{t}(D_{t}-1)y$，原方程化为
 \[
@@ -713,11 +724,13 @@ y = C_{1}x + C_{2}x^{2} + x^{2}\Bigl(\frac{1}{2}\ln^{2}x - \ln x\Bigr).
 
 \bigskip
 
+\fi%
 \textbf{7.}（常数变易法）求解方程
 \[
 y'' + y = \frac{1}{\cos x},\quad |x|<\frac{\pi}{2}.
 \]
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 齐次方程 $y''+y=0$ 的通解为 $y_{h}=C_{1}\cos x + C_{2}\sin x$。用常数变易法，设特解 $y^{*}=u_{1}(x)\cos x+u_{2}(x)\sin x$，其中
 \[
@@ -744,8 +757,10 @@ y = C_{1}\cos x + C_{2}\sin x + \cos x\cdot\ln(\cos x) + x\sin x.
 
 \bigskip
 
+\fi%
 \textbf{8.}（微分方程的应用——牛顿冷却定律）某物体在 $t=0$ 时温度为 $100^{\circ}\mathrm{C}$，放置在温度为 $20^{\circ}\mathrm{C}$ 的恒温环境中。已知经过 $10$ 分钟后物体温度降至 $60^{\circ}\mathrm{C}$。按牛顿冷却定律（冷却速率与物体和环境的温差成正比），求物体温度降至 $30^{\circ}\mathrm{C}$ 所需的时间。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 设 $T(t)$ 为 $t$ 时刻物体的温度。由牛顿冷却定律：
 \[
@@ -764,6 +779,7 @@ t = \frac{3\ln 2}{k} = \frac{3\ln 2}{\ln 2/10} = 30.
 \]
 故物体温度降至 $30^{\circ}\mathrm{C}$ 需要 $30$ 分钟。
 
+\fi%
 \newpage
 \subsection{真题风格与综合训练}
 
@@ -773,6 +789,7 @@ f(x) = x + \int_{0}^{x} (x-t)f(t)\,\mathrm{d}t.
 \]
 求 $f(x)$ 的表达式。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 将积分方程改写为
 \[
@@ -801,6 +818,7 @@ f(x) = \frac{e^{x}-e^{-x}}{2} = \operatorname{sh} x.
 
 \bigskip
 
+\fi%
 \textbf{10.}（\boxed{\textbf{真题风格}}，含参微分方程的边值问题）讨论参数 $\lambda$ 取何值时，边值问题
 \[
 \begin{cases}
@@ -810,6 +828,7 @@ y(0)=0,\quad y(\pi)=0
 \]
 有非零解，并求出相应的非零解。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 这是一个含参边值问题，按 $\lambda$ 的符号分三种情形讨论。
 
@@ -826,12 +845,14 @@ y_{n}(x) = C\sin nx,\quad C\neq 0.
 
 \bigskip
 
+\fi%
 \textbf{11.}（\boxed{\textbf{真题风格}}，含参微分方程的定性讨论）设 $a$ 为实参数，求方程
 \[
 y'' + ay' + y = 0
 \]
 的任一解都在 $x\to+\infty$ 时趋于零的充要条件。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 特征方程为 $r^{2}+ar+1=0$，判别式 $\Delta = a^{2}-4$。
 
@@ -851,12 +872,14 @@ y = e^{-ax/2}\Bigl(C_{1}\cos\frac{\sqrt{4-a^{2}}}{2}x + C_{2}\sin\frac{\sqrt{4-a
 
 \bigskip
 
+\fi%
 \textbf{12.}（\boxed{\textbf{真题风格}}，积分—微分方程综合）设 $y=y(x)$ 二阶可导，且满足
 \[
 y'' = \int_{0}^{x} y(t)\,\mathrm{d}t + e^{-x},
 \]
 及 $y(0)=0$，$y'(0)=1$。求 $y(x)$。
 
+\ifshowsolutions%
 \boxed{\textbf{解}}
 令 $I(x)=\int_{0}^{x}y(t)\,\mathrm{d}t$，则 $I'(x)=y(x)$，$I''(x)=y'(x)$，$I'''(x)=y''(x)$，且 $I(0)=0$，$I'(0)=y(0)=0$。
 
@@ -952,3 +975,5 @@ y(x)
 \end{aligned}
 \]
 可验证 $y(0)=\frac{1}{6}-\frac{2}{3}+\frac{1}{2}=0$，$y'(0)$ 经计算为 $1$，满足条件。
+
+\fi%
