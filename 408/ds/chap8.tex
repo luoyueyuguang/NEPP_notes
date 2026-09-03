@@ -740,7 +740,7 @@ int MaxSubArrayDC(int A[], int left, int right) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 长度为 $2k$ 时，快指针走完 $2k$ 个结点后变为 \texttt{NULL}，慢指针恰好前进 $k$ 步，指向第 $k+1$ 个结点，即后半段的第一个结点。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 长度为 $2k$ 时，快指针走完 $2k$ 个结点后变为 \texttt{NULL}，慢指针恰好前进 $k$ 步，指向第 $k+1$ 个结点，即后半段的第一个结点。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \item \textbf{（单项选择题）} 以下关于 Floyd 快慢指针判环算法的说法中，错误的是
 \begin{center}
@@ -752,7 +752,7 @@ int MaxSubArrayDC(int A[], int left, int right) {
 \end{tabularx}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 经典 Floyd 算法的步长为慢指针1、快指针2，环内相对步长为1，故必能相遇。即使快指针改为每次3步，环内相对步长为2；对任意有限环长 $\lambda$，总能取到满足 $2t\equiv0\pmod\lambda$ 的时刻，因此检测阶段仍会相遇。不过，经典入口定位依赖相遇点满足 $a=k\lambda-b$ 的 1:2 关系；改成1:3后，直接重置并各走一步不一定落在入口。因此错误的是 (C)。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 经典 Floyd 算法的步长为慢指针1、快指针2，环内相对步长为1，故必能相遇。即使快指针改为每次3步，环内相对步长为2：设入环前的路径长度为 $a$，慢指针进入环时快指针已多走 $3a-a=2a$ 步，即初始相位差 $d\equiv 2a\pmod\lambda$，相遇条件 $2t\equiv -d\pmod\lambda$ 等价于 $2(t+a)\equiv0\pmod\lambda$，对任意环长 $\lambda$ 恒有解（$\lambda$ 为奇数时取 $t\equiv-a\pmod\lambda$，为偶数时取 $t\equiv-a\pmod{\lambda/2}$），因此检测阶段必相遇。不过，经典入口定位依赖相遇点满足 $a=k\lambda-b$ 的 1:2 关系；改成1:3后，直接重置并各走一步不一定落在入口。因此错误的是 (C)。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \item \textbf{（单项选择题）} 判断有向图是否存在环的常用方法不包括
 \begin{center}
@@ -762,23 +762,23 @@ int MaxSubArrayDC(int A[], int left, int right) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 三色 DFS 中遇到指向 GRAY 结点的边说明存在回边；拓扑排序无法处理完全部顶点也说明有环。普通并查集适合无向图判环，不能直接判断一般有向图中的环。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 三色 DFS 中遇到指向 GRAY 结点的边说明存在回边；拓扑排序无法处理完全部顶点也说明有环。普通并查集适合无向图判环，不能直接判断一般有向图中的环。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \item \textbf{（填空题）} 在归并排序的归并过程中统计逆序对，当取出右侧子数组元素时，左侧子数组中剩余的元素个数即为当前元素产生的 \underline{\qquad\qquad} 数。该算法的时间复杂度为 \underline{\qquad\qquad}。
 
-\ifshowsolutions\par\noindent\textbf{答案：} 逆序对；$O(n\log n)$。左右两段已经有序，右段当前元素一旦小于左段当前元素，就同时小于左段全部剩余元素。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} 逆序对；$O(n\log n)$。左右两段已经有序，右段当前元素一旦小于左段当前元素，就同时小于左段全部剩余元素。\else \answerarea \fi
 
 \item \textbf{（填空题）} 判断一棵二叉树是否为完全二叉树时，若层序遍历中遇到了一个 \underline{\qquad\qquad} 的结点，则其后访问的结点必须均为叶子结点。若某结点仅有右孩子而无左孩子，可直接判定为 \underline{\qquad\qquad}。
 
-\ifshowsolutions\par\noindent\textbf{答案：} 无右孩子；非完全二叉树。若结点只有左孩子，它必须位于最后一个非叶位置；若它连左孩子也没有，则它本身已是叶结点。两种情况下后续层序结点都必须是叶结点。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} 无右孩子；非完全二叉树。若结点只有左孩子，它必须位于最后一个非叶位置；若它连左孩子也没有，则它本身已是叶结点。两种情况下后续层序结点都必须是叶结点。\else \answerarea \fi
 
 \item \textbf{（简答题）} 简述用非递归中序遍历寻找二叉排序树中第 $k$ 小元素的基本思路，并说明时间复杂度。
 
-\ifshowsolutions\par\noindent\textbf{答案：} 使用栈模拟中序遍历：沿左链依次入栈，弹出一个结点时将计数加1；计数首次等于 $k$ 时，该结点就是第 $k$ 小元素，然后转向其右子树继续同样过程。若在访问完 $k$ 个结点前栈已空，则 $k$ 越界。时间复杂度为 $O(h+k)$，最坏为 $O(n)$；辅助空间为 $O(h)$，其中 $h$ 为树高。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} 使用栈模拟中序遍历：沿左链依次入栈，弹出一个结点时将计数加1；计数首次等于 $k$ 时，该结点就是第 $k$ 小元素，然后转向其右子树继续同样过程。若在访问完 $k$ 个结点前栈已空，则 $k$ 越界。时间复杂度为 $O(h+k)$，最坏为 $O(n)$；辅助空间为 $O(h)$，其中 $h$ 为树高。\else \answerarea \fi
 
 \item \textbf{（简答题）} 说明为什么 Boyer-Moore 多数投票算法需要「验证阶段」（即第二次遍历确认候选元素的出现次数）。如果不验证，是否会出错？请给出反例。
 
-\ifshowsolutions\par\noindent\textbf{答案：} 抵消过程只保证“若主元素存在，最终候选一定是它”，并不保证任意输入都存在主元素。例如数组 $[1,2,3]$ 最终可能留下候选3，但任何元素的出现次数都没有超过 $3/2$。因此必须第二次遍历统计候选出现次数，只有大于 $\lfloor n/2\rfloor$ 才能返回。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} 抵消过程只保证“若主元素存在，最终候选一定是它”，并不保证任意输入都存在主元素。例如数组 $[1,2,3]$ 最终可能留下候选3，但任何元素的出现次数都没有超过 $3/2$。因此必须第二次遍历统计候选出现次数，只有大于 $\lfloor n/2\rfloor$ 才能返回。\else \answerarea \fi
 
 \item \textbf{（算法设计）} 编写算法，将带头结点的单链表 $L$ 中数据域为奇数的结点移到数据域为偶数的结点之前，且保持奇数和偶数各自内部的相对顺序不变。时间复杂度要求 $O(n)$，空间复杂度 $O(1)$。
 
@@ -798,7 +798,7 @@ void OddBeforeEven(LinkList L) {
     L->next = oddHead.next ? oddHead.next : evenHead.next;
 }
 \end{lstlisting}
-每个结点只处理一次，时间复杂度 $O(n)$；只使用常数个指针，辅助空间 $O(1)$。尾插保证奇、偶两组内部均稳定。\fi
+每个结点只处理一次，时间复杂度 $O(n)$；只使用常数个指针，辅助空间 $O(1)$。尾插保证奇、偶两组内部均稳定。\else \answerarea \fi
 
 \end{enumerate}
 
@@ -814,7 +814,7 @@ void OddBeforeEven(LinkList L) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 完全二叉树有 $n_0=\lceil n/2\rceil$ 个叶结点，故 $n_0=2024/2=1012$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 完全二叉树有 $n_0=\lceil n/2\rceil$ 个叶结点，故 $n_0=2024/2=1012$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \item \textbf{（真题风格，单项选择题）} 对 $n$ 个互异整数进行逆序对计数，在最坏情况下逆序对的数量是
 \begin{center}
@@ -824,7 +824,7 @@ void OddBeforeEven(LinkList L) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 序列严格递减时，每一对下标 $i<j$ 都构成逆序对，共有 $\binom n2=n(n-1)/2$ 对。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 序列严格递减时，每一对下标 $i<j$ 都构成逆序对，共有 $\binom n2=n(n-1)/2$ 对。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \item \textbf{（真题风格，综合题）} 设一棵关键字互异的二叉树以二叉链表存储，结点结构为 \texttt{(lchild, data, rchild)}。按“左子树关键字严格小于根、右子树关键字严格大于根”的定义，设计算法判断该树是否为二叉排序树（BST）。要求：
 \begin{enumerate}
@@ -848,7 +848,7 @@ bool IsBST(BiTree T) {
     return CheckBST(T, &prev);
 }
 \end{lstlisting}
-每个结点访问一次，时间复杂度 $O(n)$；递归栈为 $O(h)$，其中 $h$ 为树高。\fi
+每个结点访问一次，时间复杂度 $O(n)$；递归栈为 $O(h)$，其中 $h$ 为树高。\else \answerarea \fi
 
 \item \textbf{（真题风格，综合题）} 一个长度为 $n$（$n>1$）且元素互异的严格递增整数数组经过非零次循环右移后得到数组 $A$。等价地，存在某个下标 $p$（$0\leqslant p < n-1$），使 $A[0\ldots p]$、$A[p+1\ldots n-1]$ 各自严格递增，且后一段的所有元素均小于前一段的所有元素。设计 $O(\log n)$ 时间复杂度的算法找出最小值。要求：
 \begin{enumerate}
@@ -869,7 +869,7 @@ int FindMin(int A[], int n) {
     return A[low];
 }
 \end{lstlisting}
-每轮至少排除当前区间的一半，故时间复杂度为 $O(\log n)$，辅助空间为 $O(1)$。题干要求元素互异且确为严格递增数组的旋转，正是上述二分判据成立的条件。\fi
+每轮至少排除当前区间的一半，故时间复杂度为 $O(\log n)$，辅助空间为 $O(1)$。题干要求元素互异且确为严格递增数组的旋转，正是上述二分判据成立的条件。\else \answerarea \fi
 
 \item \textbf{（真题风格，综合题）} 设非空有向图 $G=(V,E)$ 以邻接表存储。设计算法，判断 $G$ 是否为一棵以某个顶点为根、边由父结点指向孩子结点的有向根树（out-arborescence）。也就是说，应恰有一个入度为0的根，其余顶点入度均为1，并且从根可到达所有顶点。要求：
 \begin{enumerate}
@@ -911,7 +911,7 @@ bool IsArborescence(const ALGraph *G) {
     return count == G->n;
 }
 \end{lstlisting}
-扫描边和遍历图的总时间为 $O(|V|+|E|)$；入度、访问标记和递归栈/队列占 $O(|V|)$ 辅助空间。\fi
+扫描边和遍历图的总时间为 $O(|V|+|E|)$；入度、访问标记和递归栈/队列占 $O(|V|)$ 辅助空间。\else \answerarea \fi
 
 \item \textbf{（真题风格，综合题）} 设一棵二叉树中各结点值互不相同，其先序遍历序列和中序遍历序列分别存入一维数组 \texttt{pre[]} 和 \texttt{in[]} 中。设计算法，用这两个序列重建该二叉树的二叉链表存储结构。要求：
 \begin{enumerate}
@@ -937,7 +937,7 @@ BiTree Build(int pre[], int pl, int pr,
     return root;
 }
 \end{lstlisting}
-直接在线性中序区间内找根，最坏时间复杂度为 $O(n^2)$；递归栈为 $O(h)$，另需 $O(n)$ 新结点空间。若预先用散列表建立“关键字$\to$中序下标”的映射，构造时间可降为平均 $O(n)$，额外映射空间为 $O(n)$。\fi
+直接在线性中序区间内找根，最坏时间复杂度为 $O(n^2)$；递归栈为 $O(h)$，另需 $O(n)$ 新结点空间。若预先用散列表建立“关键字$\to$中序下标”的映射，构造时间可降为平均 $O(n)$，额外映射空间为 $O(n)$。\else \answerarea \fi
 
 \item \textbf{（真题风格，综合题）} 给定长度为 $n$ 的整数数组 $A$，设计一个尽可能高效的算法，找出数组中第 $k$ 小的元素（$1\leqslant k \leqslant n$），并使算法在平均情况下达到 $O(n)$ 时间复杂度。要求：
 \begin{enumerate}
@@ -973,7 +973,7 @@ int QuickSelect(int A[], int n, int k) {
     return 0; // 题设保证 k 合法
 }
 \end{lstlisting}
-随机输入或随机选择枢轴时，期望工作量满足 $n+n/2+n/4+\cdots=O(n)$；若每次枢轴都极端不平衡，最坏为 $O(n^2)$。迭代实现的辅助空间为 $O(1)$，但会原地改变数组元素次序。\fi
+随机输入或随机选择枢轴时，期望工作量满足 $n+n/2+n/4+\cdots=O(n)$；若每次枢轴都极端不平衡，最坏为 $O(n^2)$。迭代实现的辅助空间为 $O(1)$，但会原地改变数组元素次序。\else \answerarea \fi
 
 \item \textbf{（真题风格，综合题）} 假定采用带头结点的单链表保存单词，每个结点存储一个字母。设计一个在时间上尽可能高效的算法，判断该单词是否为回文（正读与反读相同）。要求：
 \begin{enumerate}
@@ -1009,7 +1009,7 @@ bool IsPalindrome(LinkList L) {
     return ok;
 }
 \end{lstlisting}
-找中点、逆置、比较和恢复均为线性过程，总时间 $O(n)$，辅助空间 $O(1)$。\fi
+找中点、逆置、比较和恢复均为线性过程，总时间 $O(n)$，辅助空间 $O(1)$。\else \answerarea \fi
 
 \end{enumerate}
 

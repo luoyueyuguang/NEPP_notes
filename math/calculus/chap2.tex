@@ -498,7 +498,7 @@
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \textbf{2.} 求曲线 $y = x^3 - 3x$ 在点 $(2,2)$ 处的切线方程。
 
 \ifshowsolutions%
@@ -508,7 +508,7 @@ $y' = 3x^2 - 3$，$y'(2) = 3 \times 4 - 3 = 9$。
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \textbf{3.} 求函数 $y = \arctan\sqrt{x}$ 的微分 $\mathrm{d}y$。
 
 \ifshowsolutions%
@@ -518,7 +518,7 @@ $y' = \dfrac{1}{1 + (\sqrt{x})^2} \cdot \dfrac{1}{2\sqrt{x}} = \dfrac{1}{2\sqrt{
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \textbf{4.} 用对数求导法求 $y = x^x\ (x > 0)$ 的导数。
 
 \ifshowsolutions%
@@ -529,7 +529,7 @@ $\dfrac{y'}{y} = \ln x + x \cdot \dfrac{1}{x} = \ln x + 1$，
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \textbf{5.} 方程 $e^y + xy = e$ 确定隐函数 $y = y(x)$，求 $\displaystyle\left.\frac{\mathrm{d}y}{\mathrm{d}x}\right|_{x=0}$。
 
 \ifshowsolutions%
@@ -540,7 +540,7 @@ $\dfrac{y'}{y} = \ln x + x \cdot \dfrac{1}{x} = \ln x + 1$，
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \textbf{6.} 设 $\begin{cases} x = e^t\cos t \\ y = e^t\sin t \end{cases}$，求 $\dfrac{\mathrm{d}^2y}{\mathrm{d}x^2}$。
 
 \ifshowsolutions%
@@ -564,7 +564,7 @@ $，故
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \subsection{综合提高题}
 
 \textbf{7.} 设 $y = y(x)$ 由方程 $x^2 + xy + y^2 = 3$ 确定，求 $y''$。
@@ -586,7 +586,7 @@ y'' = -\frac{2(1 + y' + {y'}^2)}{x + 2y}.
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \textbf{8.} 求 $y = (x^2 + 2x)e^{-x}$ 的 $n$ 阶导数 $y^{(n)}$。
 
 \ifshowsolutions%
@@ -606,7 +606,7 @@ y^{(n)} &= \sum_{k=0}^{n} \binom{n}{k} u^{(k)} v^{(n-k)} \\
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \textbf{9.} 设 $\begin{cases} x = \ln(1+t^2) \\ y = t - \arctan t \end{cases}$，求 $\dfrac{\mathrm{d}^2y}{\mathrm{d}x^2}$。
 
 \ifshowsolutions%
@@ -627,7 +627,7 @@ y^{(n)} &= \sum_{k=0}^{n} \binom{n}{k} u^{(k)} v^{(n-k)} \\
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \textbf{10.} 设 $f(x) = \begin{cases} \dfrac{e^x - 1}{x}, & x \neq 0 \\[10pt] 1, & x = 0 \end{cases}$，
 (1) 证明 $f(x)$ 在 $x = 0$ 处连续；
 (2) 判断 $f(x)$ 在 $x = 0$ 处是否可导，若可导，求 $f'(0)$。
@@ -653,7 +653,7 @@ f'(0) &= \lim_{x \to 0} \frac{f(x) - f(0)}{x}
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \subsection{真题风格与综合训练}
 
 \textbf{11.} \boxed{\textbf{真题风格}} 设 $f(x)$ 在 $x = 1$ 处可导，且
@@ -683,7 +683,7 @@ f'(0) &= \lim_{x \to 0} \frac{f(x) - f(0)}{x}
 
 \bigskip
 
-\fi%
+\else \answerarea \fi%
 \textbf{12.} \boxed{\textbf{真题风格}} 设 $\begin{cases} x = t - \sin t \\ y = 1 - \cos t \end{cases}$（$0 \leq t \leq 2\pi$），求曲线上对应于 $t = \dfrac{\pi}{2}$ 的点处的切线方程和法线方程。
 
 \ifshowsolutions%
@@ -698,4 +698,4 @@ f'(0) &= \lim_{x \to 0} \frac{f(x) - f(0)}{x}
 
 法线斜率 $k_\perp = -1$，法线方程：$y - 1 = -1 \cdot \bigl(x - (\frac{\pi}{2} - 1)\bigr)$，即 $y = -x + \frac{\pi}{2}$。
 
-\fi%
+\else \answerarea \fi%

@@ -162,7 +162,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 4相位$\times$4振幅$=16$种信号状态，每码元$\log_2 16=4$ bit。奈奎斯特：$C_{\max}=2\times 3000\times 4=24$ kbps。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 4相位$\times$4振幅$=16$种信号状态，每码元$\log_2 16=4$ bit。奈奎斯特：$C_{\max}=2\times 3000\times 4=24$ kbps。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -174,7 +174,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 4相位每码元$\log_2 4=2$ bit。波特率$=2400/2=1200$ Baud。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 4相位每码元$\log_2 4=2$ bit。波特率$=2400/2=1200$ Baud。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -186,7 +186,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 按题目给定的约定逐位译码：低$\to$高为 0，高$\to$低为 1，得到 \texttt{00110110}。曼彻斯特编码的 0/1 跳变方向在不同约定中可能互换，作答时必须服从题设。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 按题目给定的约定逐位译码：低$\to$高为 0，高$\to$低为 1，得到 \texttt{00110110}。曼彻斯特编码的 0/1 跳变方向在不同约定中可能互换，作答时必须服从题设。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -198,7 +198,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 30 dB$\Rightarrow S/N=10^{30/10}=1000$。香农：$C=W\log_2(1+1000)\approx W\times 10$。奈奎斯特：$C=2W\log_2 V$。需$2W\log_2 V\geq 10W\Rightarrow \log_2 V\geq 5\Rightarrow V\geq 32$。\boxed{\textbf{答案：}(D)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 30 dB$\Rightarrow S/N=10^{30/10}=1000$。香农：$C=W\log_2(1+1000)\approx W\times 10$。奈奎斯特：$C=2W\log_2 V$。需$2W\log_2 V\geq 10W\Rightarrow \log_2 V\geq 5\Rightarrow V\geq 32$。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -210,7 +210,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 按题干约定，第一个比特 1 在位中间发生高$\to$低跳变，因此其前半为高电平、后半为低电平。不同教材可能采用相反映射，独立作答时应以题目约定为准。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 按题干约定，第一个比特 1 在位中间发生高$\to$低跳变，因此其前半为高电平、后半为低电平。不同教材可能采用相反映射，独立作答时应以题目约定为准。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \end{enumerate}
 
@@ -228,7 +228,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \ifshowsolutions\par\noindent\textbf{解析：}
 (1) $S/N=10^{30/10}=1000$。$C=3000\times\log_2 1001\approx 3000\times 10=30$ kbps。
 (2) QPSK每码元$\log_2 4=2$ bit。奈奎斯特：$C=2\times 3000\times 2=12$ kbps。
-(3) 奈奎斯特是无噪声下的符号率上限，香农是有噪声下的信息率上限。取$\min(30,12)=12$ kbps为实际极限——码元数限制了上限。\fi
+(3) 奈奎斯特是无噪声下的符号率上限，香农是有噪声下的信息率上限。取$\min(30,12)=12$ kbps为实际极限——码元数限制了上限。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -241,7 +241,7 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
 \ifshowsolutions\par\noindent\textbf{解析：}
 (1) $T_{\text{发送}}=1000\times 8/10^9=8\ \mu\text{s}$。$T_{\text{传播}}=10^6/(2\times 10^8)=5$ ms。RTT$=10$ ms。利用$=8/(8+10000)=0.08\%$。
 
-(2) 需$W\times T_{\text{发送}}\geq 0.5\times(\text{RTT}+T_{\text{发送}})\Rightarrow W\geq 0.5\times 10008/8\approx 626$。窗口至少626个帧。\fi
+(2) 需$W\times T_{\text{发送}}\geq 0.5\times(\text{RTT}+T_{\text{发送}})\Rightarrow W\geq 0.5\times 10008/8\approx 626$。窗口至少626个帧。\else \answerarea \fi
 
 \end{enumerate}
 

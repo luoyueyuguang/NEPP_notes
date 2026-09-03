@@ -717,7 +717,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
         \item 无法确定
     \end{enumerate}
 
-    \ifshowsolutions\par\noindent\textbf{解析：} 主存块号为 $\lfloor\mathtt{1234E8F8H}/8\rfloor$，直接映射行号等于块号模16，也就是取地址的第3--6位。低字节 $\mathtt{F8H}=11111000_2$，相应4位全为1，故行号为15。\boxed{\textbf{答案：第3项}}\fi
+    \ifshowsolutions\par\noindent\textbf{解析：} 主存块号为 $\lfloor\mathtt{1234E8F8H}/8\rfloor$，直接映射行号等于块号模16，也就是取地址的第3--6位。低字节 $\mathtt{F8H}=11111000_2$，相应4位全为1，故行号为15。\boxed{\textbf{答案：第3项}}\else \answerarea \fi
 
     \item \textbf{（真题风格·选择题）}
     某计算机的 Cache 共有 16 块，采用 2 路组相联映射（每组 2 块），每块大小为 32 字节，按字节编址。
@@ -729,7 +729,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
         \item $6$
     \end{enumerate}
 
-    \ifshowsolutions\par\noindent\textbf{解析：} 主存块号为 $\lfloor129/32\rfloor=4$；Cache 有 $16/2=8$ 组，故组号为 $4\bmod8=4$。\boxed{\textbf{答案：第3项}}\fi
+    \ifshowsolutions\par\noindent\textbf{解析：} 主存块号为 $\lfloor129/32\rfloor=4$；Cache 有 $16/2=8$ 组，故组号为 $4\bmod8=4$。\boxed{\textbf{答案：第3项}}\else \answerarea \fi
 
     \item \textbf{（真题风格·选择题）}
     某计算机主存地址空间大小为 256MB，按字节编址。数据 Cache 有 8 个 Cache 行，行长为 64B，采用直接映射方式。
@@ -741,7 +741,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
         \item $28$
     \end{enumerate}
 
-    \ifshowsolutions\par\noindent\textbf{解析：} 主存为 $256\text{ MB}=2^{28}$ B，地址28位；块内偏移6位，直接映射的8行需要3位行号，故 Tag 为 $28-6-3=19$ 位。\boxed{\textbf{答案：第3项}}\fi
+    \ifshowsolutions\par\noindent\textbf{解析：} 主存为 $256\text{ MB}=2^{28}$ B，地址28位；块内偏移6位，直接映射的8行需要3位行号，故 Tag 为 $28-6-3=19$ 位。\boxed{\textbf{答案：第3项}}\else \answerarea \fi
 
     \item \textbf{（真题风格·选择题）}
     下列关于 Cache 映射方式的叙述中，错误的是\_\_\_\_\_\_。
@@ -752,7 +752,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
         \item 组相联映射的冲突缺失率高于直接映射
     \end{enumerate}
 
-    \ifshowsolutions\par\noindent\textbf{解析：} 在容量和块大小相同的条件下，提高相联度通常减少或不增加冲突缺失；组相联的冲突缺失率不应被断言为高于直接映射。\boxed{\textbf{答案：第4项}}\fi
+    \ifshowsolutions\par\noindent\textbf{解析：} 在容量和块大小相同的条件下，提高相联度通常减少或不增加冲突缺失；组相联的冲突缺失率不应被断言为高于直接映射。\boxed{\textbf{答案：第4项}}\else \answerarea \fi
 
     \item \textbf{（真题风格·选择题）}
     下列关于 Cache 映射方式的叙述中，错误的是\_\_\_\_\_\_。
@@ -763,7 +763,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
         \item 组相联映射方式下，每组包含所有行时即为全相联映射
     \end{enumerate}
 
-    \ifshowsolutions\par\noindent\textbf{解析：} 直接映射的硬件简单，但不能保证所谓“利用率最高”；特定地址模式反而可能频繁冲突。全相联仍需比较 Tag；一行一组退化为直接映射，一组包含全部行退化为全相联。\boxed{\textbf{答案：第1项}}\fi
+    \ifshowsolutions\par\noindent\textbf{解析：} 直接映射的硬件简单，但不能保证所谓“利用率最高”；特定地址模式反而可能频繁冲突。全相联仍需比较 Tag；一行一组退化为直接映射，一组包含全部行退化为全相联。\boxed{\textbf{答案：第1项}}\else \answerarea \fi
 
     \item \textbf{（真题风格·选择题）}
     某计算机主存按字编址，由 4 个存储体构成，采用低位交叉编址。每个存储体的存取周期为 $40\,\mathrm{ns}$，
@@ -775,29 +775,29 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
         \item $160\,\mathrm{ns}$
     \end{enumerate}
 
-    \ifshowsolutions\par\noindent\textbf{解析：} 4个连续字分布到4个存储体。第一个字在40 ns后就绪，随后总线每10 ns传一个字，总时间为 $40+(4-1)\times10=70$ ns。\boxed{\textbf{答案：第2项}}\fi
+    \ifshowsolutions\par\noindent\textbf{解析：} 4个连续字分布到4个存储体。第一个字在40 ns后就绪，随后总线每10 ns传一个字，总时间为 $40+(4-1)\times10=70$ ns。\boxed{\textbf{答案：第2项}}\else \answerarea \fi
 
     \item \textbf{（填空题）}
     某计算机主存按字节编址，主存地址为 32 位。数据 Cache 容量为 32KB，块大小为 64 字节，采用 4 路组相联映射。
     则块内偏移占 \underline{\hspace{0.8cm}} 位，组号（Set Index）占 \underline{\hspace{0.8cm}} 位，Tag 占 \underline{\hspace{1.5cm}} 位。
 
-    \ifshowsolutions\par\noindent\textbf{答案：} 6，7，19。Cache 共 $32\text{ KiB}/64\text{ B}=512$ 行，4路时有128组，故组号7位，Tag$=32-7-6=19$位。\fi
+    \ifshowsolutions\par\noindent\textbf{答案：} 6，7，19。Cache 共 $32\text{ KiB}/64\text{ B}=512$ 行，4路时有128组，故组号7位，Tag$=32-7-6=19$位。\else \answerarea \fi
 
     \item \textbf{（填空题）}
     一个由 8 个存储体构成的低位交叉编址存储器，每个存储体的存取周期为 $80\,\mathrm{ns}$，总线传输周期为 $10\,\mathrm{ns}$。
     流水线方式下连续访问时，该存储器的最大带宽为 \underline{\hspace{1.5cm}} MB/s（设每个存储体每次可读写 4 字节）。
 
-    \ifshowsolutions\par\noindent\textbf{答案：} 400 MB/s。8个存储体恰好满足 $m\tau=T$，流水稳定后每10 ns传4 B，故带宽为 $4/(10\times10^{-9})=4\times10^8$ B/s。\fi
+    \ifshowsolutions\par\noindent\textbf{答案：} 400 MB/s。8个存储体恰好满足 $m\tau=T$，流水稳定后每10 ns传4 B，故带宽为 $4/(10\times10^{-9})=4\times10^8$ B/s。\else \answerarea \fi
 
     \item \textbf{（简答题）}
     简述时间局部性和空间局部性的含义，并各举出一个程序中的典型例子。说明为什么存储层次结构依赖于局部性原理。
 
-    \ifshowsolutions\par\noindent\textbf{答案：} 时间局部性指刚访问过的数据或指令近期很可能再次访问，例如循环中的计数变量和循环体指令；空间局部性指访问某地址后，邻近地址近期很可能被访问，例如顺序扫描数组。Cache、TLB 和虚拟存储只保存完整地址空间的一小部分，正是利用程序访问集中在近期工作集及邻近块的性质，才可能以较小、较快的上层存储获得较高命中率。\fi
+    \ifshowsolutions\par\noindent\textbf{答案：} 时间局部性指刚访问过的数据或指令近期很可能再次访问，例如循环中的计数变量和循环体指令；空间局部性指访问某地址后，邻近地址近期很可能被访问，例如顺序扫描数组。Cache、TLB 和虚拟存储只保存完整地址空间的一小部分，正是利用程序访问集中在近期工作集及邻近块的性质，才可能以较小、较快的上层存储获得较高命中率。\else \answerarea \fi
 
     \item \textbf{（简答题）}
     简述 Cache 的写直达（Write-Through）和写回（Write-Back）策略的区别，并说明它们各自通常搭配的写缺失（Write Miss）策略是什么，为什么这样搭配。
 
-    \ifshowsolutions\par\noindent\textbf{答案：} 写直达在 Cache 命中写时同时更新下层存储，内存副本较新、控制简单，但写流量较大，常与非写分配搭配，避免仅为一次写入先读入整块。写回只更新 Cache 并置脏位，块被替换时才写回下层，降低写流量，通常与写分配搭配，使后续对同一块的多次写都在 Cache 中完成。这些是常见组合而非体系结构必须遵守的唯一组合，题目若指定其他策略应以题设为准。\fi
+    \ifshowsolutions\par\noindent\textbf{答案：} 写直达在 Cache 命中写时同时更新下层存储，内存副本较新、控制简单，但写流量较大，常与非写分配搭配，避免仅为一次写入先读入整块。写回只更新 Cache 并置脏位，块被替换时才写回下层，降低写流量，通常与写分配搭配，使后续对同一块的多次写都在 Cache 中完成。这些是常见组合而非体系结构必须遵守的唯一组合，题目若指定其他策略应以题设为准。\else \answerarea \fi
 
 \end{enumerate}
 
@@ -822,7 +822,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
 
     (2) 前四次访问0、1、2、3均缺失，之后11次访问全部命中；两组都恰好容纳各自映射来的两个不同块，没有发生替换。命中次数11，命中率 $11/15\approx73.33\%$。
 
-    (3) 全相联 Cache 可同时容纳4个不同块，前四次装满后其余访问同样全部命中，命中率仍为 $11/15$。提高相联度只减少潜在冲突；本序列在2路映射下本来就没有冲突替换，因此命中率不变。\fi
+    (3) 全相联 Cache 可同时容纳4个不同块，前四次装满后其余访问同样全部命中，命中率仍为 $11/15$。提高相联度只减少潜在冲突；本序列在2路映射下本来就没有冲突替换，因此命中率不变。\else \answerarea \fi
 
     \item \textbf{（真题风格·选择题）Cache 地址结构与命中分析。}
     某计算机主存地址空间为 256MB，按字节编址。数据 Cache 容量为 8KB，块大小为 16 字节，
@@ -839,7 +839,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
 
     (2) 访问地址对应的块号为 $0,1,2,0,4,1,8,0$。这些块分别进入不同组（除重复块外），命中发生在第4、6、8次，共3次，命中率 $3/8=37.5\%$。
 
-    (3) 没有任何组发生容量超过4路的替换，故 FIFO 与 LRU 都命中3次；替换策略只有在某组需要淘汰块时才会造成差异。\fi
+    (3) 没有任何组发生容量超过4路的替换，故 FIFO 与 LRU 都命中3次；替换策略只有在某组需要淘汰块时才会造成差异。\else \answerarea \fi
 
     \item \textbf{（真题风格·综合题）TLB + Cache + 页表综合。}
     某计算机系统按字节编址，虚拟地址 32 位，物理地址 28 位，页大小 4KB。系统具有 TLB 和两级 Cache。
@@ -859,7 +859,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
 
     (3) 虚拟地址拆成 VPN=\texttt{0x12345} 和 VPO=\texttt{0x678}。VPN送入全相联 TLB 比较；命中后得到 PPN，与不变的 VPO 拼成物理地址。再从物理地址取组号和 Tag 访问 L1：读出相应组的8个 Tag 并比较，命中路中的块结合块内偏移选出目标字节/字返回 CPU。因 TLB 命中，不访问内存页表；因 L1 命中，也不访问 L2。
 
-    (4) 按题设串行计时，总延迟为 $1+2+15=18$ 个周期。这里15周期已经包含 L2 命中以及回填 L1 的时间，不能重复再加一次回填。\fi
+    (4) 按题设串行计时，总延迟为 $1+2+15=18$ 个周期。这里15周期已经包含 L2 命中以及回填 L1 的时间，不能重复再加一次回填。\else \answerarea \fi
 
     \item \textbf{（真题风格·选择题）LRU 替换算法。}
     某 Cache 采用 4 路组相联映射，每组有 4 个 Cache 行。对于某一特定组，初始为空。
@@ -884,7 +884,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
 
     (2) 精确 LRU 必须区分组内所有有效行从最旧到最新的次序。若 $k$ 行均有效，共有 $k!$ 种排列，理论最少状态位数为 $\lceil\log_2(k!)\rceil$；$k=4$ 时为 $\lceil\log_2 24\rceil=5$ 位。实际硬件若采用成对先后关系矩阵、每行年龄计数器等直接结构，可能使用多于该理论下界的位数，还要处理无效行状态。
 
-    (3) 真 LRU 每次命中都可能更新多行之间的全序关系，比较和更新逻辑随相联度快速增长，影响面积、功耗和关键路径。树形伪 LRU 只用约 $k-1$ 位并沿树更新，成本更低，通常能取得接近 LRU 的效果。\fi
+    (3) 真 LRU 每次命中都可能更新多行之间的全序关系，比较和更新逻辑随相联度快速增长，影响面积、功耗和关键路径。树形伪 LRU 只用约 $k-1$ 位并沿树更新，成本更低，通常能取得接近 LRU 的效果。\else \answerarea \fi
 
     \item \textbf{（真题风格·选择题）低位交叉编址综合。}
     某计算机主存按字编址，每字 4 字节，由 $m = 4$ 个存储体构成，采用低位交叉编址。每个存储体的存取周期 $T = 40\,\mathrm{ns}$，
@@ -906,7 +906,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
 
     (3) 按题设高位交叉时16个字落在同一体内，不能重叠该体的存取周期，共需 $16\times40=640$ ns。低位交叉把连续字分散到不同体，可流水重叠各体的存取。
 
-    (4) 新启动间隔为 $\max(20,40/4)=20$ ns，最大带宽降为 $4/20\text{ ns}=200$ MB/s。此时只需 $m\geqslant T/\tau=2$ 就能使总线成为瓶颈，继续增加存储体不会再提高这条总线上的连续传输带宽。\fi
+    (4) 新启动间隔为 $\max(20,40/4)=20$ ns，最大带宽降为 $4/20\text{ ns}=200$ MB/s。此时只需 $m\geqslant T/\tau=2$ 就能使总线成为瓶颈，继续增加存储体不会再提高这条总线上的连续传输带宽。\else \answerarea \fi
 
     \item \textbf{（真题风格·选择题）虚拟存储器与 Cache 综合。}
     某计算机按字节编址，虚拟地址 32 位，物理地址 24 位，页大小 4KB。数据 Cache 采用 2 路组相联映射，
@@ -927,7 +927,7 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
 
     (3) Cache 有 $16\text{ KiB}/32\text{ B}=512$ 行，2路时有256组。块内偏移5位，组号8位，Tag $=24-8-5=11$ 位。
 
-    (4) 虚拟地址 \texttt{0x00123456} 的 VPN 为 \texttt{0x00123}、页内偏移为 \texttt{0x456}。TLB 命中得到 PPN=\texttt{0x0AB}，拼成物理地址 \texttt{0x0AB456}。对该物理地址划分可得块内偏移 $=\texttt{0x16}$，Cache 组号 $=(\texttt{0x0AB456}\gg5)\mathbin{\&}\texttt{0xFF}=\texttt{0xA2}$，Tag $=\texttt{0x0AB456}\gg13=\texttt{0x55}$。Cache 在组 \texttt{0xA2} 的两路中比较 Tag，命中 \texttt{0x55} 后按块内偏移返回数据。\fi
+    (4) 虚拟地址 \texttt{0x00123456} 的 VPN 为 \texttt{0x00123}、页内偏移为 \texttt{0x456}。TLB 命中得到 PPN=\texttt{0x0AB}，拼成物理地址 \texttt{0x0AB456}。对该物理地址划分可得块内偏移 $=\texttt{0x16}$，Cache 组号 $=(\texttt{0x0AB456}\gg5)\mathbin{\&}\texttt{0xFF}=\texttt{0xA2}$，Tag $=\texttt{0x0AB456}\gg13=\texttt{0x55}$。Cache 在组 \texttt{0xA2} 的两路中比较 Tag，命中 \texttt{0x55} 后按块内偏移返回数据。\else \answerarea \fi
 
     \item \textbf{（综合·局部性分析）}
     分析以下两段 C 代码的局部性表现，并估算其在 Cache 中的缺失率。
@@ -959,7 +959,7 @@ for (int j = 0; j < N; j++)
 
     (3) 代码 B 每次访问跨越4096 B，且题设保证返回下一列前旧块已被淘汰，因此几乎每次都缺失，缺失率约为100\%。
 
-    (4) 4096 B 的步长通常正好跨页，连续内层迭代会触及大量不同虚页，容易造成 TLB 容量抖动和更多页表遍历；若物理内存不能容纳工作集，还会增加缺页和磁盘换入换出。具体是否真正缺页仍取决于驻留集和物理内存，不能仅由访问顺序断言。\fi
+    (4) 4096 B 的步长通常正好跨页，连续内层迭代会触及大量不同虚页，容易造成 TLB 容量抖动和更多页表遍历；若物理内存不能容纳工作集，还会增加缺页和磁盘换入换出。具体是否真正缺页仍取决于驻留集和物理内存，不能仅由访问顺序断言。\else \answerarea \fi
 
 \end{enumerate}
 

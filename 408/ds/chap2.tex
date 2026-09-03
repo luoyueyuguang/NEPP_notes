@@ -679,7 +679,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 第一个出栈元素为 $k$，说明 $1,2,\ldots,k$ 已依次入栈且 $k$ 随即出栈；此时 $1,\ldots,k-1$ 仍在栈中，1 位于栈底。后续仍有多种合法操作次序。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 第一个出栈元素为 $k$，说明 $1,2,\ldots,k$ 已依次入栈且 $k$ 随即出栈；此时 $1,\ldots,k-1$ 仍在栈中，1 位于栈底。后续仍有多种合法操作次序。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 设循环队列的存储空间为$Q[0..m-1]$，\texttt{front}指向队头元素，\texttt{rear}指向队尾元素的下一位置。则元素入队时\texttt{rear}的变化为
 \begin{center}
@@ -689,7 +689,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 数组下标范围为 $0\sim m-1$，rear 前进一步后应对 $m$ 取模。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 数组下标范围为 $0\sim m-1$，rear 前进一步后应对 $m$ 取模。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 中缀表达式$A+B*(C-D)-E/F$对应的后缀表达式是
 \begin{center}
@@ -699,7 +699,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 先得到 $C-D\to CD-$，再与 $B$ 相乘得 $BCD-*$，与 $A$ 相加得 $ABCD-*+$；最后计算 $E/F\to EF/$ 并相减，结果为 $ABCD-*+EF/-$。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 先得到 $C-D\to CD-$，再与 $B$ 相乘得 $BCD-*$，与 $A$ 相加得 $ABCD-*+$；最后计算 $E/F\to EF/$ 并相减，结果为 $ABCD-*+EF/-$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 对后缀表达式$ab+c*d-ef+/$进行求值（设$a,b,c,d,e,f$均为操作数），在从左到右扫描求值的过程中，操作数栈中元素个数的最大值为
 \begin{center}
@@ -709,7 +709,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 扫描各符号后的栈深依次为 $1,2,1,2,1,2,1,2,3,2,1$，最大值为3。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 扫描各符号后的栈深依次为 $1,2,1,2,1,2,1,2,3,2,1$，最大值为3。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 设用数组$A[0..n-1]$实现两个栈共享存储空间的共享栈。栈1的栈底在$A[0]$处，从低地址向高地址增长；栈2的栈底在$A[n-1]$处，从高地址向低地址增长。\texttt{top1}指向栈1的栈顶元素，\texttt{top2}指向栈2的栈顶元素。则栈满的条件是
 \begin{center}
@@ -719,7 +719,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 两个栈顶相邻时中间已经没有空闲单元，故判满条件为 $\texttt{top1}+1=\texttt{top2}$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 两个栈顶相邻时中间已经没有空闲单元，故判满条件为 $\texttt{top1}+1=\texttt{top2}$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 设循环队列的存储空间为$Q[0..m-1]$，\texttt{front}指向队头元素，\texttt{rear}指向队尾元素的下一位置。在采用「牺牲一个存储单元」判满策略时，队列为空的判定条件是
 \begin{center}
@@ -729,15 +729,15 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 牺牲一个单元时，用 $\texttt{front}=\texttt{rear}$ 表示空，用 $(\texttt{rear}+1)\bmod m=\texttt{front}$ 表示满。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 牺牲一个单元时，用 $\texttt{front}=\texttt{rear}$ 表示空，用 $(\texttt{rear}+1)\bmod m=\texttt{front}$ 表示满。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \item \textbf{（基础题）} 一个 $6\times8$ 的二维数组按行优先存储，每个元素占 4 B，$A[0][0]$ 的地址为 1000，则 $A[3][5]$ 的地址是多少？
 
-\ifshowsolutions\par\noindent\textbf{答案：}$1000+(3\times8+5)\times4=1116$。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}$1000+(3\times8+5)\times4=1116$。\else \answerarea \fi
 
 \item \textbf{（基础题）} 一个 $n$ 阶三对角矩阵按行压缩存储，可能的非零元素最多有多少个？
 
-\ifshowsolutions\par\noindent\textbf{答案：}第一行和最后一行各 2 个，中间 $n-2$ 行各 3 个，共 $2+3(n-2)+2=3n-2$。\fi
+\ifshowsolutions\par\noindent\textbf{答案：}第一行和最后一行各 2 个，中间 $n-2$ 行各 3 个，共 $2+3(n-2)+2=3n-2$。\else \answerarea \fi
 
 \end{enumerate}
 
@@ -753,7 +753,7 @@ void LevelOrder(BiTree T) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 层次遍历按层保存尚待访问的结点，需要先进先出的队列；先序遍历、DFS 和表达式转换通常使用栈。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 层次遍历按层保存尚待访问的结点，需要先进先出的队列；先序遍历、DFS 和表达式转换通常使用栈。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \item \textbf{（综合题）} 给定入栈序列$\{1,2,3,4,5\}$，请：
 \begin{enumerate}
@@ -766,7 +766,7 @@ void LevelOrder(BiTree T) {
 \[
 (3,2,1,4,5),\quad(3,2,4,1,5),\quad(3,4,2,1,5).
 \]
-(2) 第一个输出3时，1、2仍按“1在下、2在上”留在栈中。若最终输出5，则在5入栈前必须把1、2、4全部弹出，否则5会挡住其下方元素。由状态“栈内1、2，下一输入4”枚举：先弹2后可取1、4或4、1；也可先压入并弹出4，再弹2、1。判断原则是任何时刻只能弹出当前栈顶，未入栈元素不能提前输出。\fi
+(2) 第一个输出3时，1、2仍按“1在下、2在上”留在栈中。若最终输出5，则在5入栈前必须把1、2、4全部弹出，否则5会挡住其下方元素。由状态“栈内1、2，下一输入4”枚举：先弹2后可取1、4或4、1；也可先压入并弹出4，再弹2、1。判断原则是任何时刻只能弹出当前栈顶，未入栈元素不能提前输出。\else \answerarea \fi
 
 \item \textbf{（综合题）} 设循环队列$Q[0..M-1]$，\texttt{front}指向队头元素，\texttt{rear}指向队尾元素的下一个空位。回答以下问题：
 \begin{enumerate}
@@ -778,7 +778,7 @@ void LevelOrder(BiTree T) {
 \ifshowsolutions\par\noindent\textbf{答案：}
 (1) 元素个数为 $(\texttt{rear}-\texttt{front}+M)\bmod M$。
 (2) $(3-6+10)\bmod10=7$，共有7个元素。
-(3) 判空：$\texttt{front}=\texttt{rear}$；判满：$(\texttt{rear}+1)\bmod M=\texttt{front}$。\fi
+(3) 判空：$\texttt{front}=\texttt{rear}$；判满：$(\texttt{rear}+1)\bmod M=\texttt{front}$。\else \answerarea \fi
 
 \end{enumerate}
 

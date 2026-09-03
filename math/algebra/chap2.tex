@@ -301,7 +301,7 @@ x_1 - x_2 + 2x_3 - x_4 + x_5 = 0 \\
 0 & 0 & 0 & 1 & \frac{1}{6} \\
 0 & 0 & 0 & 0 & 0
 \end{pmatrix}
-\xrightarrow{\substack{r_1 + r_2 \\ r_2 - 2r_3}}
+\xrightarrow{\substack{r_1 + r_2 \\ r_2 - 2r_3 \\ r_1 - r_3}}
 \begin{pmatrix}
 1 & 0 & 1 & 0 & \frac{1}{3} \\
 0 & 1 & -1 & 0 & -\frac{5}{6} \\
@@ -572,7 +572,7 @@ P^{-1} = \begin{pmatrix}
 
 (D) 坐标矩阵 $\begin{pmatrix} 1 & 2 & 3 \\ 1 & -3 & 5 \\ 1 & 22 & -5 \end{pmatrix}$，第一行 $\times 3$ 减去第三行 $\times 1$ 等操作可验证行列式为零（或观察线性关系），线性相关。
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（填空题）} 设向量组 $\boldsymbol{\alpha}_1 = (1, 1, 0)^\mathrm{T}$，$\boldsymbol{\alpha}_2 = (1, 0, 1)^\mathrm{T}$，$\boldsymbol{\alpha}_3 = (0, 1, 1)^\mathrm{T}$，则向量 $\boldsymbol{\beta} = (2, -1, 3)^\mathrm{T}$ 在此向量组下的表出系数为 \underline{\qquad}。
 
 \ifshowsolutions%
@@ -592,7 +592,7 @@ x_2 + x_3 = 3
 
 验证：$(-1) \cdot (1,1,0)^\mathrm{T} + 3 \cdot (1,0,1)^\mathrm{T} + 0 \cdot (0,1,1)^\mathrm{T} = (2, -1, 3)^\mathrm{T}$。$\square$
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（计算题）} 求向量组
 \[
 \boldsymbol{\alpha}_1 = (1, 2, 3, 4)^\mathrm{T},\;
@@ -630,7 +630,7 @@ x_2 + x_3 = 3
 
 （也可选 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_3$ 等，极大无关组不唯一。）
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（证明题）} 设 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ 线性无关，而 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m, \boldsymbol{\beta}$ 线性相关。证明：$\boldsymbol{\beta}$ 必可由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性表出，且表出方式唯一。
 
 \ifshowsolutions%
@@ -648,7 +648,7 @@ k_1\boldsymbol{\alpha}_1 + \cdots + k_m\boldsymbol{\alpha}_m + k\boldsymbol{\bet
 
 若存在两种表出方式 $\boldsymbol{\beta} = \sum x_i \boldsymbol{\alpha}_i = \sum y_i \boldsymbol{\alpha}_i$，则相减得 $\sum (x_i - y_i)\boldsymbol{\alpha}_i = \boldsymbol{0}$。由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性无关知 $x_i - y_i = 0$（$i=1,\ldots,m$），故表出方式唯一。$\square$
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（填空题）} 在 $\mathbb{R}^3$ 中，基 $\boldsymbol{\varepsilon}_1 = (1, 1, 1)^\mathrm{T}$，$\boldsymbol{\varepsilon}_2 = (1, 1, 0)^\mathrm{T}$，$\boldsymbol{\varepsilon}_3 = (1, 0, 0)^\mathrm{T}$ 到标准基的过渡矩阵为 \underline{\qquad}。
 
 \ifshowsolutions%
@@ -660,7 +660,7 @@ k_1\boldsymbol{\alpha}_1 + \cdots + k_m\boldsymbol{\alpha}_m + k\boldsymbol{\bet
 
 故从 $\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \boldsymbol{\varepsilon}_3$ 到标准基的过渡矩阵为 $\begin{pmatrix} 0 & 0 & 1 \\ 0 & 1 & -1 \\ 1 & -1 & 0 \end{pmatrix}$。
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（选择题）} 设 $A = (\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3, \boldsymbol{\alpha}_4)$ 是 $4$ 阶方阵，且 $\operatorname{rank}(A) = 3$，$\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3$ 线性无关，$\boldsymbol{\alpha}_4 = \boldsymbol{\alpha}_1 + 2\boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3$。则 $A\boldsymbol{x} = \boldsymbol{0}$ 的通解为 \underline{\qquad}。
 \begin{enumerate}[label=(\Alph*)]
     \item $k(1, 2, 1, -1)^\mathrm{T}$
@@ -680,7 +680,7 @@ A\begin{pmatrix} 1 \\ 2 \\ 1 \\ -1 \end{pmatrix} = \boldsymbol{0}
 
 \boxed{\text{注}} 本题涉及线性方程组解的结构（通解、基础解系），详细内容见第四章。此处可直接由「系数矩阵秩为 \(r\)、未知数 \(n\) 个 \(\Rightarrow\) 解空间维数 \(n-r\)」这一结论得出答案，该结论的推导同样在第四章给出。
 
-\fi%
+\else \answerarea \fi%
 \end{enumerate}
 
 \subsection{综合提高题}
@@ -716,7 +716,7 @@ k_m = 0
 \]
 从下往上依次得 $k_m = 0, k_{m-1} = 0, \ldots, k_1 = 0$。故 $\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_m$ 线性无关。$\square$
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（证明题）} 设 $A$ 是 $m \times n$ 矩阵，$B$ 是 $n \times s$ 矩阵。证明：
 \[
 \operatorname{rank}(AB) \leq \min\{\operatorname{rank}(A), \operatorname{rank}(B)\}
@@ -738,7 +738,7 @@ b_{1j}\boldsymbol{\alpha}_1 + b_{2j}\boldsymbol{\alpha}_2 + \cdots + b_{nj}\bold
 \]
 综上，$\operatorname{rank}(AB) \leq \min\{\operatorname{rank}(A), \operatorname{rank}(B)\}$。$\square$
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（证明题）} 设 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_n$ 是 $n$ 维向量空间 $V$ 的一组基，$\boldsymbol{\beta}_1, \boldsymbol{\beta}_2, \ldots, \boldsymbol{\beta}_n$ 是 $V$ 中任意一组向量，且满足
 \[
 (\boldsymbol{\beta}_1, \boldsymbol{\beta}_2, \ldots, \boldsymbol{\beta}_n) = (\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_n) P
@@ -759,7 +759,7 @@ b_{1j}\boldsymbol{\alpha}_1 + b_{2j}\boldsymbol{\alpha}_2 + \cdots + b_{nj}\bold
 \]
 由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n$ 线性无关，比较坐标得 $PQ = I$。同理可证 $QP = I$，故 $P$ 可逆，且 $Q = P^{-1}$。$\square$
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（计算与证明题）} 求向量组
 \[
 \boldsymbol{\alpha}_1 = (1, 0, 2, 1)^\mathrm{T},\;
@@ -822,7 +822,7 @@ b_{1j}\boldsymbol{\alpha}_1 + b_{2j}\boldsymbol{\alpha}_2 + \cdots + b_{nj}\bold
 \]
 按第二行展开可快速验证其非零。）
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（证明题）} 设 $V_1, V_2$ 是向量空间 $V$ 的两个子空间，证明：
 \[
 \dim(V_1 + V_2) = \dim V_1 + \dim V_2 - \dim(V_1 \cap V_2)
@@ -858,7 +858,7 @@ V_2 &: \boldsymbol{\gamma}_1, \ldots, \boldsymbol{\gamma}_t, \boldsymbol{\beta}_
 \]
 $\square$
 
-\fi%
+\else \answerarea \fi%
 \end{enumerate}
 
 \subsection{真题风格与综合训练}
@@ -889,7 +889,7 @@ $\boldsymbol{\beta}_1-\boldsymbol{\beta}_2-\boldsymbol{\beta}_3=\boldsymbol{0}$�
 
 \boxed{\text{注}} 判断由一组基线性组合得到的新向量组是否仍为基，只需判断相应坐标矩阵是否可逆；在三阶情形下可直接计算其行列式。
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（\boxed{\textbf{真题风格}}·计算题）} 在 $\mathbb{R}^3$ 中，设有两组基：
 \begin{align*}
 \text{(I)}&\quad \boldsymbol{\varepsilon}_1 = (1, 1, 1)^\mathrm{T},\; \boldsymbol{\varepsilon}_2 = (1, 1, 0)^\mathrm{T},\; \boldsymbol{\varepsilon}_3 = (1, 0, 0)^\mathrm{T} \\
@@ -1006,7 +1006,7 @@ P^{-1} = \begin{pmatrix}
 
 验证：$\boldsymbol{\alpha}$ 在标准基下为 $P_1\boldsymbol{x} = (2, 0, 1)^\mathrm{T}$。以 $\boldsymbol{y}$ 用基 (II) 表出：$(-1)\boldsymbol{\eta}_1 + 3\boldsymbol{\eta}_2 + (-3)\boldsymbol{\eta}_3 = (-1, 0, 1)^\mathrm{T} + (6, 3, 3)^\mathrm{T} + (-3, -3, -3)^\mathrm{T} = (2, 0, 1)^\mathrm{T}$，正确。$\square$
 
-\fi%
+\else \answerarea \fi%
 \item \textbf{（真题风格·证明题）} 设 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ 是一组 $n$ 维向量，其秩为 $r$。证明：这 $m$ 个向量中的任意 $r$ 个线性无关的向量都构成该向量组的一个极大线性无关组。
 
 \ifshowsolutions%
@@ -1018,5 +1018,5 @@ P^{-1} = \begin{pmatrix}
 
 \boxed{\text{注}} 此结论说明：秩为 $r$ 的向量组中，任何 $r$ 个线性无关的向量自动构成极大无关组。这是寻找所有极大无关组的理论基础：只需枚举所有大小为 $r$ 的线性无关子集即可。
 
-\fi%
+\else \answerarea \fi%
 \end{enumerate}

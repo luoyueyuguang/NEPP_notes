@@ -639,7 +639,7 @@ void Union(int x, int y) {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 由二叉树性质 $n_0 = n_2 + 1$，得叶子结点数 $n_0 = 5 + 1 = 6$。度为 1 的结点数与叶子数无关。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 由二叉树性质 $n_0 = n_2 + 1$，得叶子结点数 $n_0 = 5 + 1 = 6$。度为 1 的结点数与叶子数无关。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -653,7 +653,7 @@ void Union(int x, int y) {
 
 \ifshowsolutions\par\noindent\textbf{解析：} 设完全二叉树中 $n_1 = 0$ 或 $1$。由 $n_0 = n_2 + 1$ 和 $n = n_0 + n_1 + n_2$，得 $n = 2n_0 + n_1 - 1$。
 代入 $n = 768$：$2n_0 = 769 - n_1$。若 $n_1 = 1$，则 $2n_0 = 768$，$n_0 = 384$；若 $n_1 = 0$，则 $2n_0 = 769$，$n_0$ 非整数（舍去）。故叶子数 $n_0 = 384$。
-\textbf{速算技巧：} $n$ 为偶数时，完全二叉树的 $n_1 = 1$，$n_0 = n/2$。\boxed{\textbf{答案：}(B)}\fi
+\textbf{速算技巧：} $n$ 为偶数时，完全二叉树的 $n_1 = 1$，$n_0 = n/2$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -668,7 +668,7 @@ void Union(int x, int y) {
 \ifshowsolutions\par\noindent\textbf{解析：} 由先序知根为 A，中序中 A 左边 \texttt{DBE} 为左子树，右边 \texttt{FCG} 为右子树。
 左子树的先序为 \texttt{BDE}，中序为 \texttt{DBE}，知 B 为根，D 为 B 的左孩子，E 为 B 的右孩子。
 右子树的先序为 \texttt{CFG}，中序为 \texttt{FCG}，知 C 为根，F 为 C 的左孩子，G 为 C 的右孩子。
-后序遍历（左$\to$右$\to$根）：\texttt{DEBFGCA}。\boxed{\textbf{答案：}(A)}\fi
+后序遍历（左$\to$右$\to$根）：\texttt{DEBFGCA}。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -681,8 +681,8 @@ void Union(int x, int y) {
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} 先序 = 根$\to$左$\to$右，后序 = 左$\to$右$\to$根。二者相反，意味着对每个结点，先访问根再访问子树 vs 先访问子树再访问根。
-举例：先序 \texttt{ABC}，后序 \texttt{CBA}，则树为 A 有左 B，B 有左 C（单链向左）。若树为 A 有右 B、B 有右 C，则先序为 \texttt{ABC}、后序仍为 \texttt{CBA}；\texttt{BCA} 并不是这棵单链树的后序序列。
-\textbf{结论：} 每个结点至多只有一个孩子结点，即整个树只有一个叶结点（否则中间有分叉就会出现不相反的片段）。所有结点无左孩子或所有结点无右孩子仅是两种特例，不一定是普通情况。\boxed{\textbf{答案：}(C)}\fi
+举例：先序 \texttt{ABC}，后序 \texttt{CBA}，则树为 A 有左 B，B 有左 C（单链向左）。若树为 A 有右 B、B 有右 C，则先序为 \texttt{ABC}、后序仍为 \texttt{CBA}，同样只有一个叶结点。
+\textbf{结论：} 每个结点至多只有一个孩子结点，即整个树只有一个叶结点（否则中间有分叉就会出现不相反的片段）。所有结点无左孩子或所有结点无右孩子仅是两种特例，不一定是普通情况。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -700,7 +700,7 @@ void Union(int x, int y) {
 (3) $7+8=15$，集合 $\{9,9,15\}$；
 (4) $9+9=18$，集合 $\{15,18\}$；
 (5) $15+18=33$。
-WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
+WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -717,7 +717,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 (2) $5+5=10$（A与B,D合并）；集合 $\{8(C), 10, 13(E)\}$；
 (3) $8+10=18$；集合 $\{13(E), 18\}$；
 (4) $13+18=31$。
-最后一次合并时 E 是根的一个孩子，故其编码长度为 1。左右分支的 0/1 约定只会改变具体码字，不会改变码长。\boxed{\textbf{答案：}(A)}\fi
+最后一次合并时 E 是根的一个孩子，故其编码长度为 1。左右分支的 0/1 约定只会改变具体码字，不会改变码长。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -730,7 +730,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} 先序首元 A 为根，中序中 A 前为左子树 \texttt{BFD}，后为右子树 \texttt{EC}。
-左子树的先序为 \texttt{BDF}、中序为 \texttt{BFD}：B 无左子树，其右子树的根为 D；D 的左孩子为 F。右子树的先序和中序均为 \texttt{EC}：E 无左孩子，右孩子为 C。因此左、右子树的后序分别为 \texttt{FDB}、\texttt{CE}，整棵树的后序为 \texttt{FDBECA}。\boxed{\textbf{答案：}(A)}\fi
+左子树的先序为 \texttt{BDF}、中序为 \texttt{BFD}：B 无左子树，其右子树的根为 D；D 的左孩子为 F。右子树的先序和中序均为 \texttt{EC}：E 无左孩子，右孩子为 C。因此左、右子树的后序分别为 \texttt{FDB}、\texttt{CE}，整棵树的后序为 \texttt{FDBECA}。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \end{enumerate}
 
@@ -748,7 +748,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 \end{tabularx}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} (A) 错，先序前驱一般需要双亲信息，不能仅靠当前结点的线索确定。(B) 正确，\texttt{rtag=1} 明确表示右指针域是线索，在线索化的中序序列中指向该结点的直接后继。(C) 错，后序后继常涉及双亲，二叉链式结构中不能保证直接找到。(D) 错，任何结点的空指针域都可按遍历次序改作前驱或后继线索，并非仅限叶结点。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错，先序前驱一般需要双亲信息，不能仅靠当前结点的线索确定。(B) 正确，\texttt{rtag=1} 明确表示右指针域是线索，在线索化的中序序列中指向该结点的直接后继。(C) 错，后序后继常涉及双亲，二叉链式结构中不能保证直接找到。(D) 错，任何结点的空指针域都可按遍历次序改作前驱或后继线索，并非仅限叶结点。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -762,7 +762,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} \texttt{p->rtag == 0} 表示 \texttt{p->rchild} 是常规孩子指针（不是线索），即 \texttt{p} 有右子树。中序遍历下，每个结点的后继是其右子树中第一个被访问的结点——即右子树的\textbf{最左下结点}（沿右孩子的左链走到底）。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} \texttt{p->rtag == 0} 表示 \texttt{p->rchild} 是常规孩子指针（不是线索），即 \texttt{p} 有右子树。中序遍历下，每个结点的后继是其右子树中第一个被访问的结点——即右子树的\textbf{最左下结点}（沿右孩子的左链走到底）。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -775,7 +775,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} 森林$\to$二叉树的转换规则：第一棵树的根 = 二叉树根 $p$，第一棵树中除根以外的结点 $\to$ $p$ 的左子树；其余森林中的树 $\to$ $p$ 的右子树。
-故第一棵树的结点数 $= 1$（根）+ 左子树结点数 $= 1 + (m - 1 - n) = m - n$。\boxed{\textbf{答案：}(A)}\fi
+故第一棵树的结点数 $= 1$（根）+ 左子树结点数 $= 1 + (m - 1 - n) = m - n$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -792,7 +792,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 \ifshowsolutions\par\noindent\textbf{解析：} 先序首元 $a$ 为根，中序 $a$ 前 \texttt{b} 为左子树（1结点），后 \texttt{d,c} 为右子树。
 右子树先序 \texttt{cd}，中序 \texttt{dc}：c 为根，d 为 c 的左孩子。树：a 左 b，右 c；c 左 d。
 后序为 \texttt{b,d,c,a}。(A) 错，结点 c 只有左孩子，不是满二叉树；(B) 错，b 在第 2 层，d 在第 3 层；(C) 错，a 同时有左孩子 b 和右孩子 c；(D) 正确。
-\boxed{\textbf{答案：}(D)}\fi
+\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -823,7 +823,7 @@ WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\fi
 (3) 二叉树$\to$森林：抹去右子树的父子关系（二叉树中根结点沿右链走到底，每遇到一个右孩子即断开），得到多棵树。规则：二叉树中，根和沿左链走到的结点为第一棵树中的父子关系，沿右链走到的结点为下一棵树的根。
 
 断开：A 右 C、C 右 F，断开得到三棵树。第一棵树（A 为根，左子树 B）：恢复为一般树时，每个结点保留左孩子，左孩子的右链变为该结点的其他孩子。B 的左 D$\to$B 的第一个孩子 D；B 的右 E$\to$A 的第二个孩子 E；E 的左 G$\to$E 的第一个孩子 G。森林为：第一棵树 $A(B(D),E(G))$，第二棵树根为 C，第三棵树根为 F。
-\boxed{\textbf{答案：}\text{如上}}\fi
+\boxed{\textbf{答案：}\text{如上}}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -875,7 +875,7 @@ A: 1110, B: 1111, C: 110, D: 00, E: 01, F: 10。
 
 这里把 F 的频率单独改为 0.40 后，六个给定数之和变为 1.15，因而它们应理解为相对频数而非已经归一化的概率。未归一化 WPL 从 2.45 增至 2.75；若比较平均码长，则新平均码长为 $2.75/1.15\approx2.39$ 位，反而略低于原来的 2.45 位，这是高频字符获得较短码字的结果。
 
-\textbf{答案：}(1) 见上述合并过程；(2) 一组可行编码为 A:1110，B:1111，C:110，D:00，E:01，F:10；(3) WPL 为 2.45；(4) 未归一化 WPL 为 2.75，归一化平均码长约为 2.39 位。\fi
+\textbf{答案：}(1) 见上述合并过程；(2) 一组可行编码为 A:1110，B:1111，C:110，D:00，E:01，F:10；(3) WPL 为 2.45；(4) 未归一化 WPL 为 2.75，归一化平均码长约为 2.39 位。\else \answerarea \fi
 
 \end{enumerate}
 

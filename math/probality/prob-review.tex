@@ -29,7 +29,7 @@ P(A_1\mid A_2)=\frac{P(A_1)P(A_2\mid A_1)}{P(A_2)}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{2.} 设随机变量 $X$ 的分布函数为
 \[
 F(x)=\begin{cases}
@@ -96,7 +96,7 @@ E(X)=\int_{0}^{1}x\cdot 1.0x\,dx+1\times 0.15+\int_{2}^{3}x\cdot 0.35\,dx
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{3.} 设二维随机变量$(X,Y)$的联合概率密度为
 \[
 f(x,y)=\begin{cases}
@@ -143,7 +143,7 @@ f_{Y\mid X}(y\mid x)=\frac{f(x,y)}{f_X(x)}=\frac{8xy}{4x(1-x^2)}=\frac{2y}{1-x^2
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{4.} 设随机变量$X$与$Y$的联合分布为：
 \begin{center}
 \begin{tabular}{c|ccc}
@@ -181,7 +181,7 @@ $Y$的边缘分布：$P(Y=-1)=0.3$，$P(Y=0)=0.3$，$P(Y=1)=0.4$。
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{5.} 某保险公司有10000名投保人，每人每年索赔的概率为0.005，且相互独立；每人一年至多索赔一次，每次赔付额固定为8000元。公司收取的保费为每人每年100元。
 \begin{enumerate}
     \item[(1)] 用切比雪夫不等式估计公司每年赔付总额超过保费总收入60\%的概率上界；
@@ -214,7 +214,7 @@ P(X\geq126)
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{6.} 设总体$X$的概率密度为
 \[
 f(x;\theta)=\begin{cases}
@@ -251,7 +251,7 @@ L(\theta)=\frac{2^n}{\theta^{2n}}\prod_{i=1}^{n}x_i
 似然函数随 $\theta$ 递减，因此在可行域左端点 $\theta=x_{(n)}$ 处取得最大值。
 故MLE为$\hat{\theta}_L=\max\{X_1,\ldots,X_n\}=X_{(n)}$。
 
-\fi%
+\else \answerarea \fi%
 \newpage
 \subsection{提高综合题}
 
@@ -316,7 +316,7 @@ $f_V(v)$不是常数，故$V$不服从均匀分布。由于$f_{U,V}(u,v)=u$，$f
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{8.} \textbf{（拓展：Gamma/Erlang 分布识别）}设$X$与$Y$独立同分布，均服从参数为$\lambda$的指数分布$E(\lambda)$。令$Z=X+Y$。
 \begin{enumerate}
     \item[(1)] 用卷积公式求$Z$的概率密度；
@@ -349,7 +349,7 @@ $Z$的密度为$f_Z(z)=\frac{\lambda^2}{\Gamma(2)}z^{2-1}e^{-\lambda z}$（$z>0$
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{9.} 设随机变量$X$服从参数为$p$的$0$-$1$分布（$P(X=1)=p$，$P(X=0)=1-p$），其中$0<p<1$；$Y$在条件$X=1$下服从区间$(0,1)$上的均匀分布，在条件$X=0$下服从参数为$\lambda$的指数分布，其中$\lambda>0$。求：
 \begin{enumerate}
     \item[(1)] $Y$的边缘分布函数$F_Y(y)$；
@@ -399,7 +399,7 @@ P(X=1,Y>1)=P(X=1)P(Y>1\mid X=1)=p\cdot 0=0.
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{10.} 设总体$X\sim N(\mu,\sigma^2)$，$\mu$未知，$\sigma^2>0$未知。$X_1,\ldots,X_n$为样本。
 \begin{enumerate}
     \item[(1)] 求$\mu$和$\sigma^2$的最大似然估计量$\hat{\mu}$和$\hat{\sigma}^2$；
@@ -443,7 +443,7 @@ $\hat{\sigma}^2$不是无偏估计。无偏修正为样本方差$S^2=\frac{1}{n-
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{11.} 某工厂生产的零件长度$X\sim N(\mu,\sigma^2)$。现从生产线上随机抽取$16$个零件，测得样本均值$\bar{x}=10.2$，样本标准差$s=0.4$。
 \begin{enumerate}
     \item[(1)] 求$\mu$的$95\%$置信区间；
@@ -489,7 +489,7 @@ $t_{0.025}(15)=2.131$。置信区间：
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{12.} 设$X_1,X_2,\ldots,X_n$为来自总体$X\sim U(0,\theta)$的样本，$\theta>0$未知。记$X_{(1)}\leq X_{(2)}\leq\cdots\leq X_{(n)}$为次序统计量。
 \begin{enumerate}
     \item[(1)] 求$X_{(n)}$的概率密度；
@@ -535,7 +535,7 @@ D(\hat{\theta})=\left(\frac{n+1}{n}\right)^2D(X_{(n)})
 当$n\to\infty$时，$D(\hat{\theta})\to 0$；又因其无偏，由切比雪夫不等式可得
 $\hat{\theta}\xrightarrow{P}\theta$，故$\hat{\theta}$是一致估计量。
 
-\fi%
+\else \answerarea \fi%
 \newpage
 \subsection{应用题专项}
 
@@ -568,7 +568,7 @@ E(N(t))=\lambda_1 t+\lambda_2 t+\lambda_3 t=(\lambda_1+\lambda_2+\lambda_3)t.
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{14.} 某高校有$5000$名学生，每人每天去图书馆的概率为$0.3$。图书馆有$1600$个座位。
 \begin{enumerate}
     \item[(1)] 用中心极限定理估算某天座位不够用的概率；
@@ -614,7 +614,7 @@ P(Y\geq1601)\approx
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{15.} \textbf{（拓展：定时截尾模型）}某产品的寿命$T$服从指数分布$E(\lambda)$，$\lambda>0$未知。现对$n$个产品进行定时截尾寿命试验，试验在时刻$t_0$停止。观察到有$r$个产品在$t_0$前失效（$1\leq r\leq n$，失效时间记为$t_1,t_2,\ldots,t_r$），其余$n-r$个产品在$t_0$时仍未失效。
 \begin{enumerate}
     \item[(1)] 写出基于截尾数据的似然函数；
@@ -650,7 +650,7 @@ L(\lambda)=\prod_{i=1}^{r}\lambda e^{-\lambda t_i}\cdot\prod_{j=1}^{n-r}e^{-\lam
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{16.} \textbf{（拓展：总体比例的大样本检验）}某药厂声称其生产的某种药品有效率至少为$90\%$。监管部门随机抽取$200$名患者进行临床试验，结果$168$人有效。
 \begin{enumerate}
     \item[(1)] 在显著性水平$\alpha=0.05$下，检验真实有效率是否低于药厂声称的$90\%$；
@@ -699,5 +699,5 @@ P_{p=0.85}(X\leq173)
 \]
 原先直接把连续临界比例 $0.8651$ 代入正态分布会忽略整数拒绝域，得到偏低的 $0.725$；这里应以约 $0.752$ 的精确二项功效为准。
 
-\fi%
+\else \answerarea \fi%
 \newpage

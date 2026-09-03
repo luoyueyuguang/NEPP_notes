@@ -297,7 +297,7 @@ L(\lambda) = \prod_{i=1}^n \lambda e^{-\lambda X_i} = \lambda^n \exp\!\left(-\la
 
 \vspace{8pt}
 
-\fi%
+\else \answerarea \fi%
 \textbf{2.（MLE求解）} 设总体 $X \sim U(0, \theta)$，$\theta > 0$ 未知。$X_1, \ldots, X_n$ 为样本。
 \begin{enumerate}[label=(\arabic*)]
     \item 求 $\theta$ 的矩估计量 $\widehat{\theta}_1$；
@@ -327,7 +327,7 @@ E(\widehat{\theta}_2) = \int_0^\theta x \cdot \frac{n x^{n-1}}{\theta^n}\,dx = \
 
 \vspace{8pt}
 
-\fi%
+\else \answerarea \fi%
 \textbf{3.（置信区间）} 从正态总体 $N(\mu, \sigma^2)$ 中抽取容量为 $n = 16$ 的样本，算得样本均值 $\overline{x} = 5.2$，样本标准差 $s = 0.8$。求 $\mu$ 的置信水平为 $0.95$ 的置信区间。（已知 $t_{0.025}(15) = 2.131$）
 
 \ifshowsolutions%
@@ -348,7 +348,7 @@ $\sigma^2$ 未知，使用 $t$ 分布。$\overline{X} \sim N(\mu, \sigma^2/n)$�
 
 \vspace{8pt}
 
-\fi%
+\else \answerarea \fi%
 \textbf{4.（置信区间）} 某工厂生产的零件长度 $X \sim N(\mu, 0.04)$。现随机抽取 $9$ 个零件，测得平均长度 $\overline{x} = 10.1$（cm）。求 $\mu$ 的置信水平为 $0.95$ 的置信区间。（已知 $z_{0.025} = 1.96$）
 
 \ifshowsolutions%
@@ -369,7 +369,7 @@ $\sigma^2 = 0.04$ 已知，$\sigma = 0.2$。使用标准正态分布：
 
 \boxed{\textbf{答案：}(9.969,\; 10.231)}
 
-\fi%
+\else \answerarea \fi%
 \newpage
 \subsection{综合提高题}
 
@@ -412,7 +412,7 @@ P(|\widehat{\theta} - \theta| \geqslant \varepsilon) = P(\widehat{\theta} \leqsl
 
 \vspace{8pt}
 
-\fi%
+\else \answerarea \fi%
 \textbf{6.（假设检验 — 单正态均值）} 某化肥厂用自动包装机包装化肥，设定的平均包装量为 $50$ kg。某日开工后测得 $9$ 袋重量（单位：kg）为：
 \[
 49.7,\; 49.3,\; 50.1,\; 49.8,\; 50.2,\; 49.6,\; 50.0,\; 49.5,\; 49.9.
@@ -453,7 +453,7 @@ t = \frac{\overline{x} - \mu_0}{s/\sqrt{n}}
 
 \vspace{8pt}
 
-\fi%
+\else \answerarea \fi%
 \textbf{7.（两正态总体均值差检验）} 为比较甲、乙两种灯泡的使用寿命，从甲种中随机抽取 $10$ 只，测得样本均值 $\overline{x} = 1610$（h），样本标准差 $s_1 = 80$（h）；从乙种中随机抽取 $8$ 只，测得样本均值 $\overline{y} = 1550$（h），样本标准差 $s_2 = 70$（h）。设两种灯泡寿命均服从正态分布，且方差相等。问：甲种灯泡的平均寿命是否显著高于乙种？（取 $\alpha = 0.05$，$t_{0.05}(16) = 1.746$）
 
 \ifshowsolutions%
@@ -482,7 +482,7 @@ t = \frac{(\overline{x} - \overline{y})-0}{s_w\sqrt{\frac{1}{n_1} + \frac{1}{n_2
 
 \vspace{8pt}
 
-\fi%
+\else \answerarea \fi%
 \textbf{8.（方差检验 $\chi^2$ 检验）} 某车间生产铜丝，从长期资料知铜丝折断力 $X \sim N(\mu, \sigma^2)$，且 $\sigma^2 = 64$。现从新生产的一批铜丝中抽取 $10$ 根，测得折断力样本方差 $s^2 = 92.5$。问：新生产的铜丝折断力的方差是否较以往显著偏大？（取 $\alpha = 0.05$，已知 $\chi^2_{0.05}(9) = 16.919$）
 
 \ifshowsolutions%
@@ -503,7 +503,7 @@ H_0: \sigma^2 \leqslant 64 \quad \text{vs} \quad H_1: \sigma^2 > 64.
 
 \par\noindent\textbf{结论：不拒绝 $H_0$，方差未显示出显著偏大。}
 
-\fi%
+\else \answerarea \fi%
 \newpage
 \subsection{真题风格与综合训练}
 
@@ -548,7 +548,7 @@ P(|\widehat{\theta} - \theta| \geqslant \varepsilon) \leqslant \frac{D(\widehat{
 
 \vspace{8pt}
 
-\fi%
+\else \answerarea \fi%
 \textbf{10.（\boxed{\textbf{真题风格}}，区间估计 + 假设检验综合）} 设总体 $X \sim N(\mu, \sigma^2)$，$\mu, \sigma^2$ 均未知。现从该总体中抽取容量为 $n = 25$ 的样本，算得 $\overline{x} = 3.2$，$s = 0.5$。
 \begin{enumerate}[label=(\arabic*)]
     \item 求 $\mu$ 的置信水平为 $0.95$ 的置信区间；
@@ -575,7 +575,7 @@ t = \frac{\overline{x} - \mu_0}{s/\sqrt{n}} = \frac{3.2 - 3.0}{0.5/5} = \frac{0.
 
 \vspace{8pt}
 
-\fi%
+\else \answerarea \fi%
 \textbf{11.（\boxed{\textbf{真题风格}}，MLE不变性 + 区间估计）} 设总体 $X \sim N(\mu, \sigma^2)$，$\mu$ 已知，$\sigma^2 > 0$ 未知。$X_1, \ldots, X_n$ 为样本。
 \begin{enumerate}[label=(\arabic*)]
     \item 求 $\sigma^2$ 的最大似然估计量 $\widehat{\sigma}^2$；
@@ -615,7 +615,7 @@ P\!\left(\chi^2_{1-\alpha/2}(n) \leqslant \frac{\sum_{i=1}^n (X_i - \mu)^2}{\sig
 
 \vspace{8pt}
 
-\fi%
+\else \answerarea \fi%
 \textbf{12.（两正态总体方差比 $F$ 检验）} 甲、乙两台机床加工同一种轴，从甲机床加工的轴中随机抽取 $13$ 根，测得直径样本方差 $s_1^2 = 0.0012$；从乙机床加工的轴中随机抽取 $9$ 根，测得直径样本方差 $s_2^2 = 0.0035$。设两台机床加工的轴的直径均服从正态分布。
 \begin{enumerate}[label=(\arabic*)]
     \item 检验甲、乙两台机床的加工精度（方差）是否有显著差异（取 $\alpha = 0.05$）；
@@ -662,4 +662,4 @@ $t \approx -7.51 < -1.725$，落入拒绝域，拒绝 $H_0$，认为在该显著
 
 \boxed{\textbf{答案：}(1) \text{方差无显著差异；(2) 甲机床平均直径显著小于乙机床。}}
 
-\fi%
+\else \answerarea \fi%

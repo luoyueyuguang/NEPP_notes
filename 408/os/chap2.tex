@@ -280,7 +280,7 @@ semaphore full  = 0;       // 产品数
 
 \begin{enumerate}
 
-\item \textbf{（真题风格·选择题）} 下列选项中，导致创建新进程的操作是
+\item \textbf{（真题风格·选择题）} 下列选项中，不会导致创建新进程的操作是
 \begin{center}
 \begin{tabular}{ll}
 (A) 用户登录成功 & (B) 设备分配 \\[6pt]
@@ -288,7 +288,7 @@ semaphore full  = 0;       // 产品数
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 登录成功创建shell进程，启动程序执行创建新进程（fork+exec）。设备分配不创建新进程。用户登录和启动程序都会创建新进程。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 登录成功会创建shell进程，启动程序执行会创建新进程（fork+exec），二者都会创建新进程；设备分配不创建新进程。故“不会导致创建新进程”的是设备分配。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -300,7 +300,7 @@ semaphore full  = 0;       // 产品数
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} shell在用户态执行（通过系统调用请求内核服务）。缺页处理、进程调度、时钟中断处理都是内核态。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} shell在用户态执行（通过系统调用请求内核服务）。缺页处理、进程调度、时钟中断处理都是内核态。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -312,7 +312,7 @@ semaphore full  = 0;       // 产品数
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $n$个进程中最多1个在运行（单CPU），其余$n-1$个可以都在就绪队列。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $n$个进程中最多1个在运行（单CPU），其余$n-1$个可以都在就绪队列。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -324,7 +324,7 @@ semaphore full  = 0;       // 产品数
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 资源分配图：$P_1$持有$R_1$等$R_2$，$P_2$持有$R_2$等$R_3$，$P_3$持有$R_3$等$R_1$——形成环$P_1\to P_2\to P_3\to P_1$，涉及3个进程。$P_4$只需$R_2$，可先分配不参与死锁。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 资源分配图：$P_1$持有$R_1$等$R_2$，$P_2$持有$R_2$等$R_3$，$P_3$持有$R_3$等$R_1$——形成环$P_1\to P_2\to P_3\to P_1$，涉及3个进程。$P_4$只需$R_2$，可先分配不参与死锁。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -336,7 +336,7 @@ semaphore full  = 0;       // 产品数
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} SJF可能使长作业饥饿，优先级调度可能使低优先级进程饥饿。普通多级反馈队列若没有周期性优先级提升等额外机制，CPU密集型进程也可能长期得不到运行；题干没有给出这类防饥饿机制。RR按就绪队列循环分配时间片，只要时间片有限且调度持续进行，每个就绪进程都会获得CPU。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} SJF可能使长作业饥饿，优先级调度可能使低优先级进程饥饿。普通多级反馈队列若没有周期性优先级提升等额外机制，CPU密集型进程也可能长期得不到运行；题干没有给出这类防饥饿机制。RR按就绪队列循环分配时间片，只要时间片有限且调度持续进行，每个就绪进程都会获得CPU。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -356,7 +356,7 @@ semaphore full  = 0;       // 产品数
 \ifshowsolutions\par\noindent\textbf{解析：}
 \textbf{FCFS：} J1完成=8，周转=8；J2完成=12，周转=11；J3完成=21，周转=19；J4完成=26，周转=23。平均周转$=(8+11+19+23)/4=15.25$。带权：$8/8=1,11/4=2.75,19/9=2.11,23/5=4.6$，平均$=2.62$。
 
-\textbf{SJF：} 0时J1到达运行8；J1完成=8时J2-J4均已到达。选最短J2(4)运行完成=12；再选J4(5)完成=17；再选J3(9)完成=26。周转：J1=8,J2=12-1=11,J4=17-3=14,J3=26-2=24。平均$=(8+11+14+24)/4=14.25$。带权：$1,2.75,2.8,2.67$，平均$=2.30$。\fi
+\textbf{SJF：} 0时J1到达运行8；J1完成=8时J2-J4均已到达。选最短J2(4)运行完成=12；再选J4(5)完成=17；再选J3(9)完成=26。周转：J1=8,J2=12-1=11,J4=17-3=14,J3=26-2=24。平均$=(8+11+14+24)/4=14.25$。带权：$1,2.75,2.8,2.67$，平均$=2.30$。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -367,7 +367,7 @@ semaphore full  = 0;       // 产品数
 (C) 地址空间 & (D) 寄存器组
 \end{tabular}
 \end{center}
-\ifshowsolutions\par\noindent\textbf{解析：}线程各自拥有 PC、寄存器和栈，但共享进程的地址空间。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：}线程各自拥有 PC、寄存器和栈，但共享进程的地址空间。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -378,7 +378,7 @@ semaphore full  = 0;       // 产品数
 (C) 所有进程阻塞 & (D) 自动转为内核线程
 \end{tabular}
 \end{center}
-\ifshowsolutions\par\noindent\textbf{解析：}内核只看到一个执行实体，阻塞系统调用会使承载这些用户线程的整个进程阻塞。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：}内核只看到一个执行实体，阻塞系统调用会使承载这些用户线程的整个进程阻塞。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \end{enumerate}
 
@@ -415,7 +415,7 @@ P2() {  // 取奇数
 }
 // P3类似P2，将odd改为even
 \end{lstlisting}
-四个信号量：\texttt{mutex}实现缓冲区互斥访问；\texttt{empty}表示空位数（初值$N$）；\texttt{odd/even}分别表示缓冲区中奇数/偶数个数。\fi
+四个信号量：\texttt{mutex}实现缓冲区互斥访问；\texttt{empty}表示空位数（初值$N$）；\texttt{odd/even}分别表示缓冲区中奇数/偶数个数。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -446,7 +446,7 @@ $P3$: Need$(0,1,1)\leqslant(5,3,2)\to$P3完成，Work=(7,4,3)。
 $P0$: Need$(7,4,3)\leqslant(7,4,3)\to$P0完成，Work=(7,5,3)。
 $P2$: Need$(6,0,0)\leqslant(7,5,3)\to$P2完成，Work=(10,5,5)。
 $P4$: Need$(4,3,1)\leqslant(10,5,5)\to$P4完成。
-安全序列：P1$\to$P3$\to$P0$\to$P2$\to$P4。系统安全。\fi
+安全序列：P1$\to$P3$\to$P0$\to$P2$\to$P4。系统安全。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -475,7 +475,7 @@ Customer() {
     }
 }
 \end{lstlisting}
-\texttt{empty}控制面包师不能放入超过$N$个面包；\texttt{full}控制顾客不能从空柜台取面包；\texttt{mutex}保证对柜台的互斥访问。\fi
+\texttt{empty}控制面包师不能放入超过$N$个面包；\texttt{full}控制顾客不能从空柜台取面包；\texttt{mutex}保证对柜台的互斥访问。\else \answerarea \fi
 
 \end{enumerate}
 

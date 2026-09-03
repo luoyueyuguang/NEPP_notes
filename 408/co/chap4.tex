@@ -121,7 +121,7 @@
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 二地址指令有两个6位地址字段，因此基础操作码为4位。15条二地址指令占15个前缀，剩余1个前缀可扩展出 $2^6=64$ 个一地址操作码；其中使用62个后还剩2个，再利用最后6位扩展为零地址操作码，最多 $2\times2^6=128$ 条。\boxed{\textbf{答案：}(D)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 二地址指令有两个6位地址字段，因此基础操作码为4位。15条二地址指令占15个前缀，剩余1个前缀可扩展出 $2^6=64$ 个一地址操作码；其中使用62个后还剩2个，再利用最后6位扩展为零地址操作码，最多 $2\times2^6=128$ 条。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \item \textbf{（单项选择题）} 在指令寻址方式中，直接寻址方式的有效地址为
 \begin{center}
@@ -131,19 +131,19 @@
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 直接寻址的形式地址字段本身就是有效地址，即 $EA=A$；若再取该主存单元内容作为地址，则属于间接寻址。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 直接寻址的形式地址字段本身就是有效地址，即 $EA=A$；若再取该主存单元内容作为地址，则属于间接寻址。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \item \textbf{（填空题）} 变址寻址中，操作数的有效地址 = \underline{\qquad} + \underline{\qquad}。
 
-\ifshowsolutions\par\noindent\textbf{答案：} 变址寄存器内容；指令中的形式地址，即 $EA=(IX)+A$。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} 变址寄存器内容；指令中的形式地址，即 $EA=(IX)+A$。\else \answerarea \fi
 
 \item \textbf{（填空题）} 在 RISC 处理器中，只有 \underline{\qquad} 和 \underline{\qquad} 指令可以访问存储器。
 
-\ifshowsolutions\par\noindent\textbf{答案：} LOAD；STORE。这里指典型 load/store 型 RISC 对数据存储器的显式访问，不包括取指。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} LOAD；STORE。这里指典型 load/store 型 RISC 对数据存储器的显式访问，不包括取指。\else \answerarea \fi
 
 \item \textbf{（简答题）} 解释变址寻址和基址寻址在功能上的区别。
 
-\ifshowsolutions\par\noindent\textbf{答案：} 两者形式上都可写为寄存器内容加形式地址。变址寻址通常由程序修改变址寄存器，形式地址给出数组等数据结构的基准位置，便于循环访问；基址寻址通常由系统或装入程序设置基址寄存器，指令中的形式地址作为偏移，便于程序重定位和地址空间管理。具体哪一部分由程序改变取决于体系结构约定。\fi
+\ifshowsolutions\par\noindent\textbf{答案：} 两者形式上都可写为寄存器内容加形式地址。变址寻址通常由程序修改变址寄存器，形式地址给出数组等数据结构的基准位置，便于循环访问；基址寻址通常由系统或装入程序设置基址寄存器，指令中的形式地址作为偏移，便于程序重定位和地址空间管理。具体哪一部分由程序改变取决于体系结构约定。\else \answerarea \fi
 
 \item \textbf{（计算题）} 某计算机指令字长为 32 位，采用二地址指令。操作码字段占 8 位，两个地址字段各占 12 位。求：(1) 最多可有多少条二地址指令？(2) 若改为扩展操作码，保留 100 条二地址指令，一地址指令最多多少条？
 
@@ -154,7 +154,7 @@
 \[
 156\times2^{12}=638{,}976\text{ 条}.
 \]
-这是假定所有剩余前缀都用于一地址指令且不再保留零地址扩展空间时的上限。\fi
+这是假定所有剩余前缀都用于一地址指令且不再保留零地址扩展空间时的上限。\else \answerarea \fi
 
 \end{enumerate}
 
@@ -172,7 +172,7 @@
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} CISC通常指令长度和执行周期更不规则、寻址方式更多；典型 load/store 型 RISC 只有 LOAD/STORE 显式访问数据存储器，算术逻辑运算在寄存器之间完成，更利于流水线。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} CISC通常指令长度和执行周期更不规则、寻址方式更多；典型 load/store 型 RISC 只有 LOAD/STORE 显式访问数据存储器，算术逻辑运算在寄存器之间完成，更利于流水线。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \item \textbf{（真题风格，单项选择题）} 一条指令的地址码字段给出的是操作数在寄存器中的编号，则该寻址方式是
 \begin{center}
@@ -182,7 +182,7 @@
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 地址码直接给出保存操作数的寄存器编号，属于寄存器寻址；寄存器间接寻址则是寄存器中保存操作数的主存地址。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 地址码直接给出保存操作数的寄存器编号，属于寄存器寻址；寄存器间接寻址则是寄存器中保存操作数的主存地址。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \item \textbf{（真题风格，综合题）} 某 16 位计算机采用单字长定长指令，指令格式如下：
 \[
@@ -212,7 +212,7 @@
 \]
 即 \texttt{0010000101000010}。
 
-(3) 变址寻址，且题设已注明 $R0=1000_{10}$，故 $EA=(R0)+A=1000+5=1005$。\fi
+(3) 变址寻址，且题设已注明 $R0=1000_{10}$，故 $EA=(R0)+A=1000+5=1005$。\else \answerarea \fi
 
 \end{enumerate}
 

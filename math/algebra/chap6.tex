@@ -350,7 +350,7 @@ D_i = \left\{ z \in \mathbb{C} : |z - a_{ii}| \leq R_i \right\}, \quad R_i = \su
 -1 & -1 & \lambda - 2
 \end{vmatrix}
 \]
-第1列加到第2、3列：
+第2、3列各减去第1列：
 \[
 = (\lambda - 4)\begin{vmatrix}
 1 & 0 & 0 \\
@@ -385,7 +385,7 @@ D_i = \left\{ z \in \mathbb{C} : |z - a_{ii}| \leq R_i \right\}, \quad R_i = \su
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{2.} \textbf{（选择题）} 设 \(\lambda\) 是 \(n\) 阶可逆方阵 \(A\) 的一个特征值，\(\mathbf{x}\) 是对应的特征向量，则下列矩阵中，以 \(\mathbf{x}\) 为特征向量的是（\quad）
 \begin{enumerate}[label=(\Alph*)]
     \item \(A^2\)，对应的特征值为 \(\lambda^2\)
@@ -408,7 +408,7 @@ D_i = \left\{ z \in \mathbb{C} : |z - a_{ii}| \leq R_i \right\}, \quad R_i = \su
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{3.} \textbf{（填空题）} 设三阶方阵 \(A\) 的三个特征值为 \(1, 2, 3\)，则
 \begin{enumerate}[label=(\arabic*)]
     \item \(|A| = \underline{\quad\quad}\)
@@ -428,8 +428,9 @@ D_i = \left\{ z \in \mathbb{C} : |z - a_{ii}| \leq R_i \right\}, \quad R_i = \su
     \]
     故 \(A^2 + A + I\) 的三个特征值为 \(3, 7, 13\)。
     \item \(|A^2 + A + I| = 3 \times 7 \times 13 = 273\)。
-\fi%
+
 \end{enumerate}
+\else \answerarea \fi%
 
 \vspace{0.5cm}
 
@@ -465,7 +466,7 @@ D_i = \left\{ z \in \mathbb{C} : |z - a_{ii}| \leq R_i \right\}, \quad R_i = \su
 \vspace{0.5cm}
 
 
-\fi%
+\else \answerarea \fi%
 \textbf{5.} \textbf{（计算题）} 将矩阵 \(A = \begin{pmatrix}
 1 & 0 & 2 \\
 0 & 2 & 0 \\
@@ -522,7 +523,7 @@ P = (\mathbf{p}_1, \mathbf{p}_2, \mathbf{p}_3) = \begin{pmatrix}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{6.} \textbf{（计算题）} 设实对称矩阵 \(A = \begin{pmatrix}
 2 & -1 & -1 \\
 -1 & 2 & -1 \\
@@ -611,7 +612,7 @@ Q = (\mathbf{q}_1, \mathbf{q}_2, \mathbf{q}_3) = \begin{pmatrix}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{7.} \textbf{（选择题）} 矩阵 \(A = \begin{pmatrix}
 1 & 1 & 0 \\
 0 & 1 & 1 \\
@@ -648,7 +649,7 @@ Q = (\mathbf{q}_1, \mathbf{q}_2, \mathbf{q}_3) = \begin{pmatrix}
 \end{itemize}
 
 
-\fi%
+\else \answerarea \fi%
 \subsection{综合提高题}
 
 \textbf{8.} \textbf{（典型综合证明题，\(\star\star\star\)）} 设 \(A\) 为 \(n\) 阶方阵，满足 \(A^2 = A\)（幂等矩阵）。证明：
@@ -697,7 +698,7 @@ P^{-1}AP = \Lambda = \operatorname{diag}(\underbrace{1, \ldots, 1}_{r}, \underbr
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{9.} \textbf{（证明题）} 设 \(A\) 为 \(n\) 阶方阵，满足 \(A^2 = I\)。证明：\(A\) 的特征值只能为 \(1\) 或 \(-1\)，且 \(A\) 一定可对角化。
 
 \ifshowsolutions%
@@ -729,7 +730,7 @@ A\mathbf{x}_-=-\mathbf{x}_-.
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{10.} \textbf{（证明题）} 设 \(A\) 为 \(n\) 阶实对称矩阵，且满足 \(A^2 = O\)。证明：\(A = O\)。
 
 \ifshowsolutions%
@@ -747,7 +748,7 @@ A\mathbf{x}_-=-\mathbf{x}_-.
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{11.} \textbf{（拓展：Cayley--Hamilton 定理）} 设 \(A = \begin{pmatrix}
 1 & 1 & 1 \\
 0 & 1 & 1 \\
@@ -819,7 +820,7 @@ A^n = \begin{pmatrix}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{12.} \textbf{（拓展证明题：最小多项式）} 设 \(A, B\) 为 \(n\) 阶方阵，且 \(A \sim B\)（即存在可逆矩阵 \(P\) 使得 \(B = P^{-1}AP\)）。证明：对任意多项式 \(g(t)\)，有 \(g(A) \sim g(B)\)，并由此说明 \(A\) 与 \(B\) 有相同的最小多项式。
 
 \ifshowsolutions%
@@ -846,7 +847,7 @@ g(B) &= P^{-1}(a_m A^m + a_{m-1} A^{m-1} + \cdots + a_1 A + a_0 I)P \\
 \textbf{推论（最小多项式）：} 设 \(m_A(\lambda)\) 为 \(A\) 的最小多项式，则 \(m_A(A) = O\)。由上述结论，\(m_A(B) = P^{-1}m_A(A)P = O\)，故 \(m_A(\lambda)\) 也是 \(B\) 的零化多项式，从而 \(m_B(\lambda) \mid m_A(\lambda)\)。同理 \(m_A(\lambda) \mid m_B(\lambda)\)。二者均为首一多项式，故 \(m_A(\lambda) = m_B(\lambda)\)，即相似矩阵有相同的最小多项式。
 
 
-\fi%
+\else \answerarea \fi%
 \subsection{真题风格与综合训练}
 
 \textbf{13.} \textbf{（\boxed{\textbf{真题风格}}，综合题）} 设矩阵 \(A = \begin{pmatrix}
@@ -923,7 +924,7 @@ P = (\mathbf{p}_1, \mathbf{p}_2, \mathbf{p}_3) = \begin{pmatrix}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{14.} \textbf{（\boxed{\textbf{真题风格}}，证明题）} 设 \(A\) 为 \(n\) 阶实对称矩阵，\(\lambda_1, \lambda_2\) 是 \(A\) 的两个不同的特征值，\(\mathbf{x}_1, \mathbf{x}_2\) 分别是对应的特征向量。证明：
 \begin{enumerate}[label=(\arabic*)]
     \item \(\mathbf{x}_1\) 与 \(\mathbf{x}_2\) 正交；
@@ -979,7 +980,7 @@ Q = Q_1\begin{pmatrix} 1 & \mathbf{0}^{\mathrm{T}} \\ \mathbf{0} & Q_2 \end{pmat
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{15.} \textbf{（\boxed{\textbf{真题风格}}，计算题）} 设实对称矩阵 \(A = \begin{pmatrix}
 0 & 1 & 1 \\
 1 & 0 & 1 \\
@@ -1075,4 +1076,4 @@ Q^{\mathrm{T}}AQ = \operatorname{diag}(2, -1, -1)
 
 \boxed{\text{注}} 本题与第6题是同一类问题（实对称矩阵的正交对角化），但特征值不同（本题为 \(2, -1, -1\)，第6题为 \(0, 3, 3\)）。「正交对角化 + Schmidt 正交化」是常见综合训练。属于不同特征值的特征向量已自动正交，只需对同一重特征值对应的特征向量作 Schmidt 正交化。
 
-\fi%
+\else \answerarea \fi%

@@ -256,6 +256,20 @@
 \newif\ifshowsolutions
 \showsolutionstrue
 
+% ---------- 纯题目版书写留白区 ----------
+% 习题解析被隐藏（\showsolutionsfalse）时，各题解析处输出若干条书写横线，
+% 供做题时手写解答；完整版（\showsolutionstrue）下该宏由 \else 分支跳过，不影响排版。
+\newlength{\answerlineheight}
+\setlength{\answerlineheight}{0.55em}
+\newcommand{\answerarea}{%
+  \par\vspace{0.45em}%
+  {\color[gray]{0.62}%
+   \noindent\rule{\linewidth}{0.4pt}\par\vspace{\answerlineheight}%
+   \noindent\rule{\linewidth}{0.4pt}\par\vspace{\answerlineheight}%
+   \noindent\rule{\linewidth}{0.4pt}\par}%
+  \vspace{0.6em}%
+}
+
 % ---------- 知识框、提示框与表格 ----------
 \usepackage{tcolorbox}
 \usepackage{fancybox}

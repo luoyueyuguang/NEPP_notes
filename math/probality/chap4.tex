@@ -330,7 +330,7 @@ D(3X-2)=3^2D(X)=9\times 1.05=9.45.
 
 \vspace{0.4cm}
 
-\fi%
+\else \answerarea \fi%
 \item 设二维随机变量$(X,Y)$的联合分布律为
 \[
 \begin{array}{c|cc}
@@ -391,7 +391,7 @@ D(X) & \mathrm{Cov}(X,Y)\\
 
 \vspace{0.4cm}
 
-\fi%
+\else \answerarea \fi%
 \item 设随机变量$X$的概率密度为
 \[
 f(x)=\begin{cases}
@@ -433,7 +433,7 @@ D(Y)=D(2X+1)=2^2D(X)=4\times\frac{3}{5}=\frac{12}{5}=2.4.
 
 \textbf{评注：}利用对称区间上奇函数的积分为零可大幅简化计算。$D(X+c)=D(X)$，常数平移不改变方差。
 
-\fi%
+\else \answerarea \fi%
 \end{enumerate}
 
 \subsection{综合提高题}
@@ -484,7 +484,7 @@ D(Y)=\frac{16}{5}-\frac{16}{9}=\frac{64}{45}.
 
 \vspace{0.4cm}
 
-\fi%
+\else \answerarea \fi%
 \item 设随机变量$X$的期望$E(X)=\mu$，方差$D(X)=\sigma^2$。利用切比雪夫不等式证明：对任意$\varepsilon>0$，
 \[
 P(|X-\mu|<\varepsilon)\geq 1-\frac{\sigma^2}{\varepsilon^2}.
@@ -513,7 +513,7 @@ P(|X-\mu|<\varepsilon)=1-P(|X-\mu|\geq\varepsilon)\geq 1-\frac{\sigma^2}{\vareps
 
 \vspace{0.4cm}
 
-\fi%
+\else \answerarea \fi%
 \item 设随机变量$X\sim B(n,p)$。
 \begin{enumerate}
     \item[(1)] 求$X$的矩母函数$M_X(t)$；
@@ -555,7 +555,7 @@ D(X)=E(X^2)-[E(X)]^2=n(n-1)p^2+np-n^2p^2=np(1-p).
 
 \vspace{0.4cm}
 
-\fi%
+\else \answerarea \fi%
 \item 设随机变量$X$与$Y$相互独立，均服从参数为$\lambda$的指数分布$E(\lambda)$。令$U=\max(X,Y)$，$V=\min(X,Y)$。
 \begin{enumerate}
     \item[(1)] 求$U$和$V$的概率密度；
@@ -605,7 +605,7 @@ E(U)+E(V)=\frac{3}{2\lambda}+\frac{1}{2\lambda}=\frac{2}{\lambda}=\frac{1}{\lamb
 
 \textbf{评注：}$\max(X,Y)+\min(X,Y)=X+Y$恒成立（无论是否独立），两边取期望即得$E(U)+E(V)=E(X)+E(Y)$，这是更简洁的证明。
 
-\fi%
+\else \answerarea \fi%
 \end{enumerate}
 
 \subsection{真题风格与综合训练}
@@ -686,8 +686,9 @@ $\rho_{XY}=\frac{1}{2}\neq 0$，故$X$与$Y$相关，从而$X$与$Y$不独立。
     \item[(1)] 求$E(\bar{X}_n)$和$D(\bar{X}_n)$；
     \item[(2)] 用切比雪夫不等式证明：对任意$\varepsilon>0$，$\displaystyle\lim_{n\to\infty}P(|\bar{X}_n-\lambda|\geq\varepsilon)=0$；
     \item[(3)] 当$\lambda=2$，$n=100$时，用切比雪夫不等式估计$P(|\bar{X}_n-2|\geq 0.3)$的上界。
-\fi%
+
 \end{enumerate}
+\else \answerarea \fi%
 
 \ifshowsolutions%
 \boxed{\textbf{解}}
@@ -720,7 +721,7 @@ P(|\bar{X}_n-2|\geq 0.3)\leq\frac{D(\bar{X}_n)}{0.3^2}=\frac{2/100}{0.09}=\frac{
 
 \vspace{0.4cm}
 
-\fi%
+\else \answerarea \fi%
 \item 设随机变量$X\sim N(0,1)$，令$Y=|X|$。
 \begin{enumerate}
     \item[(1)] 求$Y$的概率密度；
@@ -768,6 +769,6 @@ E(X|X|)=\int_{-\infty}^{\infty}x|x|\varphi(x)\,\mathrm{d}x=0.
 
 \textbf{评注：}不相关$\nRightarrow$独立！本题是一个经典反例：$X\sim N(0,1)$与$|X|$的相关系数为零（因$X|X|$的期望为零），但两者存在严格的函数关系，绝不独立。这再次说明相关系数只衡量\textbf{线性}相关程度。
 
-\fi%
+\else \answerarea \fi%
 \end{enumerate}
 

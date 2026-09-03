@@ -137,7 +137,7 @@ $\displaystyle\sum_{k=181}^{219}\binom{400}{k}(0.5)^{400}\approx0.94896$，与�
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{2.} \textbf{（概念辨析题）} 设$X_{1},X_{2},\ldots,X_{n},\ldots$为独立同分布的随机变量序列，$E(X_{i})=\mu$存在，$D(X_{i})=\sigma^{2}>0$存在。$\bar{X}_{n}=\frac{1}{n}\sum_{i=1}^{n}X_{i}$。判断下列命题的真伪并\textbf{简要说明理由}：
 \begin{enumerate}[label=(\arabic*)]
     \item 由辛钦大数定律，$\bar{X}_{n}\overset{P}{\longrightarrow}\mu$；
@@ -175,7 +175,7 @@ P(|\bar X_n-\mu|\geq\varepsilon)
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{3.} \textbf{（计算题）} 设$X_{1},X_{2},\ldots,X_{100}$相互独立，均服从参数为$\lambda=1$的泊松分布$P(1)$。令$S_{100}=\sum_{i=1}^{100}X_{i}$。
 \begin{enumerate}[label=(\arabic*)]
     \item 写出$S_{100}$的精确分布；
@@ -206,7 +206,7 @@ P(S_{100}>110)=P(S_{100}-100>10)\leq P(|S_{100}-100|\geq 10)\leq\frac{D(S_{100})
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \subsection{综合提高题}
 
 \textbf{4.} \textbf{（计算题）} 设$X\sim B(100,0.4)$。分别用以下方法近似计算$P(35\leq X\leq 45)$：
@@ -246,7 +246,7 @@ $\displaystyle\sum_{k=35}^{45}\binom{100}{k}0.4^k0.6^{100-k}\approx0.73857$。
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{5.} \textbf{（证明题）} 设$X_{1},X_{2},\ldots,X_{n},\ldots$相互独立，$E(X_{i})=\mu_{i}$，且存在常数$C>0$使得$D(X_{i})\leq C$对一切$i$成立。
 \begin{enumerate}[label=(\arabic*)]
     \item 利用切比雪夫不等式证明：
@@ -286,7 +286,7 @@ P(|\bar{X}_{n}-\bar{\mu}_{n}|\geq\varepsilon)\leq\frac{D(\bar{X}_{n})}{\varepsil
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{6.} \textbf{（拓展：次序统计量的极限分布）} 设$X_{1},X_{2},\ldots,X_{n}$相互独立，均服从$[0,\theta]$上的均匀分布$U(0,\theta)$，其中$\theta>0$。令$Y_{n}=\max\{X_{1},X_{2},\ldots,X_{n}\}$。
 \begin{enumerate}[label=(\arabic*)]
     \item 求$Y_{n}$的分布函数$F_{Y_{n}}(y)$和概率密度$f_{Y_{n}}(y)$；
@@ -324,7 +324,7 @@ P(n(\theta-Y_{n})>\varepsilon)&=P\!\left(Y_{n}<\theta-\frac{\varepsilon}{n}\righ
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \subsection{真题风格与综合训练}
 
 \textbf{7.}（\boxed{\textbf{真题风格}}） 一生产线生产的产品成箱包装，每箱的重量（单位：kg）是随机变量。假设各箱重量相互独立，每箱的平均重量为50kg，标准差为5kg。现用一辆载重量为5吨的汽车来运载这些箱子。
@@ -369,7 +369,7 @@ t=\frac{-10+\sqrt{100+4\times50\times10000}}{100}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{8.}（\boxed{\textbf{真题风格}}） 设总体$X\sim B(1,p)$（0-1分布），$X_{1},X_{2},\ldots,X_{n}$为来自该总体的简单随机样本，$\bar{X}_{n}=\frac{1}{n}\sum_{i=1}^{n}X_{i}$。
 \begin{enumerate}[label=(\arabic*)]
     \item 当$p=0.5$，$n=100$时，用中心极限定理近似计算$P(0.45\leq\bar{X}_{n}\leq 0.55)$；
@@ -405,7 +405,7 @@ P(|\bar{X}_{n}-p|<0.02)&=P\!\left(\frac{|\bar{X}_{n}-p|}{\sqrt{p(1-p)/n}}<\frac{
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{9.}（\boxed{\textbf{真题风格}}） 设随机变量$X_{1},X_{2},\ldots,X_{n}$独立同分布，均服从区间$[0,2]$上的均匀分布$U(0,2)$。记$S_{n}=\sum_{i=1}^{n}X_{i}$。
 \begin{enumerate}[label=(\arabic*)]
     \item 求$E(S_{n})$和$D(S_{n})$；
@@ -450,7 +450,7 @@ P(|S_{n}/n-1|<0.1)&=P\!\left(\frac{|S_{n}/n-1|}{\sqrt{1/(3n)}}<\frac{0.1}{\sqrt{
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{10.}（\boxed{\textbf{真题风格}}）\textbf{（综合题）} 某保险公司有10000名投保人，每人每年出险的概率为$0.005$且相互独立；每名投保人一年内至多出险一次，每次赔付额固定为$8000$元。每人每年缴纳保费$100$元。
 \begin{enumerate}[label=(\arabic*)]
     \item 用切比雪夫不等式估计公司赔付总额超过保费总收入$60\%$的概率上界；
@@ -503,4 +503,4 @@ P(X\geq74)\approx0.000860<0.001.
 
 \boxed{\textbf{注}} (1) 展示切比雪夫界的保守性；(2)(3) 同时说明，中心极限定理适合估计分布主体和一般尾部，但在千分位级别的偏斜二项尾部，连续性修正后仍可能改变整数决策，最终应以精确二项尾概率为准。
 
-\fi%
+\else \answerarea \fi%

@@ -492,7 +492,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 超时$\to$阈值$=16/2=8$ KB，cwnd$=1$ KB，进入慢开始。RTT1: cwnd$=2$；RTT2: cwnd$=4$；RTT3: cwnd$=8$（到达阈值，进入拥塞避免）；RTT4: cwnd$=9$ KB。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 超时$\to$阈值$=16/2=8$ KB，cwnd$=1$ KB，进入慢开始。RTT1: cwnd$=2$；RTT2: cwnd$=4$；RTT3: cwnd$=8$（到达阈值，进入拥塞避免）；RTT4: cwnd$=9$ KB。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -504,7 +504,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 确认号$=$期望收到的下一字节序号$=100+200=300$。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 确认号$=$期望收到的下一字节序号$=100+200=300$。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -516,7 +516,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 超时后ssthresh$=12/2=6$，cwnd$=1$。记录值从1开始：$1\to2\to4$；当某轮开始时cwnd$=4<6$，该轮仍按慢开始近似翻倍为8，并不会人为截断为6。此后cwnd已不小于门限，按拥塞避免增至9。因此序列为1,2,4,8,9。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 超时后ssthresh$=12/2=6$，cwnd$=1$。记录值从1开始：$1\to2\to4$；当某轮开始时cwnd$=4<6$，该轮仍按慢开始近似翻倍为8，并不会人为截断为6。此后cwnd已不小于门限，按拥塞避免增至9。因此序列为1,2,4,8,9。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -530,7 +530,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 主动关闭方发送FIN后进入FIN-WAIT-1，收到ACK后进入FIN-WAIT-2，收到FIN后发送ACK进入TIME-WAIT（2MSL）。\boxed{\textbf{答案：}(D)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 主动关闭方发送FIN后进入FIN-WAIT-1，收到ACK后进入FIN-WAIT-2，收到FIN后发送ACK进入TIME-WAIT（2MSL）。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -542,7 +542,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 发送窗口$=\min(\text{cwnd},\text{rwnd})$，且 rwnd 始终为10 KB。超时后ssthresh$=4$ KB、cwnd$=1$ KB。按本章教材化的逐 RTT 规则，10个成功 RTT 后 cwnd 依次增长为 $2,4,5,6,7,8,9,10,11,12$ KB；即使拥塞窗口继续增长，接收窗口仍把实际发送窗口限制为 $\min(12,10)=10$ KB。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 发送窗口$=\min(\text{cwnd},\text{rwnd})$，且 rwnd 始终为10 KB。超时后ssthresh$=4$ KB、cwnd$=1$ KB。按本章教材化的逐 RTT 规则，10个成功 RTT 后 cwnd 依次增长为 $2,4,5,6,7,8,9,10,11,12$ KB；即使拥塞窗口继续增长，接收窗口仍把实际发送窗口限制为 $\min(12,10)=10$ KB。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \end{enumerate}
 
@@ -558,7 +558,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 确认号$=$期望的下一字节。确认号800，起始序号200，数据长度$=800-200=600$ B。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 确认号$=$期望的下一字节。确认号800，起始序号200，数据长度$=800-200=600$ B。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -574,7 +574,7 @@ TIME-WAIT & 等待 2MSL & 超时 $\to$ CLOSED \\
 3 次重复 ACK 触发快重传：ssthresh$=20/2=10$，按题设的教材化规则，cwnd$=10$，随后继续拥塞避免：$11\to12$。
 
 (2) cwnd 从 1 增至 16 的阶段为慢开始；从 16 增至 20 的阶段为拥塞避免；3 个重复 ACK 触发快重传并把窗口降到 10，此后按拥塞避免线性增长。题干已经明确采用“cwnd 直接置为 ssthresh”的教材化规则，因此这里不再单独套用 TCP Reno 中暂时令 cwnd 增至 $\mathrm{ssthresh}+3$ MSS 的快恢复细节。
-(3) 事件发生后的第 2 个成功 RTT 结束时，cwnd$=12$。\fi
+(3) 事件发生后的第 2 个成功 RTT 结束时，cwnd$=12$。\else \answerarea \fi
 
 \end{enumerate}
 

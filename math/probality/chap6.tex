@@ -212,7 +212,7 @@
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{2.} \textbf{（选择题）} 设 $X_1, X_2, X_3, X_4$ 是来自正态总体 $N(0, 2^2)$ 的简单随机样本，则下列统计量中服从 $\chi^2(3)$ 分布的是 \underline{\qquad}。
 \begin{enumerate}[label=(\Alph*)]
     \item $\dfrac{1}{4}\bigl(X_1^2+X_2^2+X_3^2+X_4^2\bigr)$
@@ -232,7 +232,7 @@
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{3.} \textbf{（选择题）} 设 $X\sim N(0,1)$，$Y\sim\chi^2(n)$，且 $X$ 与 $Y$ 相互独立，则随机变量 $T=\dfrac{X}{\sqrt{Y/n}}$ 服从的分布为 \underline{\qquad}。
 \begin{enumerate}[label=(\Alph*)]
     \item $N(0,1)$
@@ -248,7 +248,7 @@
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{4.} \textbf{（填空题）} 设 $X\sim\chi^2(m)$，$Y\sim\chi^2(n)$，且 $X$ 与 $Y$ 相互独立，令 $F=\dfrac{X/m}{Y/n}$，则 $F\sim$ \underline{\qquad}；$\dfrac{1}{F}\sim$ \underline{\qquad}；$E(F)=$ \underline{\qquad}（$n>2$）。
 
 \ifshowsolutions%
@@ -264,7 +264,7 @@ E(F)=\frac{n}{n-2}.
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{5.} \textbf{（选择题）} 设 $X_1, X_2, \ldots, X_n$ 是来自正态总体 $N(\mu,\sigma^2)$ 的简单随机样本，$\overline{X}$ 为样本均值，$S^2$ 为样本方差，则下列结论中\textbf{正确的是} \underline{\qquad}。
 \begin{enumerate}[label=(\Alph*)]
     \item $\dfrac{\overline{X}-\mu}{S/\sqrt{n}}\sim N(0,1)$
@@ -284,7 +284,7 @@ E(F)=\frac{n}{n-2}.
 \end{itemize}
 这些是正态总体抽样分布的基础结论，属于考研数学一主线内容；使用时应特别区分总体标准差 $\sigma$ 与样本标准差 $S$，并核对自由度。
 
-\fi%
+\else \answerarea \fi%
 \newpage
 \subsection{综合提高题}
 
@@ -320,7 +320,7 @@ T=\frac{\dfrac{\sqrt{n}\,\overline{X}}{\sigma}}{\sqrt{\dfrac{\sum_{i=1}^{n}(X_i-
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{7.} \textbf{（计算题）} 设 $X_1, X_2, \ldots, X_{n_1}$ 是来自正态总体 $N(\mu_1,\sigma^2)$ 的样本，$Y_1, Y_2, \ldots, Y_{n_2}$ 是来自正态总体 $N(\mu_2,\sigma^2)$ 的样本，且两样本相互独立。记
 \[
 S_w^2=\frac{(n_1-1)S_X^2+(n_2-1)S_Y^2}{n_1+n_2-2},
@@ -365,7 +365,7 @@ T=\frac{U}{\sqrt{V/(n_1+n_2-2)}}
 
 \boxed{\text{注}} 以上推导假设两总体方差相等（$\sigma_1^2=\sigma_2^2=\sigma^2$），此时才能将两个样本方差合并为 $S_w^2$。若方差不等，则需用 Welch 近似 $t$ 检验，其分布不再是精确的 $t$ 分布。
 
-\fi%
+\else \answerarea \fi%
 \newpage
 \textbf{8.} \textbf{（综合证明题）} 设 $X_1, X_2, \ldots, X_n$ 是来自绝对连续总体的简单随机样本，其分布函数为 $F(x)$，概率密度为 $f(x)$。记次序统计量为 $X_{(1)}\leqslant X_{(2)}\leqslant\cdots\leqslant X_{(n)}$。
 \begin{enumerate}[label=(\arabic*)]
@@ -412,7 +412,7 @@ E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{n x^{n-1}}{\theta^n}\,dx
 
 \boxed{\text{注}} $E(X_{(n)})=\dfrac{n}{n+1}\theta<\theta$，说明即使样本容量很大，样本最大值也倾向于低估 $\theta$，这是矩估计中需要修正的原因。
 
-\fi%
+\else \answerarea \fi%
 \newpage
 \subsection{真题风格与综合训练}
 
@@ -457,7 +457,7 @@ P(S^2>2\sigma^2)=P\!\left(\frac{15S^2}{\sigma^2}>30\right).
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{10.} \textbf{（\boxed{\textbf{真题风格}}，选择题）} 设随机变量 $X\sim t(n)$（$n>1$），$Y=\dfrac{1}{X^2}$，则 \underline{\qquad}。
 \begin{enumerate}[label=(\Alph*)]
     \item $Y\sim\chi^2(n)$
@@ -485,4 +485,4 @@ $Y=1/X^2\sim F(n,1)$（若 $F\sim F(m,n)$，则 $1/F\sim F(n,m)$）。
 
 \boxed{\text{注}} 此题考查 $t$ 分布与 $F$ 分布的内在联系，是考研选择题中的经典题型。关键结论链：$t(n)\xrightarrow{\text{平方}}F(1,n)\xrightarrow{\text{取倒数}}F(n,1)$。
 
-\fi%
+\else \answerarea \fi%

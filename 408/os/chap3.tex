@@ -563,7 +563,7 @@ OPT 和 LRU 是\textbf{栈类算法（Stack Algorithm）}——$n$ 个页框时�
 
 \begin{attention}
 \textbf{408 高频计算：LRU 置换过程与缺页次数统计。} 
-考题通常给出内存容量（页框数）和页面访问序列，要求模拟 LRU 置换过程，统计缺页次数。技巧：维护一个 LRU 栈（或访问顺序表），每次访问后将当前页面移到队尾（最远被访问的一端），队头即为最久未使用的页面。
+考题通常给出内存容量（页框数）和页面访问序列，要求模拟 LRU 置换过程，统计缺页次数。技巧：维护一个 LRU 栈（或访问顺序表），每次访问后将当前页面移到队尾（最近被访问的一端），队头即为最久未使用的页面。
 
 \textbf{注意区分「LRU 栈」和「FIFO 队列」：} FIFO 中页面进入顺序不变（仅在置换时才变化）；LRU 中每次\textbf{访问命中}都会改变页面的顺序。
 \end{attention}
@@ -726,7 +726,7 @@ OS 在多个进程之间分配物理页框时，有三种基本策略：
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 缺页中断处理：确定页在外存位置$\to$分配页框$\to$磁盘I/O读入$\to$修改页表（有效位=1）。\boxed{\textbf{答案：}(D)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 缺页中断处理：确定页在外存位置$\to$分配页框$\to$磁盘I/O读入$\to$修改页表（有效位=1）。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -739,7 +739,7 @@ OS 在多个进程之间分配物理页框时，有三种基本策略：
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} LRU 淘汰最久未使用的页。4 个页框逐步模拟，缺页发生在第 1、2、3、4、7、8、12、13、14、17 次访问，对应缺页页号为
-$1,2,3,4,5,6,3,7,6,1$，共 10 次，缺页率为 $10/20=50\%$。\boxed{\textbf{答案：}(B)}\fi
+$1,2,3,4,5,6,3,7,6,1$，共 10 次，缺页率为 $10/20=50\%$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -751,7 +751,7 @@ $1,2,3,4,5,6,3,7,6,1$，共 10 次，缺页率为 $10/20=50\%$。\boxed{\textbf{
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 固定分配时页框数固定，若全局置换意味着可从其他进程"抢"页框——这与固定分配矛盾。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 固定分配时页框数固定，若全局置换意味着可从其他进程"抢"页框——这与固定分配矛盾。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -763,7 +763,7 @@ $1,2,3,4,5,6,3,7,6,1$，共 10 次，缺页率为 $10/20=50\%$。\boxed{\textbf{
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 改进CLOCK：优先淘汰未访问未修改(0,0)，其次未访问已修改(0,1)，再次访问未修改(1,0)，最后访问已修改(1,1)。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 改进CLOCK：优先淘汰未访问未修改(0,0)，其次未访问已修改(0,1)，再次访问未修改(1,0)，最后访问已修改(1,1)。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -777,7 +777,7 @@ $1,2,3,4,5,6,3,7,6,1$，共 10 次，缺页率为 $10/20=50\%$。\boxed{\textbf{
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 虚拟存储器基于局部性原理（时间/空间局部性）。容量受CPU地址位数限制，而非主存+辅存。可分页/分段/段页式实现。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 虚拟存储器基于局部性原理（时间/空间局部性）。容量受CPU地址位数限制，而非主存+辅存。可分页/分段/段页式实现。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -798,7 +798,7 @@ $1,2,3,4,5,6,3,7,6,1$，共 10 次，缺页率为 $10/20=50\%$。\boxed{\textbf{
 \ifshowsolutions\par\noindent\textbf{解析：}
 页面大小$=4096$ B。$5000\div 4096=1$（页号$=1$），偏移$=5000-4096=904$。页框号$=10$，物理地址$=10\times 4096+904=41864$。
 
-$15000\div 4096=3$（页号$=3$），偏移$=15000-3\times 4096=2712$。页框号$=7$，物理地址$=7\times 4096+2712=31384$。\fi
+$15000\div 4096=3$（页号$=3$），偏移$=15000-3\times 4096=2712$。页框号$=7$，物理地址$=7\times 4096+2712=31384$。\else \answerarea \fi
 
 \end{enumerate}
 
@@ -823,7 +823,7 @@ $1,2,3,4,1,5,6,2,1,3,7,6,2,1,3,6$，共 16 次，缺页率为 $16/20=80\%$。
 (2) LRU（3 块）的缺页页号依次为
 $1,2,3,4,1,5,6,2,1,3,7,6,2,1,6$，共 15 次，缺页率为 $15/20=75\%$。
 
-(3) 仅给出 3 块时的结果，不能据此判断是否发生 Belady 异常。作为对照，对同一访问串用 FIFO 配置 4 块时缺页 14 次，少于 3 块时的 16 次，因此从 3 块增加到 4 块时\textbf{没有}出现 Belady 异常。FIFO 是出现 Belady 异常的典型算法，但并非每个访问串、每次增加页框都会出现；LRU 和 OPT 属于栈算法，不会出现该异常。\fi
+(3) 仅给出 3 块时的结果，不能据此判断是否发生 Belady 异常。作为对照，对同一访问串用 FIFO 配置 4 块时缺页 14 次，少于 3 块时的 16 次，因此从 3 块增加到 4 块时\textbf{没有}出现 Belady 异常。FIFO 是出现 Belady 异常的典型算法，但并非每个访问串、每次增加页框都会出现；LRU 和 OPT 属于栈算法，不会出现该异常。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -839,7 +839,7 @@ $1,2,3,4,1,5,6,2,1,3,7,6,2,1,6$，共 15 次，缺页率为 $15/20=75\%$。
 
 (2) 二级页表：一级$2^{10}=1\text{K}$项，共 $4\text{ KB}$；最多需要 $2^{10}$ 张二级页表，每张$2^{10}$项、大小为 $4\text{ KB}$，合计 $4\text{ MB}$。因此所有二级页表都调入时的最大空间为 $4\text{ MB}+4\text{ KB}$；地址空间稀疏时只调入实际需要的二级页表，实际占用可低于该上限。
 
-(3) 0x12345: 页号$=0x12$。0x1234A: 页号同为$0x12$（同一页），TLB命中$\to$无需访问页表。\fi
+(3) 0x12345: 页号$=0x12$。0x1234A: 页号同为$0x12$（同一页），TLB命中$\to$无需访问页表。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -855,7 +855,7 @@ $1,2,3,4,1,5,6,2,1,3,7,6,2,1,6$，共 15 次，缺页率为 $15/20=75\%$。
 
 (2) TLB命中：TLB获取页框号$\to$拼接物理地址$\to$访问内存取数据。共\textbf{1次访存}。
 
-(3) TLB缺失：访问内存页表(1次)$\to$获取页框号$\to$访问内存取数据(1次)。共\textbf{2次访存}。\fi
+(3) TLB缺失：访问内存页表(1次)$\to$获取页框号$\to$访问内存取数据(1次)。共\textbf{2次访存}。\else \answerarea \fi
 
 \end{enumerate}
 

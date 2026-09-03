@@ -350,7 +350,7 @@ AOE 网中：
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 无向图中每条边连接两个顶点，在计算度之和时每条边被计算两次（每个端点各贡献 1 度），故所有顶点的度之和 $= 2e$（$e$ 为边数），必为偶数，(A) 正确。$n$ 个顶点的无向连通图最少有 $n-1$ 条边（生成树），但边数可以等于 $n-1$，(B) "大于"有误。连通图可以没有度为 1 的顶点（如完全图 $K_n$ 中每个顶点的度均为 $n-1$），(C) 错误。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 无向图中每条边连接两个顶点，在计算度之和时每条边被计算两次（每个端点各贡献 1 度），故所有顶点的度之和 $= 2e$（$e$ 为边数），必为偶数，(A) 正确。$n$ 个顶点的无向连通图最少有 $n-1$ 条边（生成树），但边数可以等于 $n-1$，(B) "大于"有误。连通图可以没有度为 1 的顶点（如完全图 $K_n$ 中每个顶点的度均为 $n-1$），(C) 错误。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 对 $n$ 个顶点、$e$ 条边的有向图采用邻接表存储，则拓扑排序算法的时间复杂度是
 \begin{center}
@@ -360,7 +360,7 @@ AOE 网中：
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 拓扑排序算法（基于入度）：（1） 初始化：遍历所有边计算各顶点入度，耗时 $O(e)$；（2） 每次取入度为 0 的顶点输出，并删除其所有出边（将邻接顶点的入度减 1），每条边恰好被处理一次，每个顶点至多被访问一次。总计 $O(n+e)$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 拓扑排序算法（基于入度）：（1） 初始化：遍历所有边计算各顶点入度，耗时 $O(e)$；（2） 每次取入度为 0 的顶点输出，并删除其所有出边（将邻接顶点的入度减 1），每条边恰好被处理一次，每个顶点至多被访问一次。总计 $O(n+e)$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 下列关于图的叙述中，正确的是
 \begin{center}
@@ -372,7 +372,7 @@ AOE 网中：
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误——回路（环）的起点和终点相同，不是简单路径（简单路径要求所有顶点不重复）。(B) 错误——邻接矩阵空间 $O(n^2)$，邻接表空间 $O(n+e)$，稀疏图中 $e\ll n^2$，邻接表更省。(C) 正确——拓扑排序仅存在于 DAG（有向无环图）中，有回路则不存在拓扑序列。(D) 错误——有向图的邻接矩阵一般不对称。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误——回路（环）的起点和终点相同，不是简单路径（简单路径要求所有顶点不重复）。(B) 错误——邻接矩阵空间 $O(n^2)$，邻接表空间 $O(n+e)$，稀疏图中 $e\ll n^2$，邻接表更省。(C) 正确——拓扑排序仅存在于 DAG（有向无环图）中，有回路则不存在拓扑序列。(D) 错误——有向图的邻接矩阵一般不对称。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 对有 $n$ 个顶点、$e$ 条边且使用邻接表存储的有向图进行广度优先遍历，其算法时间复杂度是
 \begin{center}
@@ -382,7 +382,7 @@ AOE 网中：
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} BFS 遍历图中每个顶点恰好入队一次、出队一次，每条边恰好被扫描一次（从邻接表中取出），故时间复杂度 $O(n+e)$。同理 DFS 的时间复杂度也是 $O(n+e)$（邻接表）或 $O(n^2)$（邻接矩阵）。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} BFS 遍历图中每个顶点恰好入队一次、出队一次，每条边恰好被扫描一次（从邻接表中取出），故时间复杂度 $O(n+e)$。同理 DFS 的时间复杂度也是 $O(n+e)$（邻接表）或 $O(n^2)$（邻接矩阵）。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 对如下有向图进行拓扑排序，得到的拓扑序列可能是\\
 \begin{center}
@@ -411,7 +411,7 @@ AOE 网中：
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 拓扑序列必须满足图中每条弧的起点先于终点。(A) 满足全部先后约束。(B) 中顶点 6 出现在其前驱 5 之前；(C) 中顶点 5 出现在其前驱 4 之前；(D) 中顶点 2 出现在其前驱 4 之前，三者均非法。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 拓扑序列必须满足图中每条弧的起点先于终点。(A) 满足全部先后约束。(B) 中顶点 6 出现在其前驱 5 之前；(C) 中顶点 5 出现在其前驱 4 之前；(D) 中顶点 2 出现在其前驱 4 之前，三者均非法。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 已知含有 5 个顶点的有向图 $G$ 如下图所示，则下列结论正确的是\\
 \begin{center}
@@ -440,7 +440,7 @@ AOE 网中：
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 图中 $A\to B\to C\to A$ 构成一个环，且该环与 $D,E$ 之间存在双向可达路径，因此任意顶点都能到达其余顶点，$G$ 是强连通图。(B) 错，邻接表的空间复杂度为 $O(n+e)$；(C) 错，C 的入边为 $B\to C,D\to C$，出边为 $C\to A,C\to E$，入度和出度均为 2；(D) 错，有向图的邻接矩阵不必对称。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 图中 $A\to B\to C\to A$ 构成一个环，且该环与 $D,E$ 之间存在双向可达路径，因此任意顶点都能到达其余顶点，$G$ 是强连通图。(B) 错，邻接表的空间复杂度为 $O(n+e)$；(C) 错，C 的入边为 $B\to C,D\to C$，出边为 $C\to A,C\to E$，入度和出度均为 2；(D) 错，有向图的邻接矩阵不必对称。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 设无向图的邻接表按顶点编号递增排列，从顶点 1 开始进行 BFS，并始终按邻接表顺序扫描邻接点。若各顶点的邻接表为
 \[
@@ -454,7 +454,7 @@ AOE 网中：
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 从 1 出发，先访问并入队 2、3；处理 2 时依次发现 4、5；处理 3 时发现 6；随后按队列顺序访问 4、5、6，故序列为 $1,2,3,4,5,6$。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 从 1 出发，先访问并入队 2、3；处理 2 时依次发现 4、5；处理 3 时发现 6；随后按队列顺序访问 4、5、6，故序列为 $1,2,3,4,5,6$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 已知如下有向图，该图的拓扑排序序列的个数是\\
 \begin{center}
@@ -487,7 +487,7 @@ AOE 网中：
 \texttt{ABDCEF},\quad \texttt{ADBCEF},\quad \texttt{ADCBEF},\quad
 \texttt{DABCEF},\quad \texttt{DACBEF}.
 \]
-共 5 个拓扑序列。\boxed{\textbf{答案：}(D)}\fi
+共 5 个拓扑序列。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \end{enumerate}
 
@@ -505,7 +505,7 @@ AOE 网中：
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 生成树的定义：连通图的生成树是包含图中所有 $n$ 个顶点的极小连通子图，有且仅有 $n-1$ 条边。(A) 正确——生成树包含全部顶点。(B) 正确——树中任意两点间有唯一简单路径。(C) 正确——生成树正是极小的连通子图（再删任意一条边就不再连通）。(D) 错误——非连通图只能有生成森林（各连通分量各有一棵生成树），不存在包含全部顶点的生成树。\boxed{\textbf{答案：}(D)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 生成树的定义：连通图的生成树是包含图中所有 $n$ 个顶点的极小连通子图，有且仅有 $n-1$ 条边。(A) 正确——生成树包含全部顶点。(B) 正确——树中任意两点间有唯一简单路径。(C) 正确——生成树正是极小的连通子图（再删任意一条边就不再连通）。(D) 错误——非连通图只能有生成森林（各连通分量各有一棵生成树），不存在包含全部顶点的生成树。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 用 Dijkstra 算法求下图中顶点 1 到其余各点的最短路径。算法依次确定最短路径的顶点次序是\\
 \begin{center}
@@ -544,7 +544,7 @@ AOE 网中：
 \hline
 \end{tabular}
 \end{center}
-因此除源点外的顶点确定次序为 3, 4, 2, 5。顶点 2 的距离从初始的 5 起未被更新；顶点 5 经 $1\to3\to4\to5$ 的距离为 8。\boxed{\textbf{答案：}(D)}\fi
+因此除源点外的顶点确定次序为 3, 4, 2, 5。顶点 2 的距离从初始的 5 起未被更新；顶点 5 经 $1\to3\to4\to5$ 的距离为 8。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 已知一个无向图的邻接矩阵如下，用 Prim 算法从顶点 A 开始构造最小生成树，则依次加入生成树的边是\\
 \begin{center}
@@ -576,7 +576,7 @@ $\\
 选最小 (F,D) 权 2，D 加入。更新：B 不变(5)；E 不变(6)。\\
 选最小 (C,B) 权 5，B 加入。更新：E 经 B 为 3 < 6，更新为 3。\\
 选最小 (B,E) 权 3，E 加入。MST 完成。\\
-边加入顺序：(A,C), (C,F), (F,D), (C,B), (B,E)。\boxed{\textbf{答案：}(A)}\fi
+边加入顺序：(A,C), (C,F), (F,D), (C,B), (B,E)。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 下列关于关键路径的叙述中，正确的是
 \begin{center}
@@ -588,7 +588,7 @@ $\\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误——若缩短的关键活动不在所有关键路径的公共部分上，则总工期不变（其他关键路径仍制约工期）。(B) 错误——关键路径是从源点到汇点的\textbf{最长}路径，其长度等于工程总工期。(C) \textbf{正确}——AOE 网的关键路径可以不唯一。(D) 错误——非关键活动有一定的时间余量（松弛时间），提前完成不会缩短总工期。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误——若缩短的关键活动不在所有关键路径的公共部分上，则总工期不变（其他关键路径仍制约工期）。(B) 错误——关键路径是从源点到汇点的\textbf{最长}路径，其长度等于工程总工期。(C) \textbf{正确}——AOE 网的关键路径可以不唯一。(D) 错误——非关键活动有一定的时间余量（松弛时间），提前完成不会缩短总工期。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 已知无向图 $G$ 有 16 条边，其中度为 4 的顶点有 3 个，度为 3 的顶点有 4 个，其余顶点的度均小于 3。则 $G$ 至少有多少个顶点？
 \begin{center}
@@ -598,7 +598,7 @@ $\\
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 设总顶点数为 $n$，其余顶点的数量为 $n-7$。由握手定理：$\sum\deg(v)=2e=32$。已知 $3\times4 + 4\times3 + \sum_{\text{其余}} \deg(v) = 32$，即 $12+12+\sum_{\text{其余}}\deg(v)=32$，$\sum_{\text{其余}}\deg(v)=8$。要使 $n$ 最小，其余顶点的度应尽可能大。但已知其余顶点的度均 "<3"，最大可取 2。设其余顶点均为度 2，则 $2(n-7)=8$，$n-7=4$，$n=11$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 设总顶点数为 $n$，其余顶点的数量为 $n-7$。由握手定理：$\sum\deg(v)=2e=32$。已知 $3\times4 + 4\times3 + \sum_{\text{其余}} \deg(v) = 32$，即 $12+12+\sum_{\text{其余}}\deg(v)=32$，$\sum_{\text{其余}}\deg(v)=8$。要使 $n$ 最小，其余顶点的度应尽可能大。但已知其余顶点的度均 "<3"，最大可取 2。设其余顶点均为度 2，则 $2(n-7)=8$，$n-7=4$，$n=11$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \item \textbf{（真题风格·选择题）} 下列 AOE 网表示一项包含 8 个活动的工程，边上括号内为活动持续时间。下列选项中，两项活动均为关键活动的是\\
 \begin{center}
@@ -632,7 +632,7 @@ $\\
     \item $vl$：按逆拓扑序——$vl(6)=11$；$vl(5)=vl(6)-5=6$；$vl(4)=vl(6)-3=8$；$vl(3)=\min\{vl(4)-4=4, vl(5)-2=4\}=4$；$vl(2)=\min\{vl(4)-1=7, vl(5)-2=4\}=4$；$vl(1)=\min\{vl(2)-4=0, vl(3)-3=1\}=0$。
     \item 活动时间裕量（$l-e$）：$a(1\to2)=vl(2)-ve(1)-4=4-4=0$（关键）；$b(1\to3)=vl(3)-ve(1)-3=4-3=1$；$c(2\to5)=vl(5)-ve(2)-2=6-4-2=0$（关键）；$d(2\to4)=vl(4)-ve(2)-1=8-4-1=3$；$e(3\to4)=vl(4)-ve(3)-4=8-3-4=1$；$f(3\to5)=vl(5)-ve(3)-2=6-3-2=1$；$g(4\to6)=vl(6)-ve(4)-3=11-7-3=1$；$h(5\to6)=vl(6)-ve(5)-5=11-6-5=0$（关键）。
 \end{itemize}
-零时间余量的关键活动为 $a,c,h$，关键路径为 $1\to2\to5\to6$。四组中只有 (A) 的两项活动均为关键活动。\boxed{\textbf{答案：}(A)}\fi
+零时间余量的关键活动为 $a,c,h$，关键路径为 $1\to2\to5\to6$。四组中只有 (A) 的两项活动均为关键活动。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \item \textbf{（综合题）} 已知带权有向图 $G=(V,E)$ 的邻接矩阵如下，顶点编号为 1$\sim$6。
 \[
@@ -681,7 +681,7 @@ A = \begin{pmatrix}
 
 (4) 顶点 1 到顶点 6 的最短路径为 $1\to5\to4\to6$，长度 $=30+20+10=60$。
 
-\boxed{\textbf{答案见解析}}\fi
+\boxed{\textbf{答案见解析}}\else \answerarea \fi
 
 \end{enumerate}
 

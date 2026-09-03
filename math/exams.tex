@@ -2,9 +2,8 @@
 % 考研数学一 模拟试卷
 % ============================================================
 
-% 模拟卷默认显示解析；需要只打印题面时，将下一行改为 \showsolutionsfalse。
-% \ifshowsolutions 已在 main.tex 中定义
-\showsolutionstrue
+% 解析开关与 main.tex 保持单一全局状态（\showsolutionstrue/false 只在 main.tex 设定）。
+% 模拟卷的题解同样包裹在 \ifshowsolutions 中，刷题版整体隐藏、完整版照常显示。
 
 \section{模拟卷一}
 
@@ -32,7 +31,7 @@
 =\left(x-\frac{x^3}{6}\right)-x\left(1-\frac{x^2}{2}\right)+o(x^3)
 =\frac{x^3}{3}+o(x^3).
 \]
-故 $\lim\limits_{x \to 0} \dfrac{\sin x - x\cos x}{x^3} = \dfrac{1}{3}$。\boxed{\textbf{答案：}(B)}\fi
+故 $\lim\limits_{x \to 0} \dfrac{\sin x - x\cos x}{x^3} = \dfrac{1}{3}$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -44,7 +43,7 @@
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $x^2-1=0 \Rightarrow x=\pm 1$ 为垂直渐近线。$\lim\limits_{x\to\infty} \dfrac{x^2+1}{x^2-1}=1$，$y=1$ 为水平渐近线。无斜渐近线。共3条。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $x^2-1=0 \Rightarrow x=\pm 1$ 为垂直渐近线。$\lim\limits_{x\to\infty} \dfrac{x^2+1}{x^2-1}=1$，$y=1$ 为水平渐近线。无斜渐近线。共3条。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -61,7 +60,7 @@
 \[
 \int_{0}^{\pi} \dfrac{\sin x}{1+\cos^2 x}\,dx = \int_{-1}^{1} \dfrac{du}{1+u^2} = \frac{\pi}{2}
 \]
-故 $2I = \pi \cdot \dfrac{\pi}{2} = \dfrac{\pi^2}{2}$，$I = \dfrac{\pi^2}{4}$。\boxed{\textbf{答案：}(B)}\fi
+故 $2I = \pi \cdot \dfrac{\pi}{2} = \dfrac{\pi^2}{2}$，$I = \dfrac{\pi^2}{4}$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -75,7 +74,7 @@
 
 \ifshowsolutions\par\noindent\textbf{解析：} $\sum a_n$ 条件收敛 $\Rightarrow \sum a_n$ 收敛，$\sum |a_n|$ 发散。
 (A) 收敛 $+$ 绝对收敛 $=$ 收敛。(B) 由 Abel 判别法，$\{1/n\}$ 单调趋于 $0$，$\sum a_n$ 部分和有界，收敛。
-(C) 将原级数按相邻两项分组不改变收敛性，且 $\sum_{n=1}^{N}(a_{2n-1}+a_{2n})=\sum_{k=1}^{2N}a_k$，故必收敛。(D) $\sum(|a_n|-a_n)$ 的部分和等于对应的 $\sum|a_n|$ 部分和减去 $\sum a_n$ 部分和，因此趋于 $+\infty$。\boxed{\textbf{答案：}(D)}\fi
+(C) 将原级数按相邻两项分组不改变收敛性，且 $\sum_{n=1}^{N}(a_{2n-1}+a_{2n})=\sum_{k=1}^{2N}a_k$，故必收敛。(D) $\sum(|a_n|-a_n)$ 的部分和等于对应的 $\sum|a_n|$ 部分和减去 $\sum a_n$ 部分和，因此趋于 $+\infty$。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -94,7 +93,7 @@
 \frac{\partial^2 z}{\partial x \partial y} = f_1' + y\frac{\partial f_1'}{\partial y} + 2x\frac{\partial f_2'}{\partial y}
 \]
 $\dfrac{\partial f_1'}{\partial y} = x f_{11}'' + 2y f_{12}''$, $\dfrac{\partial f_2'}{\partial y} = x f_{21}'' + 2y f_{22}''$。由 $f_{12}''=f_{21}''$，代入得
-$f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$。\boxed{\textbf{答案：}(B)}\fi
+$f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -106,7 +105,7 @@ $f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$。\boxed{\textbf{答案
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 特征方程：$r^2-3r+2=0$，$r_1=1$, $r_2=2$。右端 $e^x\cos x$ 对应 $1\pm i$，不是特征根。特解设为 $e^x(A\cos x+B\sin x)$。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 特征方程：$r^2-3r+2=0$，$r_1=1$, $r_2=2$。右端 $e^x\cos x$ 对应 $1\pm i$，不是特征根。特解设为 $e^x(A\cos x+B\sin x)$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -119,7 +118,7 @@ $f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$。\boxed{\textbf{答案
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} $A^2=A \Rightarrow A(I-A)=O \Rightarrow r(A)+r(I-A)\leqslant n$。又 $I=A+(I-A) \Rightarrow n=r(I)\leqslant r(A)+r(I-A)$。故 $r(A)+r(I-A)=n$。
-(A) 反例：$A=\begin{pmatrix}1&0\\0&0\end{pmatrix}$。(B) 反例同上。(D) 特征值可为 $0$ 或 $1$。\boxed{\textbf{答案：}(C)}\fi
+(A) 反例：$A=\begin{pmatrix}1&0\\0&0\end{pmatrix}$。(B) 反例同上。(D) 特征值可为 $0$ 或 $1$。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -131,7 +130,7 @@ $f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$。\boxed{\textbf{答案
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $A = \begin{pmatrix} 1 & 1 & 2 \\ 1 & 2 & 1 \\ 2 & 1 & 3 \end{pmatrix}$。顺序主子式：$\Delta_1=1>0$, $\Delta_2=\begin{vmatrix}1&1\\1&2\end{vmatrix}=1>0$, $\Delta_3=|A|=-2<0$。正惯性指数 $p=2$，负惯性指数 $q=1$。规范形为 $y_1^2+y_2^2-y_3^2$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $A = \begin{pmatrix} 1 & 1 & 2 \\ 1 & 2 & 1 \\ 2 & 1 & 3 \end{pmatrix}$。顺序主子式：$\Delta_1=1>0$, $\Delta_2=\begin{vmatrix}1&1\\1&2\end{vmatrix}=1>0$, $\Delta_3=|A|=-2<0$。正惯性指数 $p=2$，负惯性指数 $q=1$。规范形为 $y_1^2+y_2^2-y_3^2$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -143,7 +142,7 @@ $f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$。\boxed{\textbf{答案
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 由 $t$ 分布定义：$X\sim N(0,1)$, $Y\sim\chi^2(n)$ 独立，则 $\dfrac{X}{\sqrt{Y/n}}\sim t(n)$。$n=3$，故 $\dfrac{\sqrt{3}X}{\sqrt{Y}}\sim t(3)$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 由 $t$ 分布定义：$X\sim N(0,1)$, $Y\sim\chi^2(n)$ 独立，则 $\dfrac{X}{\sqrt{Y/n}}\sim t(n)$。$n=3$，故 $\dfrac{\sqrt{3}X}{\sqrt{Y}}\sim t(3)$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -155,7 +154,7 @@ $f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$。\boxed{\textbf{答案
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 由抽样分布基本定理，$\dfrac{\bar{X}-\mu}{S/\sqrt{n}}\sim t(n-1)$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 由抽样分布基本定理，$\dfrac{\bar{X}-\mu}{S/\sqrt{n}}\sim t(n-1)$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \newpage
 
@@ -164,7 +163,7 @@ $f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$。\boxed{\textbf{答案
 \textbf{11.} $\displaystyle\lim_{n \to \infty} \sum_{k=1}^{n} \frac{k}{n^2 + k^2} = \underline{\qquad\qquad}$。
 
 \ifshowsolutions\par\noindent\textbf{解析：} $\displaystyle\sum_{k=1}^{n} \frac{k}{n^2+k^2} = \frac{1}{n}\sum_{k=1}^{n} \frac{k/n}{1+(k/n)^2} \to \int_{0}^{1} \frac{x}{1+x^2}dx = \frac{1}{2}\ln(1+x^2)\big|_{0}^{1} = \frac{1}{2}\ln 2$。
-\boxed{\textbf{答案：}\dfrac{1}{2}\ln 2}\fi
+\boxed{\textbf{答案：}\dfrac{1}{2}\ln 2}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -173,35 +172,35 @@ $f_1' + xy f_{11}'' + 2(x^2+y^2)f_{12}'' + 4xy f_{22}''$。\boxed{\textbf{答案
 \ifshowsolutions\par\noindent\textbf{解析：} 分部积分：$\int_{0}^{1} x f(x)dx = \frac{x^2}{2}f(x)\big|_{0}^{1} - \frac{1}{2}\int_{0}^{1} x^2 e^{-x^2}dx$。$f(1)=\int_{0}^{1}e^{-t^2}dt$。
 再分部：$\int_{0}^{1} x^2 e^{-x^2}dx = -\frac{x}{2}e^{-x^2}\big|_{0}^{1} + \frac{1}{2}\int_{0}^{1} e^{-x^2}dx = -\frac{1}{2e} + \frac{1}{2}f(1)$。
 代入：原式 $= \frac{1}{2}f(1) - \frac{1}{2}(-\frac{1}{2e}+\frac{1}{2}f(1)) = \frac{1}{4}f(1) + \frac{1}{4e}$。
-\boxed{\textbf{答案：}\dfrac{1}{4}\displaystyle\int_{0}^{1} e^{-x^2}dx + \dfrac{1}{4e}}\fi
+\boxed{\textbf{答案：}\dfrac{1}{4}\displaystyle\int_{0}^{1} e^{-x^2}dx + \dfrac{1}{4e}}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{13.} 设 $u = x^y$，则 $du|_{(e,1)} = \underline{\qquad\qquad}$。
 
 \ifshowsolutions\par\noindent\textbf{解析：} $\dfrac{\partial u}{\partial x} = y x^{y-1}$，$\dfrac{\partial u}{\partial y} = x^y\ln x$。在 $(e,1)$：$u=e$, $u_x=1$, $u_y=e$。故 $du|_{(e,1)} = dx + e\,dy$。
-\boxed{\textbf{答案：}dx + e\,dy}\fi
+\boxed{\textbf{答案：}dx + e\,dy}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{14.} 设 $L$ 为从 $(1,0)$ 到 $(-1,0)$ 的上半圆周 $y=\sqrt{1-x^2}$，则 $\displaystyle\int_{L} (x^2+y^2)\,ds = \underline{\qquad\qquad}$。
 
 \ifshowsolutions\par\noindent\textbf{解析：} 在 $L$ 上 $x^2+y^2=1$。参数化 $x=\cos\theta$, $y=\sin\theta$, $\theta:0\to\pi$。$ds=d\theta$。$\int_{L}1\,ds=\pi$。
-\boxed{\textbf{答案：}\pi}\fi
+\boxed{\textbf{答案：}\pi}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{15.} 设 $\alpha_1=(1,2,-1)^T$, $\alpha_2=(2,1,4)^T$, $\alpha_3=(1,3,-5)^T$，则向量组的秩为 $\underline{\qquad\qquad}$。
 
 \ifshowsolutions\par\noindent\textbf{解析：} 初等行变换：$\begin{pmatrix}1&2&1\\2&1&3\\-1&4&-5\end{pmatrix} \to \begin{pmatrix}1&2&1\\0&-3&1\\0&6&-4\end{pmatrix} \to \begin{pmatrix}1&2&1\\0&-3&1\\0&0&-2\end{pmatrix}$。三个非零行，秩为 $3$。
-\boxed{\textbf{答案：}3}\fi
+\boxed{\textbf{答案：}3}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{16.} 设随机变量 $X \sim B(10, 0.4)$，则 $E(X^2) = \underline{\qquad\qquad}$。
 
 \ifshowsolutions\par\noindent\textbf{解析：} $E(X)=4$, $D(X)=2.4$, $E(X^2)=D(X)+[E(X)]^2=2.4+16=18.4$。
-\boxed{\textbf{答案：}18.4}\fi
+\boxed{\textbf{答案：}18.4}\else \answerarea \fi
 
 \newpage
 
@@ -226,7 +225,7 @@ f'(\eta_1)=\frac{f(\xi)-f(0)}{\xi}=\frac{1-\xi}{\xi},
 \exists\eta_2\in(\xi,1):\quad
 f'(\eta_2)=\frac{f(1)-f(\xi)}{1-\xi}=\frac{\xi}{1-\xi}.
 \]
-故 $f'(\eta_1)f'(\eta_2)=\dfrac{1-\xi}{\xi}\cdot\dfrac{\xi}{1-\xi}=1$，且 $\eta_1<\xi<\eta_2$。证毕。\boxed{\textbf{答案：}\text{证明如上}}\fi
+故 $f'(\eta_1)f'(\eta_2)=\dfrac{1-\xi}{\xi}\cdot\dfrac{\xi}{1-\xi}=1$，且 $\eta_1<\xi<\eta_2$。证毕。\boxed{\textbf{答案：}\text{证明如上}}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -241,7 +240,7 @@ f'(\eta_2)=\frac{f(1)-f(\xi)}{1-\xi}=\frac{\xi}{1-\xi}.
 \iint_{D_2}(y-x^2)\,dxdy &= \int_{-1}^{1}dx\int_{x^2}^{1}(y-x^2)dy = \frac{1}{2}\int_{-1}^{1}(1-x^2)^2dx \\
 &= \int_{0}^{1}(1-2x^2+x^4)dx = 1-\frac{2}{3}+\frac{1}{5} = \frac{8}{15}
 \end{align*}
-合计：$\dfrac{1}{5}+\dfrac{8}{15}=\dfrac{11}{15}$。\boxed{\textbf{答案：}\dfrac{11}{15}}\fi
+合计：$\dfrac{1}{5}+\dfrac{8}{15}=\dfrac{11}{15}$。\boxed{\textbf{答案：}\dfrac{11}{15}}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -255,7 +254,7 @@ $\sum_{n=2}^{\infty}n(n-1)x^{n-2}=\frac{2}{(1-x)^3}$，$\sum_{n=1}^{\infty}nx^{n
 \sum_{n=1}^{\infty}n(n+1)x^n &= \sum_{n=1}^{\infty}[n(n-1)+2n]x^n = x^2\sum_{n=2}^{\infty}n(n-1)x^{n-2} + 2x\sum_{n=1}^{\infty}nx^{n-1} \\
 &= \frac{2x^2}{(1-x)^3} + \frac{2x}{(1-x)^2} = \frac{2x^2+2x(1-x)}{(1-x)^3} = \frac{2x}{(1-x)^3}
 \end{align*}
-\boxed{\textbf{答案：}\text{收敛域 }(-1,1)\text{，和函数 }S(x)=\dfrac{2x}{(1-x)^3}}\fi
+\boxed{\textbf{答案：}\text{收敛域 }(-1,1)\text{，和函数 }S(x)=\dfrac{2x}{(1-x)^3}}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -264,7 +263,7 @@ $\sum_{n=2}^{\infty}n(n-1)x^{n-2}=\frac{2}{(1-x)^3}$，$\sum_{n=1}^{\infty}nx^{n
 
 \ifshowsolutions\par\noindent\textbf{解析：} 由高斯公式，原式 $=\iiint_{\Omega}(3x^2+3y^2+3z^2)dV = 3\iiint_{\Omega}(x^2+y^2+z^2)dV$。球坐标：
 $3\int_{0}^{2\pi}d\theta\int_{0}^{\pi}\sin\varphi\,d\varphi\int_{0}^{a}r^4dr = 3\cdot2\pi\cdot2\cdot\frac{a^5}{5} = \frac{12\pi a^5}{5}$。
-\boxed{\textbf{答案：}\dfrac{12\pi a^5}{5}}\fi
+\boxed{\textbf{答案：}\dfrac{12\pi a^5}{5}}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -291,7 +290,7 @@ $Q = \begin{pmatrix} \frac{1}{\sqrt{2}} & 0 & \frac{1}{\sqrt{2}} \\ \frac{1}{\sq
 \[
 (2)\quad A^n=\begin{pmatrix} \frac{1+3^n}{2} & \frac{1-3^n}{2} & 0 \\ \frac{1-3^n}{2} & \frac{1+3^n}{2} & 0 \\ 0 & 0 & 1 \end{pmatrix}.
 \]
-\fi
+\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -310,7 +309,7 @@ $Q = \begin{pmatrix} \frac{1}{\sqrt{2}} & 0 & \frac{1}{\sqrt{2}} \\ \frac{1}{\sq
 (3) $F(x)=x^2/\theta^2$。$f_{(n)}(x)=n[F(x)]^{n-1}f(x)=\frac{2n x^{2n-1}}{\theta^{2n}}$。
 $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}{2n+1}\theta \neq \theta$。
 修正：$\hat{\theta}^*=\frac{2n+1}{2n}X_{(n)}$ 为无偏估计。
-\par\noindent\textbf{答案：}(1) $\dfrac{3}{2}\bar{X}$；(2) $X_{(n)}$；(3) 不是无偏估计，修正为 $\dfrac{2n+1}{2n}X_{(n)}$。\fi
+\par\noindent\textbf{答案：}(1) $\dfrac{3}{2}\bar{X}$；(2) $X_{(n)}$；(3) 不是无偏估计，修正为 $\dfrac{2n+1}{2n}X_{(n)}$。\else \answerarea \fi
 
 
 \newpage
@@ -329,7 +328,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $a_n = \dfrac{1}{n}\displaystyle\sum_{k=1}^{n} \dfrac{1}{1+k/n} \to \displaystyle\int_{0}^{1} \dfrac{1}{1+x}\,dx = \ln 2$。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $a_n = \dfrac{1}{n}\displaystyle\sum_{k=1}^{n} \dfrac{1}{1+k/n} \to \displaystyle\int_{0}^{1} \dfrac{1}{1+x}\,dx = \ln 2$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -341,7 +340,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $|f(x)|\leqslant x^2\to0=f(0)$，连续。$f'(0)=\lim_{x\to0}x\sin(1/x)=0$，可导。$x\neq0$ 时 $f'(x)=2x\sin(1/x)-\cos(1/x)$，$\lim_{x\to0}f'(x)$ 振荡不存在，导函数不连续。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $|f(x)|\leqslant x^2\to0=f(0)$，连续。$f'(0)=\lim_{x\to0}x\sin(1/x)=0$，可导。$x\neq0$ 时 $f'(x)=2x\sin(1/x)-\cos(1/x)$，$\lim_{x\to0}f'(x)$ 振荡不存在，导函数不连续。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -353,7 +352,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 令 $u=x^2-t^2$，$du=-2t\,dt$。$F(x)=\frac{1}{2}\int_{0}^{x^2}f(u)du$，$F'(x)=\frac{1}{2}f(x^2)\cdot2x=x f(x^2)$。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 令 $u=x^2-t^2$，$du=-2t\,dt$。$F(x)=\frac{1}{2}\int_{0}^{x^2}f(u)du$，$F'(x)=\frac{1}{2}f(x^2)\cdot2x=x f(x^2)$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -368,7 +367,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} (C) 正确：$\sum a_n$ 收敛 $\Rightarrow a_n\to0\Rightarrow\exists N,n>N$ 时 $a_n<1$，故 $a_n^2<a_n$，比较判别法得 $\sum a_n^2$ 收敛。
-(A) 反例：$a_n=1/(n\ln n)$（$n\geq2$）。(B) 可令 $a_n=1/n^2$（当 $n\neq2^k$），并令 $a_{2^k}=1/2^k$；此时 $\sum a_n$ 收敛，但 $2^k a_{2^k}=1$，故 $na_n$ 不趋于 $0$。(D) 反例：$a_n=1/n$。\boxed{\textbf{答案：}(C)}\fi
+(A) 反例：$a_n=1/(n\ln n)$（$n\geq2$）。(B) 可令 $a_n=1/n^2$（当 $n\neq2^k$），并令 $a_{2^k}=1/2^k$；此时 $\sum a_n$ 收敛，但 $2^k a_{2^k}=1$，故 $na_n$ 不趋于 $0$。(D) 反例：$a_n=1/n$。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -380,7 +379,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 对 $F(x+y+z)=0$ 分别对 $x,y$ 求偏导：$F'\cdot(1+z_x)=0$, $F'\cdot(1+z_y)=0$。由 $F'\neq0$ 得 $z_x=z_y=-1$。故 $xz_y-yz_x = x(-1)-y(-1)=y-x$。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 对 $F(x+y+z)=0$ 分别对 $x,y$ 求偏导：$F'\cdot(1+z_x)=0$, $F'\cdot(1+z_y)=0$。由 $F'\neq0$ 得 $z_x=z_y=-1$。故 $xz_y-yz_x = x(-1)-y(-1)=y-x$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -394,7 +393,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 特征方程 $r^2+4=0$, $r=\pm2i$。右端 $x\sin2x$ 对应 $\pm2i$，是单重特征根。自由项含一次多项式，特解乘以 $x$：$x[(Ax+B)\sin2x+(Cx+D)\cos2x]$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 特征方程 $r^2+4=0$, $r=\pm2i$。右端 $x\sin2x$ 对应 $\pm2i$，是单重特征根。自由项含一次多项式，特解乘以 $x$：$x[(Ax+B)\sin2x+(Cx+D)\cos2x]$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -406,7 +405,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $AP = P\begin{pmatrix}0&1&1\\1&0&1\\1&1&0\end{pmatrix}$, $|A|=\begin{vmatrix}0&1&1\\1&0&1\\1&1&0\end{vmatrix}=2$。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $AP = P\begin{pmatrix}0&1&1\\1&0&1\\1&1&0\end{pmatrix}$, $|A|=\begin{vmatrix}0&1&1\\1&0&1\\1&1&0\end{vmatrix}=2$。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -420,7 +419,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} (C) 错误：$|A|>0$ 只是正定的必要条件。反例：$A=\begin{pmatrix}-1&0\\0&-1\end{pmatrix}$, $|A|=1>0$ 但负定。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} (C) 错误：$|A|>0$ 只是正定的必要条件。反例：$A=\begin{pmatrix}-1&0\\0&-1\end{pmatrix}$, $|A|=1>0$ 但负定。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -432,7 +431,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $X+Y\sim N(0,2)$，关于 $0$ 对称，$P\{X+Y>0\}=1/2$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $X+Y\sim N(0,2)$，关于 $0$ 对称，$P\{X+Y>0\}=1/2$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -444,7 +443,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $\sigma^2$ 已知用 $Z$ 区间：$\bar{X}\pm\frac{\sigma}{\sqrt{n}}z_{\alpha/2}$，长度 $=\frac{2\sigma}{\sqrt{n}}z_{\alpha/2}$。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $\sigma^2$ 已知用 $Z$ 区间：$\bar{X}\pm\frac{\sigma}{\sqrt{n}}z_{\alpha/2}$，长度 $=\frac{2\sigma}{\sqrt{n}}z_{\alpha/2}$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \newpage
 
@@ -452,7 +451,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 
 \textbf{11.} $\displaystyle\lim_{x \to 0} \frac{e^x - e^{\sin x}}{x - \sin x} = \underline{\qquad\qquad}$。
 
-\ifshowsolutions\par\noindent\textbf{解析：} $\dfrac{e^x-e^{\sin x}}{x-\sin x}=e^{\sin x}\cdot\dfrac{e^{x-\sin x}-1}{x-\sin x}\to 1\cdot1=1$。\boxed{\textbf{答案：}1}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $\dfrac{e^x-e^{\sin x}}{x-\sin x}=e^{\sin x}\cdot\dfrac{e^{x-\sin x}-1}{x-\sin x}\to 1\cdot1=1$。\boxed{\textbf{答案：}1}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -467,33 +466,33 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \end{aligned}
 \]
 代入上下限得 $\frac{\pi}{8}-\frac{1}{2}+\frac{\pi}{8}=\frac{\pi}{4}-\frac{1}{2}$。
-\boxed{\textbf{答案：}\dfrac{\pi}{4} - \dfrac{1}{2}}\fi
+\boxed{\textbf{答案：}\dfrac{\pi}{4} - \dfrac{1}{2}}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{13.} 设 $z = \arctan\dfrac{x}{y}$（$y\neq0$），则 $\dfrac{\partial^2 z}{\partial x^2} + \dfrac{\partial^2 z}{\partial y^2} = \underline{\qquad\qquad}$。
 
-\ifshowsolutions\par\noindent\textbf{解析：} $z_x=\frac{y}{x^2+y^2}$, $z_y=-\frac{x}{x^2+y^2}$。$z_{xx}=-\frac{2xy}{(x^2+y^2)^2}$, $z_{yy}=\frac{2xy}{(x^2+y^2)^2}$。和为 $0$。\boxed{\textbf{答案：}0}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $z_x=\frac{y}{x^2+y^2}$, $z_y=-\frac{x}{x^2+y^2}$。$z_{xx}=-\frac{2xy}{(x^2+y^2)^2}$, $z_{yy}=\frac{2xy}{(x^2+y^2)^2}$。和为 $0$。\boxed{\textbf{答案：}0}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{14.} 设 $D$ 为第一象限内由 $y=x$, $y=2x$, $xy=1$, $xy=2$ 围成的区域，则 $\displaystyle\iint_{D} xy\,dxdy = \underline{\qquad\qquad}$。
 
 \ifshowsolutions\par\noindent\textbf{解析：} 令 $u=y/x$, $v=xy$。$D$ 变为 $1\leqslant u\leqslant2$, $1\leqslant v\leqslant2$。$|J|=1/(2u)$。$\iint_D xy\,dxdy = \int_1^2 du\int_1^2 v\cdot\frac{1}{2u}dv = \frac{1}{2}\ln2\cdot\frac{3}{2} = \frac{3}{4}\ln2$。
-\boxed{\textbf{答案：}\dfrac{3}{4}\ln2}\fi
+\boxed{\textbf{答案：}\dfrac{3}{4}\ln2}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{15.} 设三阶矩阵 $A$ 的特征值为 $1,2,3$，则 $|A^2 - 3A + 2I| = \underline{\qquad\qquad}$。
 
-\ifshowsolutions\par\noindent\textbf{解析：} $A^2-3A+2I$ 的特征值为 $\lambda^2-3\lambda+2$：$1\to0$, $2\to0$, $3\to2$。行列式 $=0\times0\times2=0$。\boxed{\textbf{答案：}0}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $A^2-3A+2I$ 的特征值为 $\lambda^2-3\lambda+2$：$1\to0$, $2\to0$, $3\to2$。行列式 $=0\times0\times2=0$。\boxed{\textbf{答案：}0}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{16.} 设 $X \sim U(0,2)$，则 $Y=X^2$ 在 $y=1$ 处的概率密度 $f_Y(1) = \underline{\qquad\qquad}$。
 
 \ifshowsolutions\par\noindent\textbf{解析：} $f_X(x)=1/2$（$0<x<2$）。$Y=X^2$, $x=\sqrt{y}$, $f_Y(y)=f_X(\sqrt{y})\cdot\frac{1}{2\sqrt{y}} = \frac{1}{4\sqrt{y}}$（$0<y<4$）。$f_Y(1)=1/4$。
-\boxed{\textbf{答案：}\dfrac{1}{4}}\fi
+\boxed{\textbf{答案：}\dfrac{1}{4}}\else \answerarea \fi
 
 \newpage
 
@@ -505,7 +504,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \ifshowsolutions\par\noindent\textbf{解析：} 设 $f(x_0)=-1$ 为最小值，$x_0\in(0,1)$，$f'(x_0)=0$。
 在 $[0,x_0]$ 上泰勒展开：$f(0)=f(x_0)+f'(x_0)(-x_0)+\frac{f''(\xi_1)}{2}x_0^2$，即 $0=-1+\frac{f''(\xi_1)}{2}x_0^2$，得 $f''(\xi_1)=\frac{2}{x_0^2}$。
 在 $[x_0,1]$ 上：$f(1)=f(x_0)+f'(x_0)(1-x_0)+\frac{f''(\xi_2)}{2}(1-x_0)^2$，即 $0=-1+\frac{f''(\xi_2)}{2}(1-x_0)^2$，得 $f''(\xi_2)=\frac{2}{(1-x_0)^2}$。
-若 $x_0\leqslant1/2$，则 $f''(\xi_1)\geqslant8$；若 $x_0>1/2$，则 $f''(\xi_2)\geqslant8$。证毕。\boxed{\textbf{答案：}\text{证明如上}}\fi
+若 $x_0\leqslant1/2$，则 $f''(\xi_1)\geqslant8$；若 $x_0>1/2$，则 $f''(\xi_2)\geqslant8$。证毕。\boxed{\textbf{答案：}\text{证明如上}}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -518,7 +517,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 =2\int_0^{\pi/2}\ln\sec\theta\,d\theta
 =-2\int_0^{\pi/2}\ln\cos\theta\,d\theta.
 \]
-已知 $\int_0^{\pi/2}\ln\cos\theta\,d\theta = -\frac{\pi}{2}\ln2$，故原式 $= \pi\ln2$。\boxed{\textbf{答案：}\pi\ln2}\fi
+已知 $\int_0^{\pi/2}\ln\cos\theta\,d\theta = -\frac{\pi}{2}\ln2$，故原式 $= \pi\ln2$。\boxed{\textbf{答案：}\pi\ln2}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -528,7 +527,7 @@ $E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{2n x^{2n-1}}{\theta^{2n}}dx = \frac{2n}
 \ifshowsolutions\par\noindent\textbf{解析：} $f(x)=\frac{1}{(x+1)(x+2)} = \frac{1}{x+1} - \frac{1}{x+2}$。令 $t=x+4$，则 $x+1=t-3$, $x+2=t-2$。
 $f = \frac{1}{t-3} - \frac{1}{t-2} = -\frac{1}{3}\frac{1}{1-t/3} + \frac{1}{2}\frac{1}{1-t/2} = \sum_{n=0}^{\infty}\left(\frac{1}{2^{n+1}} - \frac{1}{3^{n+1}}\right)t^n$。
 收敛条件 $|t/2|<1$ 且 $|t/3|<1$，取 $|t|<2$，即 $|x+4|<2$，收敛域 $(-6,-2)$。
-\boxed{\textbf{答案：}\displaystyle\sum_{n=0}^{\infty}\left(\frac{1}{2^{n+1}}-\frac{1}{3^{n+1}}\right)(x+4)^n\text{，收敛域 }(-6,-2)}\fi
+\boxed{\textbf{答案：}\displaystyle\sum_{n=0}^{\infty}\left(\frac{1}{2^{n+1}}-\frac{1}{3^{n+1}}\right)(x+4)^n\text{，收敛域 }(-6,-2)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -537,7 +536,7 @@ $f = \frac{1}{t-3} - \frac{1}{t-2} = -\frac{1}{3}\frac{1}{1-t/3} + \frac{1}{2}\f
 
 \ifshowsolutions\par\noindent\textbf{解析：} 补底面 $D: z=0, x^2+y^2\leqslant a^2$，按封闭曲面的外侧应取下侧。高斯公式：
 $\iint_{\Sigma+D} = \iiint_{\Omega} 3\,dV = 3\cdot\frac{2}{3}\pi a^3 = 2\pi a^3$。底面取下侧，且在 $D$ 上 $z=0$，故底面积分为 $0$。因此 $\iint_{\Sigma} = 2\pi a^3$。
-\boxed{\textbf{答案：}2\pi a^3}\fi
+\boxed{\textbf{答案：}2\pi a^3}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -558,7 +557,7 @@ $\iint_{\Sigma+D} = \iiint_{\Omega} 3\,dV = 3\cdot\frac{2}{3}\pi a^3 = 2\pi a^3$
 对 $\lambda=4$：解 $(4I-A)x=0$，得 $\alpha_3=(1,2,1)^T$。单位化：$\eta_3=\frac{1}{\sqrt{6}}(1,2,1)^T$。
 
 正交变换 $x=Qy$，其中 $Q=\begin{pmatrix}\frac{1}{\sqrt{2}}&\frac{1}{\sqrt{3}}&\frac{1}{\sqrt{6}}\\0&-\frac{1}{\sqrt{3}}&\frac{2}{\sqrt{6}}\\-\frac{1}{\sqrt{2}}&\frac{1}{\sqrt{3}}&\frac{1}{\sqrt{6}}\end{pmatrix}$，标准形 $f=y_2^2+4y_3^2$。
-\boxed{\textbf{答案：}(1)\ a=3,\ b=1\text{；}(2)\ f=y_2^2+4y_3^2}\fi
+\boxed{\textbf{答案：}(1)\ a=3,\ b=1\text{；}(2)\ f=y_2^2+4y_3^2}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -584,7 +583,7 @@ E(\hat\theta_L)=\frac{n\theta}{n-1}\ne\theta,
 \frac{T}{n}=\frac1n\sum_{i=1}^nY_i\overset P\longrightarrow E(Y_i)=\frac1\theta.
 \]
 再由连续映射定理，$\hat\theta_L=n/T=1/(T/n)\overset P\longrightarrow\theta$，故$\hat\theta_L$是一致估计。
-\par\noindent\textbf{答案：}(1) $\dfrac{\bar{X}}{1-\bar{X}}$；(2) $-\dfrac{n}{\sum\ln X_i}$；(3) 有偏但一致，$\dfrac{n-1}{n}\hat{\theta}_L$无偏。\fi
+\par\noindent\textbf{答案：}(1) $\dfrac{\bar{X}}{1-\bar{X}}$；(2) $-\dfrac{n}{\sum\ln X_i}$；(3) 有偏但一致，$\dfrac{n-1}{n}\hat{\theta}_L$无偏。\else \answerarea \fi
 
 
 \newpage
@@ -604,7 +603,7 @@ E(\hat\theta_L)=\frac{n\theta}{n-1}\ne\theta,
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} 由 $\lim_{x\to0}\frac{f(x)-f(0)}{|x|}=1>0$ 及极限保号性，存在 $\delta>0$ 使 $0<|x|<\delta$ 时 $\frac{f(x)-f(0)}{|x|}>\frac{1}{2}>0$，故 $f(x)-f(0)>0$，即 $f(x)>f(0)$，所以 $f(0)$ 是极小值。
-由于左右导数分别为 $\lim_{x\to0^+}\frac{f(x)-f(0)}{x}=1$, $\lim_{x\to0^-}\frac{f(x)-f(0)}{x}=-1$，不相等，故 $f'(0)$ 不存在。\boxed{\textbf{答案：}(D)}\fi
+由于左右导数分别为 $\lim_{x\to0^+}\frac{f(x)-f(0)}{x}=1$, $\lim_{x\to0^-}\frac{f(x)-f(0)}{x}=-1$，不相等，故 $f'(0)$ 不存在。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -617,7 +616,7 @@ E(\hat\theta_L)=\frac{n\theta}{n-1}\ne\theta,
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} $f$ 可导必连续：$a=\lim_{x\to0}\frac{1-\cos x}{x^2}=\frac{1}{2}$。验证：$f'(0)=\lim_{x\to0}\frac{\frac{1-\cos x}{x^2}-\frac12}{x}=\lim\frac{2(1-\cos x)-x^2}{2x^3}$。由 $1-\cos x=\frac{x^2}{2}-\frac{x^4}{24}+O(x^6)$，得 $2(1-\cos x)-x^2=-\frac{x^4}{12}+O(x^6)$，故 $\lim\frac{2(1-\cos x)-x^2}{2x^3}=\lim\frac{-\frac{x^4}{12}+O(x^6)}{2x^3}=\lim\left(-\frac{x}{24}+O(x^3)\right)=0$。可导。
-\boxed{\textbf{答案：}(B)}\fi
+\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -631,7 +630,7 @@ E(\hat\theta_L)=\frac{n\theta}{n-1}\ne\theta,
 
 \ifshowsolutions\par\noindent\textbf{解析：} 由 Wallis 公式：$I_{2k}=\frac{(2k-1)!!}{(2k)!!}\cdot\frac{\pi}{2}$, $I_{2k+1}=\frac{(2k)!!}{(2k+1)!!}$。
 利用 Stirling 公式可得 $I_n\sim\sqrt{\frac{\pi}{2n}}$。故 $\sqrt{n}\,I_n\to\sqrt{\frac{\pi}{2}}$。
-因此极限为 $\sqrt{\pi/2}$。\boxed{\textbf{答案：}(B)}\fi
+因此极限为 $\sqrt{\pi/2}$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -643,7 +642,7 @@ E(\hat\theta_L)=\frac{n\theta}{n-1}\ne\theta,
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $S(x)$ 以 $2\pi$ 为周期。$S(3\pi)=S(\pi)=f(\pi)=\pi$。由狄利克雷收敛定理，在连续点处和函数等于 $f(x)$。$x=\pi$ 处 $f$ 连续（$f(\pi)=|\pi|=\pi$），故 $S(3\pi)=\pi$。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $S(x)$ 以 $2\pi$ 为周期。$S(3\pi)=S(\pi)=f(\pi)=\pi$。由狄利克雷收敛定理，在连续点处和函数等于 $f(x)$。$x=\pi$ 处 $f$ 连续（$f(\pi)=|\pi|=\pi$），故 $S(3\pi)=\pi$。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -655,7 +654,7 @@ E(\hat\theta_L)=\frac{n\theta}{n-1}\ne\theta,
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 由平面散度公式（格林公式），$\oint_C\frac{\partial u}{\partial n}\,ds = \iint_{D_C} (\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2})\,dxdy = \iint_{D_C} 0\,dxdy = 0$。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 由平面散度公式（格林公式），$\oint_C\frac{\partial u}{\partial n}\,ds = \iint_{D_C} (\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2})\,dxdy = \iint_{D_C} 0\,dxdy = 0$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -673,7 +672,7 @@ E(\hat\theta_L)=\frac{n\theta}{n-1}\ne\theta,
 Wronskian $W=\cos x\cdot\cos x - \sin x\cdot(-\sin x)=1$。
 $u_1'=-y_2f/W=-\sin x\cdot\frac{1}{\sin x}=-1 \Rightarrow u_1=-x$。
 $u_2'=y_1f/W=\cos x\cdot\frac{1}{\sin x}=\cot x \Rightarrow u_2=\ln|\sin x|$。
-特解 $y_p=-x\cos x+\sin x\ln|\sin x|$。\boxed{\textbf{答案：}(C)}\fi
+特解 $y_p=-x\cos x+\sin x\ln|\sin x|$。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -685,7 +684,7 @@ $u_2'=y_1f/W=\cos x\cdot\frac{1}{\sin x}=\cot x \Rightarrow u_2=\ln|\sin x|$。
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 对于实矩阵，$A^T A x=0 \iff Ax=0$（因为 $x^T A^T A x = \|Ax\|^2=0 \iff Ax=0$），故 $A^T A$ 与 $A$ 有相同的零空间，从而 $r(A^T A)=r(A)$。同理 $r(AA^T)=r(A^T)=r(A)$。故 (A)(B)(C) 全对。\boxed{\textbf{答案：}(D)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 对于实矩阵，$A^T A x=0 \iff Ax=0$（因为 $x^T A^T A x = \|Ax\|^2=0 \iff Ax=0$），故 $A^T A$ 与 $A$ 有相同的零空间，从而 $r(A^T A)=r(A)$。同理 $r(AA^T)=r(A^T)=r(A)$。故 (A)(B)(C) 全对。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -697,7 +696,7 @@ $u_2'=y_1f/W=\cos x\cdot\frac{1}{\sin x}=\cot x \Rightarrow u_2=\ln|\sin x|$。
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $f(x)=(Bx)^T A (Bx)$。$A$ 正定，故 $f(x)\geqslant0$ 且 $f(x)=0 \iff Bx=0$。$f$ 正定 $\iff \forall x\neq0, Bx\neq0 \iff B$ 的零空间只有零向量 $\iff B$ 列满秩。由于 $B$ 是方阵，即 $B$ 可逆。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $f(x)=(Bx)^T A (Bx)$。$A$ 正定，故 $f(x)\geqslant0$ 且 $f(x)=0 \iff Bx=0$。$f$ 正定 $\iff \forall x\neq0, Bx\neq0 \iff B$ 的零空间只有零向量 $\iff B$ 列满秩。由于 $B$ 是方阵，即 $B$ 可逆。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -710,7 +709,7 @@ $u_2'=y_1f/W=\cos x\cdot\frac{1}{\sin x}=\cot x \Rightarrow u_2=\ln|\sin x|$。
 \end{center}
 
 \ifshowsolutions\par\noindent\textbf{解析：} $Y=|X|$ 取值非负。$F_Y(y)=P(|X|\leqslant y)=P(-y\leqslant X\leqslant y)=\Phi(y)-\Phi(-y)=2\Phi(y)-1$（$y>0$）。
-求导：$f_Y(y)=2\varphi(y)=2\cdot\frac{1}{\sqrt{2\pi}}e^{-y^2/2}$（$y>0$）；$y\leqslant0$ 时 $f_Y(y)=0$。\boxed{\textbf{答案：}(B)}\fi
+求导：$f_Y(y)=2\varphi(y)=2\cdot\frac{1}{\sqrt{2\pi}}e^{-y^2/2}$（$y>0$）；$y\leqslant0$ 时 $f_Y(y)=0$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -722,7 +721,7 @@ $u_2'=y_1f/W=\cos x\cdot\frac{1}{\sin x}=\cot x \Rightarrow u_2=\ln|\sin x|$。
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 拒绝域扩大后，在原假设下落入拒绝域的概率不减，故$\alpha$不减；在给定备择下落入接受域的概率不增，故$\beta$不增。只有当新增区域在相应原假设分布和备择分布下均有正概率时，才能写成严格的“$\alpha$增大、$\beta$减小”。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 拒绝域扩大后，在原假设下落入拒绝域的概率不减，故$\alpha$不减；在给定备择下落入接受域的概率不增，故$\beta$不增。只有当新增区域在相应原假设分布和备择分布下均有正概率时，才能写成严格的“$\alpha$增大、$\beta$减小”。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \newpage
 
@@ -730,28 +729,28 @@ $u_2'=y_1f/W=\cos x\cdot\frac{1}{\sin x}=\cot x \Rightarrow u_2=\ln|\sin x|$。
 
 \textbf{11.} $\displaystyle\lim_{x\to0}\frac{\int_0^x(e^{t^2}-1)dt}{x^3} = \underline{\qquad\qquad}$。
 
-\ifshowsolutions\par\noindent\textbf{解析：} 由洛必达法则：$\lim_{x\to0}\frac{e^{x^2}-1}{3x^2} = \lim_{x\to0}\frac{x^2+o(x^2)}{3x^2} = \frac{1}{3}$。\boxed{\textbf{答案：}\dfrac{1}{3}}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 由洛必达法则：$\lim_{x\to0}\frac{e^{x^2}-1}{3x^2} = \lim_{x\to0}\frac{x^2+o(x^2)}{3x^2} = \frac{1}{3}$。\boxed{\textbf{答案：}\dfrac{1}{3}}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{12.} $\displaystyle\int_{0}^{2} \frac{dx}{\sqrt{x(2-x)}} = \underline{\qquad\qquad}$。
 
 \ifshowsolutions\par\noindent\textbf{解析：} 令 $x-1=\sin\theta$，$dx=\cos\theta\,d\theta$。$\sqrt{x(2-x)}=\sqrt{1-(x-1)^2}=\cos\theta$。积分限：$x:0\to2 \Rightarrow \theta:-\pi/2\to\pi/2$。$\int_{-\pi/2}^{\pi/2}\frac{\cos\theta}{\cos\theta}d\theta = \pi$。
-或配方 $x(2-x)=1-(x-1)^2$，原式 $=\int_0^2\frac{dx}{\sqrt{1-(x-1)^2}} = \arcsin(x-1)\big|_0^2 = \arcsin1-\arcsin(-1)=\pi$。\boxed{\textbf{答案：}\pi}\fi
+或配方 $x(2-x)=1-(x-1)^2$，原式 $=\int_0^2\frac{dx}{\sqrt{1-(x-1)^2}} = \arcsin(x-1)\big|_0^2 = \arcsin1-\arcsin(-1)=\pi$。\boxed{\textbf{答案：}\pi}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{13.} 设 $z=z(x,y)$ 由方程 $z^3-3xyz=a^3$ 确定，且 $a\neq0$，则 $\dfrac{\partial z}{\partial x}\Big|_{(0,1)} = \underline{\qquad\qquad}$。（其中 $z(0,1)=a$）
 
 \ifshowsolutions\par\noindent\textbf{解析：} 方程两边对 $x$ 求偏导：$3z^2 z_x - 3yz - 3xy z_x = 0$，即 $(3z^2-3xy)z_x = 3yz$，$z_x = \frac{yz}{z^2-xy}$。在 $(0,1)$ 处 $z=a$，$z_x = \frac{1\cdot a}{a^2-0} = \frac{1}{a}$。
-\boxed{\textbf{答案：}\dfrac{1}{a}}\fi
+\boxed{\textbf{答案：}\dfrac{1}{a}}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{14.} 设 $\Sigma$ 为锥面 $z=\sqrt{x^2+y^2}$ 被平面 $z=1$ 所截部分的下侧，则 $\displaystyle\iint_{\Sigma} z\,dxdy = \underline{\qquad\qquad}$。
 
 \ifshowsolutions\par\noindent\textbf{解析：} 取下侧时 $dxdy$ 项为负。投影到 $xOy$ 面得 $D: x^2+y^2\leqslant1$。$\iint_{\Sigma} z\,dxdy = -\iint_{D} \sqrt{x^2+y^2}\,dxdy = -\int_0^{2\pi}d\theta\int_0^1 r\cdot r\,dr = -2\pi\cdot\frac{1}{3} = -\frac{2\pi}{3}$。
-\boxed{\textbf{答案：}-\dfrac{2\pi}{3}}\fi
+\boxed{\textbf{答案：}-\dfrac{2\pi}{3}}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -759,14 +758,14 @@ $u_2'=y_1f/W=\cos x\cdot\frac{1}{\sin x}=\cot x \Rightarrow u_2=\ln|\sin x|$。
 
 \ifshowsolutions\par\noindent\textbf{解析：} $A=\alpha\beta^T = \begin{pmatrix}1\\2\\1\end{pmatrix}(1,\frac12,0) = \begin{pmatrix}1&\frac12&0\\2&1&0\\1&\frac12&0\end{pmatrix}$。
 $A^2 = (\alpha\beta^T)(\alpha\beta^T) = \alpha(\beta^T\alpha)\beta^T$。$\beta^T\alpha = 1\cdot1 + \frac12\cdot2 + 0\cdot1 = 2$。故 $A^2 = 2\alpha\beta^T = 2A$。
-$\operatorname{tr}(A) = 1+1+0 = 2$。$\operatorname{tr}(A^2) = \operatorname{tr}(2A) = 2\cdot2 = 4$。\boxed{\textbf{答案：}4}\fi
+$\operatorname{tr}(A) = 1+1+0 = 2$。$\operatorname{tr}(A^2) = \operatorname{tr}(2A) = 2\cdot2 = 4$。\boxed{\textbf{答案：}4}\else \answerarea \fi
 
 \vspace{8pt}
 
 \textbf{16.} 设 $X\sim N(\mu,\sigma^2)$，$\sigma^2$ 已知，且 $L>0$。要使 $\mu$ 的置信水平为 $0.95$ 的置信区间长度不超过 $L$，则样本容量 $n$ 至少为 $\underline{\qquad\qquad}$。（用 $z_{0.025}$ 表示）
 
 \ifshowsolutions\par\noindent\textbf{解析：} 区间长度 $= \frac{2\sigma}{\sqrt{n}}z_{0.025} \leqslant L \Rightarrow \sqrt{n} \geqslant \frac{2\sigma z_{0.025}}{L} \Rightarrow n \geqslant \frac{4\sigma^2 z_{0.025}^2}{L^2}$。由于样本容量必须为整数，取满足该不等式的最小整数。
-\boxed{\textbf{答案：}\left\lceil\dfrac{4\sigma^2 z_{0.025}^2}{L^2}\right\rceil}\fi
+\boxed{\textbf{答案：}\left\lceil\dfrac{4\sigma^2 z_{0.025}^2}{L^2}\right\rceil}\else \answerarea \fi
 
 \newpage
 
@@ -784,7 +783,7 @@ $\operatorname{tr}(A) = 1+1+0 = 2$。$\operatorname{tr}(A^2) = \operatorname{tr}
 
 (2) 同上，$\sum_{k=0}^{\infty} a_{N+k} \leqslant a_N\sum_{k=0}^{\infty} r^k = \frac{a_N}{1-r}<\infty$。由比较判别法，$\sum a_n$ 收敛。
 
-(3) 需要证明 $\lim n a_n = 0$。取 $q<r<1$，则当 $n$ 充分大时 $a_n \leqslant C r^n$。$\lim n r^n = 0$（由洛必达法则：$\lim_{x\to\infty} x r^x = \lim\frac{x}{r^{-x}} = \lim\frac{1}{-r^{-x}\ln r} = 0$）。由夹逼定理，$\lim n a_n = 0$。证毕。\boxed{\textbf{答案：}\text{证明如上}}\fi
+(3) 需要证明 $\lim n a_n = 0$。取 $q<r<1$，则当 $n$ 充分大时 $a_n \leqslant C r^n$。$\lim n r^n = 0$（由洛必达法则：$\lim_{x\to\infty} x r^x = \lim\frac{x}{r^{-x}} = \lim\frac{1}{-r^{-x}\ln r} = 0$）。由夹逼定理，$\lim n a_n = 0$。证毕。\boxed{\textbf{答案：}\text{证明如上}}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -797,7 +796,7 @@ $\operatorname{tr}(A) = 1+1+0 = 2$。$\operatorname{tr}(A^2) = \operatorname{tr}
 在 $[x_0,b]$ 上：存在 $\xi_2\in(x_0,b)$ 使 $f'(\xi_2)=\frac{f(b)-f(x_0)}{b-x_0}=-\frac{f(x_0)}{b-x_0}<0$。
 
 在 $[\xi_1,\xi_2]$ 上对 $f'$ 用拉格朗日中值定理：存在 $\xi\in(\xi_1,\xi_2)\subset(a,b)$ 使
-$f''(\xi) = \frac{f'(\xi_2)-f'(\xi_1)}{\xi_2-\xi_1} < 0$（因为分子 $<0$，分母 $>0$）。证毕。\boxed{\textbf{答案：}\text{证明如上}}\fi
+$f''(\xi) = \frac{f'(\xi_2)-f'(\xi_1)}{\xi_2-\xi_1} < 0$（因为分子 $<0$，分母 $>0$）。证毕。\boxed{\textbf{答案：}\text{证明如上}}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -841,7 +840,7 @@ f(x)=\sum_{n=1}^{\infty}\frac{8}{n^2\pi^2}
 \frac{3}{4}S=S-\frac14S=\sum_{k=0}^{\infty}\frac{1}{(2k+1)^2}=\frac{\pi^2}{8},
 \]
 从而 $S=\frac{\pi^2}{6}$。
-\par\noindent\textbf{答案：}(1) 奇周期延拓；(2) $S(-1/2)=-1/2$，$S(5/2)=-1/2$；(3) $\displaystyle\sum_{n=1}^{\infty}\frac{1}{n^2}=\frac{\pi^2}{6}$。\fi
+\par\noindent\textbf{答案：}(1) 奇周期延拓；(2) $S(-1/2)=-1/2$，$S(5/2)=-1/2$；(3) $\displaystyle\sum_{n=1}^{\infty}\frac{1}{n^2}=\frac{\pi^2}{6}$。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -860,7 +859,7 @@ f(x)=\sum_{n=1}^{\infty}\frac{8}{n^2\pi^2}
 =2\pi.
 \]
 故 $\displaystyle\oint_L\frac{x\,dy-y\,dx}{x^2+y^2}=2\pi$。
-\boxed{\textbf{答案：}2\pi}\fi
+\boxed{\textbf{答案：}2\pi}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -899,7 +898,7 @@ $A^m+I$ 的特征值为 $2$（重数 $n-1$）和 $2^m+1$（重数 $1$），故
 \[
 A^m=I+(2^m-1)(A-I),\qquad |A^m+I|=2^{n-1}(2^m+1).
 \]
-\fi
+\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -933,4 +932,4 @@ $\hat p_L=1/\bar X$。若 $\bar X=1$，则所有观测值均为 $1$，此时 $L(
 \hat p_L=\frac1{\bar X}\xrightarrow{P}p.
 \]
 故 $\hat p_L$ 是 $p$ 的一致估计量。
-\boxed{\textbf{答案：}(1)(2)\ \hat{p}=1/\bar{X}\text{；(3)\ }\hat p_L\xrightarrow{P}p}\fi
+\boxed{\textbf{答案：}(1)(2)\ \hat{p}=1/\bar{X}\text{；(3)\ }\hat p_L\xrightarrow{P}p}\else \answerarea \fi

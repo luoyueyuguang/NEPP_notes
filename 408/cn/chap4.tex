@@ -605,7 +605,7 @@ IP 组播（Multicast）实现一对多通信：源主机发送一份数据，�
     \item \textbf{组播组（Multicast Group）：} 用 D 类 IP 地址标识，主机通过 IGMP 协议加入/离开组播组。
     \item \textbf{IGMP（Internet 组管理协议）：} 运行在主机和本地组播路由器之间，用于管理组成员关系。
     \item \textbf{组播路由协议：} 如 PIM（Protocol Independent Multicast），根据组成员分布构建组播分发树。
-    \item \textbf{组播 MAC 地址：} 以太网中，组播 IP 到组播 MAC 有固定映射：MAC 地址前 25 位为 01-00-5E，后 23 位为组播 IP 的低 23 位。
+    \item \textbf{组播 MAC 地址：} 以太网中，组播 IP 到组播 MAC 有固定映射：MAC 地址前 24 位固定为 01-00-5E，第 25 位固定为 0（即第 4 字节最高位为 0，该字节范围为 0x00--0x7F），后 23 位为组播 IP 地址的低 23 位（IP 的高 9 位不参与映射）。
 \end{itemize}
 
 \textbf{常见辨析：} (1) IPv4 组播地址只能用作目的地址，不能作为源地址；(2) IGMP 用于主机与其直连组播路由器之间的成员关系管理，组播路由协议负责路由器之间的组播转发，二者职责不同；(3) 组播数据报的 TTL 字段可用于限制传播范围。仅讨论同一二层链路上的帧交付时，数据帧可以不经过路由器，但不能据此笼统断言“组播不需要 IGMP”。
@@ -674,7 +674,7 @@ IP 组播（Multicast）实现一对多通信：源主机发送一份数据，�
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 数据部分$=2000-20=1980$ B。每片最大数据$=820-20=800$ B（需8字节对齐）。$1980/800=2.475$，需3片。片1:800 B(偏移0)，片2:800 B(偏移100)，片3:380 B(偏移200)。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 数据部分$=2000-20=1980$ B。每片最大数据$=820-20=800$ B（需8字节对齐）。$1980/800=2.475$，需3片。片1:800 B(偏移0)，片2:800 B(偏移100)，片3:380 B(偏移200)。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -686,7 +686,7 @@ IP 组播（Multicast）实现一对多通信：源主机发送一份数据，�
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 掩码 255.255.255.248 为 /29。从原 /24 地址块中借用 $29-24=5$ 位作为子网位，因此可划分 $2^5=32$ 个等长子网；每个子网保留 $32-29=3$ 位主机位，传统子网中最多可分配 $2^3-2=6$ 个主机地址。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 掩码 255.255.255.248 为 /29。从原 /24 地址块中借用 $29-24=5$ 位作为子网位，因此可划分 $2^5=32$ 个等长子网；每个子网保留 $32-29=3$ 位主机位，传统子网中最多可分配 $2^3-2=6$ 个主机地址。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -698,7 +698,7 @@ IP 组播（Multicast）实现一对多通信：源主机发送一份数据，�
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} RIP收到邻居R2到达Net1距离为2，则R1经R2到Net1的距离$=2+1=3$。与原有路由比较取最小。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} RIP收到邻居R2到达Net1距离为2，则R1经R2到Net1的距离$=2+1=3$。与原有路由比较取最小。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -710,7 +710,7 @@ IP 组播（Multicast）实现一对多通信：源主机发送一份数据，�
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} NAPT/PAT 通过包含协议、地址和端口号的映射项区分并发连接；仅靠共享的公网 IP 或目的 IP 无法区分两台内部主机的连接。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} NAPT/PAT 通过包含协议、地址和端口号的映射项区分并发连接；仅靠共享的公网 IP 或目的 IP 无法区分两台内部主机的连接。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -722,7 +722,7 @@ IP 组播（Multicast）实现一对多通信：源主机发送一份数据，�
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} IPv4 地址属于 IP 首部，因此影响 IPv4 首部校验和；地址参与 TCP 伪首部，端口号属于 TCP 首部，因此 TCP 校验和也必须更新。链路层 FCS 会由每一跳重新生成，但不是本题所问的 NAT 字段一致性校验。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} IPv4 地址属于 IP 首部，因此影响 IPv4 首部校验和；地址参与 TCP 伪首部，端口号属于 TCP 首部，因此 TCP 校验和也必须更新。链路层 FCS 会由每一跳重新生成，但不是本题所问的 NAT 字段一致性校验。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -734,7 +734,7 @@ IP 组播（Multicast）实现一对多通信：源主机发送一份数据，�
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} ARP报文直接封装在以太网帧中（数据链路层），不使用IP。ARP介于网络层和数据链路层之间。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} ARP报文直接封装在以太网帧中（数据链路层），不使用IP。ARP介于网络层和数据链路层之间。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -746,7 +746,7 @@ IP 组播（Multicast）实现一对多通信：源主机发送一份数据，�
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} IP首部校验和错误，路由器直接丢弃。IP不提供纠错和重传机制。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} IP首部校验和错误，路由器直接丢弃。IP不提供纠错和重传机制。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \end{enumerate}
 
@@ -764,7 +764,7 @@ IP 组播（Multicast）实现一对多通信：源主机发送一份数据，�
 \ifshowsolutions\par\noindent\textbf{解析：}
 (1) /26再分4子网需2位$\to$/28。
 (2) 每个子网共有 $2^{4}=16$ 个地址，其中可分配给普通主机的地址为 $16-2=14$ 个（扣除网络地址和广播地址）。
-(3) 136.23.12.64/28(64-79), 136.23.12.80/28(80-95), 136.23.12.96/28(96-111), 136.23.12.112/28(112-127)。\fi
+(3) 136.23.12.64/28(64-79), 136.23.12.80/28(80-95), 136.23.12.96/28(96-111), 136.23.12.112/28(112-127)。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -776,7 +776,7 @@ IP 组播（Multicast）实现一对多通信：源主机发送一份数据，�
 \end{enumerate}
 
 \ifshowsolutions\par\noindent\textbf{解析：}
-总长度$=0x0054=84$ B。首部长度$=(0x45\&0x0F)\times 4=5\times 4=20$ B。数据部分$=84-20=64$ B。标志+片偏移$=0x2000$：DF=0，MF=1，片偏移字段为 0，表示这是第一片且后面还有分片。协议$=0x01$(ICMP)。TTL$=0x80=128$。\fi
+总长度$=0x0054=84$ B。首部长度$=(0x45\&0x0F)\times 4=5\times 4=20$ B。数据部分$=84-20=64$ B。标志+片偏移$=0x2000$：DF=0，MF=1，片偏移字段为 0，表示这是第一片且后面还有分片。协议$=0x01$(ICMP)。TTL$=0x80=128$。\else \answerarea \fi
 
 \end{enumerate}
 

@@ -128,7 +128,7 @@ LOOK/C-LOOK & 类似 SCAN/C-SCAN，但到最远请求即折返 & 更实用 & —
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} f1.java在Program目录下，全路径\texttt{/Program/f1.java}。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} f1.java在Program目录下，全路径\texttt{/Program/f1.java}。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -140,7 +140,7 @@ LOOK/C-LOOK & 类似 SCAN/C-SCAN，但到最远请求即折返 & 更实用 & —
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} SCAN算法磁头像电梯一样单向移动直到端点折返，故称电梯算法。答案(C)。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} SCAN算法磁头像电梯一样单向移动直到端点折返，故称电梯算法。答案(C)。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -152,7 +152,7 @@ LOOK/C-LOOK & 类似 SCAN/C-SCAN，但到最远请求即折返 & 更实用 & —
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} LOOK 向减小方向服务至最小请求 20 后折返：$120\to90\to80\to70\to60\to20\to150$。总移动距离为 $30+10+10+10+40+130=230$ 个磁道。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} LOOK 向减小方向服务至最小请求 20 后折返：$120\to90\to80\to70\to60\to20\to150$。总移动距离为 $30+10+10+10+40+130=230$ 个磁道。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -164,7 +164,7 @@ LOOK/C-LOOK & 类似 SCAN/C-SCAN，但到最远请求即折返 & 更实用 & —
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} FCB存放文件的属性信息（文件名、大小、创建时间、物理位置等）。目录由FCB组成。UNIX将文件名从FCB分离到目录项，FCB变为i-node。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} FCB存放文件的属性信息（文件名、大小、创建时间、物理位置等）。目录由FCB组成。UNIX将文件名从FCB分离到目录项，FCB变为i-node。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -176,7 +176,7 @@ LOOK/C-LOOK & 类似 SCAN/C-SCAN，但到最远请求即折返 & 更实用 & —
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：}文件目录把文件名映射到 FCB/i-node，实现按名存取；其余选项属于处理机或内存管理。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：}文件目录把文件名映射到 FCB/i-node，实现按名存取；其余选项属于处理机或内存管理。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -185,7 +185,7 @@ LOOK/C-LOOK & 类似 SCAN/C-SCAN，但到最远请求即折返 & 更实用 & —
 \ifshowsolutions\par\noindent\textbf{解析：}
 SSTF：从 150 开始，访问顺序为 $150\to147\to130\to86\to913\to948\to1022\to1509\to1750\to1774$，各段移动量依次为 3、17、44、827、35、74、487、241、24，总移动量为 1752 个柱面。
 
-LOOK：先向增大方向依次访问 $913,948,1022,1509,1750,1774$，从 150 到 1774 共移动 1624 个柱面；再折返依次访问 $147,130,86$，从 1774 到 86 共移动 1688 个柱面。因此总移动量为 $1624+1688=3312$ 个柱面。\fi
+LOOK：先向增大方向依次访问 $913,948,1022,1509,1750,1774$，从 150 到 1774 共移动 1624 个柱面；再折返依次访问 $147,130,86$，从 1774 到 86 共移动 1688 个柱面。因此总移动量为 $1624+1688=3312$ 个柱面。\else \answerarea \fi
 
 \end{enumerate}
 
@@ -205,7 +205,7 @@ LOOK：先向增大方向依次访问 $913,948,1022,1509,1750,1774$，从 150 �
 
 (2) 5 MiB 已超过直接块和一级间接区合计的 $32\text{ KiB}+4\text{ MiB}$，位于二级间接区。若相关块均未缓存，需要读取二级间接根块、其指向的下一级索引块和目标数据块，共 3 次磁盘 I/O。
 
-(3) 盘块数$=4\text{ GB}/4\text{ KB}=1\text{M}$块。FAT表项32位=4 B，FAT大小$=1\text{M}\times 4\text{ B}=4\text{ MB}$。\fi
+(3) 盘块数$=4\text{ GB}/4\text{ KB}=1\text{M}$块。FAT表项32位=4 B，FAT大小$=1\text{M}\times 4\text{ B}=4\text{ MB}$。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -221,7 +221,7 @@ LOOK：先向增大方向依次访问 $913,948,1022,1509,1750,1774$，从 150 �
 
 (2) $i=\lfloor b/32\rfloor,\ j=b\bmod 32$。
 
-(3) $500000\div 32=15625$（字号$i=15625$），$500000\bmod 32=0$（位号$j=0$）。验证：$15625\times 32+0=500000$。\fi
+(3) $500000\div 32=15625$（字号$i=15625$），$500000\bmod 32=0$（位号$j=0$）。验证：$15625\times 32+0=500000$。\else \answerarea \fi
 
 \end{enumerate}
 

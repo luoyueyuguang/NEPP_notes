@@ -292,7 +292,7 @@ typedef struct AVLNode {
 \draw[->] (A) -- (AR);
 \draw[->] (B) -- (BL);
 \draw[->] (B) -- (BR);
-\node at (0, -0.8) {插入前（A的$bf=-1$）};
+\node at (0, -0.8) {插入前（A的$bf=+1$）};
 \node at (0, -1.3) {在BL中插入后A的$bf=+2$, LL型};
 
 \node[draw, circle] (B2) at (5,1) {B};
@@ -642,7 +642,7 @@ typedef struct {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 折半查找最多比较次数$=\lfloor\log_2 n\rfloor+1=\lfloor\log_2 16\rfloor+1=5$。判定树高度为$h=\lfloor\log_2 16\rfloor+1=5$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 折半查找最多比较次数$=\lfloor\log_2 n\rfloor+1=\lfloor\log_2 16\rfloor+1=5$。判定树高度为$h=\lfloor\log_2 16\rfloor+1=5$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -654,7 +654,7 @@ typedef struct {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $m$阶B-树定义：除根外每个非终端结点至少有$\lceil m/2\rceil$棵子树（即至少$\lceil m/2\rceil-1$个关键字）。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $m$阶B-树定义：除根外每个非终端结点至少有$\lceil m/2\rceil$棵子树（即至少$\lceil m/2\rceil-1$个关键字）。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -666,7 +666,7 @@ typedef struct {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 3 阶 B-树的非根数据结点至少含 $\lceil3/2\rceil-1=1$ 个关键字。删除 10 后左孩子为 $[20]$，未下溢；再删除 20 后左孩子为空。右兄弟 $[50,60]$ 有两个关键字，可以借出：父结点中的 40 下移到左孩子，右兄弟的最小关键字 50 上移替代 40。因此根变为 $[50,70]$，三个孩子为 $[40]$、$[60]$、$[80,90]$。\boxed{\textbf{答案：}(B)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} 3 阶 B-树的非根数据结点至少含 $\lceil3/2\rceil-1=1$ 个关键字。删除 10 后左孩子为 $[20]$，未下溢；再删除 20 后左孩子为空。右兄弟 $[50,60]$ 有两个关键字，可以借出：父结点中的 40 下移到左孩子，右兄弟的最小关键字 50 上移替代 40。因此根变为 $[50,70]$，三个孩子为 $[40]$、$[60]$、$[80,90]$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -678,7 +678,7 @@ typedef struct {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} $H(15)=4$占4，$H(38)=5$占5，$H(61)=6$占6，$H(84)=7$占7。$H(49)=5$，5已被占$\to$探测6已占$\to$探测7已占$\to$探测8空，故49在地址8。\boxed{\textbf{答案：}(A)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} $H(15)=4$占4，$H(38)=5$占5，$H(61)=6$占6，$H(84)=7$占7。$H(49)=5$，5已被占$\to$探测6已占$\to$探测7已占$\to$探测8空，故49在地址8。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -692,7 +692,7 @@ typedef struct {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} B+树特点：(1)所有关键字出现在叶结点中，非叶结点仅起索引作用；(2)叶结点包含全部关键字及指向记录的指针；(3)叶结点按关键字顺序链接。\boxed{\textbf{答案：}(C)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} B+树特点：(1)所有关键字出现在叶结点中，非叶结点仅起索引作用；(2)叶结点包含全部关键字及指向记录的指针；(3)叶结点按关键字顺序链接。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -706,7 +706,7 @@ typedef struct {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} B-树是一种\textbf{平衡}的多路查找树，插入和删除操作通过分裂和合并保持所有叶结点在同一层。这正是B-树的\textbf{自平衡}特性。\boxed{\textbf{答案：}(D)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} B-树是一种\textbf{平衡}的多路查找树，插入和删除操作通过分裂和合并保持所有叶结点在同一层。这正是B-树的\textbf{自平衡}特性。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -720,7 +720,7 @@ typedef struct {
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} B+树的非叶结点只起索引作用，全部关键字（及记录指针）都在叶结点，且叶结点构成有序链表。(D) 错：B-树可能在任一数据结点命中后结束；B+树即使在非叶索引结点匹配，也要继续到叶结点取得记录。\boxed{\textbf{答案：}(D)}\fi
+\ifshowsolutions\par\noindent\textbf{解析：} B+树的非叶结点只起索引作用，全部关键字（及记录指针）都在叶结点，且叶结点构成有序链表。(D) 错：B-树可能在任一数据结点命中后结束；B+树即使在非叶索引结点匹配，也要继续到叶结点取得记录。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
 
 \end{enumerate}
 
@@ -738,7 +738,7 @@ typedef struct {
 \ifshowsolutions\par\noindent\textbf{解析：}
 (1) BST: 30为根，15在其左，15的右为25，15的左为10，20在25左；30的右为40，40的左为35。
 (2) 深度：30(1),15(2),25(3),40(2),10(3),20(4),35(3)。ASL$=(1+2+3+2+3+4+3)/7=18/7\approx2.57$。
-(3) 删除25（度为1，仅有左孩子20），将其左孩子20替代25的位置。\fi
+(3) 删除25（度为1，仅有左孩子20），将其左孩子20替代25的位置。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -758,7 +758,7 @@ typedef struct {
 \[
 1,13,12,11,10,9,8,7,6,5,4,3,2,
 \]
-故 $\mathrm{ASL}_{\text{不成功}}=91/13=7$。\fi
+故 $\mathrm{ASL}_{\text{不成功}}=91/13=7$。\else \answerarea \fi
 
 \vspace{8pt}
 
@@ -779,7 +779,7 @@ typedef struct {
 \[
 50\bigl(30(20(10,\varnothing),40),\;70(60,80)\bigr).
 \]
-其中记号 $x(L,R)$ 表示结点 $x$ 的左右子树。中序遍历为 $10,20,30,40,50,60,70,80$。\fi
+其中记号 $x(L,R)$ 表示结点 $x$ 的左右子树。中序遍历为 $10,20,30,40,50,60,70,80$。\else \answerarea \fi
 
 \end{enumerate}
 

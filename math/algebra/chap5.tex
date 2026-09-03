@@ -435,7 +435,7 @@ A^{-1} = \frac{1}{|A|} A^* = \begin{pmatrix} 3 & -1 \\ -5 & 2 \end{pmatrix}.
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{2.} \textbf{（选择题）} 下列矩阵中，不是初等矩阵的是（\quad）
 \begin{enumerate}[label=(\Alph*)]
     \item \(\begin{pmatrix} 1 & 0 & 0 \\ 0 & 3 & 0 \\ 0 & 0 & 1 \end{pmatrix}\)
@@ -459,7 +459,7 @@ A^{-1} = \frac{1}{|A|} A^* = \begin{pmatrix} 3 & -1 \\ -5 & 2 \end{pmatrix}.
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{3.} \textbf{（计算题）} 用初等变换法 \((A \mid I) \to (I \mid A^{-1})\) 求矩阵
 \[
 A = \begin{pmatrix}
@@ -523,7 +523,7 @@ A^{-1} = \begin{pmatrix}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{4.} \textbf{（选择题）} 设 \(Q\) 为正交矩阵，则下列结论错误的是（\quad）
 \begin{enumerate}[label=(\Alph*)]
     \item \(|Q| = 1\)
@@ -541,7 +541,7 @@ A^{-1} = \begin{pmatrix}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{5.} \textbf{（计算题）} 用初等行变换求矩阵的秩：
 \[
 A = \begin{pmatrix}
@@ -586,7 +586,7 @@ A \xrightarrow[R_4-R_1]{R_3-2R_1}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{6.} \textbf{（填空题）} 设分块对角矩阵
 \[
 A = \begin{pmatrix}
@@ -618,7 +618,7 @@ B^{-1} & 0 \\
 \]
 
 
-\fi%
+\else \answerarea \fi%
 \subsection{综合提高题}
 
 \textbf{7.} \textbf{（拓展证明题：Sylvester 不等式）} 设 \(A\) 为 \(m \times n\) 矩阵，\(B\) 为 \(n \times s\) 矩阵。证明：
@@ -639,7 +639,7 @@ r(AB) = \dim \operatorname{Im}(AB) \geq r(B) - (n - r(A)) = r(A) + r(B) - n.
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{8.} \textbf{（证明题，\(\star\star\star\) 经典考研题）} 设 \(A\) 为 \(n\) 阶方阵，满足 \(A^2 = A\)（幂等矩阵）。证明：
 \[
 r(A) + r(I - A) = n.
@@ -679,7 +679,7 @@ n = r(I) = r(A + (I - A)) \leq r(A) + r(I - A). \tag{2}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{9.} \textbf{（计算题，伴随矩阵综合）} 设 \(A\) 为三阶方阵，\(|A| = 2\)。计算
 \[
 \bigl| (A^*)^{-1} + 2A \bigr|.
@@ -704,7 +704,7 @@ n = r(I) = r(A + (I - A)) \leq r(A) + r(I - A). \tag{2}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{10.} \textbf{（证明题）} 设 \(A\) 为 \(m \times n\) 非零矩阵，且 \(r(A) = 1\)。证明：
 \begin{enumerate}[label=(\arabic*)]
     \item 存在非零列向量 \(\alpha \in \mathbb{R}^m\) 和非零行向量 \(\beta^{\mathrm{T}} \in \mathbb{R}^n\)（即 \(\beta\) 为 \(n\) 维列向量），使得 \(A = \alpha \beta^{\mathrm{T}}\)；
@@ -729,7 +729,7 @@ A^2 = (\beta^{\mathrm{T}}\alpha) \alpha\beta^{\mathrm{T}} = (\operatorname{tr} A
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{11.} \textbf{（计算题）} 解矩阵方程 \(AXB = C\)，其中
 \[
 A = \begin{pmatrix} 1 & 2 \\ 3 & 5 \end{pmatrix},\quad
@@ -765,7 +765,7 @@ X &= \begin{pmatrix} -5 & 2 \\ 3 & -1 \end{pmatrix}
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{12.} \textbf{（证明题）} 设 \(A, B\) 分别为 \(m \times n\) 和 \(n \times s\) 矩阵。证明：
 \[
 r\begin{pmatrix} A & 0 \\ 0 & B \end{pmatrix} = r(A) + r(B).
@@ -792,7 +792,7 @@ P \begin{pmatrix} A & 0 \\ 0 & B \end{pmatrix} Q
 右边矩阵的非零行显然有 \(r + t\) 行，故其秩为 \(r + t\)。因 \(P, Q\) 可逆（初等变换不改变秩），原分块矩阵的秩亦为 \(r + t = r(A) + r(B)\)。
 
 
-\fi%
+\else \answerarea \fi%
 \subsection{真题风格与综合训练}
 
 \textbf{13.} \textbf{（\boxed{\textbf{真题风格}}，选择题）} 设 \(A, B\) 均为 \(n\) 阶方阵，且 \(AB = 0\)，则下列结论中\textbf{不一定}成立的是（\quad）
@@ -816,7 +816,7 @@ P \begin{pmatrix} A & 0 \\ 0 & B \end{pmatrix} Q
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{14.} \textbf{（\boxed{\textbf{真题风格}}，证明题）} 设 \(A\) 为 \(m \times n\) 矩阵，\(B\) 为 \(n \times s\) 矩阵，且 \(AB = 0\)。证明：
 \[
 r(A) + r(B) \leq n.
@@ -840,7 +840,7 @@ r(B) = \dim \operatorname{Im} B \leq \dim \ker A = n - r(A),
 
 \vspace{0.5cm}
 
-\fi%
+\else \answerarea \fi%
 \textbf{15.} \textbf{（\boxed{\textbf{真题风格}}，计算题）} 设 \(A\) 为 \(n\) 阶方阵，满足 \(A^2 - 3A + 2I = 0\)。
 \begin{enumerate}[label=(\arabic*)]
     \item 证明 \(A\) 可逆，并求 \(A^{-1}\)（用 \(A\) 表示）；
@@ -872,4 +872,4 @@ A^2x - 3Ax + 2x = \lambda^2 x - 3\lambda x + 2x = (\lambda^2 - 3\lambda + 2)x = 
 
 \boxed{\text{注}} 注意：满足 \(A^2 - 3A + 2I = 0\) 并不意味着 \(A\) 必有特征值 \(1\) \textbf{和} \(2\)，而是特征值\textbf{只能取} \(1\) 或 \(2\)（可能全为 \(1\)、全为 \(2\)、或两者都有）。例如 \(A = I\) 满足条件，特征值全为 \(1\)；\(A = 2I\) 也满足，特征值全为 \(2\)。
 
-\fi%
+\else \answerarea \fi%
