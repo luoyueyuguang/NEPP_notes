@@ -45,7 +45,7 @@ true  时：<解> 原样进入页面流，留白区（\else 分支）被自动�
 自 2026-09-03 起，纯题目版不再"解析消失后紧贴下题"，而是把每道被隐藏的解析替换为 `\answerarea`（三条书写横线），给做题留下手写空间；完整版经由 `\else` 分支自动跳过留白区，排版不受影响。
 
 这带来两个可观测效果：
-- **页数变化**：纯题目版"隐藏解析 + 叠加书写留白"后篇幅接近完整版。当前工作树实测 math-full 471 → math-exercises 376 页、408-full 378 → 408-exercises 374 页；无留白的旧基线为 math 462→327、408 371→325；
+- **页数变化**：纯题目版"隐藏解析 + 叠加书写留白"后篇幅接近甚至超过完整版。当前工作树实测 math-full 471 → math-exercises 384 页、408-full 378 → 408-exercises 382 页；无留白的旧基线为 math 462→327、408 371→325；
 - **排版稳定**：条件块外的 `\vspace{8pt}`、`\medskip` 间距命令保留，习题页不塌陷。
 
 > 注意：`\answerarea` 必须放在解块内的 `\else` 分支；若某解块把 `\begin{enumerate}` 开在开关内、把 `\end{enumerate}` 放在 `\fi` 之后，隐藏解析会留下"孤儿 `\end{...}`"。这类跨边界环境必须把 `\fi`（连同 `\else \answerarea`）移到 `\end{...}` 之后（见 §6）。
@@ -73,25 +73,28 @@ math 原无开关，本次接入分三步：
 
 ## 5. 发布流水线
 
+构建已由 `scripts/build.sh` 自动化，不再手工 `sed` 翻开关：
+
 ```mermaid
 flowchart LR
-    A[\showsolutionstrue 源码] -->|sed 翻 false| B[构建 math-exercises.pdf]
-    A -->|sed 翻回 true| C[构建 math-full.pdf]
-    B --> D[release/ 目录]
-    C --> D
+    A[scripts/check_solutions.py 静态哨兵] --> B
+    B[scripts/build.sh 双版本] --> C[构建 4 个 PDF]
+    C --> D[release/ 目录]
     D -->|git add -f| E[commit + push]
-    E -->|gh release create| F[GitHub Release v1.2.0]
+    E -->|gh release create| F[GitHub Release]
 ```
 
+**实现**：`scripts/build.sh` 对每本书先编译完整版（`-jobname=<book>-full`），再用 `main.tex` 的**临时副本**（`sed` 翻成 `\showsolutionsfalse`）编译纯题目版（`-jobname=<book>-exercises`），结束后删除副本——全程不触碰源文件，规避了"sed 改源码留脏"风险。编译后校验日志（硬错误失败，缺字符/重复标签告警，页数 sanity `exercises < full`）。
+
 **风险点**：
-- `sed` 改源码是临时状态，中断会留脏——构建前确认 `git status` 干净，构建后恢复并 diff 验证；
 - `release/*.pdf` 被 `*.pdf` gitignore 覆盖，必须 `git add -f` 强制跟踪；
-- 两书四文件一次性发布，版本号递增（v1.1.0 → v1.2.0）。
+- 两书四文件一次性发布，版本号递增（v1.1.0 → v1.2.0 → v1.3.0）；
+- `scripts/check_solutions.py` 是纯题目版正确性的回归哨兵：解析块必须配对、无"环境跨过 `\fi`"的孤儿结构、且都带 `\else \answerarea`。新增解块时违背任一条，脚本/CI 会直接报错（杜绝 §6 记录的那类 `Lonely \item`）。
 
 ## 6. 扩展思考
 
 - **局部开关需求**（如"只看这章的解析"）：当前机制不支持——如需此能力，可在 `\showsolutions` 之外增加按章的二级开关，但复杂度显著上升，且违背"单一全局状态"原则，不建议；
 - **教师版/学生版场景**：本机制可直接复用（教师版开、学生版关）；
 - **自动化**：双版本构建可封装 `scripts/release.sh` 或 CI 双 job，消除手工 sed 风险（见 `06` 文档）；
-- **验证手段**：发布后对比两版页数与文件大小（当前基线 math 376/471、408 374/378），异常波动说明解析块配对出错或书写留白未正确替换；
+- **验证手段**：发布后对比两版页数与文件大小（当前基线 math 384/471、408 382/378），异常波动说明解析块配对出错或书写留白未正确替换；
 - **书写留白（2026-09-03）**：纯题目版在 `\ifshowsolutions` 的 `\else` 分支输出 `\answerarea`（`main.tex` 统一定义），给做题留出横线书写空间。落地时发现 16 处数学解块存在"`\begin{enumerate}`…在开关内、`\end{enumerate}` 在 `\fi` 之后"的跨边界结构，隐藏解析会导致孤儿 `\end{...}`——已逐个把 `\fi`（连同 `\else \answerarea`）移到对应 `\end{...}` 之后。408 无此问题。新增解块时须保证环境成对包在开关内，否则纯题目版会报 `Lonely \item`。

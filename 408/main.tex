@@ -261,13 +261,15 @@
 % 供做题时手写解答；完整版（\showsolutionstrue）下该宏由 \else 分支跳过，不影响排版。
 \newlength{\answerlineheight}
 \setlength{\answerlineheight}{0.55em}
-\newcommand{\answerarea}{%
+% \answerarea[N]：N 条书写横线（默认 3；解答/综合题可传更大值）。
+\newcommand{\answerarea}[1][3]{%
   \par\vspace{0.45em}%
   {\color[gray]{0.62}%
-   \noindent\rule{\linewidth}{0.4pt}\par\vspace{\answerlineheight}%
-   \noindent\rule{\linewidth}{0.4pt}\par\vspace{\answerlineheight}%
-   \noindent\rule{\linewidth}{0.4pt}\par}%
-  \vspace{0.6em}%
+   \foreach \n in {1,...,#1}{%
+     \noindent\rule{\linewidth}{0.4pt}\par\vspace{\answerlineheight}%
+   }%
+  }%
+  \vspace{0.7em}%
 }
 
 % ---------- 知识框、提示框与表格 ----------

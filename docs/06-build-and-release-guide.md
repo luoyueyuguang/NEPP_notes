@@ -54,15 +54,29 @@ xelatex -interaction=nonstopmode -halt-on-error -jobname=math-full main.tex
 **⚠️ 风险控制**：`sed` 改源码属于临时状态修改——若两步之间构建中断，仓库会留下 `\showsolutionsfalse` 的脏状态。建议：
 1. 构建前 `git status` 确认工作区干净；
 2. 构建后立即恢复开关并 `git diff` 验证无残留；
-3. 长期方案：把双版本构建封装为脚本（`scripts/release.sh`）或 CI 双 job，避免手工 sed。
+3. **推荐**：直接用 `scripts/build.sh`（见下），它用 `main.tex` 的*临时副本*翻开关，绝不改动源文件。
+
+**推荐方式（自动双版本 + 校验）**：仓库提供了 `scripts/build.sh`，一次构建两本书的双版本并在编译后校验（硬错误失败，缺字符/重复标签告警，页数 sanity `exercises < full`）：
+
+```bash
+scripts/build.sh            # 构建 408 + math 双版本（4 个 PDF）
+scripts/build.sh 408        # 只构建 408
+scripts/build.sh math       # 只构建 math
+```
+
+`scripts/check_solutions.py` 是纯题目版正确性的静态回归哨兵（纯 Python、无需 LaTeX）：校验所有 `\ifshowsolutions` 解析块配对、无"环境跨过 `\fi` 边界"的孤儿结构、且都带 `\else \answerarea` 书写留白。CI 每次构建前先跑它。
+
+```bash
+python3 scripts/check_solutions.py   # 有问题时退出码非 0
+```
 
 **版本命名约定**（与 v1.2.0 发布一致）：
 
-| 文件 | 内容 | 实测页数（2026-09-03） |
+| 文件 | 内容 | 实测页数（2026-09-04） |
 |---|---|---|
-| `math-exercises.pdf` | 数学 · 纯题目（含手写留白） | 376 |
+| `math-exercises.pdf` | 数学 · 纯题目（含手写留白） | 384 |
 | `math-full.pdf` | 数学 · 题目+解析 | 471 |
-| `408-exercises.pdf` | 408 · 纯题目（含手写留白） | 374 |
+| `408-exercises.pdf` | 408 · 纯题目（含手写留白） | 382 |
 | `408-full.pdf` | 408 · 题目+解析 | 378 |
 
 ## 4. 发布 GitHub Release
@@ -87,26 +101,35 @@ gh release create vX.Y.Z \
 
 **历史发布**：
 - `v1.1.0`（2026-07-22）：每本书单一 PDF；
-- `v1.2.0`（2026-07-31）：习题/解析分离，每本书两个 PDF。
+- `v1.2.0`（2026-07-31）：习题/解析分离，每本书两个 PDF；
+- `v1.3.0`（2026-09-03）：纯题目版每道题后加书写留白（`\answerarea`）。
 
 ## 5. CI 行为说明
 
-`.github/workflows/build.yml`（仅覆盖 math）：
+`.github/workflows/build.yml`（覆盖 408 与 math 双版本）：
 
 ```mermaid
 flowchart LR
     A[push / PR → main] --> B[checkout]
     B --> C[安装 TeX Live + Noto 字体]
-    C --> D[xelatex × 2 → math/out/main.pdf]
-    D --> E{质量检查}
-    E -->|硬错误 ^!| F[::error:: 失败]
-    E -->|Missing character| G[::warning::]
-    E -->|multiply defined| H[::warning::]
-    E --> I[上传 artifact 保留 7 天]
+    C --> D[python3 scripts/check_solutions.py 静态哨兵]
+    D -->|配对/孤儿/留白异常| E[::error:: 失败]
+    D -->|OK| F[bash scripts/build.sh]
+    F --> G{xelatex ×2 每版本}
+    G --> H[输出 4 个 PDF]
+    F --> I{日志校验}
+    I -->|硬错误 ^!| J[::error:: 失败]
+    I -->|Missing character| K[::warning::]
+    I -->|multiply defined| L[::warning::]
+    F --> M[上传 4 个 PDF artifact 保留 7 天]
 ```
 
+**说明**：
+- CI 现在构建**两本书的双版本**：`scripts/build.sh` 用 `main.tex` 临时副本翻 `\showsolutionsfalse`，绝不改动源文件；
+- 静态哨兵 `scripts/check_solutions.py` 在编译前先跑，任何解析块配对/孤儿环境/缺书写留白都会直接失败；
+- 纯题目版页数必须小于完整版（`exercises < full`），否则视为异常。
+
 **已知缺口**：
-- 408 未纳入 CI（构建回归无门禁）——优先补齐项；
 - artifact 不自动发布为 Release（发布仍手工 gh CLI）；
 - 不检查 Overfull/Underfull（排版警告量大，会淹没信号）。
 

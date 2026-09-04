@@ -26,41 +26,27 @@ jobs:
             fonts-noto-cjk \
             latexmk
 
-      - name: Build PDF
-        working-directory: math
+      # 静态回归哨兵：校验 408 + math 全部解析块的配对 / 孤儿环境 / 书写留白。
+      # 纯 Python，无需 LaTeX，是纯题目版正确性的快速门禁。
+      - name: Static check solution blocks
         run: |
-          xelatex -interaction=nonstopmode -halt-on-error -output-directory=out main.tex
-          xelatex -interaction=nonstopmode -halt-on-error -output-directory=out main.tex
+          python3 scripts/check_solutions.py
 
-      - name: Check for hard errors
-        working-directory: math
+      # 双版本构建：为 408 与 math 各产出 *-full.pdf（题目+解析）与
+      # *-exercises.pdf（纯题目，解析隐藏、每题后是 \answerarea 书写留白）。
+      # 纯题目版用 main.tex 临时副本（\showsolutionsfalse）编译，绝不改动源文件；
+      # 构建后校验硬错误（^!）、缺字符、重复标签与页数 sanity。
+      - name: Build both books (full + exercises)
         run: |
-          if grep -q '^!' out/main.log; then
-            echo "::error::LaTeX compilation had hard errors"
-            grep '^!' out/main.log
-            exit 1
-          fi
-          echo "Build OK — $(grep -c 'Output written' out/main.log || echo 0) pages"
+          bash scripts/build.sh
 
-      - name: Check for missing characters
-        working-directory: math
-        run: |
-          if grep -q 'Missing character' out/main.log; then
-            echo "::warning::Missing characters detected"
-            grep 'Missing character' out/main.log
-          fi
-
-      - name: Check for duplicate labels
-        working-directory: math
-        run: |
-          if grep -q 'multiply defined' out/main.log; then
-            echo "::warning::Duplicate labels"
-            grep 'multiply defined' out/main.log
-          fi
-
-      - name: Upload PDF artifact
+      - name: Upload PDFs artifact
         uses: actions/upload-artifact@v4
         with:
-          name: main.pdf
-          path: math/out/main.pdf
+          name: pdfs
+          path: |
+            408/408-full.pdf
+            408/408-exercises.pdf
+            math/math-full.pdf
+            math/math-exercises.pdf
           retention-days: 7

@@ -525,7 +525,7 @@ void Intersection(LinkList A, LinkList B) {
     }
 }
 \end{lstlisting}
-时间复杂度$O(m+n)$，空间复杂度$O(1)$。\else \answerarea \fi
+时间复杂度$O(m+n)$，空间复杂度$O(1)$。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -586,7 +586,7 @@ bool IsComplete(BiTree T, bool *result) {
 }
 \end{lstlisting}
 队列只存非空结点，容量由实际结点数决定。预统计和层次遍历各进行一次，总时间复杂度为 $O(n)$；队列与递归栈的总辅助空间为 $O(n)$。
-\else \answerarea \fi
+\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -595,13 +595,13 @@ bool IsComplete(BiTree T, bool *result) {
 \ifshowsolutions\par\noindent\textbf{解析：}
 $58.75=111010.11_2=1.1101011\times 2^5$。$S=1$（负数）。$e=5$, $E=5+127=132=1000\;0100_2$。$M$（23位）$=1101011\;00000\;00000\;00000\;00$。
 
-拼接：\texttt{1\;10000100\;11010110000000000000000}$\to$\texttt{C26B0000H}。\else \answerarea \fi
+拼接：\texttt{1\;10000100\;11010110000000000000000}$\to$\texttt{C26B0000H}。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
 \noindent\textbf{44.（11分，组成原理）} 某16位计算机指令格式如下：操作码4位，两个操作数各6位（均为寄存器-寄存器型，每个操作数3位寄存器号+3位寻址方式）。问：(1)该指令系统最多有多少条指令？(2)若改用扩展操作码，保留12条两操作数指令，一操作数指令最多有多少条？
 
-\ifshowsolutions\par\noindent\textbf{答案：}(1) $2^4=16$ 条。(2) 两地址指令占用 12 个 4 位前缀，剩余 4 个前缀可扩展为一地址指令；每个前缀有 $2^6$ 个一地址操作码编码，因此最多为 $4\times2^6=256$ 条。\else \answerarea \fi
+\ifshowsolutions\par\noindent\textbf{答案：}(1) $2^4=16$ 条。(2) 两地址指令占用 12 个 4 位前缀，剩余 4 个前缀可扩展为一地址指令；每个前缀有 $2^6$ 个一地址操作码编码，因此最多为 $4\times2^6=256$ 条。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -625,7 +625,7 @@ Customer() {
         eat();
     }
 }
-\end{lstlisting}\else \answerarea \fi
+\end{lstlisting}\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -653,7 +653,7 @@ Customer() {
     \item 第 11--15 次：$2:\{1,2,5,6\}$，$3^*:\{1,2,3,6\}$，$7^*:\{1,2,3,7\}$，$6^*:\{2,3,6,7\}$，$3:\{2,3,6,7\}$；
     \item 第 16--20 次：$2:\{2,3,6,7\}$，$1^*:\{1,2,3,6\}$，$2:\{1,2,3,6\}$，$3:\{1,2,3,6\}$，$6:\{1,2,3,6\}$。
 \end{itemize}
-共缺页 10 次，缺页率为 $10/20=50\%$。\else \answerarea \fi
+共缺页 10 次，缺页率为 $10/20=50\%$。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -662,7 +662,7 @@ Customer() {
 \ifshowsolutions\par\noindent\textbf{解析：}
 (1) /28：子网掩码255.255.255.240。A: 37\&240$=$32。B: 49\&240$=$48。不在同一子网。
 (2) /27：子网掩码255.255.255.224。A: 37\&224$=$32。B: 49\&224$=$32。在同一子网。
-(3) /28: A在192.168.1.32/28, B在192.168.1.48/28。 /27: 均在192.168.1.32/27。\else \answerarea \fi
+(3) /28: A在192.168.1.32/28, B在192.168.1.48/28。 /27: 均在192.168.1.32/27。\else \answerarea[8] \fi
 
 \newpage
 % ============================================================
@@ -1184,7 +1184,7 @@ BiTree LCA(BiTree root, BiTree p, BiTree q) {
     return left ? left : right;      // 在同侧
 }
 \end{lstlisting}
-时间复杂度$O(n)$（每个结点访问一次），空间复杂度$O(h)$（递归栈深度）。\else \answerarea \fi
+时间复杂度$O(n)$（每个结点访问一次），空间复杂度$O(h)$（递归栈深度）。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -1213,7 +1213,7 @@ $\mathrm{ASL}=(1+2+3+2+3+4+3)/7=18/7\approx2.57$。
   child {node {15} child {node {10}} child {node {20}}}
   child {node {40} child {node {35}} child[missing]};
 \end{tikzpicture}
-\end{center}\else \answerarea \fi
+\end{center}\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -1221,7 +1221,7 @@ $\mathrm{ASL}=(1+2+3+2+3+4+3)/7=18/7\approx2.57$。
 
 \ifshowsolutions\par\noindent\textbf{答案：} (1) 块内偏移 4 位，组索引 3 位，Tag 为 $32-4-3=25$ 位。
 (2) 共 16 行；每行含 128 位数据、25 位 Tag 和1位有效位，总实现容量为 $16\times154=2464$ 位，即 308 B（其中数据容量为 256 B）。
-(3) 地址 0 和 8 属于块0，16属于块1，32属于块2。访问结果依次为：缺、命中、缺、缺、命中、命中、命中、命中，共5次命中，命中率为 $5/8=62.5\%$。\else \answerarea \fi
+(3) 地址 0 和 8 属于块0，16属于块1，32属于块2。访问结果依次为：缺、命中、缺、缺、命中、命中、命中、命中，共5次命中，命中率为 $5/8=62.5\%$。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -1242,7 +1242,7 @@ $\mathrm{ASL}=(1+2+3+2+3+4+3)/7=18/7\approx2.57$。
     \item MDR 经总线送 ALU 的 B 端，ALU 做加法并将结果锁存到 Z（MDRout, ALUadd, Zin）；
     \item Z$\to$R1（Zout, R1in）。
 \end{enumerate}
-由于是单总线结构，R1 和 MDR 不能在同一周期同时向总线送数，故需先把一个操作数存入 Y。\else \answerarea \fi
+由于是单总线结构，R1 和 MDR 不能在同一周期同时向总线送数，故需先把一个操作数存入 Y。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -1266,14 +1266,14 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
     \item $\mathrm{Need}=\mathrm{Max}-\mathrm{Allocation}$：P0(7,4,3)，P1(1,2,2)，P2(6,0,0)，P3(0,1,1)，P4(4,3,1)。由已分配资源总量为 $(7,2,5)$，得 $\mathrm{Available}=(10,5,7)-(7,2,5)=(3,3,2)$。
     \item 系统安全，例如存在安全序列 P1$\to$P3$\to$P0$\to$P2$\to$P4。
     \item 请求 $(1,0,2)$ 同时不超过 P1 的 Need 和 Available，可先试探分配。此时 P1 的 Allocation 为 $(3,0,2)$，Available 为 $(2,3,0)$。P1 可完成并释放资源，使 Work 变为 $(5,3,2)$；随后可按 P3、P0、P2、P4 的次序完成。系统仍安全，故可以分配。
-\end{enumerate}\else \answerarea \fi
+\end{enumerate}\else \answerarea[8] \fi
 
 \vspace{8pt}
 
 \noindent\textbf{46.（7分，操作系统）} 某请求分页系统，页面大小4 KB。进程的逻辑地址空间为64 KB，分得4个物理块。页表内容：页0$\to$块2, 页1$\to$块5, 页2$\to$块1, 页3$\to$块8。求：(1)逻辑地址5000的物理地址；(2)若访问逻辑地址20000时发生缺页（页表无映射），OS应如何处理？
 
 \ifshowsolutions\par\noindent\textbf{答案：} (1) 页大小4 KB=4096。页号$=5000/4096=1$，偏移$=5000-4096=904$。块号$=5$。物理地址$=5\times4096+904=21384$。
-(2) $20000=4\times4096+3616$，访问的是合法页 4，但其页表项有效位为 0，因而产生缺页异常（教材常称缺页中断）。页 0--3 已占满分配给该进程的 4 个物理块，所以不能直接“分配空闲页框”，而应：OS 保存现场并检查访问合法性$\to$在外存定位页 4$\to$按系统采用的页面置换算法选择一个牺牲页$\to$若牺牲页为脏页则先写回$\to$将旧页表项置无效并使相关 TLB 项失效$\to$把页 4 调入释放的页框$\to$更新页表（及必要的 TLB 状态）$\to$恢复并重新执行引发缺页的访存指令。题目没有给出置换算法及访问状态，因此只能说明处理流程，不能唯一确定淘汰页 0、1、2、3 中的哪一页。\else \answerarea \fi
+(2) $20000=4\times4096+3616$，访问的是合法页 4，但其页表项有效位为 0，因而产生缺页异常（教材常称缺页中断）。页 0--3 已占满分配给该进程的 4 个物理块，所以不能直接“分配空闲页框”，而应：OS 保存现场并检查访问合法性$\to$在外存定位页 4$\to$按系统采用的页面置换算法选择一个牺牲页$\to$若牺牲页为脏页则先写回$\to$将旧页表项置无效并使相关 TLB 项失效$\to$把页 4 调入释放的页框$\to$更新页表（及必要的 TLB 状态）$\to$恢复并重新执行引发缺页的访存指令。题目没有给出置换算法及访问状态，因此只能说明处理流程，不能唯一确定淘汰页 0、1、2、3 中的哪一页。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -1281,7 +1281,7 @@ P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
 
 \ifshowsolutions\par\noindent\textbf{答案：} (1) 慢开始阶段为 $1,2,4,8,16$，随后拥塞避免为 $17,18,19$，然后超时。
 (2) 约定以整数 MSS 向下取整，$\text{ssthresh}=\lfloor19/2\rfloor=9$ KB，$\text{cwnd}=1$ KB，重新进入慢开始。
-(3) 三个成功 RTT 后 cwnd 依次为 2、4、8 KB，故答案为 8 KB。\else \answerarea \fi
+(3) 三个成功 RTT 后 cwnd 依次为 2、4、8 KB，故答案为 8 KB。\else \answerarea[8] \fi
 
 \newpage
 % ============================================================
@@ -1822,14 +1822,14 @@ void MergeSort(LinkList L) {
     }
 }
 \end{lstlisting}
-共有 $\lceil\log_2 n\rceil$ 轮归并，每轮扫描全部结点，时间复杂度为 $O(n\log n)$；自底向上实现只使用常数个指针，辅助空间复杂度为 $O(1)$。使用“$\leqslant$”从左段优先取相等元素时，该排序还是稳定的。\else \answerarea \fi
+共有 $\lceil\log_2 n\rceil$ 轮归并，每轮扫描全部结点，时间复杂度为 $O(n\log n)$；自底向上实现只使用常数个指针，辅助空间复杂度为 $O(1)$。使用“$\leqslant$”从左段优先取相等元素时，该排序还是稳定的。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
 \noindent\textbf{42.（10分，数据结构）} 已知关键字序列(12,24,8,37,15,30,45,20)，画出依次插入生成的二叉排序树，并判断该树是否为平衡二叉树（AVL）。若不是，指出不平衡结点并说明如何调整。
 
 \ifshowsolutions\par\noindent\textbf{答案：} 最终 BST 为：12 的左孩子是 8、右孩子是 24；24 的左孩子是 15、右孩子是 37；15 的右孩子是 20；37 的左、右孩子分别是 30、45。
-根结点 12 的左、右子树高度分别为 1 和 3，平衡因子为 $-2$，因此不是 AVL 树；其右孩子 24 的平衡因子为 0。对 12 做一次左旋（RR 型调整），以 24 为新根，12 成为 24 的左孩子，15 成为 12 的右孩子，即可恢复平衡。\else \answerarea \fi
+根结点 12 的左、右子树高度分别为 1 和 3，平衡因子为 $-2$，因此不是 AVL 树；其右孩子 24 的平衡因子为 0。对 12 做一次左旋（RR 型调整），以 24 为新根，12 成为 24 的左孩子，15 成为 12 的右孩子，即可恢复平衡。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -1863,7 +1863,7 @@ I4            IF IF ID EX ME WB
 \end{lstlisting}
 总周期数为 $5+(4-1)+1=9$。
 
-(3) 时钟周期为 2 ns，因此无转发为 $12\times2=24$ ns，有转发为 $9\times2=18$ ns。\else \answerarea \fi
+(3) 时钟周期为 2 ns，因此无转发为 $12\times2=24$ ns，有转发为 $9\times2=18$ ns。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -1871,7 +1871,7 @@ I4            IF IF ID EX ME WB
 
 \ifshowsolutions\par\noindent\textbf{答案：} (1) $x=106$；$9\text{FH}=10011111_2$，取反加一得 97，故 $y=-97$。
 (2) $6\text{A}+9\text{F}=109\text{H}$，保留 8 位得 $09\text{H}$，真值为 9。异号数相加不会产生有符号溢出，故 OF=0。
-(3) $-y$ 的补码为 $61\text{H}$，$6\text{A}+61=CB\text{H}$。两个正数相加得到符号位为 1 的结果，故发生正溢出，OF=1；$CB\text{H}$ 只是模 $2^8$ 截断后的机器结果。\else \answerarea \fi
+(3) $-y$ 的补码为 $61\text{H}$，$6\text{A}+61=CB\text{H}$。两个正数相加得到符号位为 1 的结果，故发生正溢出，OF=1；$CB\text{H}$ 只是模 $2^8$ 截断后的机器结果。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -1902,7 +1902,7 @@ Writer() {
     }
 }
 \end{lstlisting}
-读者优先——只要有读者在读，新读者可以进入，写者必须等待所有读者退出。\textbf{会导致写者饥饿}（若读者持续到来，写者永远等不到rw）。\else \answerarea \fi
+读者优先——只要有读者在读，新读者可以进入，写者必须等待所有读者退出。\textbf{会导致写者饥饿}（若读者持续到来，写者永远等不到rw）。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
@@ -1913,10 +1913,10 @@ Writer() {
 (1) 分别用 OPT、FIFO、LRU 算法计算缺页次数；(2) 哪种算法在本序列中表现最好？为什么 OPT 无法在实际系统中实现？
 
 \ifshowsolutions\par\noindent\textbf{答案：} (1) 逐页模拟可得：OPT 缺页 11 次，FIFO 缺页 16 次，LRU 缺页 15 次。
-(2) 本序列中 OPT 最好。OPT 每次淘汰未来最晚才会再次访问（或以后不再访问）的页，因而给出理论最小缺页数；实际系统无法预知未来访问序列，所以 OPT 只能作为性能下界。\else \answerarea \fi
+(2) 本序列中 OPT 最好。OPT 每次淘汰未来最晚才会再次访问（或以后不再访问）的页，因而给出理论最小缺页数；实际系统无法预知未来访问序列，所以 OPT 只能作为性能下界。\else \answerarea[8] \fi
 
 \vspace{8pt}
 
 \noindent\textbf{47.（9分，计算机网络）} 主机A的IP地址为192.168.10.66/27，主机B的IP地址为192.168.10.92/27。(1)写出/27的子网掩码；(2)A和B是否在同一子网？(3)若A向B发送数据，A需要ARP解析B的MAC地址吗？说明原因。
 
-\ifshowsolutions\par\noindent\textbf{答案：} (1) /27$\to$255.255.255.224。(2) A: 66\&224$=64$。B: 92\&224$=64$。在同一子网。(3) A和B在同一子网，A可直接发送。A需要ARP获取B的MAC地址——ARP在同一广播域内解析IP到MAC。\else \answerarea \fi
+\ifshowsolutions\par\noindent\textbf{答案：} (1) /27$\to$255.255.255.224。(2) A: 66\&224$=64$。B: 92\&224$=64$。在同一子网。(3) A和B在同一子网，A可直接发送。A需要ARP获取B的MAC地址——ARP在同一广播域内解析IP到MAC。\else \answerarea[8] \fi
