@@ -355,6 +355,28 @@
     \]
     计算二重积分的关键是配置积分限，为此要画好积分区域\(D\)的图形或写出\(D\)的不等式表示。将
     二重积分化为累次积分即二次定积分。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=6.2cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-0.05, xmax=1.12, ymin=-0.05, ymax=1.12,
+  axis equal image, ticks=none,
+]
+\addplot[green!15,draw=black!55,thick,fill opacity=0.9] coordinates {
+  (0,0)(0.1,0.316)(0.2,0.447)(0.3,0.548)(0.4,0.632)(0.5,0.707)(0.6,0.775)(0.7,0.837)(0.8,0.894)(0.9,0.949)(1,1)
+  (0.9,0.81)(0.8,0.64)(0.7,0.49)(0.6,0.36)(0.5,0.25)(0.4,0.16)(0.3,0.09)(0.2,0.04)(0.1,0.01)(0,0)
+};
+\addplot[blue!70,thick,domain=0:1,samples=80] {x^2};
+\addplot[red!70,thick,domain=0:1,samples=80] {sqrt(x)};
+\node[font=\scriptsize] at (axis cs:0.42,0.55){$D$};
+\node[font=\scriptsize,blue!70] at (axis cs:0.62,0.22){$y=x^2$};
+\node[font=\scriptsize,red!70] at (axis cs:0.42,0.92){$y=\sqrt{x}$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
     \begin{conclusion}{特殊情形}{special-case}
         设\(f(x, y)\)在矩形区域\(
             D = \{
