@@ -43,6 +43,29 @@
 \textbf{408 常考：}给定场景，判断应使用哪种交换方式。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, scale=0.9]
+  % 时间轴
+  \draw[->,thick] (-0.3,0) -- (6.7,0) node[right]{$t$};
+  \foreach \u in {0,...,5} \draw (\u*1.2,-0.05) -- (\u*1.2,0.05) node[below,font=\scriptsize]{$\u$};
+  % 行标签
+  \node[left,font=\scriptsize] at (-0.18,3){链路1（A$\to$R1）};
+  \node[left,font=\scriptsize] at (-0.18,2){链路2（R1$\to$R2）};
+  \node[left,font=\scriptsize] at (-0.18,1){链路3（R2$\to$B）};
+  % 3 个分组流水：每个分组占 1 个发送时延单元，逐链路右移
+  \foreach \pkt/\col in {1/Teal!50,2/Navy!30,3/Amber!45}{
+    \foreach \hop in {1,2,3}{
+      \pgfmathsetmacro{\x}{(\pkt-1+\hop-1)*1.2}
+      \fill[\col,draw=black!30] (\x,{\hop-0.3}) rectangle (\x+1.2,{\hop+0.3});
+      \ifnum\hop=1
+        \node[font=\scriptsize] at (\x+0.6,3) {P\pkt};
+      \fi
+    }
+  }
+  \node[font=\scriptsize,black!70] at (3.4,-1.0){分组交换的存储转发：总时延 $\approx$ (分组数$+$链路数$-1)\times$ 发送时延};
+\end{tikzpicture}
+\end{center}
+
 \subsection{计算机网络的性能指标}
 
 \begin{formula}{网络性能指标}{cn-metrics}
@@ -64,6 +87,21 @@
 \begin{attention}
 \textbf{408 高频计算：发送时延 vs 传播时延。} 发送时延 = 数据量/带宽（瓶颈在发送速率）；传播时延 = 距离/光速（瓶颈在物理距离）。两者影响的变因完全不同，选择题经常混合考察。
 \end{attention}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, scale=1.0]
+  \draw[thick] (0,0) -- (10,0);
+  \node[left,font=\bfseries] at (0,0){A};
+  \node[right,font=\bfseries] at (10,0){B};
+  % 帧在发送端：发送时延 = 把整帧推上链路的时间
+  \fill[Teal!45,draw=black!35] (0.15,-0.22) rectangle (1.95,0.22) node[midway,font=\scriptsize]{帧};
+  % 发送时延
+  \draw[<->] (0.15,-0.5) -- (1.95,-0.5) node[midway,below,font=\scriptsize]{发送时延 $d_{tx}$};
+  % 传播时延：帧沿链路传到 B
+  \draw[<->] (1.95,-0.5) -- (9.85,-0.5) node[midway,below,font=\scriptsize]{传播时延 $d_{prop}$};
+  \node[font=\scriptsize,align=center] at (5.9,0.9){帧沿链路传播\\到接收端 B};
+\end{tikzpicture}
+\end{center}
 
 \subsection{OSI 参考模型（7层）}
 

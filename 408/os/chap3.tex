@@ -217,6 +217,26 @@ Next Fit & 继续搜索第一个 $\ge n$ 的块 & 空闲分布更均匀，但会
 实际硬件中，页内偏移 $d$ 在地址变换前后\textbf{保持不变}——仅页号替换为页框号。
 \end{formula}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, node distance=0.9cm]
+  % 逻辑地址：页号 + 偏移
+  \node[draw,rectangle,minimum width=1.4cm,minimum height=0.7cm] (pn) {页号 $p_n$};
+  \node[draw,rectangle,minimum width=1.4cm,minimum height=0.7cm,right of=pn,node distance=0pt] (d) {偏移 $d$};
+  \node[above of=pn,node distance=0.45cm,align=center] {逻辑地址};
+  % 页表
+  \node[draw,rectangle,minimum width=2.0cm,minimum height=0.7cm,fill=SoftGray,below of=pn,node distance=1.4cm] (pt)
+        {页表：$p_n \to f_n$};
+  % 物理地址：页框号 + 偏移（不变）
+  \node[draw,rectangle,minimum width=1.4cm,minimum height=0.7cm,below of=pt,node distance=1.4cm] (f) {页框号 $f_n$};
+  \node[draw,rectangle,minimum width=1.4cm,minimum height=0.7cm,right of=f,node distance=0pt] (d2) {偏移 $d$};
+  \node[below of=f,node distance=0.45cm,align=center] {物理地址};
+  % 箭头
+  \draw[->] (pn.south) -- (pt.north);
+  \draw[->] (pt.south) -- (f.north);
+  \draw[->,dashed] (d.south) -- (d2.north);
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 计算核心：页面大小 = $2^p$ 时，逻辑地址低 $p$ 位为页内偏移，其余高位为页号。}
 例如页面大小 4 KB（$p=12$），逻辑地址为 32 位，则页号占高 20 位（$2^{20}$ 个页），页内偏移占低 12 位（$0\sim4095$）。
@@ -621,6 +641,24 @@ OPT 和 LRU 是\textbf{栈类算法（Stack Algorithm）}——$n$ 个页框时�
 \textbf{408 高频考点：CLOCK 与改进 CLOCK 的置换过程模拟。}
 考试通常给出各页面的 $A$ 和 $M$ 位的当前值，以及时钟指针位置，要求找出下一个被换出的页面及扫描过程中各标志位的变化。\textbf{重点掌握：}改进 CLOCK 中，第一轮不看 $M$，只找 $(0,0)$；第二轮不仅找 $(0,1)$，还\textbf{顺便清 $A$}。
 \end{attention}
+
+\begin{conclusion}{页面置换算法对比（同串同框）}{replacement-compare}
+以访问串 $1,2,3,4,2,1,5,6,2,1,2,3,7,6,3,2,1,2,3,6$、4 个页框为例，四种算法的缺页次数对比：
+\begin{tablebox}{四种页面置换算法缺页次数（4 页框）}
+\centering
+\begin{tabular}{|c|c|c|l|}
+\hline
+算法 & 缺页次数 & 缺页率 & 说明 \\
+\hline
+OPT & 8 & 40\% & 不可实现，理论最优标尺 \\
+FIFO & 14 & 70\% & 可能出现 Belady 异常 \\
+LRU & 10 & 50\% & 栈算法，近似 OPT \\
+CLOCK & 14 & 70\% & 用访问位近似 LRU \\
+\hline
+\end{tabular}
+\end{tablebox}
+\textbf{结论：} (1) 缺页数 \textbf{OPT $\leqslant$ LRU $\leqslant$ FIFO、CLOCK}——LRU 明显优于 FIFO/CLOCK；(2) \textbf{OPT 与 LRU 是栈算法}，页框数增多时缺页数只减不增；FIFO 与基本 CLOCK 不是栈算法，理论上可能出现 Belady 异常。
+\end{conclusion}
 
 \subsection{页面分配策略与抖动}
 

@@ -127,6 +127,21 @@ CPU 与主存通过 MAR（存储器地址寄存器）和 MDR（存储器数据�
 \end{itemize}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, scale=0.95]
+  % 4 条指令 I1..I4 的五级流水线时空图（对角错位 = 时间重叠）
+  \foreach \ins in {1,...,4}{
+    \node[left,font=\scriptsize] at (-0.18,\ins) {I\ins};
+    \foreach \st/\col/\letter in {1/Teal!50/IF,2/Navy!30/ID,3/Amber!45/EX,4/Teal!50/MEM,5/Navy!30/WB}{
+      \pgfmathsetmacro{\x}{(\ins-1+\st-1)*1.15}
+      \fill[\col,draw=black!30] (\x,{\ins-0.31}) rectangle (\x+1.15,{\ins+0.31});
+      \node[font=\scriptsize] at (\x+0.58,\ins) {\letter};
+    }
+  }
+  \node[font=\scriptsize,align=center] at (3.6,4.7){IF$\to$ID$\to$EX$\to$MEM$\to$WB（每段 $T$）};
+\end{tikzpicture}
+\end{center}
+
 \subsection{流水线冒险（Hazard）}
 
 \begin{conclusion}{三种流水线冒险}{pipeline-hazards}

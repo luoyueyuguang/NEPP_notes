@@ -100,6 +100,20 @@ E 类 & — & 240--255 & 保留 & — & — \\
 \end{itemize}
 \end{formula}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 上排：IP 地址三段（网络号 / 子网号 / 主机号）
+  \node[draw,rectangle,minimum width=3.0cm,minimum height=0.7cm] (net) at (1.5,0.4) {网络号};
+  \node[draw,rectangle,minimum width=2.2cm,minimum height=0.7cm] (sub) at (4.1,0.4) {子网号};
+  \node[draw,rectangle,minimum width=3.6cm,minimum height=0.7cm] (host) at (7.0,0.4) {主机号};
+  \node[font=\scriptsize] at (3.4,0.95) {IP 地址};
+  % 下排：子网掩码（1 覆盖网络+子网，0 覆盖主机）
+  \node[draw,rectangle,minimum width=5.2cm,minimum height=0.7cm,fill=SoftGray] (m1) at (2.6,-0.9) {$1\;1\;\cdots\;1\;1$};
+  \node[draw,rectangle,minimum width=3.6cm,minimum height=0.7cm,fill=SoftBlue] (m0) at (7.0,-0.9) {$0\;0\;\cdots\;0\;0$};
+  \node[font=\scriptsize] at (3.4,-1.5) {子网掩码};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 高频计算：} 给定一个 IP 地址和子网掩码，要求计算：(1) 网络地址；(2) 广播地址；(3) 该子网可容纳的主机数；(4) 子网中第一个和最后一个可用的 IP 地址。
 

@@ -113,6 +113,37 @@ CSMA/CD（Carrier Sense Multiple Access with Collision Detection）是以太网�
 \textbf{二进制指数退避：}第 $k$ 次重传（$k\leqslant 10$）的等待时间为从 $[0, 2^k-1]$ 中随机选一个 $r$，等待 $r\times 2\tau$。$k>10$ 后 $r$ 范围锁定为 $[0,2^{10}-1]$。重传 16 次仍失败则丢弃帧。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.0]
+  % 横轴=距离（A 左 B 右），纵轴向下=时间
+  \draw[->] (-0.4,0) -- (7.6,0) node[right]{距离};
+  \node[left] at (0,0.3){A};
+  \node[right] at (7,0.3){B};
+  % A 的帧：t=0 从 A 发出，t=tau 到 B
+  \draw[->,Teal,thick] (0,0.6) -- (7,2.4) node[midway,above,sloped]{A 的数据帧};
+  % B 的帧：t≈tau 从 B 发出，t≈2tau 到 A
+  \draw[->,Burgundy,thick] (7,2.2) -- (0,4.0) node[midway,below,sloped]{B 的数据帧};
+  % 冲突点（两帧在时空上相交）
+  \fill[black] (4.2,2.02) circle (2pt) node[above right,black]{冲突};
+  % 2tau 检测窗口
+  \draw[dashed] (0,0.6) -- (7.6,0.6);
+  \draw[dashed] (0,4.0) -- (7.6,4.0);
+  \draw[<->,red] (-0.35,0.6) -- (-0.35,4.0) node[midway,left]{约 $2\tau$};
+  \node[align=center,font=\scriptsize] at (3.8,4.9){A 发出后约 $2\tau$ 内未检测到冲突，即认定本次发送成功（争用期）};
+\end{tikzpicture}
+\end{center}
+
+\begin{attention}
+\textbf{二进制指数退避——逐步演示：}某站连续冲突，第 $k$ 次重传在 $[0,2^{k}-1]$ 中取随机整数 $r$，等待 $r\times 2\tau$：
+\begin{itemize}
+    \item \textbf{第 1 次冲突}（$k=1$）：$r\in\{0,1\}$，等 $0$ 或 $2\tau$；
+    \item \textbf{第 2 次冲突}（$k=2$）：$r\in\{0,1,2,3\}$，等 $0,2\tau,4\tau,6\tau$；
+    \item \textbf{第 3 次冲突}（$k=3$）：$r\in\{0,\dots,7\}$，最多等 $14\tau$——重传间隔随冲突次数\textbf{指数}扩大，降低再次冲突概率；
+    \item $k>10$ 后 $r$ 锁定在 $[0,2^{10}-1]$；重传 16 次仍失败则丢弃帧。
+\end{itemize}
+\textbf{要点：} "指数"指的是\textbf{随机退避范围}随重传次数指数增长——冲突越多，各站越"拉开"重试时刻，避免再次同时冲突。
+\end{attention}
+
 \begin{attention}
 \textbf{408 CSMA/CD 高频计算：}
 \begin{enumerate}

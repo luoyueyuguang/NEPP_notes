@@ -292,6 +292,40 @@ TCP 的流量控制通过\textbf{接收窗口（rwnd, Receiver Window）}实现�
 \end{enumerate}
 \end{conclusion}
 
+\begin{conclusion}{cwnd 变化图（图文对照）}{cwnd-graph-visual}
+上表逐轮列出 cwnd，形象化后是一条典型的\textbf{锯齿形}曲线：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.86\linewidth, height=6.2cm,
+  xlabel={传输轮次（RTT）}, ylabel={cwnd（MSS）},
+  xmin=0, xmax=25, ymin=0, ymax=26,
+  xtick={0,5,10,15,20,25}, ytick={0,4,8,12,16,20,24},
+  grid=both, legend pos=north west, font=\footnotesize,
+]
+\addplot[Teal,thick,mark=*] coordinates {(1,1)(2,2)(3,4)(4,8)(5,16)(6,17)(7,18)(8,19)(9,20)(10,21)(11,22)(12,23)(13,24)(14,1)(15,2)(16,4)(17,8)(18,12)(19,13)(20,14)(21,15)(22,16)(23,8)};
+\addlegendentry{cwnd}
+\addplot[Navy,dashed,thick] coordinates {(0,16)(25,16)};
+\addlegendentry{ssthresh=16}
+\draw[dashed,red] (axis cs:13,0) -- (axis cs:13,24);
+\node[red,font=\scriptsize,anchor=north] at (axis cs:13,1){超时};
+\draw[dashed,red] (axis cs:22,0) -- (axis cs:22,16);
+\node[red,font=\scriptsize,anchor=north] at (axis cs:22,1){3个重复ACK};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\textbf{读图要点（与上表逐轮对应）：}
+\begin{enumerate}
+    \item \textbf{慢开始段（第 1--5 轮）}：cwnd 每轮翻倍 $1\to2\to4\to8\to16$，曲线陡峭（指数上升）；
+    \item \textbf{拥塞避免段（第 6--13 轮）}：cwnd 达到 ssthresh=16 后每轮 $+1$（$17\to\cdots\to24$），坡度明显放缓（线性上升）——这就是\textbf{加法增大}；
+    \item \textbf{超时（第 13 轮后）}：cwnd=24 时发生超时，ssthresh 减半为 12、cwnd 跌回 1，重新慢开始（曲线垂直下落）；
+    \item \textbf{二次慢开始段}：再次按 $1\to2\to4\to8\to12$ 指数增长，到达新的 ssthresh=12 后转入拥塞避免；
+    \item \textbf{3 个重复 ACK（第 22 轮）}：cwnd=16 时收到 3 个重复 ACK 触发快重传，ssthresh 再减半为 8、cwnd 置为 8（教材化简化规则），随后进入拥塞避免。
+\end{enumerate}
+\textbf{一句话记忆：} 慢开始指数飙、拥塞避免线性走；超时暴跌到 1、三个 ACK 砍一半；每次丢包 ssthresh 都取当场 cwnd 的一半。
+\end{conclusion}
+
 \begin{attention}
 \textbf{408 拥塞控制的高频考法：}
 \begin{itemize}
@@ -340,6 +374,27 @@ ESTABLISHED & & \\
     \item 三次握手确保\textbf{双方都确认了对方的发送能力和接收能力}：客户端在第 3 步确认服务器的收+发，服务器在第 2 步确认客户端的发送能力并在第 3 步确认自己的发送被收到。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 两条生命线
+  \draw[thick] (0,0) -- (0,4.4);
+  \draw[thick] (7,0) -- (7,4.4);
+  \node[above,font=\small] at (0,4.4){客户端 A};
+  \node[above,font=\small] at (7,4.4){服务器 B};
+  % 1: SYN
+  \draw[->,thick] (0,3.9) -- (7,3.9) node[midway,above]{$\text{SYN}=1,\ \text{seq}=x$};
+  % 2: SYN + ACK
+  \draw[->,thick] (7,3.2) -- (0,3.2) node[midway,below]{$\text{SYN}=1,\ \text{ACK}=1,\ \text{seq}=y,\ \text{ack}=x+1$};
+  % 3: ACK
+  \draw[->,thick] (0,2.5) -- (7,2.5) node[midway,above]{$\text{ACK}=1,\ \text{ack}=y+1$};
+  % 状态标注
+  \node[left] at (0,4.15){\texttt{SYN-SENT}};
+  \node[right] at (7,3.9){\texttt{SYN-RCVD}};
+  \node[left] at (0,2.15){\texttt{ESTABLISHED}};
+  \node[right] at (7,2.75){\texttt{ESTABLISHED}};
+\end{tikzpicture}
+\end{center}
 
 \begin{conclusion}{四次挥手（Four-Way Wavehand）}{tcp-wavehand}
 TCP 连接的释放需要四次报文交换（因为 TCP 是全双工的，两个方向需分别关闭）。
