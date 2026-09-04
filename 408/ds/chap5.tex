@@ -266,6 +266,25 @@ void Floyd(MGraph G, int D[][MaxV], int path[][MaxV]) {
 \textbf{408 高频考点：}Dijkstra 算法中若存在负权边则失效（已确定最短的顶点可能在后续被更新）。Floyd 允许负权边但要求无负权回路。
 \end{attention}
 
+\begin{conclusion}{Floyd 算法示例（D$^{(k)}$ 矩阵演化）}{floyd-example}
+4 个顶点 $v_0$--$v_3$，边权为：$v_0\to v_1=4$、$v_0\to v_2=11$、$v_1\to v_0=6$、$v_1\to v_2=2$、$v_2\to v_0=3$、$v_2\to v_3=4$、$v_3\to v_1=7$、$v_3\to v_2=5$。D$^{(k)}$ 表示\textbf{只允许经过前 $k$ 个顶点作中转}时的最短路径长度矩阵（初始 D$^{(0)}$ 为直接边）：
+
+\[
+D^{(0)}=\begin{pmatrix}0&4&11&\infty\\6&0&2&\infty\\3&\infty&0&4\\\infty&7&5&0\end{pmatrix}
+\quad\Longrightarrow\quad
+D^{(3)}=\begin{pmatrix}0&4&6&10\\5&0&2&6\\3&7&0&4\\8&7&5&0\end{pmatrix}
+\]
+
+\textbf{关键更新}（逐轮以 $v_k$ 为中转，$D[i][j]=\min(D[i][j],\,D[i][k]+D[k][j])$）：
+\begin{itemize}
+    \item $k=0$（经 $v_0$）：$D[2][1]=\min(\infty,\,3+4)=7$；
+    \item $k=1$（经 $v_1$）：$D[0][2]=\min(11,\,4+2)=6$；$D[3][0]=\min(\infty,\,7+6)=13$；
+    \item $k=2$（经 $v_2$）：$D[0][3]=6+4=10$；$D[1][0]=2+3=5$；$D[1][3]=2+4=6$；$D[3][0]=5+3=8$；
+    \item $k=3$（经 $v_3$）：无更新，收敛到 D$^{(3)}$。
+\end{itemize}
+\textbf{结论：}各顶点对最短路径长度即 D$^{(3)}$；若要还原路径，需同步维护 \texttt{path} 矩阵。Floyd 优于分别运行 $n$ 次 Dijkstra 之处在于它一次算出全部点对，且能处理\textbf{负权边}（但不允许负权回路）。
+\end{conclusion}
+
 \subsection{有向无环图（DAG）与拓扑排序}
 
 \begin{mydef}{拓扑排序}{topo-sort}
