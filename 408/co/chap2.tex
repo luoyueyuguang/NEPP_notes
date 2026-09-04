@@ -283,6 +283,20 @@ N = (-1)^{S} \times (1.M) \times 2^{E-\text{bias}}.
 \]
 \end{formula}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.3cm, y=0.85cm]
+  % 单精度 32 位布局：S(1) | E(8) | M(23)
+  \draw[thick,fill=Burgundy!15] (0,0) rectangle (1,1) node[midway]{S};
+  \draw[thick,fill=Navy!12] (1,0) rectangle (9,1) node[midway]{E（移码）};
+  \draw[thick,fill=Teal!12] (9,0) rectangle (32,1) node[midway]{M（尾数小数部分）};
+  % 位号（下方）
+  \node[align=center] at (0.5,-0.45){31\\1 位};
+  \node[align=center] at (5,-0.45){30--23\\8 位};
+  \node[align=center] at (20.5,-0.45){22--0\\23 位};
+  \node[align=center,black!70] at (16.5,1.7){\textbf{单精度（float）32 位}};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{IEEE 754 特殊值编码}{ieee754-special}
 阶码全 0 或全 1 用于表示特殊值：
 

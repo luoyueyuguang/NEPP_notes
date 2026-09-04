@@ -129,6 +129,23 @@ int Binary_Search(SSTable ST, KeyType key) {
 \textbf{时间复杂度}：$O(\log n)$。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, level distance=1.9cm, level 1/.style={sibling distance=3.4cm}, level 2/.style={sibling distance=2.3cm}, level 3/.style={sibling distance=1.8cm}, font=\scriptsize]
+\node[draw,circle,fill=Teal!30] {6}
+  child { node[draw,circle,fill=Teal!20] {3}
+    child { node[draw,circle,fill=Teal!10] {1}
+      child { node[draw,circle] {2} } }
+    child { node[draw,circle,fill=Teal!10] {4}
+      child { node[draw,circle] {5} } } }
+  child { node[draw,circle,fill=Teal!20] {9}
+    child { node[draw,circle,fill=Teal!10] {7}
+      child { node[draw,circle] {8} } }
+    child { node[draw,circle,fill=Teal!10] {10}
+      child { node[draw,circle] {11} } } };
+\node[align=center,font=\scriptsize,black!70] at (0,-9.0){$n=11$ 的折半查找判定树（圆形=成功结点，颜色越深层次越浅）\\第 $1/2/3/4$ 层各有 $1/2/4/4$ 个结点 $\Rightarrow$ $\mathrm{ASL}_{\text{成功}}=\dfrac{1+2\cdot2+4\cdot3+4\cdot4}{11}=\dfrac{33}{11}=3$};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 高频考点——折半查找的判定树构造：}
 \begin{itemize}
@@ -365,6 +382,55 @@ return RotateLeft(p);
 \end{itemize}
 \end{attention}
 
+\subsection{红黑树（Red-Black Tree）}
+
+\begin{mydef}{红黑树的定义}{rbtree-def}
+红黑树是一棵\textbf{每个结点都带有颜色（红/黑）}的自平衡二叉排序树，满足以下 5 条性质：
+\begin{enumerate}
+    \item 每个结点是红色或黑色；
+    \item 根结点是黑色；
+    \item 每个叶结点（NULL / NIL）是黑色；
+    \item 若一个结点是红色，则它的两个子结点都是黑色（\textbf{不存在两个连续的红色结点}）；
+    \item 从任一结点到其每个叶结点的所有路径，包含\textbf{相同数目}的黑色结点（\textbf{黑高}相等）。
+\end{enumerate}
+\end{mydef}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, level distance=1.9cm, level 1/.style={sibling distance=3.0cm}, level 2/.style={sibling distance=2.4cm}, font=\scriptsize]
+\node[circle,fill=black,text=white] (r) {10}
+  child { node[circle,fill=Burgundy,text=white] {5}
+    child { node[circle,fill=black,text=white] {3} }
+    child { node[circle,fill=black,text=white] {7} } }
+  child { node[circle,fill=Burgundy,text=white] {15}
+    child { node[circle,fill=black,text=white] {12} }
+    child { node[circle,fill=black,text=white] {18} } };
+\node[align=center,font=\scriptsize,black!70] at (6.7,0){\textbf{红黑树实例}\\（$\bullet$黑 \quad $\bullet$红）};
+\end{tikzpicture}
+\end{center}
+
+\begin{formula}{红黑树为什么"近似平衡"}{rbtree-balance}
+由性质 4、5 可推出：红黑树任意结点到叶子的\textbf{最长路径}不超过\textbf{最短路径}的 $2$ 倍，进而树高 $h \leqslant 2\log_2(n+1)$。因此红黑树的查找、插入、删除复杂度均为 $O(\log n)$。它不像 AVL 那样要求 $\left|\text{bf}\right|\leqslant1$ 的\textbf{严格}平衡，而是用"颜色约束"维持一种\textbf{较松但足够好}的平衡——插入/删除时再做\textbf{更少的旋转}。
+\end{formula}
+
+\begin{attention}
+\textbf{插入修复思路（考试识图/判断用）：} 新插入结点先涂\textbf{红}（尽量不破坏性质 5）；若其父为黑则直接完成；若父为红（违反性质 4），按"叔叔结点"颜色分两种情况：
+\begin{itemize}
+    \item \textbf{叔叔为红}：父、叔变黑，祖父变红，把"复检"上移到祖父（可能向上递归调整）；
+    \item \textbf{叔叔为黑 / 无叔叔}：先旋转（LL/RR 单旋或 LR/RL 双旋，与 AVL 类似），再变色。
+\end{itemize}
+每次插入调整的旋转次数 $\leqslant 2$，删除稍复杂但同样为 $O(\log n)$。
+\end{attention}
+
+\begin{attention}
+\textbf{408 高频考点——红黑树：}
+\begin{itemize}
+    \item \textbf{性质判断}：给定一棵树判断是否红黑树——逐条核对 5 条性质，\textbf{性质 4（无连续红）与性质 5（黑高相等）最常挖坑}；
+    \item \textbf{红黑树 vs AVL}：AVL 严格平衡（左右子树高度差 $\leqslant1$）、更"高瘦"、查找更快、但插入删除旋转更多；红黑树近似平衡、更"矮胖"、插入删除旋转更少。二者查找均为 $O(\log n)$，仅常数不同；
+    \item \textbf{复杂度}：红黑树查找/插入/删除均为 $O(\log n)$，最坏树高 $2\log_2(n+1)$；
+    \item \textbf{应用}：C++ STL 的 \texttt{map/set}、Java \texttt{TreeMap} 底层多采用红黑树；查找频繁、插入删除少的场合更偏好 AVL。
+\end{itemize}
+\end{attention}
+
 \subsection{B-树与B+树}
 
 \subsubsection{B-树}
@@ -458,6 +524,26 @@ B+树是 B-树的一种变形，广泛应用于数据库索引。与 B-树的主
     \item 查找时即使中间结点有关键字匹配，也\textbf{必须继续走到叶结点}才能确认——因为 B+树中非叶结点的关键字只是索引项，不一定对应实际存在的记录（被删除的记录可能仍在非叶结点中作为分界值）。
 \end{enumerate}
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 根 / 内部结点（仅索引关键字）
+  \node[draw,rectangle,minimum width=3.2cm,minimum height=0.7cm,fill=Navy!12] (root) at (0,0) {索引：$7\mid13$};
+  % 叶结点（含全部关键字 + 记录指针）
+  \node[draw,rectangle,minimum width=2.3cm,minimum height=0.8cm,fill=Teal!14] (L1) at (-3.0,-1.7) {$1\mid3\mid7$};
+  \node[draw,rectangle,minimum width=2.3cm,minimum height=0.8cm,fill=Teal!14] (L2) at (0,-1.7) {$8\mid9$};
+  \node[draw,rectangle,minimum width=2.3cm,minimum height=0.8cm,fill=Teal!14] (L3) at (3.0,-1.7) {$13\mid15$};
+  % 父子指针
+  \draw[->] (root.south) -- (L1.north);
+  \draw[->] (root.south) -- (L2.north);
+  \draw[->] (root.south) -- (L3.north);
+  % 叶子链表（next 指针）
+  \draw[->,thick] (L1.east) -- (L2.west);
+  \draw[->,thick] (L2.east) -- (L3.west) node[midway,above,font=\scriptsize]{next};
+  % 说明
+  \node[align=center,font=\scriptsize,black!70] at (0,-3.0){内部结点只存\textbf{索引}；全部关键字与记录指针都在\textbf{叶结点}\\叶结点按关键字\textbf{顺序链接}，范围查询直接沿链表扫描};
+\end{tikzpicture}
+\end{center}
 
 \begin{tablebox}{B-树与 B+树的对比（408 常考）}
 \centering

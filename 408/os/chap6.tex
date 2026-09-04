@@ -141,6 +141,49 @@ Cache 结构分析：
 \textbf{安全性算法}：反复寻找一个 Need $\le$ Work 的未完成进程，将其 Allocation 加到 Work 中。若所有进程均能被完成，则系统安全，且找到的进程序列即为\textbf{安全序列}。
 \end{conclusion}
 
+\begin{conclusion}{银行家算法安全性检测（完整示例）}{banker-safe-example}
+5 个进程 P0--P4、3 类资源 A、B、C，当前 Available $=(3,3,2)$。各进程的 Allocation 与 Max 如下：
+
+\begin{tablebox}{Max 与 Allocation}
+\centering
+\small
+\begin{tabular}{|c|ccc|ccc|}
+\hline
+进程 & \multicolumn{3}{c|}{Allocation} & \multicolumn{3}{c|}{Max} \\
+ & A & B & C & A & B & C \\
+\hline
+P0 & 0 & 1 & 0 & 7 & 5 & 3 \\
+P1 & 2 & 0 & 0 & 3 & 2 & 2 \\
+P2 & 3 & 0 & 2 & 9 & 0 & 2 \\
+P3 & 2 & 1 & 1 & 2 & 2 & 2 \\
+P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{Need} $=$ Max $-$ Allocation：P0$(7,4,3)$、P1$(1,2,2)$、P2$(6,0,0)$、P3$(0,1,1)$、P4$(4,3,1)$。
+
+\textbf{安全性检测}（Work 初值 $=$ Available $=(3,3,2)$，每完成一个进程把其 Allocation 加回 Work）：
+
+\begin{tablebox}{安全性检测过程}
+\centering
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+进程 & 判断时 Work & Need & $\leqslant$ Work? & 完成后的 Work \\
+\hline
+P1 & $(3,3,2)$ & $(1,2,2)$ & 是 & $(5,3,2)$ \\
+P3 & $(5,3,2)$ & $(0,1,1)$ & 是 & $(7,4,3)$ \\
+P4 & $(7,4,3)$ & $(4,3,1)$ & 是 & $(7,4,5)$ \\
+P0 & $(7,4,5)$ & $(7,4,3)$ & 是 & $(7,5,5)$ \\
+P2 & $(7,5,5)$ & $(6,0,0)$ & 是 & $(10,5,7)$ \\
+\hline
+\end{tabular}
+\end{tablebox}
+
+\textbf{结论：}所有进程均能依次完成 $\Rightarrow$ 系统处于\textbf{安全状态}，安全序列为 \textbf{P1 $\to$ P3 $\to$ P4 $\to$ P0 $\to$ P2}。\textbf{注意：}安全序列\textbf{不唯一}（如也可先取 P3 再取 P1），只要存在一条即可判定安全；若某些进程的 Need 始终无法满足，则系统\textbf{不安全}，是不安全的充分条件。
+\end{conclusion}
+
 \begin{conclusion}{变体一：多资源类型 + 未指定 Max}{banker-variant1}
 \boxed{\textbf{例3}} 系统有 3 类资源 A、B、C，总量分别为 (8, 6, 5)。当前时刻 $T_0$ 的 Allocation 如下：
 
