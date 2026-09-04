@@ -164,6 +164,26 @@
     \end{enumerate}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.6cm,
+  xlabel={$x$}, ylabel={概率密度},
+  xmin=0, xmax=3.4, ymin=0, ymax=1.05,
+  xtick={0,1,2,3}, ytick={0,0.2,0.4,0.6,0.8,1.0},
+  legend pos=north east, font=\footnotesize,
+  domain=0.0015:3.4, samples=240,
+]
+\addplot[blue,thick] {pow(1+0.4*x,-3.5)};
+\addlegendentry{$F(2,5)$}
+\addplot[red,thick] {10.368*pow(x,1.5)*pow(1+0.5*x,-7.5)};
+\addlegendentry{$F(5,10)$}
+\addplot[green!55!black,thick] {630*pow(x,4)*pow(1+x,-10)};
+\addlegendentry{$F(10,10)$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \subsection{正态总体的样本均值与方差的分布}
 \begin{conclusion}{单个正态总体}{single normal population sample mean distribution}
     \begin{enumerate}
