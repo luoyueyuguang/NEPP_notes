@@ -101,6 +101,22 @@ PSW/FLAGS & 程序状态字/标志寄存器，存放条件码（ZF/OF/CF/SF）\\
 \end{enumerate}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, node distance=0.3cm]
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (f) at (0,0.4) {取指};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (d) at (2.4,0.4) {译码};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (e) at (4.8,0.4) {执行};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (w) at (7.2,0.4) {写回};
+  \draw[->] (f) -- (d);
+  \draw[->] (d) -- (e);
+  \draw[->] (e) -- (w);
+  \node[align=center,font=\scriptsize,black!70] at (0,-0.6){按 PC 所指地址\\取指令到 IR，PC 自增};
+  \node[align=center,font=\scriptsize,black!70] at (2.4,-0.6){译码器分析操作码\\产生控制信号};
+  \node[align=center,font=\scriptsize,black!70] at (4.8,-0.6){按控制信号完成\\数据传送或运算};
+  \node[align=center,font=\scriptsize,black!70] at (7.2,-0.6){结果写回寄存器\\或存储器};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{存储器的层次结构}{memory-hierarchy}
 存储器按速度和容量分为层次结构（见后续章节详述）：
 \[
