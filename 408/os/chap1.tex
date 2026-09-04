@@ -97,6 +97,18 @@
 \textbf{中断 vs 异常（内中断 vs 外中断）的辨析：} 缺页异常是典型的 Fault（故障），处理后通常可重新执行引发异常的指令；系统调用（如 \texttt{int 0x80} 或 \texttt{syscall}）是由程序主动触发的 Trap（陷阱）。除零等同步异常的具体 Fault/Abort 归类依赖体系结构和异常处理约定，不能脱离体系结构一概而论。
 \end{attention}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (a) at (0,0.4){中断请求};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (b) at (2.3,0.4){中断响应};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (c) at (4.6,0.4){保护现场};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (d) at (6.9,0.4){中断服务};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (e) at (9.2,0.4){恢复现场};
+  \draw[->] (a) -- (b); \draw[->] (b) -- (c); \draw[->] (c) -- (d); \draw[->] (d) -- (e);
+  \node[font=\scriptsize,black!70] at (9.2,-0.6){返回被中断的程序};
+\end{tikzpicture}
+\end{center}
+
 \subsection{系统调用}
 
 \begin{mydef}{系统调用}{syscall}

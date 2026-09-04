@@ -23,6 +23,19 @@ DNS（Domain Name System）是互联网的命名系统，将便于记忆的域�
 域名不区分大小写，每级不超过 63 字符，总长不超过 255 字符。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, level distance=1.7cm, level 1/.style={sibling distance=3.0cm}, level 2/.style={sibling distance=2.6cm}]
+\node[draw,rectangle,fill=Navy!12] (root) {$\cdot$（根域）}
+  child { node[draw,rectangle] {com}
+    child { node[draw,rectangle] {example.com} } }
+  child { node[draw,rectangle,fill=Teal!12] {org}
+    child { node[draw,rectangle] {example.org} } }
+  child { node[draw,rectangle] {cn}
+    child { node[draw,rectangle] {edu.cn} } };
+\node[align=center,font=\scriptsize,black!70] at (7.2,0.2){域名层次树状结构\\（右向层次递增，解析从根向下）};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 常考辨析：} 域 vs 区（Zone）。区是域名空间中一个服务器的管辖范围；一个域可能包含多个区，但一个区只属于一个域。区的概念用于 DNS 服务器的实际管理和区域传送。
 \end{attention}

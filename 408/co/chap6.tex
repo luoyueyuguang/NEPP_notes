@@ -44,6 +44,17 @@
 \end{enumerate}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rectangle,fill=SoftGray,minimum width=1.6cm,minimum height=1.2cm] (cpu) at (0,0){CPU};
+  \draw[Navy!70,thick,->] (0.8,0.55) -- (8,0.55) node[midway,above]{地址总线（单向：CPU$\to$主存/I/O）};
+  \draw[Teal!70,thick,<->] (0.8,0) -- (8,0) node[midway,above]{数据总线（双向）};
+  \draw[Burgundy!70,thick] (0.8,-0.55) -- (8,-0.55) node[midway,above]{控制总线（各线方向固定但不统一）};
+  \draw[Burgundy!70,thick] (8,0.55) -- (8,-0.55);
+  \node[draw,rectangle,fill=SoftGray,minimum width=1.5cm,minimum height=1.2cm] at (8.8,0){主存 / I/O 接口};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 常考辨析：}
 \begin{itemize}
