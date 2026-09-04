@@ -185,6 +185,25 @@ int Binary_Search(SSTable ST, KeyType key) {
 \]
 \end{formula}
 
+\begin{conclusion}{顺序 / 折半 / 分块查找对比}{search-compare}
+\begin{tablebox}{三种查找方法对比}
+\centering
+\small
+\begin{tabularx}{\linewidth}{|l|X|X|X|}
+\hline
+ & \textbf{顺序查找} & \textbf{折半查找} & \textbf{分块查找} \\
+\hline
+\textbf{前提} & 任意表 & 有序 + 顺序存储 & 块间有序、块内无序 \\
+\textbf{ASL$_{\text{成功}}$} & $\dfrac{n+1}{2}$ & $\approx\log_2(n+1)-1$ & $\approx\log_2\!\big(\tfrac{n}{s}+1\big)+\tfrac{s}{2}$ \\
+\textbf{查找过程} & 逐项比较 & 折半缩小区间 & 索引表定块，块内顺序找 \\
+\textbf{复杂度} & $O(n)$ & $O(\log n)$ & $O(\sqrt n)$（取 $s=\sqrt n$ 时） \\
+\textbf{适用} & 无序表、小表、链表 & 有序静态数组 & 索引顺序文件 \\
+\hline
+\end{tabularx}
+\end{tablebox}
+\textbf{记忆：}顺序 $O(n)$ 最慢；折半 $O(\log n)$ 最快但要求有序且顺序存储；分块折中——索引表 + 块内顺序，适合既需较快查找又需插入删除的场合。
+\end{conclusion}
+
 \subsection{二叉排序树（BST）}
 
 \subsubsection{BST 的定义与查找}
