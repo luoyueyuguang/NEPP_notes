@@ -624,6 +624,33 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
 \textbf{增大归并路数 $k$} 可减少归并趟数（趟数 $=\lceil\log_k m\rceil$，$m$ 为初始段数），但增大 $k$ 会使每趟内部归并时选最小元的代价变大——需用败者树优化。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 初始归并段
+  \node[draw,rectangle,fill=Amber!25,minimum width=1.1cm,minimum height=0.6cm] (r1) at (0,0){$R_1$};
+  \node[draw,rectangle,fill=Amber!25,minimum width=1.1cm,minimum height=0.6cm] (r2) at (2,0){$R_2$};
+  \node[draw,rectangle,fill=Amber!25,minimum width=1.1cm,minimum height=0.6cm] (r3) at (4,0){$R_3$};
+  \node[draw,rectangle,fill=Amber!25,minimum width=1.1cm,minimum height=0.6cm] (r4) at (6,0){$R_4$};
+  % 第一趟
+  \node[draw,rectangle,fill=Teal!25,minimum width=1.4cm,minimum height=0.6cm] (m1) at (1,-2){$R_{12}$};
+  \node[draw,rectangle,fill=Teal!25,minimum width=1.4cm,minimum height=0.6cm] (m2) at (5,-2){$R_{34}$};
+  % 第二趟
+  \node[draw,rectangle,fill=Navy!18,minimum width=1.8cm,minimum height=0.6cm] (fin) at (3,-4){$R_{1234}$};
+  % 箭头
+  \draw[->] (r1.south) -- (m1.north);
+  \draw[->] (r2.south) -- (m1.north);
+  \draw[->] (r3.south) -- (m2.north);
+  \draw[->] (r4.south) -- (m2.north);
+  \draw[->] (m1.south) -- (fin.north);
+  \draw[->] (m2.south) -- (fin.north);
+  % 阶段标注
+  \node[font=\scriptsize,black!70] at (3,1.2){初始归并段（内部排序生成）};
+  \node[font=\scriptsize,black!70] at (3,-1.1){第 1 趟：二路归并};
+  \node[font=\scriptsize,black!70] at (3,-3.0){第 2 趟：二路归并};
+  \node[font=\scriptsize,black!70] at (3,-4.6){有序文件（趟数 $\lceil\log_2 4\rceil=2$）};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{败者树（Loser Tree）}{loser-tree}
 败者树是一棵完全二叉树，用于在 $k$ 路归并中高效选出 $k$ 个归并段当前首记录中的最小值。
 
