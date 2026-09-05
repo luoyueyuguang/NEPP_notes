@@ -461,6 +461,31 @@ HTTP 本身是无状态协议，Cookie 是用来\textbf{在无状态协议上保
 \textbf{Cookie 的属性：} \texttt{Expires}（过期时间），\texttt{Domain}（作用域），\texttt{Path}（路径），\texttt{Secure}（仅 HTTPS），\texttt{HttpOnly}（不可被 JavaScript 访问）。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.0,
+  hdrow/.style={draw,rounded corners=1.2pt,minimum width=6.3cm,minimum height=0.66cm,align=center},
+  row/.style={draw,rounded corners=1.2pt,minimum width=6.3cm,minimum height=0.62cm,align=center}]
+  % 左列：请求报文
+  \node[hdrow,fill=SoftTeal!32,font=\small\bfseries] (rt) at (-3.3,4.5){请求报文 (Request)};
+  \node[row,fill=SoftTeal!22] (r1) at (-3.3,3.65){请求行：\texttt{GET /index.html HTTP/1.1}};
+  \node[row,fill=SoftGray!22] (r2) at (-3.3,2.62){首部行：\texttt{Host: www.example.com}\\ \texttt{Cookie: 1678}};
+  \node[row,fill=white!95] (r3) at (-3.3,1.75){空行};
+  \node[row,fill=SoftAmber!22] (r4) at (-3.3,0.88){实体主体（通常为空）};
+  % 右列：响应报文
+  \node[hdrow,fill=SoftTeal!32,font=\small\bfseries] (st) at (3.3,4.5){响应报文 (Response)};
+  \node[row,fill=SoftTeal!22] (s1) at (3.3,3.65){状态行：\texttt{HTTP/1.1 200 OK}};
+  \node[row,fill=SoftGray!22] (s2) at (3.3,2.62){首部行：\texttt{Set-Cookie: 1678}\\ \texttt{Content-Type: text/html}};
+  \node[row,fill=white!95] (s3) at (3.3,1.75){空行};
+  \node[row,fill=SoftAmber!22] (s4) at (3.3,0.88){实体主体：HTML/JSON 网页内容};
+  % 结构对齐箭头（对应关系）
+  \draw[<->,gray,thick] (r1.east) -- (s1.west);
+  \draw[<->,gray,thick] (r2.east) -- (s2.west);
+  \draw[<->,gray,thick] (r4.east) -- (s4.west);
+  % 底部说明
+  \node[align=center,font=\scriptsize,black!70] at (0,-0.4){请求与响应均形如「起始行 + 首部行 + 空行 + 实体主体」；\\客户端在请求中用 \texttt{Cookie} 首部携带会话标识，服务器在响应中用 \texttt{Set-Cookie} 首部下发会话标识。};
+\end{tikzpicture}
+\end{center}
+
 \subsection{动态主机配置协议 DHCP}
 
 \begin{mydef}{DHCP 协议}{dhcp-def}

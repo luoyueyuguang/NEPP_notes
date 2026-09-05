@@ -254,16 +254,28 @@ I/O 软件采用分层设计，每层对上层屏蔽下层细节，是 OS 分层
 \textbf{核心思想：}用磁盘（共享设备）作为中转站，截获对独占设备的输出请求，先写入磁盘上的\textbf{SPOOLing 文件}，再由 SPOOLing 守护进程在后台逐个传输到物理设备。用户进程以为自己在独占设备，实际只是写入了磁盘。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=2.2cm, every node/.style={font=\small}]
-\node[draw, fill=yellow!20, minimum width=2.2cm] (P1) {进程 P1};
-\node[draw, fill=yellow!20, minimum width=2.2cm, below of=P1, yshift=0.5cm] (P2) {进程 P2};
-\node[draw, fill=gray!20, minimum width=3.1cm, right of=P1, xshift=1cm] (DISK) {磁盘（SPOOLing 井）};
-\node[draw, fill=green!20, minimum width=3.2cm, right of=DISK, xshift=2.2cm] (DAEMON) {SPOOLing 守护进程};
-\node[draw, fill=red!20, minimum width=2.2cm, right of=DAEMON, xshift=0.8cm] (DEV) {打印机};
-\draw[->] (P1) -- node[above] {输出到井} (DISK);
-\draw[->] (P2) -- node[below] {输出到井} (DISK);
-\draw[->] (DISK) -- node[above] {逐个取出} (DAEMON);
-\draw[->] (DAEMON) -- node[above] {实际打印} (DEV);
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 磁盘井区（输入井 + 输出井）
+\draw[dashed, rounded corners=2pt, thick, draw=RuleGray] (4.95,-2.5) rectangle (7.95,2.5);
+\node[font=\scriptsize, text=TealDark] at (6.45,2.15) {磁盘（SPOOLing 井）};
+\node[draw, rectangle, minimum width=1.8cm, minimum height=0.7cm, fill=SoftBlue] (inw) at (6.45,1.35) {输入井};
+\node[draw, rectangle, minimum width=1.8cm, minimum height=0.7cm, fill=SoftAmber] (outw) at (6.45,-1.35) {输出井};
+% 设备（左）
+\node[draw, rectangle, minimum width=1.8cm, minimum height=0.7cm, fill=SoftGray] (indev) at (0,1.35) {输入设备};
+\node[draw, rectangle, minimum width=1.8cm, minimum height=0.7cm, fill=SoftGray] (outdev) at (0,-1.35) {输出设备};
+% 守护进程（中）
+\node[draw, rectangle, minimum width=2.0cm, minimum height=0.7cm, fill=SoftTeal] (spi) at (3.2,1.35) {输入进程 SAPi};
+\node[draw, rectangle, minimum width=2.0cm, minimum height=0.7cm, fill=SoftTeal] (spo) at (3.2,-1.35) {输出进程 SAPo};
+% 用户进程（右）
+\node[draw, rectangle, minimum width=2.3cm, minimum height=2.0cm, fill=SoftBlue!45, align=center] (proc) at (10.3,0) {用户进程\\P1…Pn};
+% 输入路径（左→右）
+\draw[->] (indev) -- node[above]{预输入} (spi);
+\draw[->] (spi) -- node[above]{写入} (inw);
+\draw[->] (inw.east) -- node[above, pos=0.45]{进程读} (proc.west);
+% 输出路径（右→左）
+\draw[->] (proc.west) -- node[below, pos=0.45]{进程写} (outw.east);
+\draw[->] (outw) -- node[below]{取出} (spo);
+\draw[->] (spo) -- node[below]{缓输出} (outdev);
 \end{tikzpicture}
 \end{center}
 \end{mydef}
@@ -386,16 +398,24 @@ T_{\text{single}} = T + M + C +(N-1)[\max(C,T)+M]
 \textbf{双缓冲下的数据处理时序：}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth]
-\draw[->] (0,0) -- (12,0) node[right] {$t$};
-% Buffer0: device fills, CPU processes
-\draw[fill=blue!20] (0,0.5) rectangle (2,1.2) node[midway] {\small $T$ (B0: 读块1)};
-\draw[fill=green!20] (2,0.5) rectangle (2.8,1.2) node[midway] {\tiny $M$};
-\draw[fill=yellow!20] (2.8,0.5) rectangle (5.2,1.2) node[midway] {\small $C$ (B0: 处理块1)};
-% Buffer1: device fills in parallel
-\draw[fill=blue!20] (2,-0.5) rectangle (4,0.2) node[midway] {\small $T$ (B1: 读块2)};
-\draw[fill=green!20] (4,-0.5) rectangle (4.8,0.2) node[midway] {\tiny $M$};
-\draw[fill=yellow!20] (5.2,-0.5) rectangle (7.6,0.2) node[midway] {\small $C$ (B1: 处理块2)};
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1.0cm]
+% 时间轴
+\draw[->] (0,0) -- (10.5,0) node[right] {$t$};
+\foreach \x in {0,2.5,5.0,7.5} \draw ({\x},-0.12) -- ({\x},0.12) node[below=2pt]{\scriptsize \x};
+% Buffer0 条带
+\node[text=TealDark, align=left] at (-1.6,2.2) {Buffer0};
+\draw[fill=SoftBlue, draw=Navy] (0,1.7) rectangle (2.5,2.7) node[midway]{$T$};
+\draw[fill=SoftGray, draw=RuleGray] (2.5,1.7) rectangle (3.5,2.7) node[midway]{$M$};
+\draw[fill=SoftAmber, draw=Amber] (3.5,1.7) rectangle (6.0,2.7) node[midway]{$C$};
+% Buffer1 条带（与 B0 相位错开：设备填 B1 时 CPU 在处理 B0）
+\node[text=TealDark, align=left] at (-1.6,0.4) {Buffer1};
+\draw[fill=SoftBlue, draw=Navy] (2.5,-0.1) rectangle (5.0,0.9) node[midway]{$T$};
+\draw[fill=SoftGray, draw=RuleGray] (5.0,-0.1) rectangle (6.0,0.9) node[midway]{$M$};
+\draw[fill=SoftAmber, draw=Amber] (6.0,-0.1) rectangle (8.5,0.9) node[midway]{$C$};
+% 标注：B0 的处理与 B1 的输入并行
+\draw[<->, MutedText, thick] (3.5,2.95) -- (5.0,2.95);
+\node[text=MutedText] at (4.25,3.3) {B0 处理 与 B1 输入 并行};
+\node[text=Amber, font=\scriptsize] at (4.75,-1.1) {$T$：设备填入；$M$：搬移；$C$：CPU 处理};
 \end{tikzpicture}
 \end{center}
 
@@ -437,22 +457,23 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 \textbf{结构：}在双缓冲的基础上，将多个缓冲区组织成一个环形队列。每个缓冲区有一个状态标记：空（Empty）、满（Full）、正在使用（In-Use）。
 
 \begin{center}
-\begin{tikzpicture}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 环形缓冲区
 \foreach \i in {0,...,7} {
-    \node[draw, circle, minimum size=1cm] (B\i) at ({360/8*\i}:2cm) {Buf\i};
+  \node[draw, circle, minimum size=0.85cm, fill=SoftBlue] (B\i) at ({45*\i+22.5}:2.5cm) {\scriptsize B\i};
 }
-\draw[->] (B0) -- (B1);
-\draw[->] (B1) -- (B2);
-\draw[->] (B2) -- (B3);
-\draw[->] (B3) -- (B4);
-\draw[->] (B4) -- (B5);
-\draw[->] (B5) -- (B6);
-\draw[->] (B6) -- (B7);
-\draw[->] (B7) -- (B0);
-\node[draw, fill=yellow!20, below=1.5cm] at (B3) {in: 设备写入指针};
-\node[draw, fill=green!20, below=1.5cm] at (B7) {out: CPU读出指针};
-\draw[->, thick, blue] (B3) -- node[right] {\small \texttt{in}} ++(0,-1);
-\draw[->, thick, red] (B7) -- node[right] {\small \texttt{out}} ++(0,-1);
+% 环形链（顺时针方向）
+\foreach \i in {0,...,7} {
+  \pgfmathtruncatemacro{\j}{mod(\i+1,8)}
+  \draw[->] (B\i) -- (B\j);
+}
+% 中心指针
+\node[circle, fill=RuleGray, minimum size=0.32cm, inner sep=0pt] at (0,0) {};
+\draw[->, very thick, Amber] (0,0) -- (B2);
+\node[text=Amber, font=\scriptsize] at (-1.1,3.0) {NextIn};
+\draw[->, very thick, TealDark] (0,0) -- (B6);
+\node[text=TealDark, font=\scriptsize] at (1.2,-3.0) {NextOut};
+\node[font=\scriptsize, MutedText] at (0,-3.6) {NextIn：设备下一个填入的空缓冲区；NextOut：CPU 下一个取出的满缓冲区};
 \end{tikzpicture}
 \end{center}
 

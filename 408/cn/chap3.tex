@@ -133,21 +133,23 @@ CSMA/CD（Carrier Sense Multiple Access with Collision Detection）是以太网�
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.0]
-  % 横轴=距离（A 左 B 右），纵轴向下=时间
-  \draw[->] (-0.4,0) -- (7.6,0) node[right]{距离};
-  \node[left] at (0,0.3){A};
-  \node[right] at (7,0.3){B};
-  % A 的帧：t=0 从 A 发出，t=tau 到 B
-  \draw[->,Teal,thick] (0,0.6) -- (7,2.4) node[midway,above,sloped]{A 的数据帧};
-  % B 的帧：t≈tau 从 B 发出，t≈2tau 到 A
-  \draw[->,Burgundy,thick] (7,2.2) -- (0,4.0) node[midway,below,sloped]{B 的数据帧};
-  % 冲突点（两帧在时空上相交：联立 y=0.6+0.257x 与 y=4.0-0.257x，x≈6.61，y≈2.30）
-  \fill[black] (6.61,2.30) circle (2pt) node[above right,black]{冲突};
-  % 2tau 检测窗口
-  \draw[dashed] (0,0.6) -- (7.6,0.6);
-  \draw[dashed] (0,4.0) -- (7.6,4.0);
-  \draw[<->,red] (-0.35,0.6) -- (-0.35,4.0) node[midway,left]{约 $2\tau$};
-  \node[align=center,font=\scriptsize] at (3.8,4.9){A 发出后约 $2\tau$ 内未检测到冲突，即认定本次发送成功（争用期）};
+  % 横轴=距离（A 左、B 右）；纵轴=时间（向上增大，表示时间先后）
+  \draw[->,thick] (-0.7,0) -- (7.9,0) node[right]{距离};
+  \node[left,font=\bfseries] at (0,0.28){$\mathrm{A}$};
+  \node[right,font=\bfseries] at (7,0.28){$\mathrm{B}$};
+  % A 的帧：t=0 从 A 发出，沿链路传到 B（t=τ 到达）
+  \draw[->,Teal,very thick] (0,0.6) -- (7,2.4) node[pos=0.40,above,sloped]{A 的帧（$t=0$ 发出）};
+  % B 的帧：t≈τ 从 B 发出（尚未感知 A 的载波），沿链路传向 A（t≈2τ 到 A）
+  \draw[->,Burgundy,very thick] (7,2.2) -- (0,4.0) node[pos=0.42,below,sloped]{B 的帧（$t\approx\tau$ 发出）};
+  % 冲突点：两帧在时空上相交（联立 y=0.6+0.257x 与 y=4.0-0.257x ⇒ x≈6.61，y≈2.30，位于 B 附近）
+  \fill[Amber,draw=black!80] (6.61,2.30) circle (2.8pt);
+  \node[above right,font=\scriptsize,align=left,black] at (6.61,2.30){冲突点\\（两帧相遇）};
+  % 争用期（2τ）窗口：A 在 0.6（t=0）发出，到 4.0（t≈2τ）感知到冲突
+  \draw[dashed,gray!70] (0,0.6) -- (2.2,0.6);
+  \draw[dashed,gray!70] (0,4.0) -- (2.8,4.0);
+  \draw[<->,red] (-0.45,0.6) -- (-0.45,4.0);
+  \node[left,font=\scriptsize,red,align=center] at (-0.72,2.3){争用期\\ $2\tau$};
+  \node[align=center,font=\scriptsize,black!70] at (3.6,4.85){A 在 $t=0$ 发送，最坏情况下 $t\approx\tau$ 时 B 才开始，冲突发生在 B 附近；\\A 收到返回的冲突信号（沿同一链路回传）的时间 $\leqslant 2\tau$，故 $2\tau$ 内未检测到冲突即认定发送成功。};
 \end{tikzpicture}
 \end{center}
 

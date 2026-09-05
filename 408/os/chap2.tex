@@ -24,18 +24,18 @@
 
 \begin{conclusion}{三状态模型 + 五状态模型}{process-states}
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=2.5cm, auto]
-\node[draw, circle, fill=green!15] (N) {新建};
-\node[draw, circle, right of=N, fill=yellow!15] (R) {就绪};
-\node[draw, circle, right of=R, fill=blue!15] (E) {运行};
-\node[draw, circle, below of=R, fill=gray!15] (B) {阻塞};
-\node[draw, circle, right of=E] (T) {终止};
-\draw[->] (N) -- node[above] {创建} (R);
-\draw[->] (R) -- node[pos=0.35, above] {调度} (E);
-\draw[->] (E) -- node[right] {等待事件} (B);
-\draw[->] (B) -- node[below] {事件发生} (R);
-\draw[->] (E) -- node[pos=0.35, below] {时间片完} (R);
-\draw[->] (E) -- node[above] {结束} (T);
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw, circle, minimum size=1.1cm, fill=SoftBlue] (N) at (-1.4,2.6) {新建};
+\node[draw, circle, minimum size=1.1cm, fill=SoftTeal] (R) at (1.6,2.6) {就绪};
+\node[draw, circle, minimum size=1.1cm, fill=SoftAmber] (E) at (4.6,2.6) {运行};
+\node[draw, circle, minimum size=1.1cm, fill=SoftGray] (T) at (7.6,2.6) {终止};
+\node[draw, circle, minimum size=1.1cm, fill=SoftAmber!60] (B) at (4.6,0.1) {阻塞};
+\draw[->] (N) -- node[midway, above]{创建} (R);
+\draw[->] (R) -- node[midway, above]{调度} (E);
+\draw[->] (E) -- node[midway, above]{结束} (T);
+\draw[->] (E.south) -- node[right]{等待事件} (B);
+\draw[->] (B.west) to[out=155, in=-60] node[pos=0.4, below, yshift=-3pt]{事件发生} (R.south);
+\draw[->] (E.north) to[out=100, in=80] node[midway, above]{时间片完} (R.north);
 \end{tikzpicture}
 \end{center}
 

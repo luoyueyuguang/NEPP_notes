@@ -259,40 +259,85 @@ int Partition(int A[], int low, int high) {
 }
 \end{lstlisting}
 
-\textbf{划分过程演示（pivot = A[0] = 49）：}
+\textbf{划分过程演示（挖坑法，pivot = A[low] = 49）：}
 \begin{center}
-\small\ttfamily
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
-\hline
-\multicolumn{10}{|c|}{初始：49, 38, 65, 97, 76, 13, 27, 49'} \\
-\hline
-右找小 & 49 & 38 & 65 & 97 & 76 & 13 & 27 & 49' \\
-low$\uparrow$ &  &  &  &  &  &  & $\leftarrow$high &  \\[2pt]
-\hline
-交换 & 27 & 38 & 65 & 97 & 76 & 13 & \colorbox{yellow}{27} & 49' \\
- & $\uparrow$low &  &  &  &  &  & $\uparrow$high &  \\[2pt]
-\hline
-左找大 & 27 & 38 & 65 & 97 & 76 & 13 & & 49' \\
- &  &  & $\rightarrow$low &  &  &  & $\uparrow$high &  \\[2pt]
-\hline
-交换 & 27 & 38 & \colorbox{yellow}{65} & 97 & 76 & 13 & 65 & 49' \\
- &  &  & $\uparrow$low &  &  & $\uparrow$high &  &  \\[2pt]
-\hline
-右找小 & 27 & 38 & 65 & 97 & 76 & 13 & & 49' \\
- &  &  & $\uparrow$low &  &  & $\leftarrow$high &  &  \\[2pt]
-\hline
-交换 & 27 & 38 & 13 & 97 & 76 & \colorbox{yellow}{13} & 65 & 49' \\
- &  &  &  & $\rightarrow$low &  & $\uparrow$high &  &  \\[2pt]
-\hline
-左找大 & 27 & 38 & 13 & 97 & 76 & 13 & 65 & 49' \\
- &  &  &  & $\uparrow$low &  & $\uparrow$high &  &  \\
- &  &  &  &  & $\leftarrow$high &  &  &  \\[2pt]
-\hline
-相遇 & 27 & 38 & 13 & \colorbox{yellow}{49} & 76 & 97 & 65 & 49' \\
-\hline
-\end{tabular}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 挖坑法一趟划分：6 行数组状态（pivot=49）。
+  % 行0（初始）8 格
+  \foreach \i/\v in {0/49,1/38,2/65,3/97,4/76,5/13,6/27,7/49'}{
+    \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,2.75) {$\v$};
+  }
+  % 行1：0=27(移入), 1=38,2=65,3=97,4=76,5=13,6=27(坑),7=49'
+  \foreach \i/\v in {0/27,1/38,2/65,3/97,4/76,5/13,6/27,7/49'}{
+    \ifnum\i=0\relax
+      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=Amber!55] at (\i*0.7-2.5,1.6) {$\v$};
+    \else
+      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,1.6) {$\v$};
+    \fi
+  }
+  % 行2：0=27,1=38,2=65,3=97,4=76,5=13,6=65(移入),7=49'
+  \foreach \i/\v in {0/27,1/38,2/65,3/97,4/76,5/13,6/65,7/49'}{
+    \ifnum\i=6\relax
+      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=Amber!55] at (\i*0.7-2.5,0.45) {$\v$};
+    \else
+      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,0.45) {$\v$};
+    \fi
+  }
+  % 行3：0=27,1=38,2=13(移入),3=97,4=76,5=13,6=65,7=49'
+  \foreach \i/\v in {0/27,1/38,2/13,3/97,4/76,5/13,6/65,7/49'}{
+    \ifnum\i=2\relax
+      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=Amber!55] at (\i*0.7-2.5,-0.7) {$\v$};
+    \else
+      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,-0.7) {$\v$};
+    \fi
+  }
+  % 行4：0=27,1=38,2=13,3=97,4=76,5=97(移入),6=65,7=49'
+  \foreach \i/\v in {0/27,1/38,2/13,3/97,4/76,5/97,6/65,7/49'}{
+    \ifnum\i=5\relax
+      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=Amber!55] at (\i*0.7-2.5,-1.85) {$\v$};
+    \else
+      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,-1.85) {$\v$};
+    \fi
+  }
+  % 行5（落位）：0=27,1=38,2=13,3=49(落位),4=76,5=97,6=65,7=49'
+  \foreach \i/\v in {0/27,1/38,2/13,3/49,4/76,5/97,6/65,7/49'}{
+    \ifnum\i=3\relax
+      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=Amber!80] at (\i*0.7-2.5,-3.0) {$\v$};
+    \else
+      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,-3.0) {$\v$};
+    \fi
+  }
+  % 下标
+  \foreach \i in {0,1,2,3,4,5,6,7}{
+    \node[font=\scriptsize,black!60] at (\i*0.7-2.5,3.15) {\i};
+  }
+  \node[font=\scriptsize,black!60] at (-2.9,3.15) {\texttt{idx}};
+  % 指针：行0 low0 high7
+  \draw[Teal,->] (0*0.7-2.5,2.45) -- (0*0.7-2.5,2.65); \node[Teal,font=\scriptsize] at (0*0.7-2.5,2.2) {low};
+  \draw[red,->] (7*0.7-2.5,2.45) -- (7*0.7-2.5,2.65); \node[red,font=\scriptsize] at (7*0.7-2.5,2.2) {high};
+  % 行1：low0 high6
+  \draw[Teal,->] (0*0.7-2.5,1.3) -- (0*0.7-2.5,1.5); \node[Teal,font=\scriptsize] at (0*0.7-2.5,1.05) {low};
+  \draw[red,->] (6*0.7-2.5,1.3) -- (6*0.7-2.5,1.5); \node[red,font=\scriptsize] at (6*0.7-2.5,1.05) {high};
+  % 行2：low2 high6
+  \draw[Teal,->] (2*0.7-2.5,0.15) -- (2*0.7-2.5,0.35); \node[Teal,font=\scriptsize] at (2*0.7-2.5,-0.1) {low};
+  \draw[red,->] (6*0.7-2.5,0.15) -- (6*0.7-2.5,0.35); \node[red,font=\scriptsize] at (6*0.7-2.5,-0.1) {high};
+  % 行3：low2 high5
+  \draw[Teal,->] (2*0.7-2.5,-1.0) -- (2*0.7-2.5,-0.8); \node[Teal,font=\scriptsize] at (2*0.7-2.5,-1.25) {low};
+  \draw[red,->] (5*0.7-2.5,-1.0) -- (5*0.7-2.5,-0.8); \node[red,font=\scriptsize] at (5*0.7-2.5,-1.25) {high};
+  % 行4：low3 high5
+  \draw[Teal,->] (3*0.7-2.5,-2.15) -- (3*0.7-2.5,-1.95); \node[Teal,font=\scriptsize] at (3*0.7-2.5,-2.4) {low};
+  \draw[red,->] (5*0.7-2.5,-2.15) -- (5*0.7-2.5,-1.95); \node[red,font=\scriptsize] at (5*0.7-2.5,-2.4) {high};
+  % 行5：low=high=3（相遇）
+  \draw[Teal,->] (3*0.7-2.5,-3.3) -- (3*0.7-2.5,-3.1); \node[Teal,font=\scriptsize] at (3*0.7-2.5,-3.55) {low=high};
+  % 右侧步骤说明（与各行 y 对齐）
+  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,2.75) {\textbf{初始}：pivot$=$49，low$=$0，high$=$7};
+  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,1.6) {\textbf{右找小}：A[high]$=27<49$，填入左坑};
+  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,0.45) {\textbf{左找大}：A[low]$=65>49$，填入右坑};
+  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,-0.7) {\textbf{右找小}：A[high]$=13<49$，填入左坑};
+  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,-1.85) {\textbf{左找大}：A[low]$=97>49$，填入右坑};
+  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,-3.0) {\textbf{相遇}：low$=$high$=$3，枢轴 49 落位};
+\end{tikzpicture}
 \end{center}
-一趟划分结果：$\{27,38,13\}\;49\;\{76,97,65,49'\}$，枢轴 49 落位。注意 $49$ 和 $49'$ 的相对次序可能改变——\textbf{快排不稳定}。
 \end{formula}
 
 \begin{conclusion}{快速排序——完整代码}{quick-sort-code}

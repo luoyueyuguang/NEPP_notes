@@ -200,19 +200,20 @@ P2 & $(7,5,5)$ & $(6,0,0)$ & 是 & $(10,5,7)$ \\
 \end{conclusion}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=0.72cm, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=4.0cm, minimum height=0.55cm] (a) {(1) Work = Available；Finish[i] = false};
-\node[draw, rectangle, fill=SoftBlue, minimum width=4.0cm, minimum height=0.55cm, below of=a] (b) {(2) 找 i：Finish[i]=false 且 Need[i] $\le$ Work};
-\node[draw, rectangle, fill=SoftTeal, minimum width=4.0cm, minimum height=0.55cm, below of=b] (c) {(3) Work += Allocation[i]；Finish[i] = true};
-\node[draw, rectangle, fill=SoftGray, minimum width=4.0cm, minimum height=0.55cm, below of=c] (d) {(4) 全部 Finish[i] = true？};
-\node[draw, rectangle, fill=Blue!12, minimum width=4.0cm, minimum height=0.55cm, below of=d] (e) {(5) 安全：输出安全序列};
-\node[draw, rectangle, fill=Red!12, minimum width=4.0cm, minimum height=0.55cm, right of=b, node distance=4.8cm] (f) {不安全：恐怕死锁};
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=4.8cm, minimum height=0.6cm] (a) at (0,0) {(1) Work = Available；Finish[i] = false};
+\node[draw, rectangle, fill=SoftBlue, minimum width=4.8cm, minimum height=0.6cm] (b) at (0,-1.9) {(2) 找 i：Finish[i]=false 且 Need[i] $\le$ Work};
+\node[draw, rectangle, fill=SoftTeal, minimum width=4.8cm, minimum height=0.6cm] (c) at (0,-3.8) {(3) Work += Allocation[i]；Finish[i] = true};
+\node[draw, rectangle, fill=SoftGray, minimum width=4.8cm, minimum height=0.6cm] (d) at (0,-5.7) {(4) 全部 Finish[i] = true？};
+\node[draw, rectangle, fill=SoftTeal, minimum width=4.8cm, minimum height=0.6cm] (e) at (0,-7.6) {(5) 安全：输出安全序列};
+\node[draw, rectangle, fill=SoftAmber, minimum width=3.4cm, minimum height=0.6cm] (f) at (5.9,-1.9) {不安全：恐怕死锁};
 \draw[->] (a) -- (b);
-\draw[->] (b) -- node[left,font=\scriptsize]{找到} (c);
+\draw[->] (b) -- node[left]{找到} (c);
 \draw[->] (c) -- (d);
-\draw[->] (d) -- node[left,font=\scriptsize]{是} (e);
-\draw[->] (b.east) -- node[above,font=\scriptsize]{找不到} (f);
-\node[font=\scriptsize, black!60] at (0,-3.6) {(2)(3) 循环执行：每轮让一个可完成进程执行完并释放资源};
+\draw[->] (d) -- node[left]{是} (e);
+\draw[->] (b.east) -- node[above]{找不到} (f.west);
+\draw[->] (d.west) to[out=180,in=0] node[left]{否} (b.west);
+\node[font=\scriptsize, MutedText] at (0,-8.9) {(2)(3) 循环执行：每轮让一个可完成进程执行完并释放资源};
 \end{tikzpicture}
 \end{center}
 
@@ -270,25 +271,27 @@ Request$(0,1,0)\leqslant$Available$(2,2,1)$ 只说明当前有足够资源，这
 \boxed{\textbf{例4}} 某系统有资源 R1（3 个实例）、R2（2 个实例）、R3（2 个实例）。当前资源分配图如下：
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=2cm]
-% 进程节点（圆形）
-\node[draw, circle, fill=blue!10] (P1) at (0,0) {P1};
-\node[draw, circle, fill=blue!10] (P2) at (4,0) {P2};
-\node[draw, circle, fill=blue!10] (P3) at (2,-2.5) {P3};
-% 资源节点（矩形）
-\node[draw, rectangle, fill=green!10] (R1) at (0,-4.5) {R1(3)};
-\node[draw, rectangle, fill=green!10] (R2) at (4,-4.5) {R2(2)};
-\node[draw, rectangle, fill=green!10] (R3) at (2,-6) {R3(2)};
-% 分配边 P←R
-\draw[->] (R1) -- (P1) node[pos=0.15, left] {分配1};
-\draw[->] (R1) -- (P2) node[pos=0.8, above] {分配1};
-\draw[->] (R2) -- (P1) node[pos=0.8, above] {分配1};
-\draw[->] (R3) -- (P3) node[pos=0.55, left] {分配1};
-% 请求边 P$\to$R
-\draw[->] (P1) -- (R3) node[pos=0.85, below] {请求1};
-\draw[->] (P2) -- (R2) node[pos=0.15, right] {请求1};
-\draw[->] (P2) -- (R3) node[pos=0.85, right] {请求1};
-\draw[->] (P3) -- (R1) node[pos=0.3, below] {请求1};
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 资源（上，矩形）
+\node[draw, rectangle, fill=SoftGray, minimum width=1.4cm, minimum height=0.7cm] (R1) at (0,0) {R1(3)};
+\node[draw, rectangle, fill=SoftGray, minimum width=1.4cm, minimum height=0.7cm] (R2) at (3.8,0) {R2(2)};
+\node[draw, rectangle, fill=SoftGray, minimum width=1.4cm, minimum height=0.7cm] (R3) at (7.6,0) {R3(2)};
+% 进程（下，圆）
+\node[draw, circle, fill=SoftBlue, minimum size=1.0cm] (P1) at (0,-3.8) {P1};
+\node[draw, circle, fill=SoftBlue, minimum size=1.0cm] (P2) at (3.8,-3.8) {P2};
+\node[draw, circle, fill=SoftBlue, minimum size=1.0cm] (P3) at (7.6,-3.8) {P3};
+% 分配边（资源→进程，实线 Navy）
+\draw[->, Navy, thick] (R1) -- node[above, pos=0.3]{分配1} (P1);
+\draw[->, Navy, thick] (R1) -- node[above, pos=0.35]{分配1} (P2);
+\draw[->, Navy, thick] (R2) -- node[above, pos=0.4]{分配1} (P1);
+\draw[->, Navy, thick] (R3) -- node[above, pos=0.3]{分配1} (P3);
+% 请求边（进程→资源，虚线 Amber）
+\draw[->, Amber, dashed, thick] (P1) -- node[below, pos=0.3]{请求1} (R3);
+\draw[->, Amber, dashed, thick] (P2) -- node[below, pos=0.3]{请求1} (R2);
+\draw[->, Amber, dashed, thick] (P2) -- node[below, pos=0.35]{请求1} (R3);
+\draw[->, Amber, dashed, thick] (P3) -- node[below, pos=0.3]{请求1} (R1);
+% 图例
+\node[align=center, font=\scriptsize] at (3.8,-5.2) {\textcolor{Navy}{实线}=分配边；\quad \textcolor{Amber}{虚线}=请求边};
 \end{tikzpicture}
 \end{center}
 

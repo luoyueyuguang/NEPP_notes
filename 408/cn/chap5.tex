@@ -128,6 +128,28 @@ TCP（Transmission Control Protocol）提供\textbf{面向连接的、可靠的�
 \end{itemize}
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.0,
+  hrow/.style={draw,rounded corners=1.2pt,minimum width=3.5cm,minimum height=0.62cm,align=center}]
+  % 表头
+  \node[hrow,fill=SoftBlue,font=\small\bfseries] (th) at (-1.85,4.0){TCP};
+  \node[hrow,fill=SoftTeal,font=\small\bfseries] (uh) at (1.85,4.0){UDP};
+  % 对比行
+  \node[hrow,fill=SoftBlue!18] (t1) at (-1.85,3.2){面向连接};
+  \node[hrow,fill=SoftTeal!18] (u1) at (1.85,3.2){无连接};
+  \node[hrow,fill=SoftBlue!18] (t2) at (-1.85,2.4){可靠（确认/重传）};
+  \node[hrow,fill=SoftTeal!18] (u2) at (1.85,2.4){不可靠（尽最大努力）};
+  \node[hrow,fill=SoftBlue!18] (t3) at (-1.85,1.6){面向字节流};
+  \node[hrow,fill=SoftTeal!18] (u3) at (1.85,1.6){面向报文（保留边界）};
+  \node[hrow,fill=SoftBlue!18] (t4) at (-1.85,0.8){首部 $\geqslant 20$ B};
+  \node[hrow,fill=SoftTeal!18] (u4) at (1.85,0.8){仅首部 8 B};
+  \node[hrow,fill=SoftBlue!18] (t5) at (-1.85,0.0){有流量/拥塞控制};
+  \node[hrow,fill=SoftTeal!18] (u5) at (1.85,0.0){无流量/拥塞控制};
+  % 底部说明
+  \node[align=center,font=\scriptsize,black!70] at (0,-0.7){TCP 可靠但开销大（文件传输、网页浏览）；UDP 简单快捷（音视频、DNS、实时应用）。};
+\end{tikzpicture}
+\end{center}
+
 \subsection{TCP 可靠传输机制}
 
 \begin{conclusion}{序号与确认号}{tcp-seq-ack}

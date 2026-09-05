@@ -42,17 +42,34 @@
 \end{conclusion}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=0.7cm, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=2.0cm, minimum height=2.6cm, align=center] (ino) at (0,0) {\textbf{i-node}};
-\node[draw, rectangle, fill=SoftBlue, minimum width=3.4cm, minimum height=0.5cm, align=center] (dA) at (3.8,1.1) {直接块（$N$ 个）$\to$ 数据块};
-\node[draw, rectangle, fill=SoftTeal, minimum width=3.4cm, minimum height=0.5cm, align=center] (sA) at (3.8,0.2) {一级间接 $\to$ 索引块 $\to$ 数据块};
-\node[draw, rectangle, fill=SoftAmber, minimum width=3.4cm, minimum height=0.5cm, align=center] (d0) at (3.8,-0.7) {二级间接 $\to$ 索引块 $\to$ 一级间接块 $\to$ 数据块};
-\node[draw, rectangle, fill=SoftAmber!45, minimum width=3.4cm, minimum height=0.5cm, align=center] (tA) at (3.8,-1.6) {三级间接 $\to$ 索引块 $\to$ 二级/一级 $\to$ 数据块};
-\draw[->] (ino.east) -- (dA.west);
-\draw[->] (ino.east) -- (sA.west);
-\draw[->] (ino.east) -- (d0.west);
-\draw[->] (ino.east) -- (tA.west);
-\node[font=\scriptsize, black!60] at (2.4,-2.4) {混合索引：小文件用直接块，大文件逐层加间接索引};
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% ===== 连续分配 =====
+\node[anchor=west, text=Burgundy] at (0,3.2) {\textbf{连续分配}};
+\foreach \i/\x in {0/2.6,1/3.7,2/4.8,3/5.9} {
+  \node[draw, rectangle, minimum width=0.95cm, minimum height=0.55cm, fill=SoftBlue] (c\i) at (\x,3.2) {块\i};
+}
+\draw[decorate, decoration={brace, amplitude=3pt, mirror}, thick]
+  ([yshift=-0.35cm]c0.south) -- ([yshift=-0.35cm]c3.south);
+\node[anchor=west, align=left] at (7.2,3.2) {\scriptsize 文件占用连续盘块\\[1pt]顺序访问快};
+% ===== 链接分配 =====
+\node[anchor=west, text=Burgundy] at (0,1.0) {\textbf{链接分配}};
+\foreach \i/\x in {0/2.6,1/4.1,2/5.6,3/7.1} {
+  \node[draw, rectangle, minimum width=1.2cm, minimum height=0.55cm, fill=SoftTeal] (l\i) at (\x,1.0) {块\i};
+}
+\draw[->] (l0) -- (l1);
+\draw[->] (l1) -- (l2);
+\draw[->] (l2) -- (l3);
+\node[anchor=west, align=left] at (8.6,1.0) {\scriptsize 每块含指向下一\\[1pt]块的指针（隐式）};
+% ===== 索引分配 =====
+\node[anchor=west, text=Burgundy] at (0,-1.4) {\textbf{索引分配}};
+\node[draw, rectangle, minimum width=1.4cm, minimum height=0.65cm, fill=SoftAmber] (idx) at (2.6,-1.4) {索引块};
+\foreach \i/\x in {0/4.5,1/5.6,2/6.7} {
+  \node[draw, rectangle, minimum width=0.95cm, minimum height=0.55cm, fill=SoftAmber!55] (d\i) at (\x,-1.4) {块\i};
+}
+\draw[->] (idx) -- (d0);
+\draw[->] (idx) -- (d1);
+\draw[->] (idx) -- (d2);
+\node[anchor=west, align=left] at (8.0,-1.4) {\scriptsize 索引块集中存数据\\[1pt]块号，支持直接访问};
 \end{tikzpicture}
 \end{center}
 

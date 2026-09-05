@@ -108,14 +108,16 @@
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.1cm,minimum height=0.78cm,align=center] (rx) at (-2.6,1.05){变址寄存器 $R_X$};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.1cm,minimum height=0.78cm,align=center] (a) at (0.5,1.05){指令形式地址 $A$};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.1cm,minimum height=0.78cm,align=center] (ea) at (3.6,1.05){有效地址 $EA$};
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.6cm,minimum height=0.78cm,align=center] (op) at (3.6,-0.65){主存单元（操作数）};
-  \draw[->] (rx) -- (ea);
-  \draw[->] (a) -- (ea);
-  \draw[->] (ea) -- (op);
-  \node[font=\scriptsize,black!70] at (3.6,-1.55){$EA = (R_X) + A$（变址；基址同理 $EA = (R_B) + A$）};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.7cm,minimum height=0.9cm,align=center] (rx) at (-2.5,2.5){变址寄存器 $R_X$};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.7cm,minimum height=0.9cm,align=center] (a) at (2.5,2.5){指令形式地址 $A$};
+  \node[draw,circle,fill=SoftTeal,minimum size=0.78cm,inner sep=0pt] (plus) at (0,1.42){$+$};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.9cm,minimum height=0.9cm,align=center] (ea) at (0,0.32){有效地址 $EA$};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=3.3cm,minimum height=0.9cm,align=center] (mem) at (0,-1.08){主存单元（操作数）};
+  \draw[->] (rx) -- (plus);
+  \draw[->] (a) -- (plus);
+  \draw[->] (plus) -- (ea);
+  \draw[->] (ea) -- (mem);
+  \node[font=\scriptsize,MutedText] at (0,-2.05){$EA = (R_X) + A$（变址）；基址同理 $EA = (R_B) + A$};
 \end{tikzpicture}
 \end{center}
 

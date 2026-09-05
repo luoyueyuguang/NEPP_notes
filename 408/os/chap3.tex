@@ -239,18 +239,17 @@ Next Fit & 继续搜索第一个 $\ge n$ 的块 & 空闲分布更均匀，但会
 \end{formula}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, node distance=0.9cm]
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
   % 逻辑地址：页号 + 偏移
-  \node[draw,rectangle,minimum width=1.4cm,minimum height=0.7cm] (pn) {页号 $p_n$};
-  \node[draw,rectangle,minimum width=1.4cm,minimum height=0.7cm,right of=pn,node distance=0pt] (d) {偏移 $d$};
-  \node[above of=pn,node distance=0.45cm,align=center] {逻辑地址};
+  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftBlue] (pn) at (0,0) {页号 $p_n$};
+  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftBlue] (d) at (1.9,0) {偏移 $d$};
+  \node[font=\scriptsize, text=TealDark] at (0.95,1.15) {逻辑地址};
   % 页表
-  \node[draw,rectangle,minimum width=2.0cm,minimum height=0.7cm,fill=SoftGray,below of=pn,node distance=1.4cm] (pt)
-        {页表：$p_n \to f_n$};
+  \node[draw,rectangle,minimum width=3.0cm,minimum height=0.7cm,fill=SoftGray] (pt) at (0,-1.7) {页表：$p_n \to f_n$};
   % 物理地址：页框号 + 偏移（不变）
-  \node[draw,rectangle,minimum width=1.4cm,minimum height=0.7cm,below of=pt,node distance=1.4cm] (f) {页框号 $f_n$};
-  \node[draw,rectangle,minimum width=1.4cm,minimum height=0.7cm,right of=f,node distance=0pt] (d2) {偏移 $d$};
-  \node[below of=f,node distance=0.45cm,align=center] {物理地址};
+  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftAmber] (f) at (0,-3.4) {页框号 $f_n$};
+  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftAmber] (d2) at (1.9,-3.4) {偏移 $d$};
+  \node[font=\scriptsize, text=TealDark] at (0.95,-4.5) {物理地址};
   % 箭头
   \draw[->] (pn.south) -- (pt.north);
   \draw[->] (pt.south) -- (f.north);
@@ -666,17 +665,28 @@ OPT 和 LRU 是\textbf{栈类算法（Stack Algorithm）}——$n$ 个页框时�
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\foreach \i in {0,...,5} {
-  \node[draw, circle, minimum size=0.9cm] (F\i) at ({60*\i+30}:1.9cm) {P\i};
-}
+% 环形页框，每个页框标注其访问位（访问位=1 最近被访问，被指针清 0 后视为“第二次机会”）
+\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F0) at (30:2.5cm) {\scriptsize $P0$\\[1pt]\scriptsize $b=0$};
+\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F1) at (90:2.5cm) {\scriptsize $P1$\\[1pt]\scriptsize $b=1$};
+\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F2) at (150:2.5cm) {\scriptsize $P2$\\[1pt]\scriptsize $b=1$};
+\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F3) at (210:2.5cm) {\scriptsize $P3$\\[1pt]\scriptsize $b=0$};
+\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F4) at (270:2.5cm) {\scriptsize $P4$\\[1pt]\scriptsize $b=1$};
+\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F5) at (330:2.5cm) {\scriptsize $P5$\\[1pt]\scriptsize $b=0$};
+% 环形链（顺时针）
 \draw[->] (F0) -- (F1);
 \draw[->] (F1) -- (F2);
 \draw[->] (F2) -- (F3);
 \draw[->] (F3) -- (F4);
 \draw[->] (F4) -- (F5);
 \draw[->] (F5) -- (F0);
-\draw[->, very thick, Amber] (0,0) -- (F2.west);
-\node[font=\scriptsize, black!60] at (0,-2.7) {环形页框链 + 时钟指针（指向候选页框，访问位清 0 后前移）};
+% 时钟指针（指向当前候选页框）
+\node[circle, fill=Amber, minimum size=0.3cm, inner sep=0pt] at (0,0) {};
+\draw[->, very thick, Amber] (0,0) -- (F0);
+\node[text=Amber, font=\scriptsize] at (105:3.7) {时钟指针};
+% 顺时针方向标注
+\draw[->, gray, dashed, thick] (75:3.35) arc[start angle=75, end angle=25, radius=3.35];
+\node[text=gray, font=\scriptsize] at (55:3.95) {顺时针};
+\node[font=\scriptsize, MutedText] at (0,-3.4) {指针指向候选页框 $P0$（$b=0$ 则置换；$b=1$ 则清 $0$ 后前移）};
 \end{tikzpicture}
 \end{center}
 
