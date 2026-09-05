@@ -260,7 +260,7 @@ bool ListInsert(LinkList L, int i, ElemType e) {
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[font=\scriptsize, Navy] at (1.35,1.75){插入前};
+  \node[font=\scriptsize, Navy] at (2.2,2.05){插入前};
   \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (p) at (0,1.0){$p$};
   \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (q) at (1.7,1.0){$q$};
   \draw[->, black!60] (p.east) -- (q.west);
@@ -329,8 +329,8 @@ p->next = s;                         // （4） p接s
   \draw[->, Teal, thick] (s.east) -- (q.west);
   \draw[<-, Burgundy, thick] (p.south) .. controls (0,0.3) and (0.15,0.3) .. (s.south);
   \draw[<-, Burgundy, thick] (s.south) .. controls (1.85,0.3) and (2.0,0.3) .. (q.south);
-  \node[font=\scriptsize, black!70] at (1.85,-0.3){\texttt{(1) s->prior=p\ \ (2) s->next=q}};
-  \node[font=\scriptsize, black!70] at (1.85,-0.8){\texttt{(3) p->next=s\ \ (4) q->prior=s}};
+  \node[font=\scriptsize, black!70] at (1.85,-0.3){\texttt{(1) s->next=q\ \ (2) s->prior=p}};
+  \node[font=\scriptsize, black!70] at (1.85,-0.8){\texttt{(3) q->prior=s\ \ (4) p->next=s}};
 \end{tikzpicture}
 \end{center}
 \end{conclusion}

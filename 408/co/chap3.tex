@@ -373,11 +373,11 @@ CPU 与 Cache 之间以\textbf{字}为单位传输（字长 = 机器字长），
 每个主存块只能映射到 Cache 中\textbf{唯一}的一行：$\text{Cache行号} = (\text{主存块号}) \bmod C$。
 
 \begin{center}
-\begin{tikzpicture}[node distance=0.8cm, auto]
-\node[draw, rectangle, minimum width=10cm, minimum height=1.2cm, fill=gray!10] (addr) {主存地址划分（按字节编址）};
-\node[draw, rectangle, minimum width=3.5cm, minimum height=0.8cm, right of=addr, node distance=0cm, fill=blue!15] (tag) {标记（Tag）};
-\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, right of=tag, node distance=0cm, fill=green!15] (index) {索引（Index）};
-\node[draw, rectangle, minimum width=3.5cm, minimum height=0.8cm, right of=index, node distance=0cm, fill=yellow!15] (offset) {块内偏移（Offset）};
+\begin{tikzpicture}[>=stealth]
+\node[draw, rectangle, minimum width=4.6cm, minimum height=0.9cm, fill=gray!10] at (4.95,1.0) {主存地址划分（按字节编址）};
+\node[draw, rectangle, minimum width=3.4cm, minimum height=0.8cm, fill=blue!15] at (1.8,0) {标记（Tag）};
+\node[draw, rectangle, minimum width=2.9cm, minimum height=0.8cm, fill=green!15] at (4.95,0) {索引（Index）};
+\node[draw, rectangle, minimum width=3.4cm, minimum height=0.8cm, fill=yellow!15] at (8.1,0) {块内偏移（Offset）};
 \end{tikzpicture}
 \end{center}
 
@@ -413,11 +413,11 @@ CPU 与 Cache 之间以\textbf{字}为单位传输（字长 = 机器字长），
 \]
 
 \begin{center}
-\begin{tikzpicture}[node distance=0.8cm, auto]
-\node[draw, rectangle, minimum width=12cm, minimum height=1.2cm, fill=gray!10] (addr) {主存地址划分（$W$ 路组相联）};
-\node[draw, rectangle, minimum width=4cm, minimum height=0.8cm, right of=addr, node distance=0cm, fill=blue!15] (tag) {标记（Tag）};
-\node[draw, rectangle, minimum width=3.5cm, minimum height=0.8cm, right of=tag, node distance=0cm, fill=green!15] (index) {组号（Set Index）};
-\node[draw, rectangle, minimum width=4.5cm, minimum height=0.8cm, right of=index, node distance=0cm, fill=yellow!15] {块内偏移（Offset）};
+\begin{tikzpicture}[>=stealth]
+\node[draw, rectangle, minimum width=5.2cm, minimum height=0.9cm, fill=gray!10] at (5.0,1.0) {主存地址划分（$W$ 路组相联）};
+\node[draw, rectangle, minimum width=4.0cm, minimum height=0.8cm, fill=blue!15] at (2.0,0) {标记（Tag）};
+\node[draw, rectangle, minimum width=3.5cm, minimum height=0.8cm, fill=green!15] at (5.75,0) {组号（Set Index）};
+\node[draw, rectangle, minimum width=4.5cm, minimum height=0.8cm, fill=yellow!15] at (9.75,0) {块内偏移（Offset）};
 \end{tikzpicture}
 \end{center}
 
@@ -607,10 +607,10 @@ T_{\mathrm{avg}} = t_{c1} + (1-h_1)\bigl(t_{c2} + (1-h_2)t_m\bigr)
 
 \textbf{虚拟地址构成：}
 \begin{center}
-\begin{tikzpicture}[node distance=0.8cm, auto]
-\node[draw, rectangle, minimum width=10cm, minimum height=1.2cm, fill=gray!10] (addr) {虚拟地址（$N$ 位）};
-\node[draw, rectangle, minimum width=5cm, minimum height=0.8cm, right of=addr, node distance=0cm, fill=blue!15] (vpn) {虚拟页号（VPN）};
-\node[draw, rectangle, minimum width=5cm, minimum height=0.8cm, right of=vpn, node distance=0cm, fill=yellow!15] (vpo) {页内偏移（VPO）};
+\begin{tikzpicture}[>=stealth]
+\node[draw, rectangle, minimum width=4.0cm, minimum height=0.9cm, fill=gray!10] at (5.0,1.0) {虚拟地址（$N$ 位）};
+\node[draw, rectangle, minimum width=5.0cm, minimum height=0.8cm, fill=blue!15] at (2.5,0) {虚拟页号（VPN）};
+\node[draw, rectangle, minimum width=5.0cm, minimum height=0.8cm, fill=yellow!15] at (7.5,0) {页内偏移（VPO）};
 \end{tikzpicture}
 \end{center}
 

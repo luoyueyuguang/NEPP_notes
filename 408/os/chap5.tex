@@ -258,7 +258,7 @@ I/O 软件采用分层设计，每层对上层屏蔽下层细节，是 OS 分层
 \node[draw, fill=yellow!20, minimum width=2.2cm] (P1) {进程 P1};
 \node[draw, fill=yellow!20, minimum width=2.2cm, below of=P1, yshift=0.5cm] (P2) {进程 P2};
 \node[draw, fill=gray!20, minimum width=3.1cm, right of=P1, xshift=1cm] (DISK) {磁盘（SPOOLing 井）};
-\node[draw, fill=green!20, minimum width=3.2cm, right of=DISK, xshift=1.3cm] (DAEMON) {SPOOLing 守护进程};
+\node[draw, fill=green!20, minimum width=3.2cm, right of=DISK, xshift=2.2cm] (DAEMON) {SPOOLing 守护进程};
 \node[draw, fill=red!20, minimum width=2.2cm, right of=DAEMON, xshift=0.8cm] (DEV) {打印机};
 \draw[->] (P1) -- node[above] {输出到井} (DISK);
 \draw[->] (P2) -- node[below] {输出到井} (DISK);

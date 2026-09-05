@@ -334,8 +334,8 @@ TCP 的流量控制通过\textbf{接收窗口（rwnd, Receiver Window）}实现�
 ]
 \addplot[Teal,thick,mark=*] coordinates {(1,1)(2,2)(3,4)(4,8)(5,16)(6,17)(7,18)(8,19)(9,20)(10,21)(11,22)(12,23)(13,24)(14,1)(15,2)(16,4)(17,8)(18,12)(19,13)(20,14)(21,15)(22,16)(23,8)};
 \addlegendentry{cwnd}
-\addplot[Navy,dashed,thick] coordinates {(0,16)(25,16)};
-\addlegendentry{ssthresh=16}
+\addplot[Navy,dashed,thick,const plot] coordinates {(0,16)(13,16)(13,12)(22,12)(22,8)(25,8)};
+\addlegendentry{ssthresh（16、12、8）}
 \draw[dashed,red] (axis cs:13,0) -- (axis cs:13,24);
 \node[red,font=\scriptsize,anchor=north] at (axis cs:13,1){超时};
 \draw[dashed,red] (axis cs:22,0) -- (axis cs:22,16);

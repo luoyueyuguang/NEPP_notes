@@ -320,14 +320,14 @@ N = (-1)^{S} \times (1.M) \times 2^{E-\text{bias}}.
 \end{center}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \draw[thick,fill=Burgundy!15] (0,0) rectangle (0.6,0.9) node[midway]{S};
-  \draw[thick,fill=Navy!12] (0.6,0) rectangle (2.8,0.9) node[midway]{E（移码）};
-  \draw[thick,fill=Teal!12] (2.8,0) rectangle (9.1,0.9) node[midway]{M（尾数小数部分）};
-  \node[align=center] at (0.3,-0.45){63\\1 位};
-  \node[align=center] at (1.7,-0.45){62--52\\11 位};
-  \node[align=center] at (5.95,-0.45){51--0\\52 位};
-  \node[align=center,black!70] at (4.55,1.5){\textbf{双精度（double）64 位}};
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.22cm, y=0.85cm]
+  \draw[thick,fill=Burgundy!15] (0,0) rectangle (1,1) node[midway]{S};
+  \draw[thick,fill=Navy!12] (1,0) rectangle (12,1) node[midway]{E（移码）};
+  \draw[thick,fill=Teal!12] (12,0) rectangle (64,1) node[midway]{M（尾数小数部分）};
+  \node[align=center] at (0.5,-0.45){63\\1 位};
+  \node[align=center] at (6.5,-0.45){62--52\\11 位};
+  \node[align=center] at (38,-0.45){51--0\\52 位};
+  \node[align=center,black!70] at (32,1.7){\textbf{双精度（double）64 位}};
 \end{tikzpicture}
 \end{center}
 

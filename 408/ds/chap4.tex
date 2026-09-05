@@ -71,7 +71,7 @@
   \draw[->] (A) -- (B); \draw[->] (A) -- (C);
   \draw[->] (B) -- (D); \draw[->] (B) -- (E);
   \draw[->] (C) -- (F); \draw[->] (C) -- (G);
-  \node[font=\scriptsize, Navy] at (0,-2.85){满二叉树：每一层结点数都达到最大（$n=2^3-1=7$）};
+  \node[font=\scriptsize, Navy, draw=none, rounded corners=0pt, minimum size=0pt, inner sep=0pt] at (0,-2.85){满二叉树：每一层结点数都达到最大（$n=2^3-1=7$）};
 \end{tikzpicture}
 \hspace{1.1cm}
 \begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={draw, circle, minimum size=5mm, inner sep=1pt}]
@@ -84,7 +84,7 @@
   \draw[->] (A) -- (B); \draw[->] (A) -- (C);
   \draw[->] (B) -- (D); \draw[->] (B) -- (E);
   \draw[->] (C) -- (F);
-  \node[font=\scriptsize, Navy] at (0,-2.85){完全二叉树：最后一层从左到右连续（$n=6$）};
+  \node[font=\scriptsize, Navy, draw=none, rounded corners=0pt, minimum size=0pt, inner sep=0pt] at (0,-2.85){完全二叉树：最后一层从左到右连续（$n=6$）};
 \end{tikzpicture}
 \end{center}
 
@@ -231,7 +231,7 @@ void PostOrder(BiTree T) {
   \node[fill=SoftBlue] (B) at (-1.2,-1){B};
   \node[fill=SoftBlue] (C) at (1.2,-1){C};
   \draw[->] (A) -- (B); \draw[->] (A) -- (C);
-  \node[font=\scriptsize, black!70] at (0,-1.95){先序（根左右）：A B C\quad 中序（左根右）：B A C\quad 后序（左右根）：B C A};
+  \node[font=\scriptsize, black!70, draw=none, rounded corners=0pt, minimum size=0pt, inner sep=0pt] at (0,-1.95){先序（根左右）：A B C\quad 中序（左根右）：B A C\quad 后序（左右根）：B C A};
 \end{tikzpicture}
 \end{center}
 \end{formula}
@@ -578,11 +578,11 @@ typedef struct CSNode {
     every node/.style={draw, circle, minimum size=7mm, inner sep=1pt}]
 \node (R) {$\sum$}
     child { node (L) { }
-        child { node (A) {A} edge from parent node[left] {0} }
-        child { node (B) {B} edge from parent node[right] {1} }
-        edge from parent node[left] {0}
+        child { node (A) {A} edge from parent node[left, draw=none, inner sep=1pt] {0} }
+        child { node (B) {B} edge from parent node[right, draw=none, inner sep=1pt] {1} }
+        edge from parent node[left, draw=none, inner sep=1pt] {0}
     }
-    child { node (C) {C} edge from parent node[right] {1} };
+    child { node (C) {C} edge from parent node[right, draw=none, inner sep=1pt] {1} };
 \end{tikzpicture}
 \end{center}
 

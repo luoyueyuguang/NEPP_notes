@@ -329,19 +329,19 @@ IP 数据报由\textbf{首部}（Header）和\textbf{数据}（Data/Payload）�
 
 \begin{center}
 \begin{tikzpicture}[font=\scriptsize]
-  % row 0：版本/首部长度/区分服务/总长度
-  \filldraw[fill=SoftGray,draw=black!40] (0,3.5) rectangle (1.5,4.2) node[midway,align=center]{版本\\4 bit};
-  \filldraw[fill=SoftGray,draw=black!40] (1.5,3.5) rectangle (3.0,4.2) node[midway,align=center]{首部长度\\4 bit};
-  \filldraw[fill=SoftTeal,draw=black!40] (3.0,3.5) rectangle (5.6,4.2) node[midway,align=center]{区分服务\\8 bit};
-  \filldraw[fill=SoftBlue,draw=black!40] (5.6,3.5) rectangle (10.0,4.2) node[midway,align=center]{总长度\\16 bit};
-  % row 1：标识/标志/片偏移
-  \filldraw[fill=SoftTeal,draw=black!40] (0,2.6) rectangle (4.6,3.3) node[midway,align=center]{标识\\16 bit};
-  \filldraw[fill=SoftAmber,draw=black!40] (4.6,2.6) rectangle (6.6,3.3) node[midway,align=center]{标志\\3 bit};
-  \filldraw[fill=SoftGray,draw=black!40] (6.6,2.6) rectangle (10.0,3.3) node[midway,align=center]{片偏移\\13 bit};
-  % row 2：TTL/协议/首部校验和
-  \filldraw[fill=SoftGray,draw=black!40] (0,1.7) rectangle (3.33,2.4) node[midway,align=center]{TTL\\8 bit};
-  \filldraw[fill=SoftGray,draw=black!40] (3.33,1.7) rectangle (6.66,2.4) node[midway,align=center]{协议\\8 bit};
-  \filldraw[fill=SoftGray,draw=black!40] (6.66,1.7) rectangle (10.0,2.4) node[midway,align=center]{首部校验和\\16 bit};
+  % row 0：版本4/首部长度4/区分服务8/总长度16（10cm/32bit=0.3125cm per bit）
+  \filldraw[fill=SoftGray,draw=black!40] (0,3.5) rectangle (1.25,4.2) node[midway,align=center]{版本\\4 bit};
+  \filldraw[fill=SoftGray,draw=black!40] (1.25,3.5) rectangle (2.5,4.2) node[midway,align=center]{首部长度\\4 bit};
+  \filldraw[fill=SoftTeal,draw=black!40] (2.5,3.5) rectangle (5.0,4.2) node[midway,align=center]{区分服务\\8 bit};
+  \filldraw[fill=SoftBlue,draw=black!40] (5.0,3.5) rectangle (10.0,4.2) node[midway,align=center]{总长度\\16 bit};
+  % row 1：标识16/标志3/片偏移13（16:3:13）
+  \filldraw[fill=SoftTeal,draw=black!40] (0,2.6) rectangle (5.0,3.3) node[midway,align=center]{标识\\16 bit};
+  \filldraw[fill=SoftAmber,draw=black!40] (5.0,2.6) rectangle (5.9375,3.3) node[midway,align=center]{标志\\3 bit};
+  \filldraw[fill=SoftGray,draw=black!40] (5.9375,2.6) rectangle (10.0,3.3) node[midway,align=center]{片偏移\\13 bit};
+  % row 2：TTL8/协议8/首部校验和16（8:8:16）
+  \filldraw[fill=SoftGray,draw=black!40] (0,1.7) rectangle (2.5,2.4) node[midway,align=center]{TTL\\8 bit};
+  \filldraw[fill=SoftGray,draw=black!40] (2.5,1.7) rectangle (5.0,2.4) node[midway,align=center]{协议\\8 bit};
+  \filldraw[fill=SoftGray,draw=black!40] (5.0,1.7) rectangle (10.0,2.4) node[midway,align=center]{首部校验和\\16 bit};
   % row 3：源 IP
   \filldraw[fill=SoftTeal,draw=black!40] (0,0.8) rectangle (10.0,1.5) node[midway,align=center]{源 IP 地址\\32 bit};
   % row 4：目的 IP

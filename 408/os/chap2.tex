@@ -31,10 +31,10 @@
 \node[draw, circle, below of=R, fill=gray!15] (B) {阻塞};
 \node[draw, circle, right of=E] (T) {终止};
 \draw[->] (N) -- node[above] {创建} (R);
-\draw[->] (R) -- node[above] {调度} (E);
+\draw[->] (R) -- node[pos=0.35, above] {调度} (E);
 \draw[->] (E) -- node[right] {等待事件} (B);
 \draw[->] (B) -- node[below] {事件发生} (R);
-\draw[->] (E) -- node[above] {时间片完} (R);
+\draw[->] (E) -- node[pos=0.35, below] {时间片完} (R);
 \draw[->] (E) -- node[above] {结束} (T);
 \end{tikzpicture}
 \end{center}
@@ -152,7 +152,7 @@ PCB 是 OS 感知进程存在的唯一标志——创建进程 = 创建 PCB；�
 \node[draw, rectangle, fill=SoftGray, minimum width=2.1cm, minimum height=0.55cm] (swap) at (5.0,-1.3) {外存交换区};
 \draw[<->, dashed] (mem) -- (swap);
 \node[font=\scriptsize, black!60] at (5.0,-2.0) {中级调度：挂起 / 激活（交换）};
-\node[font=\scriptsize, black!60] at (5.0,0.75) {高级调度：把外存作业装入内存（批处理系统有）};
+\node[font=\scriptsize, black!60] at (5.0,1.25) {高级调度：把外存作业装入内存（批处理系统有）};
 \node[font=\scriptsize, black!60] at (8.75,0.75) {低级调度：从就绪队列选进程上 CPU（任何系统都有）};
 \end{tikzpicture}
 \end{center}

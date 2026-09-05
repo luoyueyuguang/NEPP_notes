@@ -309,7 +309,7 @@ bool BST_Insert(BSTree *T, KeyType key) {
 \draw (f) -- (g);
 \draw (f) -- (h);
 \draw (g) -- (i);
-\node[align=center] at (4.6,-1.6){用中序\textbf{前驱} 40 替代 50，\\再删除原 40（退化为\\仅有一棵子树的情况）};
+\node[align=center] at (4.6,-1.6){用中序\textbf{前驱} 40 替代 50，\\再删除原 40（40 为叶子，\\退化为情况 (1)）};
 \end{tikzpicture}
 \end{center}
 
@@ -589,7 +589,7 @@ B+树是 B-树的一种变形，广泛应用于数据库索引。与 B-树的主
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
   % 根 / 内部结点（仅索引关键字）
-  \node[draw,rectangle,minimum width=3.2cm,minimum height=0.7cm,fill=Navy!12] (root) at (0,0) {索引：$7\mid13$};
+  \node[draw,rectangle,minimum width=3.2cm,minimum height=0.7cm,fill=Navy!12] (root) at (0,0) {索引：$7\mid9$};
   % 叶结点（含全部关键字 + 记录指针）
   \node[draw,rectangle,minimum width=2.3cm,minimum height=0.8cm,fill=Teal!14] (L1) at (-3.0,-1.7) {$1\mid3\mid7$};
   \node[draw,rectangle,minimum width=2.3cm,minimum height=0.8cm,fill=Teal!14] (L2) at (0,-1.7) {$8\mid9$};

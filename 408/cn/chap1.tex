@@ -53,12 +53,14 @@
   \node[left,font=\scriptsize] at (-0.18,2){链路2（R1$\to$R2）};
   \node[left,font=\scriptsize] at (-0.18,1){链路3（R2$\to$B）};
   % 3 个分组流水：每个分组占 1 个发送时延单元，逐链路右移
+  % 行 y 用 4-\hop：hop=1（链路1，A->R1）在最上一行，hop=3（链路3，R2->B）在最下一行
   \foreach \pkt/\col in {1/Teal!50,2/Navy!30,3/Amber!45}{
     \foreach \hop in {1,2,3}{
       \pgfmathsetmacro{\x}{(\pkt-1+\hop-1)*1.2}
-      \fill[\col,draw=black!30] (\x,{\hop-0.3}) rectangle (\x+1.2,{\hop+0.3});
+      \pgfmathsetmacro{\y}{4-\hop}
+      \fill[\col,draw=black!30] (\x,{\y-0.3}) rectangle (\x+1.2,{\y+0.3});
       \ifnum\hop=1
-        \node[font=\scriptsize] at (\x+0.6,3) {P\pkt};
+        \node[font=\scriptsize] at (\x+0.6,{\y+0.5}) {P\pkt};
       \fi
     }
   }

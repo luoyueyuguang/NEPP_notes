@@ -141,8 +141,8 @@ CSMA/CD（Carrier Sense Multiple Access with Collision Detection）是以太网�
   \draw[->,Teal,thick] (0,0.6) -- (7,2.4) node[midway,above,sloped]{A 的数据帧};
   % B 的帧：t≈tau 从 B 发出，t≈2tau 到 A
   \draw[->,Burgundy,thick] (7,2.2) -- (0,4.0) node[midway,below,sloped]{B 的数据帧};
-  % 冲突点（两帧在时空上相交）
-  \fill[black] (4.2,2.02) circle (2pt) node[above right,black]{冲突};
+  % 冲突点（两帧在时空上相交：联立 y=0.6+0.257x 与 y=4.0-0.257x，x≈6.61，y≈2.30）
+  \fill[black] (6.61,2.30) circle (2pt) node[above right,black]{冲突};
   % 2tau 检测窗口
   \draw[dashed] (0,0.6) -- (7.6,0.6);
   \draw[dashed] (0,4.0) -- (7.6,4.0);

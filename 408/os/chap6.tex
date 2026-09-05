@@ -280,15 +280,15 @@ Request$(0,1,0)\leqslant$Available$(2,2,1)$ 只说明当前有足够资源，这
 \node[draw, rectangle, fill=green!10] (R2) at (4,-4.5) {R2(2)};
 \node[draw, rectangle, fill=green!10] (R3) at (2,-6) {R3(2)};
 % 分配边 P←R
-\draw[->] (R1) -- (P1) node[midway, left] {分配1个};
-\draw[->] (R1) -- (P2) node[midway, right] {分配1个};
-\draw[->] (R2) -- (P1) node[midway, left] {分配1个};
-\draw[->] (R3) -- (P3) node[midway, left] {分配1个};
+\draw[->] (R1) -- (P1) node[pos=0.15, left] {分配1};
+\draw[->] (R1) -- (P2) node[pos=0.8, above] {分配1};
+\draw[->] (R2) -- (P1) node[pos=0.8, above] {分配1};
+\draw[->] (R3) -- (P3) node[pos=0.55, left] {分配1};
 % 请求边 P$\to$R
-\draw[->] (P1) -- (R3) node[midway, right] {请求1个};
-\draw[->] (P2) -- (R2) node[midway, right] {请求1个};
-\draw[->] (P2) -- (R3) node[midway, right] {请求1个};
-\draw[->] (P3) -- (R1) node[midway, left] {请求1个};
+\draw[->] (P1) -- (R3) node[pos=0.85, below] {请求1};
+\draw[->] (P2) -- (R2) node[pos=0.15, right] {请求1};
+\draw[->] (P2) -- (R3) node[pos=0.85, right] {请求1};
+\draw[->] (P3) -- (R1) node[pos=0.3, below] {请求1};
 \end{tikzpicture}
 \end{center}
 

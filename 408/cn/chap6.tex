@@ -76,18 +76,20 @@ DNS（Domain Name System）是互联网的命名系统，将便于记忆的域�
   nbox/.style={draw, rounded corners=2pt, minimum width=1.9cm, minimum height=0.6cm, font=\scriptsize}]
   \node[nbox,fill=SoftTeal] (h) at (0,0){主机};
   \node[nbox,fill=SoftBlue] (l) at (2.6,0){本地DNS};
-  \node[nbox,fill=SoftGray] (r) at (5.2,0){根DNS};
-  \node[nbox,fill=SoftGray] (t) at (7.8,0){顶级DNS};
-  \node[nbox,fill=SoftGray] (a) at (10.4,0){权威DNS};
+  \node[nbox,fill=SoftGray] (r) at (6.6,1.6){根DNS};
+  \node[nbox,fill=SoftGray] (t) at (6.6,0){顶级DNS};
+  \node[nbox,fill=SoftGray] (a) at (6.6,-1.6){权威DNS};
   \draw[->,thick,Teal] (h) -- (l) node[midway,above,font=\scriptsize]{递归};
   \draw[->,thick] (l) -- (r) node[midway,above,font=\scriptsize]{(1)};
-  \draw[->,thick] (r) -- (t) node[midway,above,font=\scriptsize]{(2)};
-  \draw[->,thick] (t) -- (a) node[midway,above,font=\scriptsize]{(3)};
-  \draw[->,dashed,Burgundy] (a) -- (t) node[midway,below,font=\scriptsize]{记录};
-  \draw[->,dashed,Burgundy] (t) -- (r);
-  \draw[->,dashed,Burgundy] (r) -- (l);
+  \draw[->,thick] (l) -- (t) node[midway,above,font=\scriptsize]{(2)};
+  \draw[->,thick] (l) -- (a) node[midway,above,font=\scriptsize]{(3)};
+  \draw[->,dashed,Burgundy] (r) -- (l) node[midway,below,font=\scriptsize]{顶级DNS地址};
+  \draw[->,dashed,Burgundy] (t) -- (l) node[midway,below,font=\scriptsize]{权威DNS地址};
+  \draw[->,dashed,Burgundy] (a) -- (l) node[midway,below,font=\scriptsize]{最终IP};
   \draw[->,dashed,Burgundy] (l) -- (h) node[midway,below,font=\scriptsize]{最终IP};
-  \node[align=center,font=\scriptsize,black!70] at (5.2,-0.75){主机$\to$本地DNS 为递归查询；本地DNS$\to$根/顶级/权威为迭代查询（实线：请求，虚线：返回）};
+  \node[align=center,font=\scriptsize,black!70] at (3.3,-2.6){主机$\to$本地DNS 为递归查询；本地DNS$\to$根/顶级/权威为\textbf{迭代查询}\\
+  ——每次由一个服务器返回下一站地址，由本地DNS 自己继续查\\
+  （实线：请求，虚线：返回）};
 \end{tikzpicture}
 \end{center}
 

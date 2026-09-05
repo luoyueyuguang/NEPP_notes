@@ -51,14 +51,15 @@
   \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (A1) at (3.4,2.6){A};
   \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (B1) at (6.4,2.6){B};
   \draw[->,thick,Teal] (A1) -- (B1);
-  % 半双工：双向交替
+  % 半双工：双向交替（单一箭头，互斥）
   \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (A2) at (3.4,1.5){A};
   \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (B2) at (6.4,1.5){B};
   \draw[<->,thick,Amber] (A2) -- (B2);
-  % 全双工：双向同时
+  % 全双工：双向同时（两条并行的反向箭头）
   \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (A3) at (3.4,0.4){A};
   \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (B3) at (6.4,0.4){B};
-  \draw[<->,thick,Burgundy] (A3) -- (B3);
+  \draw[->,thick,Burgundy] ([yshift=0.13cm]A3.east) -- ([yshift=0.13cm]B3.west);
+  \draw[->,thick,Burgundy] ([yshift=-0.13cm]B3.west) -- ([yshift=-0.13cm]A3.east);
   \node[align=center,font=\scriptsize,black!70] at (4.9,-0.5){单工：只能单向（如广播）；半双工：双向交替（如对讲机）；全双工：双向同时（如电话）};
 \end{tikzpicture}
 \end{center}
