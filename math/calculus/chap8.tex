@@ -120,18 +120,25 @@
 \begin{axis}[
   axis lines=center,
   xlabel=$x$, ylabel=$y$, zlabel=$z$,
-  xmin=-1.6, xmax=1.7, ymin=-1.2, ymax=1.7, zmin=-0.2, zmax=4.4,
+  xmin=-1.7, xmax=1.85, ymin=-1.30, ymax=1.8, zmin=-0.2, zmax=4.5,
   view={60}{30}, width=9cm, height=7.5cm,
   domain=-1.6:1.6, y domain=-1.2:1.6, samples=24, samples y=24,
   z buffer=sort,
 ]
-\addplot3[surf, opacity=0.55, shader=interp] {x^2+y^2};
-\addplot3[red,very thick,domain=-1.6:1.6,samples=60] ({x},1,{x^2+1});
-\addplot3[blue!70,very thick,domain=-1.2:1.6,samples=60] ({1},{x},{x^2+1});
-\node[circle,fill=red,inner sep=2pt,label={[font=\footnotesize]right:$M_0(1,1,2)$}] at (axis cs:1,1,2) {};
+\addplot3[surf, opacity=0.5, shader=interp, blue!70] {x^2+y^2};
+\addplot3[red,ultra thick,domain=-1.4:1.4,samples=70] ({x},1,{x^2+1});
+\addplot3[blue!60!black,ultra thick,domain=-1.0:1.5,samples=70] ({1},{x},{x^2+1});
+\addplot3[red,dashed,thick,domain=0.3:1.7,samples=2] ({x},1,{2*x});
+\addplot3[blue!60!black,dashed,thick,domain=0.3:1.7,samples=2] ({1},{x},{2*x});
+\node[font=\scriptsize,red!70!black,anchor=east] at (axis cs:-1.30,1.05,3.10){$y=1$ 截线};
+\node[font=\scriptsize,blue!60!black,anchor=north] at (axis cs:1.0,0.45,1.32){$x=1$ 截线};
+\node[font=\scriptsize,red!70!black,anchor=south west] at (axis cs:1.30,1.0,2.80){切线};
+\node[font=\scriptsize,blue!60!black,anchor=north west] at (axis cs:1.0,1.30,2.80){切线};
+\node[circle,fill=red,inner sep=2pt,label={[font=\footnotesize,anchor=west]right:$M_0(1,1,2)$}] at (axis cs:1,1,2) {};
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 曲面 $z=x^2+y^2$ 与平面 $y=1$（红）、$x=1$（蓝）的交线都过 $M_0(1,1,2)$；交线在 $M_0$ 处沿 $x$、$y$ 方向的切线（虚线）斜率分别为 $f'_x(1,1)$、$f'_y(1,1)$。}}
 
 \begin{conclusion}{偏导数的计算}{partial derivative calculation}
     求偏导数，归结为求一元函数的导数
@@ -187,29 +194,28 @@
 \begin{conclusion}{偏导数的连续性，函数可微性，可偏导性与函数连续性的关系}{inter relationship}
     若\(z = f(x, y)\)在点\((x_0, y_0)\)处存在\(f'_{x}(x_0, y_0), f'_{y}(x_0, y_0)\)则称\(f(x, y)\)在点\((x_0, y_0)\)处可偏导。
     两个偏导数连续，可微，可偏导于二元函数连续的关系为 \\
-    %一个树形的关系
-    \begin{tikzpicture}
-        \node[rectangle, draw] (continuous) {\(f'_{x}(x, y),f'_{y}(x, y)\)在点\((x_0,y_0)\)处连续};
-        \node[rectangle, draw, below = of continuous] (partial) {
-            \(z = f(x, y)\)在点\((x_0,y_0)\)处可微且\(dz = Adx + Bdy\);
-        };
-        \node[rectangle, draw, below = of partial] (continuousf) {
-            \(f(x,y)\)在点\((x_0,y_0)\)处连续
-        };
-        \node[rectangle, draw, below = of continuousf] (derivative) {
-            \(z = f(x, y)\)在点\((x_0,y_0)\)处可偏导且\(f'_{x}(x_0, y_0) = A, f'_{y}(x_0, y_0) = B\)
-        };
-        %连线，线使用\Leftarrow类似的箭头
-        \draw[double, -Implies, double distance=1pt] (continuous) -- (partial);
-        %线在左边
-        \draw[double, -Implies, double distance=1pt] ([xshift=-82pt]partial.east) -- ([xshift=-10pt]continuousf.east);
-        \draw[double, -Implies, double distance=1pt] (partial.west) -- ([xshift=42pt] derivative.west);
-        \draw[double, -Implies, double distance=1pt] (continuousf.west) to node[sloped, allow upside down] {//} ([xshift=110pt]derivative.west);
-        \draw[double, -Implies, double distance=1pt] ([xshift=-110pt]derivative.east) to node[sloped, allow upside down] {//} (continuousf.east);
-        \draw[double, -Implies, double distance=1pt] (continuousf.west) to node[sloped, allow upside down] {//} ([xshift=80pt] partial.west);
-        \draw[double, -Implies, double distance=1pt] (derivative.east) to node[sloped, allow upside down] {//} (partial.east);
-        \draw[double, -Implies, double distance=1pt] (partial) to node[sloped, allow upside down] {//} ([xshift=10pt]continuous);
-    \end{tikzpicture}\\
+    \begin{center}
+    \small
+    \begin{tikzpicture}[>=stealth, every node/.style={font=\footnotesize}]
+      \node[draw, rounded corners, fill=blue!6, align=center, text width=3.9cm, inner sep=4pt] (c) at (0,3.3)
+        {偏导连续\\[1pt] $f'_x,\;f'_y$ 在 $(x_0,y_0)$ 连续};
+      \node[draw, rounded corners, fill=blue!6, align=center, text width=3.9cm, inner sep=4pt] (d) at (0,1.7)
+        {可微\\[1pt] $\mathrm{d}z=A\,\mathrm{d}x+B\,\mathrm{d}y$};
+      \node[draw, rounded corners, fill=blue!6, align=center, text width=2.9cm, inner sep=4pt] (f) at (-2.6,0.15)
+        {$f(x,y)$ 连续};
+      \node[draw, rounded corners, fill=blue!6, align=center, text width=2.9cm, inner sep=4pt] (p) at (2.6,0.15)
+        {可偏导\\[1pt] $f'_x,f'_y$ 存在};
+      % 蕴含（实线）
+      \draw[->, very thick, blue!50!black] (c) -- (d);
+      \draw[->, very thick, blue!50!black] (d.south west) -- (f.north);
+      \draw[->, very thick, blue!50!black] (d.south east) -- (p.north);
+      % 不能推出（虚线 + \nRightarrow）
+      \draw[->, dashed, gray!55, bend right=16] (f.north) -- node[pos=0.55,sloped,above,font=\scriptsize]{$\nRightarrow$} (d.south);
+      \draw[->, dashed, gray!55, bend left=16] (p.north) -- node[pos=0.55,sloped,above,font=\scriptsize]{$\nRightarrow$} (d.south);
+      \draw[->, dashed, gray!55] (p.west) -- node[pos=0.5,above,font=\scriptsize]{$\nRightarrow$} (f.east);
+    \end{tikzpicture}
+    \end{center}
+    \centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 实线箭头表示蕴含：偏导连续 $\Rightarrow$ 可微 $\Rightarrow$ 连续，且可微 $\Rightarrow$ 可偏导；虚线箭头（$\nRightarrow$）表示推不出：可偏导、连续都推不出可微，可偏导也推不出连续。}}
     在一元函数中，可导和可微是等价的，且都强于连续。\\
     对于多元函数，情况变得复杂：可微最强，它同时蕴含连续和所有方向的可偏导；但即便所有方向都可偏导，也推不出可微，甚至推不出连续。
 \end{conclusion}
@@ -889,17 +895,22 @@ D_{\Delta}^{m}f
 \begin{axis}[
   axis lines=center,
   xlabel=$x$, ylabel=$y$, zlabel=$z$,
-  xmin=-0.6, xmax=2.6, ymin=-0.6, ymax=2.6, zmin=-5, zmax=11,
+  xmin=-0.7, xmax=2.7, ymin=-0.7, ymax=2.7, zmin=-5, zmax=11,
   view={62}{28}, width=9cm, height=7.5cm,
-  domain=-0.5:2.5, y domain=-0.5:2.5, samples=22, samples y=22,
+  domain=-0.3:2.3, y domain=-0.3:2.3, samples=22, samples y=22,
   z buffer=sort,
 ]
-\addplot3[surf, opacity=0.5, shader=interp, blue!55] {2*x+2*y-2};
-\addplot3[surf, opacity=0.65, shader=interp] {x^2+y^2};
-\node[circle,fill=red,inner sep=2pt,label={[font=\footnotesize]right:$M_0(1,1,2)$}] at (axis cs:1,1,2) {};
+\addplot3[surf, opacity=0.5, shader=interp, green!50!black] {x^2+y^2};
+\addplot3[surf, opacity=0.45, shader=interp, blue!60] {2*x+2*y-2};
+\addplot3[red,very thick,domain=-0.6:0.7,samples=2] ({1+2*x},{1+2*x},{2-x});
+\node[font=\scriptsize,green!40!black,anchor=west] at (axis cs:1.85,0.05,4.05){$z=x^2+y^2$};
+\node[font=\scriptsize,blue!60!black,anchor=west] at (axis cs:1.75,1.75,6.55){$z=2x+2y-2$};
+\node[font=\scriptsize,red!70!black,anchor=south west] at (axis cs:2.35,2.35,1.35){$\mathbf n$};
+\node[circle,fill=red,inner sep=2pt,label={[font=\footnotesize,anchor=west]right:$M_0(1,1,2)$}] at (axis cs:1,1,2) {};
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 曲面 $z=x^2+y^2$（绿）在 $M_0(1,1,2)$ 处与切平面（蓝）$z=2x+2y-2$ 相切；红线为其法向量 $\mathbf n=(-f'_x,-f'_y,1)$，垂直于切平面。}}
 
 \begin{conclusion}{用参数方程表示的空间曲线}{parameter equation space curve}
     若空间曲线\(\Gamma\)的参数方程为\(

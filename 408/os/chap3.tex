@@ -367,24 +367,18 @@ CPU 发出逻辑地址 $A$，MMU 执行以下变换：
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % 逻辑地址：p1 | p2 | d
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.6cm] (p1) at (0,1.8) {$p_1$};
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.6cm] (p2) at (1.7,1.8) {$p_2$};
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.6cm] (d) at (3.4,1.8) {$d$};
-  \node[font=\scriptsize] at (1.7,2.5) {逻辑地址（两级页号 $p_1,p_2$ + 偏移 $d$）};
-  % 页目录
-  \node[draw,rectangle,minimum width=2.9cm,minimum height=0.6cm,fill=SoftGray] (dir) at (0.85,0.1) {页目录（$p_1$）};
-  % 二级页表
-  \node[draw,rectangle,minimum width=2.9cm,minimum height=0.6cm,fill=SoftBlue] (pt) at (0.85,-1.7) {二级页表（$p_2$）};
-  % 物理地址
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.6cm] (f) at (0,-3.4) {页框号 $f$};
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.6cm] (d2) at (1.7,-3.4) {偏移 $d$};
-  \node[font=\scriptsize] at (1.7,-4.1) {物理地址};
-  % 箭头
-  \draw[->] (p1.south) -- (dir.north);
-  \draw[->] (dir.south) -- (pt.north);
-  \draw[->] (pt.south) -- (f.north);
-  \draw[->,dashed] (d.south) -- (d2.north);
+\node[draw, rectangle, fill=SoftGray, minimum width=1.6cm, minimum height=0.7cm] (p1) at (-5.2,2.4) {$p_1$};
+\node[draw, rectangle, fill=SoftGray, minimum width=1.6cm, minimum height=0.7cm] (p2) at (-5.2,0.0) {$p_2$};
+\node[draw, rectangle, fill=SoftGray, minimum width=1.6cm, minimum height=0.7cm] (d) at (-5.2,-2.4) {$d$};
+\node[font=\scriptsize, text=Navy] at (-5.2,3.25) {逻辑地址};
+\node[draw, rectangle, fill=SoftBlue, minimum width=5.4cm, minimum height=1.1cm, align=center] (dir) at (1.2,2.4) {页目录（一级页表）\\ 页目录项 $\to$ 二级页表基址};
+\node[draw, rectangle, fill=SoftTeal, minimum width=5.4cm, minimum height=1.1cm, align=center] (pt) at (1.2,0.0) {二级页表\\ 页表项 $\to$ 页框号 $f$};
+\node[draw, rectangle, fill=SoftAmber, minimum width=5.4cm, minimum height=1.1cm, align=center] (pa) at (1.2,-2.4) {物理地址 $=$ 页框号 $f$ $|$ 偏移 $d$};
+\draw[->] (p1.east) -- node[above]{$p_1$ 索引} (dir.west);
+\draw[->] (p2.east) -- node[above]{$p_2$ 索引} (pt.west);
+\draw[->] (d.east) -- node[above]{偏移} (pa.west);
+\draw[->] (dir.south) -- (pt.north);
+\draw[->] (pt.south) -- (pa.north);
 \end{tikzpicture}
 \end{center}
 

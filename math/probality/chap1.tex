@@ -14,6 +14,23 @@
     样本空间是指随机试验所有可能结果的集合，通常用 $\Omega$ 表示。
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth]
+  \draw[thick,rounded corners=5pt] (-2.9,-1.6) rectangle (2.1,1.6);
+  \node[font=\large] at (-0.4,1.85){$\Omega$};
+  \node[circle,fill=gray!30,draw=black,inner sep=1.6pt,font=\scriptsize] at (-1.5,0.8){$1$};
+  \node[circle,fill=gray!30,draw=black,inner sep=1.6pt,font=\scriptsize] at (-1.5,0){$3$};
+  \node[circle,fill=gray!30,draw=black,inner sep=1.6pt,font=\scriptsize] at (-1.5,-0.8){$5$};
+  \node[circle,fill=blue!30,draw=black,inner sep=1.6pt,font=\scriptsize] at (0.8,0.8){$2$};
+  \node[circle,fill=blue!30,draw=black,inner sep=1.6pt,font=\scriptsize] at (0.8,0){$4$};
+  \node[circle,fill=blue!30,draw=black,inner sep=1.6pt,font=\scriptsize] at (0.8,-0.8){$6$};
+  \draw[dashed,blue!60!black,thick] (0.8,0) ellipse (0.9 and 1.5);
+  \node[font=\small,blue!60!black] at (1.9,0.85){$A$};
+\end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 以掷骰子为例：样本空间 $\Omega=\{1,2,3,4,5,6\}$ 是所有可能结果组成的集合；事件 $A=\{2,4,6\}$（掷出偶数）是 $\Omega$ 的一个子集。}
+\end{center}
+
 \begin{mydef}{随机事件}{random event}
     随机事件是样本空间中属于给定事件域（$\sigma$-代数）的集合，通常用大写字母表示，如 $A, B, C$ 等。在有限或可列的初等模型中，通常可把样本空间的所有子集都作为事件。
     \newline
@@ -337,17 +354,18 @@ $ 完全相同，即它们包含的结果完全一致 \\
 
 \begin{center}
 \begin{tikzpicture}[scale=0.92,>=stealth]
-  \draw[thick] (-2.9,-2.05) rectangle (2.9,2.15);
-  \node[font=\scriptsize] at (0,2.28){$\Omega$};
-  \draw[thick,fill=blue!13] (0,0.72) circle (1.16);
-  \draw[thick,fill=red!13] (-0.62,-0.36) circle (1.16);
-  \draw[thick,fill=green!13] (0.62,-0.36) circle (1.16);
-  \node[font=\small,blue!50!black] at (0,2.0){$A$};
-  \node[font=\small,red!60!black] at (-2.2,-0.55){$B$};
-  \node[font=\small,green!40!black] at (2.2,-0.55){$C$};
+  \draw[thick] (-2.9,-2.15) rectangle (2.9,2.28);
+  \node[font=\scriptsize] at (0,2.46){$\Omega$};
+  \draw[thick,fill=blue!15] (0,0.72) circle (1.16);
+  \draw[thick,fill=red!15] (-0.62,-0.36) circle (1.16);
+  \draw[thick,fill=green!15] (0.62,-0.36) circle (1.16);
+  \node[font=\small,blue!55!black] at (0,1.96){$A$};
+  \node[font=\small,red!60!black] at (-2.35,-0.5){$B$};
+  \node[font=\small,green!45!black] at (2.35,-0.5){$C$};
   \node[font=\scriptsize] at (0,0.02){$A\cap B\cap C$};
-  \node[font=\scriptsize,gray] at (0,-1.92){两两独立未必相互独立};
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape $A,B,C$ 相互独立：$P(AB){=}P(A)P(B)$、$P(AC){=}P(A)P(C)$、$P(BC){=}P(B)P(C)$、$P(ABC){=}P(A)P(B)P(C)$ 四式同时成立；仅“两两独立”推不出相互独立。}
 \end{center}
 
 \begin{conclusion}{n个独立事件的概率}{probability of n independent events}

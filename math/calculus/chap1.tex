@@ -40,27 +40,30 @@
 
 \begin{center}
 \begin{tikzpicture}
-\begin{axis}[width=0.8\linewidth, height=5.4cm,
+\begin{axis}[width=0.82\linewidth, height=5.6cm,
   xlabel={$x$}, ylabel={$y$},
-  xmin=-0.8, xmax=2.8, ymin=-0.7, ymax=3.6,
-  xtick={0,1,2}, ytick={0,1,2,3},
-  domain=-0.8:2.8, samples=160, font=\footnotesize,
+  xmin=-0.5, xmax=2.5, ymin=0.55, ymax=3.3,
+  xtick=\empty, ytick=\empty,
+  domain=-0.5:2.5, samples=160, font=\footnotesize,
   legend pos=north east]
-\addplot[blue,thick] {1+(x-1)^2};
+\addplot[blue,thick] {1.9-0.9*(x-1)^2};
 \addlegendentry{$y=f(x)$}
-\draw[dashed,gray!60] (0,-0.7) -- (0,3.6);
-\draw[dashed,gray!60] (2,-0.7) -- (2,3.6);
-\draw[dashed,gray!60] (-0.8,-0.2) -- (2.8,-0.2);
-\draw[dashed,gray!60] (-0.8,2.2) -- (2.8,2.2);
-\node[font=\scriptsize,blue!60!black] at (axis cs:0,-0.45){$x_0-\delta$};
-\node[font=\scriptsize,blue!60!black] at (axis cs:2,-0.45){$x_0+\delta$};
-\node[font=\scriptsize,gray!70] at (axis cs:-0.72,-0.2){$A-\varepsilon$};
-\node[font=\scriptsize,gray!70] at (axis cs:-0.72,2.2){$A+\varepsilon$};
-\draw[fill=red] (axis cs:1,1) circle (1.8pt);
+\draw[dashed,gray!60] (0,0.55) -- (0,3.3);
+\draw[dashed,gray!60] (2,0.55) -- (2,3.3);
+\draw[dashed,gray!60] (-0.5,1.0) -- (2.5,1.0);
+\draw[dashed,gray!60] (-0.5,1.9) -- (2.5,1.9);
+\draw[dashed,gray!60] (-0.5,2.8) -- (2.5,2.8);
+\node[font=\scriptsize,blue!60!black,anchor=north] at (axis cs:0,0.55){$x_0-\delta$};
+\node[font=\scriptsize,blue!60!black,anchor=north] at (axis cs:1,0.55){$x_0$};
+\node[font=\scriptsize,blue!60!black,anchor=north] at (axis cs:2,0.55){$x_0+\delta$};
+\node[font=\scriptsize,gray!70,anchor=east,inner sep=2pt] at (axis cs:-0.5,1.0){$A-\varepsilon$};
+\node[font=\scriptsize,gray!70,anchor=east,inner sep=2pt] at (axis cs:-0.5,1.9){$A$};
+\node[font=\scriptsize,gray!70,anchor=east,inner sep=2pt] at (axis cs:-0.5,2.8){$A+\varepsilon$};
+\draw[fill=red] (axis cs:1,1.9) circle (2pt);
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\centerline{\footnotesize 当 $0<|x-x_0|<\delta$ 时，$|f(x)-A|<\varepsilon$，即曲线落在水平带 $A\pm\varepsilon$ 内。}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 在 $x_0$ 处取半径 $\delta$ 的邻域，曲线 $y=f(x)$ 即落入水平带 $A\pm\varepsilon$ 内，故 $0<|x-x_0|<\delta\Rightarrow|f(x)-A|<\varepsilon$，即 $\lim_{x\to x_0}f(x)=A$。}}
 
 \begin{conclusion}{数列极限的基本性质}{conclusion of limit}
     \begin{enumerate}

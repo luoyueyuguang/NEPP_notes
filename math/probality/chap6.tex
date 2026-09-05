@@ -134,16 +134,18 @@
   legend pos=north east, font=\footnotesize,
   domain=-4.5:4.5, samples=220,
 ]
-\addplot[blue,thick] {exp(-x^2/2)/sqrt(2*pi)};
+\addplot[black,dashed,thick] {exp(-x^2/2)/sqrt(2*pi)};
 \addlegendentry{$N(0,1)$}
-\addplot[red,thick] {1/(pi*(1+x^2))};
+\addplot[blue,thick] {1/(pi*(1+x^2))};
 \addlegendentry{$t(1)$}
-\addplot[green!55!black,thick] {0.35355*pow(1+x^2/2,-1.5)};
+\addplot[red,thick] {0.35355*pow(1+x^2/2,-1.5)};
 \addlegendentry{$t(2)$}
-\addplot[orange,thick] {0.37961*pow(1+x^2/5,-3)};
+\addplot[green!55!black,thick] {0.37961*pow(1+x^2/5,-3)};
 \addlegendentry{$t(5)$}
 \end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape $t(n)$ 分布关于 $0$ 对称、期望为 $0$，与 $N(0,1)$（黑色虚线）相比峰更矮、尾巴更厚：$t(1)$（柯西）尾部最重，随自由度 $n$ 增大，$t(n)$ 的密度逐渐逼近 $N(0,1)$（$\lim_{n\to\infty}f_n(t)=\frac{1}{\sqrt{2\pi}}e^{-t^2/2}$）。}
 \end{center}
 
 \begin{mydef}{F分布}{f distribution}
@@ -285,14 +287,14 @@
 ]
 \addplot[blue,thick] {2*x};
 \addlegendentry{$n=2$}
-\addplot[red,thick] {5*x^4};
+\addplot[green!55!black,thick] {5*x^4};
 \addlegendentry{$n=5$}
-\addplot[green!55!black,thick] {10*x^9};
-\addlegendentry{$n=10$}
 \addplot[orange,thick] {20*x^19};
 \addlegendentry{$n=20$}
 \end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 最大次序统计量 $X_{(n)}=\max(X_1,\ldots,X_n)$ 的密度为 $f_{\max}(x)=n x^{n-1}$（$0\le x\le1$）：质量集中在 $x=1$ 附近，$n$ 越大，$X_{(n)}$ 越可能接近 $1$。}
 \end{center}
 
 \begin{center}
@@ -307,14 +309,14 @@
 ]
 \addplot[blue,thick] {2*(1-x)};
 \addlegendentry{$n=2$}
-\addplot[red,thick] {5*(1-x)^4};
+\addplot[green!55!black,thick] {5*(1-x)^4};
 \addlegendentry{$n=5$}
-\addplot[green!55!black,thick] {10*(1-x)^9};
-\addlegendentry{$n=10$}
 \addplot[orange,thick] {20*(1-x)^19};
 \addlegendentry{$n=20$}
 \end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 最小次序统计量 $X_{(1)}=\min(X_1,\ldots,X_n)$ 的密度为 $f_{\min}(x)=n(1-x)^{n-1}$（$0\le x\le1$）：质量集中在 $x=0$ 附近，$n$ 越大，$X_{(1)}$ 越可能接近 $0$。}
 \end{center}
 
 \newpage

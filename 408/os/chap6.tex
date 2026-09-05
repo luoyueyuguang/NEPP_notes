@@ -201,19 +201,20 @@ P2 & $(7,5,5)$ & $(6,0,0)$ & 是 & $(10,5,7)$ \\
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=4.8cm, minimum height=0.6cm] (a) at (0,0) {(1) Work = Available；Finish[i] = false};
-\node[draw, rectangle, fill=SoftBlue, minimum width=4.8cm, minimum height=0.6cm] (b) at (0,-1.9) {(2) 找 i：Finish[i]=false 且 Need[i] $\le$ Work};
-\node[draw, rectangle, fill=SoftTeal, minimum width=4.8cm, minimum height=0.6cm] (c) at (0,-3.8) {(3) Work += Allocation[i]；Finish[i] = true};
-\node[draw, rectangle, fill=SoftGray, minimum width=4.8cm, minimum height=0.6cm] (d) at (0,-5.7) {(4) 全部 Finish[i] = true？};
-\node[draw, rectangle, fill=SoftTeal, minimum width=4.8cm, minimum height=0.6cm] (e) at (0,-7.6) {(5) 安全：输出安全序列};
-\node[draw, rectangle, fill=SoftAmber, minimum width=3.4cm, minimum height=0.6cm] (f) at (5.9,-1.9) {不安全：恐怕死锁};
+\node[draw, rectangle, fill=SoftGray, minimum width=5.2cm, minimum height=0.6cm] (a) at (0,0) {(1) Work = Available；Finish[i]=false};
+\node[draw, rectangle, fill=SoftBlue, minimum width=5.2cm, minimum height=0.6cm] (b) at (0,-1.6) {(2) 找 i：Finish[i]=false 且 Need[i] $\le$ Work};
+\node[draw, rectangle, fill=SoftTeal, minimum width=5.2cm, minimum height=0.6cm] (c) at (0,-3.2) {(3) Work += Allocation[i]；Finish[i]=true};
+\node[draw, rectangle, fill=SoftGray, minimum width=5.2cm, minimum height=0.6cm] (d) at (0,-4.8) {(4) 全部 Finish[i]=true？};
+\node[draw, rectangle, fill=SoftTeal, minimum width=5.2cm, minimum height=0.6cm] (e) at (0,-6.4) {(5) 安全：输出安全序列};
+\node[draw, rectangle, fill=SoftAmber, minimum width=3.8cm, minimum height=0.6cm] (f) at (6.4,-1.6) {不安全：恐怕死锁};
 \draw[->] (a) -- (b);
-\draw[->] (b) -- node[left]{找到} (c);
+\draw[->] (b) -- node[left,pos=0.5]{找到} (c);
 \draw[->] (c) -- (d);
-\draw[->] (d) -- node[left]{是} (e);
+\draw[->] (d) -- node[left,pos=0.5]{是} (e);
 \draw[->] (b.east) -- node[above]{找不到} (f.west);
-\draw[->] (d.west) to[out=180,in=0] node[left]{否} (b.west);
-\node[font=\scriptsize, MutedText] at (0,-8.9) {(2)(3) 循环执行：每轮让一个可完成进程执行完并释放资源};
+\draw[->] (d.west) -- (-4.4,-4.8) -- (-4.4,-1.6) -- (b.west);
+\node[font=\scriptsize, MutedText, anchor=east] at (-4.5,-3.2) {否};
+\node[font=\scriptsize, MutedText] at (0,-7.35) {Work 初值 = Available；Need = Max $-$ Allocation；安全序列 P1$\to$P3$\to$P4$\to$P0$\to$P2};
 \end{tikzpicture}
 \end{center}
 
@@ -682,6 +683,29 @@ CLOCK 也是 12 次缺页（对 3 页框，此引用串两种算法均全部缺�
     \item 写时复制（Copy-on-Write）：\texttt{fork} 后父子共享页表且标记为只读，写操作触发缺页，OS 复制页面。
 \end{itemize}
 \end{attention}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=3.6cm, minimum height=0.7cm] (a) at (0,4.2) {(1) CPU 访问虚拟地址 vaddr};
+\node[draw, rectangle, fill=SoftBlue, minimum width=3.6cm, minimum height=0.7cm] (b) at (0,2.8) {(2) 查 TLB / 页表};
+\node[draw, rectangle, rounded corners=3pt, fill=SoftAmber, minimum width=3.4cm, minimum height=0.8cm, align=center] (c) at (0,1.1) {(3) 页表项有效？};
+\node[draw, rectangle, fill=SoftTeal, minimum width=3.4cm, minimum height=0.8cm, align=center] (d) at (6.5,1.1) {得到物理地址\\访问数据};
+\node[draw, rectangle, fill=SoftAmber, minimum width=3.6cm, minimum height=0.7cm] (e) at (0,-0.7) {(4) 缺页异常};
+\node[draw, rectangle, rounded corners=3pt, fill=SoftAmber, minimum width=3.4cm, minimum height=0.8cm, align=center] (f) at (0,-2.3) {(5) 有空闲页框？};
+\node[draw, rectangle, fill=SoftTeal, minimum width=3.6cm, minimum height=0.8cm, align=center] (g) at (6.5,-2.3) {(6) 从文件读入数据\\建立映射};
+\node[draw, rectangle, fill=SoftBlue, minimum width=4.0cm, minimum height=0.9cm, align=center] (h) at (0,-4.1) {(7) 页面置换（LRU/CLOCK）\\ 脏页写回并换入};
+\node[draw, rectangle, fill=SoftTeal, minimum width=3.8cm, minimum height=0.9cm, align=center] (i) at (0,-5.9) {(8) 更新页表 $\to$ 重新执行\ $\to$ 访问数据（完成）};
+\draw[->] (a) -- (b);
+\draw[->] (b) -- (c);
+\draw[->] (c.east) -- node[above]{命中} (d.west);
+\draw[->] (c.south) -- node[left]{缺页} (e.north);
+\draw[->] (e) -- (f);
+\draw[->] (f.east) -- node[above]{有空闲} (g.west);
+\draw[->] (f.south) -- node[left]{无空闲} (h.north);
+\draw[->] (g.south) |- node[right,pos=0.3]{建立映射} (i.east);
+\draw[->] (h) -- (i);
+\end{tikzpicture}
+\end{center}
 \end{conclusion}
 
 \newpage

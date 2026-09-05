@@ -38,9 +38,11 @@
 \addplot[fill=blue!38,draw=blue!60!black]
   coordinates {(1,0.1)(2,0.25)(3,0.3)(4,0.2)(5,0.15)};
 \draw[dashed,red!70!black,thick] (axis cs:3.05,0) -- (axis cs:3.05,0.34);
-\node[font=\scriptsize,red!70!black] at (axis cs:3.05,0.365){$E(X)=3.05$};
+\node[font=\scriptsize,red!70!black] at (axis cs:3.05,0.37){重心 $E(X)=3.05$};
 \end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 期望 $E(X)=\sum_i x_i p_i$ 是以概率 $p_i$ 为权重的加权平均：把柱子的“质量”放到取值 $x_i$ 上，$E(X)=1\cdot0.1+2\cdot0.25+3\cdot0.3+4\cdot0.2+5\cdot0.15=3.05$，即分布“质量”的平衡点（重心）。}
 \end{center}
 
 \begin{conclusion}{随机变量的数学期望的性质}{expectation of random variable properties}
@@ -195,21 +197,31 @@ D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
 \begin{tikzpicture}
 \begin{axis}[
   width=0.82\linewidth, height=5.2cm,
-  xmin=-2.5, xmax=2.5, ymin=-2.5, ymax=2.5,
-  xtick={-1,1}, ytick={-1,1},
+  xmin=-2.6, xmax=2.6, ymin=-2.6, ymax=2.6,
   axis lines=center, font=\footnotesize,
+  xlabel={$x$}, ylabel={$y$},
+  xtick=\empty, ytick=\empty,
 ]
-\fill[blue!12] (0,0) rectangle (2.4,2.4);
-\fill[blue!12] (-2.4,-2.4) rectangle (0,0);
-\fill[red!12] (-2.4,0) rectangle (0,2.4);
-\fill[red!12] (0,-2.4) rectangle (2.4,0);
-\node[font=\scriptsize,blue!60!black] at (1.5,1.5){$+$};
-\node[font=\scriptsize,blue!60!black] at (-1.5,-1.5){$+$};
-\node[font=\scriptsize,red!60!black] at (-1.5,1.5){$-$};
-\node[font=\scriptsize,red!60!black] at (1.5,-1.5){$-$};
-\node[font=\scriptsize,align=center,anchor=north] at (0,-2.6){$\mathrm{Cov}(X,Y)=E[(X-\bar X)(Y-\bar Y)]$};
+\fill[blue!10] (0,0) rectangle (2.4,2.4);
+\fill[blue!10] (-2.4,-2.4) rectangle (0,0);
+\fill[red!10] (-2.4,0) rectangle (0,2.4);
+\fill[red!10] (0,-2.4) rectangle (2.4,0);
+\node[font=\footnotesize,blue!60!black] at (1.5,1.5){$+$};
+\node[font=\footnotesize,blue!60!black] at (-1.5,-1.5){$+$};
+\node[font=\footnotesize,red!60!black] at (-1.5,1.5){$-$};
+\node[font=\footnotesize,red!60!black] at (1.5,-1.5){$-$};
+\draw[fill=black] (axis cs:0,0) circle (1.2pt);
+\node[font=\scriptsize,anchor=north] at (axis cs:0,-0.15){$(\mu_x,\mu_y)$};
+\draw[dashed,gray!60] (axis cs:1.1,0) -- (axis cs:1.1,1.4);
+\draw[dashed,gray!60] (axis cs:0,1.4) -- (axis cs:1.1,1.4);
+\node[circle,fill=black,inner sep=1.5pt] at (axis cs:1.1,1.4){};
+\node[font=\tiny,blue!60!black] at (axis cs:0.52,0.22){$x-\mu_x$};
+\node[font=\tiny,blue!60!black] at (axis cs:0.12,0.72){$y-\mu_y$};
+\node[font=\tiny,blue!60!black] at (axis cs:1.72,1.15){$(+)(+)=+$};
 \end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape $\mathrm{Cov}(X,Y)=E[(X-\mu_X)(Y-\mu_Y)]$：以均值点 $(\mu_X,\mu_Y)$ 为原点，第一、三象限 $(x-\mu_X)$ 与 $(y-\mu_Y)$ 同号、乘积为正（$X,Y$ 同向变化），第二、四象限异号、乘积为负（反向变化），故 $\mathrm{Cov}$ 的符号反映 $X,Y$ 同向还是反向。}
 \end{center}
 
 \begin{mydef}{相关系数}{correlation coefficient}

@@ -206,20 +206,37 @@ CPU 与主存通过 MAR（存储器地址寄存器）和 MDR（存储器数据�
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.9cm,minimum height=0.8cm] (id) at (0,0){ID 读寄存器};
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=1.9cm,minimum height=0.8cm] (mux) at (2.4,0){转发 mux};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.7cm,minimum height=0.8cm] (ex) at (4.55,0){EX};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.8cm] (mem) at (6.75,0){MEM};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.8cm] (wb) at (8.95,0){WB};
-  \draw[->] (id) -- (mux);
-  \draw[->] (mux) -- (ex);
-  \draw[->] (ex) -- (mem);
-  \draw[->] (mem) -- (wb);
-  \draw[Burgundy!70,->] (5.4,0.42) -- (5.4,1.25) -- (2.4,1.25) -- (2.4,0.42);
-  \draw[Teal!70,->] (7.6,0.42) -- (7.6,1.9) -- (2.4,1.9) -- (2.4,0.42);
-  \node[font=\scriptsize,black!70] at (4.9,1.28){转发：EX/MEM $\to$ EX};
-  \node[font=\scriptsize,black!70] at (4.9,1.92){转发：MEM/WB $\to$ EX};
-  \node[font=\scriptsize,black!70,align=center] at (4.9,-0.6){相邻 ALU 指令的 RAW 可转发解决；Load-use 冒险中 lw 的数据到 MEM 阶段才就绪，仍须阻塞 1 拍};
+  % ===== ① 结构冒险 =====
+  \node[draw,rounded corners=3pt,fill=SoftGray,minimum width=4.8cm,minimum height=4.4cm] at (-5.3,2.2){};
+  \node[font=\scriptsize\bfseries,text=Navy] at (-5.3,4.0){(1) 结构冒险（资源冲突）};
+  \node[font=\scriptsize,align=center,text width=4.3cm] at (-5.3,3.35){多条指令同时访问同一功能部件（如单端口存储器）};
+  \node[draw,fill=SoftAmber,minimum width=1.4cm,minimum height=0.5cm] (a1) at (-6.6,2.5){I1};
+  \node[draw,fill=SoftAmber,minimum width=1.4cm,minimum height=0.5cm] (a2) at (-6.6,1.8){I2};
+  \node[draw,fill=SoftTeal,minimum width=1.8cm,minimum height=0.6cm,align=center] (r1) at (-4.55,2.15){访存部件\\（单端口）};
+  \draw[->,Burgundy!80] (a1.east) -- (r1.west);
+  \draw[->,Burgundy!80] (a2.east) -- (r1.west);
+  \node[font=\tiny,Burgundy!90] at (-4.55,2.93){同一周期冲突};
+  \node[font=\scriptsize,text=TealDark,align=center,text width=4.3cm] at (-5.3,0.8){解决：指令/数据 Cache 分离；功能部件流水化};
+
+  % ===== ② 数据冒险（RAW）=====
+  \node[draw,rounded corners=3pt,fill=SoftGray,minimum width=4.8cm,minimum height=4.4cm] at (0,2.2){};
+  \node[font=\scriptsize\bfseries,text=Navy] at (0,4.0){(2) 数据冒险（RAW 写后读）};
+  \node[font=\scriptsize,align=center,text width=4.3cm] at (0,3.35){I2 在 I1 写入 R1 之前就读 R1（写后读）};
+  \node[draw,fill=SoftAmber,minimum width=3.7cm,minimum height=0.55cm,align=center] (b1) at (0,2.5){I1: add R1,R2,R3（WB 写 R1）};
+  \node[draw,fill=SoftGray,minimum width=3.7cm,minimum height=0.55cm,align=center] (b2) at (0,1.55){I2: sub R4,R1,R5（ID 读 R1）};
+  \draw[->,Burgundy!80] (b1.south) -- (b2.north);
+  \node[font=\tiny,Burgundy!90] at (0,2.02){过早读};
+  \node[font=\scriptsize,text=TealDark,align=center,text width=4.3cm] at (0,0.8){解决：转发/旁路；Load-use 阻塞；编译调度};
+
+  % ===== (3) 控制冒险（分支）=====
+  \node[draw,rounded corners=3pt,fill=SoftGray,minimum width=4.8cm,minimum height=4.4cm] at (5.3,2.2){};
+  \node[font=\scriptsize\bfseries,text=Navy] at (5.3,4.0){(3) 控制冒险（分支）};
+  \node[font=\scriptsize,align=center,text width=4.3cm] at (5.3,3.35){分支指令使下一条指令的 PC 在判定前未知};
+  \node[draw,fill=SoftAmber,minimum width=2.1cm,minimum height=0.55cm,align=center] (c1) at (3.9,2.15){beq（分支）};
+  \node[draw,fill=SoftGray,minimum width=2.1cm,minimum height=0.55cm,align=center] (c2) at (6.4,2.15){下一条指令};
+  \draw[dashed,->,Burgundy!80] (c1.east) -- (c2.west);
+  \node[font=\tiny,Burgundy!90] at (5.15,2.62){PC 未知};
+  \node[font=\scriptsize,text=TealDark,align=center,text width=4.3cm] at (5.3,0.8){解决：分支预测（静态/动态 BHT）；延迟分支};
 \end{tikzpicture}
 \end{center}
 

@@ -37,26 +37,29 @@
 
 \begin{center}
 \begin{tikzpicture}
-\begin{axis}[width=0.8\linewidth, height=5.4cm,
+\begin{axis}[width=0.82\linewidth, height=5.6cm,
   xlabel={$x$}, ylabel={$y$},
-  xmin=-0.3, xmax=2.3, ymin=-0.1, ymax=1.1,
+  xmin=-0.25, xmax=2.05, ymin=-0.15, ymax=1.15,
   xtick={0,0.5,1,1.5,2}, ytick={0,0.5,1},
-  domain=-0.3:2.3, samples=160, font=\footnotesize,
+  domain=-0.25:2.05, samples=160, font=\footnotesize,
   legend pos=north west]
-\addplot[blue,thick] {x^2/4};
+\addplot[blue,very thick] {x^2/4};
 \addlegendentry{$y=f(x)$}
-\addplot[red,thick] {0.75*x-0.5625};
+\addplot[red,ultra thick] {0.75*x-0.5625};
 \addlegendentry{切线 $T$}
-\addplot[gray!60,thin] {0.55*x-0.2625};
+\addplot[orange!80!black,thick] {0.55*x-0.2625};
 \addlegendentry{割线 $PQ_1$}
-\addplot[gray!30,thin] {0.65*x-0.4125};
+\addplot[teal!80!black,thick] {0.65*x-0.4125};
 \addlegendentry{割线 $PQ_2$}
-\addplot[only marks,mark=*,black] coordinates {(1.5,0.5625)};
-\addplot[only marks,mark=o,black] coordinates {(0.7,0.1225) (1.1,0.3025)};
+\addplot[only marks,mark=*,mark size=2pt,red!80!black] coordinates {(1.5,0.5625)};
+\addplot[only marks,mark=o,mark size=2pt,black] coordinates {(0.7,0.1225) (1.1,0.3025)};
+\node[font=\scriptsize,red!80!black,anchor=west] at (axis cs:1.55,0.53){$P$};
+\node[font=\scriptsize,black,anchor=east] at (axis cs:0.68,0.10){$Q_1$};
+\node[font=\scriptsize,black,anchor=north] at (axis cs:1.10,0.31){$Q_2$};
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\centerline{\footnotesize 当 $Q\to P$ 时割线 $PQ$ 无限趋近 $P$ 点的切线，其斜率极限即 $f'(x_0)$。}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 曲线上的动点 $Q$ 沿曲线趋向定点 $P$：割线 $PQ_1$、$PQ_2$ 的斜率不断逼近 $P$ 处切线 $T$ 的斜率，其极限即为 $f'(x_0)$，即切线的斜率。}}
 
 \begin{conclusion}{单侧可导与双侧可导的关系}{left-sided-derivative-relation}
     \(f(x)\)在\(x_0\)处可导\(\Leftrightarrow\)\(f(x)\)在\(x_0\)处左右导数均存在且相等，即

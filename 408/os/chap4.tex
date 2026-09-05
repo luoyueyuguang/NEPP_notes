@@ -73,6 +73,37 @@
 \end{tikzpicture}
 \end{center}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.6cm] (e1) at (-8.0,3.0) {直接块$\times$10};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.6cm] (e2) at (-8.0,1.2) {一级间接};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.6cm] (e3) at (-8.0,-0.6) {二级间接};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.6cm] (e4) at (-8.0,-2.4) {三级间接};
+\node[font=\scriptsize, text=Navy] at (-8.0,3.7) {\textbf{i-node（索引节点）}};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.6cm, minimum height=0.6cm] (d1) at (3.5,3.0) {数据块};
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (s1) at (-2.4,1.2) {一级间接块};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.6cm, minimum height=0.6cm] (d2) at (3.5,1.2) {数据块};
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (b2) at (-5.0,-0.6) {二级间接块};
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (s2) at (-0.8,-0.6) {一级间接块};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.6cm, minimum height=0.6cm] (d3) at (3.5,-0.6) {数据块};
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (t3) at (-5.6,-2.4) {三级间接块};
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (b3) at (-2.8,-2.4) {二级间接块};
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (s3) at (0.0,-2.4) {一级间接块};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.6cm, minimum height=0.6cm] (d4) at (3.5,-2.4) {数据块};
+\draw[->] (e1.east) -- (d1.west);
+\draw[->] (e2.east) -- (s1.west);
+\draw[->] (s1.east) -- (d2.west);
+\draw[->] (e3.east) -- (b2.west);
+\draw[->] (b2.east) -- (s2.west);
+\draw[->] (s2.east) -- (d3.west);
+\draw[->] (e4.east) -- (t3.west);
+\draw[->] (t3.east) -- (b3.west);
+\draw[->] (b3.east) -- (s3.west);
+\draw[->] (s3.east) -- (d4.west);
+\node[font=\scriptsize, MutedText] at (-0.9,-3.5) {直接块数决定小文件无需间接层；文件越大，间接层越多，可支持的文件上限越大};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 重点辨析：FCB（文件控制块）与 i-node。} FCB 包含文件名和索引指针等信息。UNIX 将文件名和索引指针分离：目录项只存文件名和 i-node 号，i-node 存除文件名外的所有信息。这样做的好处是支持文件硬链接（多个目录项指向同一 i-node）。
 \end{attention}

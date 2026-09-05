@@ -74,17 +74,17 @@
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftBlue, minimum width=4.0cm, minimum height=0.55cm] (m1) at (0,0) {进程管理};
-\node[draw, rectangle, fill=SoftBlue, minimum width=4.0cm, minimum height=0.55cm] (m2) at (0,-0.75) {内存管理};
-\node[draw, rectangle, fill=SoftBlue, minimum width=4.0cm, minimum height=0.55cm] (m3) at (0,-1.5) {文件系统};
-\node[draw, rectangle, fill=SoftBlue, minimum width=4.0cm, minimum height=0.55cm] (m4) at (0,-2.25) {设备驱动};
-\node[draw, rectangle, fill=Teal!15, minimum width=4.0cm, minimum height=0.55cm] (m5) at (0,-3.0) {内核态（整体）};
-\node[font=\scriptsize] at (0,0.5) {\textbf{大内核}};
-\node[draw, rectangle, fill=SoftAmber, minimum width=4.0cm, minimum height=0.55cm] (k1) at (6.4,0) {进程调度 / 进程通信 / 中断};
-\node[draw, rectangle, fill=SoftGray, minimum width=4.0cm, minimum height=0.55cm] (k2) at (6.4,-0.9) {文件系统、设备驱动等（用户态服务）};
-\node[draw, rectangle, fill=SoftGray, minimum width=4.0cm, minimum height=0.55cm] (k3) at (6.4,-1.8) {其余功能（运行于用户态）};
-\node[draw, rectangle, fill=Teal!15, minimum width=4.0cm, minimum height=0.55cm] (k4) at (6.4,-2.7) {内核态（最小核心）};
-\node[font=\scriptsize] at (6.4,0.5) {\textbf{微内核}};
+\node[draw, rectangle, fill=SoftGray, minimum width=11.0cm, minimum height=0.85cm, rounded corners=2pt] (user) at (0,2.6) {用户态（User Mode）：用户进程 / 应用程序};
+\node[draw, rectangle, fill=SoftTeal, minimum width=11.6cm, minimum height=2.0cm, rounded corners=3pt] (kernel) at (0,0.2) {};
+\node[font=\scriptsize, text=Navy] at (0,0.95) {\textbf{内核（Kernel）——常驻内存}};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.62cm] (m1) at (-4.5,-0.15) {进程管理};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.62cm] (m2) at (-2.25,-0.15) {内存管理};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.62cm] (m3) at (0,-0.15) {文件管理};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.62cm] (m4) at (2.25,-0.15) {设备管理};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.62cm] (m5) at (4.5,-0.15) {网络};
+\node[draw, rectangle, fill=SoftAmber, minimum width=11.0cm, minimum height=0.85cm, rounded corners=2pt] (hw) at (0,-1.9) {硬件（Hardware）：CPU / 内存 / 设备};
+\draw[dashed, RuleGray] (-5.7,1.45) -- (5.7,1.45);
+\node[fill=white, font=\scriptsize, text=MutedText, rounded corners=1pt, inner sep=1pt] at (0,1.45) {态切换：系统调用 / 中断 / 异常};
 \end{tikzpicture}
 \end{center}
 

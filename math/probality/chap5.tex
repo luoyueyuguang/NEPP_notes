@@ -139,23 +139,23 @@
 \begin{axis}[
   width=0.84\linewidth, height=5.4cm,
   xlabel={$z$}, ylabel={概率密度},
-  xmin=-3, xmax=5.5, ymin=0, ymax=1.08,
+  xmin=-3, xmax=5.5, ymin=0, ymax=1.06,
   xtick={-2,0,2,4}, ytick={0,0.2,0.4,0.6,0.8,1.0},
   legend pos=north east, font=\footnotesize,
-  domain=-3:5.5, samples=180,
+  domain=-3:5.5, samples=200,
 ]
 \addplot[blue,thick,domain=-1:5.5] {exp(-(x+1))};
 \addlegendentry{$n=1$}
-\addplot[red,thick,domain=-1.41:5.5] {1.4142*(1.4142*x+2)*exp(-(1.4142*x+2))};
-\addlegendentry{$n=2$}
 \addplot[green!55!black,thick,domain=-2.24:5.5] {0.09317*pow(2.2361*x+5,4)*exp(-(2.2361*x+5))};
 \addlegendentry{$n=5$}
-\addplot[orange,thick,domain=-5.3:5.5] {0.39784*pow(1+0.18257*x,29)*exp(-5.4772*x)};
+\addplot[red,thick,domain=-5.3:5.5] {0.39784*pow(1+0.18257*x,29)*exp(-5.4772*x)};
 \addlegendentry{$n=30$}
-\addplot[gray,dashed,thick] {0.3989*exp(-x^2/2)};
+\addplot[black,dashed,thick] {0.3989*exp(-x^2/2)};
 \addlegendentry{$N(0,1)$}
 \end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 标准化样本和 $Z_n=\frac{\sum X_i-n\mu}{\sqrt n\,\sigma}$ 的密度随 $n$ 增大而趋近 $N(0,1)$（黑色虚线）：$n=1$ 明显偏斜，$n=5$ 已接近钟形，$n=30$ 几乎与 $N(0,1)$ 重合——这正是中心极限定理。}
 \end{center}
 
 \subsection{其他事项}

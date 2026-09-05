@@ -48,25 +48,45 @@
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[anchor=east] at (-0.3,2.0){二地址};
-  \draw[thick,fill=Amber!18] (0,1.8) rectangle (1.5,2.2) node[midway,font=\tiny]{OP};
-  \node[font=\tiny,black!70] at (0.75,2.32){4位};
-  \draw[thick,fill=SoftGray] (1.5,1.8) rectangle (3.7,2.2) node[midway,font=\tiny]{A1};
-  \node[font=\tiny] at (2.6,2.32){6位};
-  \draw[thick,fill=SoftGray] (3.7,1.8) rectangle (5.9,2.2) node[midway,font=\tiny]{A2};
-  \node[font=\tiny] at (4.8,2.32){6位};
-  \node[font=\scriptsize,black!70] at (7.0,2.0){OP=0000..1110 为 15 条二地址指令};
-  \node[anchor=east] at (-0.3,1.3){一地址};
-  \draw[thick,fill=Amber!18] (0,1.1) rectangle (1.5,1.5) node[midway,font=\tiny]{1111};
-  \draw[thick,fill=Teal!18] (1.5,1.1) rectangle (3.7,1.5) node[midway,font=\tiny]{扩展OP（A1）};
-  \draw[thick,fill=SoftGray] (3.7,1.1) rectangle (5.9,1.5) node[midway,font=\tiny]{A2};
-  \node[font=\scriptsize,black!70] at (7.0,1.3){OP=1111 时取 A1 作扩展};
-  \node[anchor=east] at (-0.3,0.6){零地址};
-  \draw[thick,fill=Amber!18] (0,0.4) rectangle (1.5,0.8) node[midway,font=\tiny]{1111};
-  \draw[thick,fill=Teal!18] (1.5,0.4) rectangle (3.7,0.8) node[midway,font=\tiny]{111111};
-  \draw[thick,fill=Teal!18] (3.7,0.4) rectangle (5.9,0.8) node[midway,font=\tiny]{扩展OP（A2）};
-  \node[font=\scriptsize,black!70] at (7.0,0.6){扩展OP 全 1 时再扩展};
-  \node[font=\scriptsize,black!70,align=center] at (2.95,-0.25){短操作码不能是长操作码的前缀，否则译码歧义};
+  % ===== 定长操作码 =====
+  \node[anchor=east,text=Navy,font=\scriptsize] at (0.45,3.8){定长};
+  \draw[thick,fill=Amber!18] (1.0,3.55) rectangle (2.0,4.05) node[midway]{OP};
+  \draw[thick,fill=SoftGray] (2.0,3.55) rectangle (3.5,4.05) node[midway]{A1};
+  \draw[thick,fill=SoftGray] (3.5,3.55) rectangle (5.0,4.05) node[midway]{A2};
+  \node at (1.5,3.31){4位};
+  \node at (2.75,3.31){6位};
+  \node at (4.25,3.31){6位};
+  \node[anchor=west,text=TealDark] at (5.5,3.8){OP 固定 4 位，最多 $2^4$ 种};
+
+  % ===== 扩展操作码（可变长度）=====
+  \node[anchor=east,text=Navy,font=\scriptsize] at (0.45,2.1){二地址};
+  \draw[thick,fill=Amber!18] (1.0,1.85) rectangle (2.0,2.35) node[midway]{OP};
+  \draw[thick,fill=SoftGray] (2.0,1.85) rectangle (3.5,2.35) node[midway]{A1};
+  \draw[thick,fill=SoftGray] (3.5,1.85) rectangle (5.0,2.35) node[midway]{A2};
+  \node at (1.5,1.61){4位};
+  \node at (2.75,1.61){6位};
+  \node at (4.25,1.61){6位};
+  \node[anchor=west] at (5.5,2.1){OP$=0000{\sim}1110$ 为 15 种};
+
+  \node[anchor=east,text=Navy,font=\scriptsize] at (0.45,0.4){一地址};
+  \draw[thick,fill=Amber!18] (1.0,0.15) rectangle (2.0,0.65) node[midway]{1111};
+  \draw[thick,fill=Teal!18] (2.0,0.15) rectangle (3.5,0.65) node[midway]{扩展 OP};
+  \draw[thick,fill=SoftGray] (3.5,0.15) rectangle (5.0,0.65) node[midway]{A2};
+  \node at (1.5,-0.09){4位};
+  \node at (2.75,-0.09){6位};
+  \node at (4.25,-0.09){6位};
+  \node[anchor=west] at (5.5,0.4){OP$=1111$ 时 A1 作扩展};
+
+  \node[anchor=east,text=Navy,font=\scriptsize] at (0.45,-1.3){零地址};
+  \draw[thick,fill=Amber!18] (1.0,-1.55) rectangle (2.0,-1.05) node[midway]{1111};
+  \draw[thick,fill=Teal!18] (2.0,-1.55) rectangle (3.5,-1.05) node[midway]{111111};
+  \draw[thick,fill=Burgundy!18] (3.5,-1.55) rectangle (5.0,-1.05) node[midway]{扩展 OP};
+  \node at (1.5,-1.79){4位};
+  \node at (2.75,-1.79){6位};
+  \node at (4.25,-1.79){6位};
+  \node[anchor=west] at (5.5,-1.3){扩展 OP 全 1 时 A2 再扩展};
+
+  \node[font=\scriptsize,black!70,align=center] at (2.8,-2.55){短操作码不能是长操作码的前缀，否则译码歧义（哈夫曼前缀性质）};
 \end{tikzpicture}
 \end{center}
 

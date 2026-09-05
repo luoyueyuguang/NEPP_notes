@@ -62,19 +62,42 @@ Flash & NAND/NOR Flash & 块擦除、页编程 & 非易失 \\
 现代计算机采用多级存储结构，从上到下容量递增、速度递减、每字节成本递减：
 
 \begin{center}
-\begin{tikzpicture}[node distance=1.5cm, auto]
-\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!10] (reg) {寄存器（CPU 内部）};
-\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!20, below of=reg] (cache) {Cache（SRAM）};
-\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!30, below of=cache] (mem) {主存（DRAM）};
-\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=gray!40, below of=mem] (disk) {辅存（磁盘/SSD）};
-\node[right of=reg, node distance=4cm] (speed) {\small 访问速度：最快};
-\node[right of=cache, node distance=4cm] (speed2) {\small 很快};
-\node[right of=mem, node distance=4cm] (speed3) {\small 较慢};
-\node[right of=disk, node distance=4cm] (speed4) {\small 最慢};
-\node[left of=reg, node distance=5cm] (size) {\small 容量：最小};
-\node[left of=cache, node distance=5cm] (size2) {\small 较小};
-\node[left of=mem, node distance=5cm] (size3) {\small 较大};
-\node[left of=disk, node distance=5cm] (size4) {\small 最大};
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % ===== 经典存储层次金字塔（上窄下宽 = 容量增大、速度减小）=====
+  % 光盘/磁带（最底层）
+  \filldraw[draw=Navy!55,fill=gray!44] (-3.584,0.68) -- (3.584,0.68) -- (4.23,0.0) -- (-4.23,0.0) -- cycle;
+  \node at (0,0.34) {光盘、磁带（辅存）};
+  % 磁盘/SSD
+  \filldraw[draw=Navy!55,fill=gray!34] (-2.938,1.36) -- (2.938,1.36) -- (3.584,0.68) -- (-3.584,0.68) -- cycle;
+  \node at (0,1.02) {磁盘、SSD（辅存）};
+  % 主存
+  \filldraw[draw=Navy!55,fill=gray!26] (-2.292,2.04) -- (2.292,2.04) -- (2.938,1.36) -- (-2.938,1.36) -- cycle;
+  \node at (0,1.70) {主存（DRAM）};
+  % Cache
+  \filldraw[draw=Navy!55,fill=gray!18] (-1.646,2.72) -- (1.646,2.72) -- (2.292,2.04) -- (-2.292,2.04) -- cycle;
+  \node at (0,2.38) {Cache（SRAM）};
+  % 寄存器（最顶层）
+  \filldraw[draw=Navy!55,fill=gray!8] (-1.0,3.4) -- (1.0,3.4) -- (1.646,2.72) -- (-1.646,2.72) -- cycle;
+  \node at (0,3.06) {寄存器（CPU 内）};
+
+  % ===== 左侧：容量（向底部增大）=====
+  \node[anchor=east,font=\scriptsize\bfseries,text=TealDark] at (-5.7,3.62){容量 $\uparrow$};
+  \node[anchor=east] at (-5.7,3.06){极小};
+  \node[anchor=east] at (-5.7,2.38){小};
+  \node[anchor=east] at (-5.7,1.70){中};
+  \node[anchor=east] at (-5.7,1.02){大};
+  \node[anchor=east] at (-5.7,0.34){极大};
+
+  % ===== 右侧：速度（向底部减小）=====
+  \node[anchor=west,font=\scriptsize\bfseries,text=TealDark] at (5.7,3.62){速度 $\downarrow$};
+  \node[anchor=west] at (5.7,3.06){最快};
+  \node[anchor=west] at (5.7,2.38){快};
+  \node[anchor=west] at (5.7,1.70){中};
+  \node[anchor=west] at (5.7,1.02){慢};
+  \node[anchor=west] at (5.7,0.34){最慢};
+
+  % ===== 底部说明 =====
+  \node[font=\scriptsize,text=Navy] at (0,-0.7){每字节成本：寄存器 $>$ Cache $>$ 主存 $>$ 磁盘 $>$ 光盘/磁带};
 \end{tikzpicture}
 \end{center}
 
@@ -285,17 +308,32 @@ Cache 中的多端口实现常基于双口 RAM。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % bank selector on the left
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.2cm,minimum height=1.5cm,align=center] (dec) at (-3.6,0.6){地址译码\\（低位 2 位选体）};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=5.6cm,minimum height=0.68cm,align=center] (b0) at (1.6,1.7){Bank 0（低位 $00$）：字地址 $0,4,8,12\ldots$};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=5.6cm,minimum height=0.68cm,align=center] (b1) at (1.6,0.9){Bank 1（低位 $01$）：字地址 $1,5,9,13\ldots$};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=5.6cm,minimum height=0.68cm,align=center] (b2) at (1.6,0.1){Bank 2（低位 $10$）：字地址 $2,6,10,14\ldots$};
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=5.6cm,minimum height=0.68cm,align=center] (b3) at (1.6,-0.7){Bank 3（低位 $11$）：字地址 $3,7,11,15\ldots$};
-  \draw[thick,Navy!70] (-2.5,0.6) -- (1.6,1.7) node[midway,above,font=\scriptsize,black!70]{};
-  \draw[thick,Navy!70] (-2.5,0.6) -- (1.6,0.9);
-  \draw[thick,Navy!70] (-2.5,0.6) -- (1.6,0.1);
-  \draw[thick,Navy!70] (-2.5,0.6) -- (1.6,-0.7);
-  \node[font=\scriptsize,black!70] at (1.6,-1.55){连续字地址依次落入不同体，可流水访问（每隔 $T/m$ 启动下一体）};
+  % ===== ① 连续地址流 =====
+  \node[font=\scriptsize\bfseries,text=Navy] at (0,4.5){连续地址流（逐字递增）};
+  \foreach \a in {0,...,7}{
+    \pgfmathsetmacro{\x}{-3.325+0.95*\a}
+    \draw[thick,fill=SoftAmber] (\x-0.42,4.02) rectangle (\x+0.42,4.42);
+    \node at (\x,4.22){\a};
+  }
+  \node[font=\scriptsize] at (4.05,4.22){$\dots$};
+
+  % ===== ② 低位地址选体 =====
+  \draw[->,thick,Navy] (0,4.02) -- (0,3.38);
+  \node[draw,rounded corners=2pt,fill=SoftGray,align=center,minimum width=3.0cm,minimum height=0.62cm] at (0,3.06){体号 $=$ 低位地址\\（地址 $\bmod 4$）};
+  \draw[->,thick,Navy] (0,2.74) -- (0,2.4);
+
+  % ===== ③ 分发到 4 个存储体 =====
+  \foreach \b in {0,...,3}{
+    \pgfmathsetmacro{\bx}{-3.45+2.3*\b}
+    \draw[->,thick,Navy] (0,2.4) -- ({\bx},1.82);
+  }
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.2cm,minimum height=1.4cm,align=center] at (-3.45,1.05){体号 0\\(低位 $00$)\\字 $0,4,8,12$};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.2cm,minimum height=1.4cm,align=center] at (-1.15,1.05){体号 1\\(低位 $01$)\\字 $1,5,9,13$};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.2cm,minimum height=1.4cm,align=center] at (1.15,1.05){体号 2\\(低位 $10$)\\字 $2,6,10,14$};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.2cm,minimum height=1.4cm,align=center] at (3.45,1.05){体号 3\\(低位 $11$)\\字 $3,7,11,15$};
+
+  % ===== ④ 说明 =====
+  \node[font=\scriptsize,text=TealDark,align=center] at (0,-0.75){连续字地址依次落入不同存储体 $\Rightarrow$ 可流水访问（每隔 $T/m$ 启动下一体）};
 \end{tikzpicture}
 \end{center}
 
@@ -674,20 +712,30 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.0cm,minimum height=0.85cm,align=center] (va) at (-3.6,0.9){虚拟地址 VA\\VPN | VPO};
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.2cm,minimum height=0.85cm,align=center] (tlb) at (-0.4,0.9){TLB 查找\\（按 VPN 相联比较）};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.0cm,minimum height=0.85cm,align=center] (pa) at (2.6,0.9){物理地址 PA\\PPN | VPO};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.2cm,minimum height=0.85cm,align=center] (ca) at (5.6,0.9){Cache 查找\\（按 PA 的 Index/Tag）};
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.7cm,minimum height=0.85cm,align=center] (dat) at (8.2,0.9){返回数据};
-  \draw[->] (va) -- (tlb);
-  \draw[->] (tlb) -- node[above,font=\scriptsize]{命中} (pa);
-  \draw[->] (pa) -- (ca);
-  \draw[->] (ca) -- node[above,font=\scriptsize]{命中} (dat);
-  \draw[->,Amber!70] (tlb) to[out=180,in=90] (-3.6,-0.35) node[align=center,font=\scriptsize,black!70]{};
-  \node[align=center,font=\scriptsize,black!70] at (-3.6,-0.7){TLB 缺失：访主存页表\\装入 PTE 后重新查找};
-  \node[align=center,font=\scriptsize,black!70] at (5.6,-0.7){Cache 缺失：从主存/\\下级 Cache 装入块};
-  \draw[->,Teal!70] (ca) to[out=270,in=90] (5.6,-0.2);
-  \draw[->,Amber!70] (tlb) to[out=270,in=90] (-0.4,-0.2);
+  % ===== 主流程（命中：垂直向下）=====
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.4cm,minimum height=0.85cm,align=center] (VA) at (0,5.5){(1) 虚拟地址 VA\\VPN $|$ VPO};
+  \draw[->,thick,Navy] (VA.south) -- (0,4.6);
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.6cm,minimum height=0.85cm,align=center] (TLB) at (0,4.15){(2) TLB 查找\\按 VPN 相联比较};
+  \draw[->,thick,Navy] (TLB.south) -- (0,3.25);
+  \node[font=\scriptsize,text=TealDark] at (-0.62,3.5){命中};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.4cm,minimum height=0.85cm,align=center] (PA) at (0,2.8){(3) 物理地址 PA\\PPN $|$ VPO};
+  \draw[->,thick,Navy] (PA.south) -- (0,1.9);
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.6cm,minimum height=0.85cm,align=center] (CACH) at (0,1.45){(4) Cache 查找\\按 PA 的 Index};
+  \draw[->,thick,Navy] (CACH.south) -- (0,0.55);
+  \node[font=\scriptsize,text=TealDark] at (-0.62,0.8){命中};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.0cm,minimum height=0.85cm,align=center] (DAT) at (0,0.1){(5) 返回数据};
+
+  % ===== 缺失分支（水平向右）=====
+  \draw[->,thick,Amber!85] (TLB.east) -- (2.9,4.15);
+  \node[font=\scriptsize,text=Amber!90] at (2.05,4.45){缺失};
+  \node[draw,rounded corners=2pt,fill=Amber!15,minimum width=4.5cm,minimum height=0.85cm,align=center] at (5.2,4.15){TLB 缺失：访主存页表取 PTE\\（装入 TLB 后重新执行）};
+
+  \draw[->,thick,Teal!85] (CACH.east) -- (2.9,1.45);
+  \node[font=\scriptsize,text=Teal!90] at (2.05,1.75){缺失};
+  \node[draw,rounded corners=2pt,fill=Teal!15,minimum width=4.5cm,minimum height=0.85cm,align=center] at (5.2,1.45){Cache 缺失：从主存/下级 Cache 装入块\\（装入后继续本次访问）};
+
+  % ===== 底部说明 =====
+  \node[font=\scriptsize,text=Navy,align=center] at (0,-0.95){TLB 与 Cache 都命中时，无需因本次访问再访问主存};
 \end{tikzpicture}
 \end{center}
 

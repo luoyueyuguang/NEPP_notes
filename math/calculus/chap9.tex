@@ -27,24 +27,27 @@
 \begin{axis}[
   axis lines=center,
   xlabel=$x$, ylabel=$y$, zlabel=$z$,
-  xmin=-0.65, xmax=0.65, ymin=-0.65, ymax=0.65, zmin=-0.15, zmax=1.1,
+  xmin=-0.68, xmax=0.68, ymin=-0.68, ymax=0.68, zmin=-0.18, zmax=1.15,
   view={63}{28}, width=9cm, height=7.5cm,
   domain=-0.5:0.5, y domain=-0.5:0.5, samples=22, samples y=22,
   z buffer=sort,
 ]
-\addplot3[surf, opacity=0.7, shader=interp] {1-x^2-y^2};
-\addplot3[fill=blue!12, draw=black!55, opacity=0.6] coordinates {
+\addplot3[surf, opacity=0.6, shader=interp, blue!55] {1-x^2-y^2};
+\addplot3[fill=green!22, draw=green!50!black, opacity=0.8, thick] coordinates {
   (-0.5,-0.5,0) (0.5,-0.5,0) (0.5,0.5,0) (-0.5,0.5,0)
 };
-\draw[gray!60] (axis cs:-0.5,-0.5,0) -- (axis cs:-0.5,-0.5,0.5);
-\draw[gray!60] (axis cs:0.5,-0.5,0) -- (axis cs:0.5,-0.5,0.5);
-\draw[gray!60] (axis cs:0.5,0.5,0) -- (axis cs:0.5,0.5,0.5);
-\draw[gray!60] (axis cs:-0.5,0.5,0) -- (axis cs:-0.5,0.5,0.5);
-\node[font=\scriptsize] at (axis cs:0.02,0.02,0.72) {$z=f(x,y)$};
-\node[font=\scriptsize] at (axis cs:-0.3,0.30,-0.05) {$D$};
+\draw[gray!70] (axis cs:-0.5,-0.5,0) -- (axis cs:-0.5,-0.5,0.5);
+\draw[gray!70] (axis cs:0.5,-0.5,0) -- (axis cs:0.5,-0.5,0.5);
+\draw[gray!70] (axis cs:0.5,0.5,0) -- (axis cs:0.5,0.5,0.5);
+\draw[gray!70] (axis cs:-0.5,0.5,0) -- (axis cs:-0.5,0.5,0.5);
+\draw[dashed,red!70,thick] (axis cs:0.13,-0.09,0) -- (axis cs:0.13,-0.09,0.975);
+\node[font=\scriptsize,green!40!black] at (axis cs:0.0,0.30,-0.10) {$D$};
+\node[font=\scriptsize,blue!60!black,anchor=south] at (axis cs:0.0,0.0,1.0) {$z=f(x,y)$};
+\node[font=\scriptsize,red!70!black,anchor=west] at (axis cs:0.16,-0.09,0.55) {体积};
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 以区域 $D$（绿）为底、曲面 $z=f(x,y)$（蓝）为顶、母线平行 $z$ 轴的柱面为侧面的“曲顶柱体”（红虚线示其内一条“体积柱”），其体积等于 $\iint_D f(x,y)\,\mathrm{d}x\mathrm{d}y$。}}
 
 \begin{mydef}{三重积分}{three-integral}
     空间中有界闭区域\(\Omega\)上三元函数\(u = f(x, y, z)\)的三重积分为
@@ -388,18 +391,23 @@
   xmin=-0.05, xmax=1.12, ymin=-0.05, ymax=1.12,
   axis equal image, ticks=none,
 ]
-\addplot[green!15,draw=black!55,thick,fill opacity=0.9] coordinates {
+\addplot[green!18,draw=black!55,thick,fill opacity=0.9] coordinates {
   (0,0)(0.1,0.316)(0.2,0.447)(0.3,0.548)(0.4,0.632)(0.5,0.707)(0.6,0.775)(0.7,0.837)(0.8,0.894)(0.9,0.949)(1,1)
   (0.9,0.81)(0.8,0.64)(0.7,0.49)(0.6,0.36)(0.5,0.25)(0.4,0.16)(0.3,0.09)(0.2,0.04)(0.1,0.01)(0,0)
 };
-\addplot[blue!70,thick,domain=0:1,samples=80] {x^2};
-\addplot[red!70,thick,domain=0:1,samples=80] {sqrt(x)};
-\node[font=\scriptsize] at (axis cs:0.42,0.55){$D$};
-\node[font=\scriptsize,blue!70] at (axis cs:0.62,0.22){$y=x^2$};
-\node[font=\scriptsize,red!70] at (axis cs:0.42,0.92){$y=\sqrt{x}$};
+\addplot[blue!70,ultra thick,domain=0:1,samples=80] {x^2};
+\addplot[red!70,ultra thick,domain=0:1,samples=80] {sqrt(x)};
+\draw[->,thick,orange!80!black] (axis cs:0.5,0.27) -- (axis cs:0.5,0.69);
+\draw[->,thick,purple!70!black] (axis cs:0.28,0.5) -- (axis cs:0.68,0.5);
+\node[font=\scriptsize] at (axis cs:0.40,0.55){$D$};
+\node[font=\scriptsize,blue!70] at (axis cs:0.63,0.20){$y=x^2$};
+\node[font=\scriptsize,red!70] at (axis cs:0.40,0.93){$y=\sqrt{x}$};
+\node[font=\scriptsize,orange!80!black,anchor=west] at (axis cs:0.56,0.82){X-型};
+\node[font=\scriptsize,purple!70!black,anchor=west] at (axis cs:0.72,0.28){Y-型};
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 区域 $D$ 介于 $y=x^2$（蓝，下界）与 $y=\sqrt{x}$（红，上界）之间：X-型对每个 $x$ 让 $y$ 从 $\varphi_1(x)=x^2$ 积到 $\varphi_2(x)=\sqrt{x}$（橙竖箭头）；Y-型对每个 $y$ 让 $x$ 从 $\psi_1(y)=y^2$ 积到 $\psi_2(y)=\sqrt{y}$（紫横箭头）。}}
 
     \begin{conclusion}{特殊情形}{special-case}
         设\(f(x, y)\)在矩形区域\(
@@ -1434,17 +1442,22 @@
   legend pos=south east, font=\footnotesize,
   domain=0:1, samples=100,
 ]
-\addplot[blue!70,very thick] ({2*x},{2*x^2});
-\addlegendentry{$L_1$}
-\addplot[red!70,very thick] ({2*x},{2*sqrt(x)});
-\addlegendentry{$L_2$}
+\addplot[blue!70,ultra thick] ({2*x},{2*x^2});
+\addlegendentry{$L_1:\;y=\frac{x^2}{2}$}
+\addplot[red!70,ultra thick] ({2*x},{2*sqrt(x)});
+\addlegendentry{$L_2:\;y=\sqrt{2x}$}
 \fill (axis cs:0,0) circle (2pt);
 \fill (axis cs:2,2) circle (2pt);
 \node[below left,font=\scriptsize] at (axis cs:0,0) {$A$};
 \node[above right,font=\scriptsize] at (axis cs:2,2) {$B$};
+\node[font=\scriptsize,blue!70,anchor=west] at (axis cs:1.58,1.28){$L_1$};
+\node[font=\scriptsize,red!70,anchor=west] at (axis cs:1.58,1.78){$L_2$};
+\draw[->,blue!70,thick] (axis cs:1.0,0.50) -- (axis cs:1.14,0.66);
+\draw[->,red!70,thick] (axis cs:1.0,1.414) -- (axis cs:1.14,1.51);
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 从 $A(0,0)$ 到 $B(2,2)$ 有两条不同的路径：$L_1$（蓝，抛物线 $y=\frac{x^2}{2}$）与 $L_2$（红，曲线 $y=\sqrt{2x}$）。若沿这两条路径的曲线积分 $\int_L P\mathrm{d}x+Q\mathrm{d}y$ 恒相等，则称该积分与路径无关。}}
 
 \begin{mydef}{微分式的原函数问题}{indefinite-integral}
     若在区域\(D\)内\(\exists\)存在函数\(u(x, y)\)，使得\(

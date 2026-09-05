@@ -375,39 +375,30 @@ CPU、主存和所有 I/O 设备都连接在\textbf{同一条系统总线}上。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % ===== 同步通信（统一时钟） =====
-  \node[font=\scriptsize\bfseries,text=Navy,anchor=west] at (-5.6,5.15){同步通信（统一时钟，固定节拍）};
-  \foreach \x in {-4.5,-2.5,-0.5,1.5,3.5}
-    \draw[dotted,RuleGray] (\x,4.6) -- (\x,2.0);
-  \node[font=\tiny,MutedText,anchor=west] at (0.3,4.95){$T$（一个固定的总线周期）};
-  % 时钟 CLK
-  \draw[very thick,Navy] (-4.5,4.6)--(-3.5,4.6)--(-3.5,4.1)--(-2.5,4.1)--(-2.5,4.6)--(-1.5,4.6)--(-1.5,4.1)--(-0.5,4.1)--(-0.5,4.6)--(0.5,4.6)--(0.5,4.1)--(1.5,4.1)--(1.5,4.6)--(2.5,4.6)--(2.5,4.1)--(3.5,4.1)--(3.5,4.6)--(4.5,4.6);
-  \node[anchor=east,font=\scriptsize] at (-5.4,4.35){时钟 CLK};
-  % 地址 / 读命令（CPU 发出）
-  \draw[very thick,Teal!90] (-4.0,3.3)--(4.5,3.3);
-  \node[anchor=east,font=\scriptsize] at (-5.4,3.3){地址/读命令};
-  \node[font=\tiny,MutedText,anchor=west] at (4.6,3.3){（CPU 发出）};
-  % 数据（从设备送回）
-  \draw[very thick,Burgundy!90] (-1.0,2.2)--(4.5,2.2);
-  \node[anchor=east,font=\scriptsize] at (-5.4,2.2){数据};
-  \node[font=\tiny,MutedText,anchor=west] at (4.6,2.2){（从设备送回）};
-  \node[font=\scriptsize,black!70,align=center] at (0,1.4){$\Rightarrow$ 地址、命令与数据均按固定时钟节拍完成，各信号在约定的时钟周期内稳定};
+  % 时间轴 + 事件网格线
+  \draw[->,thick,Navy] (0,-0.4) -- (9.4,-0.4) node[right,font=\scriptsize]{时间 $t$};
+  \foreach \x in {0.5,1.5,3.0,4.5,6.0,7.5}{
+    \draw[dotted,RuleGray] (\x,-0.3) -- (\x,3.6);
+  }
+  % 地址/数据（主设备发出）
+  \draw[very thick,Teal!90] (0,2.75) -- (0.5,2.75) -- (0.5,3.25) -- (7.5,3.25) -- (7.5,2.75) -- (9,2.75);
+  \node[anchor=east,font=\scriptsize] at (-0.3,3.0){地址/数据（主）};
+  % 就绪 READY（主设备发出）
+  \draw[very thick,Navy] (0,1.75) -- (1.5,1.75) -- (1.5,2.25) -- (4.5,2.25) -- (4.5,1.75) -- (9,1.75);
+  \node[anchor=east,font=\scriptsize] at (-0.3,2.0){就绪 READY（主）};
+  % 应答 ACK（从设备发出）
+  \draw[very thick,Amber!85!black] (0,0.7) -- (3.0,0.7) -- (3.0,1.3) -- (6.0,1.3) -- (6.0,0.7) -- (9,0.7);
+  \node[anchor=east,font=\scriptsize] at (-0.3,1.0){应答 ACK（从）};
 
-  % ===== 异步通信（握手） =====
-  \node[font=\scriptsize\bfseries,text=Navy,anchor=west] at (-5.6,-0.5){异步通信（握手应答，全互锁）};
-  % 地址 / 数据（主设备发出）
-  \draw[very thick,Teal!90] (-4.0,-1.4)--(4.0,-1.4);
-  \node[anchor=east,font=\scriptsize] at (-5.4,-1.4){地址/数据};
-  \node[font=\tiny,MutedText,anchor=west] at (4.1,-1.4){（主设备发出）};
-  % 就绪 READY
-  \draw[very thick,Navy] (-3.0,-2.5)--(3.0,-2.5);
-  \node[anchor=east,font=\scriptsize] at (-5.4,-2.5){就绪 READY};
-  \node[font=\tiny,MutedText,anchor=west] at (3.1,-2.5){（主$\to$从）};
-  % 应答 ACK
-  \draw[very thick,Amber!85!black] (-2.0,-3.6)--(3.5,-3.6);
-  \node[anchor=east,font=\scriptsize] at (-5.4,-3.6){应答 ACK};
-  \node[font=\tiny,MutedText,anchor=west] at (3.6,-3.6){（从$\to$主）};
-  \node[font=\scriptsize,black!70,align=center] at (0,-4.85){$\Rightarrow$ 主设备放数据并发出就绪 $\to$ 从设备读走并发应答 $\to$ 主设备撤就绪 $\to$ 从设备撤应答，无需统一时钟};
+  % 全互锁步骤标注
+  \node[font=\scriptsize\bfseries,text=TealDark] at (1.5,2.55){(1) 数据就绪};
+  \node[font=\scriptsize\bfseries,text=TealDark] at (4.5,2.55){(3) 撤就绪};
+  \node[font=\scriptsize\bfseries,text=Amber!90] at (3.0,1.55){(2) 应答};
+  \node[font=\scriptsize\bfseries,text=Amber!90] at (6.0,1.55){(4) 撤应答};
+  \node[font=\scriptsize,text=Navy] at (6.9,2.55){完成};
+
+  % 底部说明
+  \node[font=\scriptsize,text=TealDark,align=center] at (4.5,-1.15){主设备放数据并发出就绪 $\to$ 从设备读走并发出应答 $\to$ 主设备撤就绪 $\to$ 从设备撤应答（全互锁，无需统一时钟）};
 \end{tikzpicture}
 \end{center}
 

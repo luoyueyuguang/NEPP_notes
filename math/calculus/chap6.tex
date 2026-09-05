@@ -672,20 +672,24 @@
 \begin{axis}[
   width=0.82\linewidth, height=5.4cm,
   xlabel={$x$}, ylabel={$y$},
-  xmin=-3.6, xmax=3.6, ymin=-1, ymax=11.5,
-  xtick={-3,-2,-1,0,1,2,3}, ytick={0,2,4,6,8,10},
+  xmin=-3.7, xmax=3.7, ymin=-1, ymax=11.5,
+  xtick={-3.14,-1.57,0,1.57,3.14},
+  xticklabels={$-\pi$,$-\frac{\pi}{2}$,0,$\frac{\pi}{2}$,$\pi$},
+  ytick={0,2,4,6,8,10},
   legend pos=north east, font=\footnotesize,
-  domain=-3.1416:3.1416, samples=200,
+  legend cell align=left,
+  domain=-3.1416:3.1416, samples=220,
 ]
-\addplot[very thick,black] {x^2};
-\addlegendentry{$f(x)=x^2$}
-\addplot[blue,thick] {pi^2/3 - 4*cos(deg(x)) + cos(deg(2*x))};
-\addlegendentry{$S_2$}
-\addplot[red!70,thick] {pi^2/3 - 4*cos(deg(x)) + cos(deg(2*x)) - (4/9)*cos(deg(3*x)) + 0.25*cos(deg(4*x))};
-\addlegendentry{$S_4$}
+\addplot[black,thick,dashed] {x^2};
+\addlegendentry{$f(x)=x^2$（目标函数）}
+\addplot[blue,ultra thick] {pi^2/3 - 4*cos(deg(x)) + cos(deg(2*x))};
+\addlegendentry{$S_2$（前 $2$ 项）}
+\addplot[red,ultra thick] {pi^2/3 - 4*cos(deg(x)) + cos(deg(2*x)) - (4/9)*cos(deg(3*x)) + 0.25*cos(deg(4*x))};
+\addlegendentry{$S_4$（前 $4$ 项）}
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 在 $[-l,l]$ 上（图中 $l=\pi$），$f(x)=x^2$ 的傅里叶部分和 $S_2$、$S_4$ 随项数增加而越来越逼近 $f(x)$，端点处也收敛（$f$ 连续且满足周期延拓条件）。}}
 
 \subsection{普适方法}
 
