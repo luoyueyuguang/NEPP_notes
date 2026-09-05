@@ -38,6 +38,30 @@
     类似可定义左极限与右极限。
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-0.8, xmax=2.8, ymin=-0.7, ymax=3.6,
+  xtick={0,1,2}, ytick={0,1,2,3},
+  domain=-0.8:2.8, samples=160, font=\footnotesize,
+  legend pos=north east]
+\addplot[blue,thick] {1+(x-1)^2};
+\addlegendentry{$y=f(x)$}
+\draw[dashed,gray!60] (0,-0.7) -- (0,3.6);
+\draw[dashed,gray!60] (2,-0.7) -- (2,3.6);
+\draw[dashed,gray!60] (-0.8,-0.2) -- (2.8,-0.2);
+\draw[dashed,gray!60] (-0.8,2.2) -- (2.8,2.2);
+\node[font=\scriptsize,blue!60!black] at (axis cs:0,-0.45){$x_0-\delta$};
+\node[font=\scriptsize,blue!60!black] at (axis cs:2,-0.45){$x_0+\delta$};
+\node[font=\scriptsize,gray!70] at (axis cs:-0.72,-0.2){$A-\varepsilon$};
+\node[font=\scriptsize,gray!70] at (axis cs:-0.72,2.2){$A+\varepsilon$};
+\draw[fill=red] (axis cs:1,1) circle (1.8pt);
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 当 $0<|x-x_0|<\delta$ 时，$|f(x)-A|<\varepsilon$，即曲线落在水平带 $A\pm\varepsilon$ 内。}
+
 \begin{conclusion}{数列极限的基本性质}{conclusion of limit}
     \begin{enumerate}
         \item 数列极限的不等式 \\
@@ -94,6 +118,24 @@
     \]
 \end{formula}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-8, xmax=8, ymin=-0.6, ymax=1.7,
+  xtick={-6,-3,0,3,6}, ytick={0,1},
+  domain=-8:8, samples=161, font=\footnotesize,
+  legend pos=north east]
+\addplot[blue,thick] {sin(deg(x))/x};
+\addlegendentry{$y=\sin x/x$}
+\draw[dashed,gray!70] (-8,1) -- (8,1);
+\node[font=\scriptsize,black] at (axis cs:4.4,1.15){$y=1$};
+\addplot[only marks,mark=*,red] coordinates {(0,1)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize $\dfrac{\sin x}{x}$ 在 $x=0$ 处无定义（空心点），但 $\lim\limits_{x\to 0}\dfrac{\sin x}{x}=1$。}
+
 \begin{conclusion}{夹逼定理}{bracket theorem}
     \begin{enumerate}
         \item 数列
@@ -109,6 +151,25 @@
         则\(\lim\limits_{x \to x_0} f(x) = A\)。
     \end{enumerate}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-2.6, xmax=2.6, ymin=-0.9, ymax=1.4,
+  xtick={-2,-1,0,1,2}, ytick={-0.5,0,0.5,1},
+  domain=-2.6:2.6, samples=161, font=\footnotesize,
+  legend pos=north west]
+\addplot[green!55!black,thick] {cos(deg(x))};
+\addlegendentry{$h(x)=\cos x$}
+\addplot[blue,thick] {sin(deg(x))/x};
+\addlegendentry{$f(x)=\sin x/x$}
+\addplot[red!70!black,thick,dashed] {1};
+\addlegendentry{$g(x)=1$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 在 $x=0$ 附近 $\cos x\le \dfrac{\sin x}{x}\le 1$，两边极限同为 $1$，故 $\lim\limits_{x\to 0}\dfrac{\sin x}{x}=1$。}
 
 \begin{conclusion}{单调有界数列必收敛定理}{monotone and bounded sequence must converge}
     若数列\(\{x_n\}\)单调上升有上界，即\(x_{n+1} \geq x_n\)且\(\exists M\), 使得对所有\(n\)有\(x_n \leq M\)，即
@@ -304,6 +365,29 @@
         \item \(\sqrt[n]{1+x} - 1 \sim \frac{1}{n}x\)
     \end{enumerate}
 \end{formula}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-1.6, xmax=1.6, ymin=-1.8, ymax=1.8,
+  xtick={-1.5,-1,-0.5,0,0.5,1,1.5}, ytick={-1,0,1},
+  domain=-1.6:1.6, samples=160, font=\footnotesize,
+  legend pos=north west]
+\addplot[black,thick,dashed] {x};
+\addlegendentry{$y=x$}
+\addplot[blue,thick] {sin(deg(x))};
+\addlegendentry{$y=\sin x$}
+\addplot[red,thick] {tan(deg(x))};
+\addlegendentry{$y=\tan x$}
+\addplot[green!55!black,thick] {rad(atan(x))};
+\addlegendentry{$y=\arctan x$}
+\addplot[orange!80!black,thick,domain=-0.999:0.999] {rad(asin(x))};
+\addlegendentry{$y=\arcsin x$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize $\sin x,\tan x,\arcsin x,\arctan x$ 在 $x=0$ 处都与 $y=x$ 相切（斜率均为 $1$），故它们互为等价无穷小。}
 
 \begin{conclusion}{等价无穷小的重要性质}{important infinitesimal properties}
     \begin{enumerate}

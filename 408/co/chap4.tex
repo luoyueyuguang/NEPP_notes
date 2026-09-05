@@ -17,6 +17,26 @@
 \end{itemize}
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[anchor=east] at (-0.3,1.9){三地址};
+  \draw[thick,fill=Amber!18] (0,1.7) rectangle (1.6,2.1) node[midway]{OP};
+  \draw[thick,fill=SoftGray] (1.6,1.7) rectangle (3.4,2.1) node[midway]{A1};
+  \draw[thick,fill=SoftGray] (3.4,1.7) rectangle (5.2,2.1) node[midway]{A2};
+  \draw[thick,fill=SoftGray] (5.2,1.7) rectangle (7.0,2.1) node[midway]{A3};
+  \node[anchor=east] at (-0.3,1.2){二地址};
+  \draw[thick,fill=Amber!18] (0,1.0) rectangle (2.0,1.4) node[midway]{OP};
+  \draw[thick,fill=SoftGray] (2.0,1.0) rectangle (4.4,1.4) node[midway]{A1};
+  \draw[thick,fill=SoftGray] (4.4,1.0) rectangle (6.8,1.4) node[midway]{A2};
+  \node[anchor=east] at (-0.3,0.5){一地址};
+  \draw[thick,fill=Amber!18] (0,0.3) rectangle (2.4,0.7) node[midway]{OP};
+  \draw[thick,fill=SoftGray] (2.4,0.3) rectangle (6.8,0.7) node[midway]{A};
+  \node[anchor=east] at (-0.3,-0.2){零地址};
+  \draw[thick,fill=Amber!18] (0,-0.4) rectangle (6.8,0.0) node[midway]{OP（如 NOP、堆栈操作）};
+  \node[font=\scriptsize,black!70] at (3.4,-1.1){指令字按地址码数量分类：OP 指定操作类型，地址码指定操作数或其地址};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{定长操作码 vs 扩展操作码}{opcode-encoding}
 \begin{itemize}
     \item \textbf{定长操作码}：所有指令操作码位数相同，译码简单、控制方便，但指令条数受限。
@@ -25,6 +45,30 @@
 
 \textbf{扩展操作码的设计约束：} 短操作码不能是长操作码的前缀（类似 Huffman 编码的前缀性质），否则译码歧义。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[anchor=east] at (-0.3,2.0){二地址};
+  \draw[thick,fill=Amber!18] (0,1.8) rectangle (1.5,2.2) node[midway,font=\tiny]{OP};
+  \node[font=\tiny,black!70] at (0.75,2.32){4位};
+  \draw[thick,fill=SoftGray] (1.5,1.8) rectangle (3.7,2.2) node[midway,font=\tiny]{A1};
+  \node[font=\tiny] at (2.6,2.32){6位};
+  \draw[thick,fill=SoftGray] (3.7,1.8) rectangle (5.9,2.2) node[midway,font=\tiny]{A2};
+  \node[font=\tiny] at (4.8,2.32){6位};
+  \node[font=\scriptsize,black!70] at (7.0,2.0){OP=0000..1110 为 15 条二地址指令};
+  \node[anchor=east] at (-0.3,1.3){一地址};
+  \draw[thick,fill=Amber!18] (0,1.1) rectangle (1.5,1.5) node[midway,font=\tiny]{1111};
+  \draw[thick,fill=Teal!18] (1.5,1.1) rectangle (3.7,1.5) node[midway,font=\tiny]{扩展OP（A1）};
+  \draw[thick,fill=SoftGray] (3.7,1.1) rectangle (5.9,1.5) node[midway,font=\tiny]{A2};
+  \node[font=\scriptsize,black!70] at (7.0,1.3){OP=1111 时取 A1 作扩展};
+  \node[anchor=east] at (-0.3,0.6){零地址};
+  \draw[thick,fill=Amber!18] (0,0.4) rectangle (1.5,0.8) node[midway,font=\tiny]{1111};
+  \draw[thick,fill=Teal!18] (1.5,0.4) rectangle (3.7,0.8) node[midway,font=\tiny]{111111};
+  \draw[thick,fill=Teal!18] (3.7,0.4) rectangle (5.9,0.8) node[midway,font=\tiny]{扩展OP（A2）};
+  \node[font=\scriptsize,black!70] at (7.0,0.6){扩展OP 全 1 时再扩展};
+  \node[font=\scriptsize,black!70,align=center] at (2.95,-0.25){短操作码不能是长操作码的前缀，否则译码歧义};
+\end{tikzpicture}
+\end{center}
 
 \subsection{寻址方式}
 
@@ -61,6 +105,19 @@
     \item \textbf{基址}：$R_B$ 为基准，$A$ 为偏移，用于程序重定位（OS 管理）。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.1cm,minimum height=0.78cm,align=center] (rx) at (-2.6,1.05){变址寄存器 $R_X$};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.1cm,minimum height=0.78cm,align=center] (a) at (0.5,1.05){指令形式地址 $A$};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.1cm,minimum height=0.78cm,align=center] (ea) at (3.6,1.05){有效地址 $EA$};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.6cm,minimum height=0.78cm,align=center] (op) at (3.6,-0.65){主存单元（操作数）};
+  \draw[->] (rx) -- (ea);
+  \draw[->] (a) -- (ea);
+  \draw[->] (ea) -- (op);
+  \node[font=\scriptsize,black!70] at (3.6,-1.55){$EA = (R_X) + A$（变址；基址同理 $EA = (R_B) + A$）};
+\end{tikzpicture}
+\end{center}
 
 \begin{attention}
 \textbf{408 高频考点：给定一段 C 代码，分析其中某变量的访问使用了哪种寻址方式。} 例如 \texttt{for(i=0; i<n; i++) sum += a[i];} 中 \texttt{a[i]} 通常使用变址寻址（基址寄存器 = a 的首地址，变址寄存器 = i）。

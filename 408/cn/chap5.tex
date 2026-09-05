@@ -76,6 +76,16 @@ UDP（User Datagram Protocol）提供\textbf{无连接、不可靠}的数据传�
 \end{itemize}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+  \filldraw[fill=SoftTeal,draw=black!40] (0,1.6) rectangle (4.5,2.3) node[midway,align=center]{源端口号\\16 bit};
+  \filldraw[fill=SoftTeal,draw=black!40] (4.5,1.6) rectangle (9.0,2.3) node[midway,align=center]{目的端口号\\16 bit};
+  \filldraw[fill=SoftGray,draw=black!40] (0,0.7) rectangle (4.5,1.4) node[midway,align=center]{UDP 长度\\16 bit};
+  \filldraw[fill=SoftGray,draw=black!40] (4.5,0.7) rectangle (9.0,1.4) node[midway,align=center]{UDP 校验和\\16 bit};
+  \node[align=center,font=\scriptsize,black!70] at (4.5,-0.15){UDP 首部（8 字节），数据部分接在校验和之后};
+\end{tikzpicture}
+\end{center}
+
 \begin{formula}{UDP 校验和的计算}{udp-checksum}
 \textbf{UDP 校验和}使用\textbf{伪首部}（Pseudo-header）参与计算：
 
@@ -447,6 +457,32 @@ CLOSED & & CLOSED \\
     \item \textbf{客户端 $\to$ 服务器：ACK = 1, ack = $w+1$}。客户端进入 \texttt{TIME-WAIT}，等待 \textbf{2MSL}（Maximum Segment Lifetime，报文最大生存时间，通常 2--4 分钟）后进入 \texttt{CLOSED}。服务器收到 ACK 后立即进入 \texttt{CLOSED}。
 \end{enumerate}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw[thick] (0,0) -- (0,5.0);
+  \draw[thick] (7,0) -- (7,5.0);
+  \node[above,font=\small] at (0,5.0){客户端 A};
+  \node[above,font=\small] at (7,5.0){服务器 B};
+  % 1 FIN
+  \draw[->,thick] (0,4.5) -- (7,4.5) node[midway,above]{$\text{FIN}=1,\ \text{seq}=u$};
+  % 2 ACK
+  \draw[->,thick] (7,3.85) -- (0,3.85) node[midway,below]{$\text{ACK}=1,\ \text{ack}=u+1$};
+  % 3 FIN+ACK
+  \draw[->,thick] (7,3.2) -- (0,3.2) node[midway,below]{$\text{FIN}=1,\ \text{ACK}=1,\ \text{seq}=w,\ \text{ack}=u+1$};
+  % 4 ACK
+  \draw[->,thick] (0,2.55) -- (7,2.55) node[midway,above]{$\text{ACK}=1,\ \text{ack}=w+1$};
+  % 2MSL
+  \draw[<->,gray] (0.5,1.15) -- (0.5,2.35) node[midway,right,font=\scriptsize,gray]{等待 2MSL};
+  % 状态
+  \node[left] at (0,4.75){\texttt{FIN-WAIT-1}};
+  \node[right] at (7,4.5){\texttt{CLOSE-WAIT}};
+  \node[right] at (7,3.2){\texttt{LAST-ACK}};
+  \node[left] at (0,2.35){\texttt{TIME-WAIT}};
+  \node[left] at (0,0.85){\texttt{CLOSED}};
+  \node[right] at (7,0.85){\texttt{CLOSED}};
+\end{tikzpicture}
+\end{center}
 
 \begin{attention}
 \textbf{TIME-WAIT 等待 2MSL 的原因（408 常考简答）：}

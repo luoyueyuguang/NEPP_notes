@@ -89,6 +89,20 @@ CPU、主存和所有 I/O 设备都连接在\textbf{同一条系统总线}上。
 \end{itemize}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw[thick,Navy!70] (-5.4,0) -- (5.4,0);
+  \node[font=\scriptsize,black!70] at (0,0.3){系统总线};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.7cm,minimum height=0.85cm] (cpu) at (-3.6,1.25){CPU};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.7cm,minimum height=0.85cm] (mem) at (0.0,1.25){主存};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.8cm,minimum height=0.85cm] (io) at (3.6,1.25){I/O 设备};
+  \draw[Navy!70] (cpu.south) -- (-3.6,0);
+  \draw[Navy!70] (mem.south) -- (0.0,0);
+  \draw[Navy!70] (io.south) -- (3.6,0);
+  \node[font=\scriptsize,black!70,align=center] at (0,-0.75){CPU、主存与所有 I/O 设备共享同一总线 $\to$ 总线成为瓶颈，高低速设备竞争};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{双总线结构（Dual Bus Architecture）}{dual-bus}
 在 CPU 和主存之间增加一条专用的\textbf{存储总线（Memory Bus）}，将 CPU-主存的通信与 I/O 通信分离开来。
 
@@ -117,6 +131,28 @@ CPU、主存和所有 I/O 设备都连接在\textbf{同一条系统总线}上。
 \textbf{优点：}三级总线分工明确，各自可运行在不同频率和带宽下，避免速度不匹配的瓶颈；高速设备和低速设备在物理上分离。\\
 \textbf{缺点：}结构复杂，成本较高。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 局部总线（高速）
+  \draw[thick,Navy!70] (-4.8,2.0) -- (4.8,2.0);
+  \node[font=\scriptsize,black!70] at (4.8,2.24){局部总线（最高频）};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.7cm,minimum height=0.72cm] (cpu) at (-3.2,2.0){CPU};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.7cm,minimum height=0.72cm] (cache) at (-0.6,2.0){Cache};
+  \draw[Navy!70] (cpu.south) -- (-3.2,2.0);
+  % 存储总线
+  \draw[thick,Navy!70] (-4.8,0.6) -- (4.8,0.6);
+  \node[font=\scriptsize,black!70] at (4.8,0.84){存储总线};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.9cm,minimum height=0.72cm] (ch2) at (0.4,0.6){主存 \& Cache 通路};
+  % 扩展总线
+  \draw[thick,Navy!70] (-4.8,-0.8) -- (4.8,-0.8);
+  \node[font=\scriptsize,black!70] at (4.8,-0.56){扩展总线（I/O）};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.9cm,minimum height=0.72cm] (io) at (0.4,-0.8){各类 I/O 设备};
+  \draw[dashed,Teal!70] (cache.south) -- (0.4,0.6);
+  \draw[dashed,Burgundy!70] (0.4,0.6) -- (0.4,-0.8);
+  \node[font=\scriptsize,black!70,align=center] at (0,-1.7){三级总线分层，速度由快到慢：局部总线 $\to$ 存储总线 $\to$ 扩展总线};
+\end{tikzpicture}
+\end{center}
 
 \begin{attention}
 \textbf{408 常考点（总线结构对比）：}
@@ -206,6 +242,27 @@ CPU、主存和所有 I/O 设备都连接在\textbf{同一条系统总线}上。
     \item 对电路故障敏感。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.0cm,minimum height=0.8cm] (arb) at (-3.8,1.7){仲裁器};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.7cm] (d0) at (-1.1,1.7){设备 0};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.7cm] (d1) at (1.5,1.7){设备 1};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.7cm] (d2) at (4.1,1.7){设备 2};
+  \draw[->,Burgundy!70] (arb.east) -- node[above,font=\scriptsize]{BG 允许} (d0.west);
+  \draw[->,Burgundy!70] (d0.east) -- (d1.west);
+  \draw[->,Burgundy!70] (d1.east) -- (d2.west);
+  \draw[thick,Navy!70] (-3.8,-0.2) -- (4.1,-0.2);
+  \node[font=\scriptsize,black!70] at (0.1,0.08){总线请求 BR（所有设备线或共享送到仲裁器）};
+  \draw[Navy!70] (arb.south) -- (-3.8,-0.2);
+  \draw[Navy!70] (d0.south) -- (-1.1,-0.2);
+  \draw[Navy!70] (d1.south) -- (1.5,-0.2);
+  \draw[Navy!70] (d2.south) -- (4.1,-0.2);
+  \draw[thick,Navy!70] (-3.8,-1.15) -- (4.1,-1.15);
+  \node[font=\scriptsize,black!70] at (0.1,-0.87){总线忙 BS};
+  \node[font=\scriptsize,black!70,align=center] at (0.1,-1.8){BG 串行传递：离仲裁器最近的设备优先级最高，远端可能饥饿};
+\end{tikzpicture}
+\end{center}
 
 \begin{conclusion}{计数器定时查询（Polling Count）}{counter-polling}
 \textbf{信号线：}总线请求 BR，总线忙 BS（与链式查询相同）。不设 BG 线，改为一组\textbf{设备地址线}（$\lceil\log_2 n\rceil$ 根，$n$ 为主设备数）。

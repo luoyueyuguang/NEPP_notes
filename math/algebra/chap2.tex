@@ -16,6 +16,33 @@
     则称 $\boldsymbol{\beta}$ 可由向量组 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ \textbf{线性表出}（或称 $\boldsymbol{\beta}$ 是该向量组的线性组合）。
 \end{mydef}
 
+线性组合的几何意义：把 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2$ 按系数作平行四边形合成。下例 $\boldsymbol{\beta} = 2\boldsymbol{\alpha}_1 + 3\boldsymbol{\alpha}_2$（$\boldsymbol{\alpha}_1=(1,1)$，$\boldsymbol{\alpha}_2=(1,-1)$，$\boldsymbol{\beta}=(5,-1)$）：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  width=0.74\linewidth, height=6.2cm,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-0.8, xmax=6.4, ymin=-3.8, ymax=2.8,
+  xtick={1,2,3,4,5}, ytick={-2,-1,1,2},
+  font=\footnotesize,
+]
+\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:1,1);
+\draw[->,thick,red] (axis cs:0,0) -- (axis cs:1,-1);
+\draw[->,thick,blue,dashed] (axis cs:0,0) -- (axis cs:2,2);
+\draw[->,thick,red,dashed] (axis cs:0,0) -- (axis cs:3,-3);
+\draw[dashed,gray] (axis cs:2,2) -- (axis cs:5,-1);
+\draw[dashed,gray] (axis cs:3,-3) -- (axis cs:5,-1);
+\draw[->,thick,black] (axis cs:0,0) -- (axis cs:5,-1);
+\node[anchor=south,blue] at (axis cs:1,1) {$\boldsymbol{\alpha}_1$};
+\node[anchor=north,red] at (axis cs:1,-1) {$\boldsymbol{\alpha}_2$};
+\node[anchor=north east,black] at (axis cs:5,-1) {$\boldsymbol{\beta}$};
+\node[blue] at (axis cs:2.1,2.4) {$2\boldsymbol{\alpha}_1$};
+\node[red] at (axis cs:3.6,-3.3) {$3\boldsymbol{\alpha}_2$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{线性表出的判定方法}{linear-combination-judgment}
     判断 $\boldsymbol{\beta}$ 能否由 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ 线性表出，等价于判断线性方程组
     \[
@@ -93,6 +120,44 @@ x_1\begin{pmatrix} 1 \\ 0 \\ 1 \end{pmatrix} + x_2\begin{pmatrix} 0 \\ 1 \\ 1 \e
         \item 一般地，$m$ 个向量线性无关当且仅当它们张成一个 $m$ 维子空间，任何一个向量都不能由其余向量线性表出。
     \end{enumerate}
 \end{conclusion}
+
+线性相关的向量共线，张成一条直线；线性无关的向量不共线，可张成整个平面：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  at={(0cm,0cm)},
+  width=5.4cm, height=4.4cm,
+  axis lines=center,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-1.4, xmax=1.6, ymin=-1.4, ymax=1.6,
+  xtick={-1,1}, ytick={-1,1},
+  title={线性相关（共线）},
+  title style={font=\scriptsize},
+  font=\scriptsize,
+]
+\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:1,1);
+\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:-0.6,-0.6);
+\node[blue,anchor=south] at (axis cs:1,1) {$\boldsymbol{\alpha}_1$};
+\node[blue,anchor=north] at (axis cs:-0.6,-0.6) {$\boldsymbol{\alpha}_2$};
+\end{axis}
+\begin{axis}[
+  at={(6.2cm,0cm)},
+  width=5.4cm, height=4.4cm,
+  axis lines=center,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-1.4, xmax=1.6, ymin=-1.4, ymax=1.6,
+  xtick={-1,1}, ytick={-1,1},
+  title={线性无关（不共线）},
+  title style={font=\scriptsize},
+  font=\scriptsize,
+]
+\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:1.2,0.4);
+\draw[->,thick,red] (axis cs:0,0) -- (axis cs:0.4,1.1);
+\node[blue,anchor=south] at (axis cs:1.2,0.4) {$\boldsymbol{\alpha}_1$};
+\node[red,anchor=west] at (axis cs:0.4,1.1) {$\boldsymbol{\alpha}_2$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \boxed{\textbf{例}}
 判断下列向量组的线性相关性：
@@ -392,6 +457,29 @@ x_1 - x_2 + 2x_3 - x_4 + x_5 = 0 \\
 \operatorname{span}\{\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2\} = \{(x, y, 0)^\mathrm{T} \mid x, y \in \mathbb{R}\}
 \]
 即 $xy$-平面，这是 $\mathbb{R}^3$ 的一个二维子空间。
+
+由两个线性无关向量 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2$ 张成的子空间是 $\mathbb{R}^3$ 中过原点的一个平面（下例中即 $xy$-平面）：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  xlabel=$x_1$, ylabel=$x_2$, zlabel=$x_3$,
+  xmin=0, xmax=2.2, ymin=0, ymax=2.2, zmin=0, zmax=1.4,
+  xtick={1}, ytick={1}, ztick={1},
+  view={125}{26}, width=7.6cm, height=6.6cm,
+  font=\footnotesize, clip=false,
+]
+\addplot3[fill=blue!12, draw=blue, opacity=0.65] coordinates {
+  (0,0,0) (2.0,0,0) (2.0,2.0,0) (0,2.0,0) (0,0,0)
+};
+\draw[->,thick,red] (axis cs:0,0,0) -- (axis cs:1.4,0,0);
+\draw[->,thick,green!50!black] (axis cs:0,0,0) -- (axis cs:0,1.4,0);
+\node[red,anchor=south] at (axis cs:1.4,0,0) {$\boldsymbol{\alpha}_1=(1,0,0)$};
+\node[green!50!black,anchor=south] at (axis cs:0,1.4,0) {$\boldsymbol{\alpha}_2=(0,1,0)$};
+\node[blue] at (axis cs:1.62,1.42,0.5) {$\operatorname{span}\{\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2\}$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \subsection{基、维数与坐标}
 

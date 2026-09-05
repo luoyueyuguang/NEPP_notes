@@ -130,6 +130,34 @@
 \end{tabularx}
 \end{tablebox}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 嵌套式的封装视图：自上而下为 应用层→传输层→网络层→数据链路层
+  % 应用层（最内层，最窄）
+  \filldraw[fill=SoftTeal,draw=black!40] (4.7,3.9) rectangle (10.2,4.6) node[midway,align=center]{应用数据（报文）};
+  \node[left,font=\scriptsize,black!60] at (4.62,4.25){报文};
+  % 传输层
+  \filldraw[fill=Burgundy!15,draw=black!40] (3.4,2.9) rectangle (4.7,3.6) node[midway,align=center]{TCP\\首部};
+  \filldraw[fill=SoftGray,draw=black!40] (4.7,2.9) rectangle (10.2,3.6) node[midway,font=\scriptsize,gray!70]{数据（内含应用数据）};
+  \node[left,font=\scriptsize,black!60] at (3.32,3.25){报文段};
+  % 网络层
+  \filldraw[fill=SoftBlue,draw=black!40] (2.1,1.9) rectangle (3.4,2.6) node[midway,align=center]{IP\\首部};
+  \filldraw[fill=SoftGray,draw=black!40] (3.4,1.9) rectangle (10.2,2.6) node[midway,font=\scriptsize,gray!70]{数据（内含 TCP 报文段）};
+  \node[left,font=\scriptsize,black!60] at (2.02,2.25){分组};
+  % 数据链路层（最外层，最宽）
+  \filldraw[fill=SoftAmber,draw=black!40] (0.8,0.9) rectangle (2.1,1.6) node[midway,align=center]{MAC\\首部};
+  \filldraw[fill=SoftGray,draw=black!40] (2.1,0.9) rectangle (9.5,1.6) node[midway,font=\scriptsize,gray!70]{数据（内含 IP 数据报）};
+  \filldraw[fill=SoftGray,draw=black!40] (9.5,0.9) rectangle (10.2,1.6) node[midway,align=center]{FCS};
+  \node[left,font=\scriptsize,black!60] at (0.72,1.25){帧};
+  % 层名
+  \node[left,font=\scriptsize] at (0.55,4.25){应用层};
+  \node[left,font=\scriptsize] at (1.54,3.25){传输层};
+  \node[left,font=\scriptsize] at (2.53,2.25){网络层};
+  \node[left,font=\scriptsize] at (3.52,0.9+0.35){数据链路层};
+  \node[align=center,font=\scriptsize,black!70] at (5.2,-0.15){发送端：数据自应用层向下逐层封装（逐层加首部）；接收端：逐层向上解封装（逐层去首部）};
+\end{tikzpicture}
+\end{center}
+
 \subsection{TCP/IP 模型（4层）}
 
 \begin{conclusion}{TCP/IP 四层模型}{tcpip-model}
@@ -151,6 +179,30 @@ OSI & TCP/IP & 典型协议 \\
 
 \textbf{五层参考模型（教学用，408采用）：} 物理层 $\to$ 数据链路层 $\to$ 网络层 $\to$ 传输层 $\to$ 应用层。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  lbox/.style={draw, rounded corners=2pt, minimum width=4.4cm, minimum height=0.72cm}]
+  % 从上到下：应用层 → 物理层
+  \node[lbox, fill=SoftTeal] (app) at (4.3,4.4) {应用层};
+  \node[lbox, fill=SoftBlue] (tra) at (4.3,3.4) {传输层};
+  \node[lbox, fill=SoftGray] (net) at (4.3,2.4) {网络层};
+  \node[lbox, fill=SoftAmber] (dll) at (4.3,1.4) {数据链路层};
+  \node[lbox, fill=SoftGray] (phy) at (4.3,0.4) {物理层};
+  \draw[->] (app) -- (tra);
+  \draw[->] (tra) -- (net);
+  \draw[->] (net) -- (dll);
+  \draw[->] (dll) -- (phy);
+  % 数据单元（左侧）
+  \node[left, align=right] at (1.85,4.4) {报文};
+  \node[left, align=right] at (1.85,3.4) {报文段/用户数据报};
+  \node[left, align=right] at (1.85,2.4) {分组/数据报};
+  \node[left, align=right] at (1.85,1.4) {帧};
+  \node[left, align=right] at (1.85,0.4) {比特};
+  \node[align=center, font=\scriptsize, black!70] at (4.3,5.3) {五层参考模型（408 采用）};
+  \node[align=center, font=\scriptsize, black!70] at (7.0,2.4) {左侧：各层 PDU 名称\\相邻层之间为服务（垂直）\\对等层之间为协议（水平）};
+\end{tikzpicture}
+\end{center}
 
 \subsection{协议与服务}
 

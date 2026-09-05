@@ -35,6 +35,29 @@
     导数的力学意义为质点作直线运动，\(x=x(t)\)，\(x^\prime(t)\)为\(x\)的速度，\(x^{\prime\prime}(t)\)为\(x\)的加速度。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-0.3, xmax=2.3, ymin=-0.1, ymax=1.1,
+  xtick={0,0.5,1,1.5,2}, ytick={0,0.5,1},
+  domain=-0.3:2.3, samples=160, font=\footnotesize,
+  legend pos=north west]
+\addplot[blue,thick] {x^2/4};
+\addlegendentry{$y=f(x)$}
+\addplot[red,thick] {0.75*x-0.5625};
+\addlegendentry{切线 $T$}
+\addplot[gray!60,thin] {0.55*x-0.2625};
+\addlegendentry{割线 $PQ_1$}
+\addplot[gray!30,thin] {0.65*x-0.4125};
+\addlegendentry{割线 $PQ_2$}
+\addplot[only marks,mark=*,black] coordinates {(1.5,0.5625)};
+\addplot[only marks,mark=o,black] coordinates {(0.7,0.1225) (1.1,0.3025)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 当 $Q\to P$ 时割线 $PQ$ 无限趋近 $P$ 点的切线，其斜率极限即 $f'(x_0)$。}
+
 \begin{conclusion}{单侧可导与双侧可导的关系}{left-sided-derivative-relation}
     \(f(x)\)在\(x_0\)处可导\(\Leftrightarrow\)\(f(x)\)在\(x_0\)处左右导数均存在且相等，即
     \[
@@ -60,6 +83,32 @@
     \(\triangle{y} = f(x_0 + \triangle{x}) - f(x_0) = A(x_0) \triangle{x} + o(\triangle{x})\)是曲线
     \(y = f(x)\)在\(x_0\)相应于自变量增量\(x\)的纵坐标\(f(x_0)\)的增量
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=1.1, xmax=2.7, ymin=0.7, ymax=3.03,
+  xtick={1.5,2,2.5}, ytick={1,2,3},
+  domain=1.1:2.7, samples=160, font=\footnotesize,
+  legend pos=south east]
+\addplot[blue,thick] {x^2/2};
+\addlegendentry{$y=f(x)$}
+\addplot[red,thick] {1.5*x-1.125};
+\addlegendentry{切线（微分）}
+\addplot[only marks,mark=*,black] coordinates {(1.5,1.125)};
+\addplot[only marks,mark=*,black] coordinates {(2.3,2.645)};
+\draw[dashed,black] (2.3,1.125) -- (2.3,2.645);
+\draw[dashed,orange!70] (1.5,1.125) -- (2.3,1.125);
+\fill[red] (axis cs:2.3,2.325) circle (1.2pt);
+\node[font=\scriptsize,black] at (axis cs:1.5,0.95){$P$};
+\node[font=\scriptsize,black] at (axis cs:2.4,2.7){$Q$};
+\node[font=\scriptsize,blue!60!black] at (axis cs:2.02,1.62){$\mathrm{d}y$};
+\node[font=\scriptsize,blue!60!black] at (axis cs:2.02,2.05){$\Delta y$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize $\Delta y=f(x_0+\Delta x)-f(x_0)$ 是函数增量，$\mathrm{d}y=f'(x_0)\Delta x$ 是切线（线性主部）增量，二者之差为 $o(\Delta x)$。}
 
 \begin{conclusion}{可微、可导与连续的关系}{differentiable-continuous-relation}
     \(f(x)\)在\(x_0\)处可导\(\Leftrightarrow\)\(f(x)\)在点\(x_0\)处可微
@@ -98,6 +147,23 @@
     若\(f(x)\)为偶函数\(\Rightarrow\)则\(f^\prime(x)\)为奇函数；\\
     若\(f(x)\)为周期函数,以\(T\)为周期\(\Rightarrow\)则\(f^\prime(x)\)为周期函数，以\(T\)为周期
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-2.3, xmax=2.3, ymin=-9, ymax=13,
+  xtick={-2,-1,0,1,2}, ytick={-8,-4,0,4,8,12},
+  domain=-2.3:2.3, samples=160, font=\footnotesize,
+  legend pos=north west]
+\addplot[blue,thick] {x^3};
+\addlegendentry{$f(x)=x^3$（奇函数）}
+\addplot[red,thick] {3*x^2};
+\addlegendentry{$f'(x)=3x^2$（偶函数）}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize $x^3$ 为奇函数，其导函数 $3x^2$ 为偶函数：求导使奇偶性互换。}
 \subsection{求导方法}
 
 \begin{conclusion}{定义法}{definition method}
@@ -121,6 +187,25 @@
         =\lim_{\triangle x \to 0}\frac{1}{\triangle x}\ln\!\left(1+\frac{\triangle x}{x}\right)=\frac{1}{x}
     \]
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-2.4, xmax=2.4, ymin=-0.5, ymax=2.5,
+  xtick={-2,-1,0,1,2}, ytick={0,1,2},
+  domain=-2.4:2.4, samples=160, font=\footnotesize,
+  legend pos=north west]
+\addplot[blue,thick] {abs(x)};
+\addlegendentry{$y=|x|$}
+\addplot[gray!60,thin,dashed,domain=-2.4:0] {-x};
+\addlegendentry{左支（斜率 $-1$）}
+\addplot[gray!30,thin,dashed,domain=0:2.4] {x};
+\addlegendentry{右支（斜率 $+1$）}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize $|x|$ 在 $x=0$ 处左、右导数分别为 $-1$ 与 $1$，不相等，故在尖点处不可导。}
 
 \begin{conclusion}{导数定义与极限}{derivative-definition-limit}
     导数本质上是特殊形式的极限：

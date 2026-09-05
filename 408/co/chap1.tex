@@ -69,6 +69,21 @@
 \end{enumerate}
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw[thick,Navy!70] (-6.5,0) -- (6.5,0);
+  \node[font=\scriptsize,black!70] at (0,-0.35){系统总线（地址总线 / 数据总线 / 控制总线）};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.85cm] (in) at (-4.5,1.2){输入设备};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=3.0cm,minimum height=1.5cm,align=center] (cpu) at (-1.5,1.2){\textbf{CPU}\\运算器 + 控制器};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.7cm,minimum height=0.85cm] (mem) at (2.0,1.2){存储器};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.85cm] (out) at (4.8,1.2){输出设备};
+  \draw[Navy!70] (in.south) -- (-4.5,0);
+  \draw[Navy!70] (cpu.south) -- (-1.5,0);
+  \draw[Navy!70] (mem.south) -- (2.0,0);
+  \draw[Navy!70] (out.south) -- (4.8,0);
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 常考辨析：CPU 包含哪两部分？} 运算器 + 控制器 = CPU（中央处理器）。注意「主机」的概念在 408 中通常指 CPU + 主存储器（不包括外存和 I/O 设备）。
 \end{attention}
@@ -198,6 +213,22 @@ $L_5$ & 应用层（用户层）& 应用程序通过 API/库使用系统服务 \
     \item \textbf{虚拟机（Virtual Machine）}：通过「翻译 + 解释」的组合，使得上层语言不需要考虑底层的硬件细节，每一层对上层来说都是一台「虚拟机器」。典型例子：JVM 将 Java 字节码解释/即时编译（JIT）在物理机上执行。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=5.2cm,minimum height=0.62cm,align=center] (L5) at (0,2.6){$L_5$ 应用层（用户层）：API / 库调用};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=5.2cm,minimum height=0.62cm,align=center] (L4) at (0,1.85){$L_4$ 高级语言级：C/C++/Java};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=5.2cm,minimum height=0.62cm,align=center] (L3) at (0,1.1){$L_3$ 汇编语言级：助记符};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=5.2cm,minimum height=0.62cm,align=center] (L2) at (0,0.35){$L_2$ 操作系统级：系统调用 / 资源抽象};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=5.2cm,minimum height=0.62cm,align=center] (L1) at (0,-0.4){$L_1$ 传统机器语言级（二进制指令）};
+  \node[draw,rounded corners=2pt,fill=Burgundy!12,minimum width=5.2cm,minimum height=0.62cm,align=center] (L0) at (0,-1.15){$L_0$ 微程序级 / 硬联逻辑（物理机）};
+  \node[font=\scriptsize,black!70,anchor=west] at (3.0,1.475){翻译：$L_4\!\to\!L_1$（编译器/汇编器）};
+  \node[font=\scriptsize,black!70,anchor=west] at (3.0,-0.775){解释：$L_1\!\to\!L_0$（微程序）};
+  % 虚框标注：L2--L5 为虚拟机
+  \draw[dashed,Burgundy!60,rounded corners=2pt] (-3.1,2.9) rectangle (3.1,-0.05);
+  \node[font=\scriptsize,Burgundy!80] at (-3.1,3.05){$L_2$--$L_5$：虚拟机（由下层软件+硬件模拟）};
+\end{tikzpicture}
+\end{center}
 
 \begin{attention}
 \textbf{408 常考点——翻译 vs 解释：}

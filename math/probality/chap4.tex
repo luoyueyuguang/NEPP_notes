@@ -24,6 +24,25 @@
     \end{enumerate}
     \(E(X)\)是一个实数且完全由\(X\)的概率分布来确定
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.2cm,
+  xlabel={$x$}, ylabel={$p_i$},
+  xmin=0.4, xmax=5.6, ymin=0, ymax=0.38,
+  xtick={1,2,3,4,5}, ytick={0,0.1,0.2,0.3},
+  font=\footnotesize,
+  ybar, bar width=10pt,
+]
+\addplot[fill=blue!38,draw=blue!60!black]
+  coordinates {(1,0.1)(2,0.25)(3,0.3)(4,0.2)(5,0.15)};
+\draw[dashed,red!70!black,thick] (axis cs:3.05,0) -- (axis cs:3.05,0.34);
+\node[font=\scriptsize,red!70!black] at (axis cs:3.05,0.365){$E(X)=3.05$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{随机变量的数学期望的性质}{expectation of random variable properties}
     \begin{enumerate}
         \item \(C\)为常数，\(E(C) = C\)
@@ -78,6 +97,26 @@
     \(E(X^*) = 0\),
     \(D(X^*) = 1\)
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.2cm,
+  xlabel={$x$}, ylabel={$f(x)$},
+  xmin=-4, xmax=4, ymin=0, ymax=0.8,
+  xtick={-2,0,2}, ytick={0,0.2,0.4,0.6,0.8},
+  domain=-4:4, samples=200,
+  legend pos=north east, font=\footnotesize,
+]
+\addplot[blue,thick] {0.5694*exp(-x^2/(2*0.49))};
+\addlegendentry{$\sigma=0.7$（方差小）}
+\addplot[red,thick] {0.2216*exp(-x^2/(2*3.24))};
+\addlegendentry{$\sigma=1.8$（方差大）}
+\draw[dashed,gray!55] (axis cs:0,0) -- (axis cs:0,0.58);
+\node[font=\scriptsize,gray] at (axis cs:0,0.62){$\mu$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \begin{formula}{方差公式}{variance formula}
 \[
@@ -151,6 +190,27 @@ D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
         \item 若\(X\)与\(Y\)相互独立，则\(\mathrm{Cov}(X, Y) = 0\)；但\(\mathrm{Cov}(X, Y) = 0\)仅表示\(X\)与\(Y\)不相关(uncorrelated)，并不意味着独立.
     \end{enumerate}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.2cm,
+  xmin=-2.5, xmax=2.5, ymin=-2.5, ymax=2.5,
+  xtick={-1,1}, ytick={-1,1},
+  axis lines=center, font=\footnotesize,
+]
+\fill[blue!12] (0,0) rectangle (2.4,2.4);
+\fill[blue!12] (-2.4,-2.4) rectangle (0,0);
+\fill[red!12] (-2.4,0) rectangle (0,2.4);
+\fill[red!12] (0,-2.4) rectangle (2.4,0);
+\node[font=\scriptsize,blue!60!black] at (1.5,1.5){$+$};
+\node[font=\scriptsize,blue!60!black] at (-1.5,-1.5){$+$};
+\node[font=\scriptsize,red!60!black] at (-1.5,1.5){$-$};
+\node[font=\scriptsize,red!60!black] at (1.5,-1.5){$-$};
+\node[font=\scriptsize,align=center] at (0,2.15){$\mathrm{Cov}(X,Y)=E[(X-\bar X)(Y-\bar Y)]$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \begin{mydef}{相关系数}{correlation coefficient}
     如果\(X, Y\)的方差都存在且不为零，

@@ -42,6 +42,27 @@
 \end{itemize}
 \end{formula}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[left,align=right] at (0.0,2.6){单工};
+  \node[left,align=right] at (0.0,1.5){半双工};
+  \node[left,align=right] at (0.0,0.4){全双工};
+  % 单工：只能单向
+  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (A1) at (3.4,2.6){A};
+  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (B1) at (6.4,2.6){B};
+  \draw[->,thick,Teal] (A1) -- (B1);
+  % 半双工：双向交替
+  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (A2) at (3.4,1.5){A};
+  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (B2) at (6.4,1.5){B};
+  \draw[<->,thick,Amber] (A2) -- (B2);
+  % 全双工：双向同时
+  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (A3) at (3.4,0.4){A};
+  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (B3) at (6.4,0.4){B};
+  \draw[<->,thick,Burgundy] (A3) -- (B3);
+  \node[align=center,font=\scriptsize,black!70] at (4.9,-0.5){单工：只能单向（如广播）；半双工：双向交替（如对讲机）；全双工：双向同时（如电话）};
+\end{tikzpicture}
+\end{center}
+
 \subsection{奈奎斯特（Nyquist）准则与香农（Shannon）定理}
 
 \begin{conclusion}{奈奎斯特准则（无噪声信道）}{nyquist}
@@ -124,6 +145,20 @@ C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
     \item \textbf{QAM（正交振幅调制）}：同时改变振幅和相位，每码元携带更多比特。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+  \draw[help lines] (-2,-2) grid (2,2);
+  \draw[->,thick] (-2.4,0) -- (2.4,0) node[below,font=\scriptsize]{同相分量 $I$};
+  \draw[->,thick] (0,-2.4) -- (0,2.4) node[left,font=\scriptsize]{正交分量 $Q$};
+  \foreach \x in {-1.5,-0.5,0.5,1.5}{
+    \foreach \y in {-1.5,-0.5,0.5,1.5}{
+      \fill[Teal] (\x,\y) circle (2.2pt);
+    }
+  }
+  \node[align=center,font=\scriptsize,black!70] at (0,-3.0){16-QAM 星座图：4 振幅 $\times$ 4 相位 $=$ 16 个星座点，每码元携带 $\log_2 16 = 4$ bit};
+\end{tikzpicture}
+\end{center}
 
 \subsection{传输介质}
 

@@ -124,6 +124,27 @@
 \end{itemize}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\draw[thick] (0,0) rectangle (3.2,6.2);
+\fill[SoftGray] (0,0) rectangle (3.2,1.0);
+\node[align=center] at (1.6,0.5) {系统区\\（低地址，存放 OS）};
+\fill[SoftBlue] (0,1.1) rectangle (3.2,2.0);
+\node at (1.6,1.55) {分区 1};
+\fill[SoftTeal] (0,2.1) rectangle (3.2,3.0);
+\node at (1.6,2.55) {分区 2};
+\fill[SoftAmber] (0,3.1) rectangle (3.2,4.0);
+\node at (1.6,3.55) {分区 3};
+\fill[SoftAmber!45] (0,4.1) rectangle (3.2,5.0);
+\node at (1.6,4.55) {分区 4};
+\fill[SoftGray!50] (0,5.1) rectangle (3.2,6.2);
+\node at (1.6,5.65) {用户区剩余};
+\node[font=\scriptsize, black!70] at (3.9,6.0) {高地址};
+\node[font=\scriptsize, black!70] at (3.9,0.2) {低地址};
+\node[font=\scriptsize, black!60] at (1.6,-0.55) {固定分区：各分区大小固定，每区装入一道程序（存在内部碎片）};
+\end{tikzpicture}
+\end{center}
+
 \subsubsection{动态分区分配}
 
 \begin{mydef}{动态分区分配}{dynamic-partition}
@@ -523,6 +544,19 @@ CPU 发出逻辑地址 $A$，MMU 执行以下变换：
 \end{enumerate}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=0.72cm, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=3.6cm, minimum height=0.55cm] (a) {访问页面不在内存（有效位 = 0）};
+\node[draw, rectangle, fill=SoftAmber, minimum width=3.6cm, minimum height=0.55cm, below of=a] (b) {触发缺页中断，陷入内核，保存现场};
+\node[draw, rectangle, fill=SoftBlue, minimum width=3.6cm, minimum height=0.55cm, below of=b] (c) {检查地址合法性：非法则终止进程};
+\node[draw, rectangle, fill=SoftBlue, minimum width=3.6cm, minimum height=0.55cm, below of=c] (d) {分配空闲页框；无空闲则按算法置换};
+\node[draw, rectangle, fill=SoftTeal, minimum width=3.6cm, minimum height=0.55cm, below of=d] (e) {从磁盘读入页面（被置换脏页先写回）};
+\node[draw, rectangle, fill=SoftGray, minimum width=3.6cm, minimum height=0.55cm, below of=e] (f) {更新页表与 TLB，恢复现场};
+\node[draw, rectangle, fill=SoftGray, minimum width=3.6cm, minimum height=0.55cm, below of=f] (g) {重新执行导致缺页的指令};
+\draw[->] (a) -- (b); \draw[->] (b) -- (c); \draw[->] (c) -- (d); \draw[->] (d) -- (e); \draw[->] (e) -- (f); \draw[->] (f) -- (g);
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 常考：缺页中断与普通中断的区别。}
 \begin{itemize}
@@ -629,6 +663,22 @@ OPT 和 LRU 是\textbf{栈类算法（Stack Algorithm）}——$n$ 个页框时�
 
 \textbf{直观理解：} CLOCK 就像给每个页面「一次免死金牌」。如果最近被访问过（访问位 $=1$），则暂时放过（清 $0$），除非一轮下来仍无其他候选。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\foreach \i in {0,...,5} {
+  \node[draw, circle, minimum size=0.9cm] (F\i) at ({60*\i+30}:1.9cm) {P\i};
+}
+\draw[->] (F0) -- (F1);
+\draw[->] (F1) -- (F2);
+\draw[->] (F2) -- (F3);
+\draw[->] (F3) -- (F4);
+\draw[->] (F4) -- (F5);
+\draw[->] (F5) -- (F0);
+\draw[->, very thick, Amber] (0,0) -- (F2.west);
+\node[font=\scriptsize, black!60] at (0,-2.7) {环形页框链 + 时钟指针（指向候选页框，访问位清 0 后前移）};
+\end{tikzpicture}
+\end{center}
 
 % --- Improved CLOCK ---
 \begin{conclusion}{改进型 CLOCK 算法}{improved-clock}

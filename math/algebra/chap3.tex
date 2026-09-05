@@ -47,6 +47,34 @@
     其中求和取遍所有 $n$ 级排列 $p_1p_2\ldots p_n$，共有 $n!$ 项。
 \end{mydef}
 
+三阶行列式的绝对值等于以三个列向量为相邻棱的平行六面体的\textbf{有向体积}：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  xlabel=$x_1$, ylabel=$x_2$, zlabel=$x_3$,
+  xmin=0, xmax=4.2, ymin=0, ymax=4.2, zmin=0, zmax=2.5,
+  xtick={1,2,3}, ytick={1,2,3}, ztick={1,2},
+  view={125}{28}, width=7.4cm, height=6.8cm,
+  font=\footnotesize, clip=false,
+]
+\draw[blue,thick,fill=blue!12,opacity=0.55] (axis cs:0,0,0) -- (axis cs:2,1,0) -- (axis cs:3,3,0) -- (axis cs:1,2,0) -- cycle;
+\draw[blue,thick,fill=blue!12,opacity=0.55] (axis cs:0.5,0.5,2) -- (axis cs:2.5,1.5,2) -- (axis cs:3.5,3.5,2) -- (axis cs:1.5,2.5,2) -- cycle;
+\draw[blue,thick] (axis cs:0,0,0) -- (axis cs:0.5,0.5,2);
+\draw[blue,thick] (axis cs:2,1,0) -- (axis cs:2.5,1.5,2);
+\draw[blue,thick] (axis cs:3,3,0) -- (axis cs:3.5,3.5,2);
+\draw[blue,thick] (axis cs:1,2,0) -- (axis cs:1.5,2.5,2);
+\draw[->,thick,red] (axis cs:0,0,0) -- (axis cs:2,1,0);
+\draw[->,thick,green!60!black] (axis cs:0,0,0) -- (axis cs:1,2,0);
+\draw[->,thick,orange!80!black] (axis cs:0,0,0) -- (axis cs:0.5,0.5,2);
+\node[red,anchor=south] at (axis cs:2,1,0) {$\boldsymbol{u}$};
+\node[green!60!black,anchor=south] at (axis cs:1,2,0) {$\boldsymbol{v}$};
+\node[orange!80!black,anchor=south east] at (axis cs:0.5,0.5,2) {$\boldsymbol{w}$};
+\node[black] at (axis cs:2.6,3.2,2.2) {体积 $=|\det|$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{formula}{二阶与三阶行列式}{2nd and 3rd order determinants}
     \textbf{二阶行列式}：
     \[
@@ -68,6 +96,27 @@
     \]
     \boxed{\text{注}} 对角线法则仅适用于二阶和三阶行列式，对 $n \geq 4$ 不成立。
 \end{formula}
+
+二阶行列式的绝对值等于以两个列向量为邻边的平行四边形的\textbf{面积}。以 $\boldsymbol{a}=(3,1)$，$\boldsymbol{b}=(1,2)$ 为例，$\det = 3\cdot2-1\cdot1 = 5$：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  width=0.76\linewidth, height=6.2cm,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-0.6, xmax=4.9, ymin=-0.6, ymax=3.9,
+  xtick={1,2,3,4}, ytick={1,2,3},
+  font=\footnotesize,
+]
+\draw[blue,thick,fill=blue!12] (axis cs:0,0) -- (axis cs:3,1) -- (axis cs:4,3) -- (axis cs:1,2) -- cycle;
+\draw[->,thick,red] (axis cs:0,0) -- (axis cs:3,1);
+\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,2);
+\node[red,anchor=south west] at (axis cs:3,1) {$\boldsymbol{a}=(3,1)$};
+\node[green!50!black,anchor=south east] at (axis cs:1,2) {$\boldsymbol{b}=(1,2)$};
+\node[black] at (axis cs:2.15,2.7) {面积 $=|\det|=5$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \subsection{行列式的基本性质}
 
@@ -94,6 +143,42 @@
     \]
     \textbf{推论}：若行列式有两行（列）完全相同，则行列式为零。
 \end{conclusion}
+
+交换两列，行列式变号——这对应于有向面积方向（逆时针/顺时针）的改变：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  at={(0cm,0cm)},
+  width=5.4cm, height=4.6cm,
+  axis lines=center,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-0.5,xmax=4.6,ymin=-0.5,ymax=3.6,
+  xtick={2,4}, ytick={2},
+  title={$(a,b)$：$\det>0$，逆时针},
+  title style={font=\scriptsize},
+  font=\scriptsize,
+]
+\draw[blue,thick,fill=blue!12] (axis cs:0,0) -- (axis cs:3,1) -- (axis cs:4,3) -- (axis cs:1,2) -- cycle;
+\draw[->,thick,red] (axis cs:0,0) -- (axis cs:3,1);
+\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,2);
+\end{axis}
+\begin{axis}[
+  at={(6.2cm,0cm)},
+  width=5.4cm, height=4.6cm,
+  axis lines=center,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-0.5,xmax=4.6,ymin=-0.5,ymax=3.6,
+  xtick={2,4}, ytick={2},
+  title={$(b,a)$：$\det<0$，顺时针},
+  title style={font=\scriptsize},
+  font=\scriptsize,
+]
+\draw[blue,thick,fill=blue!12] (axis cs:0,0) -- (axis cs:1,2) -- (axis cs:4,3) -- (axis cs:3,1) -- cycle;
+\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,2);
+\draw[->,thick,red] (axis cs:0,0) -- (axis cs:3,1);
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \begin{conclusion}{公因子提取}{common factor extraction}
     行列式中某一行（列）的所有元素的公因子可以提到行列式符号外面：

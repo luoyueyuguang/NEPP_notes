@@ -60,6 +60,23 @@
     \textbf{几何意义：}当\(f(x) \geqslant 0\)时，\(\int_{a}^{b} f(x)\mathrm{d}x\)表示由曲线\(y=f(x)\)、直线\(x=a,x=b\)及\(x\)轴所围成的曲边梯形的面积；当\(f(x)\)变号时，定积分表示\(x\)轴上方面积减去下方面积的代数和。
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-0.12, xmax=2.15, ymin=-0.12, ymax=2.4,
+  xtick={0,0.5,1,1.5,2}, ytick={0,1,2},
+  domain=0:2, samples=160, font=\footnotesize,
+  legend pos=north west]
+\addplot[ybar interval,fill=orange!28,draw=orange!60,domain=0:2,samples=9] {x^2/2};
+\addlegendentry{黎曼和 $\sum f(\xi_i)\Delta x_i$}
+\addplot[blue,thick] {x^2/2};
+\addlegendentry{$y=f(x)=\frac{x^2}{2}$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 用若干小矩形面积之和逼近曲边梯形面积，当 $\lambda=\max\Delta x_i\to 0$ 时，其极限即为定积分。}
+
 \begin{conclusion}{函数在区间的可积性}{integrability}
     \textbf{可积的充分条件：}
     \begin{enumerate}
@@ -352,8 +369,27 @@
         \item 当\(p < 1\)时收敛，\(\displaystyle\int_{0}^{1} \frac{1}{x^{p}}\mathrm{d}x = \frac{1}{1-p}\)
         \item 当\(p \geqslant 1\)时发散
     \end{enumerate}
-    \textbf{常用结论}：\(\displaystyle\int_{2}^{+\infty} \frac{1}{x\ln^{p}x}\mathrm{d}x\)在\(p>1\)时收敛，\(p\leqslant 1\)时发散。
-\end{conclusion}
+        \textbf{常用结论}：\(\displaystyle\int_{2}^{+\infty} \frac{1}{x\ln^{p}x}\mathrm{d}x\)在\(p>1\)时收敛，\(p\leqslant 1\)时发散。
+ \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=1, xmax=8, ymin=0, ymax=3,
+  xtick={1,2,4,6,8}, ytick={0,1,2,3},
+  domain=1:8, samples=160, font=\footnotesize,
+  legend pos=north east]
+\addplot[red,thick] {x^(-0.5)};
+\addlegendentry{$p=\frac{1}{2}$（发散）}
+\addplot[blue,thick] {1/x};
+\addlegendentry{$p=1$（发散）}
+\addplot[green!55!black,thick] {1/x^2};
+\addlegendentry{$p=2$（收敛）}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize $\int_1^{+\infty}\frac{1}{x^p}\mathrm{d}x$ 当 $p>1$ 时收敛、$p\le1$ 时发散：$p$ 越大曲线衰减越快。}
 \begin{conclusion}{反常积分的运算法则与计算}{definite integral of improper functions' calculation}
     \begin{enumerate}
         \item \textbf{线性性质}：若\(\int_{a}^{+\infty} f\)与\(\int_{a}^{+\infty} g\)均收敛，则\\
@@ -415,6 +451,24 @@
     \]
     对正向简单闭曲线，也可用\(A=\frac12\oint_C(x\,\mathrm dy-y\,\mathrm dx)\)。不能一般性地写成\(\int|yx'|\,\mathrm dt\)，否则在回折曲线上可能重复计数。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-0.05, xmax=1.15, ymin=-0.05, ymax=1.15,
+  xtick={0,0.5,1}, ytick={0,0.5,1},
+  domain=0:1, samples=160, font=\footnotesize,
+  legend pos=north west]
+\addplot[draw=none,fill=orange!25] coordinates {(0,0) (0.05,0.224) (0.1,0.316) (0.15,0.387) (0.2,0.447) (0.25,0.5) (0.3,0.548) (0.35,0.592) (0.4,0.632) (0.45,0.671) (0.5,0.707) (0.55,0.742) (0.6,0.775) (0.65,0.806) (0.7,0.837) (0.75,0.866) (0.8,0.894) (0.85,0.922) (0.9,0.949) (0.95,0.975) (1,1) (1,1) (0.95,0.902) (0.9,0.81) (0.85,0.722) (0.8,0.64) (0.75,0.562) (0.7,0.49) (0.65,0.423) (0.6,0.36) (0.55,0.303) (0.5,0.25) (0.45,0.203) (0.4,0.16) (0.35,0.122) (0.3,0.09) (0.25,0.062) (0.2,0.04) (0.15,0.022) (0.1,0.01) (0.05,0.003) (0,0)};
+\addplot[blue,thick] {sqrt(x)};
+\addlegendentry{$y=\sqrt{x}$}
+\addplot[red,thick] {x^2};
+\addlegendentry{$y=x^2$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 交点 $(0,0),(1,1)$，在 $[0,1]$ 上 $\sqrt{x}\ge x^2$，面积 $A=\int_0^1(\sqrt{x}-x^2)\,\mathrm{d}x=\frac{1}{3}$。}
 \begin{conclusion}{平面曲线的弧微分与弧长}{arc differential and arc length of plane curve}
     \textbf{弧微分公式}：\\
     \(\displaystyle \mathrm{d}s = \sqrt{(\mathrm{d}x)^{2} + (\mathrm{d}y)^{2}} = \sqrt{1 + (y')^{2}}\,\mathrm{d}x\)\\
@@ -501,6 +555,26 @@
     \(\displaystyle f(\xi) = \frac{1}{b-a}\int_{a}^{b} f(x)\mathrm{d}x = \bar{f}\)\\
     \textbf{均方根}：\(\displaystyle f_{\text{rms}} = \sqrt{\frac{1}{b-a}\int_{a}^{b} f^{2}(x)\mathrm{d}x}\)
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-0.05, xmax=2.15, ymin=-0.05, ymax=5.4,
+  xtick={0,0.5,1,1.5,2}, ytick={1,2,3,4,5},
+  domain=0:2, samples=160, font=\footnotesize,
+  legend pos=north west]
+\addplot[fill=blue!12,draw=blue,thick] {x^2+1} \closedcycle;
+\addlegendentry{$y=f(x)=x^2+1$}
+\addplot[red!70!black,thick,dashed] {2.3333};
+\addlegendentry{$y=\bar f=\frac{1}{b-a}\int_a^b f=\frac{7}{3}$}
+\draw[red!70!black,thin] (axis cs:0,0) rectangle (axis cs:2,2.3333);
+\addplot[only marks,mark=*,red] coordinates {(1.1547,2.3333)};
+\node[font=\scriptsize,red!70!black] at (axis cs:1.4,2.5){$\xi$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 曲线下方面积等于高为 $\bar f$ 的矩形面积，存在 $\xi\in[a,b]$ 使 $f(\xi)=\bar f$（积分中值定理）。}
 \subsection{其他技巧}
 \noindent\textbf{拓展阅读：}Beta 函数与 Gamma 函数不作为现行考研数学一的独立考点；下列内容仅用于拓宽特殊积分的统一视角，主线备考仍应优先掌握换元法、分部积分法和反常积分判敛。
 

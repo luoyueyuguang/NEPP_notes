@@ -31,6 +31,28 @@ CPU 与主存通过 MAR（存储器地址寄存器）和 MDR（存储器数据�
 \textbf{408 常考：}哪些寄存器程序员可见（通用寄存器、PSW、PC 部分可见），哪些透明（MAR、MDR、IR）。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw[thick,Navy!70] (-5.6,0) -- (5.6,0);
+  \node[font=\scriptsize,black!70] at (0,0.26){CPU 内部数据通路};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.5cm,minimum height=0.7cm] (pc) at (-4.4,1.2){PC};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.5cm,minimum height=0.7cm] (ir) at (-2.2,1.2){IR};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.5cm,minimum height=0.7cm] (mar) at (0.0,1.2){MAR};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.5cm,minimum height=0.7cm] (mdr) at (2.2,1.2){MDR};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=1.9cm,minimum height=0.7cm] (acc) at (4.4,1.2){ACC};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.2cm,minimum height=0.7cm] (rf) at (-2.2,-1.2){通用寄存器组};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.6cm,minimum height=0.9cm] (alu) at (4.4,-1.2){ALU};
+  \draw[Navy!70] (pc.south) -- (-4.4,0);
+  \draw[Navy!70] (ir.south) -- (-2.2,0);
+  \draw[Navy!70] (mar.south) -- (0.0,0);
+  \draw[Navy!70] (mdr.south) -- (2.2,0);
+  \draw[Navy!70] (acc.south) -- (4.4,0);
+  \draw[Navy!70] (rf.north) -- (-2.2,0);
+  \draw[Navy!70] (alu.north) -- (4.4,0);
+  \node[font=\scriptsize,black!70,align=center] at (0,-2.0){运算器（ALU/ACC/通用寄存器组/PSW）与控制器（PC/IR/ID）挂靠内部通路，经 MAR/MDR 与主存交互};
+\end{tikzpicture}
+\end{center}
+
 \subsection{指令执行过程}
 
 \begin{conclusion}{指令周期}{instruction-cycle}
@@ -90,6 +112,19 @@ CPU 与主存通过 MAR（存储器地址寄存器）和 MDR（存储器数据�
     \item \textbf{$\mu$PC（微程序计数器）}：顺序执行微程序时 +1；遇到转移微指令时加载新地址。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.0cm,minimum height=0.8cm,align=center] (mpc) at (-3.0,1.0){$\mu$PC\\微程序计数器};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.4cm,minimum height=1.0cm,align=center] (cm) at (-0.1,1.0){CM 控制存储器\\（存放微程序）};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.9cm,minimum height=0.8cm,align=center] (ins) at (3.1,1.0){微指令\\控制字段 | 判别 | 下地址};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.4cm,minimum height=0.8cm,align=center] (ctl) at (6.2,1.0){微操作控制信号};
+  \draw[->] (mpc) -- (cm);
+  \draw[->] (cm) -- (ins);
+  \draw[->] (ins) -- (ctl);
+  \node[font=\scriptsize,black!70,align=center] at (1.4,-0.4){微指令的下地址字段决定下一条微指令（$\mu$PC）的取值；一条机器指令由一段微程序实现};
+\end{tikzpicture}
+\end{center}
 
 \begin{conclusion}{微指令的编码方式}{microinstruction-encoding}
 \begin{itemize}
@@ -168,6 +203,25 @@ CPU 与主存通过 MAR（存储器地址寄存器）和 MDR（存储器数据�
     \end{itemize}
 \end{enumerate}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.9cm,minimum height=0.8cm] (id) at (0,0){ID 读寄存器};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=1.9cm,minimum height=0.8cm] (mux) at (2.4,0){转发 mux};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.7cm,minimum height=0.8cm] (ex) at (4.55,0){EX};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.8cm] (mem) at (6.75,0){MEM};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.8cm] (wb) at (8.95,0){WB};
+  \draw[->] (id) -- (mux);
+  \draw[->] (mux) -- (ex);
+  \draw[->] (ex) -- (mem);
+  \draw[->] (mem) -- (wb);
+  \draw[Burgundy!70,->] (5.4,0.42) -- (5.4,1.25) -- (2.4,1.25) -- (2.4,0.42);
+  \draw[Teal!70,->] (7.6,0.42) -- (7.6,1.9) -- (2.4,1.9) -- (2.4,0.42);
+  \node[font=\scriptsize,black!70] at (4.9,1.28){转发：EX/MEM $\to$ EX};
+  \node[font=\scriptsize,black!70] at (4.9,1.92){转发：MEM/WB $\to$ EX};
+  \node[font=\scriptsize,black!70,align=center] at (4.9,-0.6){相邻 ALU 指令的 RAW 可转发解决；Load-use 冒险中 lw 的数据到 MEM 阶段才就绪，仍须阻塞 1 拍};
+\end{tikzpicture}
+\end{center}
 
 \begin{attention}
 \textbf{408 最常考的数据冒险场景：} 

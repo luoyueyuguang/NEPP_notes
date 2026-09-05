@@ -97,6 +97,37 @@ typedef struct {
 \end{itemize}
 \end{formula}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 顶点表头数组
+\node[draw, rectangle, minimum width=0.8cm, minimum height=0.55cm, fill=SoftBlue, draw=Navy, text=NavyDark, font=\scriptsize\bfseries] (h0) at (0,1.8) {0};
+\node[draw, rectangle, minimum width=0.8cm, minimum height=0.55cm, fill=SoftBlue, draw=Navy, text=NavyDark, font=\scriptsize\bfseries] (h1) at (0,0.6) {1};
+\node[draw, rectangle, minimum width=0.8cm, minimum height=0.55cm, fill=SoftBlue, draw=Navy, text=NavyDark, font=\scriptsize\bfseries] (h2) at (0,-0.6) {2};
+\node[draw, rectangle, minimum width=0.8cm, minimum height=0.55cm, fill=SoftBlue, draw=Navy, text=NavyDark, font=\scriptsize\bfseries] (h3) at (0,-1.8) {3};
+% 弧结点链：0 -> 1 -> 2 -> NULL
+\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (a01) at (1.4,1.8) {1};
+\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (a02) at (2.8,1.8) {2};
+\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (n0) at (4.2,1.8) {$\wedge$};
+\draw[->] (h0) -- (a01);
+\draw[->] (a01) -- (a02);
+\draw[->] (a02) -- (n0);
+% 弧结点链：1 -> 2 -> NULL
+\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (a12) at (1.4,0.6) {2};
+\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (n1) at (2.8,0.6) {$\wedge$};
+\draw[->] (h1) -- (a12);
+\draw[->] (a12) -- (n1);
+% 弧结点链：2 -> 3 -> NULL
+\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (a23) at (1.4,-0.6) {3};
+\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (n2) at (2.8,-0.6) {$\wedge$};
+\draw[->] (h2) -- (a23);
+\draw[->] (a23) -- (n2);
+% 弧结点链：3 -> NULL
+\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (n3) at (1.4,-1.8) {$\wedge$};
+\draw[->] (h3) -- (n3);
+\node[align=center,font=\scriptsize,black!70] at (2.1,-3.2){有向图 $G$：$\langle0,1\rangle,\langle0,2\rangle,\langle1,2\rangle,\langle2,3\rangle$ 的\textbf{邻接表}\\每个顶点的出边链成单链表，表尾 $\wedge$ 表示 NULL 空指针};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{邻接矩阵 vs 邻接表（408 常考）}{adj-compare}
 \begin{tablebox}{存储方式对比}
 \centering
@@ -135,6 +166,27 @@ void DFS(ALGraph *G, int v) {
 \textbf{DFS 生成树/森林：}递归过程中经过的边构成生成树（连通时）或生成森林（不连通时）。回边（back edge）是 DFS 树中指向祖先的边。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v1) at (0,3) {1};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v2) at (-2.4,1.2) {2};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v3) at (2.4,1.2) {3};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v4) at (-3.6,-1.2) {4};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v5) at (-1.6,-1.2) {5};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v6) at (2.4,-1.2) {6};
+% 非树边（灰色）
+\draw[gray,thick] (v1) -- (v3);
+\draw[gray,thick] (v2) -- (v5);
+% DFS 树边（青色箭头：自顶向下沿遍历方向）
+\draw[->,Teal,thick] (v1) -- (v2);
+\draw[->,Teal,thick] (v2) -- (v4);
+\draw[->,Teal,thick] (v4) -- (v5);
+\draw[->,Teal,thick] (v5) -- (v6);
+\draw[->,Teal,thick] (v6) -- (v3);
+\node[align=center,font=\scriptsize,black!70] at (0,-2.5){DFS 从顶点 1 出发，访问序列 $1\to2\to4\to5\to6\to3$\\青色箭头构成 DFS 生成树；灰色边为回边，说明图中存在回路};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{广度优先搜索（BFS）}{bfs}
 从顶点 $v$ 出发，逐层访问。需要辅助队列。
 
@@ -159,6 +211,27 @@ void BFS(ALGraph *G, int v) {
 
 \textbf{BFS 生成树：}BFS 过程中首次发现某顶点所用的边构成生成树。BFS 生成树中从根到任意顶点的路径即最短路径（边数最少）。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v1) at (0,3) {1};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v2) at (-2.4,1.2) {2};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v3) at (2.4,1.2) {3};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v4) at (-3.6,-1.2) {4};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v5) at (-1.6,-1.2) {5};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v6) at (2.4,-1.2) {6};
+% 非树边（灰色）
+\draw[gray,thick] (v4) -- (v5);
+\draw[gray,thick] (v5) -- (v6);
+% BFS 树边（青色箭头：逐层扩展）
+\draw[->,Teal,thick] (v1) -- (v2);
+\draw[->,Teal,thick] (v1) -- (v3);
+\draw[->,Teal,thick] (v2) -- (v4);
+\draw[->,Teal,thick] (v2) -- (v5);
+\draw[->,Teal,thick] (v3) -- (v6);
+\node[align=center,font=\scriptsize,black!70] at (0,-2.5){BFS 从顶点 1 出发，访问序列 $1,2,3,4,5,6$\\青色箭头构成 BFS 生成树（逐层扩展）；灰色为各层间非生成树边};
+\end{tikzpicture}
+\end{center}
 
 \begin{attention}
 \textbf{408 常考：DFS/BFS 遍历序列的唯一性。}在\textbf{起始顶点和按顶点编号递增扫描邻接点的规则均已确定}时，邻接矩阵对应的访问次序确定；邻接表的访问次序还取决于各邻接链表中的结点顺序。若题目没有规定起点或邻接点选择顺序，则不能仅凭“邻接矩阵”断言遍历序列绝对唯一。
@@ -199,6 +272,23 @@ void Prim(MGraph G, int start) {
 \end{lstlisting}
 时间复杂度 $O(n^2)$，与边数无关——适合稠密图。用堆优化可达 $O(e\log n)$。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (A) at (0,2.2) {A};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (B) at (2.2,0) {B};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (C) at (0,-2.2) {C};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (D) at (-2.2,0) {D};
+% 非 MST 边（灰色）
+\draw[gray,thick] (A) -- node[above,font=\scriptsize] {4} (B);
+\draw[gray,thick] (D) -- node[left,font=\scriptsize] {6} (A);
+% MST 边（青色）
+\draw[Teal,thick] (A) -- node[left,font=\scriptsize,text=TealDark] {\textbf{1}} (C);
+\draw[Teal,thick] (B) -- node[font=\scriptsize,text=TealDark] {\textbf{3}} (C);
+\draw[Teal,thick] (C) -- node[below,font=\scriptsize,text=TealDark] {\textbf{5}} (D);
+\node[align=center,font=\scriptsize,black!70] at (0,-3.1){Prim 从 A 出发：依次加入 $(A,C)$、$(B,C)$、$(C,D)$（青色）\\$\mathrm{MST}$ 总权 $=1+3+5=9$，灰色边不在最小生成树中};
+\end{tikzpicture}
+\end{center}
 
 \begin{conclusion}{Kruskal 算法}{kruskal}
 按边权从小到大依次选边，若该边连接两个不同连通分量则加入 MST，否则丢弃。直到选出 $n-1$ 条边。

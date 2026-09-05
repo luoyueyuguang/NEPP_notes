@@ -71,6 +71,22 @@ typedef struct {
     \item 在位置 $i-1$ 处放入 $e$，\texttt{length++}。
 \end{enumerate}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[font=\scriptsize, Navy] at (2.5,1.15){插入前（在第 3 位前插入 $e$）：};
+  \foreach \v/\i in {a_1/0,a_2/1,a_3/2,a_4/3,a_5/4}{
+    \node[draw, rectangle, minimum width=0.82cm, minimum height=0.55cm, fill=SoftBlue] (p\i) at (\i*0.95,0.5){$\v$};
+  }
+  \node[draw, rectangle, minimum width=0.82cm, minimum height=0.55cm, fill=SoftAmber] (e) at (2.85,-0.35){$e$};
+  \node[font=\scriptsize, MutedText] at (2.85,-0.85){新元素 $e$};
+  \node[font=\scriptsize, black!70] at (2.2,-1.35){$a_3,a_4,a_5$ 依次后移一位，空出第 3 位};
+  \node[font=\scriptsize, Navy] at (2.85,-1.9){插入后：};
+  \foreach \v/\i in {a_1/0,a_2/1,e/2,a_3/3,a_4/4,a_5/5}{
+    \node[draw, rectangle, minimum width=0.82cm, minimum height=0.55cm, fill=SoftBlue] (q\i) at (\i*0.95,-2.35){$\v$};
+  }
+\end{tikzpicture}
+\end{center}
+
 \begin{lstlisting}[language=C]
 bool ListInsert(SqList *L, int i, ElemType e) {
     if (i < 1 || i > L->length + 1) return false;
@@ -241,6 +257,25 @@ bool ListInsert(LinkList L, int i, ElemType e) {
 }
 \end{lstlisting}
 \textbf{关键：} 语句（1）（2）的顺序不能颠倒！若先执行 \texttt{p->next = s}，则原后继链丢失。时间复杂度：查找 $O(n)$，插入本身 $O(1)$。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[font=\scriptsize, Navy] at (1.35,1.75){插入前};
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (p) at (0,1.0){$p$};
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (q) at (1.7,1.0){$q$};
+  \draw[->, black!60] (p.east) -- (q.west);
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (s) at (0.85,2.0){$s$};
+  \node[font=\scriptsize, MutedText] at (2.6,0.55){$p$ 原指向 $q$};
+  \node[font=\scriptsize, Navy] at (5.4,1.75){插入后};
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (p2) at (4.0,1.0){$p$};
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (s2) at (5.7,1.0){$s$};
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (q2) at (7.4,1.0){$q$};
+  \draw[->, Teal, thick] (p2.east) -- (s2.west);
+  \draw[->, Teal, thick] (s2.east) -- (q2.west);
+  \node[font=\scriptsize, black!70] at (5.9,0.4){\texttt{(1) s->next = p->next}};
+  \node[font=\scriptsize, black!70] at (5.9,-0.15){\texttt{(2) p->next = s}};
+\end{tikzpicture}
+\end{center}
 \end{conclusion}
 
 \begin{conclusion}{单链表删除操作}{linked-list-delete}
@@ -284,6 +319,20 @@ if (p->next) p->next->prior = s;     // （3） p后继的前驱指向s
 p->next = s;                         // （4） p接s
 \end{lstlisting}
 四条语句缺一不可，且顺序有讲究：先建立 s 的两个指针，再修改原链中指向 s 的两个指针。若 p 为尾结点则跳过（3）。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (p) at (0,0.9){$p$};
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (s) at (1.85,0.9){$s$};
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (q) at (3.7,0.9){$q$};
+  \draw[->, Teal, thick] (p.east) -- (s.west);
+  \draw[->, Teal, thick] (s.east) -- (q.west);
+  \draw[<-, Burgundy, thick] (p.south) .. controls (0,0.3) and (0.15,0.3) .. (s.south);
+  \draw[<-, Burgundy, thick] (s.south) .. controls (1.85,0.3) and (2.0,0.3) .. (q.south);
+  \node[font=\scriptsize, black!70] at (1.85,-0.3){\texttt{(1) s->prior=p\ \ (2) s->next=q}};
+  \node[font=\scriptsize, black!70] at (1.85,-0.8){\texttt{(3) p->next=s\ \ (4) q->prior=s}};
+\end{tikzpicture}
+\end{center}
 \end{conclusion}
 
 \begin{conclusion}{双链表的删除操作}{dlink-delete}
@@ -339,6 +388,24 @@ typedef struct {
 \hline
 \end{tabular}
 \end{tablebox}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[font=\scriptsize, Navy] at (2.4,1.15){顺序表：地址连续，随机存取 $O(1)$};
+  \foreach \v/\i in {a_1/0,a_2/1,a_3/2,a_4/3}{
+    \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (s\i) at (\i*1.05,0.5){$\v$};
+  }
+  \node[font=\scriptsize, black!60] at (4.9,0.5){$\cdots$};
+  \node[font=\scriptsize, black!60] at (2.0,-0.25){$\mathrm{LOC}(a_i)=\mathrm{LOC}(a_1)+(i-1)s$};
+  \node[font=\scriptsize, Navy] at (2.6,-1.1){链表：地址任意，指针链接，顺序存取 $O(n)$};
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (l0) at (0,-1.75){$a_1$};
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (l1) at (1.95,-2.15){$a_2$};
+  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (l2) at (3.9,-1.75){$a_3$};
+  \node[font=\scriptsize, black!60] at (5.2,-1.75){$\cdots$};
+  \draw[->, Teal, thick] (l0.east) -- (l1.west);
+  \draw[->, Teal, thick] (l1.east) -- (l2.west);
+\end{tikzpicture}
+\end{center}
 
 \subsection{408 高频考点与真题风格}
 

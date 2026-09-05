@@ -226,10 +226,55 @@
     \end{enumerate}
 \end{conclusion}
 
+当 \(n - r = 1\) 时，齐次方程组的解空间是过原点的一条直线；非齐次方程组的解集是与之平行、过特解 \(\boldsymbol{\eta}^*\) 的一条直线（\(A\boldsymbol{x} = \boldsymbol{b}\) 的解集是 \(\boldsymbol{\eta}^* + \ker(A)\)）：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  width=0.8\linewidth, height=5.6cm,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-3.2, xmax=5.4, ymin=-2.2, ymax=6.2,
+  xtick={-2,-1,1,2,3,4}, ytick={-1,1,2,3,4,5},
+  font=\footnotesize,
+]
+\draw[blue,thick,dashed] (axis cs:-3,-1.5) -- (axis cs:5,2.5);
+\draw[red,thick] (axis cs:-3,1) -- (axis cs:5,5);
+\fill[red] (axis cs:1,3) circle (2pt);
+\node[red,anchor=south west] at (axis cs:1,3) {$\boldsymbol{\eta}^*$};
+\draw[->,thick,blue] (axis cs:1,3) -- (axis cs:3,4);
+\node[blue,anchor=south] at (axis cs:3,4) {$\boldsymbol{\xi}$};
+\node[blue] at (axis cs:2.7,1.9) {$A\boldsymbol{x}=\boldsymbol{0}$ 解空间};
+\node[red] at (axis cs:3.0,4.6) {$A\boldsymbol{x}=\boldsymbol{b}$ 解集};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{无解的几何意义}{geometric interpretation of no solution}
     当 \(r(A) \neq r(A \mid b)\) 时，\(b\) 不在 \(A\) 的列空间 \(\operatorname{Col}(A)\) 中。\\
     例如在 \(\mathbb{R}^3\) 中考虑两个方程三个未知数的方程组：\(A\) 的列空间是一个平面（维数 2），若 \(b\) 不在该平面上，则方程组无解。
 \end{conclusion}
+
+二维情形：若 \(A\) 的列向量均共线，则 \(\operatorname{Col}(A)\) 是过原点的一条直线；当 \(b\) 不落在该直线上时，方程组 \(A\boldsymbol{x} = \boldsymbol{b}\) 无解：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  width=0.78\linewidth, height=5.8cm,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-1.2, xmax=5.2, ymin=-1.2, ymax=5.2,
+  xtick={1,2,3,4}, ytick={1,2,3,4},
+  font=\footnotesize,
+]
+\draw[blue,thick] (axis cs:-0.6,-0.6) -- (axis cs:4.6,4.6);
+\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:2,2);
+\draw[->,thick,red] (axis cs:0,0) -- (axis cs:1,4);
+\node[blue,anchor=south east] at (axis cs:2,2) {$\boldsymbol{\alpha}_1$};
+\node[red,anchor=south west] at (axis cs:1,4) {$\boldsymbol{b}$};
+\node[blue] at (axis cs:3.9,3.0) {$\operatorname{Col}(A)$};
+\node[red] at (axis cs:2.4,4.35) {$\boldsymbol{b}\notin\operatorname{Col}(A)$，无解};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \subsection{方程个数、未知数个数与解的类型}
 
@@ -355,6 +400,26 @@
         而 \(\dim \operatorname{Row}(A) = r(A)\)，再次得到秩定理。
     \end{enumerate}
 \end{conclusion}
+
+在 \(\mathbb{R}^2\) 中，行空间 \(\operatorname{Row}(A)\) 是过原点的一条直线，零空间 \(\ker(A)\) 是与它\textbf{正交}的过原点的直线（\(\ker(A) = (\operatorname{Row}(A))^\perp\)）：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  width=0.78\linewidth, height=5.8cm,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-4.2, xmax=4.2, ymin=-4.2, ymax=4.2,
+  xtick={-3,-1,1,3}, ytick={-3,-1,1,3},
+  font=\footnotesize,
+]
+\draw[blue,thick] (axis cs:-3.6,-1.8) -- (axis cs:3.6,1.8);
+\draw[red,thick] (axis cs:-1.8,3.6) -- (axis cs:1.8,-3.6);
+\node[blue,anchor=south] at (axis cs:3.4,1.7) {$\operatorname{Row}(A)$};
+\node[red,anchor=north] at (axis cs:1.7,-3.4) {$\ker(A)$};
+\draw[black,thick] (axis cs:0.447,0.224) -- (axis cs:0.224,0.670) -- (axis cs:-0.224,0.447);
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \newpage
 \section{习题}

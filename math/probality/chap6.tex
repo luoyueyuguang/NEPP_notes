@@ -208,6 +208,28 @@
     \end{enumerate}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={概率密度},
+  xmin=-4, xmax=4, ymin=0, ymax=1.75,
+  xtick={-4,-2,0,2,4}, ytick={0,0.4,0.8,1.2,1.6},
+  legend pos=north east, font=\footnotesize,
+  domain=-4:4, samples=200,
+]
+\addplot[blue,thick] {0.3989*exp(-x^2/2)};
+\addlegendentry{$n=1$}
+\addplot[red,thick] {0.7979*exp(-2*x^2)};
+\addlegendentry{$n=4$}
+\addplot[green!55!black,thick] {1.1968*exp(-4.5*x^2)};
+\addlegendentry{$n=9$}
+\addplot[orange,thick] {1.5958*exp(-8*x^2)};
+\addlegendentry{$n=16$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{两个正态总体}{two normal population sample mean distribution}
     \[
     \begin{aligned}
@@ -250,6 +272,50 @@
         \end{aligned}
     \]
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={概率密度},
+  xmin=0, xmax=1, ymin=0, ymax=20,
+  xtick={0,0.2,0.4,0.6,0.8,1}, ytick={0,4,8,12,16,20},
+  legend pos=north west, font=\footnotesize,
+  domain=0:1, samples=160,
+]
+\addplot[blue,thick] {2*x};
+\addlegendentry{$n=2$}
+\addplot[red,thick] {5*x^4};
+\addlegendentry{$n=5$}
+\addplot[green!55!black,thick] {10*x^9};
+\addlegendentry{$n=10$}
+\addplot[orange,thick] {20*x^19};
+\addlegendentry{$n=20$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={概率密度},
+  xmin=0, xmax=1, ymin=0, ymax=20,
+  xtick={0,0.2,0.4,0.6,0.8,1}, ytick={0,4,8,12,16,20},
+  legend pos=north east, font=\footnotesize,
+  domain=0:1, samples=160,
+]
+\addplot[blue,thick] {2*(1-x)};
+\addlegendentry{$n=2$}
+\addplot[red,thick] {5*(1-x)^4};
+\addlegendentry{$n=5$}
+\addplot[green!55!black,thick] {10*(1-x)^9};
+\addlegendentry{$n=10$}
+\addplot[orange,thick] {20*(1-x)^19};
+\addlegendentry{$n=20$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \newpage
 \section{习题}

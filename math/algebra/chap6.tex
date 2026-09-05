@@ -29,6 +29,29 @@ A\mathbf{x} = \lambda \mathbf{x}
 
 \boxed{\textbf{几何意义}} 矩阵 \(A\) 作用于其特征向量 \(\mathbf{x}\)，等价于对 \(\mathbf{x}\) 进行伸缩变换（伸缩因子为 \(\lambda\)），方向保持不变（当 \(\lambda > 0\)）或反向（当 \(\lambda < 0\)）。若 \(\lambda = 0\)，则 \(A\mathbf{x} = \mathbf{0}\)，特征向量被压缩到原点。
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.62\linewidth, height=6cm, axis equal image,
+  xmin=-3.4, xmax=3.4, ymin=-3.4, ymax=3.4,
+  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
+]
+% 单位圆
+\addplot[gray!60, dashed, domain=0:360, samples=160] ({cos(x)},{sin(x)});
+% 对称矩阵 A = [3 1; 1 3] 将单位圆映为椭圆，主轴沿特征方向 (1,1), (1,-1)，半轴长 = |特征值| = 4, 2
+\addplot[blue, thick, domain=0:360, samples=200] ({(4*cos(x)+2*sin(x))/1.4142},{(4*cos(x)-2*sin(x))/1.4142});
+% 特征向量方向
+\draw[->,red,thick] (axis cs:0,0) -- (axis cs:0.7071,0.7071);
+\node[red,font=\scriptsize] at (axis cs:1.02,1.28){$\mathbf{p}_1$};
+\draw[->,red,thick] (axis cs:0,0) -- (axis cs:0.7071,-0.7071);
+\node[red,font=\scriptsize] at (axis cs:1.02,-1.28){$\mathbf{p}_2$};
+% A p_i = lambda_i p_i: 沿特征方向被拉伸 lambda 倍到达椭圆边缘
+\draw[->,red!70,dashed] (axis cs:0,0) -- (axis cs:2.8284,2.8284) node[above,font=\scriptsize]{$4\mathbf{p}_1$};
+\draw[->,red!70,dashed] (axis cs:0,0) -- (axis cs:1.4142,-1.4142) node[below,font=\scriptsize]{$2\mathbf{p}_2$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \boxed{\text{注}} 
 \begin{enumerate}
     \item 特征向量必须是非零向量。若 \(\mathbf{x}\) 是特征向量，则 \(k\mathbf{x} \; (k \neq 0)\) 也是属于同一特征值的特征向量。
@@ -115,6 +138,29 @@ P^{-1}AP = \Lambda = \operatorname{diag}(\lambda_1, \lambda_2, \ldots, \lambda_n
 
 \boxed{\textbf{对角化的几何意义}} 对角化意味着我们找到了一组基（由特征向量构成），在这组基下，线性变换 \(A\) 的作用表现为在各个基方向上的独立伸缩。这是最简洁的表示形式。
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.72\linewidth, height=5.4cm, axis equal image,
+  xmin=-0.4, xmax=3.7, ymin=-0.4, ymax=3.7,
+  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
+]
+% 单位正方形
+\draw[gray!60, thick] (axis cs:0,0) rectangle (axis cs:1,1);
+% A = [2 1; 0 3] 把单位正方形映成平行四边形（特征方向非正交，仍可对角化）
+\draw[blue, thick] (axis cs:0,0) -- (axis cs:2,0) -- (axis cs:3,3) -- (axis cs:1,3) -- cycle;
+% 特征向量 p1=(1,0) 与其像 2p1
+\draw[->,red,thick] (axis cs:0,0) -- (axis cs:1,0) node[below,font=\scriptsize]{$\mathbf{p}_1$};
+\draw[->,red!70,dashed] (axis cs:0,0) -- (axis cs:2,0) node[below left,font=\scriptsize]{$2\mathbf{p}_1$};
+% 特征向量 p2=(1,1) 与其像 3p2
+\draw[->,red,thick] (axis cs:0,0) -- (axis cs:1,1) node[above,font=\scriptsize]{$\mathbf{p}_2$};
+\draw[->,red!70,dashed] (axis cs:0,0) -- (axis cs:3,3) node[above right,font=\scriptsize]{$3\mathbf{p}_2$};
+\node[font=\scriptsize,blue] at (axis cs:1.5,3.55){$A=\begin{pmatrix}2&1\\0&3\end{pmatrix}$};
+\node[font=\scriptsize,black] at (axis cs:1.5,3.1){特征方向独立伸缩 $\Rightarrow$ 可对角化};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \subsection{代数重数与几何重数}
 
 \begin{mydef}{代数重数与几何重数}{algebraic-and-geometric-multiplicity}
@@ -160,6 +206,23 @@ P^{-1}AP = \Lambda = \operatorname{diag}(\lambda_1, \lambda_2, \ldots, \lambda_n
 \textbf{解：} \(|\lambda I - A| = \begin{vmatrix} \lambda - 1 & -1 \\ 0 & \lambda - 1 \end{vmatrix} = (\lambda - 1)^2\)，特征值 \(\lambda = 1\)（二重根）。
 
 \(m_a(1) = 2\)。几何重数：解 \((I - A)\mathbf{x} = \begin{pmatrix} 0 & -1 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \mathbf{0}\)，得 \(x_2 = 0\)，解空间维数为 \(1\)，故 \(m_g(1) = 1 < m_a(1) = 2\)。因此 \(A\) 不可对角化。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.62\linewidth, height=5.2cm, axis equal image,
+  xmin=-0.4, xmax=2.8, ymin=-0.5, ymax=1.9,
+  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
+]
+% A = [1 1; 0 1]: 剪切，几何重数 < 代数重数，故不可对角化
+\draw[gray!60, thick] (axis cs:0,0) rectangle (axis cs:1,1);
+\draw[blue, thick] (axis cs:0,0) -- (axis cs:1,0) -- (axis cs:2,1) -- (axis cs:1,1) -- cycle;
+\draw[->,red,thick] (axis cs:0,0) -- (axis cs:1,0) node[below,font=\scriptsize]{$\mathbf{p}$};
+\node[font=\scriptsize,blue] at (axis cs:1.55,1.62){$A=\begin{pmatrix}1&1\\0&1\end{pmatrix}$};
+\node[font=\scriptsize,red] at (axis cs:1.55,-0.42){仅一个特征方向，故不可对角化};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \subsection{实对称矩阵的对角化}
 

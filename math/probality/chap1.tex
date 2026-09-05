@@ -51,6 +51,21 @@ $ 完全相同，即它们包含的结果完全一致 \\
 \label{tab:event_operations}
 \end{tablebox}
 
+\begin{center}
+\begin{tikzpicture}[scale=0.86,>=stealth]
+  \draw[thick] (-2.9,-2.0) rectangle (2.9,2.0);
+  \node[font=\scriptsize] at (0,2.12){$\Omega$};
+  \draw[thick,fill=blue!18] (-0.78,0) circle (1.42);
+  \draw[thick,fill=red!18] (0.78,0) circle (1.42);
+  \node[font=\tiny,blue!50!black] at (-1.85,0.62){$A$};
+  \node[font=\tiny,red!60!black] at (1.85,0.62){$B$};
+  \node[font=\scriptsize] at (0,0.02){$A\cap B$};
+  \node[font=\tiny,blue!50!black] at (-1.55,-0.72){$A\bar{B}$};
+  \node[font=\tiny,red!60!black] at (1.55,-0.72){$\bar{A}B$};
+  \node[font=\tiny,gray] at (2.25,-1.72){$\bar{A}\bar{B}$};
+\end{tikzpicture}
+\end{center}
+
 \subsection{事件的运算法则}
 \begin{formula}{事件的运算法则}{laws of event operations}
     \begin{enumerate}
@@ -167,6 +182,26 @@ $ 完全相同，即它们包含的结果完全一致 \\
 
 \end{formula}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.8\linewidth, height=5.0cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-0.08, xmax=1.08, ymin=-0.08, ymax=1.14,
+  xtick={0,0.5,1}, ytick={0,0.5,1},
+  font=\footnotesize, axis lines=left,
+]
+\fill[blue!16]
+  (0,0) -- (0,0.35) -- (0.65,1) -- (1,1) -- (1,0.65) -- (0.35,0) -- cycle;
+\draw[thick] (0,0) rectangle (1,1);
+\draw[thick,blue!60!black] (0,0.35) -- (0.65,1);
+\draw[thick,blue!60!black] (0.35,0) -- (1,0.65);
+\node[font=\scriptsize,blue!50!black] at (0.72,0.62){$A$};
+\node[font=\scriptsize] at (0.5,1.06){$\Omega$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \subsection{概率论性质与公式}
 
 \begin{conclusion}{概率论的性质}{properties of probability theory}
@@ -199,6 +234,40 @@ $ 完全相同，即它们包含的结果完全一致 \\
         $P_{n}(A = k) = C_{n}^{k}p^{k}(1-p)^{n-k}$
     \end{enumerate}
 \end{formula}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\scriptsize,scale=0.86]
+\node[circle,draw,inner sep=1pt] (root) at (0,0){$A$};
+\node[circle,draw,inner sep=1pt] (a1) at (2.8,1.9){$A_1$};
+\node[circle,draw,inner sep=1pt] (a2) at (2.8,0){$A_2$};
+\node[circle,draw,inner sep=1pt] (a3) at (2.8,-1.9){$A_3$};
+\draw[->,thick] (root) -- (a1);
+\draw[->,thick] (root) -- (a2);
+\draw[->,thick] (root) -- (a3);
+\node[fill=white,inner sep=0.5pt] at (1.4,0.95){$0.25$};
+\node[fill=white,inner sep=0.5pt] at (1.4,0.0){$0.35$};
+\node[fill=white,inner sep=0.5pt] at (1.4,-0.95){$0.40$};
+\node[circle,draw,inner sep=1pt] (b1) at (5.6,2.6){$B$};
+\node[circle,draw,inner sep=1pt] (nb1) at (5.6,1.2){$\bar{B}$};
+\node[circle,draw,inner sep=1pt] (b2) at (5.6,0.6){$B$};
+\node[circle,draw,inner sep=1pt] (nb2) at (5.6,-0.6){$\bar{B}$};
+\node[circle,draw,inner sep=1pt] (b3) at (5.6,-1.2){$B$};
+\node[circle,draw,inner sep=1pt] (nb3) at (5.6,-2.6){$\bar{B}$};
+\draw[->,thick] (a1) -- (b1);
+\draw[->,thick] (a1) -- (nb1);
+\draw[->,thick] (a2) -- (b2);
+\draw[->,thick] (a2) -- (nb2);
+\draw[->,thick] (a3) -- (b3);
+\draw[->,thick] (a3) -- (nb3);
+\node[fill=white,inner sep=0.5pt] at (4.2,2.25){$0.05$};
+\node[fill=white,inner sep=0.5pt] at (4.2,1.55){$0.95$};
+\node[fill=white,inner sep=0.5pt] at (4.2,0.30){$0.04$};
+\node[fill=white,inner sep=0.5pt] at (4.2,-0.30){$0.96$};
+\node[fill=white,inner sep=0.5pt] at (4.2,-1.55){$0.02$};
+\node[fill=white,inner sep=0.5pt] at (4.2,-2.25){$0.98$};
+\node[font=\footnotesize] at (3.0,-3.3){$P(B)=\sum_i P(A_i)\,P(B\mid A_i)=0.0345$};
+\end{tikzpicture}
+\end{center}
 
 \subsection{事件的独立性}
 
@@ -265,6 +334,21 @@ $ 完全相同，即它们包含的结果完全一致 \\
     \Leftrightarrow A,B,C\textrm{相互独立}
     $$
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.92,>=stealth]
+  \draw[thick] (-2.9,-2.05) rectangle (2.9,2.15);
+  \node[font=\scriptsize] at (0,2.28){$\Omega$};
+  \draw[thick,fill=blue!13] (0,0.72) circle (1.16);
+  \draw[thick,fill=red!13] (-0.62,-0.36) circle (1.16);
+  \draw[thick,fill=green!13] (0.62,-0.36) circle (1.16);
+  \node[font=\small,blue!50!black] at (0,2.0){$A$};
+  \node[font=\small,red!60!black] at (-2.2,-0.55){$B$};
+  \node[font=\small,green!40!black] at (2.2,-0.55){$C$};
+  \node[font=\scriptsize] at (0,0.02){$A\cap B\cap C$};
+  \node[font=\scriptsize,gray] at (0,-1.92){两两独立未必相互独立};
+\end{tikzpicture}
+\end{center}
 
 \begin{conclusion}{n个独立事件的概率}{probability of n independent events}
     若$A_1,A_2,\ldots,A_n$相互独立，则

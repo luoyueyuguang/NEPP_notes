@@ -33,6 +33,33 @@ $X$ 是随机变量，$x$ 是任意实数，$F_X(x)=P(X\leq x)$ 称为 $X$ 的�
 \end{enumerate}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.2cm,
+  xlabel={$x$}, ylabel={$F_X(x)$},
+  xmin=-3, xmax=3.4, ymin=-0.05, ymax=1.14,
+  xtick={-1,0,1,2}, ytick={0,0.2,0.5,0.8,1},
+  font=\footnotesize, axis lines=left,
+  legend pos=north west,
+]
+\addplot[blue,thick,const plot]
+  coordinates {(-3,0)(-1,0.2)(0,0.5)(1,0.8)(2,1)(3.4,1)};
+\addlegendentry{$F_X(x)$}
+\addplot[only marks,mark=*,mark size=1.6pt,blue]
+  coordinates {(-1,0.2)(0,0.5)(1,0.8)(2,1)};
+\draw[dashed,gray!55] (-1,0) -- (-1,0.2);
+\draw[dashed,gray!55] (0,0) -- (0,0.5);
+\draw[dashed,gray!55] (1,0) -- (1,0.8);
+\draw[dashed,gray!55] (2,0) -- (2,1);
+\node[font=\tiny,blue!60!black] at (axis cs:-0.82,0.09){$0.2$};
+\node[font=\tiny,blue!60!black] at (axis cs:0.16,0.34){$0.3$};
+\node[font=\tiny,blue!60!black] at (axis cs:1.16,0.64){$0.3$};
+\node[font=\tiny,blue!60!black] at (axis cs:2.16,0.90){$0.2$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \subsection{离散型随机变量及连续型随机变量}
 \begin{mydef}{离散型随机变量}{discrete random variable}
     如果随机变量 $X$ 只可能取有限个或可列无限个离散值，则称为离散型随机变量。
@@ -113,6 +140,22 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
     \label{tab:discrete_random_variable}
 \end{tablebox}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.2cm,
+  xlabel={$k$}, ylabel={$P(X=k)$},
+  xmin=0.4, xmax=9.6, ymin=0, ymax=0.27,
+  xtick={0,1,2,3,4,5,6,7,8,9,10}, ytick={0,0.05,0.1,0.15,0.2,0.25},
+  font=\footnotesize,
+  ybar, bar width=9pt,
+]
+\addplot[fill=blue!40,draw=blue!60!black]
+  coordinates {(0,0.0282)(1,0.1211)(2,0.2335)(3,0.2668)(4,0.2001)(5,0.1029)(6,0.0368)(7,0.0090)(8,0.0014)(9,0.0001)(10,0.000006)};
+\addlegendentry{$B(10,0.3)$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \subsection{连续型随机变量及其分布}
 \begin{mydef}{连续型随机变量的分布函数}{distribution function of continuous random variable}
@@ -179,6 +222,27 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
     }
     \label{tab:continuous_random_variable}
 \end{tablebox}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.2cm,
+  xlabel={$x$}, ylabel={$f(x)$},
+  xmin=0, xmax=6, ymin=0, ymax=2.1,
+  xtick={0,1,2,3,4,5,6}, ytick={0,0.5,1,1.5,2},
+  domain=0:6, samples=200,
+  legend pos=north east, font=\footnotesize,
+  axis lines=left,
+]
+\addplot[blue,thick] {0.5*exp(-0.5*x)};
+\addlegendentry{$\lambda=0.5$}
+\addplot[red,thick] {exp(-x)};
+\addlegendentry{$\lambda=1$}
+\addplot[green!55!black,thick] {2*exp(-2*x)};
+\addlegendentry{$\lambda=2$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \begin{conclusion}{标准正态分布}{standard normal distribution}
     标准正态分布是正态分布的标准化，即$N(0,1)$，概率密度函数为

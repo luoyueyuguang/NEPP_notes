@@ -283,6 +283,22 @@ Cache 中的多端口实现常基于双口 RAM。
 
 \textbf{特点：}连续访存时可多个存储体\textbf{流水线}工作，大幅提高带宽，是主存储器主要的并行化技术。
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % bank selector on the left
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.2cm,minimum height=1.5cm,align=center] (dec) at (-3.6,0.6){地址译码\\（低位 2 位选体）};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=5.6cm,minimum height=0.68cm,align=center] (b0) at (1.6,1.7){Bank 0（低位 $00$）：字地址 $0,4,8,12\ldots$};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=5.6cm,minimum height=0.68cm,align=center] (b1) at (1.6,0.9){Bank 1（低位 $01$）：字地址 $1,5,9,13\ldots$};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=5.6cm,minimum height=0.68cm,align=center] (b2) at (1.6,0.1){Bank 2（低位 $10$）：字地址 $2,6,10,14\ldots$};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=5.6cm,minimum height=0.68cm,align=center] (b3) at (1.6,-0.7){Bank 3（低位 $11$）：字地址 $3,7,11,15\ldots$};
+  \draw[thick,Navy!70] (-2.5,0.6) -- (1.6,1.7) node[midway,above,font=\scriptsize,black!70]{};
+  \draw[thick,Navy!70] (-2.5,0.6) -- (1.6,0.9);
+  \draw[thick,Navy!70] (-2.5,0.6) -- (1.6,0.1);
+  \draw[thick,Navy!70] (-2.5,0.6) -- (1.6,-0.7);
+  \node[font=\scriptsize,black!70] at (1.6,-1.55){连续字地址依次落入不同体，可流水访问（每隔 $T/m$ 启动下一体）};
+\end{tikzpicture}
+\end{center}
+
 \subsubsection*{带宽分析（408 高频计算）}
 
 设存储体数量为 $m$，每个存储体的存取周期为 $T$（从给出地址到数据就绪的时间），数据宽度为 $W$ 字节。
@@ -478,6 +494,25 @@ LRU 能较好利用时间局部性，常作为教材中的基准替换算法。�
 \textbf{408 重点：}写回需要为每行维护一个「脏位」（dirty bit）；替换脏行时需要额外的写回开销；多核环境下写回策略带来缓存一致性问题。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % (a) 写直达
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.8cm,minimum height=0.7cm] (cpua) at (0,2.1){CPU};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.2cm,minimum height=0.7cm] (cacha) at (2.9,2.1){Cache 行};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.2cm,minimum height=0.7cm] (mema) at (6.2,2.1){主存};
+  \draw[->] (cpua) -- node[above,font=\scriptsize]{写} (cacha);
+  \draw[->] (cacha) -- node[above,font=\scriptsize]{同时写} (mema);
+  \node[font=\scriptsize,Burgundy!80,align=center] at (-1.4,2.1){(a) 写直达\\每次写都更新主存};
+  % (b) 写回
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.8cm,minimum height=0.7cm] (cpub) at (0,0.3){CPU};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.2cm,minimum height=0.7cm] (cachb) at (2.9,0.3){Cache 行（置脏）};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.2cm,minimum height=0.7cm] (memb) at (6.2,0.3){主存};
+  \draw[->] (cpub) -- node[above,font=\scriptsize]{写} (cachb);
+  \draw[->,dashed,Teal!70] (cachb) -- node[above,font=\scriptsize]{替换脏行时才写回} (memb);
+  \node[font=\scriptsize,Burgundy!80,align=center] at (-1.4,0.3){(b) 写回\\只写 Cache，置脏位};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{写缺失策略}{write-miss-policy}
 当 CPU 要写入的数据不在 Cache 中时：
 \begin{itemize}
@@ -636,6 +671,25 @@ TLB 命中后缺失 & 命中 & 缺失（需从主存调入块）\\
 
 \textbf{注意：}若 TLB 和 Cache 都命中，则地址转换无需查主存页表，数据可由 Cache 直接返回，无需因本次取数再访问主存。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.0cm,minimum height=0.85cm,align=center] (va) at (-3.6,0.9){虚拟地址 VA\\VPN | VPO};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.2cm,minimum height=0.85cm,align=center] (tlb) at (-0.4,0.9){TLB 查找\\（按 VPN 相联比较）};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.0cm,minimum height=0.85cm,align=center] (pa) at (2.6,0.9){物理地址 PA\\PPN | VPO};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.2cm,minimum height=0.85cm,align=center] (ca) at (5.6,0.9){Cache 查找\\（按 PA 的 Index/Tag）};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.7cm,minimum height=0.85cm,align=center] (dat) at (8.2,0.9){返回数据};
+  \draw[->] (va) -- (tlb);
+  \draw[->] (tlb) -- node[above,font=\scriptsize]{命中} (pa);
+  \draw[->] (pa) -- (ca);
+  \draw[->] (ca) -- node[above,font=\scriptsize]{命中} (dat);
+  \draw[->,Amber!70] (tlb) to[out=180,in=90] (-3.6,-0.35) node[align=center,font=\scriptsize,black!70]{};
+  \node[align=center,font=\scriptsize,black!70] at (-3.6,-0.7){TLB 缺失：访主存页表\\装入 PTE 后重新查找};
+  \node[align=center,font=\scriptsize,black!70] at (5.6,-0.7){Cache 缺失：从主存/\\下级 Cache 装入块};
+  \draw[->,Teal!70] (ca) to[out=270,in=90] (5.6,-0.2);
+  \draw[->,Amber!70] (tlb) to[out=270,in=90] (-0.4,-0.2);
+\end{tikzpicture}
+\end{center}
 
 \begin{attention}
 \textbf{常见辨析——物理寻址 Cache vs 虚拟寻址 Cache：}

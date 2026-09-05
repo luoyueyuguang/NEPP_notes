@@ -114,6 +114,25 @@
     \(f_x(x_0,y_0)\)是曲面\(z=f(x,y)\)与平面\(y=y_0\)的交线在\(M_0(x_0,y_0,f(x_0,y_0))\)处沿\(x\)方向的切线斜率；
     \(f_y(x_0,y_0)\)是曲面与平面\(x=x_0\)的交线在该点沿\(y\)方向的切线斜率。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=-1.6, xmax=1.7, ymin=-1.2, ymax=1.7, zmin=-0.2, zmax=4.4,
+  view={60}{30}, width=9cm, height=7.5cm,
+  domain=-1.6:1.6, y domain=-1.2:1.6, samples=24, samples y=24,
+  z buffer=sort,
+]
+\addplot3[surf, opacity=0.55, shader=interp] {x^2+y^2};
+\addplot3[red,very thick,domain=-1.6:1.6,samples=60] ({x},1,{x^2+1});
+\addplot3[blue!70,very thick,domain=-1.2:1.6,samples=60] ({1},{x},{x^2+1});
+\node[circle,fill=red,inner sep=2pt,label={[font=\footnotesize]right:$M_0(1,1,2)$}] at (axis cs:1,1,2) {};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{偏导数的计算}{partial derivative calculation}
     求偏导数，归结为求一元函数的导数
     求\(f(x, y) = \begin{cases}
@@ -607,6 +626,23 @@ D_{\Delta}^{m}f
         \end{enumerate}
     \end{enumerate}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=-2, xmax=2, ymin=-2, ymax=2, zmin=-4, zmax=4,
+  view={70}{22}, width=9cm, height=7.5cm,
+  domain=-2:2, y domain=-2:2, samples=28, samples y=28,
+  z buffer=sort,
+]
+\addplot3[surf, opacity=0.75, shader=interp] {x^2-y^2};
+\node[circle,fill=red,inner sep=2pt,label={[font=\footnotesize]left:$O$}] at (axis cs:0,0,0) {};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{求二元函数极值点的步骤}{two-variable function extremum point}
     若\(z = f(x, y)\)有连续的二阶偏导数，求极值点的步骤如下：
     \begin{enumerate}
@@ -765,6 +801,29 @@ D_{\Delta}^{m}f
     \right|\)
     因此梯度的方向是函数增长最快的方向，其模是最大方向导数；若梯度为零，则所有方向导数均为零，不存在唯一的最速增长方向。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-3, xmax=3, ymin=-3, ymax=3,
+  xtick={-2,-1,0,1,2}, ytick={-2,-1,0,1,2},
+  legend pos=north east, font=\footnotesize,
+]
+\addplot[gray!60,thick,domain=0:360] ({cos(x)},{sin(x)});
+\addlegendentry{$f=1$}
+\addplot[gray!60,thick,domain=0:360] ({sqrt(2)*cos(x)},{sqrt(2)*sin(x)});
+\addlegendentry{$f=2$}
+\addplot[gray!60,thick,domain=0:360] ({sqrt(3)*cos(x)},{sqrt(3)*sin(x)});
+\addlegendentry{$f=3$}
+\draw[->,red,very thick] (axis cs:1,1) -- (axis cs:1.75,1.75);
+\draw[->,red,very thick] (axis cs:1.5,-1.5) -- (axis cs:2.6,-2.6);
+\node[font=\scriptsize,red] at (axis cs:1.55,1.15) {$\mathbf{grad}\,f$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \subsection{多元函数的几何应用}
 \begin{conclusion}{用隐式方程表示的曲面}{implicit equation surface}
     若空间曲面\(S\)的方程为\(F(x, y, z) = 0\)，\(M_0(x_0, y_0, z_0)\)是\(S\)上的一点，则\(S\)在\(M_0\)点处的切平面方程为
@@ -824,6 +883,24 @@ D_{\Delta}^{m}f
         这里\(\alpha, \beta, \gamma\)是所选单位法向量\(\mathbf n\)与\(x,y,z\)轴正向的方向角；它们不是切平面与坐标轴的夹角。\(\mathbf{n}\)的表达式中正负号的选取取决于\(\gamma\)是锐角还是钝角。
         即法向量是朝上还是朝下。朝上取正，朝下取负。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=-0.6, xmax=2.6, ymin=-0.6, ymax=2.6, zmin=-5, zmax=11,
+  view={62}{28}, width=9cm, height=7.5cm,
+  domain=-0.5:2.5, y domain=-0.5:2.5, samples=22, samples y=22,
+  z buffer=sort,
+]
+\addplot3[surf, opacity=0.5, shader=interp, blue!55] {2*x+2*y-2};
+\addplot3[surf, opacity=0.65, shader=interp] {x^2+y^2};
+\node[circle,fill=red,inner sep=2pt,label={[font=\footnotesize]right:$M_0(1,1,2)$}] at (axis cs:1,1,2) {};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{用参数方程表示的空间曲线}{parameter equation space curve}
     若空间曲线\(\Gamma\)的参数方程为\(
         x = x(t), y = y(t), z = z(t) \quad (\alpha \leq t \leq \beta)

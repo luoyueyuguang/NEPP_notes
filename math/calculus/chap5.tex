@@ -115,6 +115,29 @@
     \end{enumerate}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-1.1, xmax=1.1, ymin=-6, ymax=6,
+  xtick={-1,0,1}, ytick={-5,-4,-3,-2,-1,1,2,3,4,5},
+  legend pos=north east, font=\footnotesize,
+  domain=-1.1:1.1, samples=120,
+]
+\addplot[blue,thick] {2*exp(-x)};
+\addlegendentry{$y=2e^{-x}$}
+\addplot[red,thick] {exp(-x)};
+\addlegendentry{$y=e^{-x}$}
+\addplot[green!55!black,thick] {0.5*exp(-x)};
+\addlegendentry{$y=0.5e^{-x}$}
+\addplot[blue!45,thick] {-2*exp(-x)};
+\addplot[red!55,thick] {-exp(-x)};
+\addplot[green!65!black,thick] {-0.5*exp(-x)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{mydef}{全微分方程}{ALLODEForm}
     \(P(x, y)dx + Q(x, y)dy = 0\),存在\(u(x,y)\)，使得
     \(du = P(x,y)dx + Q(x,y)dy\)\\
@@ -349,6 +372,26 @@
     \end{enumerate}
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=0, xmax=6, ymin=-1.6, ymax=1.6,
+  xtick={0,1,2,3,4,5,6}, ytick={-1,0,1},
+  legend pos=north east, font=\footnotesize,
+  domain=0:6, samples=200,
+]
+\addplot[dashed,gray!70,thick] {exp(-x)};
+\addlegendentry{$y=e^{\alpha x}$}
+\addplot[dashed,gray!70,thick] {-exp(-x)};
+\addlegendentry{$y=-e^{\alpha x}$}
+\addplot[blue,thick] {exp(-x)*sin(deg(2*x))};
+\addlegendentry{$y=e^{-x}\sin 2x$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 
 \begin{mydef}{n阶常数齐次线性微分方程}{nOrderHomogeneousODE}
     其一般形式为
@@ -524,6 +567,27 @@
         \)
     \end{enumerate}
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.4cm,
+  xlabel={$t$}, ylabel={$T$},
+  xmin=0, xmax=60, ymin=0, ymax=105,
+  xtick={0,10,20,30,40,50,60}, ytick={0,20,40,60,80,100},
+  legend pos=north east, font=\footnotesize,
+  domain=0:60, samples=160,
+]
+\addplot[dashed,gray!70,thick] {20};
+\addlegendentry{$T=20$ (环境温度)}
+\addplot[blue,thick] {20+80*exp(-0.0693*x)};
+\addlegendentry{$T(t)=20+80e^{-kt}$}
+\addplot[only marks,red,mark size=2pt] coordinates {(10,60) (30,30)};
+\node[font=\scriptsize,red] at (axis cs:10,66) {$(10,60)$};
+\node[font=\scriptsize,red] at (axis cs:33,26) {$(30,30)$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \begin{mydef}{利用微元法分析或相应的变限积分列方程}{MicroElementAnalysis}
     由于

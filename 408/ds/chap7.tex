@@ -170,6 +170,32 @@ void ShellSort(int A[], int n) {
 此时 $49$ 和 $49'$ 的相对次序已经改变，因此希尔排序\textbf{不稳定}。
 \end{examplebox}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 下标
+\foreach \nn in {0,...,9}
+  \node[font=\scriptsize,black!60] at (\nn*1.0-4.5,0.7) {\nn};
+% 数值（按 d=5 子序列分组着色）
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Teal!18] (g0) at (0*1.0-4.5,0) {49};
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Amber!18] (g1) at (1*1.0-4.5,0) {38};
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Burgundy!18] (g2) at (2*1.0-4.5,0) {65};
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Navy!18] (g3) at (3*1.0-4.5,0) {97};
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=CodeGreen!18] (g4) at (4*1.0-4.5,0) {76};
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Teal!18] (g5) at (5*1.0-4.5,0) {13};
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Amber!18] (g6) at (6*1.0-4.5,0) {27};
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Burgundy!18] (g7) at (7*1.0-4.5,0) {$49'$};
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Navy!18] (g8) at (8*1.0-4.5,0) {55};
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=CodeGreen!18] (g9) at (9*1.0-4.5,0) {4};
+% 组内对应（下方弧线，同色为一组）
+\draw[Teal] (g0.south) .. controls +(0,-0.9) and +(0,-0.9) .. (g5.south);
+\draw[Amber] (g1.south) .. controls +(0,-0.9) and +(0,-0.9) .. (g6.south);
+\draw[Burgundy] (g2.south) .. controls +(0,-0.9) and +(0,-0.9) .. (g7.south);
+\draw[Navy] (g3.south) .. controls +(0,-0.9) and +(0,-0.9) .. (g8.south);
+\draw[CodeGreen] (g4.south) .. controls +(0,-0.9) and +(0,-0.9) .. (g9.south);
+\node[align=center,font=\scriptsize,black!70] at (0,-2.2){希尔排序 $d=5$：下标相差 $5$ 的元素（同色）构成同一子序列，各子序列分别做直接插入排序\\第一趟结果为 $\{13,27,49',55,4,49,38,65,97,76\}$——$49$ 与 $49'$ 次序改变（\textbf{不稳定}）};
+\end{tikzpicture}
+\end{center}
+
 \subsection{交换排序}
 
 \subsubsection{冒泡排序（Bubble Sort）}
@@ -362,6 +388,36 @@ void SelectSort(int A[], int n) {
 \textbf{408 注意：} 408 教材可能用下标 $1$ 开始（$A[1..n]$），此时左孩子 $2i$，右孩子 $2i+1$，双亲 $\lfloor i/2\rfloor$，考场上务必看清下标约定。
 \end{formula}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 完全二叉树
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n0) at (0,2.2) {4};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n1) at (-1.9,0.8) {10};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n2) at (1.9,0.8) {3};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n3) at (-2.9,-0.6) {5};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n4) at (-0.9,-0.6) {1};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n5) at (1.9,-0.6) {2};
+\draw (n0) -- (n1);
+\draw (n0) -- (n2);
+\draw (n1) -- (n3);
+\draw (n1) -- (n4);
+\draw (n2) -- (n5);
+% 数组下标
+\node[font=\scriptsize,black!60] at (0,-1.5){下标};
+\foreach \nn in {0,...,5} {
+  \node[font=\scriptsize,black!60] (idx\nn) at (\nn*1.0-2.5,-1.9) {\nn};
+}
+% 数组值
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v0) at (0*1.0-2.5,-2.6) {4};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v1) at (1*1.0-2.5,-2.6) {10};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v2) at (2*1.0-2.5,-2.6) {3};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v3) at (3*1.0-2.5,-2.6) {5};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v4) at (4*1.0-2.5,-2.6) {1};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v5) at (5*1.0-2.5,-2.6) {2};
+\node[align=center,font=\scriptsize,black!70] at (0,-3.5){完全二叉树的顺序存储：数组 $A[0..5]$ 与树一一对应\\下标 $i$ 的左孩子为 $2i+1$、右孩子为 $2i+2$（如 $A[1]=10$ 的孩子为 $A[3]=5$、$A[4]=1$）};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{向下调整算法（\texttt{HeapAdjust} / \texttt{SiftDown}）}{heap-adjust}
 假设以 $A[k]$ 为根的子树，除 $A[k]$ 本身外，\textbf{左右子树均已满足堆性质}。调整 $A[k]$ 下沉到合适位置，使整棵子树满足堆性质。
 
@@ -494,6 +550,38 @@ T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n)
     \item \textbf{稳定性：稳定。} Merge 中 \texttt{A[i] <= A[j]} 保证左段元素优先，相等时不改变相对次序。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 第 0 层：单元素段
+\foreach \nn/\val in {0/49,1/38,2/65,3/97,4/76,5/13,6/27}
+  \node[draw,rectangle,fill=Amber!25,minimum height=0.5cm] (s\nn) at (\nn*1.0-3.0,0) {\val};
+% 第 1 趟
+\node[draw,rectangle,fill=Teal!25,minimum height=0.5cm] (t10) at (-2.5,-1.6) {38,49};
+\node[draw,rectangle,fill=Teal!25,minimum height=0.5cm] (t11) at (-0.5,-1.6) {65,97};
+\node[draw,rectangle,fill=Teal!25,minimum height=0.5cm] (t12) at (1.5,-1.6) {13,76};
+\node[draw,rectangle,fill=Teal!25,minimum height=0.5cm] (t13) at (3.0,-1.6) {27};
+\draw[->] (s0) -- (t10);
+\draw[->] (s1) -- (t10);
+\draw[->] (s2) -- (t11);
+\draw[->] (s3) -- (t11);
+\draw[->] (s4) -- (t12);
+\draw[->] (s5) -- (t12);
+\draw[->] (s6) -- (t13);
+% 第 2 趟
+\node[draw,rectangle,fill=Navy!20,minimum height=0.5cm] (t20) at (-1.5,-3.2) {38,49,65,97};
+\node[draw,rectangle,fill=Navy!20,minimum height=0.5cm] (t21) at (2.25,-3.2) {13,27,76};
+\draw[->] (t10) -- (t20);
+\draw[->] (t11) -- (t20);
+\draw[->] (t12) -- (t21);
+\draw[->] (t13) -- (t21);
+% 第 3 趟
+\node[draw,rectangle,fill=Burgundy!22,minimum height=0.5cm] (t30) at (0.4,-4.8) {13,27,38,49,65,76,97};
+\draw[->] (t20) -- (t30);
+\draw[->] (t21) -- (t30);
+\node[align=center,font=\scriptsize,black!70] at (0.4,-5.6){二路归并排序（段长 $1\to2\to4\to8$）：共 $\lceil\log_2 7\rceil=3$ 趟得到有序序列};
+\end{tikzpicture}
+\end{center}
 
 \begin{attention}
 \textbf{408 常考——归并排序各趟结果：} 给定初始序列，写出每趟归并后的结果。例如 $\{49,38,65,97,76,13,27\}$：\\

@@ -125,6 +125,21 @@ Cache 结构分析：
 \end{attention}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=0.8cm, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=2.0cm, minimum height=0.55cm] (va) at (0,0) {虚拟地址};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.55cm] (tlb) at (2.7,0) {TLB 查找};
+\node[draw, rectangle, fill=SoftAmber, minimum width=2.0cm, minimum height=0.55cm] (pt) at (5.4,0) {页表（或缺页）};
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.0cm, minimum height=0.55cm] (cac) at (8.1,0) {Cache 查找};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.0cm, minimum height=0.55cm] (mem) at (10.8,0) {主存/磁盘};
+\draw[->] (va) -- (tlb);
+\draw[->] (tlb) -- (pt);
+\draw[->] (pt) -- (cac);
+\draw[->] (cac) -- (mem);
+\node[font=\scriptsize, black!60] at (5.4,-0.95) {命中则直接取数据；缺失则逐步向下（访存次数逐步增加）};
+\end{tikzpicture}
+\end{center}
+
 \subsection{专题三：死锁与银行家算法的变体}
 
 \begin{conclusion}{银行家算法核心回顾}{banker-review}
@@ -183,6 +198,23 @@ P2 & $(7,5,5)$ & $(6,0,0)$ & 是 & $(10,5,7)$ \\
 
 \textbf{结论：}所有进程均能依次完成 $\Rightarrow$ 系统处于\textbf{安全状态}，安全序列为 \textbf{P1 $\to$ P3 $\to$ P4 $\to$ P0 $\to$ P2}。\textbf{注意：}安全序列\textbf{不唯一}（如也可先取 P3 再取 P1），只要存在一条即可判定安全；若某些进程的 Need 始终无法满足，则系统\textbf{不安全}，是不安全的充分条件。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=0.72cm, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=4.0cm, minimum height=0.55cm] (a) {(1) Work = Available；Finish[i] = false};
+\node[draw, rectangle, fill=SoftBlue, minimum width=4.0cm, minimum height=0.55cm, below of=a] (b) {(2) 找 i：Finish[i]=false 且 Need[i] $\le$ Work};
+\node[draw, rectangle, fill=SoftTeal, minimum width=4.0cm, minimum height=0.55cm, below of=b] (c) {(3) Work += Allocation[i]；Finish[i] = true};
+\node[draw, rectangle, fill=SoftGray, minimum width=4.0cm, minimum height=0.55cm, below of=c] (d) {(4) 全部 Finish[i] = true？};
+\node[draw, rectangle, fill=Blue!12, minimum width=4.0cm, minimum height=0.55cm, below of=d] (e) {(5) 安全：输出安全序列};
+\node[draw, rectangle, fill=Red!12, minimum width=4.0cm, minimum height=0.55cm, right of=b, node distance=4.8cm] (f) {不安全：恐怕死锁};
+\draw[->] (a) -- (b);
+\draw[->] (b) -- node[left,font=\scriptsize]{找到} (c);
+\draw[->] (c) -- (d);
+\draw[->] (d) -- node[left,font=\scriptsize]{是} (e);
+\draw[->] (b.east) -- node[above,font=\scriptsize]{找不到} (f);
+\node[font=\scriptsize, black!60] at (0,-3.6) {(2)(3) 循环执行：每轮让一个可完成进程执行完并释放资源};
+\end{tikzpicture}
+\end{center}
 
 \begin{conclusion}{变体一：多资源类型 + 未指定 Max}{banker-variant1}
 \boxed{\textbf{例3}} 系统有 3 类资源 A、B、C，总量分别为 (8, 6, 5)。当前时刻 $T_0$ 的 Allocation 如下：

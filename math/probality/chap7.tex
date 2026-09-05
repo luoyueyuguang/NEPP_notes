@@ -100,6 +100,28 @@
     其中 \(k\) 是相应分布的分位点。下表给出常见的单正态总体均值、方差置信区间；两正态总体的区间应使用相应的双总体枢轴量。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.4cm,
+  xlabel={$z$}, ylabel={概率密度},
+  xmin=-4, xmax=4, ymin=0, ymax=0.46,
+  xtick={-2,0,2}, ytick={0,0.1,0.2,0.3,0.4},
+  legend pos=north east, font=\footnotesize,
+  domain=-4:4, samples=200,
+]
+\addplot[teal!20,fill=teal!20,draw=none,domain=-1.96:1.96] {0.3989*exp(-x^2/2)} \closedcycle;
+\addplot[blue,thick] {0.3989*exp(-x^2/2)};
+\addlegendentry{$N(0,1)$ 枢轴量}
+\draw[dashed,gray!70] (axis cs:-1.96,0) -- (axis cs:-1.96,0.42);
+\draw[dashed,gray!70] (axis cs:1.96,0) -- (axis cs:1.96,0.42);
+\node[font=\scriptsize] at (axis cs:-1.96,0.02){$-z_{\alpha/2}$};
+\node[font=\scriptsize] at (axis cs:1.96,0.02){$z_{\alpha/2}$};
+\node[font=\scriptsize,teal!70!black] at (axis cs:0,0.42){置信水平 $1-\alpha$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \noindent 下表采用上侧分位点记号：$P\{Z>z_\alpha\}=\alpha$，
 $P\{t_\nu>t_\alpha(\nu)\}=\alpha$，$P\{\chi^2_\nu>\chi^2_\alpha(\nu)\}=\alpha$，
 且 $P\{F_{\nu_1,\nu_2}>F_\alpha(\nu_1,\nu_2)\}=\alpha$。
@@ -177,6 +199,30 @@ $P\{t_\nu>t_\alpha(\nu)\}=\alpha$，$P\{\chi^2_\nu>\chi^2_\alpha(\nu)\}=\alpha$�
     通常，在样本量固定时，减小\(\alpha\)会增大\(\beta\)，二者不可同时减小。在实际应用中，一般控制第一类错误的概率\(\alpha\)，在此基础上尽可能降低\(\beta\)。
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.9\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={概率密度},
+  xmin=-4, xmax=5, ymin=0, ymax=0.46,
+  xtick={-2,0,1.645,2,4}, ytick={0,0.1,0.2,0.3,0.4},
+  legend pos=north east, font=\footnotesize,
+  domain=-4:5, samples=200,
+]
+\addplot[blue!20,fill=blue!20,draw=none,domain=1.645:5] {0.3989*exp(-x^2/2)} \closedcycle;
+\addplot[red!20,fill=red!20,draw=none,domain=-4:1.645] {0.3989*exp(-(x-1)^2/2)} \closedcycle;
+\addplot[blue,thick] {0.3989*exp(-x^2/2)};
+\addlegendentry{$H_0:\mu=\mu_0$}
+\addplot[red,thick] {0.3989*exp(-(x-1)^2/2)};
+\addlegendentry{$H_1:\mu=\mu_1$}
+\draw[dashed,gray!70] (axis cs:1.645,0) -- (axis cs:1.645,0.42);
+\node[font=\scriptsize] at (axis cs:1.645,0.015){$c$};
+\node[font=\scriptsize,blue!60!black] at (axis cs:2.7,0.04){$\alpha$};
+\node[font=\scriptsize,red!60!black] at (axis cs:0.9,0.04){$\beta$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{假设检验的一般步骤}{hypothesis test general steps}
     \begin{enumerate}
         \item 确定原假设与备择假设
@@ -193,6 +239,31 @@ $P\{t_\nu>t_\alpha(\nu)\}=\alpha$，$P\{\chi^2_\nu>\chi^2_\alpha(\nu)\}=\alpha$�
     检验统计量及其在原假设下的分布，再由备择假设的方向确定单侧或双侧拒绝域。
     下表给出常见正态总体均值、方差检验的拒绝域；双正态总体问题应使用相应的双总体枢轴量。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.4cm,
+  xlabel={$z$}, ylabel={概率密度},
+  xmin=-4, xmax=4, ymin=0, ymax=0.46,
+  xtick={-2,0,2}, ytick={0,0.1,0.2,0.3,0.4},
+  legend pos=north east, font=\footnotesize,
+  domain=-4:4, samples=200,
+]
+\addplot[red!20,fill=red!20,draw=none,domain=-4:-1.96] {0.3989*exp(-x^2/2)} \closedcycle;
+\addplot[red!20,fill=red!20,draw=none,domain=1.96:4] {0.3989*exp(-x^2/2)} \closedcycle;
+\addplot[blue,thick] {0.3989*exp(-x^2/2)};
+\addlegendentry{检验统计量分布}
+\draw[dashed,gray!70] (axis cs:-1.96,0) -- (axis cs:-1.96,0.42);
+\draw[dashed,gray!70] (axis cs:1.96,0) -- (axis cs:1.96,0.42);
+\node[font=\scriptsize] at (axis cs:-1.96,0.02){$-z_{\alpha/2}$};
+\node[font=\scriptsize] at (axis cs:1.96,0.02){$z_{\alpha/2}$};
+\node[font=\scriptsize,red!70!black] at (axis cs:-3.2,0.10){拒绝 $H_0$};
+\node[font=\scriptsize,red!70!black] at (axis cs:3.2,0.10){拒绝 $H_0$};
+\node[font=\scriptsize,blue!60!black] at (axis cs:0,0.42){不拒绝 $H_0$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \begin{tablebox}{常见正态总体均值方差的假设检验}
     \centering

@@ -46,6 +46,24 @@ int Index_BF(SString S, SString T) {
 \textbf{回溯公式 $i = i-j+2$ 的理解：} $i-j+1$ 是本轮起始位置，$+1$ 即下一位置。
 
 \textbf{时间复杂度：} 最好 $O(n)$，最坏 $O(nm)$（如 $S=$"aaaa…a"，$T=$"aaaab"）。只有在字符独立、失配位置具有特定概率分布等平均模型下，期望代价才可接近线性；脱离概率模型时不应无条件写成“平均 $O(n+m)$”。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[font=\scriptsize, Navy] at (0.4,0.4){$S$:};
+  \foreach \c/\i in {a/1,b/2,a/3,b/4,a/5}{
+    \node[draw, rectangle, minimum width=0.75cm, minimum height=0.55cm, fill=SoftBlue] (S\i) at (\i*0.82,0.4){$\c$};
+    \node[font=\scriptsize, black!55] at (\i*0.82,0.0){$\i$};
+  }
+  \node[font=\scriptsize, Navy] at (0.4,-0.85){$T$:};
+  \foreach \c/\i in {a/1,b/2,a/3,c/4}{
+    \node[draw, rectangle, minimum width=0.75cm, minimum height=0.55cm, fill=SoftAmber] (T\i) at (\i*0.82,-0.85){$\c$};
+  }
+  \draw[Burgundy, thick] (S4.south west) rectangle (S4.north east);
+  \draw[Burgundy, thick] (T4.south west) rectangle (T4.north east);
+  \node[font=\scriptsize, black!70] at (2.6,-1.5){第 4 位失配（$S[4]=b\neq T[4]=c$）};
+  \node[font=\scriptsize, black!70] at (2.6,-1.95){失配后 $i\leftarrow i-j+2$（主串指针右移一位），$j$ 回到 1};
+\end{tikzpicture}
+\end{center}
 \end{conclusion}
 
 \subsection{KMP算法}
@@ -56,6 +74,28 @@ KMP（Knuth-Morris-Pratt）利用已匹配部分的信息，使主串指针 $i$ 
 
 \begin{conclusion}{KMP 核心思想}{kmp-intuition}
 当 $S[i]\neq T[j]$ 失配时，已匹配的 $T[1..j-1]=S[i-j+1..i-1]$。若 $T[1..j-1]$ 的某个真前缀等于某个真后缀，则 $T$ 可「滑动」使该前缀对齐到后缀位置，$i$ 不动，$j$ 跳到该前缀长度 $+1$ 处继续比较。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[font=\scriptsize, Navy] at (0.4,0.55){$S$:};
+  \foreach \c/\i in {a/1,b/2,a/3,b/4,a/5}{
+    \node[draw, rectangle, minimum width=0.75cm, minimum height=0.55cm, fill=SoftBlue] (S\i) at (\i*0.82,0.55){$\c$};
+    \node[font=\scriptsize, black!55] at (\i*0.82,0.15){$\i$};
+  }
+  \node[font=\scriptsize, Navy] at (0.4,-0.7){$T$:};
+  \foreach \c/\i in {a/1,b/2,a/3,b/4,c/5}{
+    \node[draw, rectangle, minimum width=0.75cm, minimum height=0.55cm, fill=SoftAmber, dashed] (A\i) at (\i*0.82,-0.7){$\c$};
+  }
+  \draw[Burgundy, thick] (A5.south west) rectangle (A5.north east);
+  \node[font=\scriptsize, black!70] at (2.6,-1.45){滑动前：$T$ 与 $S$ 对齐，第 5 位失配（$c\neq a$）};
+  \node[font=\scriptsize, Navy] at (0.4,-2.05){$T'$:};
+  \foreach \c/\i in {a/1,b/2,a/3,b/4,c/5}{
+    \pgfmathsetmacro{\bx}{\i*0.82+1.64}
+    \node[draw, rectangle, minimum width=0.75cm, minimum height=0.55cm, fill=SoftAmber] (B\i) at (\bx,-2.05){$\c$};
+  }
+  \node[font=\scriptsize, black!70] at (2.9,-2.85){滑动后：$i$ 不动，$j\leftarrow \mathrm{next}[5]=3$，$T$ 右移 2 位};
+\end{tikzpicture}
+\end{center}
 \end{conclusion}
 
 \subsubsection{next 数组的定义与手算}
@@ -170,6 +210,24 @@ void GetNextVal(SString T, int nextval[]) {
     }
 }
 \end{lstlisting}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.72cm]
+  \foreach \j/\val in {1/a,2/b,3/c,4/a,5/b,6/c,7/a}{
+    \node[draw, rectangle, minimum width=0.68cm, minimum height=0.5cm, fill=SoftBlue] (T\j) at (\j*0.72,0){$\val$};
+  }
+  \foreach \j/\v in {1/0,2/1,3/1,4/1,5/2,6/3,7/4}{
+    \node[draw, rectangle, minimum width=0.68cm, minimum height=0.5cm, fill=SoftAmber] (n\j) at (\j*0.72,-0.85){$\v$};
+  }
+  \foreach \j/\v in {1/0,2/1,3/1,4/0,5/1,6/1,7/0}{
+    \node[draw, rectangle, minimum width=0.68cm, minimum height=0.5cm, fill=SoftGray] (nv\j) at (\j*0.72,-1.7){$\v$};
+  }
+  \node[font=\scriptsize, Navy] at (-0.55,0){$T[j]$};
+  \node[font=\scriptsize, Navy] at (-0.55,-0.85){$\mathrm{next}[j]$};
+  \node[font=\scriptsize, Navy] at (-0.55,-1.7){$\mathrm{nextval}[j]$};
+  \node[font=\scriptsize, black!70] at (2.6,-2.4){\texttt{nextval} 在 $T[j]=T[\mathrm{next}[j]]$ 时继续沿失配指针向前跳转};
+\end{tikzpicture}
+\end{center}
 \end{conclusion}
 
 \begin{conclusion}{408 高频考点汇总}{string-408-keypoints}

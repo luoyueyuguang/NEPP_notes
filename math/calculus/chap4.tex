@@ -21,6 +21,28 @@
     \end{conclusion}
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-0.15, xmax=2.15, ymin=-0.2, ymax=2.5,
+  xtick={0,0.5,1,1.5,2}, ytick={0,1,2},
+  domain=0:2, samples=160, font=\footnotesize,
+  legend pos=north east]
+\addplot[blue,thick] {-(x-1)^2+2};
+\addlegendentry{$y=f(x)$}
+\addplot[only marks,mark=*,black] coordinates {(0,1)};
+\addplot[only marks,mark=*,black] coordinates {(2,1)};
+\draw[dashed,red!70!black] (0,2) -- (2,2);
+\addplot[only marks,mark=*,red] coordinates {(1,2)};
+\node[font=\scriptsize,black] at (axis cs:0,1.18){$A$};
+\node[font=\scriptsize,black] at (axis cs:2,1.18){$B$};
+\node[font=\scriptsize,red!70!black] at (axis cs:1,2.22){$P(\xi,f(\xi))$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 罗尔定理：$f(a)=f(b)$，曲线上至少存在一点 $P$ 使其切线平行于 $x$ 轴，即 $f'(\xi)=0$。}
+
 \begin{mydef}{拉格朗日中值定理及其几何意义}{lagrange's mean value theorem and its geometric meaning}
     设\(f(x)\)在区间\([a,b]\)上连续，在\((a,b)\)内可导，则至少存在\(\xi\in(a,b)\)，使得
     \[
@@ -41,6 +63,31 @@
         使得该曲线在点\(P\)处的切线与割线\(\overset{\_\_\_}{AB}\)平行
     \end{conclusion}
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-0.2, xmax=3.3, ymin=-0.2, ymax=2.7,
+  xtick={0,1,2,3}, ytick={0,1,2},
+  domain=0:3, samples=160, font=\footnotesize,
+  legend pos=north west]
+\addplot[blue,thick] {x^2/4};
+\addlegendentry{$y=f(x)$}
+\addplot[gray!60,thin] {0.75*x};
+\addlegendentry{割线 $AB$}
+\addplot[red!70!black,thick] {0.75*x-0.5625};
+\addlegendentry{切线（与 $AB$ 平行）}
+\addplot[only marks,mark=*,black] coordinates {(0,0)};
+\addplot[only marks,mark=*,black] coordinates {(3,2.25)};
+\addplot[only marks,mark=*,red] coordinates {(1.5,0.5625)};
+\node[font=\scriptsize,black] at (axis cs:0,0.16){$A$};
+\node[font=\scriptsize,black] at (axis cs:3,2.36){$B$};
+\node[font=\scriptsize,red!70!black] at (axis cs:1.5,0.7){$P(\xi,f(\xi))$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 存在 $\xi\in(a,b)$ 使 $f'(\xi)=\dfrac{f(b)-f(a)}{b-a}$，即 $P$ 点处切线平行于割线 $AB$。}
 
 \begin{mydef}{柯西中值定理}{cauchy's mean value theorem}
     设\(f(x), g(x)\)在区间\([a, b]\)上连续，在\((a, b)\)内可导，且\(g'(x) \neq 0\),则\(\exists \xi \in (a, b)\)，使得
@@ -229,6 +276,28 @@
     反之，若\(f''(x) < 0\)，则函数曲线在区间\((a, b)\)上是凸的
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-2.2, xmax=2.2, ymin=-3.4, ymax=3.4,
+  xtick={-2,-1,0,1,2}, ytick={-2,0,2},
+  domain=-2.1:2.1, samples=180, font=\footnotesize,
+  legend pos=north west]
+\addplot[blue,thick] {x^3-3*x};
+\addlegendentry{$y=x^3-3x$}
+\draw[red!70!black,thick,dashed] (axis cs:-1.13,3.4) -- (axis cs:1.13,-3.4);
+\addplot[only marks,mark=*,red] coordinates {(-1,2)};
+\addplot[only marks,mark=*,blue!70!black] coordinates {(1,-2)};
+\addplot[only marks,mark=*,green!55!black] coordinates {(0,0)};
+\node[font=\scriptsize,red!70!black] at (axis cs:-1.95,2.9){$f''<0$ 凸 (极大)};
+\node[font=\scriptsize,blue!70!black] at (axis cs:1.15,-2.95){$f''>0$ 凹 (极小)};
+\node[font=\scriptsize,green!55!black] at (axis cs:0.75,1.05){$f''=0$ 拐点};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize $f''(x)=6x$：$x<0$ 时 $f''<0$ 曲线为上凸，$x>0$ 时 $f''>0$ 曲线为下凸，$x=0$ 处为拐点。}
+
 \begin{conclusion}{函数$f(x)$的凹凸性区间的求法}{method for finding concavity interval of f(x)}
     \begin{enumerate}
         \item 确定\(f(x)\)的定义域；
@@ -340,6 +409,27 @@
     \end{itemize}
     拉格朗日余项用于定量估计误差和证明不等式；皮亚诺余项用于定性分析局部性质和求极限。
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-2.4, xmax=2.0, ymin=-1.6, ymax=7.0,
+  xtick={-2,-1,0,1,2}, ytick={0,2,4,6},
+  domain=-2.4:2.0, samples=180, font=\footnotesize,
+  legend pos=north west]
+\addplot[black,thick] {exp(x)};
+\addlegendentry{$y=e^x$}
+\addplot[blue,thick,dashed] {1+x};
+\addlegendentry{$T_1=1+x$}
+\addplot[red!70!black,thick,dashed] {1+x+x^2/2};
+\addlegendentry{$T_2=1+x+\frac{x^2}{2}$}
+\addplot[green!55!black,thick,dashed] {1+x+x^2/2+x^3/6};
+\addlegendentry{$T_3=1+x+\frac{x^2}{2}+\frac{x^3}{6}$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 泰勒多项式在 $x=0$ 附近逼近 $e^x$；阶数越高、逼近的范围越宽。}
 
 \begin{mydef}{麦克劳林公式}{maclaurin formula}
     泰勒公式当\(x_0 = 0\)时的特例称为麦克劳林公式：

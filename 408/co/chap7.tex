@@ -37,6 +37,21 @@ I/O 接口是连接 CPU（或系统总线）与外部设备的桥梁，其核心
 \noindent 其中数据缓冲寄存器、控制寄存器和状态寄存器都是\textbf{I/O 端口（I/O Port）}，每个端口都有一个独立的地址（端口地址），CPU 通过端口地址来访问它们。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.6cm,minimum height=0.9cm,align=center] (cpu) at (-4.5,0){CPU};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=4.4cm,minimum height=2.5cm] (box) at (0,0){};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.8cm,minimum height=0.58cm] (dbr) at (-1.1,0.8){DBR 数据缓冲};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=1.5cm,minimum height=0.58cm] (cr) at (1.2,0.8){CR 控制};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.5cm,minimum height=0.58cm] (sr) at (0.05,0.05){SR 状态};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.3cm,minimum height=0.58cm] (dec) at (0.05,-0.7){地址译码/设备选择};
+  \node[font=\scriptsize,black!70] at (0,1.45){I/O 接口（含多个 I/O 端口）};
+  \draw[<->,thick,Navy!70] (cpu) -- (box);
+  \draw[<->,thick,Teal!70] (box) -- (4.5,0);
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.8cm,minimum height=0.9cm,align=center] (dev) at (4.5,0){外部设备};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 常考点——I/O 端口 vs I/O 接口：}
 \begin{itemize}
@@ -180,6 +195,23 @@ CS:APP 分类 & 中断 & 故障（Fault）/陷阱（Trap）/终止（Abort）\\
 即：取中断类型号为 $n$，则中断向量存放在内存地址 $n\times 4$ 处（4 字节：前 2 字节为 IP，后 2 字节为 CS）。
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[font=\scriptsize,black!70] at (2.2,1.75){中断向量表（内存低地址区，实模式）};
+  \node[draw,rounded corners=1pt,fill=SoftGray,minimum width=4.4cm,minimum height=0.5cm,align=center] (e0) at (1.7,1.2){类型号 0（IP : CS）};
+  \node[draw,rounded corners=1pt,fill=SoftGray,minimum width=4.4cm,minimum height=0.5cm,align=center] (e1) at (1.7,0.65){类型号 1（IP : CS）};
+  \node[draw,rounded corners=1pt,fill=SoftGray,minimum width=4.4cm,minimum height=0.5cm,align=center] (e2) at (1.7,0.1){类型号 2（IP : CS）};
+  \node[font=\scriptsize,black!70] at (1.7,-0.35){$\vdots$};
+  \node[draw,rounded corners=1pt,fill=SoftAmber,minimum width=4.4cm,minimum height=0.5cm,align=center] (en) at (1.7,-0.9){类型号 $n$（IP : CS）};
+  \node[font=\scriptsize,black!70] at (-1.4,1.2){地址 $0$};
+  \node[font=\scriptsize,black!70] at (-1.4,0.65){地址 $4$};
+  \node[font=\scriptsize,black!70] at (-1.4,0.1){地址 $8$};
+  \node[font=\scriptsize,black!70] at (-1.4,-0.9){地址 $n\times 4$};
+  \node[font=\scriptsize,black!70,align=center] at (0.2,-1.7){每个表项 4 字节 $=$ 中断服务程序入口地址（偏移 IP + 段基址 CS）};
+  \node[font=\scriptsize,black!70,align=center] at (0.2,-2.2){中断向量 $=$ 入口地址，不是类型号本身};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 重要考点——中断向量表：}
 \begin{itemize}
@@ -313,6 +345,19 @@ CS:APP 分类 & 中断 & 故障（Fault）/陷阱（Trap）/终止（Abort）\\
     \end{itemize}
 \end{enumerate}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.3cm,minimum height=0.85cm,align=center] (s1) at (0,1.0){(1) 预处理\\（CPU 完成）};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.3cm,minimum height=0.85cm,align=center] (s2) at (2.9,1.0){(2) 数据传送\\（DMAC 完成）};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.3cm,minimum height=0.85cm,align=center] (s3) at (5.8,1.0){(3) 后处理\\（CPU 完成）};
+  \draw[->] (s1) -- (s2);
+  \draw[->] (s2) -- (s3);
+  \node[align=center,font=\scriptsize,black!70] at (0,-0.05){CPU 写 DMAC 寄存器\\初始化地址寄存器、字计数器};
+  \node[align=center,font=\scriptsize,black!70] at (2.9,-0.05){DMAC 请求并接管总线\\每传一数据数 AR+1、WC-1};
+  \node[align=center,font=\scriptsize,black!70] at (5.8,-0.05){块结束后 DMAC 仅发一次中断\\CPU 检查结果、决定下次传送};
+\end{tikzpicture}
+\end{center}
 
 \begin{attention}
 \textbf{408 核心考点——DMA 预处理与后处理由 CPU 完成，数据传送由 DMAC 完成：}

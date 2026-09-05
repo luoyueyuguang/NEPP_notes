@@ -59,6 +59,35 @@
 等价描述：除最后一层外每层都满，且最后一层的结点\textbf{从左到右}连续排列，中间不留空位。
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={draw, circle, minimum size=5mm, inner sep=1pt}]
+  \node[fill=SoftTeal] (A) at (0,0){A};
+  \node[fill=SoftBlue] (B) at (-1.2,-1){B};
+  \node[fill=SoftBlue] (C) at (1.2,-1){C};
+  \node[fill=SoftGray] (D) at (-1.8,-2){D};
+  \node[fill=SoftGray] (E) at (-0.6,-2){E};
+  \node[fill=SoftGray] (F) at (0.6,-2){F};
+  \node[fill=SoftGray] (G) at (1.8,-2){G};
+  \draw[->] (A) -- (B); \draw[->] (A) -- (C);
+  \draw[->] (B) -- (D); \draw[->] (B) -- (E);
+  \draw[->] (C) -- (F); \draw[->] (C) -- (G);
+  \node[font=\scriptsize, Navy] at (0,-2.85){满二叉树：每一层结点数都达到最大（$n=2^3-1=7$）};
+\end{tikzpicture}
+\hspace{1.1cm}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={draw, circle, minimum size=5mm, inner sep=1pt}]
+  \node[fill=SoftTeal] (A) at (0,0){A};
+  \node[fill=SoftBlue] (B) at (-1.2,-1){B};
+  \node[fill=SoftBlue] (C) at (1.2,-1){C};
+  \node[fill=SoftGray] (D) at (-1.8,-2){D};
+  \node[fill=SoftGray] (E) at (-0.6,-2){E};
+  \node[fill=SoftGray] (F) at (0.6,-2){F};
+  \draw[->] (A) -- (B); \draw[->] (A) -- (C);
+  \draw[->] (B) -- (D); \draw[->] (B) -- (E);
+  \draw[->] (C) -- (F);
+  \node[font=\scriptsize, Navy] at (0,-2.85){完全二叉树：最后一层从左到右连续（$n=6$）};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{完全二叉树的性质}{complete-tree-properties}
 对于 $n$ 个结点的完全二叉树（层序编号 $1\sim n$）：
 \begin{enumerate}
@@ -96,6 +125,32 @@ typedef int ElemType;
 typedef ElemType SqBiTree[MaxSize];  // T[0] 可闲置或存结点数
 \end{lstlisting}
 对于\textbf{非完全二叉树}，需要按完全二叉树的编号规则留出空位（存放特殊标记如 \texttt{0} 或 \texttt{'\#'}），会造成空间浪费。最坏情况（单链状，深度为 $k$）需要 $2^k-1$ 个存储位置，仅用 $k$ 个。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={draw, circle, minimum size=5mm, inner sep=1pt}]
+  \node[fill=SoftTeal] (A) at (0,0){A};
+  \node[fill=SoftBlue] (B) at (-1.2,-1){B};
+  \node[fill=SoftBlue] (C) at (1.2,-1){C};
+  \node[fill=SoftGray] (E) at (0,-2){E};
+  \draw[->] (A) -- (B); \draw[->] (A) -- (C);
+  \draw[->] (B) -- (E);
+\end{tikzpicture}
+\hspace{1.1cm}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \foreach \i in {1,2,3,4,5,6,7}{
+    \draw[thick] (\i*0.75,0) rectangle (\i*0.75+0.7,0.7);
+    \node[font=\scriptsize, black!55] at (\i*0.75+0.35,-0.25){$\i$};
+  }
+  \node[font=\scriptsize, TealDark] at (1.1,0.35){A};
+  \node[font=\scriptsize, TealDark] at (1.85,0.35){B};
+  \node[font=\scriptsize, TealDark] at (2.6,0.35){C};
+  \node[font=\scriptsize, MutedText] at (3.35,0.35){$\#$};
+  \node[font=\scriptsize, TealDark] at (4.1,0.35){E};
+  \node[font=\scriptsize, MutedText] at (4.85,0.35){$\#$};
+  \node[font=\scriptsize, MutedText] at (5.6,0.35){$\#$};
+  \node[font=\scriptsize, black!70] at (3.3,1.15){数组 $T[1..7]$：空出的位置用 $\#$ 标记};
+\end{tikzpicture}
+\end{center}
 \end{formula}
 
 \subsubsection{二叉链表存储}
@@ -169,6 +224,16 @@ void PostOrder(BiTree T) {
     }
 }
 \end{lstlisting}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={draw, circle, minimum size=5mm, inner sep=1pt}]
+  \node[fill=SoftTeal] (A) at (0,0){A};
+  \node[fill=SoftBlue] (B) at (-1.2,-1){B};
+  \node[fill=SoftBlue] (C) at (1.2,-1){C};
+  \draw[->] (A) -- (B); \draw[->] (A) -- (C);
+  \node[font=\scriptsize, black!70] at (0,-1.95){先序（根左右）：A B C\quad 中序（左根右）：B A C\quad 后序（左右根）：B C A};
+\end{tikzpicture}
+\end{center}
 \end{formula}
 
 \begin{conclusion}{递归遍历的时间/空间复杂度}{traversal-complexity}

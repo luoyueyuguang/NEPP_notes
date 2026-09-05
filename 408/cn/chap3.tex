@@ -185,6 +185,21 @@ CSMA/CD（Carrier Sense Multiple Access with Collision Detection）是以太网�
 以太网 MAC 帧的最短长度为 64 B，即 $6+6+2+46+4=64$ B（从目的 MAC 到 FCS，不含 7 B 前导码和 1 B 帧开始定界符）。加上前导码和定界符后，链路上发送 72 B；帧间间隔也不计入帧长。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+  \def\bh{0.62}
+  \filldraw[fill=SoftGray,draw=black!40] (0,0) rectangle (2.0,\bh) node[midway,align=center]{前导码+SFD\\(8B)};
+  \filldraw[fill=SoftTeal,draw=black!40] (2.0,0) rectangle (3.6,\bh) node[midway,align=center]{目的MAC\\(6B)};
+  \filldraw[fill=SoftTeal,draw=black!40] (3.6,0) rectangle (5.2,\bh) node[midway,align=center]{源MAC\\(6B)};
+  \filldraw[fill=SoftBlue,draw=black!40] (5.2,0) rectangle (6.6,\bh) node[midway,align=center]{类型\\(2B)};
+  \filldraw[fill=SoftAmber,draw=black!40] (6.6,0) rectangle (9.4,\bh) node[midway,align=center]{数据+填充\\(46--1500B)};
+  \filldraw[fill=SoftGray,draw=black!40] (9.4,0) rectangle (10.2,\bh) node[midway,align=center]{FCS\\(4B)};
+  \draw[decorate,decoration={brace,amplitude=5pt,raise=2pt},black!60] (2.0,\bh+0.12) -- (10.2,\bh+0.12);
+  \node[font=\scriptsize,black!70] at (6.1,\bh+0.5){最短帧长 64 B（目的MAC $\to$ FCS）};
+  \node[align=center,font=\scriptsize,black!70] at (1.0,\bh+0.95){前导码+帧定界符\\不计入帧长};
+\end{tikzpicture}
+\end{center}
+
 \subsection{无线局域网与 VLAN}
 
 \begin{conclusion}{IEEE 802.11 无线局域网}{wlan-80211}
@@ -226,6 +241,16 @@ VLAN 能隔离广播域，但不等同于物理隔离，也不能替代路由和
 \begin{mydef}{ARP}{arp}
 ARP（Address Resolution Protocol）将 IP 地址映射为 MAC 地址。工作过程：主机广播 ARP 请求（「谁的 IP 是 xxx？请告诉你的 MAC」），目标主机单播 ARP 响应。结果缓存于 ARP 表（有老化时间）。
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (A) at (0,1.4){主机A};
+  \node[draw,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (B) at (7.0,1.4){主机B};
+  \draw[->,thick,Teal] (A) -- (B) node[midway,above,font=\scriptsize,align=center]{广播 ARP 请求\\「谁有 IP 192.168.1.2？」};
+  \draw[->,thick,Burgundy] (B) -- (A) node[midway,below,font=\scriptsize,align=center]{单播 ARP 响应\\「我的 MAC 是 00-…-E2」};
+  \node[align=center,font=\scriptsize,black!70] at (3.5,-0.7){ARP 请求是广播帧（目的 MAC = FF-FF-FF-FF-FF-FF）；ARP 响应是单播帧};
+\end{tikzpicture}
+\end{center}
 
 \subsection{PPP 协议}
 

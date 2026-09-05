@@ -19,6 +19,30 @@
     \]
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={概率密度},
+  xmin=-4, xmax=6, ymin=0, ymax=0.46,
+  xtick={0,2,4}, ytick={0,0.1,0.2,0.3,0.4},
+  legend pos=north east, font=\footnotesize,
+  domain=-4:6, samples=200,
+]
+\addplot[red!20,fill=red!20,draw=none,domain=-4:0] {0.3989*exp(-(x-2)^2/2)} \closedcycle;
+\addplot[red!20,fill=red!20,draw=none,domain=4:6] {0.3989*exp(-(x-2)^2/2)} \closedcycle;
+\addplot[blue,thick] {0.3989*exp(-(x-2)^2/2)};
+\addlegendentry{$f(x)$}
+\draw[dashed,gray!70] (axis cs:0,0) -- (axis cs:0,0.42);
+\draw[dashed,gray!70] (axis cs:4,0) -- (axis cs:4,0.42);
+\node[font=\scriptsize] at (axis cs:0,0.02){$\mu-\varepsilon$};
+\node[font=\scriptsize] at (axis cs:4,0.02){$\mu+\varepsilon$};
+\node[font=\scriptsize,gray!70] at (axis cs:2,0.42){$\mu$};
+\node[font=\scriptsize,red!70!black] at (axis cs:-2.3,0.05){$P(|X-\mu|\ge\varepsilon)\le D(X)/\varepsilon^2$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{mydef}{切比雪夫大数定律}{law of large numbers c}
 若随机变量序列\(X_1,X_2,\ldots\)满足
 \begin{enumerate}
@@ -81,6 +105,24 @@
     即\(n\)很大时，近似服从正态分布\(N(np, np(1-p))\)
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.4cm,
+  xlabel={$k$}, ylabel={概率},
+  xmin=0, xmax=20, ymin=0, ymax=0.21,
+  xtick={0,4,8,12,16,20}, ytick={0,0.05,0.1,0.15,0.2},
+  legend pos=north east, font=\footnotesize,
+  domain=0:20, samples=200,
+]
+\addplot[ybar,bar width=5pt,fill=blue!25,draw=gray!70] coordinates {(0,0) (1,0) (2,0.0002) (3,0.0011) (4,0.0046) (5,0.0148) (6,0.0370) (7,0.0739) (8,0.1201) (9,0.1602) (10,0.1762) (11,0.1602) (12,0.1201) (13,0.0739) (14,0.0370) (15,0.0148) (16,0.0046) (17,0.0011) (18,0.0002) (19,0) (20,0)};
+\addlegendentry{$B(20,0.5)$ 的分布律}
+\addplot[red,thick] {0.1784*exp(-(x-10)^2/10)};
+\addlegendentry{$N(10,5)$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{中心极限定理的实质}{central limit theorem essence}
     大数定律研究的是值的收敛，中心极限定理研究的是分布的收敛，
     即\(n\)很大时，\(Y_n\)的分布近似服从正态分布.
@@ -91,6 +133,30 @@
         \Phi(x)
     \]
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.4cm,
+  xlabel={$z$}, ylabel={概率密度},
+  xmin=-3, xmax=5.5, ymin=0, ymax=1.08,
+  xtick={-2,0,2,4}, ytick={0,0.2,0.4,0.6,0.8,1.0},
+  legend pos=north east, font=\footnotesize,
+  domain=-3:5.5, samples=180,
+]
+\addplot[blue,thick,domain=-1:5.5] {exp(-(x+1))};
+\addlegendentry{$n=1$}
+\addplot[red,thick,domain=-1.41:5.5] {1.4142*(1.4142*x+2)*exp(-(1.4142*x+2))};
+\addlegendentry{$n=2$}
+\addplot[green!55!black,thick,domain=-2.24:5.5] {0.09317*pow(2.2361*x+5,4)*exp(-(2.2361*x+5))};
+\addlegendentry{$n=5$}
+\addplot[orange,thick,domain=-5.3:5.5] {0.39784*pow(1+0.18257*x,29)*exp(-5.4772*x)};
+\addlegendentry{$n=30$}
+\addplot[gray,dashed,thick] {0.3989*exp(-x^2/2)};
+\addlegendentry{$N(0,1)$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \subsection{其他事项}
 \begin{conclusion}{大数定律与中心极限定理的一些说明}{law of large numbers and central limit theorem strength}

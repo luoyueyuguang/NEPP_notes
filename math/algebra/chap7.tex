@@ -103,6 +103,27 @@ f = \mathbf{x}^{\mathsf{T}} A \mathbf{x} = \mathbf{y}^{\mathsf{T}} Q^{\mathsf{T}
 正交变换法的优势：保持向量的长度（内积）不变，是几何意义最清晰的变换。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.66\linewidth, height=6cm, axis equal image,
+  xmin=-3.2, xmax=3.2, ymin=-3.2, ymax=3.2,
+  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
+]
+% 特征方向（椭圆主轴）
+\draw[dashed,gray!60] (axis cs:-3.2,-3.2) -- (axis cs:3.2,3.2);
+\draw[dashed,gray!60] (axis cs:-3.2,3.2) -- (axis cs:3.2,-3.2);
+% 正定二次型 f = 2x^2+2xy+2y^2 的等值线（同心椭圆），主轴沿特征方向
+\addplot[blue,thick,domain=0:360,samples=160] ({(0.5774*cos(x)+1.0000*sin(x))/1.4142},{(0.5774*cos(x)-1.0000*sin(x))/1.4142});
+\addplot[blue!60,thick,domain=0:360,samples=160] ({(1.1547*cos(x)+2.0000*sin(x))/1.4142},{(1.1547*cos(x)-2.0000*sin(x))/1.4142});
+\addplot[blue!35,thick,domain=0:360,samples=160] ({(1.7321*cos(x)+3.0000*sin(x))/1.4142},{(1.7321*cos(x)-3.0000*sin(x))/1.4142});
+\node[font=\scriptsize,red] at (axis cs:2.15,2.5){$\lambda_1=3$};
+\node[font=\scriptsize,red] at (axis cs:2.4,-2.2){$\lambda_2=1$};
+\node[font=\scriptsize,black] at (axis cs:-1.5,-2.85){正定 $\Rightarrow$ 等值线为同心椭圆};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{正交变换法化标准形的步骤}{orthogonal-method-steps}
 \begin{enumerate}
 \item 写出二次型的对称矩阵 \(A\)；
@@ -261,6 +282,35 @@ a_{k1} & a_{k2} & \cdots & a_{kk}
 \end{enumerate}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.46\linewidth, height=4.8cm, axis equal image,
+  xmin=-3, xmax=3, ymin=-3, ymax=3,
+  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
+  title={不定 $x^2-y^2=1$},
+]
+\addplot[gray!60,dashed,domain=-3:3,samples=80] {x};
+\addplot[gray!60,dashed,domain=-3:3,samples=80] {-x};
+\addplot[red,thick,domain=1.02:3,samples=140] {sqrt(x^2-1)};
+\addplot[red,thick,domain=1.02:3,samples=140] {-sqrt(x^2-1)};
+\addplot[red,thick,domain=-3:-1.02,samples=140] {sqrt(x^2-1)};
+\addplot[red,thick,domain=-3:-1.02,samples=140] {-sqrt(x^2-1)};
+\end{axis}
+\end{tikzpicture}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.46\linewidth, height=4.8cm, axis equal image,
+  xmin=-3, xmax=3, ymin=-3, ymax=3,
+  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
+  title={正定 $x^2+y^2=1$},
+]
+\addplot[blue,thick,domain=-1:1,samples=140] {sqrt(1-x^2)};
+\addplot[blue,thick,domain=-1:1,samples=140] {-sqrt(1-x^2)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \subsection{合同变换下的标准形}
 
 \begin{conclusion}{实二次型在合同变换下的标准形}{real-congruent-canonical}
@@ -355,6 +405,29 @@ C = \frac{\partial^2 f}{\partial y^2}
 \end{enumerate}
 这里 \(AC - B^2 = \det H\)，而 \(A\) 为一阶顺序主子式。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.46\linewidth, height=5cm, view={55}{35},
+  xmin=-1.6, xmax=1.6, ymin=-1.6, ymax=1.6, zmax=5,
+  xlabel={$x$}, ylabel={$y$}, zlabel={$z$}, font=\footnotesize,
+]
+\addplot3[surf,shader=interp,domain=-1.5:1.5,domain y=-1.5:1.5,samples=28] {x^2+y^2};
+\node[font=\scriptsize,black] at (axis cs:1.6,1.6,0.4){$H$ 正定 $\Rightarrow$ 极小值};
+\end{axis}
+\end{tikzpicture}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.46\linewidth, height=5cm, view={55}{35},
+  xmin=-1.6, xmax=1.6, ymin=-1.6, ymax=1.6, zmin=-2.6, zmax=2.6,
+  xlabel={$x$}, ylabel={$y$}, zlabel={$z$}, font=\footnotesize,
+]
+\addplot3[surf,shader=interp,domain=-1.5:1.5,domain y=-1.5:1.5,samples=28] {x^2-y^2};
+\node[font=\scriptsize,black] at (axis cs:1.6,1.6,0.4){$H$ 不定 $\Rightarrow$ 鞍点};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \subsubsection{最小二乘法中的正定性}
 

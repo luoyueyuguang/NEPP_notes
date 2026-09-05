@@ -71,6 +71,26 @@ DNS（Domain Name System）是互联网的命名系统，将便于记忆的域�
 典型的迭代流程为：主机递归请求本地 DNS；本地 DNS 查询根 DNS，得到顶级 DNS 地址；再查询顶级 DNS，得到权威 DNS 地址；最后查询权威 DNS，得到最终记录并返回主机。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nbox/.style={draw, rounded corners=2pt, minimum width=1.9cm, minimum height=0.6cm, font=\scriptsize}]
+  \node[nbox,fill=SoftTeal] (h) at (0,0){主机};
+  \node[nbox,fill=SoftBlue] (l) at (2.6,0){本地DNS};
+  \node[nbox,fill=SoftGray] (r) at (5.2,0){根DNS};
+  \node[nbox,fill=SoftGray] (t) at (7.8,0){顶级DNS};
+  \node[nbox,fill=SoftGray] (a) at (10.4,0){权威DNS};
+  \draw[->,thick,Teal] (h) -- (l) node[midway,above,font=\scriptsize]{递归};
+  \draw[->,thick] (l) -- (r) node[midway,above,font=\scriptsize]{(1)};
+  \draw[->,thick] (r) -- (t) node[midway,above,font=\scriptsize]{(2)};
+  \draw[->,thick] (t) -- (a) node[midway,above,font=\scriptsize]{(3)};
+  \draw[->,dashed,Burgundy] (a) -- (t) node[midway,below,font=\scriptsize]{记录};
+  \draw[->,dashed,Burgundy] (t) -- (r);
+  \draw[->,dashed,Burgundy] (r) -- (l);
+  \draw[->,dashed,Burgundy] (l) -- (h) node[midway,below,font=\scriptsize]{最终IP};
+  \node[align=center,font=\scriptsize,black!70] at (5.2,-0.75){主机$\to$本地DNS 为递归查询；本地DNS$\to$根/顶级/权威为迭代查询（实线：请求，虚线：返回）};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 重难点：递归 vs 迭代的辨析。}
 \begin{itemize}
@@ -270,6 +290,23 @@ URL（Uniform Resource Locator）用于唯一定位互联网上的资源：
     \item \textbf{路径（path）}：服务器上的资源路径。
 \end{itemize}
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \filldraw[fill=SoftTeal,draw=black!40] (0,0.7) rectangle (1.8,1.4) node[midway]{http};
+  \node[font=\scriptsize] at (2.2,1.05){://};
+  \filldraw[fill=SoftBlue,draw=black!40] (2.6,0.7) rectangle (6.4,1.4) node[midway]{www.example.com};
+  \node[font=\scriptsize] at (6.7,1.05){:};
+  \filldraw[fill=SoftAmber,draw=black!40] (7.0,0.7) rectangle (8.2,1.4) node[midway]{80};
+  \node[font=\scriptsize] at (8.55,1.05){/};
+  \filldraw[fill=SoftTeal,draw=black!40] (8.9,0.7) rectangle (11.3,1.4) node[midway]{index.html};
+  \node[font=\scriptsize] at (0.9,1.65){协议};
+  \node[font=\scriptsize] at (4.5,1.65){主机（域名/IP）};
+  \node[font=\scriptsize] at (7.6,1.65){端口};
+  \node[font=\scriptsize] at (10.1,1.65){路径};
+  \node[align=center,font=\scriptsize,black!70] at (5.6,-0.2){$\texttt{http://www.example.com:80/index.html}$ 的分解};
+\end{tikzpicture}
+\end{center}
 
 \subsubsection{HTTP 报文格式}
 

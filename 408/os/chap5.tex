@@ -57,6 +57,17 @@ I/O控制方式的发展本质上是\textbf{将CPU从I/O任务中逐步解放}�
 \end{tablebox}
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=0.7cm, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.6cm, align=center] (a) at (0,0) {程序直接控制\\（轮询）};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.2cm, minimum height=0.6cm, align=center] (b) at (2.7,0) {中断驱动};
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.2cm, minimum height=0.6cm, align=center] (c) at (5.4,0) {DMA};
+\node[draw, rectangle, fill=SoftAmber, minimum width=2.2cm, minimum height=0.6cm, align=center] (d) at (8.1,0) {I/O 通道};
+\draw[->] (a) -- (b); \draw[->] (b) -- (c); \draw[->] (c) -- (d);
+\node[font=\scriptsize, black!60] at (4.05,-1.0) {CPU 参与 I/O 的程度 $\searrow$，每次中断的数据粒度 $\nearrow$};
+\end{tikzpicture}
+\end{center}
+
 \subsubsection{程序直接控制（轮询，Polling）}
 
 \begin{mydef}{程序直接控制}{os-programmed-io}
@@ -488,6 +499,19 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
     \item \textbf{缓冲池}：所有设备共享，动态分配，利用率高，但管理开销更大。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=0.7cm, font=\scriptsize]
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.75cm, align=center] (emq) at (-2.8,0) {空缓冲队列\\\scriptsize emq};
+\node[draw, rectangle, fill=SoftAmber, minimum width=2.6cm, minimum height=0.75cm, align=center] (inq) at (2.8,1.3) {输入队列\\\scriptsize inq};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.6cm, minimum height=0.75cm, align=center] (outq) at (2.8,-1.3) {输出队列\\\scriptsize outq};
+\draw[<->] (emq.north east) -- node[above,font=\scriptsize]{收容输入/提取输入} (inq.west);
+\draw[<->] (emq.south east) -- node[below,font=\scriptsize]{收容输出/提取输出} (outq.west);
+\node[font=\scriptsize, black!70, align=center] at (5.9,1.3) {设备填入数据\\CPU 取出使用};
+\node[font=\scriptsize, black!70, align=center] at (5.9,-1.3) {进程填入输出\\设备取出输出};
+\node[font=\scriptsize, black!60] at (0,-2.55) {缓冲池：全体设备共享，动态分配};
+\end{tikzpicture}
+\end{center}
 
 \begin{attention}
 \textbf{408 辨析：四个缓冲区概念的区别。}

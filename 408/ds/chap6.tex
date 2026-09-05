@@ -284,6 +284,35 @@ bool BST_Insert(BSTree *T, KeyType key) {
 408 两种方案均可，除非题目指定用哪一种。\textbf{注意：} 删除操作总是归结为删除一个至多只有一棵子树的结点。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% (1) 删除叶子
+\node at (-4.6,3.6){(1) 删除\textbf{叶子}结点};
+\node[draw,circle,minimum size=0.6cm] (a) at (-4.6,2.4) {30};
+\node[draw,circle,minimum size=0.6cm] (b) at (-5.7,1.2) {20};
+\draw (a) -- (b);
+\node[align=center] at (-4.6,-0.4){删除 20（无孩子）\\直接摘除，令 30\\的左孩子 $\to$ NULL};
+% (2) 删除只有一棵子树
+\node at (0,3.6){(2) 删除\textbf{只有一棵子树}};
+\node[draw,circle,minimum size=0.6cm] (c) at (0,2.4) {30};
+\node[draw,circle,minimum size=0.6cm] (d) at (0,1.2) {40};
+\node[draw,circle,minimum size=0.6cm] (e) at (0,-0.0) {45};
+\draw (c) -- (d);
+\draw (d) -- (e);
+\node[align=center] at (0,-1.6){删除 40，用其\\唯一孩子 45\\替代 40 的位置};
+% (3) 删除有两棵子树
+\node at (4.6,3.6){(3) 删除\textbf{有两棵子树}};
+\node[draw,circle,minimum size=0.6cm] (f) at (4.6,2.4) {50};
+\node[draw,circle,minimum size=0.6cm] (g) at (3.5,1.2) {30};
+\node[draw,circle,minimum size=0.6cm] (h) at (5.7,1.2) {70};
+\node[draw,circle,minimum size=0.6cm] (i) at (4.4,-0.0) {40};
+\draw (f) -- (g);
+\draw (f) -- (h);
+\draw (g) -- (i);
+\node[align=center] at (4.6,-1.6){用中序\textbf{前驱} 40 替代 50，\\再删除原 40（退化为\\仅有一棵子树的情况）};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 408 常考 BST 删除后的中序遍历序列——无论用前驱替代还是后继替代，删除后其余结点的\textbf{中序相对次序不变}（因为替代结点本身就是被删结点的中序前驱或后继）。
 \end{attention}
@@ -465,6 +494,19 @@ return RotateLeft(p);
 
 \textbf{本文术语约定：} 为避免「叶结点」的双重含义，存放关键字的结点统称\textbf{数据结点}，最底层存放关键字的结点称\textbf{最底层数据结点}；其空子树指针指向的概念结点称\textbf{外部失败结点}。B-树高度 $h$ 统一记为数据结点的层数（根为第 1 层），不计外部失败结点层。若题干采用边数或把外部结点计层，需先换算口径。
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw,rectangle,minimum width=2.0cm,minimum height=0.7cm,fill=Navy!12] (root) at (0,0) {$20\mid50$};
+\node[draw,rectangle,minimum width=1.7cm,minimum height=0.7cm,fill=Teal!12] (c1) at (-3.3,-1.9) {$10\mid15$};
+\node[draw,rectangle,minimum width=1.7cm,minimum height=0.7cm,fill=Teal!12] (c2) at (0,-1.9) {$30\mid40$};
+\node[draw,rectangle,minimum width=1.7cm,minimum height=0.7cm,fill=Teal!12] (c3) at (3.3,-1.9) {$60\mid70$};
+\draw[->] (root) -- (c1);
+\draw[->] (root) -- (c2);
+\draw[->] (root) -- (c3);
+\node[align=center,font=\scriptsize,black!70] at (0,-3.2){一棵 3 阶 B-树：根结点含 $[20,50]$，三个孩子含 $[10,15]$、$[30,40]$、$[60,70]$\\数据结点关键字有序（如 $10<15$），各子树被相应关键字分隔；下层外部失败结点都在同一层};
+\end{tikzpicture}
+\end{center}
 
 \begin{formula}{B-树的结点结构}{btree-node}
 \begin{lstlisting}[language=C]
@@ -648,6 +690,24 @@ H_i = \big(H(key) + i^2\big) \bmod m \quad\text{或}\quad H_i = \big(H(key) \pm 
 \textbf{通用规则：} 无论哪种探测方式，开放定址法\textbf{不能真正删除}元素——删除只能做逻辑删除（标记删除），否则会切断探测序列导致后续查找失败。
 \end{formula}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 11 个槽位（下标 0..10）
+\foreach \nn in {0,...,10} {
+  \node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,align=center] (s\nn) at (\nn*0.9,0) {\tiny \nn\\\strut};
+}
+% 依次插入 26,25,72,38,8,18,59（H(k)=k mod 11）
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f3) at (3*0.9,0) {\tiny 3\\25};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f4) at (4*0.9,0) {\tiny 4\\26};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f5) at (5*0.9,0) {\tiny 5\\38};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f6) at (6*0.9,0) {\tiny 6\\72};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f7) at (7*0.9,0) {\tiny 7\\18};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f8) at (8*0.9,0) {\tiny 8\\8};
+\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Amber!20,align=center] (f9) at (9*0.9,0) {\tiny 9\\59};
+\node[align=center,font=\scriptsize,black!70] at (4.5,-1.4){开放定址法（线性探测）：$H(k)=k\bmod 11$\\插入 59 时 $H(59)=4$ 冲突，沿 $4\to5\to6\to7\to8\to9$ 探测，最终落位 9（槽中上为下标、下为关键字）};
+\end{tikzpicture}
+\end{center}
+
 \begin{formula}{链地址法（Separate Chaining）}{separate-chaining}
 将所有散列地址相同的关键字链接在同一个\textbf{单链表}中。散列表的每个槽位是一个链表的头指针。
 \begin{lstlisting}[language=C]
@@ -670,6 +730,45 @@ typedef struct {
 \end{itemize}
 \textbf{缺点：} 需要额外的指针空间。
 \end{formula}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 桶（表头数组）
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.5cm,fill=SoftBlue,draw=Navy,text=NavyDark,font=\scriptsize\bfseries] (bk0) at (0,2.0) {0};
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.5cm,fill=SoftBlue,draw=Navy,text=NavyDark,font=\scriptsize\bfseries] (bk1) at (0,1.0) {1};
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.5cm,fill=SoftBlue,draw=Navy,text=NavyDark,font=\scriptsize\bfseries] (bk2) at (0,0) {2};
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.5cm,fill=SoftBlue,draw=Navy,text=NavyDark,font=\scriptsize\bfseries] (bk3) at (0,-1.0) {3};
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.5cm,fill=SoftBlue,draw=Navy,text=NavyDark,font=\scriptsize\bfseries] (bk4) at (0,-2.0) {4};
+% 桶0: 5 -> NULL
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c00) at (1.4,2.0){5};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (n0) at (2.8,2.0){$\wedge$};
+\draw[->] (bk0) -- (c00);
+\draw[->] (c00) -- (n0);
+% 桶1: NULL
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (n1) at (1.4,1.0){$\wedge$};
+\draw[->] (bk1) -- (n1);
+% 桶2: 12 -> 17 -> 2 -> NULL
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c20) at (1.4,0){12};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c21) at (2.8,0){17};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c22) at (4.2,0){2};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (n2) at (5.6,0){$\wedge$};
+\draw[->] (bk2) -- (c20);
+\draw[->] (c20) -- (c21);
+\draw[->] (c21) -- (c22);
+\draw[->] (c22) -- (n2);
+% 桶3: 3 -> 8 -> NULL
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c30) at (1.4,-1.0){3};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c31) at (2.8,-1.0){8};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (n3) at (4.2,-1.0){$\wedge$};
+\draw[->] (bk3) -- (c30);
+\draw[->] (c30) -- (c31);
+\draw[->] (c31) -- (n3);
+% 桶4: NULL
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (n4) at (1.4,-2.0){$\wedge$};
+\draw[->] (bk4) -- (n4);
+\node[align=center,font=\scriptsize,black!70] at (2.6,-3.0){链地址法：$H(k)=k\bmod 5$，依次插入 $5,12,3,8,17,2$\\同地址关键字链成单链表，左侧数组为散列表（表头指针）};
+\end{tikzpicture}
+\end{center}
 
 \subsubsection{散列表的 ASL 与装填因子}
 

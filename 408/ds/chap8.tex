@@ -52,6 +52,30 @@ LNode *DetectCycle(LinkList L) {
 \textbf{复杂度：}时间 $O(n)$，空间 $O(1)$。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.55cm,fill=SoftGray] (hd) at (0,0) {head};
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm] (a) at (1.5,0) {1};
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm] (b) at (2.7,0) {2};
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm,fill=Amber!20] (c) at (3.9,0) {3};
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm] (d) at (5.1,0) {4};
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm,fill=Teal!20] (e) at (6.3,0) {5};
+\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm] (f) at (7.5,0) {6};
+\draw[->] (hd) -- (a);
+\draw[->] (a) -- (b);
+\draw[->] (b) -- (c);
+\draw[->] (c) -- (d);
+\draw[->] (d) -- (e);
+\draw[->] (e) -- (f);
+% 环：6 -> 3
+\draw[->,Burgundy,thick] (f.north) .. controls (8.2,1.6) and (4.6,1.6) .. (c.north);
+% 标注
+\node[align=center,font=\scriptsize,black!70] at (3.9,-1.0){(环入口)};
+\node[align=center,font=\scriptsize,black!70] at (6.3,-1.0){(slow=fast\\相遇处)};
+\node[align=center,font=\scriptsize,black!70] at (3.9,-2.3){快慢指针从 1 同时出发：\texttt{fast} 每步走 2、\texttt{slow} 每步走 1，二者在 5 处相遇\\再将一指针重置回 1，两指针各走 1 步，再次相遇于 3（环入口）};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 快慢指针是 408 风格算法题的常见背景。Floyd 判环通常令快指针每次走两步、慢指针每次走一步；若存在环，两者在模环长意义下的相对位置每轮前进 1，因而必会相遇。若任意改变步长，必须重新证明相对步长与环长的关系，不能仅凭「快一些」断言一定相遇。
 \end{attention}
@@ -148,6 +172,33 @@ LNode *ReverseListNoHead(LNode *head) {
 \textbf{复杂度：}时间 $O(n)$，空间 $O(1)$。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 逆置前
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.55cm,fill=SoftGray] (h1) at (0,0) {head};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (x1) at (1.5,0) {1};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (x2) at (2.7,0) {2};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (x3) at (3.9,0) {3};
+\node[draw,rectangle,minimum width=0.4cm,minimum height=0.55cm,fill=SoftGray] (nl) at (5.1,0) {$\wedge$};
+\draw[->] (h1) -- (x1);
+\draw[->] (x1) -- (x2);
+\draw[->] (x2) -- (x3);
+\draw[->] (x3) -- (nl);
+\node[align=center] at (2.5,-0.9){逆置前：\texttt{head} $\to$ $1\to2\to3\to\wedge$};
+% 逆置后
+\node[draw,rectangle,minimum width=0.9cm,minimum height=0.55cm,fill=SoftGray] (h2) at (0,-2.2) {head};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (y3) at (1.5,-2.2) {3};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (y2) at (2.7,-2.2) {2};
+\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (y1) at (3.9,-2.2) {1};
+\node[draw,rectangle,minimum width=0.4cm,minimum height=0.55cm,fill=SoftGray] (nl2) at (5.1,-2.2) {$\wedge$};
+\draw[->] (h2) -- (y3);
+\draw[->] (y3) -- (y2);
+\draw[->] (y2) -- (y1);
+\draw[->] (y1) -- (nl2);
+\node[align=center] at (2.5,-3.1){逆置后：\texttt{head} $\to$ $3\to2\to1\to\wedge$};
+\end{tikzpicture}
+\end{center}
+
 \subsubsection{部分逆置}
 
 \begin{conclusion}{链表的区间逆置}{reverse-interval}
@@ -224,6 +275,27 @@ int Depth(BiTree T) {
 \end{lstlisting}
 \textbf{扩展：}求二叉树的最小深度——对左右孩子任一为空的情况特殊处理，取非空一侧的深度 $+1$。
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (r) at (0,0) {8};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (l) at (-2.0,-1.6) {3};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (rt) at (2.0,-1.6) {10};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (ll) at (-3.0,-3.2) {1};
+\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (lr) at (-1.0,-3.2) {6};
+\draw (r) -- (l);
+\draw (r) -- (rt);
+\draw (l) -- (ll);
+\draw (l) -- (lr);
+% 各子树高度（右上角标注）
+\node[font=\scriptsize,black!60] at (0.55,0.35) {h=3};
+\node[font=\scriptsize,black!60] at (-1.45,-1.25) {h=2};
+\node[font=\scriptsize,black!60] at (2.55,-1.25) {h=1};
+\node[font=\scriptsize,black!60] at (-2.45,-2.85) {h=1};
+\node[font=\scriptsize,black!60] at (-0.45,-2.85) {h=1};
+\node[align=center,font=\scriptsize,black!70] at (0,-4.3){后序递归求高度：$\mathrm{depth}(T)=\max(\mathrm{depth}(L),\mathrm{depth}(R))+1$，空树返回 0\\先求左、右子树高度，再返回二者较大值 $+1$（如根 8 的高度 $=\max(2,1)+1=3$）};
+\end{tikzpicture}
+\end{center}
 
 \subsubsection{求二叉树宽度}
 

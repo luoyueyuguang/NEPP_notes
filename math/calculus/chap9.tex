@@ -22,6 +22,30 @@
     \]
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=-0.65, xmax=0.65, ymin=-0.65, ymax=0.65, zmin=-0.15, zmax=1.1,
+  view={63}{28}, width=9cm, height=7.5cm,
+  domain=-0.5:0.5, y domain=-0.5:0.5, samples=22, samples y=22,
+  z buffer=sort,
+]
+\addplot3[surf, opacity=0.7, shader=interp] {1-x^2-y^2};
+\addplot3[fill=blue!12, draw=black!55, opacity=0.6] coordinates {
+  (-0.5,-0.5,0) (0.5,-0.5,0) (0.5,0.5,0) (-0.5,0.5,0)
+};
+\draw[gray!60] (axis cs:-0.5,-0.5,0) -- (axis cs:-0.5,-0.5,0.5);
+\draw[gray!60] (axis cs:0.5,-0.5,0) -- (axis cs:0.5,-0.5,0.5);
+\draw[gray!60] (axis cs:0.5,0.5,0) -- (axis cs:0.5,0.5,0.5);
+\draw[gray!60] (axis cs:-0.5,0.5,0) -- (axis cs:-0.5,0.5,0.5);
+\node[font=\scriptsize] at (axis cs:0.02,0.02,0.72) {$z=f(x,y)$};
+\node[font=\scriptsize] at (axis cs:-0.3,0.30,-0.05) {$D$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{mydef}{三重积分}{three-integral}
     空间中有界闭区域\(\Omega\)上三元函数\(u = f(x, y, z)\)的三重积分为
     \[
@@ -1055,6 +1079,26 @@
             其中，\(L^{+}\)取正向
         \end{formula}
 \end{formula}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-2.4, xmax=2.4, ymin=-1.95, ymax=1.95,
+  xtick={-2,-1,0,1,2}, ytick={-1,0,1},
+  font=\footnotesize,
+]
+\addplot[blue!12, draw=none, domain=0:360, samples=120] ({2*cos(x)},{1.5*sin(x)}) -- cycle;
+\addplot[blue!70,very thick,domain=0:360,samples=120] ({2*cos(x)},{1.5*sin(x)});
+\node at (axis cs:0,0) {$D$};
+\node[font=\scriptsize,blue!70] at (axis cs:0,-1.6) {$L$（取正向·逆时针）};
+\draw[->,red,very thick] (axis cs:0,1.5) -- (axis cs:0.45,1.44);
+\node[font=\scriptsize,red] at (axis cs:0.75,1.35) {$+$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{formula}{高斯公式}{Gauss-formula}
     设\(\Omega\)是空间中的有界闭区域,由分块光滑的曲面\(S\)围成。函数\(
         P(x, y, z), Q(x, y, z), R(x, y, z)\)在\(\Omega\)上有连续的一阶偏导数.则
@@ -1098,6 +1142,38 @@
             其中\(S^{+}\)取外法向
         \end{formula}
 \end{formula}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center,
+  xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=-1, xmax=3.3, ymin=-1, ymax=3.3, zmin=-1, zmax=3.3,
+  view={62}{28}, clip=false, width=9cm, height=7.5cm,
+]
+\draw[gray!65,thin] (axis cs:0,0,0) -- (axis cs:2,0,0);
+\draw[gray!65,thin] (axis cs:0,0,0) -- (axis cs:0,2,0);
+\draw[gray!65,thin] (axis cs:2,0,0) -- (axis cs:2,2,0);
+\draw[gray!65,thin] (axis cs:0,2,0) -- (axis cs:2,2,0);
+\draw[gray!65,thin] (axis cs:0,0,2) -- (axis cs:2,0,2);
+\draw[gray!65,thin] (axis cs:0,0,2) -- (axis cs:0,2,2);
+\draw[gray!65,thin] (axis cs:2,0,2) -- (axis cs:2,2,2);
+\draw[gray!65,thin] (axis cs:0,2,2) -- (axis cs:2,2,2);
+\draw[gray!65,thin] (axis cs:0,0,0) -- (axis cs:0,0,2);
+\draw[gray!65,thin] (axis cs:2,0,0) -- (axis cs:2,0,2);
+\draw[gray!65,thin] (axis cs:2,2,0) -- (axis cs:2,2,2);
+\draw[gray!65,thin] (axis cs:0,2,0) -- (axis cs:0,2,2);
+\draw[->,blue,very thick] (axis cs:1,1,2) -- (axis cs:1,1,3);
+\draw[->,blue,very thick] (axis cs:1,1,0) -- (axis cs:1,1,-0.6);
+\draw[->,blue,very thick] (axis cs:2,1,1) -- (axis cs:3,1,1);
+\draw[->,blue,very thick] (axis cs:0,1,1) -- (axis cs:-0.6,1,1);
+\draw[->,blue,very thick] (axis cs:1,2,1) -- (axis cs:1,3,1);
+\draw[->,blue,very thick] (axis cs:1,0,1) -- (axis cs:1,-0.6,1);
+\node[font=\scriptsize] at (axis cs:1.15,1.05,2.6) {$\mathbf{n}$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
 \begin{formula}{斯托克斯公式}{Stokes-formula}
     设\(\Gamma\)是空间中的分段光滑闭曲线，S是以\(\Gamma\)为边界的分块光滑曲面，\(\Gamma\)的正向与\(S\)的侧(
         即法向量的指向
@@ -1347,6 +1423,28 @@
     \int_{L} P \mathrm{d} x + Q \mathrm{d} y
     \)与路径无关。
 \end{mydef}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-0.1, xmax=2.35, ymin=-0.4, ymax=2.35,
+  xtick={0,1,2}, ytick={0,1,2},
+  legend pos=south east, font=\footnotesize,
+  domain=0:1, samples=100,
+]
+\addplot[blue!70,very thick] ({2*x},{2*x^2});
+\addlegendentry{$L_1$}
+\addplot[red!70,very thick] ({2*x},{2*sqrt(x)});
+\addlegendentry{$L_2$}
+\fill (axis cs:0,0) circle (2pt);
+\fill (axis cs:2,2) circle (2pt);
+\node[below left,font=\scriptsize] at (axis cs:0,0) {$A$};
+\node[above right,font=\scriptsize] at (axis cs:2,2) {$B$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \begin{mydef}{微分式的原函数问题}{indefinite-integral}
     若在区域\(D\)内\(\exists\)存在函数\(u(x, y)\)，使得\(

@@ -154,6 +154,28 @@ N_{10} = \sum_{i=-m}^{n-1} d_i \times R^{i},\qquad d_i\in\{0,1,\ldots,R-1\}.
 \textbf{直观规则：}正数补码 = 原码；负数补码 = 反码末位 $+1$（即「按位取反 $+1$」）。
 \end{mydef}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[anchor=east] at (-0.2,1.8){原码};
+  \draw[thick,fill=Amber!15] (0,1.7) rectangle (0.7,2.1);
+  \draw[thick,fill=SoftGray] (0.7,1.7) rectangle (4.4,2.1);
+  \node at (0.35,1.9){1}; \node at (2.55,1.9){0000111};
+  \node[anchor=east] at (-0.2,1.2){反码};
+  \draw[thick,fill=Amber!15] (0,1.1) rectangle (0.7,1.5);
+  \draw[thick,fill=SoftGray] (0.7,1.1) rectangle (4.4,1.5);
+  \node at (0.35,1.3){1}; \node at (2.55,1.3){1111000};
+  \node[anchor=east] at (-0.2,0.6){补码};
+  \draw[thick,fill=Amber!15] (0,0.5) rectangle (0.7,0.9);
+  \draw[thick,fill=SoftGray] (0.7,0.5) rectangle (4.4,0.9);
+  \node at (0.35,0.7){1}; \node at (2.55,0.7){1111001};
+  \node[anchor=east] at (-0.2,0.0){移码};
+  \draw[thick,fill=Amber!15] (0,-0.1) rectangle (0.7,0.3);
+  \draw[thick,fill=SoftGray] (0.7,-0.1) rectangle (4.4,0.3);
+  \node at (0.35,0.1){0}; \node at (2.55,0.1){1111001};
+  \node[font=\scriptsize,black!70,align=center] at (2.3,-0.6){8 位字长下真值 $-7$ 的四种机器数（符号位 1 位 + 数值位 7 位）};
+\end{tikzpicture}
+\end{center}
+
 \begin{conclusion}{补码的关键性质（408 高频）}{twos-comp-props}
 \begin{enumerate}
     \item \textbf{零唯一：}$[+0]_{\text{补}} = [-0]_{\text{补}} = 00\ldots0$。
@@ -294,6 +316,18 @@ N = (-1)^{S} \times (1.M) \times 2^{E-\text{bias}}.
   \node[align=center] at (5,-0.45){30--23\\8 位};
   \node[align=center] at (20.5,-0.45){22--0\\23 位};
   \node[align=center,black!70] at (16.5,1.7){\textbf{单精度（float）32 位}};
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw[thick,fill=Burgundy!15] (0,0) rectangle (0.6,0.9) node[midway]{S};
+  \draw[thick,fill=Navy!12] (0.6,0) rectangle (2.8,0.9) node[midway]{E（移码）};
+  \draw[thick,fill=Teal!12] (2.8,0) rectangle (9.1,0.9) node[midway]{M（尾数小数部分）};
+  \node[align=center] at (0.3,-0.45){63\\1 位};
+  \node[align=center] at (1.7,-0.45){62--52\\11 位};
+  \node[align=center] at (5.95,-0.45){51--0\\52 位};
+  \node[align=center,black!70] at (4.55,1.5){\textbf{双精度（double）64 位}};
 \end{tikzpicture}
 \end{center}
 
@@ -547,6 +581,22 @@ bool TrueDiv(uint32_t x, uint32_t y, unsigned int n,
     \item 阶码 $\leqslant 0$（不满足规格化范围）：\textbf{下溢}（underflow），结果可能为非规格化数或 $0$。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.75cm,minimum height=0.7cm] (s1) at (0,0.45){对阶};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.75cm,minimum height=0.7cm] (s2) at (2.4,0.45){尾数加减};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.75cm,minimum height=0.7cm] (s3) at (4.8,0.45){规格化};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.75cm,minimum height=0.7cm] (s4) at (7.2,0.45){舍入};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.75cm,minimum height=0.7cm] (s5) at (9.6,0.45){溢出判断};
+  \draw[->] (s1) -- (s2); \draw[->] (s2) -- (s3); \draw[->] (s3) -- (s4); \draw[->] (s4) -- (s5);
+  \node[align=center,font=\scriptsize,black!70] at (0,-0.5){小阶向大阶看齐\\尾数右移 $\Delta E$ 位};
+  \node[align=center,font=\scriptsize,black!70] at (2.4,-0.5){对阶后尾数\\直接加减};
+  \node[align=center,font=\scriptsize,black!70] at (4.8,-0.5){右规（+1 阶）\\或左规（-1 阶）};
+  \node[align=center,font=\scriptsize,black!70] at (7.2,-0.5){处理移出的低位\\就近舍入到偶数};
+  \node[align=center,font=\scriptsize,black!70] at (9.6,-0.5){上溢 $\to \pm\infty$\\下溢 $\to$ 非规格化/0};
+\end{tikzpicture}
+\end{center}
 
 \begin{formula}{IEEE 754 四种舍入模式}{rounding-modes}
 \begin{tablebox}{舍入模式}

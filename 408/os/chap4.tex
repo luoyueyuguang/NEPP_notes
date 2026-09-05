@@ -41,6 +41,21 @@
 \textbf{408 常考：}给定块大小和指针大小，计算 i-node 支持的最大文件大小。
 \end{conclusion}
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=0.7cm, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=2.0cm, minimum height=2.6cm, align=center] (ino) at (0,0) {\textbf{i-node}};
+\node[draw, rectangle, fill=SoftBlue, minimum width=3.4cm, minimum height=0.5cm, align=center] (dA) at (3.8,1.1) {直接块（$N$ 个）$\to$ 数据块};
+\node[draw, rectangle, fill=SoftTeal, minimum width=3.4cm, minimum height=0.5cm, align=center] (sA) at (3.8,0.2) {一级间接 $\to$ 索引块 $\to$ 数据块};
+\node[draw, rectangle, fill=SoftAmber, minimum width=3.4cm, minimum height=0.5cm, align=center] (d0) at (3.8,-0.7) {二级间接 $\to$ 索引块 $\to$ 一级间接块 $\to$ 数据块};
+\node[draw, rectangle, fill=SoftAmber!45, minimum width=3.4cm, minimum height=0.5cm, align=center] (tA) at (3.8,-1.6) {三级间接 $\to$ 索引块 $\to$ 二级/一级 $\to$ 数据块};
+\draw[->] (ino.east) -- (dA.west);
+\draw[->] (ino.east) -- (sA.west);
+\draw[->] (ino.east) -- (d0.west);
+\draw[->] (ino.east) -- (tA.west);
+\node[font=\scriptsize, black!60] at (2.4,-2.4) {混合索引：小文件用直接块，大文件逐层加间接索引};
+\end{tikzpicture}
+\end{center}
+
 \begin{attention}
 \textbf{408 重点辨析：FCB（文件控制块）与 i-node。} FCB 包含文件名和索引指针等信息。UNIX 将文件名和索引指针分离：目录项只存文件名和 i-node 号，i-node 存除文件名外的所有信息。这样做的好处是支持文件硬链接（多个目录项指向同一 i-node）。
 \end{attention}
@@ -55,6 +70,23 @@
     \item \textbf{无环图目录}：允许一个文件或目录出现在多个父目录下（共享）。需引入引用计数防止删除正在使用的文件。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=1.8cm, minimum height=0.55cm] (root) at (0,0) {/};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.5cm] (prog) at (-2.4,-1.1) {Program};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.5cm] (doc) at (0.8,-1.1) {Document};
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.0cm, minimum height=0.5cm] (java) at (-3.2,-2.3) {Java-Prog};
+\node[draw, rectangle, fill=SoftAmber, minimum width=2.0cm, minimum height=0.5cm] (f1) at (-1.2,-2.3) {f1.java};
+\node[draw, rectangle, fill=SoftAmber, minimum width=2.0cm, minimum height=0.5cm] (fdoc) at (0.8,-2.3) {报告.pdf};
+\draw[->] (root) -- (prog);
+\draw[->] (root) -- (doc);
+\draw[->] (prog) -- (java);
+\draw[->] (prog) -- (f1);
+\draw[->] (doc) -- (fdoc);
+\node[font=\scriptsize, black!60] at (-0.6,-3.25) {绝对路径 /Program/f1.java；相对路径（当前在 /Program）：f1.java};
+\end{tikzpicture}
+\end{center}
 
 \subsection{文件存储空间管理}
 
@@ -75,6 +107,22 @@
     \item \textbf{软链接（Symbolic Link）}：独立文件，存放目标文件路径。可跨文件系统、可链接目录。删除原文件后软链接失效（悬空链接）。
 \end{itemize}
 \end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=1.6cm, minimum height=0.7cm] (ino) at (0,0) {i-node};
+\node[draw, rectangle, fill=SoftBlue, minimum width=1.9cm, minimum height=0.5cm] (dirA) at (-2.0,1.3) {目录项A};
+\node[draw, rectangle, fill=SoftBlue, minimum width=1.9cm, minimum height=0.5cm] (dirB) at (2.0,1.3) {目录项B};
+\draw[->] (dirA) -- (ino);
+\draw[->] (dirB) -- (ino);
+\node[font=\scriptsize, black!70] at (0,2.1) {硬链接：多个目录项指向同一 i-node};
+\node[font=\scriptsize, black!60] at (0,0.78) {（引用计数；不能跨文件系统）};
+\node[draw, rectangle, fill=SoftAmber, minimum width=2.2cm, minimum height=0.5cm] (link) at (-0.6,-1.5) {软链接（独立文件）};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.5cm] (data) at (3.6,-1.5) {目标文件};
+\draw[->] (link.east) -- node[above,font=\scriptsize]{存放路径} (data.west);
+\node[font=\scriptsize, black!70] at (1.4,-2.5) {软链接：可跨文件系统，目标删除后悬空};
+\end{tikzpicture}
+\end{center}
 
 \subsection{磁盘调度算法}
 
