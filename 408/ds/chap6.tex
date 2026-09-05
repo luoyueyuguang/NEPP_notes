@@ -347,29 +347,30 @@ typedef struct AVLNode {
 \textbf{调整：} 对 A 执行\textbf{右旋}（Right Rotation）——将 A 的左孩子 B 上提为根，A 成为 B 的右孩子，B 的原右子树挂为 A 的左子树。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=1.8cm]
-\node[draw, circle] (A) at (0,0) {A};
-\node[draw, circle] (B) at (-0.8,1.2) {B};
-\node[draw, circle] (BL) at (-1.6,2.4) {BL};
-\node[draw, circle] (BR) at (0,2.4) {BR};
-\node[draw, circle] (AR) at (0.8,1.2) {AR};
-\draw[->] (A) -- (B);
-\draw[->] (A) -- (AR);
-\draw[->] (B) -- (BL);
-\draw[->] (B) -- (BR);
-\node at (0, -0.8) {插入前（A的$bf=+1$）};
-\node at (0, -1.3) {在BL中插入后A的$bf=+2$, LL型};
+\begin{tikzpicture}[>=stealth, level distance=1.4cm, level 1/.style={sibling distance=2.0cm}, level 2/.style={sibling distance=1.4cm}, font=\scriptsize]
+% 左图：旋转前（LL 型，A 为失衡根）
+\node[draw, circle] (A) at (0,3.0) {A};
+\node[draw, circle] (B) at (-1.0,2.0) {B};
+\node[draw, circle] (AR) at (1.0,2.0) {AR};
+\node[draw, circle] (BL) at (-1.7,1.0) {BL};
+\node[draw, circle] (BR) at (-0.3,1.0) {BR};
+\draw (A) -- (B);
+\draw (A) -- (AR);
+\draw (B) -- (BL);
+\draw (B) -- (BR);
+\node[align=center,font=\scriptsize] at (0,0.1){插入前（A 的 $bf=+1$）\\ 在 BL 中插入后 A 的 $bf=+2$，LL 型};
 
-\node[draw, circle] (B2) at (5,1) {B};
-\node[draw, circle] (BL2) at (4.2,2.2) {BL};
-\node[draw, circle] (A2) at (5.8,2.2) {A};
-\node[draw, circle] (BR2) at (4.2,-0.2) {BR};
-\node[draw, circle] (AR2) at (5.8,-0.2) {AR};
-\draw[->] (B2) -- (BL2);
-\draw[->] (B2) -- (A2);
-\draw[->] (A2) -- (BR2);
-\draw[->] (A2) -- (AR2);
-\node at (5, -0.8) {右旋后恢复平衡};
+% 右图：右旋后（B 上提为根）
+\node[draw, circle] (B2) at (5,3.0) {B};
+\node[draw, circle] (BL2) at (4.0,2.0) {BL};
+\node[draw, circle] (A2) at (6.0,2.0) {A};
+\node[draw, circle] (BR2) at (5.0,1.0) {BR};
+\node[draw, circle] (AR2) at (7.0,1.0) {AR};
+\draw (B2) -- (BL2);
+\draw (B2) -- (A2);
+\draw (A2) -- (BR2);
+\draw (A2) -- (AR2);
+\node[align=center,font=\scriptsize] at (5,0.1){右旋后恢复平衡\\（B 为根，A 为 B 的右孩子）};
 \end{tikzpicture}
 \end{center}
 \textbf{旋转操作：}
@@ -444,14 +445,14 @@ return RotateLeft(p);
 \end{mydef}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, level distance=1.9cm, level 1/.style={sibling distance=3.0cm}, level 2/.style={sibling distance=2.4cm}, font=\scriptsize]
-\node[circle,fill=black,text=white] (r) {10}
-  child { node[circle,fill=Burgundy,text=white] {5}
-    child { node[circle,fill=black,text=white] {3} }
-    child { node[circle,fill=black,text=white] {7} } }
-  child { node[circle,fill=Burgundy,text=white] {15}
-    child { node[circle,fill=black,text=white] {12} }
-    child { node[circle,fill=black,text=white] {18} } };
+\begin{tikzpicture}[>=stealth, level distance=1.9cm, level 1/.style={sibling distance=3.8cm}, level 2/.style={sibling distance=2.0cm}, font=\scriptsize]
+\node[circle,minimum size=0.6cm,fill=black,text=white] (r) {10}
+  child { node[circle,minimum size=0.6cm,fill=Burgundy,text=white] {5}
+    child { node[circle,minimum size=0.6cm,fill=black,text=white] {3} }
+    child { node[circle,minimum size=0.6cm,fill=black,text=white] {7} } }
+  child { node[circle,minimum size=0.6cm,fill=Burgundy,text=white] {15}
+    child { node[circle,minimum size=0.6cm,fill=black,text=white] {12} }
+    child { node[circle,minimum size=0.6cm,fill=black,text=white] {18} } };
 \node[align=center,font=\scriptsize,black!70] at (6.7,0){\textbf{红黑树实例}\\（$\bullet$黑 \quad $\bullet$红）};
 \end{tikzpicture}
 \end{center}
