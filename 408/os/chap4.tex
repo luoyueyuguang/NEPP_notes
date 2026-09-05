@@ -61,15 +61,15 @@
 \draw[->] (l2) -- (l3);
 \node[anchor=west, align=left] at (8.6,1.0) {\scriptsize 每块含指向下一\\[1pt]块的指针（隐式）};
 % ===== 索引分配 =====
-\node[anchor=west, text=Burgundy] at (0,-1.4) {\textbf{索引分配}};
-\node[draw, rectangle, minimum width=1.4cm, minimum height=0.65cm, fill=SoftAmber] (idx) at (2.6,-1.4) {索引块};
-\foreach \i/\x in {0/4.5,1/5.6,2/6.7} {
-  \node[draw, rectangle, minimum width=0.95cm, minimum height=0.55cm, fill=SoftAmber!55] (d\i) at (\x,-1.4) {块\i};
-}
-\draw[->] (idx) -- (d0);
-\draw[->] (idx) -- (d1);
-\draw[->] (idx) -- (d2);
-\node[anchor=west, align=left] at (8.0,-1.4) {\scriptsize 索引块集中存数据\\[1pt]块号，支持直接访问};
+\node[anchor=west, text=Burgundy] at (0,-1.2) {\textbf{索引分配}};
+\node[draw, rectangle, minimum width=1.4cm, minimum height=0.65cm, fill=SoftAmber] (idx) at (2.6,-1.2) {索引块};
+\node[draw, rectangle, minimum width=0.95cm, minimum height=0.55cm, fill=SoftAmber!55] (d0) at (4.6,-0.45) {块0};
+\node[draw, rectangle, minimum width=0.95cm, minimum height=0.55cm, fill=SoftAmber!55] (d1) at (4.6,-1.2) {块1};
+\node[draw, rectangle, minimum width=0.95cm, minimum height=0.55cm, fill=SoftAmber!55] (d2) at (4.6,-1.95) {块2};
+\draw[->] (idx.east) -- (d0.west);
+\draw[->] (idx.east) -- (d1.west);
+\draw[->] (idx.east) -- (d2.west);
+\node[anchor=west, align=left] at (6.4,-1.2) {\scriptsize 索引块集中存数据\\[1pt]块号，支持直接访问};
 \end{tikzpicture}
 \end{center}
 

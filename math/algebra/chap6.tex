@@ -100,6 +100,7 @@ f(\lambda) = |\lambda I - A| = \lambda^n - (\operatorname{tr} A)\lambda^{n-1} + 
 \end{enumerate}
 \end{formula}
 
+\noindent\textbf{拓展（数值特征值）:} 对高阶矩阵，展开行列式求特征多项式再解 \(n\) 次方程，计算量过大且数值不稳，实际改用\textbf{幂法}求模最大的特征值、用\textbf{QR 迭代}逐步求得主要特征值。特征值更刻画了迭代的稳定性：迭代法（如 Jacobi、Gauss--Seidel 解线性方程组，或求 Markov 链的平稳分布）收敛的常用判据是迭代矩阵的谱半径 \(\rho(A) = \max_i |\lambda_i| < 1\)，\(\rho(A)\) 越小收敛越快。\\
 \subsection{相似矩阵}
 
 \begin{mydef}{相似矩阵}{similar-matrices}
@@ -257,6 +258,21 @@ Q^{\mathrm{T}}AQ = Q^{-1}AQ = \Lambda = \operatorname{diag}(\lambda_1, \lambda_2
 \end{enumerate}
 \end{formula}
 
+\noindent\textbf{拓展（SVD 与谱方法）:} 实对称矩阵的谱分解 \(A = Q\Lambda Q^{\mathrm{T}}\)（\(\Lambda = \operatorname{diag}(\lambda_1, \ldots, \lambda_n)\)，取 \(\lambda_1 \ge \cdots \ge \lambda_n\)，\(Q\) 的列是正交单位特征向量 \(\mathbf{q}_1, \ldots, \mathbf{q}_n\)）正是\textbf{主成分分析（PCA）}的基础：对协方差矩阵，特征值 \(\lambda_i\) 等于数据沿主轴 \(\mathbf{q}_i\) 的方差，而 \(\lambda_i/\sum_j \lambda_j\) 即该主成分的「方差占比」，\(\mathbf{q}_i\) 即主轴方向；奇异值分解（SVD）\(A = U\Sigma V^{\mathrm{T}}\) 把谱分解推广到任意矩阵（不必对称），成为降维、推荐系统与数据压缩的通用工具。\\
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.62\linewidth, height=5cm, axis equal image,
+  xmin=-3.5, xmax=3.5, ymin=-3, ymax=3,
+  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
+]
+\addplot[black!55,samples=120,domain=0:360] ({2.5*cos(x)*cos(30)-0.9*sin(x)*sin(30)},{2.5*cos(x)*sin(30)+0.9*sin(x)*cos(30)});
+\draw[->,blue,thick] (axis cs:0,0) -- (axis cs:2.165,1.25) node[above,font=\scriptsize]{$\mathbf{q}_1$};
+\draw[->,red,thick] (axis cs:0,0) -- (axis cs:-0.45,0.78) node[left,font=\scriptsize]{$\mathbf{q}_2$};
+\node[font=\scriptsize,black] at (axis cs:0,-2.4){$\lambda_1 \ge \lambda_2$：主轴方向数据方差大};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 \subsection{Cayley-Hamilton 定理}
 
 \noindent\textbf{考研定位：}本节及后续的 Jordan 标准形、Gershgorin 圆盘定理和不变子空间均属拓展阅读，不作为现行考研数学一主线要求。备考时应优先掌握特征值与特征向量、相似对角化以及实对称矩阵的正交对角化。

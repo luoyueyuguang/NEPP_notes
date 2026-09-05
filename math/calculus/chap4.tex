@@ -454,6 +454,7 @@
     \end{enumerate}
     这五个公式是极限计算、无穷小分析和高阶导数求解的基础，必须熟记。
 \end{formula}
+\noindent\textbf{拓展（数值近似）:}泰勒展开是数值分析与机器学习逼近一切光滑函数的起点：把 $f$ 在 $x_0$ 附近改写成多项式 $P_n(x)$ 加余项 $R_n(x)$。计算机正是通过麦克劳林多项式（截取有限项）来求 \texttt{exp}、\texttt{sin}、\texttt{cos}、\texttt{log} 等函数值，只要把 $|R_n(x)|$ 压到机器精度以下即可（浮点数即“只保留有限位”）。一阶情形 $f(x)\approx f(x_0)+f'(x_0)(x-x_0)$ 就是“线性化”，它是梯度下降、牛顿法乃至一切最优化理论的几何基础。
 \subsection{泰勒公式求法}
 \begin{conclusion}{泰勒公式的唯一性}{uniqueness of taylor formula}
     若\(f(x)\)在\(x_0\)处具有\(n\)阶导数，且存在一个\(n\)次多项式\(P_n(x)\)使得

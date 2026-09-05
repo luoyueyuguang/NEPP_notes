@@ -469,6 +469,7 @@ Q^{\mathrm{T}}Q = QQ^{\mathrm{T}} = I,
 \end{tikzpicture}
 \end{center}
 
+\noindent\textbf{拓展（稳定与正交性）:} 正交矩阵保长保内积（\(\|Q\mathbf{x}\| = \|\mathbf{x}\|\)），其条件数 \(\kappa(Q) = 1\)，是数值上最「理想」的变换——误差不被放大，故数值线性代数偏爱正交（QR）分解。最小二乘的\textbf{正规方程} \(A^{\mathrm{T}}A\,\mathbf{x} = A^{\mathrm{T}}\mathbf{b}\) 满足 \(\kappa(A^{\mathrm{T}}A) = \kappa(A)^2\)，往往病态，因此稳定算法（QR 或奇异值分解）通常优于直接解正规方程。\\
 \subsection{矩阵方程}
 
 \begin{formula}{矩阵方程的解法}{matrix-equation-solutions}

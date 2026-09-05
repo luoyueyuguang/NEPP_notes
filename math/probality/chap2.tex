@@ -316,6 +316,8 @@ $P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
     $$
 \end{conclusion}
 
+\noindent\textbf{拓展（高斯与CLT/噪声）:} 为何正态分布无处不在？中心极限定理指出：大量相互独立、方差有限的微小随机扰动之和，经标准化后都趋于 $N(0,1)$。于是测量误差、神经网络的权重初始化（如 He/Kaiming 初始化取 $\sigma=\sqrt{2/\text{fan\_in}}$）与梯度噪声都自带高斯性——噪声是“很多小作用叠加”的统计结果，而非偶然。高维统计与机器学习的渐近理论（检验统计量、置信区间）也几乎都以高斯分布为极限。
+
 \subsection{一维随机变量函数的分布}
 \begin{mydef}{随机变量的函数}{function of random variable}
     设 $X$ 为随机变量，$Y=g(X)$ 为其可测函数。则 $Y$ 也是随机变量，且其分布函数为

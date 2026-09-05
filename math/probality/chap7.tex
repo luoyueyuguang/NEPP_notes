@@ -47,6 +47,8 @@
     \]
 \end{conclusion}
 
+\noindent\textbf{拓展（极大似然与学习）:} 最大似然估计 $\widehat{\theta}=\arg\max_{\theta}\prod_{i=1}^{n}p_\theta(x_i)$ 在统计上与“最小化负对数似然”等价；对独立同分布样本取负对数后，它正是监督学习的训练目标——分类问题对应交叉熵损失，高斯噪声回归对应均方误差。贝叶斯估计再引入先验，改为最大化后验 $\widehat{\theta}_{\mathrm{MAP}}=\arg\max_{\theta}\,p(\theta)\prod_{i}p_\theta(x_i)$；当先验取高斯、噪声亦高斯时，MAP 即退化为带 $L_2$ 正则的岭回归。
+
 \begin{conclusion}{估计量的评选标准}{estimator selection standard}
     \begin{enumerate}
         \item 无偏性，即\(E(\widehat{\theta}) = \theta\)

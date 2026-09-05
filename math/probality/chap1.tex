@@ -69,18 +69,27 @@ $ 完全相同，即它们包含的结果完全一致 \\
 \end{tablebox}
 
 \begin{center}
-\begin{tikzpicture}[scale=0.86,>=stealth]
-  \draw[thick] (-2.9,-2.0) rectangle (2.9,2.0);
-  \node[font=\scriptsize] at (0,2.12){$\Omega$};
-  \draw[thick,fill=blue!18] (-0.78,0) circle (1.42);
-  \draw[thick,fill=red!18] (0.78,0) circle (1.42);
-  \node[font=\tiny,blue!50!black] at (-1.85,0.62){$A$};
-  \node[font=\tiny,red!60!black] at (1.85,0.62){$B$};
-  \node[font=\scriptsize] at (0,0.02){$A\cap B$};
-  \node[font=\tiny,blue!50!black] at (-1.55,-0.72){$A\bar{B}$};
-  \node[font=\tiny,red!60!black] at (1.55,-0.72){$\bar{A}B$};
-  \node[font=\tiny,gray] at (2.25,-1.72){$\bar{A}\bar{B}$};
+\begin{tikzpicture}[>=stealth]
+  \draw[thick] (-3.0,-2.2) rectangle (3.0,2.2);
+  \node[font=\small] at (0,2.5){$\Omega$};
+  \draw[thick,fill=blue!20] (-1.0,0) circle (1.5);
+  \draw[thick,fill=red!20] (1.0,0) circle (1.5);
+  \begin{scope}
+    \clip (-1.0,0) circle (1.5);
+    \clip (1.0,0) circle (1.5);
+    \fill[purple!45,opacity=0.85] (-3.2,-2.4) rectangle (3.2,2.4);
+  \end{scope}
+  \draw[thick,blue!60!black] (-1.0,0) circle (1.5);
+  \draw[thick,red!60!black] (1.0,0) circle (1.5);
+  \node[font=\small,blue!50!black] at (-1.75,0.72){$A$};
+  \node[font=\small,red!60!black] at (1.75,0.72){$B$};
+  \node[font=\small,black] at (0,0.32){$A\cap B$};
+  \node[font=\small,blue!50!black] at (-1.75,-0.82){$A\bar{B}$};
+  \node[font=\small,red!60!black] at (1.75,-0.82){$\bar{A}B$};
+  \node[font=\small,gray!70!black] at (2.5,-1.95){$\bar{A}\bar{B}$};
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 以样本空间 $\Omega$ 中的两个事件 $A,B$ 为例：紫色为 $A\cap B$（同时发生），蓝色为 $A\bar{B}$（仅发生 $A$），红色为 $\bar{A}B$（仅发生 $B$），灰色为 $\bar{A}\bar{B}$（两者都不发生）。}
 \end{center}
 
 \subsection{事件的运算法则}
@@ -353,16 +362,25 @@ $ 完全相同，即它们包含的结果完全一致 \\
 \end{conclusion}
 
 \begin{center}
-\begin{tikzpicture}[scale=0.92,>=stealth]
-  \draw[thick] (-2.9,-2.15) rectangle (2.9,2.28);
-  \node[font=\scriptsize] at (0,2.46){$\Omega$};
-  \draw[thick,fill=blue!15] (0,0.72) circle (1.16);
-  \draw[thick,fill=red!15] (-0.62,-0.36) circle (1.16);
-  \draw[thick,fill=green!15] (0.62,-0.36) circle (1.16);
-  \node[font=\small,blue!55!black] at (0,1.96){$A$};
-  \node[font=\small,red!60!black] at (-2.35,-0.5){$B$};
-  \node[font=\small,green!45!black] at (2.35,-0.5){$C$};
-  \node[font=\scriptsize] at (0,0.02){$A\cap B\cap C$};
+\begin{tikzpicture}[>=stealth]
+  \draw[thick] (-3.0,-2.4) rectangle (3.0,2.4);
+  \node[font=\small] at (0,2.7){$\Omega$};
+  \draw[thick,fill=blue!16] (0,0.82) circle (1.42);
+  \draw[thick,fill=red!16] (-0.72,-0.44) circle (1.42);
+  \draw[thick,fill=green!16] (0.72,-0.44) circle (1.42);
+  \begin{scope}
+    \clip (0,0.82) circle (1.42);
+    \clip (-0.72,-0.44) circle (1.42);
+    \clip (0.72,-0.44) circle (1.42);
+    \fill[purple!55,opacity=0.9] (-3.2,-2.6) rectangle (3.2,2.6);
+  \end{scope}
+  \draw[thick,blue!55!black] (0,0.82) circle (1.42);
+  \draw[thick,red!60!black] (-0.72,-0.44) circle (1.42);
+  \draw[thick,green!50!black] (0.72,-0.44) circle (1.42);
+  \node[font=\small,blue!55!black] at (0,2.05){$A$};
+  \node[font=\small,red!60!black] at (-2.45,-0.6){$B$};
+  \node[font=\small,green!50!black] at (2.45,-0.6){$C$};
+  \node[font=\footnotesize,black] at (0,-0.05){$A\cap B\cap C$};
 \end{tikzpicture}
 \par\vspace{3pt}
 {\footnotesize\itshape $A,B,C$ 相互独立：$P(AB){=}P(A)P(B)$、$P(AC){=}P(A)P(C)$、$P(BC){=}P(B)P(C)$、$P(ABC){=}P(A)P(B)P(C)$ 四式同时成立；仅“两两独立”推不出相互独立。}
@@ -390,6 +408,9 @@ $ 完全相同，即它们包含的结果完全一致 \\
    \\
    即原本独立的事件，各自经过运算后所得事件也独立
 \end{conclusion}
+
+\noindent\textbf{拓展（贝叶斯与推断）:} 贝叶斯定理的本质是“证据更新”：
+$\text{后验}=\dfrac{\text{先验}\times\text{似然}}{\text{归一化因子}}$，即后验 $\propto$ 先验 $\times$ 似然。它是统计推断与机器学习的共同语言——贝叶斯推断把参数看作随机变量，由样本把先验信念更新为后验分布；朴素贝叶斯分类器在特征条件独立假设下，以 $\prod_i P(x_i\mid y)$ 为似然做分类；后验难以解析时，用 MCMC 等采样算法近似。
 
 \newpage
 \section{习题}

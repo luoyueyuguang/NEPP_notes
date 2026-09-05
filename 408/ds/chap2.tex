@@ -253,20 +253,20 @@ bool Pop(LinkStack *S, ElemType *e) {
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, scale=1.0]
-% 画一个环形示意
-\draw[thick] (0,0) circle (1.8);
-\node at (0,2.1) {Q[0]};
-\node at (1.5,1.5) {Q[1]};
-\node at (2.1,0) {Q[2]};
-\node at (1.5,-1.5) {Q[3]};
-\node at (0,-2.1) {Q[4]};
-\node at (-1.5,-1.5) {Q[5]};
-\node at (-2.1,0) {Q[6]};
-\node at (-1.5,1.5) {Q[7]};
-\draw[->,red,thick] (2.35,0) arc (0:45:2.35);
-\node[red,font=\scriptsize] at (2.6,2.1) {front};
-\draw[->,blue,thick] (-2.35,0) arc (180:225:2.35);
-\node[blue,font=\scriptsize] at (-2.6,-2.1) {rear};
+  % 环底
+  \draw[RuleGray, thick] (0,0) circle (2.05);
+  % 环形单元：Q[0]..Q[7]
+  \foreach \i/\x/\y in {0/0/2.05, 1/1.45/1.45, 2/2.05/0, 3/1.45/-1.45, 4/0/-2.05, 5/-1.45/-1.45, 6/-2.05/0, 7/-1.45/1.45}
+    \node[draw, rounded corners=1.5pt, fill=SoftBlue!22, minimum width=0.74cm, minimum height=0.52cm,
+          font=\scriptsize, inner sep=1.5pt] (q\i) at (\x,\y) {Q[\i]};
+  % 队头 front：红色，指向 Q[1]
+  \node[red, font=\scriptsize] (f) at (2.75,2.4) {front（队头）};
+  \draw[->, red, very thick] (f.south) to[bend right=28] (q1.north east);
+  % 队尾 rear：蓝色，指向 Q[5]
+  \node[blue, font=\scriptsize] (r) at (-2.75,-2.4) {rear（队尾）};
+  \draw[->, blue, very thick] (r.north) to[bend right=28] (q5.south west);
+  % 空队/队满说明
+  \node[font=\scriptsize, black!70, align=center] at (0,-3.35) {front 指向队头元素；rear 指向队尾的下一个空位\\ 队空：front $=$ rear；队满：front $=$ (rear$+1$) mod MaxSize};
 \end{tikzpicture}
 \end{center}
 \end{mydef}

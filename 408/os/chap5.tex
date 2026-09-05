@@ -185,12 +185,22 @@ DMA 对 CPU 的影响取决于 DMA 请求频率、每次传送占用的总线周
 I/O 软件采用分层设计，每层对上层屏蔽下层细节，是 OS 分层的典范。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=1.2cm]
-\node[draw, fill=blue!10, minimum width=8cm, minimum height=1cm] (U) {\textbf{用户层 I/O 软件}（\texttt{printf, scanf}等库函数 + SPOOLing 系统）};
-\node[draw, fill=green!10, minimum width=8cm, minimum height=1cm, below of=U] (I) {\textbf{设备独立性软件}（命名、保护、阻塞、缓冲、分配）};
-\node[draw, fill=yellow!10, minimum width=8cm, minimum height=1cm, below of=I] (D) {\textbf{设备驱动程序}（设备寄存器操作，与硬件直接通信）};
-\node[draw, fill=red!10, minimum width=8cm, minimum height=1cm, below of=D] (H) {\textbf{中断处理程序}（保存现场、处理中断、恢复现场）};
-\node[draw, fill=gray!10, minimum width=8cm, minimum height=0.8cm, below of=H] (HW) {硬件（设备控制器 + 设备本身）};
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=9.5cm, minimum height=0.95cm, rounded corners=2pt] (U) at (0,4.5) {\textbf{用户层 I/O 软件}（\texttt{printf, scanf} 等库函数 + SPOOLing 系统）};
+\node[draw, rectangle, fill=SoftBlue, minimum width=9.5cm, minimum height=0.95cm, rounded corners=2pt] (I) at (0,3.1) {\textbf{设备独立性软件}（命名、保护、阻塞、缓冲、分配）};
+\node[draw, rectangle, fill=SoftTeal, minimum width=9.5cm, minimum height=0.95cm, rounded corners=2pt] (D) at (0,1.7) {\textbf{设备驱动程序}（设备寄存器操作，与硬件直接通信）};
+\node[draw, rectangle, fill=SoftAmber, minimum width=9.5cm, minimum height=0.95cm, rounded corners=2pt] (H) at (0,0.3) {\textbf{中断处理程序}（保存现场、处理中断、恢复现场）};
+\node[draw, rectangle, fill=SoftGray, minimum width=9.5cm, minimum height=0.8cm, rounded corners=2pt, very thick] (HW) at (0,-1.2) {硬件（设备控制器 + 设备本身）};
+% 用户态/内核态分界
+\draw[dashed, RuleGray] (-4.75,3.8) -- (4.75,3.8);
+\node[fill=white, font=\scriptsize, text=MutedText, inner sep=1pt, rounded corners=1pt] at (-3.7,3.8) {用户态 $\to$ 内核态};
+\node[font=\scriptsize, text=MutedText] at (-5.4,4.5) {用户态};
+\node[font=\scriptsize, text=MutedText] at (-5.4,1.7) {内核态};
+% 自顶向下的调用/请求流向
+\draw[->] (U.south) -- (I.north);
+\draw[->] (I.south) -- (D.north);
+\draw[->] (D.south) -- (H.north);
+\draw[->] (H.south) -- (HW.north);
 \end{tikzpicture}
 \end{center}
 
@@ -398,20 +408,25 @@ T_{\text{single}} = T + M + C +(N-1)[\max(C,T)+M]
 \textbf{双缓冲下的数据处理时序：}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1.0cm]
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+% 时间轴
 \draw[->] (0,0) -- (10.5,0) node[right] {$t$};
 \foreach \x in {0,2.5,5.0,7.5} \draw ({\x},-0.12) -- ({\x},0.12) node[below=3pt]{\scriptsize \x};
-\node[text=TealDark, align=left] at (-1.6,1.2) {Buffer1};
-\draw[fill=SoftBlue, draw=Navy] (2.5,0.8) rectangle (5.0,1.6) node[midway]{$T$};
-\draw[fill=SoftGray, draw=RuleGray] (5.0,0.8) rectangle (6.0,1.6) node[midway]{$M$};
-\draw[fill=SoftAmber, draw=Amber] (6.0,0.8) rectangle (8.5,1.6) node[midway]{$C$};
-\node[text=TealDark, align=left] at (-1.6,2.6) {Buffer0};
-\draw[fill=SoftBlue, draw=Navy] (0,2.2) rectangle (2.5,3.0) node[midway]{$T$};
-\draw[fill=SoftGray, draw=RuleGray] (2.5,2.2) rectangle (3.5,3.0) node[midway]{$M$};
-\draw[fill=SoftAmber, draw=Amber] (3.5,2.2) rectangle (6.0,3.0) node[midway]{$C$};
-\draw[<->, MutedText, thick] (3.5,3.25) -- (5.0,3.25);
-\node[text=MutedText] at (4.25,3.6) {B0 的 $C$ 与 B1 的 $T$ 并行};
-\node[text=Amber, font=\scriptsize] at (4.75,-1.1) {$T$：设备填入；$M$：搬移；$C$：CPU 处理};
+% Buffer0（上带）
+\node[text=TealDark, anchor=east] at (-0.15,3.6) {Buffer0};
+\draw[fill=SoftBlue, draw=Navy] (0,3.15) rectangle (2.5,4.05) node[midway]{$T$};
+\draw[fill=SoftGray, draw=RuleGray] (2.5,3.15) rectangle (3.5,4.05) node[midway]{$M$};
+\draw[fill=SoftAmber, draw=Amber] (3.5,3.15) rectangle (6.0,4.05) node[midway]{$C$};
+% Buffer1（下带）
+\node[text=TealDark, anchor=east] at (-0.15,1.0) {Buffer1};
+\draw[fill=SoftBlue, draw=Navy] (2.5,0.55) rectangle (5.0,1.45) node[midway]{$T$};
+\draw[fill=SoftGray, draw=RuleGray] (5.0,0.55) rectangle (6.0,1.45) node[midway]{$M$};
+\draw[fill=SoftAmber, draw=Amber] (6.0,0.55) rectangle (8.5,1.45) node[midway]{$C$};
+% 并行标注
+\draw[<->, MutedText, thick] (3.5,2.4) -- (5.0,2.4);
+\node[fill=white, font=\scriptsize, text=MutedText, inner sep=1pt, rounded corners=1pt] at (4.25,2.4) {B0 的 $C$ 与 B1 的 $T$ 并行};
+% 图例
+\node[text=Amber, font=\scriptsize] at (4.25,-1.0) {$T$：设备填入；$M$：搬移；$C$：CPU 处理};
 \end{tikzpicture}
 \end{center}
 
@@ -519,20 +534,24 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.9cm, align=center] (min) at (-6.0,2.6) {设备\\（输入）};
-\node[draw, rectangle, fill=SoftAmber, minimum width=3.2cm, minimum height=0.9cm, align=center] (inq) at (0.0,2.6) {输入队列\\ inq};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.9cm, align=center] (prd) at (6.0,2.6) {进程\\（读取）};
-\node[draw, rectangle, fill=SoftTeal, minimum width=3.2cm, minimum height=0.9cm, align=center] (emq) at (0.0,0.0) {空缓冲队列\\ emq};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.9cm, align=center] (pwr) at (-6.0,-2.6) {进程\\（写入）};
-\node[draw, rectangle, fill=SoftBlue, minimum width=3.2cm, minimum height=0.9cm, align=center] (outq) at (0.0,-2.6) {输出队列\\ outq};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.9cm, align=center] (mout) at (6.0,-2.6) {设备\\（输出）};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.9cm, align=center] (min) at (-6.8,3.0) {设备\\（输入）};
+\node[draw, rectangle, fill=SoftAmber, minimum width=3.6cm, minimum height=1.0cm, align=center] (inq) at (0,3.0) {输入队列\\ inq};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.9cm, align=center] (prd) at (6.8,3.0) {进程\\（读取）};
+\node[draw, rectangle, fill=SoftTeal, minimum width=3.6cm, minimum height=1.0cm, align=center] (emq) at (0,0.0) {空缓冲队列\\ emq};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.9cm, align=center] (pwr) at (-6.8,-3.0) {进程\\（写入）};
+\node[draw, rectangle, fill=SoftBlue, minimum width=3.6cm, minimum height=1.0cm, align=center] (outq) at (0,-3.0) {输出队列\\ outq};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.9cm, align=center] (mout) at (6.8,-3.0) {设备\\（输出）};
+% 输入/输出主路径
 \draw[->] (min.east) -- node[above,font=\scriptsize]{填入输入} (inq.west);
 \draw[->] (inq.east) -- node[above,font=\scriptsize]{进程取用} (prd.west);
 \draw[->] (pwr.east) -- node[above,font=\scriptsize]{填入输出} (outq.west);
 \draw[->] (outq.east) -- node[above,font=\scriptsize]{设备输出} (mout.west);
-\draw[<->] (emq.north) -- node[right,font=\scriptsize]{收容/提取输入} (inq.south);
-\draw[<->] (emq.south) -- node[right,font=\scriptsize]{收容/提取输出} (outq.north);
-\node[font=\scriptsize, MutedText] at (0,-3.9) {缓冲池：全体设备共享，动态分配};
+% emq 与 inq / outq 的收容与提取
+\draw[<->] (emq.north) -- (inq.south);
+\draw[<->] (emq.south) -- (outq.north);
+\node[font=\scriptsize, text=MutedText, fill=white, inner sep=1pt, rounded corners=1pt] at (2.1,1.5) {收容/提取输入};
+\node[font=\scriptsize, text=MutedText, fill=white, inner sep=1pt, rounded corners=1pt] at (2.1,-1.5) {收容/提取输出};
+\node[font=\scriptsize, text=MutedText] at (0,-4.1) {缓冲池：全体设备共享，动态分配};
 \end{tikzpicture}
 \end{center}
 
@@ -567,6 +586,16 @@ T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
 
     \item \textbf{DMA 周期窃取}：DMA 传送期间需占用总线，与 CPU 争用内存周期，但每块只窃取少量周期，总体影响不大。
 \end{enumerate}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[font=\scriptsize, text=Navy, font=\bfseries] at (0,3.5) {I/O 管理常考点速查};
+\node[draw, rectangle, fill=SoftBlue, minimum width=7.2cm, minimum height=2.0cm, align=center, rounded corners=2pt] (A) at (-4.1,1.4) {\textbf{四种 I/O 控制方式}\\ 轮询 $\to$ 中断 $\to$ DMA $\to$ 通道\\ {\scriptsize CPU 参与度、中断频率递减}};
+\node[draw, rectangle, fill=SoftTeal, minimum width=7.2cm, minimum height=2.0cm, align=center, rounded corners=2pt] (B) at (4.1,1.4) {\textbf{I/O 软件四层}\\ 用户层 $\to$ 设备独立 $\to$ 驱动 $\to$ 中断\\ {\scriptsize SPOOLing 在用户层；驱动与硬件通信}};
+\node[draw, rectangle, fill=SoftAmber, minimum width=7.2cm, minimum height=2.0cm, align=center, rounded corners=2pt] (C) at (-4.1,-1.6) {\textbf{缓冲区处理时间}\\ 单缓冲 $\max(C,T)+M$；双缓冲 $\max(T,M+C)$\\ {\scriptsize 缓冲池：全体设备共享}};
+\node[draw, rectangle, fill=SoftGray, minimum width=7.2cm, minimum height=2.0cm, align=center, rounded corners=2pt] (D) at (4.1,-1.6) {\textbf{块设备 vs 字符设备}\\ 块设备可寻址（按块）；字符设备不可寻址\\ {\scriptsize 磁盘为块设备，打印机为字符设备}};
+\end{tikzpicture}
+\end{center}
 \end{conclusion}
 
 \newpage

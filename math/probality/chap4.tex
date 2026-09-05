@@ -80,6 +80,29 @@
     \end{enumerate}
 \end{mydef}
 
+\noindent\textbf{拓展（蒙特卡洛与优化）:} 由大数定律，$E[f(X)]$ 可用样本均值 $\widehat{E}_N=\dfrac{1}{N}\sum_{i=1}^{N}f(x_i)$ 近似，误差以 $s/\sqrt{N}$ 量级衰减（$s$ 为 $\sqrt{D(f(X))}$）。这是计算机处理高维积分、概率度量和期望估值的通用手段，其误差只取决于方差而不随维数增长，因而能应对“维数灾难”。同时期望天然是优化目标——统计学习中的经验风险最小化，就是把真实期望 $E[\mathrm{loss}]$ 换成训练集上的样本均值来最小化。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.2cm,
+  xlabel={样本数 $N$}, ylabel={蒙特卡洛估计},
+  xmin=0, xmax=250, ymin=0.2, ymax=0.8,
+  xtick={0,50,100,150,200,250}, ytick={0.2,0.4,0.5,0.6,0.8},
+  legend pos=north east, font=\footnotesize,
+  domain=1:250, samples=200, axis lines=left,
+]
+\addplot[red!70,thick,dashed] {0.5};
+\addlegendentry{目标 $E[f(X)]=\tfrac12$}
+\addplot[blue!70!black,thick] {0.5 + 0.2887/sqrt(x)};
+\addlegendentry{$+s/\sqrt{N}$}
+\addplot[blue!45,thick] {0.5 - 0.2887/sqrt(x)};
+\addlegendentry{$-s/\sqrt{N}$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 以 $X\sim U(0,1)$、$f(x)=x$ 为例：$\widehat{E}_N$ 随 $N$ 增大以量级 $s/\sqrt{N}$ 收敛到 $E[f(X)]=1/2$（$s=\sqrt{D(X)}\approx0.2887$），收敛率与问题维数无关。}
+
 \begin{mydef}{方差与标准差}{variance and standard deviation}
     \begin{enumerate}
         \item 方差 \\

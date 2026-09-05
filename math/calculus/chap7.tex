@@ -545,6 +545,26 @@
 \end{center}
 \centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 抛物柱面 $z=x^2$：母线 $L$（绿，平行于 $y$ 轴）沿准线 $\Gamma:z=x^2$（红）平移所扫出的曲面。柱面由“一条直线沿一条曲线平行移动”生成。}}
 
+\noindent\textbf{拓展（几何与机器学习）:}向量内积 $a\cdot b=|a||b|\cos\theta$ 就是“投影”——$a$ 在 $b$ 方向上的分量，它是相似度度量与特征分解的根基。二次曲面方程 $x^T A x=$ 常数正是优化中二次型函数的水平集：$A$ 正定时是椭球（最小值在中心，$\nabla f=0$），$A$ 不定时给出双曲抛物面（鞍点）。SVM 的最大间隔、正则化 $\|\bm w\|^2$、协方差矩阵与主成分分析（PCA/奇异值分解）都在用“曲面在当前点的形状”（Hessian 矩阵与特征值）判断极值类型与数据的散布方向。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.82\linewidth, height=5.4cm,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-2.6, xmax=2.6, ymin=-2.6, ymax=2.6,
+  xtick={-2,-1,0,1,2}, ytick={-2,-1,0,1,2},
+  axis equal image, font=\footnotesize,
+  domain=0:360, samples=160, legend pos=north east]
+\addplot[blue,thick] ({2*cos(x)},{1*sin(x)});
+\addlegendentry{水平集 $x_1^2/4+x_2^2=1$}
+\addplot[red,thick] coordinates {(-2.4,0) (2.4,0)};
+\addplot[red,thick] coordinates {(0,-1.2) (0,1.2)};
+\addlegendentry{主轴（特征向量方向）}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\footnotesize 二次型水平集是椭圆，其主轴方向由 $A$ 的特征向量给出，半轴长度由特征值决定；$A$ 特征值的符号决定它是极小、极大还是鞍点。}
+
 \begin{conclusion}{空间曲线在坐标面上的投影}{SpaceCurveProjectionOnCoordinatePlane}
     设\(\Gamma\)是一条空间曲线，\(\Pi\)是一张平面，对于\(\Gamma\)上任意一点\(P\),令\(\Gamma(P)\)
     是点\(P\)在平面\(\Pi\)上的投影点，即\(

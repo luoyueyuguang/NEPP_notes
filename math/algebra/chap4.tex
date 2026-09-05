@@ -230,55 +230,53 @@
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.30\linewidth, height=4.3cm,
-  view={115}{30},
-  xmin=-1.9, xmax=1.9, ymin=-1.9, ymax=1.9, zmin=-1.9, zmax=1.9,
+  width=0.30\linewidth, height=4.5cm,
+  view={70}{28},
+  xmin=-1.5, xmax=1.5, ymin=-1.5, ymax=1.5, zmin=-1.5, zmax=1.5,
   xlabel={$x$}, ylabel={$y$}, zlabel={$z$}, font=\footnotesize,
-  axis lines=center, tick style={draw=none}, z buffer=sort,
-  title={\textcolor{blue}{唯一解（三平面交于一点）}},
-]
-\addplot3[fill=blue!18,fill opacity=0.6,draw=blue!70,thick] coordinates {(0.4,-1.9,-1.9) (0.4,1.9,-1.9) (0.4,1.9,1.9) (0.4,-1.9,1.9)};
-\addplot3[fill=green!25,fill opacity=0.6,draw=green!40!black,thick] coordinates {(-1.9,0.3,-1.9) (1.9,0.3,-1.9) (1.9,0.3,1.9) (-1.9,0.3,1.9)};
-\addplot3[fill=orange!25,fill opacity=0.6,draw=orange,thick] coordinates {(-1.9,-1.9,0.6) (1.9,-1.9,0.6) (1.9,1.9,0.6) (-1.9,1.9,0.6)};
-\fill[red] (axis cs:0.4,0.3,0.6) circle (2.6pt);
+  axis lines=box, xtick=\empty, ytick=\empty, ztick=\empty, z buffer=sort,
+  title={\textcolor{blue}{唯一解（三平面交于一点）}}]
+\addplot3[fill=blue!18,fill opacity=0.5,draw=blue!70,thick] coordinates {(0.4,-1.5,-1.5) (0.4,1.5,-1.5) (0.4,1.5,1.5) (0.4,-1.5,1.5)};
+\addplot3[fill=green!22,fill opacity=0.5,draw=green!40!black,thick] coordinates {(-1.5,0.3,-1.5) (1.5,0.3,-1.5) (1.5,0.3,1.5) (-1.5,0.3,1.5)};
+\addplot3[fill=orange!22,fill opacity=0.5,draw=orange,thick] coordinates {(-1.5,-1.5,0.6) (1.5,-1.5,0.6) (1.5,1.5,0.6) (-1.5,1.5,0.6)};
+\node[circle,fill=red,inner sep=3.4pt,label={[font=\footnotesize,anchor=south east]left:$P$}] at (axis cs:0.4,0.3,0.6) {};
 \end{axis}
 \end{tikzpicture}
-\hspace{0.08cm}
+\hspace{0.10cm}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.30\linewidth, height=4.3cm,
-  view={115}{30},
-  xmin=-1.9, xmax=1.9, ymin=-1.9, ymax=1.9, zmin=-1.9, zmax=1.9,
+  width=0.30\linewidth, height=4.5cm,
+  view={70}{28},
+  xmin=-1.5, xmax=1.5, ymin=-1.5, ymax=1.5, zmin=-1.5, zmax=1.5,
   xlabel={$x$}, ylabel={$y$}, zlabel={$z$}, font=\footnotesize,
-  axis lines=center, tick style={draw=none}, z buffer=sort,
-  title={\textcolor{blue}{无穷多解（三平面交于一线）}},
-]
-\addplot3[fill=blue!18,fill opacity=0.6,draw=blue!70,thick] coordinates {(0.4,-1.9,-1.9) (0.4,1.9,-1.9) (0.4,1.9,1.9) (0.4,-1.9,1.9)};
-\addplot3[fill=green!25,fill opacity=0.6,draw=green!40!black,thick] coordinates {(-1.9,0.3,-1.9) (1.9,0.3,-1.9) (1.9,0.3,1.9) (-1.9,0.3,1.9)};
-\addplot3[fill=orange!25,fill opacity=0.6,draw=orange,thick] coordinates {(1.9,-1.2,-1.9) (1.9,-1.2,1.9) (-1.2,1.9,1.9) (-1.2,1.9,-1.9)};
-\draw[very thick,red] (axis cs:0.4,0.3,-1.9) -- (axis cs:0.4,0.3,1.9);
+  axis lines=box, xtick=\empty, ytick=\empty, ztick=\empty, z buffer=sort,
+  title={\textcolor{blue}{无穷多解（三平面交于一线）}}]
+\addplot3[fill=blue!18,fill opacity=0.5,draw=blue!70,thick] coordinates {(0.4,-1.5,-1.5) (0.4,1.5,-1.5) (0.4,1.5,1.5) (0.4,-1.5,1.5)};
+\addplot3[fill=green!22,fill opacity=0.5,draw=green!40!black,thick] coordinates {(-1.5,0.3,-1.5) (1.5,0.3,-1.5) (1.5,0.3,1.5) (-1.5,0.3,1.5)};
+\addplot3[fill=orange!22,fill opacity=0.5,draw=orange,thick] coordinates {(1.5,-0.8,-1.5) (1.5,-0.8,1.5) (-0.8,1.5,1.5) (-0.8,1.5,-1.5)};
+\draw[red,very thick] (axis cs:0.4,0.3,-1.5) -- (axis cs:0.4,0.3,1.5);
 \end{axis}
 \end{tikzpicture}
-\hspace{0.08cm}
+\hspace{0.10cm}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.30\linewidth, height=4.3cm,
-  view={115}{30},
-  xmin=-1.9, xmax=1.9, ymin=-1.9, ymax=1.9, zmin=-1.9, zmax=1.9,
+  width=0.30\linewidth, height=4.5cm,
+  view={70}{28},
+  xmin=-1.5, xmax=1.5, ymin=-1.5, ymax=1.5, zmin=-1.5, zmax=1.5,
   xlabel={$x$}, ylabel={$y$}, zlabel={$z$}, font=\footnotesize,
-  axis lines=center, tick style={draw=none}, z buffer=sort,
-  title={\textcolor{blue}{无解（三平面无公共交点）}},
-]
-\addplot3[fill=blue!18,fill opacity=0.6,draw=blue!70,thick] coordinates {(0.4,-1.9,-1.9) (0.4,1.9,-1.9) (0.4,1.9,1.9) (0.4,-1.9,1.9)};
-\addplot3[fill=green!25,fill opacity=0.6,draw=green!40!black,thick] coordinates {(1.9,-0.9,-1.9) (1.9,-0.9,1.9) (-0.9,1.9,1.9) (-0.9,1.9,-1.9)};
-\addplot3[fill=orange!25,fill opacity=0.6,draw=orange,thick] coordinates {(-1.9,0.3,-1.9) (1.9,0.3,-1.9) (1.9,0.3,1.9) (-1.9,0.3,1.9)};
+  axis lines=box, xtick=\empty, ytick=\empty, ztick=\empty, z buffer=sort,
+  title={\textcolor{blue}{无解（三平面无公共交点）}}]
+\addplot3[fill=blue!18,fill opacity=0.5,draw=blue!70,thick] coordinates {(0.4,-1.5,-1.5) (0.4,1.5,-1.5) (0.4,1.5,1.5) (0.4,-1.5,1.5)};
+\addplot3[fill=green!22,fill opacity=0.5,draw=green!40!black,thick] coordinates {(-1.5,0.3,-1.5) (1.5,0.3,-1.5) (1.5,0.3,1.5) (-1.5,0.3,1.5)};
+\addplot3[fill=orange!22,fill opacity=0.5,draw=orange,thick] coordinates {(1.5,-0.5,-1.5) (1.5,-0.5,1.5) (-0.5,1.5,1.5) (-0.5,1.5,-1.5)};
+\draw[gray,dashed,thick] (axis cs:0.4,0.3,-1.5) -- (axis cs:0.4,0.3,1.5);
 \end{axis}
 \end{tikzpicture}
 \end{center}
 
 \begin{center}
 \footnotesize
-三个方程 \(Ax=b\)（\(x\in\mathbb{R}^3\)）对应三张平面。左图：三平面交于唯一一点 \((0.4,0.3,0.6)\)（红点），方程组有\textbf{唯一解}；中图：三平面同过一条竖直线，方程组有\textbf{无穷多解}；右图：平面 \(x=0.4\) 与 \(y=0.3\) 交成一条竖直线，但平面 \(x+y=1\) 与该竖直线平行（\(0.4+0.3=0.7\neq1\)），三平面\textbf{无公共交点}，方程组\textbf{无解}。
+三个方程 \(Ax=b\)（\(x\in\mathbb{R}^3\)）对应三张平面。左图：平面 \(x=0.4\)、\(y=0.3\)、\(z=0.6\) 交于唯一一点 \((0.4,0.3,0.6)\)（红点 \(\boldsymbol P\)），方程组有\textbf{唯一解}；中图：三平面同过竖直线 \(x=0.4,\,y=0.3\)（红线），方程组有\textbf{无穷多解}；右图：平面 \(x=0.4\) 与 \(y=0.3\) 交成竖直线（灰虚线），但平面 \(x+y=1\) 与该竖直线平行（\(0.4+0.3=0.7\neq1\)）而不经过它，三平面\textbf{无公共交点}，方程组\textbf{无解}。
 \end{center}
 
 \begin{conclusion}{无解的几何意义}{geometric interpretation of no solution}

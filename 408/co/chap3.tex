@@ -391,12 +391,12 @@ Cache 按\textbf{块（Block / Cache Line）}为单位与主存交换数据。�
 
 \medskip
 \begin{center}
-\begin{tikzpicture}[node distance=1.2cm, auto]
-\node[draw, rectangle, minimum width=2cm, minimum height=0.7cm] (cpu) {CPU};
-\node[draw, rectangle, minimum width=3cm, minimum height=0.7cm, right of=cpu, node distance=3.5cm] (cache) {Cache（SRAM）};
-\node[draw, rectangle, minimum width=4cm, minimum height=0.7cm, right of=cache, node distance=5cm] (mem) {主存（DRAM）};
-\draw[<->, thick] (cpu) -- node[above] {字传输} (cache);
-\draw[<->, thick] (cache) -- node[above] {块传输} (mem);
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, rounded corners=2pt, fill=SoftBlue!40, minimum width=2cm, minimum height=1.1cm] (cpu) at (0,0) {CPU};
+  \node[draw, rounded corners=2pt, fill=SoftTeal!40, minimum width=2.6cm, minimum height=1.1cm] (cache) at (4.8,0) {Cache（SRAM）};
+  \node[draw, rounded corners=2pt, fill=SoftGray!50, minimum width=3.2cm, minimum height=1.1cm] (mem) at (10.4,0) {主存（DRAM）};
+  \draw[<->, Navy, thick] (cpu) -- node[above, font=\scriptsize] {字传输（Word）} (cache);
+  \draw[<->, Burgundy, thick] (cache) -- node[above, font=\scriptsize] {块传输（Block）} (mem);
 \end{tikzpicture}
 \end{center}
 

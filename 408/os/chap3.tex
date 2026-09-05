@@ -367,18 +367,24 @@ CPU 发出逻辑地址 $A$，MMU 执行以下变换：
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=1.6cm, minimum height=0.7cm] (p1) at (-5.2,2.4) {$p_1$};
-\node[draw, rectangle, fill=SoftGray, minimum width=1.6cm, minimum height=0.7cm] (p2) at (-5.2,0.0) {$p_2$};
-\node[draw, rectangle, fill=SoftGray, minimum width=1.6cm, minimum height=0.7cm] (d) at (-5.2,-2.4) {$d$};
-\node[font=\scriptsize, text=Navy] at (-5.2,3.25) {逻辑地址};
-\node[draw, rectangle, fill=SoftBlue, minimum width=5.4cm, minimum height=1.1cm, align=center] (dir) at (1.2,2.4) {页目录（一级页表）\\ 页目录项 $\to$ 二级页表基址};
-\node[draw, rectangle, fill=SoftTeal, minimum width=5.4cm, minimum height=1.1cm, align=center] (pt) at (1.2,0.0) {二级页表\\ 页表项 $\to$ 页框号 $f$};
-\node[draw, rectangle, fill=SoftAmber, minimum width=5.4cm, minimum height=1.1cm, align=center] (pa) at (1.2,-2.4) {物理地址 $=$ 页框号 $f$ $|$ 偏移 $d$};
-\draw[->] (p1.east) -- node[above]{$p_1$ 索引} (dir.west);
-\draw[->] (p2.east) -- node[above]{$p_2$ 索引} (pt.west);
-\draw[->] (d.east) -- node[above]{偏移} (pa.west);
-\draw[->] (dir.south) -- (pt.north);
-\draw[->] (pt.south) -- (pa.north);
+  % 逻辑地址：p1 | p2 | d
+  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftBlue] (p1) at (-4.0,0) {$p_1$};
+  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftBlue] (p2) at (-0.5,0) {$p_2$};
+  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftBlue] (d) at (1.5,0) {偏移 $d$};
+  \node[font=\scriptsize, text=TealDark] at (-1.25,1.15) {逻辑地址};
+  % 页目录（一级页表） + 二级页表
+  \node[draw,rectangle,minimum width=2.5cm,minimum height=1.1cm,fill=SoftGray,align=center] (dir) at (-4.0,-2.0) {页目录（一级页表）\\ 页目录项 $\to$ 二级页表基址};
+  \node[draw,rectangle,minimum width=2.5cm,minimum height=1.1cm,fill=SoftGray,align=center] (pt) at (-0.5,-2.0) {二级页表\\ 页表项 $\to$ 页框号 $f$};
+  % 物理地址：页框号 f | 偏移 d（不变）
+  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftAmber] (f) at (-0.5,-4.0) {页框号 $f$};
+  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftAmber] (d2) at (1.5,-4.0) {偏移 $d$};
+  \node[font=\scriptsize, text=TealDark] at (0.5,-5.1) {物理地址};
+  % 箭头
+  \draw[->] (p1.south) -- node[above]{$p_1$ 索引} (dir.north);
+  \draw[->] (p2.south) -- node[above]{$p_2$ 索引} (pt.north);
+  \draw[->,dashed] (d.south) -- node[above]{偏移} (d2.north);
+  \draw[->] (dir.east) -- node[above]{基址} (pt.west);
+  \draw[->] (pt.south) -- (f.north);
 \end{tikzpicture}
 \end{center}
 

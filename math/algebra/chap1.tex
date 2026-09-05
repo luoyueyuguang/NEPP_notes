@@ -154,6 +154,7 @@
     \end{enumerate}
 \end{conclusion}
 
+\noindent\textbf{拓展（数值线性代数 / 条件数）:} 高斯消元法在计算机中即为对系数矩阵做 \textbf{LU 分解} \(A = LU\)（\(L\) 为单位下三角，\(U\) 为上三角），把解 \(A\mathbf{x} = \mathbf{b}\) 化为两次三角回代。当系数矩阵的\textbf{条件数} \(\kappa(A) = \|A\|\,\|A^{-1}\|\) 很大时，方程组是\textbf{病态}的：解虽唯一，输入 \(\mathbf{b}\) 或 \(A\) 的微小扰动却被放大成解的显著误差，相对误差满足 \(\dfrac{\|\Delta \mathbf{x}\|}{\|\mathbf{x}\|} \le \kappa(A)\,\dfrac{\|\Delta \mathbf{b}\|}{\|\mathbf{b}\|}\)；浮点运算中解的误差因此受 \(\kappa(A)\) 与机器精度 \(\varepsilon\) 之积 \(\kappa(A)\varepsilon\) 支配——这是数值线性代数的核心议题，也提醒我们：病态系统上的偏差往往源于舍入误差放大，而非计算有误。\\
 \subsection{向量及其运算}
 
 \begin{mydef}{$n$ 维向量}{n-dimensional-vector}

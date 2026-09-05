@@ -40,25 +40,25 @@
 
 \begin{center}
 \begin{tikzpicture}
-\begin{axis}[width=0.82\linewidth, height=5.6cm,
+\begin{axis}[width=0.82\linewidth, height=5.8cm,
   xlabel={$x$}, ylabel={$y$},
-  xmin=-0.5, xmax=2.5, ymin=0.55, ymax=3.3,
+  xmin=-0.62, xmax=2.62, ymin=0.5, ymax=3.4,
   xtick=\empty, ytick=\empty,
-  domain=-0.5:2.5, samples=160, font=\footnotesize,
-  legend pos=north east]
+  domain=-0.24:2.24, samples=200, font=\footnotesize,
+  legend pos=north east, clip=false]
 \addplot[blue,thick] {1.9-0.9*(x-1)^2};
 \addlegendentry{$y=f(x)$}
-\draw[dashed,gray!60] (0,0.55) -- (0,3.3);
-\draw[dashed,gray!60] (2,0.55) -- (2,3.3);
-\draw[dashed,gray!60] (-0.5,1.0) -- (2.5,1.0);
-\draw[dashed,gray!60] (-0.5,1.9) -- (2.5,1.9);
-\draw[dashed,gray!60] (-0.5,2.8) -- (2.5,2.8);
-\node[font=\scriptsize,blue!60!black,anchor=north] at (axis cs:0,0.55){$x_0-\delta$};
-\node[font=\scriptsize,blue!60!black,anchor=north] at (axis cs:1,0.55){$x_0$};
-\node[font=\scriptsize,blue!60!black,anchor=north] at (axis cs:2,0.55){$x_0+\delta$};
-\node[font=\scriptsize,gray!70,anchor=east,inner sep=2pt] at (axis cs:-0.5,1.0){$A-\varepsilon$};
-\node[font=\scriptsize,gray!70,anchor=east,inner sep=2pt] at (axis cs:-0.5,1.9){$A$};
-\node[font=\scriptsize,gray!70,anchor=east,inner sep=2pt] at (axis cs:-0.5,2.8){$A+\varepsilon$};
+\draw[dashed,gray!60] (0,0.5) -- (0,3.4);
+\draw[dashed,gray!60] (2,0.5) -- (2,3.4);
+\draw[dashed,gray!60] (-0.62,1.0) -- (2.62,1.0);
+\draw[dashed,gray!60] (-0.62,1.9) -- (2.62,1.9);
+\draw[dashed,gray!60] (-0.62,2.8) -- (2.62,2.8);
+\node[font=\scriptsize,blue!60!black,anchor=north] at (axis cs:0,0.5){$x_0-\delta$};
+\node[font=\scriptsize,blue!60!black,anchor=north] at (axis cs:1,0.5){$x_0$};
+\node[font=\scriptsize,blue!60!black,anchor=north] at (axis cs:2,0.5){$x_0+\delta$};
+\node[font=\scriptsize,gray!70,anchor=east,inner sep=2pt] at (axis cs:-0.50,1.0){$A-\varepsilon$};
+\node[font=\scriptsize,gray!70,anchor=east,inner sep=2pt] at (axis cs:-0.50,1.9){$A$};
+\node[font=\scriptsize,gray!70,anchor=east,inner sep=2pt] at (axis cs:-0.50,2.8){$A+\varepsilon$};
 \draw[fill=red] (axis cs:1,1.9) circle (2pt);
 \end{axis}
 \end{tikzpicture}
@@ -120,6 +120,7 @@
         \end{aligned}
     \]
 \end{formula}
+\noindent\textbf{拓展（$e$ 与增长）:}$\lim_{n\to\infty}\bigl(1+\frac{1}{n}\bigr)^n=e$ 对应连续复利：本金 $1$ 按年利率 $100\%$ 复利 $n$ 次，当 $n\to\infty$ 时终值趋于 $e$，它刻画了“连续、自相似的增长”，与 $e^x$ 一起出现在算法复杂度（$2^n$、$n\log n$ 的对比）与人口/放射性衰减模型中；而 $e^x$ 的麦克劳林级数 $e^x=\sum_{n\ge0}\frac{x^n}{n!}$ 又把微积分与数值计算连在一起——计算机正是用它来求 $e^x$。
 
 \begin{center}
 \begin{tikzpicture}
