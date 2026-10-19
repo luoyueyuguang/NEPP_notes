@@ -1,1220 +1,621 @@
 \section{行列式}
 
-\subsection{排列与逆序数}
+用消元法解二元一次方程组，最后会剩下一个只由系数决定的数：$a_{11}a_{22}-a_{12}a_{21}$。它不为零，方程组才有唯一解；它为零，两个方程要么矛盾，要么本质上只有一个。把这个数推广到 $n$ 阶，就是行列式。
 
-\begin{mydef}{排列与逆序}{permutation and inversion}
-    由 $1,2,\ldots,n$ 组成的一个有序数组称为一个 $n$ 级排列，记作 $p_1p_2\ldots p_n$。\\
-    在一个排列中，如果一对数的前后位置与大小顺序相反，即前面的数大于后面的数，
-    则称它们构成一个\textbf{逆序}（inversion）。\\
-    一个排列中逆序的总数称为该排列的\textbf{逆序数}，记作 $\tau(p_1p_2\ldots p_n)$。
+行列式同时有三种身份：判断方程组解是否唯一、衡量线性变换把体积放大了多少、检测一组向量是否线性相关。这三种说法其实是一件事。下面从能画出来的那一面讲起。
+
+\subsection{先看面积和体积}
+
+设 $\boldsymbol{u}=(2,1)$，$\boldsymbol{v}=(1,3)$，以它们为邻边的平行四边形面积是 $5$。硬算也可以：以 $\boldsymbol{u}$ 为底，底边长 $\sqrt5$，高是 $\boldsymbol{v}$ 在 $\boldsymbol{u}$ 法向上的投影，长 $\sqrt5$，相乘得 $5$。换一条路，把这两个向量按列排成矩阵
+\[
+A=\begin{pmatrix}2&1\\1&3\end{pmatrix},
+\]
+直接算 $\det A=2\cdot3-1\cdot1=5$。两条路得到同一个数，不是巧合。
+
+对一般的 $\boldsymbol{u}=(a,c)$、$\boldsymbol{v}=(b,d)$，面积是 $|\boldsymbol{u}||\boldsymbol{v}|\sin\theta$，其中 $\theta$ 是两向量夹角。把坐标代进去化简，恰好得到 $|ad-bc|$。也就是说，二阶行列式的绝对值就是面积；去掉绝对值后多出来的正负号，记录的是绕行方向：从 $\boldsymbol{u}$ 逆时针转到 $\boldsymbol{v}$ 的角度小于 $\pi$ 时为正，否则为负。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  at={(0,0)}, width=5.8cm, height=5.2cm, axis lines=center,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-0.5, xmax=4.2, ymin=-0.5, ymax=4.4,
+  xtick={1,2,3}, ytick={1,2,3}, font=\scriptsize,
+  unit vector ratio=1 1 1,
+  title={$\det(\boldsymbol{u},\boldsymbol{v})=5>0$},
+  title style={font=\scriptsize},
+]
+\draw[blue,thick,fill=blue!10] (axis cs:0,0) -- (axis cs:2,1) -- (axis cs:3,4) -- (axis cs:1,3) -- cycle;
+\draw[->,thick,red] (axis cs:0,0) -- (axis cs:2,1) node[below right,font=\scriptsize] {$\boldsymbol{u}$};
+\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,3) node[left,font=\scriptsize] {$\boldsymbol{v}$};
+\end{axis}
+\begin{axis}[
+  at={(6.4cm,0)}, width=5.8cm, height=5.2cm, axis lines=center,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-0.5, xmax=4.2, ymin=-0.5, ymax=4.4,
+  xtick={1,2,3}, ytick={1,2,3}, font=\scriptsize,
+  unit vector ratio=1 1 1,
+  title={$\det(\boldsymbol{v},\boldsymbol{u})=-5<0$},
+  title style={font=\scriptsize},
+]
+\draw[blue,thick,fill=blue!10] (axis cs:0,0) -- (axis cs:2,1) -- (axis cs:3,4) -- (axis cs:1,3) -- cycle;
+\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,3) node[left,font=\scriptsize] {$\boldsymbol{v}$};
+\draw[->,thick,red] (axis cs:0,0) -- (axis cs:2,1) node[below right,font=\scriptsize] {$\boldsymbol{u}$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+两块阴影是同一个平行四边形，只是绕行顺序相反：左图先沿 $\boldsymbol{u}$ 再到 $\boldsymbol{v}$，右图先沿 $\boldsymbol{v}$ 再到 $\boldsymbol{u}$。图形没变，方向反了，所以行列式差一个负号。这就是“交换两列变号”的几何来源。
+
+三维情形一样。以三个向量为棱作平行六面体，有向体积等于以它们为列的行列式，因为
+\[
+\det(\boldsymbol{u},\boldsymbol{v},\boldsymbol{w})=\boldsymbol{u}\cdot(\boldsymbol{v}\times\boldsymbol{w}),
+\]
+右边是混合积，其绝对值正是“底面积乘高”。
+
+\begin{center}
+\begin{tikzpicture}[x={(0.95cm,-0.33cm)}, y={(0.62cm,0.30cm)}, z={(0cm,0.95cm)}, font=\footnotesize]
+  \coordinate (O) at (0,0,0);
+  \coordinate (U) at (2,0,0);
+  \coordinate (V) at (0,2,0);
+  \coordinate (UV) at (2,2,0);
+  \coordinate (W) at (0.6,0.6,1.8);
+  \coordinate (UW) at (2.6,0.6,1.8);
+  \coordinate (VW) at (0.6,2.6,1.8);
+  \coordinate (UVW) at (2.6,2.6,1.8);
+  \fill[blue!10] (O) -- (U) -- (UV) -- (V) -- cycle;
+  \fill[blue!7] (U) -- (UV) -- (UVW) -- (UW) -- cycle;
+  \fill[blue!7] (V) -- (UV) -- (UVW) -- (VW) -- cycle;
+  \fill[blue!16] (W) -- (UW) -- (UVW) -- (VW) -- cycle;
+  \draw[blue!60!black] (O) -- (U) -- (UV) -- (V) -- cycle;
+  \draw[blue!60!black] (W) -- (UW) -- (UVW) -- (VW) -- cycle;
+  \draw[blue!60!black] (U) -- (UW);
+  \draw[blue!60!black] (V) -- (VW);
+  \draw[blue!60!black] (UV) -- (UVW);
+  \draw[blue!60!black] (O) -- (W);
+  \draw[->,thick,red] (O) -- (U) node[anchor=north east] {$\boldsymbol{u}$};
+  \draw[->,thick,green!55!black] (O) -- (V) node[anchor=north west] {$\boldsymbol{v}$};
+  \draw[->,thick,orange!85!black] (O) -- (W) node[anchor=south east] {$\boldsymbol{w}$};
+  \begin{scope}[x={(1cm,0cm)}, y={(0cm,1cm)}]
+    \node[anchor=west] at (4.2,0.6) {体积 $=|\det A|=7.2$};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
+
+三条箭头就是三个列向量，$A=(\boldsymbol{u},\boldsymbol{v},\boldsymbol{w})$。图中 $\boldsymbol{u}=(2,0,0)$，$\boldsymbol{v}=(0,2,0)$，$\boldsymbol{w}=(0.6,0.6,1.8)$，所以 $\det A=2\cdot2\cdot1.8=7.2$，正好是六面体的体积。
+
+行列式为零，就意味着体积为零：三个向量共面，六面体被压扁。到了 $n$ 维虽然画不出来，道理相同——$n$ 个列向量张成的平行多面体体积为零，当且仅当它们线性相关。这一句把行列式和后面的秩、线性相关性直接接上了。
+
+\subsection{完全展开：排列与逆序数}
+
+二阶行列式的两项 $a_{11}a_{22}$ 与 $a_{12}a_{21}$，都是每行取一个、每列取一个。三阶的六项也守这个规矩。$n$ 阶的一般规律是：从每一行、每一列各取一个元素相乘，共 $n!$ 种取法，再按统一规则配上正负号。
+
+“每列取哪一行”这件事，用排列描述最方便。
+
+\begin{mydef}{排列与逆序}{det-permutation-inversion}
+由 $1,2,\ldots,n$ 组成的有序数组 $p_1p_2\ldots p_n$ 称为一个 $n$ 级排列。若 $i<j$ 但 $p_i>p_j$，称这两个数构成一个\textbf{逆序}。排列中逆序的总数称为\textbf{逆序数}，记作 $\tau(p_1p_2\ldots p_n)$。逆序数为偶数称偶排列，为奇数称奇排列。
 \end{mydef}
 
-\begin{mydef}{奇排列与偶排列}{even and odd permutation}
-    逆序数为偶数的排列称为\textbf{偶排列}，逆序数为奇数的排列称为\textbf{奇排列}。
-\end{mydef}
+逆序数有一个不必数遍所有对的算法：从左往右，看每个数右边比它小的数有几个，再全部加起来。例如 $53241$：$5$ 右边有 $3,2,4,1$ 四个，$3$ 右边有 $2,1$ 两个，$2$ 右边有 $1$ 一个，$4$ 右边有 $1$ 一个，故 $\tau=4+2+1+1=8$，是偶排列。
 
-\begin{conclusion}{对换改变排列的奇偶性}{transposition changes parity}
-    将一个排列中的两个元素对换位置（称为一次\textbf{对换}），排列的奇偶性发生改变。\\
-    由此可知，在全部 $n!$ 个 $n$ 级排列中，奇排列与偶排列各占一半，各有 $\frac{n!}{2}$ 个。
+\begin{conclusion}{对换改变奇偶性}{det-transposition-parity}
+交换排列中任意两个数的位置，称为一次对换。一次对换必然改变排列的奇偶性。因此在全部 $n!$ 个排列中，奇排列与偶排列各占一半，各有 $n!/2$ 个。
 \end{conclusion}
 
-\begin{formula}{逆序数的计算}{computing inversion number}
-    设 $n$ 级排列 $p_1p_2\ldots p_n$，则
-    \[
-    \tau(p_1p_2\ldots p_n) = \sum_{i=1}^{n-1} t_i
-    \]
-    其中 $t_i$ 表示在 $p_i$ 后面且比 $p_i$ 小的数的个数。\\
-    \boxed{\textbf{例}} 排列 $53241$ 的逆序数：$5$ 后面有 $3,2,4,1$ 四个比它小，$3$ 后面有 $2,1$ 两个，
-    $2$ 后面有 $1$ 一个，$4$ 后面有 $1$ 一个，故 $\tau(53241)=4+2+1+1=8$（偶排列）。
+理由只需看相邻对换：两个相邻数交换，只改变它们之间这一对逆序关系，其余数的相对次序不变，所以逆序数增减 $1$。一般对换可由奇数次相邻对换完成，奇偶性同样改变。
+
+\begin{mydef}{行列式的完全展开式}{det-leibniz}
+设 $A=(a_{ij})$ 为 $n$ 阶方阵，则
+\[
+\det A=\sum_{p_1p_2\ldots p_n}(-1)^{\tau(p_1p_2\ldots p_n)}a_{1p_1}a_{2p_2}\cdots a_{np_n},
+\]
+求和取遍所有 $n$ 级排列，共 $n!$ 项。行下标固定按 $1,2,\ldots,n$ 排列，列下标构成排列 $p_1p_2\ldots p_n$。
+\end{mydef}
+
+不漏不重的原因是：一项由“第 $1$ 行取第几列、第 $2$ 行取第几列……”唯一确定，而每列只能被取一次，所以列下标恰好是一个排列；反过来每个排列也给出唯一一项。
+
+三阶的对角线法则，只是把这六项摆成了六条斜线：把前两列复制到右边，每条斜线正好穿过三个元素。
+
+\begin{center}
+\begin{tikzpicture}[scale=0.82, font=\small]
+  \node (a11) at (1,0) {$a_{11}$};
+  \node (a12) at (2,0) {$a_{12}$};
+  \node (a13) at (3,0) {$a_{13}$};
+  \node (a14) at (4,0) {$a_{11}$};
+  \node (a15) at (5,0) {$a_{12}$};
+  \node (a21) at (1,-0.95) {$a_{21}$};
+  \node (a22) at (2,-0.95) {$a_{22}$};
+  \node (a23) at (3,-0.95) {$a_{23}$};
+  \node (a24) at (4,-0.95) {$a_{21}$};
+  \node (a25) at (5,-0.95) {$a_{22}$};
+  \node (a31) at (1,-1.9) {$a_{31}$};
+  \node (a32) at (2,-1.9) {$a_{32}$};
+  \node (a33) at (3,-1.9) {$a_{33}$};
+  \node (a34) at (4,-1.9) {$a_{31}$};
+  \node (a35) at (5,-1.9) {$a_{32}$};
+  \draw[thick] (0.45,0.45) -- (0.45,-2.35);
+  \draw[thick] (3.55,0.45) -- (3.55,-2.35);
+  \draw[dashed,gray] (3.95,0.45) -- (3.95,-2.35);
+  \node[above,font=\scriptsize] at (4.5,0.55) {复制的两列};
+  \draw[blue,thick] (a11) -- (a22) -- (a33);
+  \draw[blue,thick] (a12) -- (a23) -- (a34);
+  \draw[blue,thick] (a13) -- (a24) -- (a35);
+  \draw[red,thick] (a13) -- (a22) -- (a31);
+  \draw[red,thick] (a14) -- (a23) -- (a32);
+  \draw[red,thick] (a15) -- (a24) -- (a33);
+\end{tikzpicture}
+\end{center}
+
+蓝线方向的三个乘积取正号，红线方向的三个取负号，合起来就是
+\[
+a_{11}a_{22}a_{33}+a_{12}a_{23}a_{31}+a_{13}a_{21}a_{32}
+-a_{13}a_{22}a_{31}-a_{12}a_{21}a_{33}-a_{11}a_{23}a_{32}.
+\]
+四阶有 $24$ 项，六条斜线摆不完，例如 $a_{11}a_{23}a_{32}a_{44}$ 就不在任何一条斜线上，所以对角线法则只适用于二阶和三阶。
+
+\subsection{性质：行变换如何改变行列式}
+
+先算一个特殊情形。上三角行列式中，第 $n$ 行只有 $a_{nn}$ 可能非零；若某项取了 $a_{n1},\ldots,a_{n,n-1}$ 中的元素，整项当场为零。于是第 $n$ 行只能取 $a_{nn}$，接着第 $n-1$ 行只能取 $a_{n-1,n-1}$，一路推到第一行。
+
+\begin{formula}{三角行列式}{det-triangular}
+上三角、下三角和对角行列式的值都等于主对角线元素之积：
+\[
+\begin{vmatrix}
+a_{11} & a_{12} & \cdots & a_{1n}\\
+0 & a_{22} & \cdots & a_{2n}\\
+\vdots & \vdots & \ddots & \vdots\\
+0 & 0 & \cdots & a_{nn}
+\end{vmatrix}
+=
+\begin{vmatrix}
+a_{11} & 0 & \cdots & 0\\
+a_{21} & a_{22} & \cdots & 0\\
+\vdots & \vdots & \ddots & \vdots\\
+a_{n1} & a_{n2} & \cdots & a_{nn}
+\end{vmatrix}
+=a_{11}a_{22}\cdots a_{nn}.
+\]
 \end{formula}
 
-\subsection{行列式的定义}
+这给出计算行列式的主线：用行变换把矩阵化成三角形，再把对角线乘起来。为此要知道每类行变换对值的影响。
 
-\begin{mydef}{$n$ 阶行列式的排列定义}{determinant via permutations}
-    由 $n^2$ 个数排成 $n$ 行 $n$ 列，记作
-    \[
-    D = \begin{vmatrix}
-    a_{11} & a_{12} & \cdots & a_{1n} \\
-    a_{21} & a_{22} & \cdots & a_{2n} \\
-    \vdots & \vdots & \ddots & \vdots \\
-    a_{n1} & a_{n2} & \cdots & a_{nn}
-    \end{vmatrix}
-    \]
-    称为 $n$ 阶行列式，它等于所有取自不同行不同列的 $n$ 个元素的乘积的代数和：
-    \[
-    \det(A) = \sum_{(p_1p_2\ldots p_n)} (-1)^{\tau(p_1p_2\ldots p_n)} a_{1p_1}a_{2p_2}\cdots a_{np_n}
-    \]
-    其中求和取遍所有 $n$ 级排列 $p_1p_2\ldots p_n$，共有 $n!$ 项。
+\begin{conclusion}{三类初等行变换对行列式的影响}{det-elementary-ops}
+\begin{enumerate}
+  \item 交换两行，行列式变号：$D\mapsto -D$；
+  \item 某一行乘 $k$，行列式乘 $k$：$D\mapsto kD$；
+  \item 把一行的 $k$ 倍加到另一行，行列式不变：$D\mapsto D$。
+\end{enumerate}
+同样的规则对列也成立。
+\end{conclusion}
+
+三条都能从“有向体积”读出来。交换两行相当于把两条棱对调，绕行方向反转；一行乘 $k$ 相当于把一个方向拉长 $k$ 倍，体积乘 $k$；倍加则是剪切——底面和高都没变。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center, width=0.92\linewidth, height=5.2cm,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-0.5, xmax=9.3, ymin=-0.6, ymax=2.9,
+  xtick={1,2,3,4,5,6,7,8,9}, ytick={1,2}, font=\footnotesize,
+]
+\fill[blue!8] (axis cs:0,0) -- (axis cs:3,0) -- (axis cs:4,2) -- (axis cs:1,2) -- cycle;
+\draw[blue,thick,dashed] (axis cs:0,0) -- (axis cs:3,0) -- (axis cs:4,2) -- (axis cs:1,2) -- cycle;
+\fill[red!8] (axis cs:0,0) -- (axis cs:3,0) -- (axis cs:8.5,2) -- (axis cs:5.5,2) -- cycle;
+\draw[red,thick] (axis cs:0,0) -- (axis cs:3,0) -- (axis cs:8.5,2) -- (axis cs:5.5,2) -- cycle;
+\draw[gray,dashed] (axis cs:1,2) -- (axis cs:1,0);
+\draw[gray,dashed] (axis cs:5.5,2) -- (axis cs:5.5,0);
+\node[gray,right,font=\scriptsize] at (axis cs:1,1) {$2$};
+\node[gray,right,font=\scriptsize] at (axis cs:5.5,0.9) {$2$};
+\node[below,font=\scriptsize] at (axis cs:1.5,0) {$3$};
+\draw[->,thick,black] (axis cs:0,0) -- (axis cs:3,0) node[below right,font=\scriptsize] {$\boldsymbol{u}$};
+\draw[->,thick,blue!70!black] (axis cs:0,0) -- (axis cs:1,2) node[above left,font=\scriptsize] {$\boldsymbol{v}$};
+\draw[->,thick,red!80!black] (axis cs:0,0) -- (axis cs:5.5,2) node[above right,font=\scriptsize] {$\boldsymbol{v}+k\boldsymbol{u}$};
+\node[blue!70!black,font=\scriptsize] at (axis cs:2.1,1.55) {原平行四边形};
+\node[red!80!black,font=\scriptsize] at (axis cs:6.5,0.55) {剪切后};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+两个平行四边形共用底边（长 $3$），高都是 $2$，面积都是 $6$。右边只是把边 $\boldsymbol{v}$ 换成了 $\boldsymbol{v}+k\boldsymbol{u}$，形状歪了，面积没变——这正是倍加变换不改变行列式的原因。
+
+从这三条还能推出几个常用结论：
+
+\begin{enumerate}
+  \item 两行相同，则 $D=-D$，故 $D=0$；两行成比例时，先提出比例系数就得到两行相同，同样 $D=0$。
+  \item 某行全为零，把 $k=0$ 看成“该行乘 $0$”，得 $D=0$。
+  \item 若某行写成两组数之和，行列式可拆成两个行列式之和，其余各行不变。这一条叫对行的线性性，常用来拆项。
+  \item $\det(A^{\mathrm T})=\det A$。展开式中每一项的因子只是行、列下标互换，排列的逆序数不变；所以凡对行成立的性质对列也成立。
+  \item $\det(kA)=k^n\det A$，因为 $n$ 行各提出一个 $k$。
+\end{enumerate}
+
+其实“对每行线性、交换两行变号、单位矩阵行列式为 $1$”这三条已经唯一确定了行列式，上面那些性质都可以从它们推出来。
+
+\begin{conclusion}{两条常用推论}{det-zero-rows}
+若 $A$ 有两行（列）相同或成比例，或有一行（列）全为零，则 $\det A=0$。反之，$\det A\neq0$ 说明各行（列）线性无关。
+\end{conclusion}
+
+\boxed{\textbf{例}}
+计算
+\[
+D=\begin{vmatrix}
+1&2&3\\
+2&5&7\\
+3&7&9
+\end{vmatrix}.
+\]
+用第一行消去下面两行的首元：
+\[
+D\xrightarrow[r_3-3r_1]{r_2-2r_1}
+\begin{vmatrix}
+1&2&3\\
+0&1&1\\
+0&1&0
+\end{vmatrix}
+\xrightarrow{r_3-r_2}
+\begin{vmatrix}
+1&2&3\\
+0&1&1\\
+0&0&-1
+\end{vmatrix}
+=1\cdot1\cdot(-1)=-1.
+\]
+倍加不改变值，最后是上三角，直接乘对角线。若中途交换过行，别忘了补一个负号。
+
+\subsection{按行按列展开}
+
+把三阶展开的六项按第一行重新分组：
+\[
+\det A=a_{11}(a_{22}a_{33}-a_{23}a_{32})
++a_{12}(a_{23}a_{31}-a_{21}a_{33})
++a_{13}(a_{21}a_{32}-a_{22}a_{31}).
+\]
+每个括号都是划掉第一行和某一列后剩下的二阶行列式，只是正负交替。这个现象对 $n$ 阶成立，于是有降阶计算法。
+
+\begin{mydef}{余子式与代数余子式}{det-minor}
+在 $n$ 阶行列式中，划去 $a_{ij}$ 所在的第 $i$ 行和第 $j$ 列，剩下的元素按原次序组成的 $n-1$ 阶行列式，称为 $a_{ij}$ 的\textbf{余子式}，记作 $M_{ij}$。称
+\[
+A_{ij}=(-1)^{i+j}M_{ij}
+\]
+为 $a_{ij}$ 的\textbf{代数余子式}。符号 $(-1)^{i+j}$ 按棋盘状交替：
+\[
+\begin{pmatrix}
++&-&+&\cdots\\
+-&+&-&\cdots\\
++&-&+&\cdots\\
+\vdots& &\vdots&\ddots
+\end{pmatrix}.
+\]
 \end{mydef}
 
-三阶行列式的绝对值等于以三个列向量为相邻棱的平行六面体的\textbf{有向体积}：
+\begin{conclusion}{行列式按行（列）展开定理}{det-cofactor-expansion}
+对任意固定的行 $i$ 或列 $j$，
+\[
+\det A=\sum_{k=1}^{n}a_{ik}A_{ik}\quad(\text{按第 }i\text{ 行展开}),
+\qquad
+\det A=\sum_{k=1}^{n}a_{kj}A_{kj}\quad(\text{按第 }j\text{ 列展开}).
+\]
+而一行（列）的元素与\textbf{另一行（列）}的代数余子式相乘再求和，结果为零：
+\[
+\sum_{k=1}^{n}a_{ik}A_{jk}=0\quad(i\neq j).
+\]
+\end{conclusion}
+
+后一条的理由很干脆：把第 $j$ 行换成第 $i$ 行，得到的新矩阵有两行相同，行列式为零；而按第 $j$ 行展开这个新矩阵，展开式恰好就是 $\sum_k a_{ik}A_{jk}$。这一条在后面推导伴随矩阵时要用。
+
 \begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  axis lines=center,
-  xlabel=$x_1$, ylabel=$x_2$, zlabel=$x_3$,
-  xmin=0, xmax=4.2, ymin=0, ymax=4.2, zmin=0, zmax=2.5,
-  xtick={1,2,3}, ytick={1,2,3}, ztick={1,2},
-  view={125}{28}, width=7.4cm, height=6.8cm,
-  font=\footnotesize, clip=false,
-]
-\draw[blue,thick,fill=blue!12,opacity=0.55] (axis cs:0,0,0) -- (axis cs:2,1,0) -- (axis cs:3,3,0) -- (axis cs:1,2,0) -- cycle;
-\draw[blue,thick,fill=blue!12,opacity=0.55] (axis cs:0.5,0.5,2) -- (axis cs:2.5,1.5,2) -- (axis cs:3.5,3.5,2) -- (axis cs:1.5,2.5,2) -- cycle;
-\draw[blue,thick] (axis cs:0,0,0) -- (axis cs:0.5,0.5,2);
-\draw[blue,thick] (axis cs:2,1,0) -- (axis cs:2.5,1.5,2);
-\draw[blue,thick] (axis cs:3,3,0) -- (axis cs:3.5,3.5,2);
-\draw[blue,thick] (axis cs:1,2,0) -- (axis cs:1.5,2.5,2);
-\draw[->,thick,red] (axis cs:0,0,0) -- (axis cs:2,1,0);
-\draw[->,thick,green!60!black] (axis cs:0,0,0) -- (axis cs:1,2,0);
-\draw[->,thick,orange!80!black] (axis cs:0,0,0) -- (axis cs:0.5,0.5,2);
-\node[red,anchor=south] at (axis cs:2,1,0) {$\boldsymbol{u}$};
-\node[green!60!black,anchor=south] at (axis cs:1,2,0) {$\boldsymbol{v}$};
-\node[orange!80!black,anchor=south east] at (axis cs:0.5,0.5,2) {$\boldsymbol{w}$};
-\node[black] at (axis cs:2.6,3.2,2.2) {体积 $=|\det|$};
-\end{axis}
+\begin{tikzpicture}[font=\small]
+  \node (root) at (0,0) {$\det M$};
+  \node (c1) at (-4.6,-1.3) {$a_{11}=2$（$+$）};
+  \node (c2) at (0,-1.3) {$a_{12}=-1$（$-$）};
+  \node (c3) at (4.6,-1.3) {$a_{13}=3$（$+$）};
+  \node (m1) at (-4.6,-2.9) {$\begin{vmatrix}4&1\\2&-1\end{vmatrix}$};
+  \node (m2) at (0,-2.9) {$\begin{vmatrix}0&1\\5&-1\end{vmatrix}$};
+  \node (m3) at (4.6,-2.9) {$\begin{vmatrix}0&4\\5&2\end{vmatrix}$};
+  \node (t1) at (-5.5,-4.35) {$4\cdot(-1)$};
+  \node (t2) at (-3.5,-4.35) {$-(1\cdot2)$};
+  \draw[->] (root) -- (c1);
+  \draw[->] (root) -- (c2);
+  \draw[->] (root) -- (c3);
+  \draw[->] (c1) -- (m1);
+  \draw[->] (c2) -- (m2);
+  \draw[->] (c3) -- (m3);
+  \draw[->] (m1) -- (t1);
+  \draw[->] (m1) -- (t2);
 \end{tikzpicture}
 \end{center}
 
-\begin{formula}{二阶与三阶行列式}{2nd and 3rd order determinants}
-    \textbf{二阶行列式}：
-    \[
-    \begin{vmatrix}
-    a_{11} & a_{12} \\
-    a_{21} & a_{22}
-    \end{vmatrix}
-    = a_{11}a_{22} - a_{12}a_{21}
-    \]
-    \textbf{三阶行列式}（对角线法则）：
-    \[
-    \begin{vmatrix}
-    a_{11} & a_{12} & a_{13} \\
-    a_{21} & a_{22} & a_{23} \\
-    a_{31} & a_{32} & a_{33}
-    \end{vmatrix}
-    = a_{11}a_{22}a_{33} + a_{12}a_{23}a_{31} + a_{13}a_{21}a_{32}
-    - a_{13}a_{22}a_{31} - a_{12}a_{21}a_{33} - a_{11}a_{23}a_{32}
-    \]
-    \boxed{\text{注}} 对角线法则仅适用于二阶和三阶行列式，对 $n \geq 4$ 不成立。
-\end{formula}
+图里从根到叶的每条路径就是展开式中的一项：先在第一行选一个元素，乘上它对应的二阶行列式；左下角再把二阶行列式拆成两个乘积。取
+\[
+M=\begin{pmatrix}2&-1&3\\0&4&1\\5&2&-1\end{pmatrix},
+\]
+沿第一行展开得
+\[
+\det M=2\cdot(+1)\begin{vmatrix}4&1\\2&-1\end{vmatrix}
++(-1)\cdot(-1)\begin{vmatrix}0&1\\5&-1\end{vmatrix}
++3\cdot(+1)\begin{vmatrix}0&4\\5&2\end{vmatrix}.
+\]
+三个二阶行列式分别为 $-6,-5,-20$，所以 $\det M=2(-6)-5+3(-20)=-77$。
 
-二阶行列式的绝对值等于以两个列向量为邻边的平行四边形的\textbf{面积}。以 $\boldsymbol{a}=(3,1)$，$\boldsymbol{b}=(1,2)$ 为例，$\det = 3\cdot2-1\cdot1 = 5$：
+实际计算时先扫一眼哪一行零多。若没有零，就用倍加变换造零，再展开。
+
+\boxed{\textbf{例}}
+计算
+\[
+D=\begin{vmatrix}
+2&0&1&0\\
+1&3&0&2\\
+0&1&4&1\\
+3&0&2&5
+\end{vmatrix}.
+\]
+第一行有两个零，沿它展开只需算两个三阶行列式：
+\[
+D=2\begin{vmatrix}3&0&2\\1&4&1\\0&2&5\end{vmatrix}
++1\cdot\begin{vmatrix}1&3&2\\0&1&1\\3&0&5\end{vmatrix}.
+\]
+第二项对应 $i+j=1+3$，符号取正。两个三阶行列式分别为 $58$ 与 $8$，故 $D=2\cdot58+8=124$。
+
+\subsection{范德蒙德行列式}
+
+求一个过 $(1,2)$、$(2,5)$、$(4,17)$ 的二次多项式 $p(x)=c_0+c_1x+c_2x^2$。代入三个点得到
+\[
+\begin{cases}
+c_0+c_1+c_2=2,\\
+c_0+2c_1+4c_2=5,\\
+c_0+4c_1+16c_2=17.
+\end{cases}
+\]
+消元后得 $c_2=1$，$c_1=0$，$c_0=1$，即 $p(x)=x^2+1$。解唯一，是因为系数行列式
+\[
+\begin{vmatrix}1&1&1\\1&2&4\\1&4&16\end{vmatrix}=6\neq0.
+\]
+如果把某个点的横坐标改成和另一个相同，这个行列式就变成零，插值多项式不再唯一——两条不同的抛物线可以同时过那两个点。
+
+一般的 $n$ 个节点对应 $n-1$ 次插值，系数矩阵的第 $i$ 行是 $(1,x_i,x_i^2,\ldots,x_i^{n-1})$。它的行列式就是范德蒙德行列式。
+
+\begin{conclusion}{范德蒙德行列式}{det-vandermonde}
+\[
+V_n=\begin{vmatrix}
+1&1&1&\cdots&1\\
+x_1&x_2&x_3&\cdots&x_n\\
+x_1^2&x_2^2&x_3^2&\cdots&x_n^2\\
+\vdots&\vdots&\vdots&\ddots&\vdots\\
+x_1^{n-1}&x_2^{n-1}&x_3^{n-1}&\cdots&x_n^{n-1}
+\end{vmatrix}
+=\prod_{1\leq i<j\leq n}(x_j-x_i).
+\]
+因此 $V_n\neq0$ 当且仅当 $x_1,\ldots,x_n$ 两两不同。
+\end{conclusion}
+
+三阶的情形可以直接验证。先用原来的第二行消去第三行的 $x_1^2$，再用第一行消去第二行的 $x_1$：
+\[
+V_3\xrightarrow{r_3-x_1r_2}
+\begin{vmatrix}
+1&1&1\\
+x_1&x_2&x_3\\
+0&x_2(x_2-x_1)&x_3(x_3-x_1)
+\end{vmatrix}
+\xrightarrow{r_2-x_1r_1}
+\begin{vmatrix}
+1&1&1\\
+0&x_2-x_1&x_3-x_1\\
+0&x_2(x_2-x_1)&x_3(x_3-x_1)
+\end{vmatrix}.
+\]
+按第一列展开，并提出两列的公因子：
+\[
+V_3=(x_2-x_1)(x_3-x_1)
+\begin{vmatrix}1&1\\x_2&x_3\end{vmatrix}
+=(x_2-x_1)(x_3-x_1)(x_3-x_2).
+\]
+一般 $n$ 阶照做：从最后一行起，依次执行 $r_i\leftarrow r_i-x_1r_{i-1}$（用尚未改动的前一行），第 $2$ 到第 $n$ 列都会出现因子 $x_j-x_1$；提出来并按第一列展开，剩下一个 $n-1$ 阶范德蒙德行列式，归纳即得乘积公式。
+
 \begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  axis lines=center,
-  width=0.76\linewidth, height=6.2cm,
-  xlabel={$x_1$}, ylabel={$x_2$},
-  xmin=-0.6, xmax=4.9, ymin=-0.6, ymax=3.9,
-  xtick={1,2,3,4}, ytick={1,2,3},
-  font=\footnotesize,
-]
-\draw[blue,thick,fill=blue!12] (axis cs:0,0) -- (axis cs:3,1) -- (axis cs:4,3) -- (axis cs:1,2) -- cycle;
-\draw[->,thick,red] (axis cs:0,0) -- (axis cs:3,1);
-\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,2);
-\node[red,anchor=south west] at (axis cs:3,1) {$\boldsymbol{a}=(3,1)$};
-\node[green!50!black,anchor=south east] at (axis cs:1,2) {$\boldsymbol{b}=(1,2)$};
-\node[black] at (axis cs:2.15,2.7) {面积 $=|\det|=5$};
-\end{axis}
+\begin{tikzpicture}[font=\footnotesize]
+\draw[->] (-0.7,0) -- (9.4,0);
+\fill (0,0) circle (1.8pt);   \node[below] at (0,-0.12) {$x_1$};
+\fill (3.2,0) circle (1.8pt); \node[below] at (3.2,-0.12) {$x_2$};
+\fill (5.6,0) circle (1.8pt); \node[below] at (5.6,-0.12) {$x_3$};
+\fill (9,0) circle (1.8pt);   \node[below] at (9,-0.12) {$x_4$};
+\draw[blue,thick] (0,0) to[bend left=55] node[above,font=\scriptsize,inner sep=1pt] {$x_2-x_1$} (3.2,0);
+\draw[blue,thick] (3.2,0) to[bend left=60] node[above,font=\scriptsize,inner sep=1pt] {$x_3-x_2$} (5.6,0);
+\draw[blue,thick] (5.6,0) to[bend left=55] node[above,font=\scriptsize,inner sep=1pt] {$x_4-x_3$} (9,0);
+\draw[green!45!black,thick] (0,0) to[bend left=45] node[above,font=\scriptsize,inner sep=1pt] {$x_3-x_1$} (5.6,0);
+\draw[green!45!black,thick] (3.2,0) to[bend left=45] node[above,font=\scriptsize,inner sep=1pt] {$x_4-x_2$} (9,0);
+\draw[red!80!black,thick] (0,0) to[bend left=50] node[above,font=\scriptsize,inner sep=1pt] {$x_4-x_1$} (9,0);
 \end{tikzpicture}
 \end{center}
 
-\subsection{行列式的基本性质}
+图中的每段弧对应乘积里的一个因子：相邻点给出三个差，隔一个点给出两个差，最外层再给出 $x_4-x_1$，一共 $\binom42=6$ 个。只要任意两个点重合，就有一段弧长度为 $0$，整个乘积为零；反过来，乘积为零说明某个差为零，也就是有节点重合。
 
-\begin{conclusion}{转置不变性}{transpose invariance}
-    行列式与它的转置行列式相等：
-    \[
-    \det(A^{T}) = \det(A)
-    \]
-    即行列式中行与列的地位是对称的，凡对行成立的性质对列也成立。
+注意因子的书写顺序：公式统一写成 $x_j-x_i$（$j>i$）。若写成 $x_i-x_j$，每个因子都差一个负号，整个乘积会多出 $(-1)^{n(n-1)/2}$。
+
+\boxed{\textbf{例}}
+取 $x_1=1$，$x_2=2$，$x_3=4$，则
+\[
+V_3=(2-1)(4-1)(4-2)=1\cdot3\cdot2=6.
+\]
+与上面插值例子的系数行列式一致。
+
+\subsection{分块行列式}
+
+矩阵里出现大片零时，不必逐个元素展开，可以按块处理。
+
+\begin{conclusion}{分块三角行列式}{det-block-triangular}
+设 $A$ 是 $m$ 阶方阵，$B$ 是 $n$ 阶方阵，$C$ 是任意 $m\times n$ 矩阵，则
+\[
+\begin{vmatrix}A&C\\0&B\end{vmatrix}=\det A\cdot\det B,
+\qquad
+\begin{vmatrix}A&0\\C&B\end{vmatrix}=\det A\cdot\det B.
+\]
+特别地，分块对角矩阵的行列式等于各块行列式之积。
 \end{conclusion}
 
-\begin{conclusion}{交换行（列）变号}{row swap flips sign}
-    交换行列式的两行（或两列），行列式变号：
-    \[
-    \begin{vmatrix}
-    \cdots & a_{i1} & \cdots \\
-    \cdots & a_{j1} & \cdots
-    \end{vmatrix}
-    = -\,
-    \begin{vmatrix}
-    \cdots & a_{j1} & \cdots \\
-    \cdots & a_{i1} & \cdots
-    \end{vmatrix}
-    \]
-    \textbf{推论}：若行列式有两行（列）完全相同，则行列式为零。
-\end{conclusion}
-
-交换两列，行列式变号——这对应于有向面积方向（逆时针/顺时针）的改变：
 \begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  at={(0cm,0cm)},
-  width=5.4cm, height=4.6cm,
-  axis lines=center,
-  xlabel={$x_1$}, ylabel={$x_2$},
-  xmin=-0.5,xmax=4.6,ymin=-0.5,ymax=3.6,
-  xtick={2,4}, ytick={2},
-  title={$(a,b)$：$\det>0$，逆时针},
-  title style={font=\scriptsize},
-  font=\scriptsize,
-]
-\draw[blue,thick,fill=blue!12] (axis cs:0,0) -- (axis cs:3,1) -- (axis cs:4,3) -- (axis cs:1,2) -- cycle;
-\draw[->,thick,red] (axis cs:0,0) -- (axis cs:3,1);
-\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,2);
-\end{axis}
-\begin{axis}[
-  at={(6.2cm,0cm)},
-  width=5.4cm, height=4.6cm,
-  axis lines=center,
-  xlabel={$x_1$}, ylabel={$x_2$},
-  xmin=-0.5,xmax=4.6,ymin=-0.5,ymax=3.6,
-  xtick={2,4}, ytick={2},
-  title={$(b,a)$：$\det<0$，顺时针},
-  title style={font=\scriptsize},
-  font=\scriptsize,
-]
-\draw[blue,thick,fill=blue!12] (axis cs:0,0) -- (axis cs:1,2) -- (axis cs:4,3) -- (axis cs:3,1) -- cycle;
-\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,2);
-\draw[->,thick,red] (axis cs:0,0) -- (axis cs:3,1);
-\end{axis}
+\begin{tikzpicture}[font=\footnotesize]
+  \fill[gray!18] (0,0) rectangle (2,2);
+  \draw[thick] (0,0) rectangle (4,4);
+  \draw[very thick] (2,0) -- (2,4);
+  \draw[very thick] (0,2) -- (4,2);
+  \node at (1,3) {$A$};
+  \node at (3,3) {$C$};
+  \node at (1,1) {$0$};
+  \node at (3,1) {$B$};
+  \node[left] at (-0.1,3) {$m$};
+  \node[left] at (-0.1,1) {$n$};
+  \node[below] at (1,-0.1) {$m$};
+  \node[below] at (3,-0.1) {$n$};
+  \node[anchor=north,text width=12cm,align=center] at (2,-0.4)
+    {灰色块是左下角的零块：前 $m$ 列在这 $n$ 行上全为 $0$。};
+  \draw[->,gray] (0.5,-0.3) -- (0.5,0.85);
 \end{tikzpicture}
 \end{center}
 
-\begin{conclusion}{公因子提取}{common factor extraction}
-    行列式中某一行（列）的所有元素的公因子可以提到行列式符号外面：
-    \[
-    \begin{vmatrix}
-    a_{11} & \cdots & k a_{1j} & \cdots & a_{1n} \\
-    a_{21} & \cdots & k a_{2j} & \cdots & a_{2n} \\
-    \vdots & \vdots & \vdots & \ddots & \vdots \\
-    a_{n1} & \cdots & k a_{nj} & \cdots & a_{nn}
-    \end{vmatrix}
-    = k\,
-    \begin{vmatrix}
-    a_{11} & \cdots & a_{1j} & \cdots & a_{1n} \\
-    a_{21} & \cdots & a_{2j} & \cdots & a_{2n} \\
-    \vdots & \vdots & \vdots & \ddots & \vdots \\
-    a_{n1} & \cdots & a_{nj} & \cdots & a_{nn}
-    \end{vmatrix}
-    \]
-    \textbf{推论}：若行列式有两行（列）成比例，则行列式为零。\\
-    特别地，若行列式中某一行（列）全为零，则行列式为零。
-\end{conclusion}
+看图：展开式要求每一列取一个元素。前 $m$ 列在下面 $n$ 行上全是 $0$，所以这 $m$ 个元素只能从前 $m$ 行取；前 $m$ 行每行也正好取一个，于是排列把前 $m$ 个下标映到前 $m$ 个下标，剩下的自动映到后 $n$ 个。符号也随之拆成两半，总行列式就是 $\det A\cdot\det B$。
 
-\begin{conclusion}{行列式的线性性质}{linearity of determinant}
-    若行列式的某一行（列）的元素是两组数之和，则此行列式等于两个行列式之和，
-    这两个行列式分别以这两组数为该行（列）的元素，其余行（列）不变：
-    \[
-    \begin{vmatrix}
-    a_{11} & \cdots & b_{1j} + c_{1j} & \cdots & a_{1n} \\
-    \vdots & \vdots & \vdots & \ddots & \vdots \\
-    a_{n1} & \cdots & b_{nj} + c_{nj} & \cdots & a_{nn}
-    \end{vmatrix}
-    =
-    \begin{vmatrix}
-    a_{11} & \cdots & b_{1j} & \cdots & a_{1n} \\
-    \vdots & \vdots & \vdots & \ddots & \vdots \\
-    a_{n1} & \cdots & b_{nj} & \cdots & a_{nn}
-    \end{vmatrix}
-    +
-    \begin{vmatrix}
-    a_{11} & \cdots & c_{1j} & \cdots & a_{1n} \\
-    \vdots & \vdots & \vdots & \ddots & \vdots \\
-    a_{n1} & \cdots & c_{nj} & \cdots & a_{nn}
-    \end{vmatrix}
-    \]
-\end{conclusion}
-
-\begin{conclusion}{行列式的倍加变换}{row addition leaves determinant unchanged}
-    把行列式的某一行（列）的倍数加到另一行（列）上，行列式不变：
-    \[
-    \begin{vmatrix}
-    \vdots & \vdots & \vdots \\
-    a_{i1} & \cdots & a_{in} \\
-    \vdots & \vdots & \vdots \\
-    a_{j1} + k a_{i1} & \cdots & a_{jn} + k a_{in} \\
-    \vdots & \vdots & \vdots
-    \end{vmatrix}
-    =
-    \begin{vmatrix}
-    \vdots & \vdots & \vdots \\
-    a_{i1} & \cdots & a_{in} \\
-    \vdots & \vdots & \vdots \\
-    a_{j1} & \cdots & a_{jn} \\
-    \vdots & \vdots & \vdots
-    \end{vmatrix}
-    \]
-    这是行列式计算中最常用的性质，用于将行列式化为上三角形式。
-\end{conclusion}
-
-\boxed{\textbf{例}} 利用性质计算行列式：
+\boxed{\textbf{例}}
+计算
 \[
-\begin{vmatrix}
-2 & 1 & 3 \\
-4 & 3 & 5 \\
-6 & 5 & 5
-\end{vmatrix}
-\xrightarrow{r_2 - 2r_1}
-\begin{vmatrix}
-2 & 1 & 3 \\
-0 & 1 & -1 \\
-6 & 5 & 5
-\end{vmatrix}
-\xrightarrow{r_3 - 3r_1}
-\begin{vmatrix}
-2 & 1 & 3 \\
-0 & 1 & -1 \\
-0 & 2 & -4
-\end{vmatrix}
-\xrightarrow{r_3 - 2r_2}
-\begin{vmatrix}
-2 & 1 & 3 \\
-0 & 1 & -1 \\
-0 & 0 & -2
-\end{vmatrix}
-= 2 \cdot 1 \cdot (-2) = -4
+D=\begin{vmatrix}
+1&2&3&4\\
+0&1&5&6\\
+0&0&7&8\\
+0&0&9&2
+\end{vmatrix}.
 \]
+左上块 $A=\begin{pmatrix}1&2\\0&1\end{pmatrix}$，$\det A=1$；右下块 $B=\begin{pmatrix}7&8\\9&2\end{pmatrix}$，$\det B=14-72=-58$。左下角为零块，故 $D=1\cdot(-58)=-58$。
 
-\subsection{行列式按行（列）展开}
-
-\begin{mydef}{余子式与代数余子式}{minor and cofactor}
-    在 $n$ 阶行列式中，划去元素 $a_{ij}$ 所在的第 $i$ 行和第 $j$ 列后，
-    剩下的元素按原来的次序组成的 $n-1$ 阶行列式称为元素 $a_{ij}$ 的\textbf{余子式}，记作 $M_{ij}$。\\
-    称 $A_{ij} = (-1)^{i+j} M_{ij}$ 为元素 $a_{ij}$ 的\textbf{代数余子式}（cofactor）。
-\end{mydef}
-
-\begin{conclusion}{行列式按行（列）展开定理}{cofactor expansion theorem}
-    行列式等于它的任一行（列）的各元素与其对应的代数余子式乘积之和：
-    \[
-    \det(A) = \sum_{j=1}^{n} a_{ij} A_{ij} \quad (\text{按第 } i \text{ 行展开})
-    \]
-    \[
-    \det(A) = \sum_{i=1}^{n} a_{ij} A_{ij} \quad (\text{按第 } j \text{ 列展开})
-    \]
-    此外，一行（列）的元素与另一行（列）的代数余子式的乘积之和为零：
-    \[
-    \sum_{k=1}^{n} a_{ik} A_{jk} = 0 \quad (i \neq j), \qquad
-    \sum_{k=1}^{n} a_{ki} A_{kj} = 0 \quad (i \neq j)
-    \]
-\end{conclusion}
-
-\boxed{\textbf{例}} 按第一行展开计算：
+零块的位置不能看错。若矩阵形如 $\begin{pmatrix}A&C\\D&B\end{pmatrix}$，四个块都非零，就不能直接相乘。例如 $A=B=C=D=I_2$ 时，矩阵第一行与第三行相同，行列式为 $0$，而 $\det A\det B=1$。当 $A$ 可逆时，正确公式是
 \[
-\begin{aligned}
-\begin{vmatrix}
-2 & 1 & 0 \\
-3 & 4 & 5 \\
-0 & 6 & 7
-\end{vmatrix}
-&=2\begin{vmatrix}4&5\\6&7\end{vmatrix}
--\begin{vmatrix}3&5\\0&7\end{vmatrix}\\
-&=2(28-30)-21=-25.
-\end{aligned}
+\det\begin{pmatrix}A&C\\D&B\end{pmatrix}=\det A\cdot\det\bigl(B-DA^{-1}C\bigr),
 \]
-
-\begin{conclusion}{范德蒙德行列式}{Vandermonde determinant}
-    $n$ 阶范德蒙德行列式：
-    \[
-    V_n =
-    \begin{vmatrix}
-    1 & 1 & 1 & \cdots & 1 \\
-    x_1 & x_2 & x_3 & \cdots & x_n \\
-    x_1^2 & x_2^2 & x_3^2 & \cdots & x_n^2 \\
-    \vdots & \vdots & \vdots & \ddots & \vdots \\
-    x_1^{n-1} & x_2^{n-1} & x_3^{n-1} & \cdots & x_n^{n-1}
-    \end{vmatrix}
-    = \prod_{1 \leq i < j \leq n} (x_j - x_i)
-    \]
-    即 $V_n = (x_2-x_1)(x_3-x_1)\cdots(x_n-x_1)(x_3-x_2)\cdots(x_n-x_{n-1})$。\\
-    \textbf{推论}：范德蒙德行列式为零的充要条件是 $x_1,x_2,\ldots,x_n$ 中至少有两个相等。
-\end{conclusion}
-
-\boxed{\textbf{例}} 计算四阶范德蒙德行列式：
-\[
-\begin{vmatrix}
-1 & 1 & 1 & 1 \\
-2 & 3 & -1 & 4 \\
-4 & 9 & 1 & 16 \\
-8 & 27 & -1 & 64
-\end{vmatrix}
-\begin{aligned}
-&=(3-2)(-1-2)(4-2)\\
-&\qquad\cdot(-1-3)(4-3)\bigl(4-(-1)\bigr)\\
-&=1\cdot(-3)\cdot2\cdot(-4)\cdot1\cdot5=120
-\end{aligned}
-\]
-
-\begin{conclusion}{三角行列式}{triangular determinant}
-    \textbf{上三角行列式}（主对角线以下全为零）：
-    \[
-    \begin{vmatrix}
-    a_{11} & a_{12} & \cdots & a_{1n} \\
-    0 & a_{22} & \cdots & a_{2n} \\
-    \vdots & \vdots & \ddots & \vdots \\
-    0 & 0 & \cdots & a_{nn}
-    \end{vmatrix}
-    = a_{11}a_{22}\cdots a_{nn}
-    \]
-    \textbf{下三角行列式}（主对角线以上全为零）：
-    \[
-    \begin{vmatrix}
-    a_{11} & 0 & \cdots & 0 \\
-    a_{21} & a_{22} & \cdots & 0 \\
-    \vdots & \vdots & \ddots & \vdots \\
-    a_{n1} & a_{n2} & \cdots & a_{nn}
-    \end{vmatrix}
-    = a_{11}a_{22}\cdots a_{nn}
-    \]
-    对角行列式的值也等于主对角线元素的乘积。
-\end{conclusion}
-
-\begin{conclusion}{分块三角行列式}{block triangular determinant}
-    设 $A$ 为 $m$ 阶方阵，$B$ 为 $n$ 阶方阵，则
-    \[
-    \begin{vmatrix}
-    A & C \\
-    0 & B
-    \end{vmatrix}
-    = \det(A) \cdot \det(B), \qquad
-    \begin{vmatrix}
-    A & 0 \\
-    C & B
-    \end{vmatrix}
-    = \det(A) \cdot \det(B)
-    \]
-    特别地，对于分块对角矩阵：
-    \[
-    \begin{vmatrix}
-    A & 0 \\
-    0 & B
-    \end{vmatrix}
-    = \det(A) \cdot \det(B)
-    \]
-\end{conclusion}
-
-\begin{conclusion}{行列式的乘法公式}{multiplicative property of determinants}
-    设 $A$ 和 $B$ 都是 $n$ 阶方阵，则
-    \[
-    \det(AB) = \det(A) \cdot \det(B)
-    \]
-    由此可推出：$\det(A^k) = [\det(A)]^k$，$\det(kA) = k^n \det(A)$。
-\end{conclusion}
+括号里称为 Schur 补；上例中 $B-DA^{-1}C=I-I=0$，与直接算出的 $0$ 吻合。
 
 \subsection{克莱姆法则}
 
-\begin{conclusion}{克莱姆法则}{Cramer's rule}
-    对于含有 $n$ 个方程 $n$ 个未知数的线性方程组
-    \[
-    \begin{cases}
-    a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n = b_1 \\
-    a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n = b_2 \\
-    \qquad \qquad \qquad \cdots \cdots \\
-    a_{n1}x_1 + a_{n2}x_2 + \cdots + a_{nn}x_n = b_n
-    \end{cases}
-    \]
-    若系数行列式 $D = \det(a_{ij}) \neq 0$，则方程组有唯一解：
-    \[
-    x_1 = \frac{D_1}{D},\; x_2 = \frac{D_2}{D},\; \ldots,\; x_n = \frac{D_n}{D}
-    \]
-    其中 $D_j$ 是将 $D$ 中第 $j$ 列替换为常数项列 $(b_1,b_2,\ldots,b_n)^{T}$ 所得的行列式。
+二维情形最能说明问题。设 $A=(\boldsymbol{a}_1,\boldsymbol{a}_2)$ 可逆，方程组的解写成向量形式是
+\[
+\boldsymbol{b}=x_1\boldsymbol{a}_1+x_2\boldsymbol{a}_2.
+\]
+把 $\boldsymbol{b}$ 放到第一列，利用行列式对第一列的线性性：
+\[
+\det(\boldsymbol{b},\boldsymbol{a}_2)
+=x_1\det(\boldsymbol{a}_1,\boldsymbol{a}_2)+x_2\det(\boldsymbol{a}_2,\boldsymbol{a}_2)
+=x_1D,
+\]
+最后一步因为 $\det(\boldsymbol{a}_2,\boldsymbol{a}_2)=0$。于是 $x_1=D_1/D$。用 $\boldsymbol{a}_2$ 去“消掉” $x_2$，这就是克莱姆法则的全部想法。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center, width=10.5cm, height=9.5cm,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-0.5, xmax=6.9, ymin=-0.5, ymax=6.9,
+  xtick={1,2,3,4,5,6}, ytick={1,2,3,4,5,6}, font=\footnotesize,
+  unit vector ratio=1 1 1,
+]
+\fill[red!7] (axis cs:0,0) -- (axis cs:5,4) -- (axis cs:6,6) -- (axis cs:1,2) -- cycle;
+\draw[red,thick] (axis cs:0,0) -- (axis cs:5,4) -- (axis cs:6,6) -- (axis cs:1,2) -- cycle;
+\draw[blue,thick] (axis cs:0,0) -- (axis cs:2,1) -- (axis cs:3,3) -- (axis cs:1,2) -- cycle;
+\draw[dashed,gray] (axis cs:1,2) -- (axis cs:5,4);
+\draw[dashed,gray] (axis cs:4,2) -- (axis cs:5,4);
+\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:2,1) node[below right,font=\scriptsize] {$\boldsymbol{a}_1$};
+\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,2) node[above left,font=\scriptsize] {$\boldsymbol{a}_2$};
+\draw[->,thick,red!80!black] (axis cs:0,0) -- (axis cs:5,4) node[above right,font=\scriptsize] {$\boldsymbol{b}$};
+\node[blue,font=\scriptsize] at (axis cs:1.35,1.55) {$D=3$};
+\node[red!80!black,font=\scriptsize] at (axis cs:3.9,4.3) {$D_1=6$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+两块阴影共用边 $\boldsymbol{a}_2$。大平行四边形的面积是小平行四边形的两倍，所以 $x_1=D_1/D=2$；虚线把 $\boldsymbol{b}$ 拆成 $2\boldsymbol{a}_1+\boldsymbol{a}_2$，正是解的分量。类似地 $x_2=\det(\boldsymbol{a}_1,\boldsymbol{b})/D$。
+
+\begin{conclusion}{克莱姆法则}{det-cramer}
+设 $n$ 元线性方程组 $A\boldsymbol{x}=\boldsymbol{b}$ 的系数行列式 $D=\det A\neq0$，则方程组有唯一解
+\[
+x_1=\frac{D_1}{D},\quad x_2=\frac{D_2}{D},\quad\ldots,\quad x_n=\frac{D_n}{D},
+\]
+其中 $D_j$ 是把 $D$ 的第 $j$ 列换成常数列 $\boldsymbol{b}$ 所得的行列式。
 \end{conclusion}
 
-\boxed{\textbf{例}} 用克莱姆法则解方程组：
+对一般的 $j$，把 $\boldsymbol{b}=\sum_k x_k\boldsymbol{a}_k$ 代入 $D_j$（第 $j$ 列换成 $\boldsymbol{b}$ 的行列式），按第 $j$ 列的线性性展开：
+\[
+D_j=\sum_{k=1}^{n}x_k\det(\boldsymbol{a}_1,\ldots,\boldsymbol{a}_{j-1},\boldsymbol{a}_k,\boldsymbol{a}_{j+1},\ldots,\boldsymbol{a}_n).
+\]
+当 $k\neq j$ 时，这个行列式有两列都是 $\boldsymbol{a}_k$，值为零；只剩 $k=j$ 一项，得到 $D_j=x_jD$。
+
+\boxed{\textbf{例}}
+解方程组
 \[
 \begin{cases}
-2x_1 + x_2 - x_3 = 1 \\
-x_1 - x_2 + x_3 = 2 \\
-3x_1 + 2x_2 - x_3 = 0
+x_1+2x_2=5,\\
+x_2+3x_3=-1,\\
+2x_1+x_2+x_3=3.
 \end{cases}
 \]
-先计算系数行列式：
+系数行列式
 \[
-D = \begin{vmatrix}
-2 & 1 & -1 \\
-1 & -1 & 1 \\
-3 & 2 & -1
-\end{vmatrix}
-= 2(1-2) - 1((-1)-3) + (-1)(2+3) = -2 + 4 - 5 = -3 \neq 0
+D=\begin{vmatrix}1&2&0\\0&1&3\\2&1&1\end{vmatrix}
+=1(1-3)-2(0-6)+0=10\neq0.
 \]
+逐个替换列：
 \[
-D_1 = \begin{vmatrix}
-1 & 1 & -1 \\
-2 & -1 & 1 \\
-0 & 2 & -1
-\end{vmatrix} = -3,\;
-D_2 = \begin{vmatrix}
-2 & 1 & -1 \\
-1 & 2 & 1 \\
-3 & 0 & -1
-\end{vmatrix} = 6,\;
-D_3 = \begin{vmatrix}
-2 & 1 & 1 \\
-1 & -1 & 2 \\
-3 & 2 & 0
-\end{vmatrix} = 3
+D_1=\begin{vmatrix}5&2&0\\-1&1&3\\3&1&1\end{vmatrix}=10,\quad
+D_2=\begin{vmatrix}1&5&0\\0&-1&3\\2&3&1\end{vmatrix}=20,\quad
+D_3=\begin{vmatrix}1&2&5\\0&1&-1\\2&1&3\end{vmatrix}=-10.
 \]
-故 $x_1 = \frac{-3}{-3} = 1,\; x_2 = \frac{6}{-3} = -2,\; x_3 = \frac{3}{-3} = -1$。
+故 $x_1=1$，$x_2=2$，$x_3=-1$。
 
-\begin{conclusion}{克莱姆法则的推广}{generalized Cramer's rule}
-    对于齐次线性方程组 $\displaystyle \sum_{j=1}^{n} a_{ij}x_j = 0 \; (i=1,2,\ldots,n)$：
-    \begin{enumerate}
-        \item 若系数行列式 $D \neq 0$，则方程组只有零解（平凡解）$x_1 = x_2 = \cdots = x_n = 0$。
-        \item 若方程组有非零解，则必有 $D = 0$。
-    \end{enumerate}
-    这是判定齐次线性方程组是否有非零解的重要依据。
-\end{conclusion}
+由此还能得到齐次方程组的判据：$A\boldsymbol{x}=\boldsymbol{0}$ 在 $D\neq0$ 时只有零解；反过来，如果它有非零解，则必有 $D=0$。
 
-\subsection{行列式与可逆性的关系}
+克莱姆法则给出的是公式解，但求 $n+1$ 个 $n$ 阶行列式的计算量远大于消元法，实际解题并不用它。它的价值在理论：解的唯一性、解对参数的连续依赖、逆矩阵公式，都靠它推出。
 
-\begin{conclusion}{方阵可逆的充要条件}{invertibility and determinant}
-    设 $A$ 为 $n$ 阶方阵，则以下命题等价：
-    \begin{enumerate}
-        \item $A$ 可逆（非奇异，满秩）；
-        \item $\det(A) \neq 0$；
-        \item $A$ 的列（行）向量组线性无关；
-        \item $A$ 可以通过初等行变换化为单位矩阵 $I_n$；
-        \item 齐次线性方程组 $Ax = 0$ 只有零解；
-        \item 对任意 $b$，非齐次线性方程组 $Ax = b$ 有唯一解。
-    \end{enumerate}
-\end{conclusion}
+\subsection{伴随矩阵与可逆性}
 
-\begin{formula}{伴随矩阵求逆公式}{adjugate matrix inverse}
-    设 $A$ 为 $n$ 阶方阵，$A_{ij}$ 为 $a_{ij}$ 的代数余子式，则
-    \[
-    A^* = \begin{pmatrix}
-    A_{11} & A_{21} & \cdots & A_{n1} \\
-    A_{12} & A_{22} & \cdots & A_{n2} \\
-    \vdots & \vdots & \ddots & \vdots \\
-    A_{1n} & A_{2n} & \cdots & A_{nn}
-    \end{pmatrix}
-    \]
-    称为 $A$ 的\textbf{伴随矩阵}（注意：$A^*$ 中第 $i$ 行第 $j$ 列元素是 $A_{ji}$）。\\
-    满足：$A A^* = A^* A = \det(A) \cdot I_n$。\\
-    当 $\det(A) \neq 0$ 时，有
-    \[
-    A^{-1} = \frac{1}{\det(A)} A^*
-    \]
-\end{formula}
-
-\begin{formula}{二阶矩阵求逆的简便公式}{inverse of 2x2 matrix}
-    对于二阶矩阵 $A = \begin{pmatrix} a & b \\ c & d \end{pmatrix}$，若 $\det(A) = ad - bc \neq 0$，则
-    \[
-    A^{-1} = \frac{1}{ad - bc} \begin{pmatrix} d & -b \\ -c & a \end{pmatrix}
-    \]
-\end{formula}
-
-\boxed{\textbf{例}} 判断矩阵 $A = \begin{pmatrix} 1 & 2 & 3 \\ 2 & 3 & 1 \\ 3 & 1 & 2 \end{pmatrix}$ 是否可逆，若可逆求其逆矩阵。\\
-先求行列式：
+把展开定理和“异乘为零”写成矩阵，就得到伴随矩阵。设 $A=(a_{ij})$ 为 $n$ 阶方阵，$A_{ij}$ 为代数余子式，定义
 \[
-\det(A) = \begin{vmatrix}
-1 & 2 & 3 \\
-2 & 3 & 1 \\
-3 & 1 & 2
-\end{vmatrix}
-= 1(6-1) - 2(4-3) + 3(2-9) = 5 - 2 - 21 = -18 \neq 0
-\]
-故 $A$ 可逆。计算代数余子式：
-\[
-\begin{aligned}
-A_{11} &= +\begin{vmatrix}3&1\\1&2\end{vmatrix}=5, &
-A_{12} &= -\begin{vmatrix}2&1\\3&2\end{vmatrix}=-1, &
-A_{13} &= +\begin{vmatrix}2&3\\3&1\end{vmatrix}=-7,\\
-A_{21} &= -\begin{vmatrix}2&3\\1&2\end{vmatrix}=-1, &
-A_{22} &= +\begin{vmatrix}1&3\\3&2\end{vmatrix}=-7, &
-A_{23} &= -\begin{vmatrix}1&2\\3&1\end{vmatrix}=5,\\
-A_{31} &= +\begin{vmatrix}2&3\\3&1\end{vmatrix}=-7, &
-A_{32} &= -\begin{vmatrix}1&3\\2&1\end{vmatrix}=5, &
-A_{33} &= +\begin{vmatrix}1&2\\2&3\end{vmatrix}=-1.
-\end{aligned}
-\]
-故 $A^{-1} = -\frac{1}{18}\begin{pmatrix} 5 & -1 & -7 \\ -1 & -7 & 5 \\ -7 & 5 & -1 \end{pmatrix}$。
-
-\begin{conclusion}{伴随矩阵的性质}{properties of adjugate matrix}
-    \begin{enumerate}
-        \item $\det(A^*) = [\det(A)]^{n-1}$（当 $n \geq 2$ 时）
-        \item $(A^*)^{-1} = \frac{1}{\det(A)}A = (A^{-1})^*$（当 $A$ 可逆时）
-        \item $(A^*)^{T} = (A^{T})^*$
-        \item $(kA)^* = k^{n-1} A^*$
-        \item $(AB)^* = B^* A^*$
-        \item $(A^*)^* = [\det(A)]^{n-2} A$（当 $n \geq 3$ 时）
-    \end{enumerate}
-\end{conclusion}
-
-\subsection{行列式的计算技巧}
-
-\begin{formula}{行列式计算常用方法}{common determinant computation techniques}
-    \begin{enumerate}
-        \item \textbf{化为三角行列式法}：利用初等行变换（倍加变换为主），将行列式化为上三角形式，
-        行列式的值即为主对角线元素的乘积。
-        \item \textbf{按行（列）展开法}（降阶法）：选择零元素较多的行或列进行展开，结合性质先制造更多的零。
-        \item \textbf{加边法}（升阶法）：通过添加一行一列将原行列式扩大一阶，便于使用性质化简。
-        \item \textbf{递推法}：对于具有规律性的 $n$ 阶行列式，建立 $D_n$ 与 $D_{n-1}$（或 $D_{n-2}$）之间的递推关系。
-        \item \textbf{数学归纳法}：先计算低阶情形猜测结果，再用归纳法证明。
-        \item \textbf{拆项法}：利用行列式的线性性质，将某行（列）拆分为两部分。
-        \item \textbf{提取公因子法}：将各行（列）的公因子提出，简化计算。
-    \end{enumerate}
-\end{formula}
-
-\boxed{\textbf{例}}（加边法）计算 $n$ 阶行列式
-\[
-D_n = \begin{vmatrix}
-1+a_1 & 1 & \cdots & 1 \\
-1 & 1+a_2 & \cdots & 1 \\
-\vdots & \vdots & \ddots & \vdots \\
-1 & 1 & \cdots & 1+a_n
-\end{vmatrix}
-\]
-加边：
-\[
-D_n = \begin{vmatrix}
-1 & 1 & 1 & \cdots & 1 \\
-0 & 1+a_1 & 1 & \cdots & 1 \\
-0 & 1 & 1+a_2 & \cdots & 1 \\
-\vdots & \vdots & \vdots & \ddots & \vdots \\
-0 & 1 & 1 & \cdots & 1+a_n
-\end{vmatrix}
-\xrightarrow{r_i - r_1\;(i\geq 2)}
-\begin{vmatrix}
-1 & 1 & 1 & \cdots & 1 \\
--1 & a_1 & 0 & \cdots & 0 \\
--1 & 0 & a_2 & \cdots & 0 \\
-\vdots & \vdots & \vdots & \ddots & \vdots \\
--1 & 0 & 0 & \cdots & a_n
-\end{vmatrix}
-\]
-再按第一列展开或用分块公式，最终得
-\[
-D_n = a_1a_2\cdots a_n \left(1 + \sum_{i=1}^{n} \frac{1}{a_i}\right) \quad (a_i \neq 0)
-\]
-
-\newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{填空题} 计算四阶行列式：
-\[
-D = \begin{vmatrix}
-2 & 1 & -1 & 3 \\
-4 & 2 & 1 & 5 \\
-1 & 0 & 2 & -1 \\
-3 & -2 & 1 & 4
-\end{vmatrix}
-\]
-通过初等行变换化为上三角行列式，$D = \underline{\qquad}$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 利用初等行变换将行列式化为上三角形式。
-\[
-\begin{aligned}
-D &= \begin{vmatrix}
-2 & 1 & -1 & 3 \\
-4 & 2 & 1 & 5 \\
-1 & 0 & 2 & -1 \\
-3 & -2 & 1 & 4
-\end{vmatrix}
-\xrightarrow{r_2 - 2r_1}
-\begin{vmatrix}
-2 & 1 & -1 & 3 \\
-0 & 0 & 3 & -1 \\
-1 & 0 & 2 & -1 \\
-3 & -2 & 1 & 4
-\end{vmatrix} \\
-&\xrightarrow{\text{交换 } r_2 \leftrightarrow r_3}
--\begin{vmatrix}
-2 & 1 & -1 & 3 \\
-1 & 0 & 2 & -1 \\
-0 & 0 & 3 & -1 \\
-3 & -2 & 1 & 4
-\end{vmatrix}
-\xrightarrow{r_2 - \frac{1}{2}r_1}
--\begin{vmatrix}
-2 & 1 & -1 & 3 \\
-0 & -\frac{1}{2} & \frac{5}{2} & -\frac{5}{2} \\
-0 & 0 & 3 & -1 \\
-3 & -2 & 1 & 4
-\end{vmatrix} \\
-&\xrightarrow{r_4 - \frac{3}{2}r_1}
--\begin{vmatrix}
-2 & 1 & -1 & 3 \\
-0 & -\frac{1}{2} & \frac{5}{2} & -\frac{5}{2} \\
-0 & 0 & 3 & -1 \\
-0 & -\frac{7}{2} & \frac{5}{2} & -\frac{1}{2}
-\end{vmatrix}
-\xrightarrow{r_4 - 7r_2}
--\begin{vmatrix}
-2 & 1 & -1 & 3 \\
-0 & -\frac{1}{2} & \frac{5}{2} & -\frac{5}{2} \\
-0 & 0 & 3 & -1 \\
-0 & 0 & -15 & 17
-\end{vmatrix} \\
-&\xrightarrow{r_4 + 5r_3}
--\begin{vmatrix}
-2 & 1 & -1 & 3 \\
-0 & -\frac{1}{2} & \frac{5}{2} & -\frac{5}{2} \\
-0 & 0 & 3 & -1 \\
-0 & 0 & 0 & 12
-\end{vmatrix}
-= -\left[2 \cdot \left(-\frac{1}{2}\right) \cdot 3 \cdot 12\right] = -(-36) = 36.
-\end{aligned}
-\]
-\boxed{\textbf{答}} $D = 36$。
-
-\else \answerarea \fi%
-\item \textbf{选择题} 下列哪种操作会使行列式变为原行列式的\textbf{相反数}？
-\begin{enumerate}[label=(\Alph*)]
-    \item 交换两行
-    \item 将某一行的$k$倍加到另一行上
-    \item 将某一行乘以常数 $k$（$k\neq0$）
-    \item 将行列式转置
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 交换行列式的两行，行列式变为原来的相反数；
-倍加变换和转置不改变行列式，将一行乘以 $k$ 则使行列式乘以 $k$。
-
-\boxed{\textbf{答}} 选 \textbf{(A)}。
-
-\else \answerarea \fi%
-\item \textbf{计算题} 利用按行（列）展开定理，选择零元素最多的行或列，计算：
-\[
-D = \begin{vmatrix}
-3 & 0 & 2 & 1 \\
-5 & 2 & 0 & 4 \\
-0 & 0 & -1 & 3 \\
-2 & 0 & 1 & 0
-\end{vmatrix}
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 观察行列式，第2列除 $a_{22}=2$ 外其余均为 $0$，选择按第2列展开：
-\[
-\begin{aligned}
-D &= 2 \cdot (-1)^{2+2} \begin{vmatrix}
-3 & 2 & 1 \\
-0 & -1 & 3 \\
-2 & 1 & 0
-\end{vmatrix} \quad (\text{第2列其余元素为0，只有一项}) \\
-&= 2 \cdot \begin{vmatrix}
-3 & 2 & 1 \\
-0 & -1 & 3 \\
-2 & 1 & 0
-\end{vmatrix}
-\end{aligned}
-\]
-将上面的三阶行列式按第1列展开（含一个零）：
-\[
-\begin{aligned}
-\begin{vmatrix}
-3 & 2 & 1 \\
-0 & -1 & 3 \\
-2 & 1 & 0
-\end{vmatrix}
-&= 3 \cdot (-1)^{1+1} \begin{vmatrix} -1 & 3 \\ 1 & 0 \end{vmatrix}
-+ 0 \cdot (\cdots)
-+ 2 \cdot (-1)^{3+1} \begin{vmatrix} 2 & 1 \\ -1 & 3 \end{vmatrix} \\
-&= 3 \cdot [(-1)\cdot 0 - 3\cdot 1] + 2 \cdot [2\cdot 3 - 1\cdot(-1)] \\
-&= 3 \cdot (-3) + 2 \cdot (6 + 1) = -9 + 14 = 5.
-\end{aligned}
-\]
-故 $D = 2 \times 5 = 10$。
-
-\boxed{\textbf{答}} $D = 10$。
-
-\else \answerarea \fi%
-\item \textbf{计算题} 解关于 $x$ 的方程：
-\[
-\begin{vmatrix}
-x-1 & 2 & 0 \\
-2 & x-1 & 2 \\
-0 & 2 & x-1
-\end{vmatrix} = 0
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 计算三阶行列式：
-\[
-\begin{aligned}
-\begin{vmatrix}
-x-1 & 2 & 0 \\
-2 & x-1 & 2 \\
-0 & 2 & x-1
-\end{vmatrix}
-&= (x-1)\begin{vmatrix} x-1 & 2 \\ 2 & x-1 \end{vmatrix}
-- 2\begin{vmatrix} 2 & 2 \\ 0 & x-1 \end{vmatrix} + 0 \\
-&= (x-1)[(x-1)^2 - 4] - 2[2(x-1) - 0] \\
-&= (x-1)[(x-1)^2 - 4] - 4(x-1) \\
-&= (x-1)[(x-1)^2 - 8] = 0.
-\end{aligned}
-\]
-故 $(x-1)[(x-1)^2 - 8] = 0$，即 $x-1=0$ 或 $(x-1)^2=8$，得：
-\[
-x = 1,\quad x = 1 \pm 2\sqrt{2}.
-\]
-
-\boxed{\textbf{答}} $x = 1,\; 1+\sqrt{8},\; 1-\sqrt{8}$。
-
-\else \answerarea \fi%
-\item \textbf{选择题} 设 $A$ 为 $n$ 阶方阵，$k$ 为常数，则下列等式中正确的是
-\begin{enumerate}[label=(\Alph*)]
-    \item $|kA| = k|A|$
-    \item $|kA| = |k|\cdot|A|$
-    \item $|kA| = k^n|A|$
-    \item $|kA| = |k|^n\cdot |A|$
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 由行列式的公因子提取性质：若将方阵 $A$ 的\textbf{每一行}都乘以 $k$，相当于从每一行提取公因子 $k$，共 $n$ 行，因此 $|kA| = k^n|A|$。\\
-选项 (C) 正确。注意 $|kA|$ 中 $k$ 是实数，不需加绝对值。(A) 丢掉了指数 $n$；(B) 多加了绝对值；(D) 错误。常见考研陷阱题。
-
-\boxed{\textbf{答}} 选\textbf{(C)}。
-
-\else \answerarea \fi%
-\item \textbf{计算题} 利用范德蒙德行列式公式，计算：
-\[
-V = \begin{vmatrix}
-1 & 1 & 1 & 1 \\
-1 & 2 & -1 & 3 \\
-1 & 4 & 1 & 9 \\
-1 & 8 & -1 & 27
-\end{vmatrix}
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 该行列式第1行为 $(1,1,1,1)$，第2行为 $(x_1,x_2,x_3,x_4)$，第3行为 $(x_1^2,x_2^2,x_3^2,x_4^2)$，第4行为 $(x_1^3,x_2^3,x_3^3,x_4^3)$，这是一个 $4$ 阶范德蒙德行列式，其中
-\[
-x_1=1,\; x_2=2,\; x_3=-1,\; x_4=3.
-\]
-由范德蒙德行列式公式：
-\[
-\begin{aligned}
-V &= \prod_{1 \leq i < j \leq 4} (x_j - x_i) \\
-&= (2-1)(-1-1)(3-1)(-1-2)(3-2)(3-(-1)) \\
-&= 1 \cdot (-2) \cdot 2 \cdot (-3) \cdot 1 \cdot 4 \\
-&= 1 \times (-2) \times 2 \times (-3) \times 1 \times 4 = 48.
-\end{aligned}
-\]
-
-\boxed{\textbf{答}} $V = 48$。
-
-\else \answerarea \fi%
-\item \textbf{填空题} 设 $A$ 为 $3$ 阶方阵且 $|A|=2$，则
-$|2A| = \underline{\qquad}$，
-$|A^{-1}| = \underline{\qquad}$，
-$|A^*| = \underline{\qquad}$（其中 $A^*$ 为伴随矩阵）。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 已知 $A$ 为 $3$ 阶方阵，$|A|=2$，$n=3$。
-\begin{itemize}
-    \item $|2A| = 2^3 |A| = 8 \times 2 = 16$（从每一行提取公因子 $2$，共 $3$ 行）。
-    \item $|A^{-1}| = |A|^{-1} = \frac{1}{2}$（因为 $AA^{-1}=I$，取行列式得 $|A||A^{-1}|=1$，故 $|A^{-1}|=1/|A|$）。
-    \item $|A^*| = |A|^{n-1} = |A|^{2} = 4$（伴随矩阵性质：$|A^*|=|A|^{n-1}$）。
-\end{itemize}
-
-\boxed{\textbf{答}} $|2A|=16$，$|A^{-1}|=\frac{1}{2}$，$|A^*|=4$。
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{综合提高题}
-
-\begin{enumerate}[resume]
-
-\item \textbf{综合计算题} 设 $A,B$ 均为 $3$ 阶方阵，$|A|=2$，$|B|=-3$，
-且满足 $AB + A + B = O$（零矩阵）。求 $|A+B|$。
-\boxed{\text{注}} 提示：将原式移项得 $A+B = -AB$，再取行列式。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 由题设直接移项得
-\[
-A+B=-AB.
-\]
-因此对三阶方阵取行列式，
-\[
-|A+B| = |{-AB}| = (-1)^3|AB| = (-1)^3|A||B| = -1 \times 2 \times (-3) = 6.
-\]
-
-\boxed{\textbf{答}} $|A+B| = 6$。
-
-\else \answerarea \fi%
-\item \textbf{证明题} 设 $A$ 为 $n$ 阶方阵（$n \geq 2$），$A^*$ 为 $A$ 的伴随矩阵。
-证明：$|A^*| = |A|^{n-1}$。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}} 由伴随矩阵的性质，$AA^* = A^*A = |A|I_n$。
-
-若 $|A| \neq 0$（$A$ 可逆）：对 $AA^* = |A|I_n$ 两边取行列式：
-\[
-|A||A^*| = ||A|I_n| = |A|^n |I_n| = |A|^n.
-\]
-因为 $|A| \neq 0$，可约去 $|A|$，得 $|A^*| = |A|^{n-1}$。
-
-若 $|A| = 0$：需证 $|A^*| = 0$。用反证法。假设 $|A^*| \neq 0$，则 $A^*$ 可逆。由 $AA^* = |A|I_n = 0 \cdot I_n = O$，右乘 $(A^*)^{-1}$ 得 $A = O$。但若 $A = O$，则 $A^* = O$（零矩阵的伴随矩阵也是零矩阵），与 $|A^*| \neq 0$ 矛盾。故 $|A^*| = 0 = 0^{n-1} = |A|^{n-1}$。
-
-当 $n-1=0$ 即 $n=1$ 时需单独约定，但题设 $n \geq 2$，公式成立。
-
-\boxed{\textbf{证毕}} $|A^*| = |A|^{n-1}$。
-
-\else \answerarea \fi%
-\item \textbf{计算题}（三对角行列式）计算 $n$ 阶行列式：
-\[
-D_n = \begin{vmatrix}
-2 & 1 & 0 & \cdots & 0 & 0 \\
-1 & 2 & 1 & \cdots & 0 & 0 \\
-0 & 1 & 2 & \cdots & 0 & 0 \\
-\vdots & \vdots & \vdots & \ddots & \vdots & \vdots \\
-0 & 0 & 0 & \cdots & 2 & 1 \\
-0 & 0 & 0 & \cdots & 1 & 2
-\end{vmatrix}
-\]
-\boxed{\text{注}} 提示：按第一行展开，建立递推关系 $D_n = 2D_{n-1} - D_{n-2}$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 记 $n$ 阶三对角行列式为 $D_n$。当 $n=1$ 时，$D_1 = |2| = 2$。当 $n=2$ 时，
-\[
-D_2 = \begin{vmatrix} 2 & 1 \\ 1 & 2 \end{vmatrix} = 3.
-\]
-
-对 $n\geq3$，按第一行展开。第一项的余子式就是 $D_{n-1}$；
-第二项的余子式记为 $M_{12}$，其第一列只有左上角元素 $1$ 非零，
-再按该列展开即得 $M_{12}=D_{n-2}$。考虑代数余子式的符号，故
-\[
-D_n=2D_{n-1}-D_{n-2}.
-\]
-
-因此得到递推公式 \(D_n=2D_{n-1}-D_{n-2}\ (n\geq3)\)。
-
-这是二阶线性递推，特征方程 $r^2 - 2r + 1 = 0$，得 $r=1$（二重根），通解为：
-\[
-D_n = (c_1 + c_2 n) \cdot 1^n = c_1 + c_2 n.
-\]
-代入初值 $D_1 = 2$，$D_2 = 3$：
-\[
-\begin{cases}
-c_1 + c_2 = 2, \\
-c_1 + 2c_2 = 3,
-\end{cases}
-\]
-解得 $c_2 = 1$，$c_1 = 1$。故 $D_n = n+1$。
-
-\boxed{\textbf{答}} $D_n = n+1$。
-
-\else \answerarea \fi%
-\item \textbf{证明题} 设 $A$ 为 $n$ 阶反对称矩阵（即 $A^T = -A$），且 $n$ 为奇数。
-证明：$|A| = 0$。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}} 设 $A$ 为 $n$ 阶反对称矩阵，即 $A^T = -A$，且 $n$ 为奇数。
-
-由行列式的转置不变性：$|A^T| = |A|$。\\
-又由 $A^T = -A$，得 $|A^T| = |{-A}|$。
-
-由于 $n$ 阶方阵乘以 $-1$，等于从每一行提取因子 $-1$，共 $n$ 行：
-\[
-|{-A}| = (-1)^n |A|.
-\]
-
-结合以上：
-\[
-|A| = |A^T| = |{-A}| = (-1)^n |A|.
-\]
-
-因为 $n$ 为奇数，$(-1)^n = -1$，因此：
-\[
-|A| = -|A| \implies 2|A| = 0 \implies |A| = 0.
-\]
-
-\boxed{\textbf{证毕}} 奇数阶反对称矩阵的行列式为零。
-
-\else \answerarea \fi%
-\item \textbf{计算题} 用克莱姆法则求解方程组，并用高斯消元法验证结果：
-\[
-\begin{cases}
-2x_1 + x_2 - x_3 = 5 \\
-x_1 - 3x_2 + 2x_3 = -1 \\
-3x_1 + 2x_2 + x_3 = 8
-\end{cases}
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 
-\textbf{法一：克莱姆法则。}
-
-系数行列式：
-\[
-D = \begin{vmatrix}
-2 & 1 & -1 \\
-1 & -3 & 2 \\
-3 & 2 & 1
-\end{vmatrix}
-\]
-按第1行展开：
-\[
-\begin{aligned}
-D &= 2\begin{vmatrix} -3 & 2 \\ 2 & 1 \end{vmatrix}
-- 1\begin{vmatrix} 1 & 2 \\ 3 & 1 \end{vmatrix}
-+ (-1)\begin{vmatrix} 1 & -3 \\ 3 & 2 \end{vmatrix} \\
-&= 2[(-3)\cdot 1 - 2\cdot 2] - 1[1\cdot 1 - 2\cdot 3] - [1\cdot 2 - (-3)\cdot 3] \\
-&= 2(-3 - 4) - (1 - 6) - (2 + 9) \\
-&= 2(-7) - (-5) - 11 = -14 + 5 - 11 = -20.
-\end{aligned}
-\]
-
-计算 $D_1$（将第1列换为常数项）：
-\[
-D_1 = \begin{vmatrix}
-5 & 1 & -1 \\
--1 & -3 & 2 \\
-8 & 2 & 1
-\end{vmatrix}
-\]
-按第1行展开：
-\[
-\begin{aligned}
-D_1 &= 5\begin{vmatrix} -3 & 2 \\ 2 & 1 \end{vmatrix}
-- 1\begin{vmatrix} -1 & 2 \\ 8 & 1 \end{vmatrix}
-+ (-1)\begin{vmatrix} -1 & -3 \\ 8 & 2 \end{vmatrix} \\
-&= 5(-7) - 1(-1 - 16) - [(-1)\cdot 2 - (-3)\cdot 8] \\
-&= -35 - (-17) - (-2 + 24) = -35 + 17 - 22 = -40.
-\end{aligned}
-\]
-
-计算 $D_2$（将第2列换为常数项）：
-\[
-D_2 = \begin{vmatrix}
-2 & 5 & -1 \\
-1 & -1 & 2 \\
-3 & 8 & 1
-\end{vmatrix}
-\]
-按第1行展开：
-\[
-\begin{aligned}
-D_2 &= 2\begin{vmatrix} -1 & 2 \\ 8 & 1 \end{vmatrix}
-- 5\begin{vmatrix} 1 & 2 \\ 3 & 1 \end{vmatrix}
-+ (-1)\begin{vmatrix} 1 & -1 \\ 3 & 8 \end{vmatrix} \\
-&= 2(-1 - 16) - 5(1 - 6) - (8 + 3) \\
-&= 2(-17) - 5(-5) - 11 = -34 + 25 - 11 = -20.
-\end{aligned}
-\]
-
-计算 $D_3$（将第3列换为常数项）：
-\[
-D_3 = \begin{vmatrix}
-2 & 1 & 5 \\
-1 & -3 & -1 \\
-3 & 2 & 8
-\end{vmatrix}
-\]
-按第1行展开：
-\[
-\begin{aligned}
-D_3 &= 2\begin{vmatrix} -3 & -1 \\ 2 & 8 \end{vmatrix}
-- 1\begin{vmatrix} 1 & -1 \\ 3 & 8 \end{vmatrix}
-+ 5\begin{vmatrix} 1 & -3 \\ 3 & 2 \end{vmatrix} \\
-&= 2(-24 + 2) - 1(8 + 3) + 5(2 + 9) \\
-&= 2(-22) - 11 + 5\cdot 11 = -44 - 11 + 55 = 0.
-\end{aligned}
-\]
-
-由克莱姆法则：
-\[
-x_1 = \frac{D_1}{D} = \frac{-40}{-20} = 2,\quad
-x_2 = \frac{D_2}{D} = \frac{-20}{-20} = 1,\quad
-x_3 = \frac{D_3}{D} = \frac{0}{-20} = 0.
-\]
-
-\textbf{法二：高斯消元法验证。}
-
-增广矩阵：
-\[
-\begin{pmatrix}
-2 & 1 & -1 & 5 \\
-1 & -3 & 2 & -1 \\
-3 & 2 & 1 & 8
-\end{pmatrix}
-\xrightarrow{r_2 - \frac{1}{2}r_1}
-\begin{pmatrix}
-2 & 1 & -1 & 5 \\
-0 & -\frac{7}{2} & \frac{5}{2} & -\frac{7}{2} \\
-3 & 2 & 1 & 8
-\end{pmatrix}
-\xrightarrow{r_3 - \frac{3}{2}r_1}
-\begin{pmatrix}
-2 & 1 & -1 & 5 \\
-0 & -\frac{7}{2} & \frac{5}{2} & -\frac{7}{2} \\
-0 & \frac{1}{2} & \frac{5}{2} & \frac{1}{2}
-\end{pmatrix}
-\]
-\[
-\xrightarrow{r_3 + \frac{1}{7}r_2}
-\begin{pmatrix}
-2 & 1 & -1 & 5 \\
-0 & -\frac{7}{2} & \frac{5}{2} & -\frac{7}{2} \\
-0 & 0 & \frac{20}{7} & 0
-\end{pmatrix}
-\]
-回代：$\frac{20}{7}x_3 = 0 \implies x_3 = 0$；
-$-\frac{7}{2}x_2 + \frac{5}{2}x_3 = -\frac{7}{2} \implies -\frac{7}{2}x_2 = -\frac{7}{2} \implies x_2 = 1$；
-$2x_1 + x_2 - x_3 = 5 \implies 2x_1 + 1 = 5 \implies x_1 = 2$。
-结果一致。
-
-\boxed{\textbf{答}} $x_1 = 2,\; x_2 = 1,\; x_3 = 0$。
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{填空题} $\boxed{\textbf{真题风格}}$ 设 $\alpha_1,\alpha_2,\alpha_3$ 为三维列向量，记矩阵
-$A = (\alpha_1,\alpha_2,\alpha_3)$，$B = (\alpha_1+2\alpha_2,\;\alpha_2+2\alpha_3,\;\alpha_3+2\alpha_1)$。
-若 $|A| = 3$，则 $|B| = \underline{\qquad}$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 由已知：
-\[
-B = (\alpha_1+2\alpha_2,\;\alpha_2+2\alpha_3,\;\alpha_3+2\alpha_1).
-\]
-
-矩阵 $B$ 可由 $A$ 经列变换得到：
-\[
-B = (\alpha_1,\alpha_2,\alpha_3) \begin{pmatrix}
-1 & 0 & 2 \\
-2 & 1 & 0 \\
-0 & 2 & 1
-\end{pmatrix}
-= A \cdot C,
-\]
-其中
-\[
-C = \begin{pmatrix}
-1 & 0 & 2 \\
-2 & 1 & 0 \\
-0 & 2 & 1
+A^*=\begin{pmatrix}
+A_{11}&A_{21}&\cdots&A_{n1}\\
+A_{12}&A_{22}&\cdots&A_{n2}\\
+\vdots&\vdots&&\vdots\\
+A_{1n}&A_{2n}&\cdots&A_{nn}
 \end{pmatrix}.
 \]
+注意下标是转置着放的：$A^*$ 的第 $i$ 行第 $j$ 列是 $A_{ji}$。
 
-取行列式：
+\begin{formula}{伴随矩阵的基本关系}{det-adjugate}
 \[
-|B| = |A| \cdot |C|.
+AA^*=A^*A=\det(A)\,I_n,
+\qquad
+A^{-1}=\frac{1}{\det A}A^*\quad(\det A\neq0).
+\]
+当 $n\geq2$ 时，$\det(A^*)=[\det A]^{n-1}$。
+\end{formula}
+
+第一条的验证只用两句话：乘积的第 $(i,i)$ 元是 $\sum_k a_{ik}A_{ik}$，即按第 $i$ 行展开，等于 $\det A$；第 $(i,j)$ 元（$i\neq j$）是 $\sum_k a_{ik}A_{jk}$，由“异乘为零”等于 $0$。第二条对 $AA^*=\det(A)I_n$ 两边取行列式，得 $\det A\cdot\det A^*=(\det A)^n$，约去 $\det A$ 即可。
+
+\boxed{\textbf{例}}
+对 $A=\begin{pmatrix}1&2\\3&4\end{pmatrix}$，$\det A=-2$，$A^*=\begin{pmatrix}4&-2\\-3&1\end{pmatrix}$，故
+\[
+A^{-1}=-\frac12\begin{pmatrix}4&-2\\-3&1\end{pmatrix}
+=\begin{pmatrix}-2&1\\ \tfrac32&-\tfrac12\end{pmatrix}.
 \]
 
-计算 $|C|$：
+行列式与矩阵乘法的关系同样来自体积：先做变换 $B$ 再做 $A$，体积先乘 $\det B$ 再乘 $\det A$，所以
 \[
-\begin{aligned}
-|C| &= \begin{vmatrix}
-1 & 0 & 2 \\
-2 & 1 & 0 \\
-0 & 2 & 1
-\end{vmatrix}
-= 1\begin{vmatrix} 1 & 0 \\ 2 & 1 \end{vmatrix} - 0 + 2\begin{vmatrix} 2 & 1 \\ 0 & 2 \end{vmatrix} \\
-&= 1 \cdot 1 + 2 \cdot 4 = 9.
-\end{aligned}
+\det(AB)=\det A\cdot\det B.
 \]
+由此立刻得到 $\det(A^{-1})=1/\det A$ 和 $\det(A^k)=(\det A)^k$。
 
-故 $|B| = 3 \times 9 = 27$。
-
-\boxed{\textbf{答}} $|B| = 27$。
-
-\else \answerarea \fi%
-\item \textbf{计算题} $\boxed{\textbf{真题风格}}$ 计算 $n$ 阶行列式：
-\[
-D_n = \begin{vmatrix}
-a & b & b & \cdots & b \\
-b & a & b & \cdots & b \\
-b & b & a & \cdots & b \\
-\vdots & \vdots & \vdots & \ddots & \vdots \\
-b & b & b & \cdots & a
-\end{vmatrix}_{n\times n}
-\]
-即主对角线元素均为 $a$，其余元素均为 $b$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 将第2至第 $n$ 列都加到第1列：
-\[
-D_n = \begin{vmatrix}
-a+(n-1)b & b & b & \cdots & b \\
-a+(n-1)b & a & b & \cdots & b \\
-a+(n-1)b & b & a & \cdots & b \\
-\vdots & \vdots & \vdots & \ddots & \vdots \\
-a+(n-1)b & b & b & \cdots & a
-\end{vmatrix}
-\]
-
-提取第1列公因子 $[a+(n-1)b]$：
-\[
-D_n = [a+(n-1)b] \begin{vmatrix}
-1 & b & b & \cdots & b \\
-1 & a & b & \cdots & b \\
-1 & b & a & \cdots & b \\
-\vdots & \vdots & \vdots & \ddots & \vdots \\
-1 & b & b & \cdots & a
-\end{vmatrix}
-\]
-
-将第1行的 $(-b)$ 倍加到其余各行（$i \geq 2$，注意第 $i$ 行的第 $j$ 列，$j \geq 2$）：
-\[
-D_n = [a+(n-1)b] \begin{vmatrix}
-1 & b & b & \cdots & b \\
-0 & a-b & 0 & \cdots & 0 \\
-0 & 0 & a-b & \cdots & 0 \\
-\vdots & \vdots & \vdots & \ddots & \vdots \\
-0 & 0 & 0 & \cdots & a-b
-\end{vmatrix}
-\]
-
-这是上三角行列式（实际是具第一行非对角元的下三角），其值等于主对角线元素之积：
-\[
-D_n = [a+(n-1)b] \cdot 1 \cdot (a-b)^{n-1} = [a + (n-1)b](a-b)^{n-1}.
-\]
-
-\boxed{\textbf{答}} $D_n = [a + (n-1)b](a-b)^{n-1}$。
-
-\else \answerarea \fi%
-\item \textbf{证明题} $\boxed{\textbf{真题风格}}$ 设 $A$ 为 $n$ 阶方阵（$n \geq 2$），$A^*$ 为 $A$ 的伴随矩阵。
-证明：
-\[
-r(A^*) = \begin{cases}
-n, & r(A) = n, \\
-1, & r(A) = n-1, \\
-0, & r(A) \leq n-2.
-\end{cases}
-\]
-其中 $r(\cdot)$ 表示矩阵的秩。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}} 分三种情况讨论。
-
-\textbf{情况一：$r(A) = n$。} 此时 $A$ 满秩，$|A| \neq 0$。由 $AA^* = |A|I_n$，两边取行列式：
-\[
-|A||A^*| = |A|^n \implies |A^*| = |A|^{n-1} \neq 0.
-\]
-$|A^*| \neq 0$ 说明 $A^*$ 可逆，故 $r(A^*) = n$。
-
-\textbf{情况二：$r(A) = n-1$。} 此时 $|A| = 0$，故 $AA^* = O$。
-
-由 $AA^* = O$，可知 $A^*$ 的每一列都是齐次线性方程组 $Ax = 0$ 的解。因为 $r(A)=n-1$，$Ax=0$ 的解空间维数为 $1$。故 $A^*$ 的列向量都在这条一维子空间中，因此 $r(A^*) \leq 1$。
-
-下面证明 $r(A^*) \neq 0$（即 $A^* \neq O$）。由于 $r(A)=n-1$，至少存在一个 $n-1$ 阶子式非零（因为秩为 $n-1$ 意味着存在非零的 $n-1$ 阶余子式），从而至少有一个代数余子式 $A_{ij} \neq 0$。而 $A^*$ 的元素就是这些代数余子式（转置后），故 $A^* \neq O$，$r(A^*) \geq 1$。
-
-结合 $r(A^*) \leq 1$，得 $r(A^*) = 1$。
-
-\textbf{情况三：$r(A) \leq n-2$。} 此时 $A$ 的所有 $n-1$ 阶子式均为 $0$，故所有代数余子式 $A_{ij} = 0$，从而 $A^* = O$，$r(A^*) = 0$。
-
-综上所述：
-\[
-r(A^*) = \begin{cases}
-n, & r(A)=n, \\
-1, & r(A)=n-1, \\
-0, & r(A) \leq n-2.
-\end{cases}
-\]
-
-\boxed{\textbf{证毕}}
-
-\else \answerarea \fi%
+最后把可逆性的几种说法并列在一起，它们互相等价：
+\begin{enumerate}
+  \item $A$ 可逆；
+  \item $\det A\neq0$；
+  \item $A$ 的列（行）向量组线性无关；
+  \item 齐次方程组 $A\boldsymbol{x}=\boldsymbol{0}$ 只有零解；
+  \item $A$ 可用初等行变换化为 $I_n$。
 \end{enumerate}
+其中“$\det A\neq0$ 等价于列向量线性无关”就是开篇那句话：行列式为零，平行多面体被压扁，向量组出现冗余；不为零，体积还在，向量组独立，矩阵可逆。
+
+\newpage
+\input{algebra/exercises/chap3.tex}

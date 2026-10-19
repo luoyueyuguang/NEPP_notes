@@ -1,377 +1,441 @@
 \section{串}
 
-\subsection{串的定义与ADT}
+在编辑器里按一次“查找”，在 DNA 序列里找一段碱基，在日志里筛一个错误码，做的都是同一件事：在一段长字符串里找一个短字符串第一次出现的位置。串就是为这类“按字符连续比较”准备的结构。它的逻辑结构和线性表一样，只是每个元素限定为字符；操作上则常以整段子串为单位，而不是逐个元素处理。
 
-\begin{mydef}{串}{string-def}
-串（String）是由零个或多个字符组成的有限序列，记作：
+串是零个或多个字符组成的有限序列，记作
 \[
-S = \texttt{'}a_{1}a_{2}\cdots a_{n}\texttt{'}\qquad (n \geqslant 0)
+S=a_1a_2\cdots a_n\qquad(n\ge 0),
 \]
-其中 $S$ 为串名，$n$ 为串长，$n=0$ 时为空串，记作 $\varepsilon$。
+其中 $n$ 是串长。$n=0$ 时称为空串，记作 $\varepsilon$。
 
-\textbf{相关术语：}
-\begin{itemize}
-    \item \textbf{子串}：串中任意连续字符组成的子序列。
-    \item \textbf{主串}：包含子串的串。
-    \item \textbf{串相等}：长度相等且对应位置字符均相同。
-    \item \textbf{空格串}：由一个或多个空格组成的串（不是空串）。
-\end{itemize}
-\end{mydef}
+以 $T=\texttt{abcababc}$ 为例：\texttt{abc}、\texttt{cab}、\texttt{ababc} 都是它的子串，子串必须连续；\texttt{aaa} 只是子序列，不是子串。包含子串的串叫主串，被查找的串叫模式串。从第一个字符开始的一段叫前缀，以最后一个字符结尾的一段叫后缀，“真”前缀、真后缀指不包含整个串本身。既是真前缀又是真后缀的串叫 border，例如 \texttt{abcababc} 的 border 是 \texttt{abc}；而 \texttt{abcab} 的 border 是 \texttt{ab}。
+
+按起始位置和长度区分，长度为 $n$ 的串有 $n(n+1)/2$ 个非空子串，加上空串共 $n(n+1)/2+1$ 个；真子串（去掉串本身）有 $n(n+1)/2$ 个。这里按“位置”计数：\texttt{aaa} 中两个 \texttt{a} 算两个不同的子串。串相等要求长度相同且对应位置字符完全相同；按字典序比较时，从第一个不同的字符决定大小，若短串是长串的前缀，则短串更小。
 
 \begin{attention}
-\textbf{408 辨析重点：空串 vs 空格串。} 空串 $\varepsilon$ 长度为 0；空格串由空格字符组成，长度 $\geqslant 1$。
+空串 $\varepsilon$ 的长度为 0；空格串由一个或多个空格组成，长度等于空格个数，至少为 1。空串是任何串的子串，也是任何非空串的真前缀和真后缀。题目里“空串”“空格串”“长度为 0”是三种不同说法。
 \end{attention}
 
-\subsection{朴素的模式匹配（BF算法）}
+\subsection{串的存储与基本操作}
 
-\begin{mydef}{模式匹配}{pattern-matching}
-给定主串 $S$（长 $n$）和模式串 $T$（长 $m$，$n\geqslant m$），在 $S$ 中寻找首次等于 $T$ 的子串的过程称为\textbf{模式匹配}。
-\end{mydef}
+顺序存储最常见。408 的代码通常约定 \texttt{ch[1..length]} 保存字符，\texttt{ch[0]} 空着不用，串长单独放在 \texttt{length} 字段：
+\begin{lstlisting}[language=C]
+#define MAXLEN 255
+typedef struct {
+    char ch[MAXLEN + 1];   /* ch[1..length] 存字符，ch[0] 不用 */
+    int  length;           /* 当前串长 */
+} SString;
+\end{lstlisting}
+有的教材把长度塞进 \texttt{ch[0]}（值域只有 $0\sim255$），但做题时若题目给了 \texttt{length} 字段，就按上面的约定理解。堆分配存储把字符放在 \texttt{malloc} 得到的一段连续空间里，结构体只保存首地址和长度，适合串长变化较大的场合：
+\begin{lstlisting}[language=C]
+typedef struct {
+    char *ch;              /* 指向堆区，按实际串长分配 */
+    int   length;
+} HString;
+\end{lstlisting}
+块链存储把字符切成固定大小的块，块与块之间用指针连接。它的插入、删除比顺序存储灵活，但想取第 $i$ 个字符得沿链找块，不能随机访问。
 
-\begin{conclusion}{BF（Brute-Force）算法}{bf-algorithm}
-从主串每个位置开始，逐个字符与模式串比较；失配则主串回溯到下一位置，模式串回到首字符。
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth]
+  % (a) 定长顺序存储
+  \node[anchor=west, font=\bfseries, text=Navy] at (-1.7,0.55) {(a) 定长顺序存储};
+  \foreach \i in {0,...,7}
+    \node[draw, minimum width=0.7cm, minimum height=0.5cm, fill=SoftGray] (a\i) at (\i*0.72,0) {};
+  \foreach \i/\c in {1/d,2/a,3/t,4/a}
+    \node[draw, minimum width=0.7cm, minimum height=0.5cm, fill=SoftBlue] at (\i*0.72,0) {$\c$};
+  \foreach \i in {0,...,7}
+    \node[font=\tiny, black!55] at (\i*0.72,-0.42) {\i};
+  \node[draw, fill=SoftAmber, minimum width=1.05cm, minimum height=0.5cm] at (6.25,0) {\texttt{len}=4};
+  \node[font=\tiny, black!60, anchor=west] at (7.0,0) {字符在 \texttt{ch[1..len]}};
 
+  % (b) 堆分配
+  \node[anchor=west, font=\bfseries, text=Navy] at (-1.7,-1.25) {(b) 堆分配};
+  \node[draw, fill=SoftAmber, minimum width=0.85cm, minimum height=0.5cm] (hp) at (0.35,-1.8) {\texttt{ch}};
+  \foreach \i/\c in {1/h,2/e,3/l,4/l,5/o}
+    \node[draw, minimum width=0.7cm, minimum height=0.5cm, fill=SoftBlue] (b\i) at (1.5+\i*0.72,-1.8) {$\c$};
+  \draw[->, Teal, thick] (hp.east) -- (b1.west);
+  \node[font=\tiny, black!60] at (3.35,-1.32) {堆区（malloc）};
+  \node[draw, fill=SoftAmber, minimum width=1.05cm, minimum height=0.5cm] at (6.25,-1.8) {\texttt{len}=5};
+
+  % (c) 块链
+  \node[anchor=west, font=\bfseries, text=Navy] at (-1.7,-2.65) {(c) 块链};
+  \foreach \i/\c in {1/d,2/a,3/t,4/a}
+    \node[draw, minimum width=0.6cm, minimum height=0.5cm, fill=SoftBlue] (c1\i) at (0.45+\i*0.6,-3.2) {$\c$};
+  \node[draw, minimum width=0.55cm, minimum height=0.5cm, fill=SoftAmber] (c1n) at (3.15,-3.2) {\tiny next};
+  \foreach \i/\c in {1/s,2/t,3/r,4/i}
+    \node[draw, minimum width=0.6cm, minimum height=0.5cm, fill=SoftBlue] (c2\i) at (3.95+\i*0.6,-3.2) {$\c$};
+  \node[draw, minimum width=0.55cm, minimum height=0.5cm, fill=SoftAmber] (c2n) at (6.65,-3.2) {\tiny next};
+  \foreach \i/\c in {1/n,2/g,3/{\#},4/{\#}}
+    \node[draw, minimum width=0.6cm, minimum height=0.5cm, fill=SoftBlue] (c3\i) at (7.45+\i*0.6,-3.2) {$\c$};
+  \node[draw, minimum width=0.55cm, minimum height=0.5cm, fill=SoftAmber] (c3n) at (10.15,-3.2) {$\wedge$};
+  \draw[->, Teal, thick] (c1n.east) -- (c21.west);
+  \draw[->, Teal, thick] (c2n.east) -- (c31.west);
+  \node[font=\tiny, black!60] at (2.6,-3.7) {每块固定 4 个字符 + 一个指针（\# 为填充）};
+\end{tikzpicture}
+\end{center}
+三种布局画的都是逻辑结构：顺序存储靠下标随机访问；堆分配多一次间接寻址，换来可变串长；块链把字符切块，找第 $i$ 个字符要沿链定位。
+
+串的 ADT 以整串为操作对象：赋值 \texttt{StrAssign}、复制 \texttt{StrCopy}、判空 \texttt{StrEmpty}、比较 \texttt{StrCompare}、求长 \texttt{StrLength}、取子串 \texttt{SubString}、连接 \texttt{Concat}、定位 \texttt{Index}、清空 \texttt{ClearString}。前几个操作基本都是一次 $O(n)$ 的搬运；本章的重点是
+\[
+\texttt{Index}(S,T,\textit{pos}),
+\]
+即从主串 $S$ 的第 \textit{pos} 个字符起，找模式串 $T$ 第一次出现的位置，找不到返回 0。下面的 BF 和 KMP 都是它的实现。
+
+\subsection{朴素匹配：失配就从头再来}
+
+BF（Brute Force，暴力匹配）的做法很直接：把 $T$ 依次对齐到 $S$ 的每个起点，逐字符比较；一旦失配，$T$ 整体右移一位，$T$ 的指针回到第一个字符，主串指针回到本轮起点的下一个位置。下面记主串长 $n=|S|$、模式串长 $m=|T|$，通常 $n\ge m$。
+
+取 $S=\texttt{ababcabcacbab}$、$T=\texttt{abcac}$：
+\begin{itemize}
+  \item 第 1 趟从 $S[1]$ 对齐：前两对 \texttt{a}、\texttt{b} 相同，第 3 对 $S[3]=\texttt{a}$ 与 $T[3]=\texttt{c}$ 失配。
+  \item 第 2 趟从 $S[2]$ 对齐：$S[2]=\texttt{b}$ 与 $T[1]=\texttt{a}$ 立即失配。
+  \item 第 3 趟从 $S[3]$ 对齐：\texttt{abca} 四对相同，第 5 对 $S[7]=\texttt{b}$ 与 $T[5]=\texttt{c}$ 失配。
+  \item 第 4、5 趟分别从 $S[4]$、$S[5]$ 对齐，首字符就失配。
+  \item 第 6 趟从 $S[6]$ 对齐：$S[6..10]=\texttt{abcac}=T$，匹配成功，返回 6。
+\end{itemize}
+
+代码里用 $i$ 记主串当前比较位置、$j$ 记模式串当前比较位置。失配时本趟起点是 $i-j+1$，下一趟从它的下一位开始，所以 $i$ 改成 $i-j+2$：
 \begin{lstlisting}[language=C]
 int Index_BF(SString S, SString T) {
     int i = 1, j = 1;
     while (i <= S.length && j <= T.length) {
-        if (S.ch[i] == T.ch[j]) { i++; j++; }
-        else { i = i - j + 2; j = 1; }  // i回溯, j复位
+        if (S.ch[i] == T.ch[j]) { ++i; ++j; }
+        else { i = i - j + 2; j = 1; }   /* 回到本趟起点的下一位 */
     }
-    if (j > T.length) return i - T.length;
-    else return 0;
+    if (j > T.length) return i - T.length;  /* 本趟起点 */
+    return 0;
 }
 \end{lstlisting}
-
-\textbf{回溯公式 $i = i-j+2$ 的理解：} $i-j+1$ 是本轮起始位置，$+1$ 即下一位置。
-
-\textbf{时间复杂度：} 最好 $O(n)$，最坏 $O(nm)$（如 $S=$"aaaa…a"，$T=$"aaaab"）。只有在字符独立、失配位置具有特定概率分布等平均模型下，期望代价才可接近线性；脱离概率模型时不应无条件写成“平均 $O(n+m)$”。
+匹配成功时 $j=T.length+1$，$i$ 停在匹配段之后，所以起点是 $i-T.length$。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[font=\scriptsize, Navy] at (0.4,0.4){$S$:};
-  \foreach \c/\i in {a/1,b/2,a/3,b/4,a/5}{
-    \node[draw, rectangle, minimum width=0.75cm, minimum height=0.55cm, fill=SoftBlue] (S\i) at (\i*0.82,0.4){$\c$};
-    \node[font=\scriptsize, black!55] at (\i*0.82,0.0){$\i$};
-  }
-  \node[font=\scriptsize, Navy] at (0.4,-0.85){$T$:};
-  \foreach \c/\i in {a/1,b/2,a/3,c/4}{
-    \node[draw, rectangle, minimum width=0.75cm, minimum height=0.55cm, fill=SoftAmber] (T\i) at (\i*0.82,-0.85){$\c$};
-  }
-  \draw[Burgundy, thick] (S4.south west) rectangle (S4.north east);
-  \draw[Burgundy, thick] (T4.south west) rectangle (T4.north east);
-  \node[font=\scriptsize, black!70] at (2.6,-1.5){第 4 位失配（$S[4]=b\neq T[4]=c$）};
-  \node[font=\scriptsize, black!70] at (2.6,-1.95){失配后 $i\leftarrow i-j+2$（主串指针右移一位），$j$ 回到 1};
+\begin{tikzpicture}[font=\scriptsize, >=stealth, x=0.5cm]
+  % 第 1 趟
+  \node[anchor=east, text=Navy] at (0.4,0) {$S$};
+  \foreach \c/\i in {a/1,b/2,a/3,b/4,c/5,a/6,b/7,c/8,a/9,c/10,b/11,a/12,b/13}
+    \node[draw, minimum width=0.46cm, minimum height=0.4cm, fill=SoftBlue] (s1\i) at (\i,0) {$\c$};
+  \node[anchor=east, font=\tiny, black!70] at (0.4,-0.55) {第 1 趟};
+  \foreach \c/\i in {a/1,b/2,c/3,a/4,c/5}
+    \node[draw, minimum width=0.46cm, minimum height=0.4cm, fill=SoftTeal] (t1\i) at (\i,-0.55) {$\c$};
+  \node[draw, Burgundy, very thick, minimum width=0.46cm, minimum height=0.4cm, fill=SoftTeal] at (3,-0.55) {$\texttt{c}$};
+  \draw[Burgundy, thick, dashed] (s13.south) -- (3,-0.35);
+  \node[Burgundy] at (3,-0.275) {$\times$};
+
+  % 第 2 趟
+  \foreach \c/\i in {a/1,b/2,a/3,b/4,c/5,a/6,b/7,c/8,a/9,c/10,b/11,a/12,b/13}
+    \node[draw, minimum width=0.46cm, minimum height=0.4cm, fill=SoftBlue] (s2\i) at (\i,-1.1) {$\c$};
+  \node[anchor=east, font=\tiny, black!70] at (0.4,-1.65) {第 2 趟};
+  \foreach \c/\i in {a/1,b/2,c/3,a/4,c/5}
+    \node[draw, minimum width=0.46cm, minimum height=0.4cm, fill=SoftTeal] (t2\i) at (1+\i,-1.65) {$\c$};
+  \node[draw, Burgundy, very thick, minimum width=0.46cm, minimum height=0.4cm, fill=SoftTeal] at (2,-1.65) {$\texttt{a}$};
+  \draw[Burgundy, thick, dashed] (s22.south) -- (2,-1.45);
+  \node[Burgundy] at (2,-1.375) {$\times$};
+
+  % 第 3 趟
+  \foreach \c/\i in {a/1,b/2,a/3,b/4,c/5,a/6,b/7,c/8,a/9,c/10,b/11,a/12,b/13}
+    \node[draw, minimum width=0.46cm, minimum height=0.4cm, fill=SoftBlue] (s3\i) at (\i,-2.2) {$\c$};
+  \node[anchor=east, font=\tiny, black!70] at (0.4,-2.75) {第 3 趟};
+  \foreach \c/\i in {a/1,b/2,c/3,a/4,c/5}
+    \node[draw, minimum width=0.46cm, minimum height=0.4cm, fill=SoftTeal] (t3\i) at (2+\i,-2.75) {$\c$};
+  \node[draw, Burgundy, very thick, minimum width=0.46cm, minimum height=0.4cm, fill=SoftTeal] at (7,-2.75) {$\texttt{c}$};
+  \draw[Burgundy, thick, dashed] (s37.south) -- (7,-2.55);
+  \node[Burgundy] at (7,-2.475) {$\times$};
+
+  \node[font=\tiny, black!65, anchor=west] at (0.2,-3.35)
+    {第 6 趟从 $S[6]$ 对齐时 $S[6..10]=\texttt{abcac}$，匹配成功；第 4、5 趟均在首字符失配};
 \end{tikzpicture}
 \end{center}
-\end{conclusion}
+图中每一块是一次对齐：上排是主串 $S$，下排是模式串 $T$，红框标出失配位置；第 1、2、3 趟的起点依次右移一位。
 
-\subsection{KMP算法}
+比较次数取决于失配发生得多早。最好情况每趟首字符就失配，比较 $n-m+1$ 次，$O(n)$；最坏情况每趟都比到 $T$ 的末尾才失败，比较 $(n-m+1)m$ 次，$O(nm)$。典型触发串是 $S=\texttt{aaaa}\cdots\texttt{a}$、$T=\texttt{aaaab}$：每一趟先匹配若干 \texttt{a}，最后一个字符才失败。平均情况要看字符分布，不能不加条件地写成 $O(n+m)$；408 问最坏复杂度时答 $O(nm)$。
 
-\begin{mydef}{KMP算法}{kmp-def}
-KMP（Knuth-Morris-Pratt）利用已匹配部分的信息，使主串指针 $i$ 不回溯，模式串 $j$ 根据 \textbf{next 数组}跳转。时间复杂度 $O(n+m)$。
-\end{mydef}
+BF 的问题不在慢，而在重复。失配时前 $j-1$ 个字符已经确认相等，这些信息被丢掉了，下一趟又从 $T[1]$ 开始比。KMP 要做的就是把这段信息留下来。
 
-\begin{conclusion}{KMP 核心思想}{kmp-intuition}
-当 $S[i]\neq T[j]$ 失配时，已匹配的 $T[1..j-1]=S[i-j+1..i-1]$。若 $T[1..j-1]$ 的某个真前缀等于某个真后缀，则 $T$ 可「滑动」使该前缀对齐到后缀位置，$i$ 不动，$j$ 跳到该前缀长度 $+1$ 处继续比较。
+\subsection{KMP：让主串指针只向前走}
 
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[font=\scriptsize, Navy] at (0.4,0.55){$S$:};
-  \foreach \c/\i in {a/1,b/2,a/3,b/4,a/5}{
-    \node[draw, rectangle, minimum width=0.75cm, minimum height=0.55cm, fill=SoftBlue] (S\i) at (\i*0.82,0.55){$\c$};
-    \node[font=\scriptsize, black!55] at (\i*0.82,0.15){$\i$};
-  }
-  \node[font=\scriptsize, Navy] at (0.4,-0.7){$T$:};
-  \foreach \c/\i in {a/1,b/2,a/3,b/4,c/5}{
-    \node[draw, rectangle, minimum width=0.75cm, minimum height=0.55cm, fill=SoftAmber, dashed] (A\i) at (\i*0.82,-0.7){$\c$};
-  }
-  \draw[Burgundy, thick] (A5.south west) rectangle (A5.north east);
-  \node[font=\scriptsize, black!70] at (2.6,-1.45){滑动前：$T$ 与 $S$ 对齐，第 5 位失配（$c\neq a$）};
-  \node[font=\scriptsize, Navy] at (0.4,-2.05){$T'$:};
-  \foreach \c/\i in {a/1,b/2,a/3,b/4,c/5}{
-    \pgfmathsetmacro{\bx}{\i*0.82+1.64}
-    \node[draw, rectangle, minimum width=0.75cm, minimum height=0.55cm, fill=SoftAmber] (B\i) at (\bx,-2.05){$\c$};
-  }
-  \node[font=\scriptsize, black!70] at (2.9,-2.85){滑动后：$i$ 不动，$j\leftarrow \mathrm{next}[5]=3$，$T$ 右移 2 位};
-\end{tikzpicture}
-\end{center}
-\end{conclusion}
-
-\subsubsection{next 数组的定义与手算}
-
-\begin{mydef}{next 数组（下标从 1 开始）}{next-def}
+还是用 $T=\texttt{abcababc}$。假设主串的一段是 $S=\texttt{abcabcab}\cdots$，$T$ 从 $S[1]$ 对齐：
 \[
-\text{next}[j] = \begin{cases}
-0, & j = 1 \\
-\max\{k \mid 1<k<j,\; T[1..k-1] = T[j-k+1..j-1]\}, & \text{集合非空} \\
-1, & \text{其他}
-\end{cases}
-\]
-即 $\text{next}[j]$ = 前 $j-1$ 个字符的最长相等真前后缀长度 $+1$。
-\end{mydef}
-
-\begin{attention}
-\textbf{408 默认下标从 1 开始，next[1]=0, next[2]=1 恒成立。} 若下标从 0 开始，则 next[0]=$-1$，next[1]=0（每个值减 1）。
-\end{attention}
-
-\begin{conclusion}{手算 next 数组示例}{next-example}
-以 $T=$ "abaabcac" 为例：
-
-\[
-\begin{array}{c|cccccccc}
-j & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\
-\hline
-T[j] & a & b & a & a & b & c & a & c \\
-\hline
-\text{next}[j] & 0 & 1 & 1 & 2 & 2 & 3 & 1 & 2
+\begin{array}{rcccccccc}
+S: & \texttt{a} & \texttt{b} & \texttt{c} & \texttt{a} & \texttt{b} & \texttt{c} & \texttt{a} & \texttt{b}\\
+T: & \texttt{a} & \texttt{b} & \texttt{c} & \texttt{a} & \texttt{b} & \texttt{a} & \texttt{b} & \texttt{c}
 \end{array}
 \]
-
-计算过程（以 $j=6$ 为例）：前 5 个字符 "abaab" 的最长公共前后缀为 "ab"（长度 2），故 next[6]=3。
-\end{conclusion}
+前 5 个字符 \texttt{abcab} 相同，第 6 对 $S[6]=\texttt{c}$ 与 $T[6]=\texttt{a}$ 失配。注意已匹配的 \texttt{abcab} 有 border \texttt{ab}：它的前缀 \texttt{ab} 等于后缀 \texttt{ab}。把 $T$ 右移，使 $T[1..2]$ 对准刚匹配过的最后两个字符 $S[4..5]$，这两个字符就不用再比；下一次直接比较 $T[3]=\texttt{c}$ 与 $S[6]=\texttt{c}$。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.72cm]
-  % T[1..5] = a b a a b
-  \foreach \ch/\i in {a/1,b/2,a/3,a/4,b/5}{
-    \draw[thick] (\i-1,0) rectangle (\i,0.7) node[midway]{\ch};
-  }
-  % 前缀 T[1..2]（Teal）与 后缀 T[4..5]（Amber）
-  \draw[Teal,thick] (0,-0.12) rectangle (2,0.82);
-  \draw[Amber,thick] (3,-0.12) rectangle (5,0.82);
-  % 标签
-  \node[font=\scriptsize,Teal] at (1,-0.5){前缀 "ab"};
-  \node[font=\scriptsize,Amber,align=center] at (4,-0.5){后缀\\"ab"};
-  \node[font=\scriptsize,black!70] at (2.5,1.25){$T[1..5]=$"abaab" 的最长相等前后缀 $=$ "ab"（长度 2）};
-  \node[font=\scriptsize,black!75] at (2.5,-1.15){故 $\text{next}[6]=2+1=3$};
+\begin{tikzpicture}[font=\scriptsize, >=stealth, x=0.7cm]
+  % 竖线：失配位置
+  \draw[gray!45, dashed] (6,1.5) -- (6,-2.85);
+
+  % 滑动前
+  \node[anchor=east, text=Navy] at (0.4,1.0) {$S$};
+  \foreach \c/\i in {a/1,b/2,c/3,a/4,b/5,c/6,a/7,b/8}
+    \node[draw, minimum width=0.56cm, minimum height=0.42cm, fill=SoftBlue] (sa\i) at (\i,1.0) {$\c$};
+  \node[anchor=east, text=Navy] at (0.4,0.15) {$T$};
+  \foreach \c/\i in {a/1,b/2,c/3,a/4,b/5}
+    \node[draw, minimum width=0.56cm, minimum height=0.42cm, fill=SoftTeal] (tb\i) at (\i,0.15) {$\c$};
+  \foreach \c/\i in {a/6,b/7,c/8}
+    \node[draw, minimum width=0.56cm, minimum height=0.42cm, fill=white] (tb\i) at (\i,0.15) {$\c$};
+  \draw[Teal, line width=1.2pt] (0.72,0.38) rectangle (2.28,-0.12);
+  \draw[Amber, line width=1.2pt] (3.72,0.38) rectangle (5.28,-0.12);
+  \node[draw, Burgundy, very thick, minimum width=0.56cm, minimum height=0.42cm, fill=SoftAmber] at (6,0.15) {$\texttt{a}$};
+  \node[Burgundy] at (6,0.525) {$\times$};
+  \node[font=\tiny, black!65] at (3,-0.42) {两个彩色框内容相同，都是 \texttt{ab}};
+  \node[font=\tiny, Teal] at (6,1.6) {$i$ 不回溯};
+
+  % 滑动箭头
+  \draw[->, Teal, thick] (1,-1.0) -- (4,-1.0);
+  \node[font=\tiny, Teal, fill=white, inner sep=1pt] at (2.5,-0.82) {右移 3 位};
+
+  % 滑动后
+  \node[anchor=east, text=Navy] at (0.4,-1.75) {$S$};
+  \foreach \c/\i in {a/1,b/2,c/3,a/4,b/5,c/6,a/7,b/8}
+    \node[draw, minimum width=0.56cm, minimum height=0.42cm, fill=SoftBlue] (sb\i) at (\i,-1.75) {$\c$};
+  \node[anchor=east, text=Navy] at (3.6,-2.55) {$T$};
+  \foreach \c/\i in {a/1,b/2,c/3,a/4,b/5}
+    \node[draw, minimum width=0.56cm, minimum height=0.42cm, fill=SoftTeal] (ta\i) at (3+\i,-2.55) {$\c$};
+  \draw[Teal, line width=1.2pt] (3.72,-2.32) rectangle (5.28,-2.78);
+  \foreach \x in {6,7,8}
+    \node[Teal, font=\small] at (\x,-2.15) {\checkmark};
+  \node[font=\tiny, black!65, anchor=west] at (8.7,-2.55) {$T[6..8]$ 继续};
 \end{tikzpicture}
 \end{center}
+图中上半部分是失配前的对齐，两个彩色框标出相等的前后缀；下半部分是右移后的对齐，绿色勾表示这几个字符不用重新比较，主串指针仍停在原来的失配字符处。
 
-\subsubsection{KMP 匹配算法}
+推广到一般情况：设失配发生在 $T[j]$，已匹配部分是 $P=T[1..j-1]$。若 $P$ 的最长 border 长度为 $k$，把 $T$ 右移 $(j-1)-k$ 位，就能让 $T[1..k]$ 对准 $P$ 的后缀，下一次比较 $T[k+1]$ 与 $S[i]$，主串指针 $i$ 不动。
 
-\begin{conclusion}{KMP 匹配代码}{kmp-match}
+为什么可以跳过中间的位移？假设某个更小的位移 $d<(j-1)-k$ 也能匹配，那么 $P$ 就存在一个长度大于 $k$ 的 border，和 $k$ 是最长 border 矛盾。所以按最长 border 滑动不会漏掉任何可能的匹配。
+
+把每个 $j$ 对应的 $k+1$ 预先算出来，就是 \textbf{next} 数组（下标从 1 开始）：
+\begin{equation}
+\mathrm{next}[j]=
+\begin{cases}
+0, & j=1,\\[2pt]
+1+\max\{\,k\mid 0\le k<j-1,\ T[1..k]=T[j-k..j-1]\,\}, & j\ge 2.
+\end{cases}
+\end{equation}
+$k=0$ 时约定空串等于空串，所以 $j\ge2$ 时 $\mathrm{next}[j]\ge1$。用文字说：next[j] 是 $T[1..j-1]$ 的最长相等真前后缀长度加 1。这里的“真”不能丢：若把整个 $T[1..j-1]$ 当前缀，失配后模式串不会移动，等于没跳。失配后的实际位移是
+\[
+(j-1)-(\mathrm{next}[j]-1)=j-\mathrm{next}[j].
+\]
+
+408 常用下标从 1 开始的版本，$\mathrm{next}[1]=0$、$\mathrm{next}[2]=1$。有的教材用 $\mathrm{next}[1]=-1$（所有值减 1），有的直接用 0 下标的前缀函数 $\pi$（存 border 长度本身）；做题前先看题干采用哪套约定。
+
+匹配过程只改模式串指针：
 \begin{lstlisting}[language=C]
-int Index_KMP(SString S, SString T) {
+int Index_KMP(SString S, SString T, int next[]) {
     int i = 1, j = 1;
-    int next[MAXSTRLEN];
-    GetNext(T, next);
     while (i <= S.length && j <= T.length) {
-        if (j == 0 || S.ch[i] == T.ch[j])
-            { i++; j++; }
-        else
-            j = next[j];       // i不动！仅j回溯
+        if (j == 0 || S.ch[i] == T.ch[j]) { ++i; ++j; }
+        else j = next[j];          /* i 不动，只退模式串 */
     }
     if (j > T.length) return i - T.length;
-    else return 0;
+    return 0;
 }
 \end{lstlisting}
-\textbf{$j=0$ 的含义：} next[1]=0，当首字符失配时 $j$ 变 0，下一轮 $i$++、$j$++ 使 $j$ 恢复为 1。
-\end{conclusion}
+$j=0$ 是 $\mathrm{next}[1]=0$ 带来的哨兵。首字符失配时 $j$ 变成 0，下一轮走 \texttt{j==0} 分支，$i$ 和 $j$ 同时加一，相当于放弃当前起点、从主串下一个字符重新开始。C 的 \texttt{||} 从左到右短路，所以 \texttt{T.ch[0]} 不会被读。匹配成功时 $j=T.length+1$，返回 $i-T.length$。
 
-\subsubsection{next 数组的递推求法}
+复杂度这样看：$i$ 只增不减，最多增加 $n$ 次；每次失配 $j=\mathrm{next}[j]$ 都严格减小；$j$ 只在 $i$ 增加时增加，所以 $j$ 减小的总次数不超过它增加的总次数，也不超过 $n$。因此 while 循环至多执行约 $2n$ 次，匹配阶段 $O(n)$；预处理 $O(m)$；总时间 $O(n+m)$。额外空间是 next 数组的 $O(m)$。
 
-\begin{conclusion}{GetNext 算法}{get-next}
-利用已知的 next 值递推计算：
+\subsection{next 数组怎么算}
 
+先把 $T=\texttt{abcababc}$ 手算一遍。设 $\pi[j]$ 是 $T[1..j]$ 的最长 border 长度，则 $\mathrm{next}[j]=\pi[j-1]+1$（$j\ge2$），$\mathrm{next}[1]=0$：
+\begin{center}
+\begin{tabular}{c|cccccccc}
+$j$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8\\ \hline
+$T[j]$ & a & b & c & a & b & a & b & c\\
+$\pi[j]$ & 0 & 0 & 0 & 1 & 2 & 1 & 2 & 3\\
+$\mathrm{next}[j]$ & 0 & 1 & 1 & 1 & 2 & 3 & 2 & 3
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth, x=0.8cm]
+  % T 行
+  \foreach \c/\i in {a/1,b/2,c/3,a/4,b/5,a/6,b/7,c/8}
+    \node[draw, minimum width=0.7cm, minimum height=0.45cm, fill=SoftBlue] (t\i) at (\i,0) {$\c$};
+  \foreach \i in {1,...,8}
+    \node[font=\tiny, black!55] at (\i,-0.45) {\i};
+  \node[anchor=east] at (0.25,0) {$T$};
+  % pi 行
+  \foreach \v/\i in {0/1,0/2,0/3,1/4,2/5,1/6,2/7,3/8}
+    \node[draw, minimum width=0.7cm, minimum height=0.45cm, fill=SoftGray] (p\i) at (\i,-0.9) {$\v$};
+  \node[anchor=east] at (0.25,-0.9) {$\pi$};
+  % next 行
+  \foreach \v/\i in {0/1,1/2,1/3,1/4,2/5,3/6,2/7,3/8}
+    \node[draw, minimum width=0.7cm, minimum height=0.45cm, fill=SoftAmber] (n\i) at (\i,-1.8) {$\v$};
+  \node[anchor=east] at (0.25,-1.8) {next};
+
+  % 高亮 T[1..5] 及其两个 border
+  \draw[Navy, thick, rounded corners=1pt] (0.6,0.34) rectangle (5.4,-0.34);
+  \draw[Teal, line width=1.3pt] (0.62,0.31) rectangle (2.38,-0.31);
+  \draw[Amber, line width=1.3pt] (3.62,0.31) rectangle (5.38,-0.31);
+  \node[Navy, font=\tiny] at (3.0,0.55) {$T[1..5]=\texttt{abcab}$};
+
+  % pi[5] -> next[6]
+  \draw[Burgundy, thick] (5,-0.9) circle (0.3);
+  \draw[Burgundy, thick] (6,-1.8) circle (0.3);
+  \draw[->, Burgundy, thick] (p5.south) -- (n6.north);
+  \node[Burgundy, font=\tiny, fill=white, inner sep=1pt] at (5.5,-1.35) {+1};
+\end{tikzpicture}
+\end{center}
+图里 $\pi$ 行存的是 border 长度本身，next 行把它右移一位再加 1；$j=6$ 时看的是 $\pi[5]=2$，所以 $\mathrm{next}[6]=3$。$\mathrm{next}[1]=0$ 不对应任何 border，只是首字符失配时的哨兵。
+
+$j=6$：前 5 个字符 \texttt{abcab} 的最长 border 是 \texttt{ab}，长度 2，所以 $\mathrm{next}[6]=3$。$j=4$：\texttt{abc} 没有非空 border，$\mathrm{next}[4]=1$。当 $m\ge2$ 时 $\mathrm{next}[2]=1$ 恒成立，因为前 1 个字符没有真前缀，border 长度为 0。
+
+手算时每个 $j$ 都重新找 border，最坏 $O(m^2)$。利用已经算出的值可以做到 $O(m)$。设当前在求 $\mathrm{next}[i+1]$，$k$ 表示“当前候选 border 长度加 1”：
+\begin{itemize}
+  \item 若 $k=0$，没有更短的候选，直接让 $k$ 变成 1，$\mathrm{next}[i+1]=1$；
+  \item 若 $T[i]=T[k]$，当前 border 可以延长一位，$k\leftarrow k+1$，$\mathrm{next}[i+1]=k$；
+  \item 否则当前长度不行，退到更短的 border。$T[1..k-1]$ 的最长 border 长度是 $\mathrm{next}[k]-1$，所以令 $k\leftarrow\mathrm{next}[k]$，再比较 $T[i]$ 与新的 $T[k]$。
+\end{itemize}
 \begin{lstlisting}[language=C]
 void GetNext(SString T, int next[]) {
-    int j = 1, k = 0;
+    int i = 1, k = 0;
     next[1] = 0;
-    while (j < T.length) {
-        if (k == 0 || T.ch[j] == T.ch[k]) {
-            j++; k++;
-            next[j] = k;
+    while (i < T.length) {
+        if (k == 0 || T.ch[i] == T.ch[k]) {
+            ++i; ++k;
+            next[i] = k;
         } else {
-            k = next[k];       // 失配时k回溯
+            k = next[k];          /* 退到更短的 border */
         }
     }
 }
 \end{lstlisting}
-时间复杂度 $O(m)$。核心：$k$ 始终表示「当前已匹配的最长公共前后缀长度」。
-\end{conclusion}
+当 $k=0$ 时，条件里的 \texttt{T.ch[k]} 因为短路不会被读；随后 $k$ 变成 1，等价于“从空前缀重新开始配”。
 
-\subsubsection{nextval 数组}
+拿 $T=\texttt{abcababc}$ 走一段：算到 $\mathrm{next}[6]=3$ 后，$i=6,k=3$。$T[6]=\texttt{a}\ne T[3]=\texttt{c}$，退到 $k=\mathrm{next}[3]=1$；再比 $T[6]=\texttt{a}=T[1]=\texttt{a}$，于是 $i=7,k=2$，$\mathrm{next}[7]=2$。这段过程就是下面这条链从 6 退到 3、再退到 1。
 
-\begin{conclusion}{nextval 改进}{nextval}
-若 $T[j]=T[\text{next}[j]]$，则失配跳到 next[j] 后字符相同仍会失配。nextval 在此情况下继续向前跳：
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth, scale=1.3, transform shape]
+  \node[draw, circle, fill=SoftBlue, minimum size=0.72cm] (z6) at (4.9,0) {$6$};
+  \node[draw, circle, fill=SoftBlue, minimum size=0.72cm] (z3) at (3.2,0) {$3$};
+  \node[draw, circle, fill=SoftBlue, minimum size=0.72cm] (z1) at (1.5,0) {$1$};
+  \node[draw, circle, fill=SoftAmber, minimum size=0.72cm] (z0) at (0,0) {$0$};
+  \draw[->, thick, Teal] (z6.west) -- (z3.east);
+  \draw[->, thick, Teal] (z3.west) -- (z1.east);
+  \draw[->, thick, Teal] (z1.west) -- (z0.east);
+  \node[font=\tiny, Teal] at (4.05,0.55) {$\mathrm{next}[6]=3$};
+  \node[font=\tiny, Teal] at (2.35,0.55) {$\mathrm{next}[3]=1$};
+  \node[font=\tiny, Teal] at (0.75,0.55) {$\mathrm{next}[1]=0$};
+  \node[font=\tiny, black!65] at (4.9,-0.62) {$T[6]=\texttt{a}$};
+  \node[font=\tiny, black!65] at (3.2,-0.62) {$T[3]=\texttt{c}$};
+  \node[font=\tiny, black!65] at (1.5,-0.62) {$T[1]=\texttt{a}$};
+  \node[font=\tiny, black!65] at (0,-0.62) {哨兵};
+  \node[font=\tiny, Teal, anchor=west, align=left] at (5.7,0)
+    {候选 border 长度：\\$2,\ 0$};
+\end{tikzpicture}
+\end{center}
+链上每个值都是“下一个候选位置”。$j=6$ 失配时，先试长度 2 的 border（跳到 3），不行再试长度 0（跳到 1），最后到哨兵 0。next 链的每个后继都严格变小，所以这条链最多走 $m$ 步。
+
+预处理复杂度：$i$ 从 1 增到 $m$，只增不减；$k$ 每次失配严格减小，且只在 $i$ 增加时增加，所以总回退次数不超过 $m$，整个 \texttt{GetNext} 是 $O(m)$。
+
+\subsection{前缀函数：同一个量的另一种记法}
+
+很多教材和代码不用带哨兵的 next，而直接定义前缀函数
+\[
+\pi[i]=\max\{k\mid 0\le k<i,\ T[1..k]=T[i-k+1..i]\},
+\]
+即 $T[1..i]$ 的最长相等真前后缀长度，$\pi[1]=0$。它和 next 只差一个平移：
+\[
+\mathrm{next}[j]=\pi[j-1]+1\quad(j\ge2),\qquad \mathrm{next}[1]=0.
+\]
+反过来 $\pi[i]=\mathrm{next}[i+1]-1$。两者含的信息完全相同，做题时不要混用：题目要 next 就给带 1 的版本，要 $\pi$ 就给从 0 开始的长度。
+
+0 下标实现里，模式串记作 $P[0..m-1]$，$\pi[0]=0$，$\pi[i]$ 表示 $P[0..i]$ 的最长 border 长度。构造代码比 1 下标的 \texttt{GetNext} 更短：
+\begin{lstlisting}[language=C]
+void GetPi(const char *P, int m, int pi[]) {
+    pi[0] = 0;
+    for (int i = 1, k = 0; i < m; ++i) {
+        while (k > 0 && P[i] != P[k])
+            k = pi[k - 1];       /* 退到更短的 border */
+        if (P[i] == P[k]) ++k;
+        pi[i] = k;
+    }
+}
+\end{lstlisting}
+这里 $k$ 直接就是 border 长度，不是 next 里的长度加 1，所以回退写 $\pi[k-1]$ 而不是 $\pi[k]$。这是两套写法最容易写错的地方。
+
+用 $\pi$ 匹配时，$i$ 扫主串，$j$ 是已匹配长度；失配就 $j=\pi[j-1]$，$j=m$ 时报告起点 $i-m+1$，然后令 $j=\pi[j-1]$ 继续找下一次出现（允许重叠）。匹配阶段的摊还分析与 1 下标版本完全一样，仍是 $O(n)$。
+
+\subsection{nextval：跳过注定失败的比较}
+
+next 有一个小毛病：如果 $T[j]=T[\mathrm{next}[j]]$，失配后跳到 $\mathrm{next}[j]$，比较的还是同一个字符，必然再次失配。nextval 把这种连续相同的跳转一次走完。定义为
+\[
+\mathrm{nextval}[j]=
+\begin{cases}
+0, & j=1,\\
+\mathrm{next}[j], & T[j]\ne T[\mathrm{next}[j]],\\
+\mathrm{nextval}[\mathrm{next}[j]], & T[j]=T[\mathrm{next}[j]].
+\end{cases}
+\]
+因为 $\mathrm{next}[j]<j$，右边的 $\mathrm{nextval}$ 在从左到右计算时已经求出，不需要真的递归。
+
+先算一个具体例子。对 $T=\texttt{abcababc}$：
+\begin{center}
+\begin{tabular}{c|cccccccc}
+$j$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8\\ \hline
+$T[j]$ & a & b & c & a & b & a & b & c\\
+$\mathrm{next}[j]$ & 0 & 1 & 1 & 1 & 2 & 3 & 2 & 3\\
+$\mathrm{nextval}[j]$ & 0 & 1 & 1 & 0 & 1 & 3 & 1 & 1
+\end{tabular}
+\end{center}
+$j=4$：$\mathrm{next}[4]=1$，而 $T[4]=T[1]=\texttt{a}$，跳到 1 仍会比较 \texttt{a}；$\mathrm{nextval}[4]=\mathrm{nextval}[1]=0$，直接让主串指针前进。$j=8$ 同理：$\mathrm{next}[8]=3$，$T[8]=T[3]=\texttt{c}$，所以 $\mathrm{nextval}[8]=\mathrm{nextval}[3]=1$。
+
+再看一个重复字符更多的例子：$T=\texttt{aaaab}$ 时 $\mathrm{next}=(0,1,2,3,4)$，$\mathrm{nextval}=(0,0,0,0,4)$。若在 $j=4$ 失配（文本当前字符不是 \texttt{a}），按 next 会依次跳 3、2、1，每次都在比较 \texttt{a}，直到 $j=0$ 才前进主串；nextval 直接把 $j$ 置 0。$j=5$ 不一样：$T[5]=\texttt{b}\ne T[4]=\texttt{a}$，所以 $\mathrm{nextval}[5]=\mathrm{next}[5]=4$，这里没有可跳过的重复字符。
+
+代码和 \texttt{GetNext} 的差别只有两处：匹配成功时根据 $T[i]$ 与 $T[k]$ 是否相同决定写 $k$ 还是 $\mathrm{nextval}[k]$；失配回退用 $\mathrm{nextval}[k]$ 而不是 $\mathrm{next}[k]$。
 
 \begin{lstlisting}[language=C]
 void GetNextVal(SString T, int nextval[]) {
-    int j = 1, k = 0;
+    int i = 1, k = 0;
     nextval[1] = 0;
-    while (j < T.length) {
-        if (k == 0 || T.ch[j] == T.ch[k]) {
-            j++; k++;
-            nextval[j] = (T.ch[j] != T.ch[k]) ? k : nextval[k];
-        } else {
-            k = nextval[k];
-        }
+    while (i < T.length) {
+        if (k == 0 || T.ch[i] == T.ch[k]) {
+            ++i; ++k;
+            nextval[i] = (T.ch[i] != T.ch[k]) ? k : nextval[k];
+        } else k = nextval[k];     /* 沿 nextval 链回退 */
     }
 }
 \end{lstlisting}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.72cm]
-  \foreach \j/\val in {1/a,2/b,3/c,4/a,5/b,6/c,7/a}{
-    \node[draw, rectangle, minimum width=0.68cm, minimum height=0.5cm, fill=SoftBlue] (T\j) at (\j*0.72,0){$\val$};
-  }
-  \foreach \j/\v in {1/0,2/1,3/1,4/1,5/2,6/3,7/4}{
-    \node[draw, rectangle, minimum width=0.68cm, minimum height=0.5cm, fill=SoftAmber] (n\j) at (\j*0.72,-0.85){$\v$};
-  }
-  \foreach \j/\v in {1/0,2/1,3/1,4/0,5/1,6/1,7/0}{
-    \node[draw, rectangle, minimum width=0.68cm, minimum height=0.5cm, fill=SoftGray] (nv\j) at (\j*0.72,-1.7){$\v$};
-  }
-  \node[font=\scriptsize, Navy] at (-0.55,0){$T[j]$};
-  \node[font=\scriptsize, Navy] at (-0.55,-0.85){$\mathrm{next}[j]$};
-  \node[font=\scriptsize, Navy] at (-0.55,-1.7){$\mathrm{nextval}[j]$};
-  \node[font=\scriptsize, black!70] at (2.6,-2.4){\texttt{nextval} 在 $T[j]=T[\mathrm{next}[j]]$ 时继续沿失配指针向前跳转};
+\begin{tikzpicture}[font=\scriptsize, >=stealth, x=0.9cm]
+  \foreach \c/\i in {a/1,a/2,a/3,a/4,b/5}
+    \node[draw, minimum width=0.75cm, minimum height=0.45cm, fill=SoftBlue] (t\i) at (\i,0) {$\c$};
+  \foreach \v/\i in {0/1,1/2,2/3,3/4,4/5}
+    \node[draw, minimum width=0.75cm, minimum height=0.45cm, fill=SoftGray] (n\i) at (\i,-0.8) {$\v$};
+  \foreach \v/\i in {0/1,0/2,0/3,0/4,4/5}
+    \node[draw, minimum width=0.75cm, minimum height=0.45cm, fill=SoftAmber] (v\i) at (\i,-1.6) {$\v$};
+  \node[anchor=east] at (0.4,0) {$T$};
+  \node[anchor=east] at (0.4,-0.8) {next};
+  \node[anchor=east] at (0.4,-1.6) {nextval};
+  \foreach \i in {1,...,5}
+    \node[font=\tiny, black!55] at (\i,0.42) {\i};
+  \draw[Burgundy, thick, rounded corners=1pt] (3.5,0.28) rectangle (4.5,-1.88);
+  \draw[->, Burgundy, thick] (4,-1.9) -- (4,-2.35);
+  \node[Burgundy, font=\tiny, anchor=west] at (4.15,-2.1) {$\mathrm{nextval}[4]=0$};
+  \node[draw, Burgundy, fill=SoftAmber, rounded corners=1pt, align=center, font=\tiny] at (4,-2.72)
+    {$j=0$，主串指针前进\\跳过 $3\to2\to1$};
 \end{tikzpicture}
 \end{center}
-\end{conclusion}
+图中第 4 列是关键：$\mathrm{next}[4]=3$，而 $\mathrm{nextval}[4]=0$；向下箭头表示失配后直接跳到 $j=0$，跳过 $3\to2\to1$ 这三次注定失败的比较。
 
-\begin{conclusion}{408 高频考点汇总}{string-408-keypoints}
-\begin{enumerate}
-    \item next 数组的手工计算——选择题高频，重点是先确认下标和定义约定。
-    \item next[1]=0, next[2]=1 恒成立，可用于快速排除选项。
-    \item KMP 匹配过程中 $i$ 永不回溯，比较次数 $\leqslant 2n$。
-    \item BF 的最坏时间复杂度 $O(nm)$ 及其触发条件。
-    \item nextval 的计算（偶尔出现）。
-\end{enumerate}
-\end{conclusion}
+nextval 只改变跳转目标，不改变匹配结果，也不改变 $O(n+m)$ 的最坏复杂度；它减少的是重复字符多的模式串上的常数。匹配代码把 \texttt{next} 换成 \texttt{nextval} 即可。
+
+\begin{attention}
+408 选择题里最容易错的几处：
+\begin{itemize}
+  \item $\mathrm{next}[j]$ 看的是前 $j-1$ 个字符，不是前 $j$ 个；$\mathrm{next}[1]=0$ 是哨兵，不对应 border。
+  \item 下标从 1 开始时 $\mathrm{next}[1]=0$、$\mathrm{next}[2]=1$（$m\ge2$）；若改用 0 下标并令 $\mathrm{next}[0]=-1$，1 下标的值整体减 1；若直接问前缀函数 $\pi$，$\pi[i]$ 是 border 长度本身。
+  \item 失配后的位移是 $j-\mathrm{next}[j]$，不是 $\mathrm{next}[j]-1$。
+  \item BF 最坏 $O(nm)$，KMP 是 $O(n+m)$；不要把 BF 的平均情况当成最坏情况。
+  \item next 只由模式串决定，和主串无关；同一个 $T$ 在不同 $S$ 上 next 不变。
+\end{itemize}
+\end{attention}
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（单项选择题）} 串的长度是指
-\begin{center}
-\begin{tabular}{ll}
-(A) 串中所含不同字母的个数 & (B) 串中所含字符的个数 \\[6pt]
-(C) 串中所含不同字符的个数 & (D) 串中所含非空格字符的个数
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 串长是串中字符的总个数，空格也属于字符，不要求字符互异。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（单项选择题）} 设有两个串 $p$ 和 $q$，求 $q$ 在 $p$ 中首次出现的位置的运算称为
-\begin{center}
-\begin{tabular}{ll}
-(A) 连接 & (B) 模式匹配 \\[6pt]
-(C) 求子串 & (D) 求串长
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 在主串 $p$ 中查找模式串 $q$ 首次出现位置的运算称为模式匹配。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（填空题）} 空串与空格串的区别是：空串的长度为 \underline{\qquad}，空格串的长度 \underline{\qquad}。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 0；等于其中空格字符的个数，因而大于0。空格是普通字符，空格串不是空串。\else \answerarea \fi
-
-\item \textbf{（填空题）} 设模式串 $T=$ "ababaa"，下标从 1 开始，则 next[4] = \underline{\qquad}，next[5] = \underline{\qquad}。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 2；3。前3个字符“aba”的最长相等真前后缀为“a”，故 next[4]$=1+1=2$；前4个字符“abab”的对应前后缀为“ab”，故 next[5]$=2+1=3$。\else \answerarea \fi
-
-\item \textbf{（简答题）} 已知主串 $S=$ "aaabaaaab"，模式串 $T=$ "aaaab"。用 BF 算法进行匹配，写出每趟匹配的过程，统计总的字符比较次数。
-
-\ifshowsolutions\par\noindent\textbf{解析：} 模式串依次与主串第1至第5个位置对齐。各趟比较次数分别为4、3、2、1、5；前四趟分别在模式位置4、3、2、1失配，第五趟“aaaab”全部匹配。因此首次匹配位置为5，总字符比较次数为 $4+3+2+1+5=15$。\else \answerarea \fi
-
-\item \textbf{（计算题）} 求模式串 $T=$ "abcabca" 的 next 数组和 nextval 数组（下标从 1 开始）。
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-\[
-\begin{array}{c|ccccccc}
-j&1&2&3&4&5&6&7\\ \hline
-T[j]&a&b&c&a&b&c&a\\
-\mathrm{next}[j]&0&1&1&1&2&3&4\\
-\mathrm{nextval}[j]&0&1&1&0&1&1&0
-\end{array}
-\]
-nextval 在 $T[j]=T[\mathrm{next}[j]]$ 时继续沿失配指针跳转，因而位置4、7可直接跳到0。\else \answerarea \fi
-
-\item \textbf{（简答题）} KMP 算法相对于 BF 算法的优势是什么？什么情况下 KMP 的优势最明显？
-
-\ifshowsolutions\par\noindent\textbf{答案：} BF 每次失配后把主串起点右移一位并重复比较已经匹配过的字符，最坏为 $O(nm)$；KMP 利用模式串真前后缀信息移动模式串，主串指针不回溯，预处理和匹配总计 $O(n+m)$。当主串和模式串含大量重复前缀、经常在接近模式末尾处失配时，KMP 避免重复比较的优势最明显。\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格，单项选择题）} 已知模式串 $T=$ "ababaabab"，下标从 1 开始，则 next[6] 和 next[7] 的值分别为
-\begin{center}
-\begin{tabular}{ll}
-(A) 3 和 2 & (B) 3 和 3 \\[6pt]
-(C) 4 和 2 & (D) 4 和 3
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 前5个字符“ababa”的最长相等真前后缀为“aba”，故 next[6]$=3+1=4$；前6个字符“ababaa”的最长相等真前后缀为“a”，故 next[7]$=1+1=2$。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（真题风格，单项选择题）} 设主串 $S$ 的长度为 $n$，模式串 $T$ 的长度为 $m$。若把构造 next 数组和随后执行匹配都计入，KMP 算法的总时间复杂度为
-\begin{center}
-\begin{tabular}{ll}
-(A) $O(n)$ & (B) $O(n+m)$ \\[6pt]
-(C) $O(nm)$ & (D) $O(m)$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 构造 next 数组为 $O(m)$，匹配阶段主串指针不回溯，为 $O(n)$，总时间为 $O(n+m)$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（真题风格，单项选择题）} 设有模式串 $T=$ "aaab"，下标从 1 开始，以下关于 nextval 数组的说法中正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) nextval[2] = 1 & (B) nextval[3] = 2 \\[6pt]
-(C) nextval[4] = 3 & (D) nextval[4] = 1
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 该模式的 next 数组为 $(0,1,2,3)$。前三个字符均为“a”，nextval 会继续跳过相同字符，得到 nextval$=(0,0,0,3)$，故只有 nextval[4]$=3$ 正确。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 设主串 $S=$ "ababcabcacbab"，模式串 $T=$ "abcac"。
-\begin{enumerate}
-    \item[(1)] 计算 $T$ 的 next 数组（下标从 1 开始）；
-    \item[(2)] 用 KMP 算法写出匹配过程（画表格，标出每趟的 $i$、$j$ 起始值和匹配结果）；
-    \item[(3)] 统计总的字符比较次数。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) 模式串“abcac”的 next 数组为 $(0,1,1,1,2)$。
-
-(2) 只列出发生失配或完成匹配的关键状态：从 $(i,j)=(1,1)$ 开始，前两个字符匹配；在 $(3,3)$ 比较 $a$ 与 $c$ 失配，令 $j=1$，随后从主串位置3重新利用该字符继续匹配。匹配至 $(7,5)$ 时比较 $b$ 与 $c$ 失配，令 $j=2$；之后依次匹配主串位置7--10与模式位置2--5，最终在主串第6个位置开始完成匹配。
-
-(3) 实际字符比较状态依次为
-\[
-(1,1),(2,2),(3,3),(3,1),(4,2),(5,3),
-(6,4),(7,5),(7,2),(8,3),(9,4),(10,5),
-\]
-共12次字符比较。\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 给出求模式串 next 数组的算法（GetNext），分析其时间复杂度。若模式串为 $T=$ "aaaaab"，该算法的时间复杂度是否会退化为 $O(m^2)$？说明理由。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-\begin{lstlisting}[language=C]
-void GetNext(SString T, int next[]) {
-    int j = 1, k = 0;
-    next[1] = 0;
-    while (j < T.length) {
-        if (k == 0 || T.ch[j] == T.ch[k]) {
-            ++j; ++k; next[j] = k;
-        } else {
-            k = next[k];
-        }
-    }
-}
-\end{lstlisting}
-$j$ 只增不减，$k$ 的前进和回退也可用摊还方法界定在线性次数内，因此构造 next 的时间复杂度为 $O(m)$、辅助空间为 $O(1)$（不计输出数组）。即使模式串为“aaaaab”，算法也不会从每个位置重新扫描整个前缀，不会退化为 $O(m^2)$。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
+\input{ds/exercises/chap3.tex}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
     \item 邓俊辉《数据结构（C++语言版）》第 9 章「串」——KMP 算法的完整推导，包括 next 数组的改进（nextval）。

@@ -1,0 +1,503 @@
+\section{习题}
+
+\subsection{本章速览}
+
+\begin{itemize}[leftmargin=2em,itemsep=2pt]
+  \item 导数就是差商的极限：$f'(x_0)=\lim\limits_{\Delta x\to0}\dfrac{f(x_0+\Delta x)-f(x_0)}{\Delta x}$。左、右导数都存在且相等，才称 $f$ 在 $x_0$ 处可导。
+  \item 可导必连续，连续不一定可导；一元函数可导与可微等价，且 $\mathrm{d}y=f'(x)\,\mathrm{d}x$。微分 $\mathrm{d}y$ 是函数增量 $\Delta y$ 的线性主部，二者相差 $o(\Delta x)$。
+  \item 复合函数求导“由外向内、逐层相乘”；幂指函数 $u(x)^{v(x)}$ 先取对数，或写成 $e^{v(x)\ln u(x)}$ 再求导。
+  \item 隐函数求导把 $y$ 看作 $y(x)$，两边对 $x$ 求导后解出 $y'$，前提是 $F_y\ne0$；参数方程 $\dfrac{\mathrm{d}y}{\mathrm{d}x}=\dfrac{y'(t)}{x'(t)}$，二阶导数还要再除以 $x'(t)$。
+  \item 高阶导数常用归纳法、部分分式分解和莱布尼茨公式 $(uv)^{(n)}=\sum\limits_{k=0}^{n}\dbinom{n}{k}u^{(k)}v^{(n-k)}$。
+  \item 曲线在 $(x_0,y_0)$ 处的切线为 $y-y_0=f'(x_0)(x-x_0)$，法线斜率为 $-\dfrac{1}{f'(x_0)}$（$f'(x_0)\ne0$）；$f'>0$ 对应单调递增，$f'<0$ 对应单调递减，极值只可能在驻点或不可导点取得。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 设
+\[
+f(x)=\begin{cases}
+x\arctan\dfrac{1}{x}, & x\ne 0,\\[6pt]
+0, & x=0.
+\end{cases}
+\]
+讨论 $f$ 在 $x=0$ 处的连续性与可导性；若不可导，求 $f'_+(0)$ 与 $f'_-(0)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 连续看 $\lim\limits_{x\to0}f(x)$ 是否等于 $f(0)$；可导看差商 $\dfrac{f(x)-f(0)}{x-0}$ 的左右极限是否存在且相等。
+
+先看连续。当 $x\ne0$ 时，
+\[
+0\le |f(x)-f(0)|=|x|\left|\arctan\frac{1}{x}\right|\le \frac{\pi}{2}|x|.
+\]
+由夹逼准则，$\lim\limits_{x\to0}|f(x)-f(0)|=0$，故 $\lim\limits_{x\to0}f(x)=0=f(0)$，$f$ 在 $x=0$ 处连续。
+
+再看可导性。当 $x\ne0$ 时，差商为
+\[
+\frac{f(x)-f(0)}{x-0}=\frac{x\arctan\frac1x}{x}=\arctan\frac1x.
+\]
+当 $x\to0^+$ 时 $\dfrac1x\to+\infty$，故 $\arctan\dfrac1x\to\dfrac{\pi}{2}$；当 $x\to0^-$ 时 $\dfrac1x\to-\infty$，故 $\arctan\dfrac1x\to-\dfrac{\pi}{2}$。左右极限不相等。
+
+\boxed{\text{答案：}\text{在 }x=0\text{ 处连续但不可导，}f'_+(0)=\frac{\pi}{2},\ f'_-(0)=-\frac{\pi}{2}}
+\else \answerarea[8] \fi%
+
+\textbf{2.} 求下列函数的导数：
+\begin{enumerate}[label=(\arabic*),leftmargin=2.2em]
+  \item $y=\ln\!\left(\sqrt{1+x^2}-x\right)$；
+  \item $y=x^{\sin x}$（$x>0$）。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} (1) 是复合函数，外层为对数，内层含根式，按链式法则逐层求导后化简；(2) 底数与指数都含 $x$，先取对数把指数化为乘积。
+
+(1) 因为 $\sqrt{1+x^2}>|x|\ge x$，真数恒正，函数在 $\mathbb R$ 上有定义。由链式法则，
+\[
+y'=\frac{\left(\sqrt{1+x^2}-x\right)'}{\sqrt{1+x^2}-x}
+=\frac{\dfrac{x}{\sqrt{1+x^2}}-1}{\sqrt{1+x^2}-x}.
+\]
+把分子通分：
+\[
+\frac{x}{\sqrt{1+x^2}}-1=\frac{x-\sqrt{1+x^2}}{\sqrt{1+x^2}}
+=-\frac{\sqrt{1+x^2}-x}{\sqrt{1+x^2}}.
+\]
+代回并与分母约去 $\sqrt{1+x^2}-x$，得 $y'=-\dfrac{1}{\sqrt{1+x^2}}$。
+
+(2) 两边取对数：$\ln y=\sin x\ln x$。两边对 $x$ 求导，注意 $y$ 是 $x$ 的函数，
+\[
+\frac{y'}{y}=\cos x\ln x+\sin x\cdot\frac1x.
+\]
+故
+\[
+y'=y\left(\cos x\ln x+\frac{\sin x}{x}\right)
+=x^{\sin x}\left(\cos x\ln x+\frac{\sin x}{x}\right).
+\]
+
+\[
+\boxed{\text{答案：}(1)\ y'=-\frac{1}{\sqrt{1+x^2}}}
+\]
+\[
+\boxed{\text{答案：}(2)\ y'=x^{\sin x}\left(\cos x\ln x+\frac{\sin x}{x}\right)}
+\]
+\else \answerarea[8] \fi%
+
+\textbf{3.} 方程 $\sin(xy)+x-y=0$ 确定隐函数 $y=y(x)$。验证隐函数存在定理的条件，并求 $\left.\dfrac{\mathrm{d}y}{\mathrm{d}x}\right|_{x=0}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 先令 $F(x,y)=\sin(xy)+x-y$，检查 $F(0,0)=0$ 与 $F_y(0,0)\ne0$，再两边对 $x$ 求导。
+
+令 $F(x,y)=\sin(xy)+x-y$。则 $F(0,0)=0$，且
+\[
+F_y=\cos(xy)\cdot x-1,\qquad F_y(0,0)=-1\ne0.
+\]
+由隐函数存在定理，在 $(0,0)$ 附近方程确定唯一的可导函数 $y=y(x)$。
+
+两边对 $x$ 求导，把 $y$ 看作 $y(x)$：
+\[
+\cos(xy)\,(y+xy')+1-y'=0.
+\]
+整理得
+\[
+\bigl(x\cos(xy)-1\bigr)y'=-\bigl(1+y\cos(xy)\bigr),
+\]
+即
+\[
+y'=\frac{1+y\cos(xy)}{1-x\cos(xy)}.
+\]
+当 $x=0$ 时，由原方程得 $\sin 0+0-y=0$，即 $y(0)=0$。代入上式，
+\[
+\left.\frac{\mathrm{d}y}{\mathrm{d}x}\right|_{x=0}=\frac{1+0}{1-0}=1.
+\]
+
+\boxed{\text{答案：}y'(0)=1}
+\else \answerarea[8] \fi%
+
+\textbf{4.} 设曲线由参数方程
+\[
+\begin{cases}
+x=t^2+1,\\
+y=t^3-t
+\end{cases}
+\]
+给出。求 $t=2$ 对应点处的切线方程与法线方程。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 先由参数方程求 $\dfrac{\mathrm{d}y}{\mathrm{d}x}=\dfrac{y'(t)}{x'(t)}$，再代入 $t=2$ 得斜率，最后用点斜式写出切线与法线。
+
+\[
+\frac{\mathrm{d}x}{\mathrm{d}t}=2t,\qquad \frac{\mathrm{d}y}{\mathrm{d}t}=3t^2-1,
+\]
+故当 $t\ne0$ 时
+\[
+\frac{\mathrm{d}y}{\mathrm{d}x}=\frac{3t^2-1}{2t}.
+\]
+$t=2$ 时，$x=2^2+1=5$，$y=2^3-2=6$，切点为 $(5,6)$；切线斜率为
+\[
+k=\left.\frac{3t^2-1}{2t}\right|_{t=2}=\frac{12-1}{4}=\frac{11}{4}.
+\]
+切线方程：
+\[
+y-6=\frac{11}{4}(x-5),
+\]
+即 $11x-4y-31=0$。
+
+法线斜率为 $-\dfrac{4}{11}$，法线方程：
+\[
+y-6=-\frac{4}{11}(x-5),
+\]
+即 $4x+11y-86=0$。
+
+\boxed{\text{答案：}\text{切线 }11x-4y-31=0,\quad\text{法线 }4x+11y-86=0}
+\else \answerarea[8] \fi%
+
+\textbf{5.} 设 $y=x^2e^{2x}$，求 $y^{(n)}$（$n\ge1$）。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} $x^2$ 只有有限阶非零导数，适合用莱布尼茨公式，并且只需保留三项。
+
+取 $u=e^{2x}$，$v=x^2$。则
+\[
+u^{(k)}=2^ke^{2x}\ (k\ge0),\qquad v'=2x,\quad v''=2,\quad v^{(k)}=0\ (k\ge3).
+\]
+由莱布尼茨公式，
+\[
+y^{(n)}=\sum_{k=0}^{2}\binom{n}{k}u^{(n-k)}v^{(k)}.
+\]
+逐项写出：
+\[
+\begin{aligned}
+y^{(n)}
+&=\binom{n}{0}2^ne^{2x}\cdot x^2
++\binom{n}{1}2^{n-1}e^{2x}\cdot 2x
++\binom{n}{2}2^{n-2}e^{2x}\cdot 2\\
+&=2^ne^{2x}x^2+n\cdot2^nxe^{2x}+n(n-1)2^{n-2}e^{2x}\\
+&=2^ne^{2x}\left[x^2+nx+\frac{n(n-1)}{4}\right].
+\end{aligned}
+\]
+其中第三步用到 $\dbinom{n}{2}=\dfrac{n(n-1)}{2}$。
+
+\boxed{\text{答案：}y^{(n)}=2^ne^{2x}\left[x^2+nx+\dfrac{n(n-1)}{4}\right]\ (n\ge1)}
+\else \answerarea[8] \fi%
+
+\subsection{综合提高题}
+
+\textbf{6.} 方程 $x+y+e^y=1$ 确定隐函数 $y=y(x)$。求 $y'(0)$ 与 $y''(0)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 先对 $x$ 求一次导得 $y'$，再对所得恒等式求导得 $y''$，最后代入点 $(0,0)$。注意 $y'$ 仍是 $x$ 的函数（通过 $y$ 依赖 $x$）。
+
+令 $F(x,y)=x+y+e^y-1$。$F(0,0)=0$，$F_y=1+e^y>0$，故在 $x=0$ 附近确定可导的 $y=y(x)$，且 $y(0)=0$。
+
+两边对 $x$ 求导：
+\[
+1+y'+e^y y'=0,
+\]
+解得
+\[
+y'=-\frac{1}{1+e^y}.
+\]
+代入 $x=0,\ y=0$，得
+\[
+y'(0)=-\frac{1}{2}.
+\]
+
+再对 $1+y'+e^yy'=0$ 两边关于 $x$ 求导：
+\[
+y''+e^y(y')^2+e^yy''=0,
+\]
+故
+\[
+y''=-\frac{e^y(y')^2}{1+e^y}.
+\]
+在 $x=0$ 处，$y=0$，$y'=-\dfrac12$，于是
+\[
+y''(0)=-\frac{1\cdot\frac14}{1+1}=-\frac18.
+\]
+
+\boxed{\text{答案：}y'(0)=-\frac12,\qquad y''(0)=-\frac18}
+\else \answerarea[8] \fi%
+
+\textbf{7.} 设曲线由参数方程
+\[
+\begin{cases}
+x=\arctan t,\\
+y=\ln(1+t^2)
+\end{cases}
+\]
+给出。求 $\dfrac{\mathrm{d}^2y}{\mathrm{d}x^2}$，并求 $t=1$ 对应点处的切线方程。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 参数方程的二阶导数公式为
+\[
+\frac{\mathrm{d}^2y}{\mathrm{d}x^2}
+=\frac{\dfrac{\mathrm{d}}{\mathrm{d}t}\left(\dfrac{\mathrm{d}y}{\mathrm{d}x}\right)}{\dfrac{\mathrm{d}x}{\mathrm{d}t}},
+\]
+不能直接把 $\dfrac{\mathrm{d}^2y}{\mathrm{d}t^2}$ 除以 $\dfrac{\mathrm{d}^2x}{\mathrm{d}t^2}$。
+
+先求一阶导数：
+\[
+\frac{\mathrm{d}x}{\mathrm{d}t}=\frac{1}{1+t^2},\qquad
+\frac{\mathrm{d}y}{\mathrm{d}t}=\frac{2t}{1+t^2}.
+\]
+因为 $\dfrac{\mathrm{d}x}{\mathrm{d}t}>0$，所以
+\[
+\frac{\mathrm{d}y}{\mathrm{d}x}
+=\frac{2t/(1+t^2)}{1/(1+t^2)}=2t.
+\]
+再对 $x$ 求导：
+\[
+\frac{\mathrm{d}^2y}{\mathrm{d}x^2}
+=\frac{\dfrac{\mathrm{d}}{\mathrm{d}t}(2t)}{\dfrac{\mathrm{d}x}{\mathrm{d}t}}
+=\frac{2}{1/(1+t^2)}=2(1+t^2).
+\]
+
+当 $t=1$ 时，$x=\arctan1=\dfrac{\pi}{4}$，$y=\ln2$，切点为 $\left(\dfrac{\pi}{4},\ln2\right)$。切线斜率为
+\[
+\left.\frac{\mathrm{d}y}{\mathrm{d}x}\right|_{t=1}=2.
+\]
+切线方程：
+\[
+y-\ln2=2\left(x-\frac{\pi}{4}\right),
+\]
+即 $y=2x-\dfrac{\pi}{2}+\ln2$。
+
+\[
+\boxed{\text{答案：}\frac{\mathrm{d}^2y}{\mathrm{d}x^2}=2(1+t^2)}
+\]
+\[
+\boxed{\text{答案：}\text{切线 }y=2x-\frac{\pi}{2}+\ln2}
+\]
+\else \answerarea[8] \fi%
+
+\textbf{8.} (1) 求函数 $y=\ln\!\left(x+\sqrt{1+x^2}\right)$ 的微分 $\mathrm dy$；
+(2) 用微分近似计算 $\sqrt[3]{1.02}$，并利用二阶导数估计该近似值的误差。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} (1) 先求导，再乘 $\mathrm dx$；(2) 取 $f(x)=\sqrt[3]{x}$，$x_0=1$，$\Delta x=0.02$，用 $f(x_0+\Delta x)\approx f(x_0)+f'(x_0)\Delta x$，误差由 $\dfrac12f''(x_0)(\Delta x)^2$ 估计。
+
+(1) 先化简导数。令 $u=x+\sqrt{1+x^2}$，则
+\[
+u'=1+\frac{x}{\sqrt{1+x^2}}
+=\frac{\sqrt{1+x^2}+x}{\sqrt{1+x^2}}.
+\]
+于是
+\[
+y'=\frac{u'}{u}
+=\frac{1}{\sqrt{1+x^2}}\cdot
+\frac{\sqrt{1+x^2}+x}{x+\sqrt{1+x^2}}
+=\frac{1}{\sqrt{1+x^2}}.
+\]
+故
+\[
+\mathrm dy=\frac{1}{\sqrt{1+x^2}}\,\mathrm dx.
+\]
+
+(2) 取 $f(x)=x^{1/3}$，$x_0=1$，$\Delta x=0.02$。有
+\[
+f'(x)=\frac13x^{-2/3},\qquad f'(1)=\frac13,
+\]
+所以
+\[
+f(1.02)\approx f(1)+f'(1)\Delta x
+=1+\frac13\times0.02=1+\frac{1}{150}\approx1.006667.
+\]
+又
+\[
+f''(x)=-\frac29x^{-5/3},\qquad f''(1)=-\frac29.
+\]
+由带拉格朗日余项的一阶泰勒公式，误差约为
+\[
+\frac12f''(1)(\Delta x)^2
+=\frac12\left(-\frac29\right)(0.02)^2
+=-\frac{4}{90000}\approx-4.4\times10^{-5}.
+\]
+负号说明线性近似值略大于真值；实际 $\sqrt[3]{1.02}\approx1.006623$。
+
+\[
+\boxed{\text{答案：}(1)\ \mathrm dy=\frac{\mathrm dx}{\sqrt{1+x^2}}}
+\]
+\[
+\boxed{\text{答案：}(2)\ \sqrt[3]{1.02}\approx1.0067,\quad\text{误差约 }-4.4\times10^{-5}}
+\]
+\else \answerarea[10] \fi%
+
+\textbf{9.} 设 $f(x)=x^3-3ax+1$，其中 $a\in\mathbb R$。讨论 $f$ 的单调区间与极值。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 定义域为 $\mathbb R$，求导后按 $a$ 的符号分类：$a\le0$ 时 $f'\ge0$；$a>0$ 时有两个驻点，用 $f'$ 的符号表判断单调性与极值。
+
+\[
+f'(x)=3x^2-3a=3(x^2-a).
+\]
+
+\textbf{情形一：$a\le0$。} 此时对任意 $x$ 有 $x^2-a\ge0$，故 $f'(x)\ge0$，且 $f'$ 只在个别点可能为零。$f$ 在 $\mathbb R$ 上严格单调递增，没有极值。
+
+\textbf{情形二：$a>0$。} 令 $f'(x)=0$ 得两个驻点 $x=\pm\sqrt a$。列表判断符号：
+\[
+\begin{array}{c|ccccc}
+x & (-\infty,-\sqrt a) & -\sqrt a & (-\sqrt a,\sqrt a) & \sqrt a & (\sqrt a,+\infty)\\
+\hline
+f'(x) & + & 0 & - & 0 & +\\
+f(x) & \nearrow & \text{极大} & \searrow & \text{极小} & \nearrow
+\end{array}
+\]
+其中
+\[
+f(-\sqrt a)=(-\sqrt a)^3-3a(-\sqrt a)+1=2a^{3/2}+1,
+\]
+\[
+f(\sqrt a)=(\sqrt a)^3-3a\sqrt a+1=1-2a^{3/2}.
+\]
+所以 $f$ 在 $(-\infty,-\sqrt a]$ 与 $[\sqrt a,+\infty)$ 上严格递增，在 $[-\sqrt a,\sqrt a]$ 上严格递减；极大值为 $2a^{3/2}+1$，极小值为 $1-2a^{3/2}$。
+
+\[
+\boxed{\text{答案：}\begin{gathered}
+a\le0:\ f\ \text{在}\ \mathbb R\ \text{上严格递增，无极值};\\
+a>0:\ \text{极大值}\ f(-\sqrt a)=2a^{3/2}+1,\quad
+\text{极小值}\ f(\sqrt a)=1-2a^{3/2}.
+\end{gathered}}
+\]
+\else \answerarea[10] \fi%
+
+\subsection{真题风格与综合训练}
+
+\textbf{10.} 设 $f$ 在 $x_0$ 的某邻域内有定义，则下列命题中正确的是（\quad）
+
+\begin{enumerate}[label=(\Alph*),leftmargin=2.5em]
+  \item 若 $f$ 在 $x_0$ 处连续，则 $f$ 在 $x_0$ 处可导；
+  \item 若 $|f|$ 在 $x_0$ 处可导，则 $f$ 在 $x_0$ 处可导；
+  \item 若 $f$ 在 $x_0$ 处可导，则 $|f|$ 在 $x_0$ 处可导；
+  \item 若 $f$ 在 $x_0$ 处可导且 $f(x_0)\ne0$，则 $|f|$ 在 $x_0$ 处可导。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 逐项找反例；只有“函数值非零”这一附加条件能保证在 $x_0$ 附近符号不变，从而去掉绝对值。
+
+(A) 反例：$f(x)=|x|$，$x_0=0$。$|x|$ 在 $0$ 处连续，但
+\[
+\lim_{x\to0^+}\frac{|x|-0}{x}=1,\qquad
+\lim_{x\to0^-}\frac{|x|-0}{x}=-1,
+\]
+左右导数不等，不可导。故 (A) 错。
+
+(B) 反例：$f(x)=\begin{cases}1,&x\ge0,\\-1,&x<0,\end{cases}$，$x_0=0$。此时 $|f(x)|\equiv1$，在 $0$ 处可导（导数为 $0$），但 $f$ 在 $0$ 处不连续，更不可导。故 (B) 错。
+
+(C) 反例：$f(x)=x$，$x_0=0$。$f'(0)=1$，但 $|f(x)|=|x|$ 在 $0$ 处不可导。故 (C) 错。
+
+(D) 正确。因为 $f$ 在 $x_0$ 处可导，所以连续；又 $f(x_0)\ne0$，由连续函数的保号性，存在 $\delta>0$，使得当 $|x-x_0|<\delta$ 时 $f(x)$ 与 $f(x_0)$ 同号。于是在该邻域内
+\[
+|f(x)|=\begin{cases}
+f(x), & f(x_0)>0,\\
+-f(x), & f(x_0)<0.
+\end{cases}
+\]
+无论哪种情形，$|f|$ 在 $x_0$ 处都可导，且导数为 $f'(x_0)$ 或 $-f'(x_0)$。
+
+\boxed{\text{答案：}(D)}
+\else \answerarea[8] \fi%
+
+\textbf{11.} 设
+\[
+f(x)=\begin{cases}
+\dfrac{1-\cos x}{x^2}, & x\ne0,\\[8pt]
+a, & x=0.
+\end{cases}
+\]
+若 $f$ 在 $x=0$ 处可导，则 $a=\underline{\hspace{1.6cm}}$，$f'(0)=\underline{\hspace{1.6cm}}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 可导必连续，先用连续性确定 $a$；再用导数定义求 $f'(0)$，其中差商化简后可用泰勒展开处理。
+
+因为 $f$ 在 $x=0$ 处可导，所以必在 $x=0$ 处连续，故
+\[
+a=f(0)=\lim_{x\to0}\frac{1-\cos x}{x^2}.
+\]
+由 $1-\cos x\sim\dfrac{x^2}{2}$，得
+\[
+a=\frac12.
+\]
+
+再按定义求导：
+\[
+f'(0)=\lim_{x\to0}\frac{f(x)-f(0)}{x}
+=\lim_{x\to0}\frac{\dfrac{1-\cos x}{x^2}-\dfrac12}{x}
+=\lim_{x\to0}\frac{2(1-\cos x)-x^2}{2x^3}.
+\]
+利用
+\[
+\cos x=1-\frac{x^2}{2}+\frac{x^4}{24}+o(x^4),
+\]
+得
+\[
+2(1-\cos x)-x^2=2\left(\frac{x^2}{2}-\frac{x^4}{24}+o(x^4)\right)-x^2
+=-\frac{x^4}{12}+o(x^4).
+\]
+于是
+\[
+f'(0)=\lim_{x\to0}\frac{-\frac{x^4}{12}+o(x^4)}{2x^3}
+=\lim_{x\to0}\left(-\frac{x}{24}+o(x)\right)=0.
+\]
+
+\boxed{\text{答案：}a=\frac12,\qquad f'(0)=0}
+\else \answerarea[8] \fi%
+
+\textbf{12.} (1) 证明：当 $x>0$ 时，
+\[
+\ln(1+x)>x-\frac{x^2}{2}.
+\]
+(2) 利用 (1) 比较 $\ln1.1$ 与 $0.095$ 的大小。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 把不等式移项构造辅助函数，用导数判断其单调性；再在 $x=0$ 处取初值。第 (2) 问只需代入 $x=0.1$。
+
+(1) 令
+\[
+g(x)=\ln(1+x)-x+\frac{x^2}{2},\qquad x\ge0.
+\]
+则 $g(0)=0$，且
+\[
+g'(x)=\frac{1}{1+x}-1+x=\frac{1-(1+x)+x(1+x)}{1+x}
+=\frac{x^2}{1+x}.
+\]
+当 $x>0$ 时，$g'(x)>0$，故 $g$ 在 $[0,+\infty)$ 上严格单调递增。因此对任意 $x>0$，
+\[
+g(x)>g(0)=0,
+\]
+即
+\[
+\ln(1+x)>x-\frac{x^2}{2}.
+\]
+
+(2) 取 $x=0.1>0$，则
+\[
+x-\frac{x^2}{2}=0.1-\frac{0.01}{2}=0.1-0.005=0.095.
+\]
+由 (1) 得
+\[
+\ln1.1>0.095.
+\]
+
+\boxed{\text{答案：}(1)\ \text{证明见上};\quad(2)\ \ln1.1>0.095}
+\else \answerarea[10] \fi%

@@ -1,0 +1,222 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 某单位分配到地址块 \texttt{172.16.8.0/22}，现将其等长划分为前缀长度为 /26 的子网。可划分出的子网个数与每个子网中可分配给主机的地址个数分别是
+\begin{center}
+\begin{tabular}{ll}
+(A) 16，62 & (B) 16，64 \\[4pt]
+(C) 4，62 & (D) 64，62
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 思路：前缀长度之差给出子网位数，剩余位数给出每个子网的地址数，最后扣除网络地址与广播地址。由 $26-22=4$ 位子网位得子网数 $2^4=16$；每个 /26 有 $32-26=6$ 位主机位，共 $2^6=64$ 个地址，其中主机号全 0 的网络地址和全 1 的广播地址不能分配给主机，故可用 $64-2=62$ 个。验证：/22 共 $2^{10}=1024$ 个地址，$16\times64=1024$，划分不重不漏。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 一个 IPv4 数据报总长度为 3000 B，其中首部为固定的 20 B；DF=0，途经某链路的 MTU=1500 B。该数据报在该链路上被分片后，分片个数及各分片的片偏移值依次为
+\begin{center}
+\begin{tabular}{ll}
+(A) 2 片，0、1480 & (B) 3 片，0、185、370 \\[4pt]
+(C) 3 片，0、1480、2960 & (D) 4 片，0、185、370、555
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 思路：先算数据部分长度，再算每片能携带的最大数据量（必须是 8 的整数倍），最后用片偏移以 8 B 为单位换算。数据部分 $L=3000-20=2980$ B。每片数据上限
+\[
+D_{\max}=\left\lfloor\frac{1500-20}{8}\right\rfloor\times8=1480\text{ B}.
+\]
+片数 $n=\lceil 2980/1480\rceil=3$。前两片各 1480 B，第三片 $2980-2\times1480=20$ B。片偏移分别为 $0/8=0$、$1480/8=185$、$2960/8=370$，MF 依次为 1、1、0。选项 (A) 漏看最后 20 B 而少算一片；(C) 把字节偏移直接当成片偏移值；(D) 多算一片。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 下列关于 ARP 的叙述中，正确的是
+\begin{center}
+\begin{tabular}{p{0.46\linewidth}p{0.46\linewidth}}
+(A) ARP 请求报文封装在 IP 数据报中发送 & (B) 同一局域网内，ARP 请求以广播帧发送，ARP 应答通常以单播帧发送 \\[4pt]
+(C) ARP 高速缓存中的表项一旦建立就永久有效 & (D) 目的主机位于另一个网络时，源主机应通过 ARP 解析目的主机的 MAC 地址
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错：ARP 报文直接封装在以太网帧中（以太网类型字段为 \texttt{0x0806}），不经过 IP。(B) 对：请求方尚不知道目标 MAC，只能以目的 MAC 全 1 的广播帧询问；被询问方知道请求方地址，可以单播应答。(C) 错：ARP 缓存表项有生存时间，过期后删除。(D) 错：跨网段时源主机只需解析默认网关的 MAC，目的 IP 地址保持不变。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（填空题）} ICMP 报文封装在 IPv4 数据报中，IPv4 首部协议字段的值为 \underline{\hspace{2cm}}；ping 使用的回送请求与回送回答的 ICMP 类型值分别为 \underline{\hspace{1.2cm}} 和 \underline{\hspace{1.2cm}}；traceroute 逐跳发现路径时，依赖路由器返回的 ICMP \underline{\hspace{1.6cm}} 报文（类型值为 11）。
+
+\ifshowsolutions\par\noindent\textbf{解析：} ICMP 是网络层的配套协议，其报文作为 IP 数据报的数据部分传输，IPv4 首部中协议字段为 1。ping 发送类型 8 的回送请求，目的主机返回类型 0 的回送回答。traceroute 让探测报文的 TTL 依次取 1、2、3、$\ldots$；第 $i$ 跳路由器把 TTL 减为 0 后丢弃报文，并回送类型 11 的超时报文，源主机从该报文的源 IP 地址得到第 $i$ 跳路由器的地址。\boxed{\text{答案：1；8、0；超时}}\else \answerarea[4] \fi
+
+\item \textbf{（单项选择题）} 路由器 R1 与 R2 直连。R1 原有路由表中与本题相关的表项如下表所示；某时刻 R1 收到 R2 发来的距离向量，其中 R2 到达 Net1、Net2、Net3、Net4 的距离分别为 2、3、1、4。按 RIP 的距离向量算法更新后，R1 到达 Net3、Net4 的距离与下一跳分别是
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+目的网络 & 距离 & 下一跳 \\
+\midrule
+Net1 & 3 & R2 \\
+Net2 & 2 & R3 \\
+Net3 & 5 & R2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) Net3：2，R2；Net4：5，R2 & (B) Net3：6，R2；Net4：5，R2 \\[4pt]
+(C) Net3：2，R2；Net4：4，R2 & (D) Net3：5，R2；Net4：5，R2
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 思路：对邻居表中的每一项，候选距离 $=$ 邻居报告的距离 $+1$；若下一跳相同则无条件采用，若下一跳不同则只在候选距离更小时替换。逐项计算：Net1 候选 $2+1=3$，与原表相同且下一跳同为 R2，仍为 3；Net2 候选 $3+1=4$，原为 2 且下一跳为 R3，$4>2$，保留原路由；Net3 候选 $1+1=2$，小于原距离 5，改为距离 2、下一跳 R2；Net4 是原表中没有的网络，加入距离 $4+1=5$、下一跳 R2。\boxed{\textbf{答案：}(A)}\else \answerarea[6] \fi
+
+\item \textbf{（填空题）} 某 NAT 路由器执行 NAPT，内部主机 A、B 同时用源端口 3000 访问同一台 Web 服务器，转换表如下。服务器返回一个目的地址为 \texttt{203.0.113.5}、目的端口为 62001 的 TCP 报文。
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+内部端点 & 转换后的外部端点 \\
+\midrule
+\texttt{192.168.1.10:3000} & \texttt{203.0.113.5:62000} \\
+\texttt{192.168.1.11:3000} & \texttt{203.0.113.5:62001} \\
+\bottomrule
+\end{tabular}
+\end{center}
+（1）NAT 应将该报文转发给哪个内部端点？\\[2pt]
+（2）完成上述转发时，必须重新计算哪些校验和？
+
+\ifshowsolutions\par\noindent\textbf{解析：} （1）NAPT 的映射项由协议、内部 IP 与端口、外部 IP 与端口共同确定。公网地址相同，目的端口 62001 唯一对应 B 的映射项，因此路由器把目的地址改为 \texttt{192.168.1.11}、目的端口改为 3000，转发给 \texttt{192.168.1.11:3000}。仅凭公网 IP 或源端口 3000（A、B 相同）都无法区分两台主机。（2）目的 IP 地址属于 IPv4 首部，改写后 IPv4 首部校验和必须重算；TCP 校验和覆盖包含目的 IP 的伪首部以及含目的端口的 TCP 首部，也必须重算。\boxed{\text{答案：（1）\texttt{192.168.1.11:3000}；（2）IPv4 与 TCP 校验和}}\else \answerarea[6] \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[start=7]
+
+\item \textbf{（单项选择题）} 某路由器的转发表如下。现收到目的地址分别为 \texttt{10.1.2.130}、\texttt{10.1.2.77}、\texttt{10.1.3.9} 的三个 IP 数据报，按最长前缀匹配，它们对应的下一跳依次是
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+目的前缀 & 下一跳 \\
+\midrule
+\texttt{0.0.0.0/0} & R0 \\
+\texttt{10.0.0.0/8} & R1 \\
+\texttt{10.1.0.0/16} & R2 \\
+\texttt{10.1.2.0/24} & R3 \\
+\texttt{10.1.2.128/25} & R4 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) R4、R3、R2 & (B) R4、R2、R2 \\[4pt]
+(C) R3、R3、R2 & (D) R4、R3、R1
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 思路：把目的地址与每个表项逐一匹配，在所有匹配项中取前缀最长者，而不是取第一条匹配项。\texttt{10.1.2.130} 的最后一个字节为 130，落在 \texttt{10.1.2.128/25} 内，同时匹配 /0、/8、/16、/24，最长前缀为 /25，下一跳 R4。\texttt{10.1.2.77} 不在 128～255 范围内，只能匹配到 \texttt{10.1.2.0/24}，下一跳 R3；它也会匹配 /16 和 /8，但 /24 更长。\texttt{10.1.3.9} 的第三个字节为 3，不匹配 \texttt{10.1.2.0/24}，但匹配 \texttt{10.1.0.0/16}，下一跳 R2。\boxed{\textbf{答案：}(A)}\else \answerarea[6] \fi
+
+\item \textbf{（单项选择题）} 主机 H1 的地址为 \texttt{192.168.1.10/24}，默认网关为 \texttt{192.168.1.1}；主机 H2 位于另一网络，地址为 \texttt{10.0.0.20/24}。H1 向 H2 发送 IP 数据报，路径为 H1—R1—R2—H2，途中未使用 NAT。下列说法正确的是
+\begin{center}
+\begin{tabular}{p{0.46\linewidth}p{0.46\linewidth}}
+(A) H1 发出的帧的目的 MAC 地址是 H2 的 MAC 地址 & (B) H1 发送前用 ARP 解析 \texttt{10.0.0.20}，得到 H2 的 MAC 地址 \\[4pt]
+(C) H1 用 ARP 解析默认网关 \texttt{192.168.1.1} 的 MAC 地址，发出的 IP 数据报目的地址仍为 \texttt{10.0.0.20} & (D) R1 转发该数据报时，会同时改写 IP 首部中的源地址和目的地址
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} H1 用掩码 /24 判断出 \texttt{10.0.0.20} 不在本网络 \texttt{192.168.1.0/24} 内，因此要把数据报交给默认网关。链路层只能把帧送到同一局域网内的某个 MAC 地址，所以 H1 广播 ARP 请求询问 \texttt{192.168.1.1}，R1 单播应答其 LAN1 接口的 MAC 地址。H1 发出的帧源 MAC 为 H1、目的 MAC 为 R1 的 LAN1 接口；IP 首部的源、目的地址分别为 \texttt{192.168.1.10} 和 \texttt{10.0.0.20}，在整个路径上保持不变（无 NAT）。R1 转发时只重新封装下一段链路的帧，改写的是链路层源、目的 MAC，不是 IP 地址。\boxed{\textbf{答案：}(C)}\else \answerarea[6] \fi
+
+\item \textbf{（真题风格·综合应用题）} 某单位分配到地址块 \texttt{192.168.10.0/24}，需要为四个子网分配地址：研发部 60 台主机、市场部 28 台主机、财务部 12 台主机，以及两台路由器之间的点对点链路（需要 2 个可分配地址）。采用变长子网划分（VLSM），按需求从大到小分配，并假定每个子网都保留网络地址和广播地址。
+（1）写出每个子网的网络地址、子网掩码（分别用点分十进制和 /n 表示）、可用地址范围和广播地址。
+（2）全部划分完成后，还剩多少个未分配的地址？
+（3）若还要新增一个需要 25 台主机的子网，能否从剩余地址中划出？给出一个满足要求的地址块。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 思路：对每个子网，由 $2^h-2\ge$ 主机数求出最小主机位数 $h$，块大小为 $2^h$；网络地址必须是块大小的整数倍。先分配需求大的子网，可以避免大块地址被小块切碎。
+
+\textbf{（1）} 研发部：$2^5-2=30<60$，$2^6-2=62\ge60$，取 $h=6$，即 /26，块大小 64。起始地址 0 是 64 的倍数，故为 \texttt{192.168.10.0/26}，掩码 \texttt{255.255.255.192}，可用 \texttt{.1}～\texttt{.62}，广播 \texttt{.63}。
+
+市场部：$2^4-2=14<28$，$2^5-2=30\ge28$，取 /27，块大小 32。下一个可用起始地址为 64（是 32 的倍数），故为 \texttt{192.168.10.64/27}，掩码 \texttt{255.255.255.224}，可用 \texttt{.65}～\texttt{.94}，广播 \texttt{.95}。
+
+财务部：$2^3-2=6<12$，$2^4-2=14\ge12$，取 /28，块大小 16。起始地址 96（是 16 的倍数），故为 \texttt{192.168.10.96/28}，掩码 \texttt{255.255.255.240}，可用 \texttt{.97}～\texttt{.110}，广播 \texttt{.111}。
+
+点对点链路：$2^1-2=0<2$，$2^2-2=2\ge2$，取 /30，块大小 4。起始地址 112（是 4 的倍数），故为 \texttt{192.168.10.112/30}，掩码 \texttt{255.255.255.252}，可用 \texttt{.113}、\texttt{.114}，广播 \texttt{.115}。（RFC 3021 允许点对点链路使用 /31，但本题按保留网络地址与广播地址的传统口径取 /30。）
+
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+子网 & 需求 & 前缀 & 网络地址 & 掩码 & 可用范围 & 广播地址 \\
+\midrule
+研发部 & 60 & /26 & \texttt{.0} & \texttt{255.255.255.192} & \texttt{.1}～\texttt{.62} & \texttt{.63} \\
+市场部 & 28 & /27 & \texttt{.64} & \texttt{255.255.255.224} & \texttt{.65}～\texttt{.94} & \texttt{.95} \\
+财务部 & 12 & /28 & \texttt{.96} & \texttt{255.255.255.240} & \texttt{.97}～\texttt{.110} & \texttt{.111} \\
+链路 & 2 & /30 & \texttt{.112} & \texttt{255.255.255.252} & \texttt{.113}～\texttt{.114} & \texttt{.115} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{（2）} 已分配 \texttt{.0}～\texttt{.115}，共 116 个地址；剩余 \texttt{.116}～\texttt{.255}，数量为 $255-116+1=140$ 个。
+
+\textbf{（3）} 新增 25 台主机：$2^4-2=14<25$，$2^5-2=30\ge25$，需 /27，块大小 32。网络地址必须是 32 的整数倍；116 不是（$116=3\times32+20$），而 128 是（$128=4\times32$），因此可分配 \texttt{192.168.10.128/27}，其可用地址为 \texttt{.129}～\texttt{.158}，广播地址为 \texttt{.159}。此时 \texttt{.116}～\texttt{.127} 这 12 个地址仍未使用，它们不足以构成一个 /27，但可用于更小的子网。\boxed{\text{答案：（1）见上表；（2）140 个；（3）能，\texttt{192.168.10.128/27}}}\else \answerarea[10] \fi
+
+\item \textbf{（真题风格·综合应用题）} 某网络运行链路状态路由算法，各路由器之间的链路代价如下表所示，所有链路均为双向且两个方向代价相同。以路由器 A 为源点。
+\begin{center}
+\begin{tabular}{cc|cc|cc}
+\toprule
+链路 & 代价 & 链路 & 代价 & 链路 & 代价 \\
+\midrule
+A--B & 4 & B--C & 1 & C--F & 8 \\
+A--C & 2 & B--E & 5 & D--E & 1 \\
+A--D & 6 & C--D & 2 & E--F & 2 \\
+ & & C--E & 6 & & \\
+\bottomrule
+\end{tabular}
+\end{center}
+（1）用 Dijkstra 算法求 A 到 B、C、D、E、F 的最短距离与最短路径（写出结点序列），并列出算法每次选出的结点及相应的松弛结果。
+（2）若在 A、E 之间新增一条代价为 4 的链路，重新求 A 到 E、F 的最短距离与路径，并指出 A 的转发表中哪些目的地的下一跳发生变化。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 思路：Dijkstra 每次从尚未确定的结点中选出当前距离最小者加入确定集合，再用它松弛所有邻居；只有候选距离严格更小时才更新（相等时不更新）。
+
+\textbf{（1）} 初始 $d(A)=0$，其余为 $\infty$。
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{c p{4.4cm} X}
+\toprule
+步骤 & 加入确定集合的结点（距离） & 松弛结果 \\
+\midrule
+1 & A（0） & $d(B)=4$ 经 A，$d(C)=2$ 经 A，$d(D)=6$ 经 A \\
+2 & C（2） & $d(B)=2+1=3$ 经 C；$d(D)=2+2=4$ 经 C；$d(E)=8$ 经 C；$d(F)=10$ 经 C \\
+3 & B（3） & B--E 候选 $3+5=8$，与当前 $d(E)=8$ 相等，不更新 \\
+4 & D（4） & $d(E)=4+1=5$ 经 D \\
+5 & E（5） & $d(F)=5+2=7$ 经 E \\
+6 & F（7） & 无尚未确定的邻居 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+由此得到
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+目的 & 最短距离 & 最短路径 & 前驱 & 下一跳 \\
+\midrule
+B & 3 & A--C--B & C & C \\
+C & 2 & A--C & A & C \\
+D & 4 & A--C--D & C & C \\
+E & 5 & A--C--D--E & D & C \\
+F & 7 & A--C--D--E--F & E & C \\
+\bottomrule
+\end{tabular}
+\end{center}
+所有最短路径都以 A--C 为第一段，因此 A 的转发表中到达这五个目的地的下一跳均为 C。
+
+\textbf{（2）} 新增 A--E 代价 4 后，A 可直接到达 E，初始 $d(E)=4$ 取代原来的 8。重算过程如下：选出 C（2），松弛得 $d(B)=3$、$d(D)=4$、$d(F)=10$；由 B 得到的 $d(E)=3+5=8$ 不优于 4；D 得到的 $d(E)=4+1=5$ 也不优于 4；最后由 E 松弛得 $d(F)=4+2=6<10$。故 E 的最短路径为 A--E，距离 4；F 的最短路径为 A--E--F，距离 6。
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+目的 & 原距离/下一跳 & 新距离/下一跳 & 是否变化 \\
+\midrule
+B & 3/C & 3/C & 否 \\
+C & 2/C & 2/C & 否 \\
+D & 4/C & 4/C & 否 \\
+E & 5/C & 4/E & 是 \\
+F & 7/C & 6/E & 是 \\
+\bottomrule
+\end{tabular}
+\end{center}
+所以只有目的 E、F 的表项发生变化：E 改为下一跳 E（直连），F 改为下一跳 E（路径 A--E--F）；B、C、D 的表项不变。\boxed{\text{答案：（1）3、2、4、5、7；（2）E：4，F：6；仅 E、F 下一跳改变}}\else \answerarea[10] \fi
+
+\end{enumerate}

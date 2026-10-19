@@ -1,0 +1,308 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{（单项选择题）} 下列关于 SRAM 与 DRAM 的叙述中，\textbf{错误}的是
+
+\begin{center}\small
+\begin{tabular}{@{}p{0.48\linewidth}p{0.48\linewidth}@{}}
+(A) SRAM 用双稳态触发器保存信息，不需要刷新，常用来做 Cache & (B) DRAM 用电容上的电荷表示信息，读出是破坏性的，读后需要重写 \\[4pt]
+(C) DRAM 的存取周期通常大于存取时间，原因之一是读后需要恢复 & (D) SRAM 断电后信息不会丢失，因此适合做主存
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：}SRAM 靠触发器维持状态，只要供电就能保持，\emph{不需要刷新}；但触发器仍然是易失的，\textbf{断电后信息照样丢失}。所以 (D) 错在把“不需刷新”偷换成“非易失”。(A)(B)(C) 都正确：DRAM 单元是“一管一电容”，读出会泄放电荷，读后必须重写，这也使得存取周期大于单纯的存取时间。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某 DRAM 芯片内部有 $8192$ 行，存取周期为 $50\,\mathrm{ns}$，器件的刷新周期（数据保持时间）为 $64\,\mathrm{ms}$。每次刷新占用一个存取周期。
+\begin{enumerate}
+    \item[(1)] 采用\textbf{集中刷新}时，刷新全部行造成的“死时间”为 \underline{\hspace{1.4cm}}；
+    \item[(2)] 该死时间占刷新周期 $64\,\mathrm{ms}$ 的百分比为 \underline{\hspace{1.4cm}}；
+    \item[(3)] 采用\textbf{异步刷新}时，相邻两次刷新操作的间隔约为 \underline{\hspace{1.4cm}}。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}集中刷新把所有行排在同一个时间段里逐行刷新，这段时间不能响应 CPU 的正常访存：
+
+\[
+t_{\text{死}}=8192\times 50\,\mathrm{ns}=409\,600\,\mathrm{ns}=409.6\,\mu\mathrm{s}.
+\]
+
+与刷新周期相比：
+\[
+\frac{409.6\,\mu\mathrm{s}}{64\,\mathrm{ms}}=\frac{409.6}{64\,000}=0.0064=0.64\%.
+\]
+
+异步刷新把 $8192$ 次刷新均匀摊到 $64\,\mathrm{ms}$ 内，平均间隔为
+\[
+\frac{64\,\mathrm{ms}}{8192}=7.8125\,\mu\mathrm{s}.
+\]
+即大约每 $7.8125\,\mu\mathrm{s}$ 刷新一行，既能保证所有行在保持时间内都刷新一遍，又不会出现长达 $409.6\,\mu\mathrm{s}$ 的集中死时间。\boxed{\text{\textbf{答案：}(1) $409.6\,\mu\mathrm{s}$；(2) $0.64\%$；(3) $7.8125\,\mu\mathrm{s}$}}\else \answerarea[6] \fi
+
+\item \textbf{（单项选择题）} 某计算机主存按字编址，字长 4 字节，由 4 个存储体构成并采用\textbf{低位交叉编址}。每个存储体的存取周期 $T=60\,\mathrm{ns}$，总线传输周期 $\tau=15\,\mathrm{ns}$。CPU 从字地址 0 开始连续读取 8 个字，忽略发地址等额外开销，所需时间为
+
+\begin{center}
+\begin{tabular}{ll}
+(A) $105\,\mathrm{ns}$ & (B) $165\,\mathrm{ns}$ \\[4pt]
+(C) $240\,\mathrm{ns}$ & (D) $480\,\mathrm{ns}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：}低位交叉把连续字地址依次分给不同存储体，4 个字地址 0、1、2、3 分别落在体 0、1、2、3 上，因此可以流水。流水稳定后的启动间隔为
+\[
+\max\left(\tau,\frac{T}{m}\right)=\max\left(15,\frac{60}{4}\right)=15\,\mathrm{ns}.
+\]
+第一个字要等本存储体完成一次存取，$60\,\mathrm{ns}$ 后才就绪；此后每 $15\,\mathrm{ns}$ 出一个字，共 8 个字：
+\[
+t=T+(8-1)\times 15=60+105=165\,\mathrm{ns}.
+\]
+若误以为 4 个字之后还要重新排队（$8\times 60/2$ 之类），会得到 $240\,\mathrm{ns}$ 等错误结果。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某计算机按字节编址，主存地址 32 位。数据 Cache 的数据区容量为 $64\,\mathrm{KB}$，块大小 $32\,\mathrm{B}$，采用 4 路组相联映射。
+\begin{enumerate}
+    \item[(1)] 主存地址中，块内偏移占 \underline{\hspace{0.9cm}} 位，组号占 \underline{\hspace{0.9cm}} 位，Tag 占 \underline{\hspace{0.9cm}} 位。
+    \item[(2)] 若采用写回法，每行另有 1 位有效位和 1 位脏位（不计替换位等其他开销），则整个 Cache 的总容量为 \underline{\hspace{1.6cm}} B。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}先算行数和组数：
+\[
+\text{行数}=\frac{64\,\mathrm{KB}}{32\,\mathrm{B}}=2048=2^{11},\qquad
+\text{组数}=\frac{2048}{4}=512=2^{9}.
+\]
+块内偏移 $=\log_2 32=5$ 位，组号 $=9$ 位，Tag $=32-9-5=18$ 位。
+
+（注意：这里的 Tag 是 18 位，而不是 $32-11-5=16$ 位——4 路组相联下索引只到“组”，同一组内的 4 行共享组号。）
+
+总容量由四部分组成：
+\[
+\underbrace{64\,\mathrm{KB}}_{\text{数据}}
++\underbrace{2048\times\frac{18}{8}\,\mathrm{B}}_{\text{Tag}}
++\underbrace{2048\times\frac{1}{8}\,\mathrm{B}}_{\text{有效位}}
++\underbrace{2048\times\frac{1}{8}\,\mathrm{B}}_{\text{脏位}}
+=65\,536+4\,608+256+256=70\,656\ \mathrm{B}.
+\]
+\boxed{\text{\textbf{答案：}(1) $5$，$9$，$18$；(2) $70656$}}\else \answerarea[6] \fi
+
+\item \textbf{（单项选择题）} 下列关于 Cache 写策略的叙述中，\textbf{正确}的是
+
+\begin{center}\small
+\begin{tabular}{@{}p{0.48\linewidth}p{0.48\linewidth}@{}}
+(A) 写直达通常与非写分配搭配，写缓冲可减少 CPU 等待主存的时间 & (B) 写回法在每次写命中时都要把整个块写回主存 \\[4pt]
+(C) 写分配是指写缺失时绕过 Cache，直接写入主存 & (D) 写直达不需要脏位，因此 Cache 与主存的内容总是相同
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：}(A) 正确：写直达每次写命中都要更新主存，若再采用写分配，写缺失时还要先把整块读进来，写流量更大，所以常配非写分配；写缓冲让 CPU 把数据交给 FIFO 后继续执行，只有缓冲满时才停顿。(B) 错：写回法只在\emph{脏块被替换}时写回，不是每次写命中都写。(C) 错：写分配是先把块调入 Cache 再写；绕过 Cache 的是非写分配。(D) 错：写直达确实通常不设脏位，但“内容总是相同”说得过强——写直达也可能配合写缓冲，主存更新会滞后；而且该选项把“不需要脏位”当成“必然一致”，推理不成立。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 某计算机虚拟地址 32 位，按字节编址，页大小 $8\,\mathrm{KB}$，采用单级页表覆盖整个虚拟地址空间，每个页表项 4 字节。则虚拟页号（VPN）位数、页表项数、页表大小分别为
+
+\begin{center}
+\begin{tabular}{ll}
+(A) $19$ 位，$2^{19}$ 项，$2\,\mathrm{MB}$ & (B) $19$ 位，$2^{19}$ 项，$4\,\mathrm{MB}$ \\[4pt]
+(C) $21$ 位，$2^{21}$ 项，$8\,\mathrm{MB}$ & (D) $13$ 位，$2^{13}$ 项，$32\,\mathrm{KB}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：}页大小 $8\,\mathrm{KB}=2^{13}\,\mathrm{B}$，页内偏移占 13 位，所以
+\[
+\text{VPN}=32-13=19\ \text{位}.
+\]
+单级页表要为每个虚拟页设一项，故项数为 $2^{19}$。页表本身占
+\[
+2^{19}\times 4\,\mathrm{B}=2^{21}\,\mathrm{B}=2\,\mathrm{MB}.
+\]
+(D) 把页内偏移当成了 VPN；(C) 用了 $2^{21}$ 项，是把页表字节数又当成了项数。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{（单项选择题）} 某 Cache 有 4 组，每组 2 行，块大小为 1 个字。主存块号 $0,4,8$ 都映射到第 0 组。初始 Cache 为空（其余组不参与本题），CPU 依次访问主存块
+\[
+0,\;4,\;0,\;8,\;0,\;4,\;0 .
+\]
+分别采用 LRU 和 FIFO 替换，LRU 比 FIFO 多命中的次数是
+
+\begin{center}
+\begin{tabular}{ll}
+(A) $0$ 次 & (B) $1$ 次 \\[4pt]
+(C) $2$ 次 & (D) $3$ 次
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：}两种策略只有在“组已满且需要换出”时才可能不同，所以只需跟踪第 0 组的 2 行。
+
+\textbf{LRU}（按“最久未用$\to$最近使用”记录）：
+\[
+\begin{array}{c|c|c}
+\text{访问} & \text{结果} & \text{访问后组内状态}\\ \hline
+0 & \text{缺失} & 0\\
+4 & \text{缺失} & 0,4\\
+0 & \text{命中} & 4,0\\
+8 & \text{缺失，换出 }4 & 0,8\\
+0 & \text{命中} & 8,0\\
+4 & \text{缺失，换出 }8 & 0,4\\
+0 & \text{命中} & 4,0
+\end{array}
+\]
+命中 3 次。
+
+\textbf{FIFO}（按装入先后换出）：
+\[
+\begin{array}{c|c|c}
+\text{访问} & \text{结果} & \text{访问后组内状态}\\ \hline
+0 & \text{缺失} & 0\\
+4 & \text{缺失} & 0,4\\
+0 & \text{命中} & 0,4\\
+8 & \text{缺失，换出 }0 & 4,8\\
+0 & \text{缺失，换出 }4 & 8,0\\
+4 & \text{缺失，换出 }8 & 0,4\\
+0 & \text{命中} & 0,4
+\end{array}
+\]
+命中 2 次。
+
+LRU 多命中 $3-2=1$ 次。原因：块 0 在 FIFO 中因为“装入早”被换出，尽管它刚被访问过；LRU 会优先淘汰真正久未使用的块。\boxed{\textbf{答案：}(B)}\else \answerarea[6] \fi
+
+\item \textbf{（单项选择题）} 某处理器采用两级 Cache。L1 命中时间为 1 个时钟周期，L1 缺失率为 $4\%$；L1 缺失后访问 L2，L2 命中需 10 个周期（已包含把块回填到 L1 并完成本次访问）。若 L2 也缺失，访问主存并回填 L2 需 120 个周期（已包含回填 L2，不含 L2 的 10 个周期检查）。L2 的\emph{局部}缺失率为 $25\%$。该处理器的平均访问时间（AMAT）为
+
+\begin{center}
+\begin{tabular}{ll}
+(A) $2.6$ 个周期 & (B) $6.2$ 个周期 \\[4pt]
+(C) $2.5$ 个周期 & (D) $1.4$ 个周期
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：}按题设口径，L1 命中时间 1 周期是每次访问都要付的；只有 $4\%$ 的访问进入 L2，而这部分先付 10 周期，其中又有 $25\%$ 继续进入主存，再付 120 周期：
+\[
+T_{\mathrm{avg}}=1+0.04\times\bigl(10+0.25\times 120\bigr)
+=1+0.04\times 40=2.6\ \text{周期}.
+\]
+等价写法是 $1+0.04\times10+0.04\times0.25\times120=2.6$。选项 (B) $6.2$ 来自漏乘局部缺失率 $25\%$，把主存项写成 $0.04\times120$，相当于认为只要 L1 缺失就一定 L2 也缺失；(D) $1.4$ 是完全忽略主存代价。\textbf{易错点：}第二级缺失率是“在 L1 已缺失条件下”的局部缺失率，必须逐层相乘。\boxed{\text{\textbf{答案：}(A)}}\else \answerarea[6] \fi
+
+\item \textbf{（综合应用题）Cache 访问序列与写策略分析。}
+某计算机按字编址，字长 4 字节，Cache 采用 2 路组相联映射，共 2 组（4 行），块大小为 1 个字，采用 LRU 替换。初始 Cache 为空。CPU 依次执行下列访存操作（数字为主存块号，读/写均为访问 1 个字）：
+\[
+\text{读 }0,\;\text{写 }0,\;\text{写 }0,\;\text{读 }1,\;\text{写 }2,\;\text{读 }1,\;\text{写 }4,\;\text{读 }0 .
+\]
+\begin{enumerate}
+    \item[(1)] 写出每个块号映射到的组号，并逐次判断命中/缺失。
+    \item[(2)] 设在 (1) 中采用\textbf{写回法 + 写分配}。统计命中次数、命中率、从主存读入的块数、因替换脏块而产生的写回次数，以及主存块传输总次数。计数口径：每次缺失（无论读缺失还是写缺失）都从主存读入 1 个块；每个被淘汰的脏块写回 1 次。
+    \item[(3)] 若改用\textbf{写直达 + 非写分配}，重新统计命中次数、主存读块数和主存写字数，并解释命中次数变化的原因。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+
+\textbf{(1) 组号。}块大小为 1 字，组数为 2，故
+\[
+\text{组号}=\text{块号}\bmod 2 .
+\]
+因此块 $0,2,4$ 属第 0 组，块 $1$ 属第 1 组。逐次模拟如下（组内按“LRU$\to$MRU”排列）：
+
+\begin{center}
+\small
+\begin{tabular}{c|c|c|c|l}
+\hline
+序号 & 操作 & 块号 & 结果 & 访问后该组状态与说明\\
+\hline
+1 & 读 & 0 & 缺失 & $\{0\}$，装入块 0\\
+2 & 写 & 0 & 命中 & $\{0\}$，块 0 置脏\\
+3 & 写 & 0 & 命中 & $\{0\}$，仍为脏\\
+4 & 读 & 1 & 缺失 & 第 1 组 $\{1\}$，装入块 1\\
+5 & 写 & 2 & 缺失 & 第 0 组 $\{0,2\}$，有空行，装入块 2 并立即写入，块 2 变脏\\
+6 & 读 & 1 & 命中 & 第 1 组 $\{1\}$\\
+7 & 写 & 4 & 缺失 & 第 0 组满，LRU 为块 0（第 3 次访问后未再用）\\
+  &   &   &      & 块 0 脏，写回 1 次；装入 4 并写入，块 4 脏，状态 $\{2,4\}$\\
+8 & 读 & 0 & 缺失 & 第 0 组满，LRU 为块 2（第 5 次访问后未再用）\\
+  &   &   &      & 块 2 脏，写回 1 次；装入 0，状态 $\{4,0\}$\\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{(2) 写回 + 写分配。}
+命中发生在第 2、3、6 次，共 3 次；总访问 8 次，命中率
+\[
+\frac{3}{8}=37.5\%.
+\]
+8 次访问中 5 次缺失，每次缺失都要把块从主存读入，故主存读块数 $=5$（注意：写缺失采用写分配，也要先读块）。替换脏块 2 次（第 7 次淘汰块 0，第 8 次淘汰块 2），写回块数 $=2$。主存块传输总次数
+\[
+5+2=7\ \text{次}.
+\]
+（第 8 次访问结束后块 4 仍是脏块，尚未写回，不计入本次统计。）
+
+\textbf{(3) 写直达 + 非写分配。}
+写直达时写命中同时更新 Cache 和主存；非写分配时写缺失不调入块，直接把该字写入主存。
+\begin{itemize}
+    \item 第 1 次读 0：缺失，读入块 0；
+    \item 第 2、3 次写 0：均命中（块 0 仍在），各写主存 1 个字；
+    \item 第 4 次读 1：缺失，读入块 1；
+    \item 第 5 次写 2：写缺失，不分配，直接写主存 1 个字，Cache 不变；
+    \item 第 6 次读 1：命中；
+    \item 第 7 次写 4：写缺失，不分配，直接写主存 1 个字；
+    \item 第 8 次读 0：命中（块 0 从未被换出）。
+\end{itemize}
+命中 4 次（第 2、3、6、8 次），主存读块 $2$ 次，主存写字 $4$ 次，主存访问共 $6$ 次。
+
+命中次数反而比写回法多 1 次，原因是：非写分配使第 5、7 次写不占用 Cache 行，块 0 一直留在 Cache 中，第 8 次读 0 因而命中；写回法在第 7 次为装入块 4 淘汰了块 0，第 8 次只能再次读入。但写直达把 4 次写都直接压到主存，若没有写缓冲，CPU 每次写都要等待主存，实际性能未必更好。\par\noindent\boxed{\parbox{0.92\linewidth}{\textbf{答案：}(2) 命中 $3$ 次，命中率 $37.5\%$，读块 $5$ 次，写回 $2$ 次，主存块传输 $7$ 次；(3) 命中 $4$ 次，读块 $2$ 次，写字 $4$ 次}}\else \answerarea[12] \fi
+
+\item \textbf{（综合应用题）TLB、页表与 Cache 的地址翻译。}
+某计算机按字节编址，虚拟地址 32 位，物理地址 28 位，页大小 $4\,\mathrm{KB}$，页表项大小 4 字节。TLB 采用 4 路组相联，共 16 项。L1 数据 Cache 采用物理寻址，数据区 $32\,\mathrm{KB}$，8 路组相联，块大小 $64\,\mathrm{B}$。
+\begin{enumerate}
+    \item[(1)] 求 VPN、VPO、PPN、PPO 的位数；单级页表的项数和页表大小各是多少？
+    \item[(2)] 求 TLB 的组数、组号位数和 Tag 位数。
+    \item[(3)] 求 L1 Cache 的组数，以及物理地址中 Tag、组号、块内偏移的位数。
+    \item[(4)] 某进程访问虚拟地址 $\mathtt{0x12345678}$，TLB 命中并得到 PPN $=\mathtt{0x0ABC}$。求物理地址、Cache 组号、Tag 和块内偏移（用十六进制或十进制表示均可）。
+    \item[(5)] 若该虚拟页的页表项有效位为 0，说明由谁处理、主要步骤是什么，以及处理完后如何继续。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+
+\textbf{(1) 地址划分。}页大小 $4\,\mathrm{KB}=2^{12}\,\mathrm{B}$，页内偏移 12 位：
+\[
+\text{VPN}=32-12=20\ \text{位},\qquad \text{VPO}=12\ \text{位},
+\]
+\[
+\text{PPN}=28-12=16\ \text{位},\qquad \text{PPO}=12\ \text{位}.
+\]
+单级页表为每个虚拟页设一项，共 $2^{20}$ 项；每项 4 B，页表大小
+\[
+2^{20}\times 4\,\mathrm{B}=2^{22}\,\mathrm{B}=4\,\mathrm{MB}.
+\]
+
+\textbf{(2) TLB。}16 项、4 路，故组数 $=16/4=4$，组号 2 位。TLB 的 Tag 取自 VPN 的高位：
+\[
+\text{TLB Tag}=20-2=18\ \text{位}.
+\]
+
+\textbf{(3) Cache。}行数 $=32\,\mathrm{KB}/64\,\mathrm{B}=512$，组数 $=512/8=64$，组号 6 位；块内偏移 $\log_2 64=6$ 位；物理地址 28 位，故
+\[
+\text{Tag}=28-6-6=16\ \text{位}.
+\]
+
+\textbf{(4) 一次具体翻译。}
+\[
+\text{VA}=\mathtt{0x12345678}\;\Rightarrow\;\text{VPN}=\mathtt{0x12345},\quad \text{VPO}=\mathtt{0x678}.
+\]
+TLB 得到 PPN $=\mathtt{0x0ABC}$，物理页框号与页内偏移拼接：
+\[
+\text{PA}=\mathtt{0x0ABC}\parallel\mathtt{0x678}=\mathtt{0x0ABC678}.
+\]
+再按 Cache 划分：
+\[
+\text{块内偏移}=\mathtt{0x0ABC678}\ \&\ \mathtt{0x3F}=\mathtt{0x38}=56,
+\]
+\[
+\text{组号}=(\mathtt{0x0ABC678}\gg 6)\ \&\ \mathtt{0x3F}=\mathtt{0x19}=25,
+\]
+\[
+\text{Tag}=\mathtt{0x0ABC678}\gg 12=\mathtt{0x0ABC}.
+\]
+即访问第 25 组，与组内 8 个 Tag 并行比较，命中 Tag $=\mathtt{0x0ABC}$ 的路后，按块内偏移 56 取出该字节。
+
+\emph{补充观察：}本题 Cache 的“64 组 $\times$ 64 B $=4\,\mathrm{KB}$”恰好等于页大小，所以组号完全落在页内偏移的 12 位中，物理地址的组号与虚拟地址的 VPO 算出的组号相同（$(\mathtt{0x678}\gg6)\ \&\ \mathtt{0x3F}=\mathtt{0x19}$）。这正是 VIPT Cache 能边翻译边选组的条件。
+
+\textbf{(5) 缺页。}有效位为 0 表示该虚拟页不在主存，触发\textbf{缺页异常}，由操作系统处理，而不是由 Cache 硬件处理。主要步骤：保存现场并陷入内核；检查访问是否合法；在主存中分配一个空闲页框（若已满，按页面置换算法选一个牺牲页，脏页需写回外存）；从可执行文件、映射文件或交换区读入该页（按需清零的页则直接清零）；更新页表项（填入 PPN、置有效位等），并失效/刷新 TLB 中对应项；最后返回用户态，\textbf{重新执行}引起缺页的那条指令。由于是故障（fault）类异常，重新执行时该页已驻留，指令可以正常完成。\par\noindent\boxed{\parbox{0.92\linewidth}{\textbf{答案：}(1) $20,12,16,12$；$2^{20}$ 项，$4\,\mathrm{MB}$；(2) $4$ 组，组号 $2$ 位，Tag $18$ 位；(3) $64$ 组，Tag $16$ 位、组号 $6$ 位、偏移 $6$ 位；(4) $\mathtt{PA}=\mathtt{0x0ABC678}$，组号 $25$，Tag $\mathtt{0x0ABC}$，偏移 $56$；(5) 由 OS 缺页处理程序处理，更新页表后重新执行该指令}}\else \answerarea[14] \fi
+
+\end{enumerate}

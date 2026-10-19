@@ -1,2133 +1,888 @@
+\providecommand{\chninefigcap}[1]{\nopagebreak[4]\par\noindent\centerline{#1}\par\vspace{0.35em}}
+
 \section{多元函数积分学}
-\subsection{多元函数积分的概念与性质}
-\begin{mydef}{二重积分}{two-integral}
-    平面上有界闭区域$D$上二元函数\(z = f(x, y)\)的二重积分为
-    \[
-        I = \iint\limits_{D} f(x, y) \, \mathrm{d} x \, \mathrm{d} y = \lim_{\mathrm{d} \to 0} \sum_{i=1}^{n} f(\xi_{i}, \eta_{i}) \Delta \sigma_{i}
-    \]
-    其中\(\mathrm{d} = \max\limits_{i} \{d_i\}\),\(\mathrm{d_i}\)为小区域\(\Delta \sigma_i\)的直径，\(\Delta \sigma_i\)为第\(i\)个小区域，也表示\(\Delta \sigma_i\)的
-    面积。\\
-    当二重积分\(
-        \iint\limits_{D} f(x, y) \, \mathrm{d} \sigma
-    \)存在时,则称\(f(x, y)\)在区域\(D\)上可积。\\
-    若\(f(x, y)\)在区域\(D\)上连续，则\(f(x, y)\)在区域\(D\)上可积。即存在二重积分\(
-        \iint\limits_{D} f(x, y) \, \mathrm{d} \sigma
-        \).\\
-    二重积分的几何意义为：当连续函数\(z = f(x, y) \geq 0\)时，二重积分表示以区域\(D\)为底、
-    以曲面\(z = f(x, y)\)为顶、侧面是以\(D\)的边界为准线且母线平行于\(z\)轴的柱面的曲顶柱体体积。\\
-    \[
-        \iint\limits_{D} f(x, y) \, \mathrm{d} \sigma = Oxy\text{
-            上方的曲顶柱体体积
-        } - Oxy\text{下方的曲顶柱体体积}
-    \]
-\end{mydef}
+
+一元积分把区间切成小段，用“高 $\times$ 宽”的小矩形累加。到了多元情形，积分对象换成了平面区域、空间区域、曲线和曲面，做法仍然是分割、取点、求和、取极限，变的只是小块的度量：面积、体积、弧长、曲面面积。本章先讲重积分，再讲曲线与曲面积分，最后用 Green、Gauss、Stokes 三个公式把不同类型的积分联系起来。
+
+\subsection{重积分：对区域求和}
+
+一块密度不均匀的薄板，面密度为 $\rho(x,y)$，求它的质量。把板所占的区域 $D$ 划成 $n$ 个小块 $\Delta\sigma_1,\dots,\Delta\sigma_n$，在第 $i$ 块里任取一点 $(\xi_i,\eta_i)$。小块足够小时，密度近似不变，质量约为 $\rho(\xi_i,\eta_i)\Delta\sigma_i$。全部加起来，再让分割无限变细，就得到质量。
+
+把“密度”换成一般的二元函数 $f(x,y)$，上述极限就是二重积分：
+\[
+    \iint_D f(x,y)\,\mathrm d\sigma
+    =\lim_{\lambda\to0}\sum_{i=1}^{n}f(\xi_i,\eta_i)\Delta\sigma_i .
+\]
+这里 $\Delta\sigma_i$ 既表示第 $i$ 个小区域，也表示它的面积；$\lambda$ 是所有小区域直径的最大值，$\lambda\to0$ 保证每个小块都缩成一点。若 $f$ 在 $D$ 上连续，这个极限一定存在，称 $f$ 在 $D$ 上可积。$\mathrm d\sigma$ 是面积元，在直角坐标下就是 $\mathrm dx\,\mathrm dy$。
+
+当 $f(x,y)\ge0$ 时，$\iint_D f\,\mathrm d\sigma$ 是以 $D$ 为底、曲面 $z=f(x,y)$ 为顶、母线平行于 $z$ 轴的柱面为侧面的曲顶柱体体积；$f$ 有正有负时，积分给出的是 $xy$ 平面上方体积减去下方体积。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  axis lines=center,
-  xlabel=$x$, ylabel=$y$, zlabel=$z$,
-  xmin=-0.75, xmax=0.75, ymin=-0.75, ymax=0.75, zmin=-0.1, zmax=1.15,
-  xtick={-0.5,0,0.5}, ytick={-0.5,0,0.5}, ztick={0,0.5,1},
-  view={63}{26}, width=11cm, height=7.6cm,
-  domain=-0.5:0.5, y domain=-0.5:0.5, samples=20, samples y=20,
-  z buffer=sort,
-  colormap={surfblue}{rgb(0cm)=(0.78,0.90,1.0); rgb(1cm)=(0.45,0.68,0.92)},
-  font=\footnotesize]
-\addplot3[surf, shader=interp, opacity=0.5] {1-x^2-y^2};
-\draw[fill=green!18, draw=green!50!black, thick] (axis cs:-0.5,-0.5,0) -- (axis cs:0.5,-0.5,0) -- (axis cs:0.5,0.5,0) -- (axis cs:-0.5,0.5,0) -- cycle;
-\draw[green!50!black,dashed] (axis cs:-0.5,-0.25,0) -- (axis cs:0.5,-0.25,0);
-\draw[green!50!black,dashed] (axis cs:-0.5,0.25,0) -- (axis cs:0.5,0.25,0);
-\draw[green!50!black,dashed] (axis cs:-0.25,-0.5,0) -- (axis cs:-0.25,0.5,0);
-\draw[green!50!black,dashed] (axis cs:0.25,-0.5,0) -- (axis cs:0.25,0.5,0);
-\draw[gray!70,thick] (axis cs:-0.5,-0.5,0) -- (axis cs:-0.5,-0.5,0.5);
-\draw[gray!70,thick] (axis cs:0.5,-0.5,0) -- (axis cs:0.5,-0.5,0.5);
-\draw[gray!70,thick] (axis cs:0.5,0.5,0) -- (axis cs:0.5,0.5,0.5);
-\draw[gray!70,thick] (axis cs:-0.5,0.5,0) -- (axis cs:-0.5,0.5,0.5);
-\draw[dashed,red!70,very thick] (axis cs:0.25,0.25,0) -- (axis cs:0.25,0.25,0.875);
-\draw[dashed,red!70,very thick] (axis cs:-0.25,-0.25,0) -- (axis cs:-0.25,-0.25,0.875);
-\node[font=\scriptsize,green!40!black] at (axis cs:0.0,0.60,-0.05) {$D$};
-\node[font=\scriptsize,blue!60!black,anchor=north east] at (axis cs:-0.62,-0.05,0.95) {$z=f(x,y)$};
-\node[font=\scriptsize,red!70!black,anchor=west] at (axis cs:0.30,0.30,0.86){$f(x,y)$};
+  axis lines=center, xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=-1.05, xmax=1.05, ymin=-1.05, ymax=1.05, zmin=0, zmax=2.15,
+  view={62}{24}, width=0.78\linewidth, height=6.2cm,
+  domain=-0.9:0.9, y domain=-0.9:0.9, samples=14, samples y=14,
+  z buffer=sort, ticks=none, font=\footnotesize,
+  colormap={surfblue}{rgb(0cm)=(0.82,0.91,1.0); rgb(1cm)=(0.42,0.66,0.9)}]
+\fill[green!16, opacity=0.55] (axis cs:-0.9,-0.9,0) -- (axis cs:0.9,-0.9,0) -- (axis cs:0.9,0.9,0) -- (axis cs:-0.9,0.9,0) -- cycle;
+\draw[green!45!black, thick] (axis cs:-0.9,-0.9,0) -- (axis cs:0.9,-0.9,0) -- (axis cs:0.9,0.9,0) -- (axis cs:-0.9,0.9,0) -- cycle;
+\draw[green!45!black, dashed, thin] (axis cs:-0.45,-0.9,0) -- (axis cs:-0.45,0.9,0);
+\draw[green!45!black, dashed, thin] (axis cs:0,-0.9,0) -- (axis cs:0,0.9,0);
+\draw[green!45!black, dashed, thin] (axis cs:0.45,-0.9,0) -- (axis cs:0.45,0.9,0);
+\draw[green!45!black, dashed, thin] (axis cs:-0.9,-0.45,0) -- (axis cs:0.9,-0.45,0);
+\draw[green!45!black, dashed, thin] (axis cs:-0.9,0,0) -- (axis cs:0.9,0,0);
+\draw[green!45!black, dashed, thin] (axis cs:-0.9,0.45,0) -- (axis cs:0.9,0.45,0);
+\draw[gray!65] (axis cs:-0.9,-0.9,0) -- (axis cs:-0.9,-0.9,0.38);
+\draw[gray!65] (axis cs:0.9,-0.9,0) -- (axis cs:0.9,-0.9,0.38);
+\draw[gray!65] (axis cs:0.9,0.9,0) -- (axis cs:0.9,0.9,0.38);
+\draw[gray!65] (axis cs:-0.9,0.9,0) -- (axis cs:-0.9,0.9,0.38);
+\addplot3[surf, shader=interp, opacity=0.55] {2-x^2-y^2};
+\draw[red!70!black, very thick, dashed] (axis cs:0.45,0.45,0) -- (axis cs:0.45,0.45,1.595);
+\draw[red!70!black, thick] (axis cs:0.45,0.45,1.595) circle[radius=1.5pt];
+\node[font=\scriptsize,green!40!black] at (axis cs:0,0.72,0) {$D$};
+\node[font=\scriptsize,blue!55!black,anchor=north east] at (axis cs:-0.55,-0.55,1.85) {$z=f(x,y)$};
+\node[font=\scriptsize,red!70!black,anchor=west] at (axis cs:0.5,0.45,1.62) {$f(\xi_i,\eta_i)$};
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 以区域 $D$（绿）为底、曲面 $z=f(x,y)$（蓝）为顶、母线平行 $z$ 轴的柱面为侧面的“曲顶柱体”；绿色底上的虚线网格为 $D$ 的分割，红色虚线示子块处的高度（曲顶高度）$f(x,y)$，各体积柱之和逼近 $\iint_D f(x,y)\,\mathrm{d}x\mathrm{d}y$。}}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 把 $D$（绿）划成小格，每格以 $f(\xi_i,\eta_i)$ 为高作小柱；所有小柱体积之和逼近曲顶柱体的体积。红色虚线是一根典型小柱的高度，格子越细，误差越小。}}
 
-\begin{mydef}{三重积分}{three-integral}
-    空间中有界闭区域\(\Omega\)上三元函数\(u = f(x, y, z)\)的三重积分为
-    \[
-        J = \iiint\limits_{\Omega} f(x, y, z) \, \mathrm{d} V = \lim_{\mathrm{d} \to 0} \sum_{i=1}^{n} f(\xi_{i}, \eta_{i}, \zeta_{i}) \Delta V_i
-    \]
-    其中\(\mathrm{d} = \max\limits_{i} \{d_i\}\),\(\mathrm{d_i}\)为小区域\(\Delta V_i\)的直径，\(\Delta V_i\)为第\(i\)个小区域的体积。\\
-    当三重积分\(\iiint\limits_{\Omega} f(x, y, z) \, \mathrm{d} V\)存在时，则称\(f(x, y, z)\)在区域\(\Omega\)上可积。\\
-    若\(f(x, y, z)\)在区域\(\Omega\)上连续，则\(f(x, y, z)\)在区域\(\Omega\)上可积。即三重积分\(\iiint\limits_{\Omega} f(x, y,z) \, \mathrm{d} V\)一定存在.\\
-\end{mydef}
+重积分有和定积分类似的性质：线性；区域可加（把 $D$ 分成有限块，积分等于各块之和）；保序（$f\le g$ 时积分不等号同向，特别地 $mA\le\iint_D f\,\mathrm d\sigma\le MA$，$A$ 为 $D$ 的面积）；以及
+\[
+    \left|\iint_D f\,\mathrm d\sigma\right|\le\iint_D|f|\,\mathrm d\sigma .
+\]
+若 $f$ 在有界闭区域 $D$ 上连续，则存在 $(\xi,\eta)\in D$，使
+\[
+    \iint_D f(x,y)\,\mathrm d\sigma=f(\xi,\eta)\,A .
+\]
+这就是二重积分中值定理：连续函数的积分等于某点的函数值乘以区域面积，$f(\xi,\eta)$ 就是 $f$ 在 $D$ 上的平均值。
 
-\begin{mydef}{第一类曲线积分(对弧长的曲线积分)}{first-curve-integral}
-    \(Oxy\)平面上分段光滑曲线\(L\)上二元函数\(f(x, y)\)的第一类曲线积分为
-    \[
-        \int_{L} f(x, y) \, \mathrm{d} s = \lim_{\lambda \to 0} \sum_{i=1}^{n} f(\xi_{i}, \eta_{i}) \Delta s_i
-    \]
-    其中\(\lambda = \max\limits_{i} \{\Delta s_i\}\),\(\Delta s_i\)为第\(i\)段弧长。\\
-    第一类曲线积分也被称为对弧长的曲线积分。\(f(x, y)\)称作被积函数，\(L\)称作积分弧段。\\
-    若\(f(x, y)\)在分段光滑曲线\(L\)上连续，则\(f(x, y)\)在分段光滑曲线\(L\)上可积。即存在第一类曲线积分\(\int_{L} f(x, y) \, \mathrm{d} s = 
-    \lim\limits_{\lambda \to 0} \sum_{i=1}^{n} f(\xi_{i}, \eta_{i}) \Delta s_i\).\\
-    如果积分弧段\(L\)是封闭曲线，则相应的对弧长的积分记作\(\oint_{L} f(x, y) \, \mathrm{d} s\)或\(
-        \oint_{L} f(x, y, z) \, \mathrm{d} s\
-    \).又称环路积分。\\
-\end{mydef}
+\subsection{二重积分化成累次积分}
 
-\begin{mydef}{第二类曲线积分(对坐标的曲线积分)}{second-curve-integral}
-    \(\mathbf F=(P(x,y),Q(x,y))\) 在定向分段光滑曲线上的第二类曲线积分
-    \[
-        \int_{L} P(x, y) \, \mathrm{d} x + Q(x, y) \, \mathrm{d} y
-        = \lim_{\lambda \to 0} \sum_{i=1}^{n} \left[P(\xi_{i}, \eta_{i}) \Delta x_i + Q(\xi_{i}, \eta_{i}) \Delta y_i\right]
-    \]
-    其中\(\lambda\)仍是各小弧段长度的最大值，\(\Delta x_i = x_i - x_{i-1}, \Delta y_i = y_i - y_{i-1}\).\\
-    \(x_i,y_i\) 为分点 \(M_i\) 的坐标，第二类曲线积分也称作对坐标的曲线积分，
-    也可记为 \(\displaystyle\int_L\mathbf F\cdot\mathrm d\mathbf r\)。
-    若\(P(x, y)\)和\(Q(x, y)\)在分段光滑曲线\(L\)上连续，则曲线积分\(
-        \int_{L} P(x, y) \, \mathrm{d} x + Q(x, y) \, \mathrm{d} y
-    \)存在 \\
-    将第二类曲线积分推广到空间曲线，则有
-    \[
-        \begin{aligned}
-            \int_{L} \mathbf{F} \cdot \mathrm{d}\mathbf r &=
-        \int_{L} P(x, y, z) \, \mathrm{d} x + Q(x, y, z) \, \mathrm{d} y + R(x, y, z) \, \mathrm{d} z \\
-        &= \lim_{\lambda \to 0} \sum_{i=1}^{n} \left[
-        P(\xi_i,\eta_i,\zeta_i)\Delta x_i
-        +Q(\xi_i,\eta_i,\zeta_i)\Delta y_i
-        +R(\xi_i,\eta_i,\zeta_i)\Delta z_i\right]
-        \end{aligned}
-    \]
+实际计算几乎不会回到定义。常用办法是切条：先固定 $x$，让 $y$ 从下边界积到上边界，得到一条竖条上的积分，再让 $x$ 扫过整个区间。
 
-\end{mydef}
-\begin{mydef}{第一类曲面积分(对面积的曲面积分)}{first-surface-integral}
-    \(f(x, y, z)\)在分块光滑曲面上\(\Sigma\)上的第一类曲面积分为
-    \[
-        \iint\limits_{\Sigma} f(x, y, z) \, \mathrm{d} S
-        = \lim_{\lambda \to 0} \sum_{i=1}^{n}
-        f(\xi_{i}, \eta_{i}, \zeta_{i})\Delta S_i
-    \]
-    其中\(\lambda\)是各小块曲面的直径的最大值，\(\Delta S_i\)为第\(i\)个小块曲面，同时也代表\(\Delta S_i\)的面积。\\
-    \(
-    f(x,y,z)\)是被积函数，\(\Sigma\)称作积分曲面。\\
-    第一类曲面积分也被称为对面积的曲面积分。\\
-\end{mydef}
-\begin{mydef}{第二类曲面积分(对坐标的曲面积分)}{second-surface-integral}
-    \(\mathbf F=(P(x,y,z),Q(x,y,z),R(x,y,z))\) 在定向分块光滑曲面 \(\Sigma\) 上的第二类曲面积分为
-    \[
-        \begin{aligned}
-        \iint\limits_{\Sigma}\mathbf F\cdot\mathrm d\mathbf S
-        &=\iint\limits_{\Sigma}
-        P\,\mathrm dy\,\mathrm dz+Q\,\mathrm dz\,\mathrm dx+R\,\mathrm dx\,\mathrm dy \\
-        &=\lim_{\lambda\to0}\sum_{i=1}^{n}\Bigl[
-        P(\xi_i,\eta_i,\zeta_i)(\Delta S_i)_{yz} \\
-        &\qquad\qquad+Q(\xi_i,\eta_i,\zeta_i)(\Delta S_i)_{zx} \\
-        &\qquad\qquad+R(\xi_i,\eta_i,\zeta_i)(\Delta S_i)_{xy}\Bigr]
-        \end{aligned}
-    \]
-    其中 \((\Delta S_i)_{yz}\) 表示第 \(i\) 个小块曲面在 \(yz\) 平面上的有向投影面积，其余两项同理。\\
-    \(\lambda\)仍是各小块曲面的直径的最大值。\\
-    \(P(x, y, z),Q(x, y, z)\)和\(R(x, y, z)\)称作被积函数，\(\Sigma\)称作积分曲面。
-    第二类曲面积分也被称为对坐标的曲面积分。\\
-    若被积函数在定向分块光滑曲面上连续，则曲面积分\(\iint\limits_{\Sigma} \mathbf{F} \cdot \, \mathrm{d}\mathbf{S}\)存在。\\
-\end{mydef}
-
-\begin{conclusion}{关于曲面积分方向的注意事项}{integral-direction}
-    \begin{enumerate}
-        \item 对于双侧曲面，称有法向量的曲面为有向曲面，根据法向量的方向来说明选择的是哪侧。\\
-        对封闭曲面，法向量朝外的称为外侧，法向量朝内的称为内侧。\\
-        对非封闭曲面通常用“上侧/下侧”“前侧/后侧”“右侧/左侧”等描述定向；“内侧/外侧”主要用于封闭曲面。给定单位法向量\(\mathbf n\)后，有向面积元为\(\mathrm d\mathbf S=\mathbf n\,\mathrm dS\)。
-        \item 曲面\(\Omega\)的法向量\(\mathbf{n}(\mathbf{M}_i) = ({\cos \alpha}_i, {\cos \beta}_i, {\cos \gamma}_i)\)，若\({\cos \gamma}_i > 0\)，则\((\Delta S_i)_{xy}\)为正值，否则为负值。
-        其他面同理可得。\\
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{几种多元函数积分的比较}{multiple-integral-compare}
-    每种积分都是对积分区域进行任意剖分后的相应和式的极限，不管哪种积分和式每一项都有两个乘积因子，其中一个均是被积函数在小区域某点取值，都是用区域的最大值趋于零来无限划分区域，从而得到极限。\\
-    不同点在于不同类型的积分区域是不一样的
-\end{conclusion}
-\begin{conclusion}{多元函数积分的性质}{integral-property}
-    设\(f(x, y),g(x, y)\)在有界区域\(D\)上可积，便有如下性质
-    \begin{enumerate}
-        \item 线性运算性质：\\
-        \(\alpha, \beta\)为常数，则
-        \[
-            \iint\limits_{D} (\alpha f(x, y) \pm \beta g(x, y)) \, \mathrm{d} x \mathrm{d} y = 
-            \alpha \iint\limits_{D} f(x, y) \, \mathrm{d} x \mathrm{d} y \pm
-            \beta \iint\limits_{D} g(x, y) \, \mathrm{d} x \mathrm{d} y
-        \]
-        \item 积分区域可加性质 \\
-        \[
-            \iint\limits_{D_1 + D_2} f(x, y) \, \mathrm{d} x \mathrm{d} y = 
-            \iint\limits_{D_1} f(x, y) \, \mathrm{d} x \mathrm{d} y + 
-            \iint\limits_{D_2} f(x, y) \, \mathrm{d} x \mathrm{d} y
-        \]
-        其中\(D\)为两个不相交的区域\(D_1\)和\(D_2\)的并集。\\
-        \item 比较定理 \\
-        若\(f(x, y), g(x, y)\)在\(D\)上连续，且对任意点\(f(x, y) \substack{\leq\\ \neq} g(x, y)\)，则
-        \[
-            \iint\limits_{D} f(x, y) \, \mathrm{d} x \mathrm{d} y <
-            \iint\limits_{D} g(x, y) \, \mathrm{d} x \mathrm{d} y
-        \]
-        特别地，若\(m \substack{\leq\\ \neq} f(x, y) \substack{\leq\\ \neq} M\)在\(D\)上恒成立，则
-        \[
-            m \, A \substack{\leq\\ \neq} 
-            \iint\limits_{D} f(x, y) \, \mathrm{d} x \mathrm{d} y \substack{\leq\\ \neq} 
-            M \, A
-        \]
-        其中\(A\)表示区域\(D\)的面积。\\
-        又有
-        \[
-            \left| \iint\limits_{D} f(x, y) \, \mathrm{d} \sigma \right| \leq
-            \iint\limits_{D} |f(x, y)| \mathrm{d} \sigma 
-        \]
-        \item 积分中值定理 \\
-        若\(f(x, y)\)在有界区域\(D\)上连续，则存在一点\((\xi, \eta)\)，使得
-        \[
-            \iint\limits_{D} f(x, y) \, \mathrm{d} x \mathrm{d} y = f(\xi, \eta) \, A
-        \]
-        \item 连续非负函数的积分性质 \\
-        若\(f(x, y)\)在有界区域\(D\)上连续非负，若\(D_0 \subset D\),则
-        \[
-            \iint\limits_{D_0} f(x, y) \, \mathrm{d} x \mathrm{d} y
-            \leq
-            \iint\limits_{D} f(x, y) \, \mathrm{d} x \mathrm{d} y
-        \]
-        设\(f(x,y)\)在\(D\)上连续且非负，且\(
-            \iint\limits_{D} f(x, y) \, \mathrm{d} x \mathrm{d} y = 0
-        \),则\(
-            f(x, y) \equiv 0((x, y)\in D)
-        \)
-        \item 设\(f(x, y)\)在\(D\)上连续，若在\(D\)内任意子区域\(D_0\),有
-        \(
-            \iint\limits_{D_0} f(x, y) \, \mathrm{d} x \mathrm{d} y = 0
-        \),则\(f(x, y) \equiv 0((x, y)\in D_)\)。
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{两类曲线积分的关系}{curve-integral-compare}
-    设\(L_{\overset{\frown}{AB}}\)为分段光滑曲线，则
-    \[
-        \int_{L_{\overset{\frown}{AB}}} P \mathrm{d} x + Q \mathrm{d} y = 
-        \int_{L_{\overset{\frown}{AB}}} (P \cos\alpha + Q \cos\beta) \, \mathrm{d} s
-    \]
-    其中\(\cos \alpha, \cos\beta\)分别是曲线\(
-        L_{\overset{\frown}{AB}}
-    \)沿从\(A\)到\(B\)的切线的方向的余弦。\\
-    \(P,Q\)在\(L_{\overset{\frown}{AB}}\)上连续。推广到空间情形，可得
-    \[
-        \int_{L_{\overset{\frown}{AB}}} P \mathrm{d} x + Q \mathrm{d} y + R \mathrm{d} z = 
-        \int_{L_{\overset{\frown}{AB}}} (P \cos\alpha + Q \cos\beta + R \cos\gamma) \, \mathrm{d} s
-    \]
-    写为点积形式，可得
-    \[
-        \int_{L_{\overset{\frown}{AB}}} \mathbf{F}\cdot\mathrm{d}\mathbf r =
-        \int_{L_{\overset{\frown}{AB}}} \mathbf{F}\cdot\boldsymbol{\tau}\,\mathrm{d}s
-    \]
-    其中\(\mathbf F=(P,Q,R)\)，\(\mathrm d\mathbf r=(\mathrm dx,\mathrm dy,\mathrm dz)=\boldsymbol\tau\,\mathrm ds\)，\(\boldsymbol\tau=(\cos\alpha,\cos\beta,\cos\gamma)\)是沿曲线定向的单位切向量。\\
-\end{conclusion}
-
-\begin{conclusion}{两类曲面积分的关系}{surface-integral-compare}
-    设\(\Sigma\)为分段光滑曲面，则
-    \[
-        \iint\limits_{\Sigma} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y = 
-        \iint\limits_{\Sigma} (P \cos \alpha + Q \cos \beta + R \cos \gamma) \, \mathrm{d} S
-    \]
-    点积形式表示为
-    \[
-        \iint\limits_{\Sigma} \mathbf{F}\cdot\mathrm{d}\mathbf{S} =
-        \iint\limits_{\Sigma} \mathbf{F}\cdot\mathbf{n}\,\mathrm{d}S
-    \]
-    其中\(\mathbf F=(P,Q,R)\)，\(\mathrm d\mathbf S=\mathbf n\,\mathrm dS=(\mathrm dy\,\mathrm dz,\mathrm dz\,\mathrm dx,\mathrm dx\,\mathrm dy)\)，\(\mathbf n=(\cos\alpha,\cos\beta,\cos\gamma)\)是与曲面定向一致的单位法向量。\\
-\end{conclusion}
-\begin{conclusion}{第一二类曲线(面)积分比较}{first-second-integral-compare}
-    \begin{enumerate}
-        \item 第一二类曲线积分的一个重要不同点是，第一类曲线积分与曲线的定向无关，而第二类曲线积分与曲线的定向有关。\\
-        若\(L^{+}\)与\(L^{-}\)是同一曲线，但方向相反，则
-        \[
-            \int_{L^{+}} P \mathrm{d} x + Q \mathrm{d} y = 
-            - \int_{L^{-}} P \mathrm{d} x + Q \mathrm{d} y
-        \]
-        \item 第一二类曲面积分的一个重要不同点是，第一类曲面积分与曲面的定向无关，而第二类曲面积分与曲面的定向有关。\\
-        若\(\Sigma^{+}\)与\(\Sigma^{-}\)是同一曲面，但方向相反，则
-        \[
-            \iint\limits_{\Sigma^{+}} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y = 
-            - \iint\limits_{\Sigma^{-}} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y 
-        \]
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{一些基本结论}{integral-conclusion}
-    \begin{enumerate}
-        \item 设\(L\)是空间中分段光滑曲线，则
-        \begin{enumerate}
-            \item \(\int_{L} P \mathrm{d} x = 0\)\quad(
-                若\(L\)在垂直于\(x\)轴的平面上
-            )
-            \item \(\int_{L} Q \mathrm{d} y = 0\)\quad(
-                若\(L\)在垂直于\(y\)轴的平面上
-            )
-            \item \(\int_{L} R \mathrm{d} z = 0\)\quad(
-                若\(L\)在垂直于\(z\)轴的平面上
-            )
-        \end{enumerate}
-        \item 设\(S\)是空间中分块光滑曲面，则
-        \begin{enumerate}
-            \item \(\iint\limits_{S} P \mathrm{d} y \mathrm{d} z = 0\)\quad(
-                若\(S\)在垂直于\(Oyz\)平面，即\(S\)的法向量于\(Oyz\)平面平行
-            )
-            \item \(\iint\limits_{S} Q \mathrm{d} z \mathrm{d} x = 0\)\quad(
-                若\(S\)在垂直于\(Oxz\)平面，即\(S\)的法向量于\(Oxz\)平面平行
-            )
-            \item \(\iint\limits_{S} R \mathrm{d} x \mathrm{d} y = 0\)\quad(
-                若\(S\)在垂直于\(Oxy\)平面，即\(S\)的法向量于\(Oxy\)平面平行
-            )
-        \end{enumerate}
-    \end{enumerate}
-\end{conclusion}
-\subsection{多元函数积分变换为定积分}
-\begin{conclusion}{第一类曲线积分化为定积分}{curve-integral-to-definite}
-    设\(f(x, y)\)在空间\(L\)上连续.
-    若曲线\(L\)的参数方程\(
-    \begin{cases}
-        x = \phi(t)
-        y = \psi(t)
-    \end{cases}, \alpha < t \beta\)
-    则\[
-        \int_{L} f(x, y) \mathrm{d} s = \int_{\alpha}^{\beta} f(\varphi(t), \psi(t)) \, \sqrt{(\varphi'(t))^2 + (\psi'(t))^2} \, \mathrm{d} t
-    \]
-    其中\( \phi(t), \psi(t)\)在\(
-    [\alpha, \beta]
-    \)有连续的导数且\(
-        \varphi^{'}(t)^2 + \psi^{'}(t)^2 \neq 0
-    \)
-    特别地，若曲线\(L\)能表成\(y = y(x), a \leq x \leq b\)的形式，则
-    \[
-        \int_{L} f(x, y) \mathrm{d} s = \int_{a}^{b} f(x, y(x)) \sqrt{1 + {y'_{x}}^2} \mathrm{d} x
-    \]
-    其中\(y(x)\)在\([a, b]\)有连续的导数 \\
-    若平面光滑曲线\(L\)由极坐标方程给出\(r = r(\theta)\)\(
-        \alpha \leq \theta \leq \beta
-    \),则
-    \[
-        \int_{L} f(x, y) \mathrm{d} s = \int_{\alpha}^{\beta} f(r \cos \theta, r \sin \theta) \sqrt{
-            r^2(\theta) + r'^2(\theta)
-        } \mathrm{d} \theta
-    \]
-\end{conclusion}
-
-\begin{conclusion}{第二类曲线积分化为定积分}{second-curve-integral-to-definite}
-    设定向曲线\(L\)的参数方程为\(\begin{cases}
-        x = \varphi(t) \\
-        y = \psi(t)
-    \end{cases}, t \in [\alpha, \beta]\)，\(\alpha\)对应于起点\(A\),\(\beta\)是对应于
-    终点\(B(\beta\text{不一定大于}\alpha)\)，则
-    \[
-        \int_{L_{\overset{\frown}{AB}}} P(x, y) \mathrm{d} x + Q(x, y) \mathrm{d} y 
-        = \int_{\alpha}^{\beta} [
-            P(\varphi(t), \psi(t))\varphi^{'}(t)  + 
-            Q(\varphi(t), \psi(t))\psi'(t)] \mathrm{d} t
-    \]
-    其中\(
-        \varphi(t), \psi(t)
-    \)在\(
-    [a, b]
-    \)或\(
-    [\alpha, \beta]
-    \)有连续的导数。
-\end{conclusion}
-
-\begin{conclusion}{对于曲线积分化为定积分的观察}{observation about curve}
-    从上述定理看到,曲线积分化为定积分是直接的，将曲线的参数方程代入被积表达式，归结为微分运算
-    \[
-        \mathrm{d} s = \sqrt{
-            x'^2(t) + y'^2(t)
-        } \mathrm{d} t,
-        \mathrm{d} x = x'(t)\mathrm{d} t,
-        \mathrm{d} y = y'(t) \mathrm{d} t.
-    \]\\积分限代入
-    曲线端点的参数值,对于第一类曲线积分来说下限小于上限；对于第二类曲线积分来说，下限
-    分别是起终点的参数(于曲线的定向有关) \\
-    对空间曲线积分\(
-        \int_{L} f(x, y, z) \mathrm{d} s, \int_{L} P \mathrm{d} x +
-        Q \mathrm{d}  y + R \mathrm{d} z
-    \)有类似的计算公式，若未给出曲线的参数方程，需求出曲线的参数方程，才可用上述公式
-\end{conclusion}
-
-\begin{conclusion}{二重积分化为累次积分}{two-integral-to-definite}
-    设\(f(x, y)\)在有界区域\(D\)上连续，
-    若\(D = \{
-        (x, y) | a \leq x \leq b,
-        \varphi_1(x) \leq y \leq \varphi_2(x)
-        \}
-    \)其中\(
-        \varphi_1(x),
-        \varphi_2(x)
-    \)在\(
-    [a, b]
-    \)上连续，则
-    \[
-        \iint_{D} f(x, y) \mathrm{d} \sigma = 
-        \int_{a}^{b} \mathrm{d} x \int_{\varphi_1(x)}^{\varphi_2(x)} f(x, y) \mathrm{d} y
-    \]
-    若\(D = \{
-        (x, y) | \alpha \leq  y \leq \beta,
-        \psi_1(y) \leq x \leq \psi_2(y)
-    \}\)
-    其中\(
-        \psi_1(y),
-        \psi_2(y)
-    \)在\(
-    [\alpha, \beta]
-    \)上连续，则
-    \[
-        \iint_{D} f(x, y) \mathrm{d} \sigma = 
-        \int_{\alpha}^{\beta} \mathrm{d} y \int_{\psi_1(y)}^{\psi_2(y)} f(x, y) \mathrm{d} x
-    \]
-    计算二重积分的关键是配置积分限，为此要画好积分区域\(D\)的图形或写出\(D\)的不等式表示。将
-    二重积分化为累次积分即二次定积分。
+若
+\[
+    D=\{(x,y)\mid a\le x\le b,\ \varphi_1(x)\le y\le\varphi_2(x)\},
+\]
+其中 $\varphi_1,\varphi_2$ 在 $[a,b]$ 上连续，则
+\[
+    \iint_D f(x,y)\,\mathrm d\sigma
+    =\int_a^b\mathrm dx\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\,\mathrm dy .
+\]
+这种区域称为 X-型区域：任何一条竖线穿过 $D$ 至多是一段。把 $x,y$ 互换，若
+\[
+    D=\{(x,y)\mid \alpha\le y\le\beta,\ \psi_1(y)\le x\le\psi_2(y)\},
+\]
+则
+\[
+    \iint_D f(x,y)\,\mathrm d\sigma
+    =\int_\alpha^\beta\mathrm dy\int_{\psi_1(y)}^{\psi_2(y)}f(x,y)\,\mathrm dx ,
+\]
+称为 Y-型区域。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=6.2cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-0.05, xmax=1.12, ymin=-0.05, ymax=1.12,
-  axis equal image, ticks=none,
-]
-\addplot[green!18,draw=black!55,thick,fill opacity=0.9] coordinates {
-  (0,0)(0.1,0.316)(0.2,0.447)(0.3,0.548)(0.4,0.632)(0.5,0.707)(0.6,0.775)(0.7,0.837)(0.8,0.894)(0.9,0.949)(1,1)
-  (0.9,0.81)(0.8,0.64)(0.7,0.49)(0.6,0.36)(0.5,0.25)(0.4,0.16)(0.3,0.09)(0.2,0.04)(0.1,0.01)(0,0)
-};
-\addplot[blue!70,ultra thick,domain=0:1,samples=80] {x^2};
-\addplot[red!70,ultra thick,domain=0:1,samples=80] {sqrt(x)};
-\draw[->,thick,orange!80!black] (axis cs:0.5,0.27) -- (axis cs:0.5,0.69);
-\draw[->,thick,purple!70!black] (axis cs:0.28,0.5) -- (axis cs:0.68,0.5);
-\node[font=\scriptsize] at (axis cs:0.40,0.55){$D$};
-\node[font=\scriptsize,blue!70] at (axis cs:0.63,0.20){$y=x^2$};
-\node[font=\scriptsize,red!70] at (axis cs:0.40,0.93){$y=\sqrt{x}$};
-\node[font=\scriptsize,orange!80!black,anchor=west] at (axis cs:0.56,0.82){X-型};
-\node[font=\scriptsize,purple!70!black,anchor=west] at (axis cs:0.72,0.28){Y-型};
+  width=0.7\linewidth, height=7.0cm,
+  xlabel=$x$, ylabel=$y$,
+  xmin=-0.05, xmax=2.15, ymin=-0.05, ymax=2.15,
+  axis equal image, ticks=none, font=\footnotesize]
+\addplot[green!18, draw=black!45, thick] coordinates {
+ (0,0)(0.1,0.005)(0.2,0.02)(0.3,0.045)(0.4,0.08)(0.5,0.125)(0.6,0.18)(0.7,0.245)(0.8,0.32)(0.9,0.405)(1,0.5)(1.1,0.605)(1.2,0.72)(1.3,0.845)(1.4,0.98)(1.5,1.125)(1.6,1.28)(1.7,1.445)(1.8,1.62)(1.9,1.805)(2,2)
+ (1.9,1.949)(1.8,1.897)(1.7,1.844)(1.6,1.789)(1.5,1.732)(1.4,1.673)(1.3,1.612)(1.2,1.549)(1.1,1.483)(1,1.414)(0.9,1.342)(0.8,1.265)(0.7,1.183)(0.6,1.095)(0.5,1)(0.4,0.894)(0.3,0.775)(0.2,0.632)(0.1,0.447)(0,0)};
+\addplot[blue!70, ultra thick, domain=0:2, samples=80] {x^2/2};
+\addplot[red!70, ultra thick, domain=0:2, samples=80] {sqrt(2*x)};
+\draw[->, thick, orange!80!black] (axis cs:1,0.5) -- (axis cs:1,1.414);
+\draw[->, thick, purple!70!black] (axis cs:0.5,1) -- (axis cs:1.414,1);
+\node[font=\scriptsize] at (axis cs:1.70,1.55) {$D$};
+\node[font=\scriptsize, blue!70!black, anchor=north] at (axis cs:1.40,0.76) {$y=\frac{x^2}{2}$};
+\node[font=\scriptsize, red!70!black, anchor=south] at (axis cs:1.55,1.88) {$y=\sqrt{2x}$};
+\node[font=\scriptsize, orange!80!black, anchor=west] at (axis cs:1.06,1.25) {竖条};
+\node[font=\scriptsize, purple!70!black, anchor=north] at (axis cs:1.20,0.92) {横条};
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 区域 $D$ 介于 $y=x^2$（蓝，下界）与 $y=\sqrt{x}$（红，上界）之间：X-型对每个 $x$ 让 $y$ 从 $\varphi_1(x)=x^2$ 积到 $\varphi_2(x)=\sqrt{x}$（橙竖箭头）；Y-型对每个 $y$ 让 $x$ 从 $\psi_1(y)=y^2$ 积到 $\psi_2(y)=\sqrt{y}$（紫横箭头）。}}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 同一个区域有两种切法：竖条（橙）先对 $y$ 积、再对 $x$ 积；横条（紫）先对 $x$ 积、再对 $y$ 积。选哪种，取决于边界方程和被积函数哪个更好积。}}
 
-    \begin{conclusion}{特殊情形}{special-case}
-        设\(f(x, y)\)在矩形区域\(
-            D = \{
-                (x, y) | a \leq x \leq b,
-                \alpha \leq y \leq \beta
-            \}
-        \)连续，则
-        \begin{enumerate}
-            \item \(\iint_{D} f(x, y) \mathrm{d} x \mathrm{d} y = 
-            \int_{a}^{b} (
-                \int_{\alpha}^{\beta} f(x, y) \mathrm{d} y
-            ) \mathrm{d} x
-            = \int_{\alpha}^{\beta} (
-                \int_{a}^{b} f(x, y) \mathrm{d} x
-            ) \mathrm{d} y
-        \)
-            \item \text{若}\(
-                f(x, y) = h(x)g(y)
-            \),从而\[
-                \iint_{D} h(x)g(y) \mathrm{d} \sigma = 
-                \int_{a}^{b} h(x) \mathrm{d} x
-                \int_{\alpha}^{\beta} g(y) \mathrm{d} y
-            \]
-        \end{enumerate}
-    \end{conclusion}
-\end{conclusion}
+先看区域能写成 X-型还是 Y-型，再看被积函数对哪个变量先积更省事。比如被积函数含 $e^{y^2}$ 而 $y$ 的积分没有初等原函数，就应改成先对 $x$ 积；反过来，先对 $x$ 积会出现难处理的根式时，也可以换序。矩形区域 $[a,b]\times[\alpha,\beta]$ 上若 $f(x,y)=h(x)g(y)$，两个积分还能拆开：
+\[
+    \iint_D h(x)g(y)\,\mathrm d\sigma
+    =\int_a^b h(x)\,\mathrm dx\int_\alpha^\beta g(y)\,\mathrm dy .
+\]
+拆开的条件是区域为矩形且变量分离，缺一个都不行。
 
-\begin{conclusion}{三重积分化为累次积分}{three-integral-to-definite}
-    设\(\Omega\)是\(Oxyz\)空间中的有界闭区域，\(f(x, y, z)\)在\(\Omega\)上连续，若
-    \(\Omega = \{
-        (x, y, z)\mid z_1(x, y) \leq z \leq z_2(x, y), (x,y) \in D
-    \}\)，则
-    \[
-        \iiint_{\Omega} f(x, y, z) \mathrm{d} V =
-        \iint_{D} \mathrm{d} x \mathrm{d} y
-        \int_{z_1(x, y)}^{z_2(x, y)} f(x, y, z) \mathrm{d} z
-    \]
-    若\(\Omega = \{(x,y,z)\mid \alpha\leq z\leq\beta,(x,y)\in D(z)\}\)，其中\(D(z)\)为高度\(z\)处的平面截面区域，
-    则\[
-        \iiint_{\Omega} f(x, y, z) \mathrm{d} V =
-        \int_{\alpha}^{\beta} \mathrm{d} z
-        \iint_{D(z)} f(x, y, z) \mathrm{d} x \mathrm{d} y
-    \]
-    两种方法即先一后二法或先二后一法。针对的分别是曲顶曲底柱长条区域和界面已知的区域。 \\
-    如果被积函数与二重积分部分无关，考虑先二后一法，不展开二重积分，用面积来求。
-\end{conclusion}
+区域和被积函数同时有对称性时，可以少算一半甚至直接得零。设 $D$ 关于 $x$ 轴对称，则 $D$ 中的点按 $(x,y)\leftrightarrow(x,-y)$ 成对出现，两块的面积元相同：
 
-\begin{conclusion}{第一类曲面积分化为二重积分}{first-curve-integral-to-two}
-    如果积分曲面\(\Sigma\)能够表为\(z = z(x, y)\)的形式，并且在\(xOy\)平面
-    上的投影域为\(D\),那么
-    \[
-        \iint_{\Sigma} f(x, y, z) \mathrm{d} S =
-        \iint_{D} f(x, y, z(x, y)) \sqrt{
-            1 + {z'_{x}}^2 + {z'_{y}}^2
-        } \mathrm{d} \sigma
-    \]
-    其中\(f(x,y,z)\)在\(\Sigma\)上连续，\(z=z(x,y)\)在\(D\)上具有连续偏导数。\\
-    对面积的曲面积分化成了二重积分，而二重积分又可化为累次积分,所以曲面积分化为
-    定积分。计算时需要注意三点\begin{enumerate}
-        \item 被积函数要代入曲面方程（被积函数定义在曲面\(\Sigma\)上）
-        \item 积分元素\(
-            \mathrm{d} S = \sqrt{
-                1 + {z'_{x}}^2 + {z'_{y}}^2
-            } \mathrm{d} \sigma
-        \)
-        \item 积分区域\(D\)是\(\Sigma\)在\(xOy\)面上的投影
-    \end{enumerate}
-    转化需要注意以下几点
-    \begin{enumerate}
-        \item 曲面元\(\mathrm{d} S\)在\((x, y ,z)\)处的单位法向量\(
-            \mathbf{n} = (\cos \alpha, \cos \beta, \cos \gamma)
-            = \pm \dfrac{1}{\sqrt{
-                1 + {z'_{x}}^2 + {z'_{y}}^2
-            }}(
-                -z'_{x}, -z'_{y}, 1
-            )
-        \)
-        \(\mathrm dS\)与它在\(Oxy\)平面上的投影面积元\(\mathrm d\sigma\)的关系为
-        \[
-            \mathrm{d} S = \frac{1}{|\cos \gamma|} \mathrm{d} \sigma
-            = \sqrt{
-                1 + {z'_{x}}^2 + {z'_{y}}^2
-            } \mathrm{d} \sigma
-        \]
-        \item 若曲面\(\Sigma\)的方程为\(
-            x = x(y, z), (y, z) \in D_{yz}
-        \)或\(
-            y = y(z, x), (z, x) \in D_{zx}
-        \),有类似的化第一类曲面积分为二重积分的方法。
-    \end{enumerate}
-\end{conclusion}
+\begin{itemize}
+  \item 若 $f(x,-y)=-f(x,y)$，两块上的积分相消，$\iint_D f\,\mathrm d\sigma=0$；
+  \item 若 $f(x,-y)=f(x,y)$，两块相等，积分等于上半部分的两倍。
+\end{itemize}
+关于 $y$ 轴对称时把 $x$ 换成 $-x$，结论类似。关于原点对称时，看 $f(-x,-y)$ 与 $f(x,y)$ 的关系。关于直线 $y=x$ 对称时，$(x,y)$ 与 $(y,x)$ 都在 $D$ 内，面积元不变，于是
+\[
+    \iint_D f(x,y)\,\mathrm d\sigma=\iint_D f(y,x)\,\mathrm d\sigma .
+\]
+这条“轮换对称性”常用来配对：在关于 $y=x$ 对称的区域上，$\iint_D x^2\,\mathrm d\sigma=\iint_D y^2\,\mathrm d\sigma$，所以 $\iint_D(x^2+y^2)\,\mathrm d\sigma=2\iint_D x^2\,\mathrm d\sigma$。若 $f(y,x)=-f(x,y)$，则积分为零。
+\subsection{极坐标与一般换元}
 
-\begin{conclusion}{第二类曲面积分化为二重积分}{second-curve-integral-to-two}
-    \begin{enumerate}
-        \item 若定向曲面\(\Sigma: x = x(y, z), (y, z) \in D_{yz}, x(y, z)\)在
-        \(D_{yz}\)上有连续的偏导数，\(P(x,y,z)\)在\(\Sigma\)上连续，则
-        \[
-            \iint_{\Sigma} P \mathrm{d} y \mathrm{d} z = 
-            \pm \iint_{D_{yz}} P(x(y, z), y, z) \mathrm{d} y \mathrm{d} z
-        \]
-        若\(\Sigma\)的法向量\(\mathbf{n}\)与\(x\)轴正向的夹角为\(\alpha\)，则
-        \(\alpha\)为锐角时取前侧，即积分取\(+\)号，反之取负号。
-        \item 若定向曲面\(\Sigma: y = y(z, x), (z, x) \in D_{zx}, y(z, x)\)在
-        \(D_{zx}\)上有连续的偏导数，\(Q(x,y,z)\)在\(\Sigma\)上连续，则
-        \[
-            \iint_{\Sigma} Q \mathrm{d} z \mathrm{d} x = 
-            \pm \iint_{D_{zx}} Q(x, y(z, x), z) \mathrm{d} z \mathrm{d} x
-        \]
-        若\(\Sigma\)的法向量\(\mathbf{n}\)与\(y\)轴正向的夹角为\(\beta\)，则
-        \(\beta\)为锐角时取前侧，即积分取\(+\)号，反之取负号。
-        \item 若定向曲面\(\Sigma: z = z(x, y), (x, y) \in D_{xy}, z(x, y)\)在   
-        \(D_{xy}\)上有连续的偏导数，\(R(x,y,z)\)在\(\Sigma\)上连续，则
-        \[
-            \iint_{\Sigma} R \mathrm{d} x \mathrm{d} y = 
-            \pm \iint_{D_{xy}} R(x, y, z(x, y)) \mathrm{d} x \mathrm{d} y
-        \]
-        若\(\Sigma\)的法向量\(\mathbf{n}\)与\(z\)轴正向的夹角为\(\gamma\)，则
-        \(\gamma\)为锐角时取前侧，即积分取\(+\)号，反之取负号。
-        \item 若定向曲面\(\Sigma\)由方程\(z = z(x, y)\)给出，\(\Sigma\)在\(Oxy\)平面上的
-        投影区域为\(D_{xy}\)。\(z(x, y)\)在\(D_{xy}\)上有连续的偏导数，\(P(x, y, z), Q(x, y, z),
-        R(x,y,z)\)在\(\Sigma\)上连续，则
-        \[
-            \begin{aligned}
-            &\iint_{\Sigma}\left(P\,\mathrm{d} y\,\mathrm{d} z+Q\,\mathrm{d} z\,\mathrm{d} x+R\,\mathrm{d} x\,\mathrm{d} y\right) = \\
-            &\pm \iint_{D_{xy}} [P(x, y, z(x, y))  (-\frac{\partial z}{\partial x}) \\
-            &+ Q(x, y, z(x, y)) (-\frac{\partial z}{\partial y}) \\
-            &+ R(x, y, z(x, y))] \mathrm{d} x \mathrm{d} y
-            \end{aligned}
-        \]
-        其中正负号由\(\Sigma\)的定向决定。
-        法向量指向上侧时取正号，否则取负。
-    \end{enumerate}
-    对于第二类曲面积分到二重积分的转化，需要注意以下几点
-    \begin{enumerate}
-        \item 前三个转化依次把\(\Sigma\)投影到\(Oyz\)、\(Ozx\)和\(Oxy\)平面，然后分别
-        计算\(
-        \iint_{D_{yz}} P(x, y, z) \mathrm{d} y \mathrm{d} z
-        \),\(
-        \iint_{D_{zx}} Q(x, y, z) \mathrm{d} z \mathrm{d} x
-        \),\(
-        \iint_{D_{xy}} R(x, y, z) \mathrm{d} x \mathrm{d} y
-        \)
-        最后一项是将曲面\(\Sigma\)投影到\(xOy\)平面，然后计算
-        \[
-            \iint_{\Sigma} P \mathrm{d} y \mathrm{d} z +
-            Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y
-        \]
-        投影到其他平面，类似可得
-        \item 第一类曲面积分与第二类曲面积分的关系
-        \[
-            \iint_{\Sigma} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y =
-            \iint_{\Sigma} (
-                P \cos \alpha + Q \cos \beta + R \cos \gamma
-            ) \mathrm{d} S
-        \]
-        曲面\(\Sigma:z = z(x, y)\)的单位法向量公式
-        \[
-            \mathbf{n} =  (\cos \alpha, \cos \beta, \cos \gamma) = \pm \frac{
-                1
-            }{
-                \sqrt{
-                    1 + {z'_{x}}^2 + {z'_{y}}^2
-                }
-            }(-z'_{x}, -z'_{y}, 1)
-            \]
-    \end{enumerate}
-    第二类曲面积分化为二重积分的过程，即为
-    \[
-        \text{第二类曲面积分} \Longrightarrow \text{第一类曲面积分} \Longrightarrow
-        \text{二重积分}
-    \]
-\end{conclusion}
-\subsection{重积分的变量替换}
-\begin{conclusion}{平移变换}{translation}
-    设\(D\)为平面有界闭区域
-    \[
-        \iint_{D} f(x, y) \mathrm{d} x \mathrm{d} y \overset{
-            \substack{u = x - a\\
-            v = y - b}
-        }{\xlongequal{\quad\quad}} \iint_{D'} f(u + a, v + b)\mathrm{d} u \mathrm{d} v
-    \]
-    其中\(D'\)是在平移变换\(
-        \begin{cases}
-            u = x - a \\ 
-            v = y - b
-        \end{cases}
-    \)(即\(
-        \begin{cases}
-            x = u + a \\
-            y = v + b
-        \end{cases}
-    \))下把\(D\)平移到\(D'\)。\\
-    设\(\Omega\)为空间中的有界闭区域,\(f(x, y, z)\)在\(\Omega\)上连续，则
-    \[
-        \iiint_{\Omega} f(x, y, z) \mathrm{d} x \mathrm{d} y \mathrm{d} z \overset{
-            \substack{u = x - a\\
-            v = y - b \\
-            w = z - c}
-        }{\xlongequal{\quad\quad}} \iiint_{\Omega'} f(u + a, v + b, w + c) \mathrm{d} u \mathrm{d} v \mathrm{d} w
-    \]
-    其中\(\Omega'\)是在平移变换\(
-        \begin{cases}
-            u = x - a \\ 
-            v = y - b \\
-            w = z - c
-        \end{cases}
-    \)(即\(
-        \begin{cases}
-            x = u + a \\
-            y = v + b \\
-            z = w + c
-        \end{cases}
-    \))下把\(\Omega\)平移到\(\Omega'\)。\\
-    平移变换下保持区域的形状与体积(或面积)不变。
-    如\(
-        (x - 1)^2 + (y - 1)^2  + (z - 1)^2 \leq 1
-    \)可变为\(
-        u^2 + v^2 + w^2 \leq 1
-        \)便于计算
-\end{conclusion}
+区域是圆、圆环、扇形，或者被积函数含 $x^2+y^2$ 时，直角坐标往往很别扭。令
+\[
+    x=r\cos\theta,\qquad y=r\sin\theta\qquad(r\ge0),
+\]
+其中 $r$ 是到原点的距离，$\theta$ 是从 $x$ 轴正向逆时针量起的极角。
 
-\begin{conclusion}{二重积分换元法}{two-integral-change}
-    设\(D\)为平面有界闭区域，\(f(x, y)\)在\(D\)上连续，则
-    \[
-        \iint_{D} f(x, y) \mathrm{d} x \mathrm{d} y = \iint_{D'} f(u(x, y), v(x, y)) 
-        \left|
-        \frac{\partial (u, v)}{\partial (x, y)} \right| \mathrm{d} u \mathrm{d} v
-        \]。
-        其中\(D'\)是由\(u(x, y)\),\(v(x, y)\)定义的平面有界闭区域，且\(\left|
-            \frac{\partial (u, v)}{\partial (x, y)} \right|
-            \)为雅可比行列式。
-        三重积分亦同理可得
-\end{conclusion}
-\begin{conclusion}{二重积分的极坐标变换}{two-integral-polar}
-    极坐标变换\(
-        x = r \cos \theta \\
-        y = r \sin \theta
-    \)下有\(
-        \mathrm{d} \sigma  = r \mathrm{d} r \mathrm{d} \theta
-    \)
-    \[
-        \iint_{D} f(x, y) \mathrm{d} \sigma
-        = \iint_{D'} f(r \cos \theta, r \sin \theta) r \mathrm{d} r \mathrm{d} \theta
-    \]
-    其中\(D\)为直角坐标系\(Oxy\)平面下的有界闭区域，\(D'\)为直角坐标系\(
-        Or\theta
-    \)平面下的有界闭区域。\\
-    在极坐标变换下化二重积分\(
-        \iint_{D} f(x, y) \mathrm{d} \sigma
-    \)为累次积分的关键为在\(Oxy\)平面上画出\(D\)的图形并写出相对应\(D\)的极坐标的表示式。\\
-    常见的情形有
-    \begin{enumerate}
-        \item \(
-            D = \left\{
-                (r, \theta) |
-                \alpha \leq \theta \leq \beta,
-                r_1(\theta) \leq r \leq r_2(\theta)
-            \right\}\),则
-            \[
-            \iint\limits_{D} f(x, y) \mathrm{d} \sigma = \int_{\alpha}^{\beta} \mathrm{d} \theta \int_{r_1(\theta)}^{r_2(\theta)} f(r \cos \theta, r \sin \theta) r \mathrm{d} r 
-            \]
-        \item \(
-            D = \left\{
-                (r, \theta) |
-                0 \leq \theta \leq 2\pi,
-                r_1(\theta) \leq r \leq r_2(\theta)
-            \right\}\),则
-            \[
-            \iint\limits_{D} f(x, y) \mathrm{d} \sigma = \int_{0}^{2\pi} \mathrm{d} \theta \int_{r_1(\theta)}^{r_2(\theta)} f(r \cos \theta, r \sin \theta) r \mathrm{d} r 
-            \]特殊情形式\(
-            r_1(\theta) = 0\)
-        \item\(
-            D = \left\{
-                (r, \theta) |
-                \alpha \leq \theta \leq \beta,
-                0 \leq r \leq r(\theta)
-            \right\}\),则
-            \[
-            \iint\limits_{D} f(x, y) \mathrm{d} \sigma = \int_{\alpha}^{\beta} \mathrm{d} \theta \int_{0}^{r(\theta)} f(r \cos \theta, r \sin \theta) r \mathrm{d} r 
-        \]
-\item\(
-            D = \left\{
-                (r, \theta) |
-                a \leq r \leq b, \theta_1(r) \leq \theta \leq \theta_2(r)
-            \right\}\),则
-            \[
-            \iint\limits_{D} f(x, y) \mathrm{d} \sigma = \int_{a}^{b} \mathrm{d} r \int_{\theta_1(r)}^{\theta_2(r)} f(r \cos \theta, r \sin \theta) r \mathrm{d} \theta
-        \]
-    \end{enumerate}
-\end{conclusion}
+先看一个很小的极坐标格子：两条射线夹角为 $\mathrm d\theta$，两条圆弧半径为 $r$ 和 $r+\mathrm dr$。沿半径方向的边长是 $\mathrm dr$，沿圆弧方向的边长是 $r\,\mathrm d\theta$。格子很小时它近似矩形，面积为 $r\,\mathrm dr\,\mathrm d\theta$。多出来的因子 $r$ 不是记错，而是因为同样的角增量，离原点越远弧越长。
 
-\begin{conclusion}{三重积分的柱坐标变换}{three-integral-polar}
-    柱坐标变换\(x = r \cos \theta, y = r \sin \theta, z = z\)下有\(
-        \mathrm{d} V = r \mathrm{d} r \mathrm{d} \theta \mathrm{d} z
-    \)
-    \[
-        \iiint_{\Omega} f(x, y, z) \mathrm{d} V = \iint_{\Omega'} f(r \cos \theta, r \sin \theta, z) r \mathrm{d} r \mathrm{d} \theta \mathrm{d} z
-    \]
-    其中\(\Omega\)为直角坐标系\(Oxyz\)下的有界闭区域，\(f(x, y, z)\)在\(\Omega\)上连续，\(\Omega'\)是直角坐标系\(
-    Or\theta z\)下的有界闭区域。\\
-    在柱坐标变换下\(\Omega\)和\(\Omega'\)是一一对应的。\\
-    \(\Omega\)的上下曲顶方程\(
-    z = z_1(r, \theta), z = z_2(r, \theta)\)下有
-    \[
-        \iiint_{\Omega} f(x, y, z) \mathrm{d} V = \iint_{D'} r \mathrm{d} r \mathrm{d} \theta \int_{z_1(r, \theta)}^{z_2(r, \theta)} 
-        f(r \cos \theta, r \sin \theta, z) \mathrm{d} z
-    \]
-    其中若\(D'\)是\(Or\theta\)中对应的\(D\)的区域，则
-    \[
-        \iiint_{\Omega} f(x, y, z) \mathrm{d} V = \int_{\alpha}^{\beta}  \mathrm{d} \theta \int_{r_1(\theta)}^{r_2(\theta)} r\mathrm{d} r \int_{z_1(r, \theta)}^{z_2(r, \theta)} f(r \cos \theta, r \sin \theta, z)  \mathrm{d} z 
-    \]
-    若\(Oxyz\)介于半平面\(
-        \theta  = \alpha, \theta = \beta
-    \)(
-        \(0 \leq \alpha < \beta \leq 2\pi\)
-    )之间且极角为\(
-        \theta \in [
-            \alpha, \beta
-        ]\)的任一半平面与
-    \(
-        \Omega
-    \)相截得平面区域\(D(\theta)\)，则
-    \[
-        \iiint_{\Omega} f(x, y, z) \mathrm{d} x \mathrm{d} y \mathrm{d} z = \int_{\alpha}^{\beta}  \mathrm{d} \theta \iint_{D(\theta)} f(r \cos \theta, r \sin \theta, z) r \mathrm{d} r \mathrm{d} z
-    \]
-\end{conclusion}
+\begin{center}
+\begin{tikzpicture}[scale=1.05]
+\draw[->] (-0.25,0) -- (3.7,0) node[right] {$x$};
+\draw[->] (0,-0.25) -- (0,3.5) node[above] {$y$};
+\foreach \a in {15,35,55,75} {\draw[gray!45] (0,0) -- (\a:3.2);}
+\foreach \r in {1.0,2.0,3.0} {\draw[gray!45] (\r,0) arc (0:90:\r);}
+\fill[blue!16] (40:1.5) arc (40:70:1.5) -- (70:2.9) arc (70:40:2.9) -- cycle;
+\draw[blue!70!black, thick] (40:1.5) arc (40:70:1.5);
+\draw[blue!70!black, thick] (70:1.5) -- (70:2.9);
+\draw[blue!70!black, thick] (70:2.9) arc (70:40:2.9);
+\draw[blue!70!black, thick] (40:2.9) -- (40:1.5);
+\node[font=\scriptsize] at (35:1.40) {$r$};
+\draw[->, thin] (0.55,0) arc (0:35:0.55);
+\node[font=\scriptsize] at (17:0.72) {$\theta$};
+\node[font=\scriptsize, below left] at (0,0) {$O$};
+\node[font=\scriptsize, blue!70!black, anchor=south west] at (55:2.05) {$\Delta\sigma$};
+\end{tikzpicture}
+\hspace{0.7em}
+\begin{tikzpicture}[scale=0.95]
+\draw[thick, blue!70!black, fill=blue!8] (0,0) rectangle (2.4,1.15);
+\draw[<->, red!70!black, thick] (0,-0.2) -- (2.4,-0.2);
+\node[font=\scriptsize, red!70!black, below] at (1.2,-0.24) {$r\,\mathrm d\theta$};
+\draw[<->, red!70!black, thick] (2.62,0) -- (2.62,1.15);
+\node[font=\scriptsize, red!70!black, right] at (2.66,0.575) {$\mathrm dr$};
+\node[font=\scriptsize] at (1.2,1.52) {小格近似矩形};
+\end{tikzpicture}
+\end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 极坐标网格中的一个小格：径向边长为 $\mathrm dr$，弧向边长为 $r\,\mathrm d\theta$，所以面积元 $\mathrm d\sigma=r\,\mathrm dr\,\mathrm d\theta$。同样的 $\mathrm d\theta$，半径越大，弧越长。}}
 
-\begin{conclusion}{三重积分的球坐标变换}{three-integral-spherical}
-    在球坐标变换\(
-    x = \rho \sin \varphi \cos \theta, y = \rho \sin \varphi \sin \theta, z = \rho \cos \varphi
-    \)下有\(
-        \mathrm{d} V = \rho^2 \sin \varphi \mathrm{d} \rho \mathrm{d} \theta \mathrm{d} \varphi
-    \)
-    \[
-        \iiint\limits_{\Omega} f(x, y, z) \mathrm{d} V = \iiint\limits_{\Omega'} f(\rho \sin \varphi \cos \theta, \rho \sin \varphi \sin \theta, \rho \cos \varphi) \rho^2 \sin \varphi \mathrm{d} \rho \mathrm{d} \theta \mathrm{d} \varphi
-    \]
-    其中\(\Omega\)为直角坐标系\(Oxyz\)下的有界闭区域，\(f(x, y, z)\)在\(\Omega\)上连续，\(\Omega'\)是直角坐标系
-    \(O\rho \theta \varphi\)相应的有界闭区域。\\
-    在球坐标变换下\(\Omega\)和\(\Omega'\)是一一对应的。\\
-    记\(
-        F(\rho, \theta, \varphi) = f(\rho \sin \varphi \cos \theta, \rho \sin \varphi \sin \theta, \rho \cos \varphi)
-    \)
-    若\(O\)位于闭曲面\(S\)所围区域\(\Omega\)内，\(S\)的球坐标方程为\(
-    \rho = \rho(\theta, \varphi)\)，则
-    \[
-        \iiint\limits_{\Omega} f(x, y, z) \mathrm{d} V = 
-        \int_{0}^{2\pi} \mathrm{d} \theta \int_{0}^{\pi} \mathrm{d} \varphi \int_{0}^{\rho(\varphi, \theta)} F(\rho, \theta, \varphi) \rho^2 \sin \varphi \mathrm{d} \rho 
-    \]
-    若\(\Omega\)由锥面\(
-        \varphi = a
-    \)及球坐标方程\(
-        \rho = \rho(\theta, \varphi)
-    \)的曲面所围（区域位于锥面内侧，即\(0\leq\varphi\leq a\)），则
-    \[
-        \iiint\limits_{\Omega} f(x, y, z) \mathrm{d} V = 
-        \int_{0}^{2\pi} \mathrm{d} \theta \int_{0}^{a} \mathrm{d} \varphi \int_{0}^{\rho(\theta, \varphi)} F(\rho, \theta, \varphi) \rho^2 \sin \varphi \mathrm{d} \rho 
-    \]
-\end{conclusion}
-\subsection{多元函数积分计算技巧}
-\begin{conclusion}{选择积分顺序}{integral-order}   
-    计算二重积分\(
-    \iint f(x, y) \mathrm{d} x \mathrm{d} y
-    \)时先对 \(x\) 积分还是先对 \(y\) 积分，既取决于积分区域\(D\)的类型，又取决于被积函数的特点。\\
-    不同的积分顺序会影响计算的繁简程度，有时甚至是能否计算出积分的区别。
-\end{conclusion}
+于是
+\[
+    \iint_D f(x,y)\,\mathrm d\sigma
+    =\iint_{D'} f(r\cos\theta,r\sin\theta)\,r\,\mathrm dr\,\mathrm d\theta ,
+\]
+其中 $D'$ 是 $D$ 在 $r\theta$ 平面上的对应区域。通常先固定 $\theta$，让 $r$ 从内边界到外边界：
+\[
+    \iint_D f\,\mathrm d\sigma
+    =\int_\alpha^\beta\mathrm d\theta
+    \int_{r_1(\theta)}^{r_2(\theta)}
+    f(r\cos\theta,r\sin\theta)\,r\,\mathrm dr .
+\]
+若原点在 $D$ 内，则内边界为 $r=0$。若区域用“固定 $r$、让 $\theta$ 变化”描述更方便（例如圆心不在原点的圆），也可以交换次序：
+\[
+    \iint_D f\,\mathrm d\sigma
+    =\int_a^b r\,\mathrm dr
+    \int_{\theta_1(r)}^{\theta_2(r)}
+    f(r\cos\theta,r\sin\theta)\,\mathrm d\theta .
+\]
+判断用哪种，只需在图上画一条过原点的射线和一条以原点为圆心的圆弧，看哪条与区域相交成一段。
 
-\subsubsection{对称性与奇偶性}
-\begin{conclusion}{二重积分的对称性与奇偶性}{two-integral-symmetry}
-    设\(f(x, y)\)在有界闭区域\(D\)上连续，则
-    \begin{enumerate}
-        \item 若\(D\)关于\(x\)轴对称，则
-        \[
-            \iint\limits_{D} f(x, y) \mathrm{d} x \mathrm{d} y = 
-            \begin{cases}
-                0, &\begin{aligned}
-                    &\text{若} f(x, y) 
-                    \text{对} y \text{为奇函数},\text{即}\\
-                    &f(x, -y) = -f(x, y), \\
-                    &\forall (x, y) \in D\\
-                \end{aligned} \\
-                2\iint\limits_{D_1} f(x, y) \mathrm{d} x \mathrm{d} y, &
-                \begin{aligned}
-                   & \text{若} f(x, y) \text{对} y \text{为偶函数},\text{即} \\
-                &f(x, -y) = f(x, y), \\
-                &\forall (x, y) \in D\\
-                \end{aligned}
-            \end{cases}
-        \]
-        其中\(D_1 = D \cap \{y \geq 0\}\)。
-        \item 若\(D\)关于\(y\)轴对称，则
-        \[
-            \iint\limits_{D} f(x, y) \mathrm{d} x \mathrm{d} y = 
-            \begin{cases}
-                0, & f(x,y) \text{对} x \text{为奇函数},\\
-                2\iint\limits_{D_1} f(x, y) \mathrm{d} x \mathrm{d} y, &
-                f(x,y) \text{对} x \text{为偶函数},\\
-            \end{cases}
-        \]
-        其中\(D_1 = D \cap \{x \geq 0\}\)。
-        \item 若\(D\)关于原点对称，即\(
-            (x, y) \in D \Leftrightarrow (-x, -y) \in D
-        \)
-        \[
-            \iint\limits_{D} f(x, y) \mathrm{d} x \mathrm{d} y = 
-            \begin{cases}
-                0, & \begin{aligned}
-                    &\text{若} f(x, y) \text{关于} (x, y)\text{为奇函数},\\
-                    &\text{即}f(-x, -y) = -f(x, y), \\
-                    &\forall (x, y) \in D
-                \end{aligned} \\
-                2\iint\limits_{D_1} f(x, y) \mathrm{d} x \mathrm{d} y, &
-                \begin{aligned}
-                   & \text{若} f(x, y) \text{关于} (x, y)\text{为偶函数},\\
-                    &\text{即}f(-x, -y) = f(x, y), \\
-                    &\forall (x, y) \in D
-                \end{aligned}
-            \end{cases}
-        \]
-        将\(D\)分割成关于原点对称的两部分，即\(D = D_1 \cup D_2\)，其中\(D_1\) 与\(D_2\) 关于原点对称。
-        \item 变量的轮换对称性，若\(D\)关于直线\(
-            y = x 
-        \)对称，即\(
-            (x, y) \in D \Leftrightarrow (y, x) \in D
-        \),则
-        \[
-            \iint\limits_{D} f(x, y) \mathrm{d} x \mathrm{d} y = 
-            \iint\limits_{D} f(y, x) \mathrm{d} x \mathrm{d} y
-        \]
-        在这种情形下，若将\(D\)分成两部分，即\(D = D_1 \cup D_2\)，其中\(D_1\) 与\(D_2\) 关于直线\(y = x\)对称，则
-        \[
-            \iint\limits_{D_1} f(x, y) \mathrm{d} x \mathrm{d} y = 
-            \iint\limits_{D_2} f(y, x) \mathrm{d} x \mathrm{d} y
-        \]
-    \end{enumerate}
-\end{conclusion}
+更一般的换元是
+\[
+    x=x(u,v),\qquad y=y(u,v),
+\]
+把 $uv$ 平面上的区域 $D'$ 一一映成 $xy$ 平面上的 $D$。若 $x,y$ 有连续偏导数，且雅可比行列式
+\[
+    J=\frac{\partial(x,y)}{\partial(u,v)}
+    =\begin{vmatrix}
+        x_u & x_v\\ y_u & y_v
+    \end{vmatrix}
+\]
+在 $D'$ 内不为零，则
+\[
+    \iint_D f(x,y)\,\mathrm dx\,\mathrm dy
+    =\iint_{D'} f(x(u,v),y(u,v))\,|J|\,\mathrm du\,\mathrm dv .
+\]
+公式里取绝对值，因为 $J$ 可能为负；$J$ 的几何意义是面积放缩比：小块在 $uv$ 平面上的面积乘以 $|J|$，才是它在 $xy$ 平面上的面积。极坐标正是 $J=r$ 的特例。
 
-\begin{conclusion}{三重积分的对称性与奇偶性}{three-integral-symmetry}
-    设\(f(x, y, z)\)在有界闭区域\(\Omega\)上连续，若\(\Omega\)关于\(xy\)平面对称(
-        \((x, y , z) \in \Omega \Leftrightarrow (x, y , -z) \in \Omega\)
-    )，则
-    \[
-        \iint\limits_{\Omega} f(x, y, z) \mathrm{d} V = 
-        \begin{cases}
-            0, & \begin{aligned}
-                &\text{若} f(x, y, z) \text{对} z\text{为奇函数},\text{即} \\
-                &f(x, y, -z) = -f(x, y, z), \\
-                &\forall (x, y, z) \in \Omega
-            \end{aligned} \\
-            \\
-            2\iint\limits_{\Omega_1} f(x, y, z) \mathrm{d} V, &
-            \begin{aligned}
-                &\text{若} f(x, y, z) \text{对} z\text{为偶函数},\text{即}\\
-                &f(x, y, -z) = f(x, y, z), \\
-                &\forall (x, y, z) \in \Omega
-            \end{aligned}
-        \end{cases}
-    \]
-    若\(\Omega\)关于\(yz\)平面(\(zx\)平面)对称，\(f(x, y ,z)\)关于\(x\)或\(y\)为奇函数或偶函数，则同理可得。
-\end{conclusion}
+\subsection{三重积分与柱坐标、球坐标}
 
-\begin{conclusion}{第一类曲线,曲面积分的对称性与奇偶性}{first-curve-integral-symmetry}
-    \begin{enumerate}
-        \item 设\(f(x, y)\)在分段光滑曲线\(L\)上连续\\
-        若曲线\(L\)关于\(x\)(\(y\))轴对称，则
-        \[
-            \int\limits_{L} f(x, y) \mathrm{d} s = 
-            \begin{cases}
-                0, & \text{若} f(x, y) \text{对} x(y) \text{为奇函数},\\
-                2\int\limits_{L_1} f(x, y) \mathrm{d} s, &
-                \text{若} f(x, y) \text{对} y(x) \text{为偶函数},\\
-            \end{cases} 
-        \]
-        其中\(L_1\)为\(L\)的右半或上半部分。\\
-        若\(L\)关于直线\(y = x\)对称，则
-        \(
-            \int\limits_{L} f(x, y) \mathrm{d} s =
-            \int\limits_{L} f(y, x) \mathrm{d} s 
-        \)
-        \item 设\(f(x, y)\)在分段光滑曲面\(S\)上连续\\
-        若\(S\)关于\(yz\)平面对称，则
-        \[
-            \iint\limits_{S} f(x, y, z) \mathrm{d} S = 
-            \begin{cases}
-                0, & \text{若} f(x, y, z) \text{关于} x \text{为奇函数},\\
-                2\iint\limits_{S_1} f(x, y, z) \mathrm{d} S, &
-                \text{若} f(x, y, z) \text{关于} x \text{为偶函数},\\
-            \end{cases} 
-        \]
-        其中\(S_1 = S \cap \{x \geq 0\}\)。\\
-        若\(S\)关于\(xy\)平面或\(zx\)平面对称，f(x, y, z)关于y或z为奇函数或偶函数，则同理可得。\\
-        \end{enumerate}
-\end{conclusion}
+三重积分
+\[
+    \iiint_\Omega f(x,y,z)\,\mathrm dV
+    =\lim_{\lambda\to0}\sum_{i=1}^{n}f(\xi_i,\eta_i,\zeta_i)\Delta V_i
+\]
+和二重积分是同一套思想，只是小块换成了空间小块。计算时仍化成累次积分，常用的有“先一后二”和“先二后一”两种切法。
 
-\begin{conclusion}{第二类曲线,曲面积分的对称性与奇偶性}{second-curve-integral-symmetry}
-    第二类曲线与曲面积分本质上是向量的积分，所以我们要考虑微元的方向。\\
-    通过微元与函数的点积关系，可以得到类似的结论。\\
-    \begin{enumerate}
-        \item 设\(P(x, y), Q(x, y)\)在分段光滑曲线\(L\)上连续\\
-        \begin{enumerate}
-            \item \(L\)关于\(y\)轴对称，则
-            \[
-                \iint\limits_{L} P \mathrm{d} x  = 
-                \begin{cases}
-                    0, & \text{若} P(x, y) \text{对} x\text{为奇函数},\\
-                    2\iint\limits_{L_1} P \mathrm{d} x, &
-                    \text{对} x\text{为偶函数}
-                \end{cases}
-            \]
-            同时有
-            \[
-                \iint\limits_{L} Q \mathrm{d} y  = 
-                \begin{cases}
-                    0, & \text{若} Q(x, y) \text{对} x \text{为偶函数}
-                    ,\\
-                    2\iint\limits_{L_1} Q \mathrm{d} y, &
-                    \text{对} x \text{为奇函数}
-                \end{cases}
-            \]
-            之所以出现这个原因是因为在\(y\)轴前后，\(x\)方向的微元\(\mathrm{d}x\)改变方向（变号），而\(y\)方向的微元\(\mathrm{d}y\)不变；因此\(P\mathrm{d}x\)项中\(P\)为奇函数时积分为0，\(Q\mathrm{d}y\)项中\(Q\)为偶函数时积分为0。
-            \item \(L\)关于\(x\)轴对称，则
-            \[
-                \int\limits_{L} P \mathrm{d} y  = 
-                \begin{cases}
-                    0, & \text{若} P \text{对}y\text{为奇函数} ,\\
-                    2\int\limits_{L_1} P \mathrm{d} y, &
-                    \text{对} y \text{为偶函数}
-                \end{cases}
-            \]
-            同时有
-            \[
-                \int\limits_{L} Q \mathrm{d} x  = 
-                \begin{cases}
-                    0, & \text{若} Q \text{对}y\text{为偶函数} ,\\
-                    2\int\limits_{L_1} Q \mathrm{d} x, &
-                    \text{对} y \text{为奇函数}
-                \end{cases}
-            \]
-            同样可以从微元的方向变化理解：在\(x\)轴上下，\(\mathrm{d}x\)不变、\(\mathrm{d}y\)改变方向，故\(P\mathrm{d}y\)项中\(P\)为奇函数时积分为0，\(Q\mathrm{d}x\)项中\(Q\)为奇函数时积分加倍。
-        \end{enumerate}
-        第二类曲面积分类似
-
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{分块积分法}{integral-block}
-    以二重积分为例，若\(D = D_1 \cup D_2\)，其中\(D_1\)与\(D_2\)有公共边界，则
-    \[
-        \iint\limits_{D} f(x, y) \mathrm{d} x \mathrm{d} y = 
-        \iint\limits_{D_1} f(x, y) \mathrm{d} x \mathrm{d} y + 
-        \iint\limits_{D_2} f(x, y) \mathrm{d} x \mathrm{d} y
-    \]
-    分块的情形有
-    \begin{enumerate}
-        \item 区域的边界线段是分段表示的
-        若\(D\)的边界线段是分段表示的，即\(D = D_1 \cup D_2\)，则
-        \[
-            \iint\limits_{D_1} f(x, y) \mathrm{d} x \mathrm{d} y + 
-            \iint\limits_{D_2} f(x, y) \mathrm{d} x \mathrm{d} y
-            = \iint\limits_{D} f(x, y) \mathrm{d} x \mathrm{d} y
-        \]
-        \item 被积函数是分段表示的
-        若\(D = D_1 \cup D_2\)，且\(
-        f(x, y) = 
-        \begin{cases}
-            f_1(x, y), & (x, y) \in D_1 \\
-            f_2(x, y), & (x, y) \in D_2 \\
-        \end{cases}
-        \),则
-        \[
-            \iint\limits_{D} f(x, y) \mathrm{d} x \mathrm{d} y = 
-            \iint\limits_{D_1} f_1(x, y) \mathrm{d} x \mathrm{d} y + 
-            \iint\limits_{D_2} f_2(x, y) \mathrm{d} x \mathrm{d} y
-        \]
-        \item 需要将区域分块才可应用重积分化为累次积分公式的情形
-    \end{enumerate}
-\end{conclusion}
-
-\begin{tablebox}{选择变量替换}
-    作变量替换有助于简化重积分计算，下面是可参考的替换
-    \scalebox{0.86}{
-    \begin{tabular}{|l|c|c|c|}
-
-        \hline
-    坐标系 & 积分区域 & 形式 & 元素\\
-        \hline
-    极坐标系 & 圆，环形域，扇形域 &
-    \(x^ny^mf(x^2 + y^2)\)
-    & \(rdrd\theta\) \\
-    \hline
-    柱坐标系 & 旋转体，柱体，锥体，抛物体等 &
-    \(x^ny^mz^lf(x^2 + y^2)\)
-    & \(rdrd \theta dz\) \\
-    \hline
-    球坐标系 & 球体，半球体，球冠,锥体等 &
-    \(x^ny^mz^lf(x^2 + y^2 + z^2)\)
-    & \(\rho^2\sin \varphi \mathrm{d} \rho \mathrm{d} \varphi \mathrm{d} \theta\) \\
-    \hline
-    \end{tabular}
-    }
-\end{tablebox}
-
-\begin{conclusion}{计算曲线、曲面积分时利用曲线或曲面方程}{integral-geometry}
-    在计算曲线、曲面积分时，可以利用曲线或曲面方程简化计算。\\
-    特别是将被积函数变为适合方程的形式，或者将方程代入被积函数中简化计算。 \\
-    注意，大多数情况下，曲线积分变换为重积分后，就不能代了
-\end{conclusion}
-
-% \begin{conclusion}{形心公式}{moment-formula}
-
-% \end{conclusion}
-
-\begin{conclusion}{计算第二类曲面积分时选择投影方向}{projection-direction}
-    在计算第二类曲面积分时，选择合适的投影方向可以简化计算。\\
-    若\(S\)既可表示为\(z = z(x, y), (x, y) \in D_{xy}\),即\(S\)在\(xy\)平面上的投影区域，也可表示为\(
-        x = x(y, z), (y, z) \in D_{yz}
-    \),即\(S\)在\(yz\)平面上的投影区域，则
-    求\(
-        \iint\limits_{S} R(x, y, z) \mathrm{d} x \mathrm{d} y 
-    \)时，可选择\[
-        \begin{aligned}
-            \iint\limits_{S} R \mathrm{d} x \mathrm{d} y = 
-            \pm \iint\limits_{D_{xy}}R(x,y,z(x,y))\,\mathrm d x\mathrm d y \\
-            \iint\limits_{S} R \mathrm{d} x \mathrm{d} y = 
-            \pm \iint\limits_{D_{yz}} R(x(y,z),y,z)(
-                -\frac{\partial x}{\partial z}
-            )\,\mathrm d y\mathrm d z 
-        \end{aligned}
-    \]
-    选择不同的投影方向会影响计算的繁简程度。
-\end{conclusion}
-\subsection{多元函数积分的各种公式}
-\begin{mydef}{平面上的单连通区域与区域的正向边界}{single-region}
-    设\(D\)为平面区域,如果\(D\)内任一闭曲线所围部分都属于\(D\),则称
-    \(D\)为平面单连通区域。否则称为复连通区域。通俗讲法可以这样说单连通区域不含点洞
-    复连通区域含有点洞。\\
-    区域的正方向是逆时针方向，区域内的洞的正方向是顺时针方向。
-\end{mydef}
-
-\begin{formula}{格林公式}{Green-formula}
-    设平面上的有界闭区域\(D\)由分段光滑的曲线\(L\)围成，函数\(
-        P(x, y), Q(x, y)\)在\(D\)上有连续的一阶偏导数，则
-        \[
-            \iint\limits_{D} \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right)
-            \mathrm{d} x \mathrm{d} y = 
-            \oint\limits_{L} P \mathrm{d} x + Q \mathrm{d} y 
-        \]
-        或将\(Q\)换成\(P\),\(P\)换成\(-Q\)得到格林公式的另一种形式
-        \[
-            \iint\limits_{D} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y}\right)
-            \mathrm{d} x \mathrm{d} y = 
-            \oint\limits_{L} P \mathrm{d} y - Q \mathrm{d} x 
-        \]
-        其中\(L\)为\(D\)取正向的边界曲线
-        对于复连通区域\(D\)，边界曲线不止一条闭曲线，格林公式中的右端积分应包括沿区域\(D\)的全部边界的曲线积分
-        若\(D\)为复连通区域，则有
-        \[
-            \iint\limits_{D} \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right)
-            \mathrm dx\,\mathrm dy
-            = \oint_{C} (P \mathrm{d} x + Q \mathrm{d} y)
-            + \sum_{i} \oint_{C_i} (P \mathrm{d} x + Q \mathrm{d} y)
-        \]
-        其中\(C\)为\(D\)的正向边界曲线，取逆时针方向，
-        \(C_i\)为区域内的洞的正向边界曲线，取顺时针方向。
-        若\(C_i\)为逆时针方向，则有
-        \[
-            \iint\limits_{D} \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right)
-            \mathrm dx\,\mathrm dy
-            = \oint_{C} (P \mathrm{d} x + Q \mathrm{d} y)
-            - \sum_{i} \oint_{C_i} (P \mathrm{d} x + Q \mathrm{d} y)
-        \]
-        平面上分段光滑闭曲线\(L\)围成的区域\(D\)，则
-        \begin{formula}{平面上分段光滑闭曲线$L$围成的区域$D$的面积公式}{region-formula}
-            \[
-            \frac{1}{2} \oint_{L^{+}} -y \mathrm{d} x + x \mathrm{d} y 
-            \]
-            其中，\(L^{+}\)取正向
-        \end{formula}
-\end{formula}
+若空间区域可写成
+\[
+    \Omega=\{(x,y,z)\mid (x,y)\in D_{xy},\ z_1(x,y)\le z\le z_2(x,y)\},
+\]
+即每条平行于 $z$ 轴的直线穿过 $\Omega$ 是一段，则先对 $z$ 积：
+\[
+    \iiint_\Omega f\,\mathrm dV
+    =\iint_{D_{xy}}\left(\int_{z_1(x,y)}^{z_2(x,y)}f(x,y,z)\,\mathrm dz\right)\mathrm dx\,\mathrm dy .
+\]
+这里 $D_{xy}$ 是 $\Omega$ 在 $xy$ 平面上的投影。若用垂直于 $z$ 轴的平面去截，截面为 $D(z)$，且 $\Omega$ 夹在 $z=\alpha$ 与 $z=\beta$ 之间，则先对 $x,y$ 积：
+\[
+    \iiint_\Omega f\,\mathrm dV
+    =\int_\alpha^\beta\left(\iint_{D(z)}f(x,y,z)\,\mathrm dx\,\mathrm dy\right)\mathrm dz .
+\]
+当 $f$ 只与 $z$ 有关，或截面面积容易求时，后一种写法特别省事：若 $f=f(z)$，内层积分就是 $f(z)$ 乘截面面积 $A(z)$。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-2.4, xmax=2.4, ymin=-1.95, ymax=1.95,
-  xtick={-2,-1,0,1,2}, ytick={-1,0,1},
-  font=\footnotesize,
-]
-\addplot[blue!12, draw=none, domain=0:360, samples=120] ({2*cos(x)},{1.5*sin(x)}) -- cycle;
-\addplot[blue!70,very thick,domain=0:360,samples=120] ({2*cos(x)},{1.5*sin(x)});
-\node at (axis cs:0,0) {$D$};
-\node[font=\scriptsize,blue!70] at (axis cs:0,-1.6) {$L$（取正向·逆时针）};
-\draw[->,red,very thick] (axis cs:0,1.5) -- (axis cs:-0.45,1.44);
-\node[font=\scriptsize,red] at (axis cs:-0.75,1.35) {$+$};
+  axis lines=center, xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=-1.8, xmax=1.8, ymin=-1.8, ymax=1.8, zmin=-1.8, zmax=1.8,
+  view={62}{30}, width=0.72\linewidth, height=7.2cm,
+  ticks=none, font=\footnotesize, clip=false]
+\addplot3[surf, opacity=0.13, draw=blue!35, domain=0:180, y domain=0:360, samples=20, samples y=30, z buffer=sort]
+  ({1.5*sin(x)*cos(y)},{1.5*sin(x)*sin(y)},{1.5*cos(x)});
+\draw[thick, red!70!black] (axis cs:0.5,0.3,-1.382) -- (axis cs:0.5,0.3,1.382);
+\node[font=\scriptsize, red!70!black, anchor=west] at (axis cs:0.55,0.3,0.95) {$z_2(x,y)$};
+\node[font=\scriptsize, red!70!black, anchor=west] at (axis cs:0.55,0.3,-0.95) {$z_1(x,y)$};
+\addplot3[domain=0:360, samples=60, samples y=0, thick, green!45!black] ({1.396*cos(x)},{1.396*sin(x)},{0.55});
+\addplot3[domain=0:360, samples=60, samples y=0, dashed, gray!70, thin] ({1.5*cos(x)},{1.5*sin(x)},{0});
+\node[font=\scriptsize, green!45!black] at (axis cs:0.95,0.75,0.62) {$D(z)$};
+\node[font=\scriptsize, anchor=west] at (axis cs:1.35,0.45,0) {$D_{xy}$};
+\fill[red!70!black] (axis cs:0.5,0.3,0.55) circle[radius=1.5pt];
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 一个球体上的两种切法：红线是固定 $(x,y)$ 的竖条，两端为 $z_1(x,y)$、$z_2(x,y)$；绿圈是高度 $z=0.55$ 处的截面 $D(z)$。前者对应先一后二，后者对应先二后一。}}
 
-\begin{formula}{高斯公式}{Gauss-formula}
-    设\(\Omega\)是空间中的有界闭区域,由分块光滑的曲面\(S\)围成。函数\(
-        P(x, y, z), Q(x, y, z), R(x, y, z)\)在\(\Omega\)上有连续的一阶偏导数.则
-        \[
-            \iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right)
-            \mathrm{d} V =
-            \iint\limits_{S} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x  + R \mathrm{d} x \mathrm{d} y
-        \]
-        或
-        \[
-            \iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right)
-            \mathrm{d} V =
-            \iint\limits_{S} \left(
-                P \cos \alpha + Q \cos \beta + R \cos \gamma
-            \right)\mathrm dS
-        \]
-        这里\(S\)是\(\Omega\)的整个边界的外侧(即取外法向)，\(
-            \cos \alpha, \cos \beta, \cos \gamma
-        \)是\(S\)上点\((x, y ,z)\)处的外法向量的方向余弦。
-        若\(\Omega\)的边界不止一张曲面，高斯公式中的右端积分应包括沿区域\(\Omega\)的全部边界上的曲面积分。
-        若\(\Omega\)的外边界为闭曲面\(\Sigma\),内边界为闭曲面\(\Sigma_1, \dots ,\Sigma_n\),则
-        \[
-            \begin{aligned}
-                &\iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right) \mathrm{d} V\\
-                &= \iint\limits_{\Sigma} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x  + R \mathrm{d} x \mathrm{d} y
-                + \sum_{i} \iint\limits_{\Sigma_i} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x  + R \mathrm{d} x \mathrm{d} y
-            \end{aligned}
-        \]
-        或
-        \[
-            \begin{aligned}
-            &\iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right) \mathrm{d} V\\
-            = &\iint\limits_{\Sigma} \left(P \cos \alpha + Q \cos \beta + R \cos \gamma\right) \mathrm{d} S\\
-            &+ \sum_{i} \iint\limits_{\Sigma_i} \left(P \cos \alpha + Q \cos \beta + R \cos \gamma\right) \mathrm{d} S
-            \end{aligned}
-        \]
-        \begin{formula}{空间分段光滑闭曲面$S$围成的区域$\Omega$的体积公式}{region-formula-space}
-            \[
-            \frac{1}{3} \iint\limits_{S^+} x \mathrm{d} y \mathrm{d} z + y \mathrm{d} z \mathrm{d} x  + z \mathrm{d} x \mathrm{d} y
-            \]
-            其中\(S^{+}\)取外法向
-        \end{formula}
-\end{formula}
+柱坐标就是“极坐标加 $z$”：
+\[
+    x=r\cos\theta,\quad y=r\sin\theta,\quad z=z,
+    \qquad \mathrm dV=r\,\mathrm dr\,\mathrm d\theta\,\mathrm dz .
+\]
+于是
+\[
+    \iiint_\Omega f(x,y,z)\,\mathrm dV
+    =\iiint_{\Omega'} f(r\cos\theta,r\sin\theta,z)\,
+    r\,\mathrm dr\,\mathrm d\theta\,\mathrm dz ,
+\]
+其中 $\Omega'$ 是 $\Omega$ 在 $Or\theta z$ 坐标系中的对应区域。柱坐标适合旋转体、柱体、锥体，以及被积函数含 $x^2+y^2$ 的情形。通常先对 $z$ 积，$z$ 的上下限是两张曲面，再在 $D_{xy}$ 上用极坐标。
+
+球坐标用
+\[
+    x=\rho\sin\varphi\cos\theta,\quad
+    y=\rho\sin\varphi\sin\theta,\quad
+    z=\rho\cos\varphi,
+\]
+其中 $\rho$ 是到原点的距离，$\varphi$ 是与 $z$ 轴正向的夹角（$0\le\varphi\le\pi$），$\theta$ 是 $xy$ 平面内的极角（$0\le\theta<2\pi$）。体积元为
+\[
+    \mathrm dV=\rho^2\sin\varphi\,\mathrm d\rho\,\mathrm d\varphi\,\mathrm d\theta .
+\]
+换成积分就是
+\[
+    \iiint_\Omega f\,\mathrm dV
+    =\iiint_{\Omega'} F(\rho,\theta,\varphi)\,
+    \rho^2\sin\varphi\,\mathrm d\rho\,\mathrm d\varphi\,\mathrm d\theta ,
+\]
+其中 $F(\rho,\theta,\varphi)=f(\rho\sin\varphi\cos\theta,\rho\sin\varphi\sin\theta,\rho\cos\varphi)$。可这样记：$\rho^2\sin\varphi$ 是半径为 $\rho$ 的球面上小块面积放缩到单位球面时的因子，再乘 $\mathrm d\rho$ 就是体积。球体 $\rho\le R$ 对应 $\theta\in[0,2\pi]$、$\varphi\in[0,\pi]$、$\rho\in[0,R]$；锥面 $\varphi=\alpha$ 内部的区域对应 $0\le\varphi\le\alpha$；上半球只需把 $\varphi$ 限制在 $[0,\pi/2]$。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  axis lines=center,
-  xlabel=$x$, ylabel=$y$, zlabel=$z$,
-  xmin=-1, xmax=3.3, ymin=-1, ymax=3.3, zmin=-1, zmax=3.3,
-  view={62}{28}, clip=false, width=9cm, height=7.5cm,
-]
-\draw[gray!65,thin] (axis cs:0,0,0) -- (axis cs:2,0,0);
-\draw[gray!65,thin] (axis cs:0,0,0) -- (axis cs:0,2,0);
-\draw[gray!65,thin] (axis cs:2,0,0) -- (axis cs:2,2,0);
-\draw[gray!65,thin] (axis cs:0,2,0) -- (axis cs:2,2,0);
-\draw[gray!65,thin] (axis cs:0,0,2) -- (axis cs:2,0,2);
-\draw[gray!65,thin] (axis cs:0,0,2) -- (axis cs:0,2,2);
-\draw[gray!65,thin] (axis cs:2,0,2) -- (axis cs:2,2,2);
-\draw[gray!65,thin] (axis cs:0,2,2) -- (axis cs:2,2,2);
-\draw[gray!65,thin] (axis cs:0,0,0) -- (axis cs:0,0,2);
-\draw[gray!65,thin] (axis cs:2,0,0) -- (axis cs:2,0,2);
-\draw[gray!65,thin] (axis cs:2,2,0) -- (axis cs:2,2,2);
-\draw[gray!65,thin] (axis cs:0,2,0) -- (axis cs:0,2,2);
-\draw[->,blue,very thick] (axis cs:1,1,2) -- (axis cs:1,1,3);
-\draw[->,blue,very thick] (axis cs:1,1,0) -- (axis cs:1,1,-0.6);
-\draw[->,blue,very thick] (axis cs:2,1,1) -- (axis cs:3,1,1);
-\draw[->,blue,very thick] (axis cs:0,1,1) -- (axis cs:-0.6,1,1);
-\draw[->,blue,very thick] (axis cs:1,2,1) -- (axis cs:1,3,1);
-\draw[->,blue,very thick] (axis cs:1,0,1) -- (axis cs:1,-0.6,1);
-\node[font=\scriptsize] at (axis cs:1.15,1.05,2.6) {$\mathbf{n}$};
+  axis lines=center, xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=-0.25, xmax=2.35, ymin=-0.25, ymax=2.15, zmin=-0.2, zmax=2.35,
+  view={60}{28}, width=0.72\linewidth, height=7.2cm,
+  ticks=none, font=\footnotesize, clip=false]
+\addplot3[surf, opacity=0.10, draw=blue!35, domain=2:88, y domain=2:88, samples=16, samples y=16]
+  ({2*sin(x)*cos(y)},{2*sin(x)*sin(y)},{2*cos(x)});
+\draw[very thick, blue!70!black] (axis cs:0,0,0) -- (axis cs:1.255,1.053,1.147);
+\draw[dashed, gray!65] (axis cs:0,0,0) -- (axis cs:1.255,1.053,0);
+\draw[dashed, gray!65] (axis cs:1.255,1.053,0) -- (axis cs:1.255,1.053,1.147);
+\addplot3[domain=0:40, samples=40, samples y=0, thick, red!70!black] ({0.9*cos(x)},{0.9*sin(x)},{0});
+\addplot3[domain=0:55, samples=40, samples y=0, thick, red!70!black] ({0.85*sin(x)*cos(40)},{0.85*sin(x)*sin(40)},{0.85*cos(x)});
+\node[font=\scriptsize, anchor=west] at (axis cs:1.30,1.06,1.22) {$P$};
+\node[font=\scriptsize, blue!70!black, anchor=south east] at (axis cs:0.62,0.58,0.62) {$\rho$};
+\node[font=\scriptsize, red!70!black] at (axis cs:0.95,0.28,0) {$\theta$};
+\node[font=\scriptsize, red!70!black, anchor=west] at (axis cs:0.28,0.30,0.78) {$\varphi$};
+\draw[->, thick, green!45!black] (axis cs:1.255,1.053,1.147) -- (axis cs:1.60,1.32,1.47);
+\node[font=\scriptsize, green!45!black, anchor=south west] at (axis cs:1.61,1.33,1.47) {$\mathrm d\rho$};
+\draw[->, thick, orange!80!black] (axis cs:1.255,1.053,1.147) -- (axis cs:1.55,1.28,0.64);
+\node[font=\scriptsize, orange!80!black, anchor=north west] at (axis cs:1.56,1.29,0.63) {$\rho\,\mathrm d\varphi$};
+\draw[->, thick, purple!70!black] (axis cs:1.255,1.053,1.147) -- (axis cs:0.82,1.52,1.147);
+\node[font=\scriptsize, purple!70!black, anchor=east] at (axis cs:0.55,1.58,1.34) {$\rho\sin\varphi\,\mathrm d\theta$};
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 球坐标中的 $P$：$\rho$ 是原点到 $P$ 的距离，$\varphi$ 从 $z$ 轴量起，$\theta$ 在 $xy$ 平面内量起。沿三个方向走微小步长，分别得到 $\mathrm d\rho$、$\rho\,\mathrm d\varphi$、$\rho\sin\varphi\,\mathrm d\theta$，三者相乘即体积元。}}
 
-\begin{formula}{斯托克斯公式}{Stokes-formula}
-    设\(\Gamma\)是空间中的分段光滑闭曲线，S是以\(\Gamma\)为边界的分块光滑曲面，\(\Gamma\)的正向与\(S\)的侧(
-        即法向量的指向
-    )符合右手法则，函数\(
-        P(x, y , z), Q(x, y , z), R(x, y , z)\)在\(S\)上有连续的一阶偏导数，则有
-        \[
-            \begin{aligned}
-                &\iint\limits_{S} \left(\frac{\partial R}{\partial y}
-                - \frac{\partial Q}{\partial z}
-            \right) \mathrm{d} y \mathrm{d} z
-            + \left(\frac{\partial P}{\partial z}
-                - \frac{\partial R}{\partial x}\right) \mathrm{d} z \mathrm{d} x
-            + \left(\frac{\partial Q}{\partial x}
-                - \frac{\partial P}{\partial y}\right) \mathrm{d} x \mathrm{d} y \\
-            & = \oint\limits_{\Gamma} P \mathrm{d} x + Q \mathrm{d} y + R \mathrm{d} z
-            \end{aligned}
-        \]
-    即
-    \[
-    \iint\limits_{S} 
-        \begin{vmatrix}
-            \mathrm{d} y \mathrm{d} z & \mathrm{d} z \mathrm{d} x &  \mathrm{d} x \mathrm{d} y \\
-            \frac{{\partial}}{\partial x} & \frac{{\partial}}{\partial y} & \frac{{\partial}}{\partial z}\\
-            P & Q & R
-        \end{vmatrix} = \oint_{\Gamma} P \mathrm{d} x + Q \mathrm{d} y + R \mathrm{d} z
-    \]
-    或\(
-        \iint\limits_{S} 
-        \left[
-            \left(
-                \frac{\partial R}{\partial y} - \frac{\partial Q}{\partial z}
-            \right) \cos \alpha
-            + \left(
-                \frac{\partial P}{\partial z} - \frac{\partial R}{\partial x}
-            \right) \cos \beta
-            + \left(
-                \frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}
-            \right) \cos \gamma
-        \right] \mathrm{d} S =
-        \oint_{\Gamma} P \mathrm{d} x + Q \mathrm{d} y + R \mathrm{d} z
-    \) \\
-    即
-    \[
-    \iint\limits_{S}\begin{vmatrix}
-        \cos \alpha & \cos \beta & \cos \gamma \\
-        \frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z} \\
-        P & Q & R
-    \end{vmatrix}  \mathrm{d} S
-    = \oint_{\Gamma} P \mathrm{d} x + Q \mathrm{d} y + R \mathrm{d} z
-    \]
-    设\(\Gamma\)为分段光滑的空间有向闭曲线，\(S\)是以\(\Gamma\)为边界的分块光滑曲面。当右手
-    的四指沿\(\Gamma\)的绕行方向时，若拇指所指方向与\(S\)上的法向量方向相同，则
-    称\(\Gamma\)是有向曲面\(S\)的正向边界曲线。
-\end{formula}
+柱坐标与球坐标都是一般换元的特例，雅可比分别为 $r$ 和 $\rho^2\sin\varphi$。换元后不要忘记乘这个因子，这是重积分换元题最常见的失分点。
 
+\subsection{第一类曲线积分与第一类曲面积分}
 
-\begin{conclusion}{格林公式、高斯公式、斯托克斯公式的关系}{Green-Gauss-Stokes}
-    格林公式建立了平面上曲线积分与二重积分的联系；\\
-    高斯公式建立了曲面积分与三重积分的关系；\\
-    斯托克斯公式建立了空间中曲线积分与曲面积分的关系。\\
-    斯托克斯公式与高斯公式退化成二维情形，分别是两种不同形式的格林公式。
-\end{conclusion}
+先看曲线。一根弯成曲线形状的细丝，线密度为 $\rho(x,y,z)$，求质量。沿曲线从一端到另一端依次取分点，把曲线分成 $n$ 小段，第 $i$ 段弧长为 $\Delta s_i$，在段上任取一点 $(\xi_i,\eta_i,\zeta_i)$。小段足够短时密度近似不变，质量约为 $\rho(\xi_i,\eta_i,\zeta_i)\Delta s_i$。令所有小段弧长的最大值趋于零，就得到第一类曲线积分：
+\[
+    \int_L f(x,y,z)\,\mathrm ds
+    =\lim_{\lambda\to0}\sum_{i=1}^{n}f(\xi_i,\eta_i,\zeta_i)\Delta s_i ,
+\]
+其中 $\mathrm ds$ 是弧长元。平面曲线把 $z$ 去掉即可。第一类曲线积分也叫对弧长的曲线积分；$f\equiv1$ 时，$\int_L\mathrm ds$ 就是曲线长度。
 
-\begin{mydef}{向量场的通量与散度}{flux-divergence}
-    \begin{mydef}{通量}{flux}
-        设有向量场\(\mathbf{F}(x, y ,z) = P(x, y ,z)\mathbf{i}
-        + Q(x, y ,z)\mathbf{j}
-        + R(x, y ,z)\mathbf{k}
-        \),则\(\mathbf{F}\)沿分块光滑定向曲面\(S\)的通量为
-        \[
-        \begin{aligned}
-        \iint_{S} \mathbf{F}\cdot \mathbf{n} \mathrm{d} S &=
-        \iint_{S} (P \cos \alpha + Q \cos \beta + R \cos \gamma) \mathrm{d} S \\
-        &= \iint\limits_{S} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x  + R \mathrm{d} x \mathrm{d} y
-        = \iint_{S} \mathbf{F} \cdot \mathrm{d}\mathbf S
-        \end{aligned}
-        \]
-        其中\(
-            \mathbf{n}
-        \)是\(S\)上任意点\((x, y ,z)\)处的单位法向量，\(
-        \mathbf{n} = (
-            \cos \alpha , \cos \beta , \cos \gamma
-        )\)
-    \end{mydef}
+因为 $\Delta s_i$ 是长度，永远为正，所以第一类曲线积分与曲线的方向无关：把 $L$ 反过来走，积分值不变。它还有线性性和对弧段的可加性。正因如此，对称性可以直接照搬重积分的结论：若 $L$ 关于 $x$ 轴对称，$f(x,y)$ 对 $y$ 为奇函数时 $\int_L f\,\mathrm ds=0$，为偶函数时等于上半段的两倍；曲面积分同理，若 $\Sigma$ 关于 $xy$ 平面对称，就看 $f$ 对 $z$ 的奇偶性。
 
-    \begin{mydef}{散度}{divergence}
-        设\(\mathbf{F}(x, y ,z) = (
-            P(x, y ,z), Q(x, y ,z), R(x, y ,z)
-        )\)，在\(\Omega\)有连续的一阶偏导数，则
-        \(
-            \forall M(x, y, z) \in \Omega
-        \),\(
-            \mathbf{F}
-        \)在点\(M\)的散度如下
-        \[
-        \mathrm{div} \mathbf{F} =
-        \frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}
-        \overset{\Delta}{=} \nabla \cdot \mathbf{F}
-        \]
-        其中\(
-        \nabla = \left(\frac{\partial}{\partial x}, \frac{\partial}{\partial y}, \frac{\partial}{\partial z}\right)
-        \),称作梯度算符。\\
-    \end{mydef}
-    \begin{conclusion}{通量与散度的关系}{flux-divergence-relation}
-        高斯公式表述了向量场的散度与通量的关系:设\(\Omega\)是空间中有界闭区域，
-        边界是分块光滑的有向闭曲面\(S\),取外法向，\(
-            \mathbf{F}(x, y ,z) = (
-                P(x, y ,z), Q(x, y ,z), R(x, y ,z)
-            )
-        \)在\(\Omega\)内有连续的一阶偏导数，则
-        \[
-            \iiint\limits_{\Omega}    
-        \mathrm{div} \mathbf{F} \mathrm{d} V 
-            = \iint\limits_{S} \mathbf{F} \cdot \mathbf{n} \mathrm{d} S
-        \]
-    \end{conclusion}
-\end{mydef}
-\begin{mydef}{向量场的环流量与旋度}{circulation-curl}
-    \begin{mydef}{环流量}{circle-flux}
-        设有向量场\(\mathbf{F}(x, y ,z) = P(x, y ,z)\mathbf{i}
-        + Q(x, y ,z)\mathbf{j}
-        + R(x, y ,z)\mathbf{k}
-        \),则\(\mathbf{F}\)沿分段光滑定向闭曲线\(L\)的环流量(
-            或环量
-        )为\[
-        \begin{aligned}
-            \oint_{L} \mathbf{F}\cdot \boldsymbol{\tau} \mathrm{d} s
-            &=\oint_{L} (P \cos \alpha + Q \cos \beta + R \cos \gamma) \mathrm{d} s \\
-            &=
-            \oint_{L} P \mathrm{d} x + Q \mathrm{d} y + R \mathrm{d} z
-            = \oint_{L} \mathbf{F} \cdot \mathrm{d}\mathbf r
-        \end{aligned}
-        \]
-        其中\(\boldsymbol\tau = (
-            \cos \alpha , \cos \beta , \cos \gamma
-        )\)是\(L\)上任意点\((x, y ,z)\)处沿曲线定向的单位切向量(
-            指向曲线方向
-        )
-    \end{mydef}
-    \begin{mydef}{旋度}{circle-divergence}
-        设\(\mathbf{F}(x, y ,z) = (
-            P(x, y ,z), Q(x, y ,z), R(x, y ,z)
-        )\)，在\(\Omega\)有连续的一阶偏导数，则
-        \(
-            \forall M(x, y, z) \in \Omega
-        \),\(
-            \mathbf{F}
-        \)在点\(M\)的旋度如下
-        \[
-        \mathbf{rot} ~ \mathbf{F} =
-        \left(\frac{\partial R}{\partial y} - \frac{\partial Q}{\partial z},
-        \frac{\partial P}{\partial z} - \frac{\partial R}{\partial x},
-        \frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right)
-        \overset{\Delta}{=}
-        \begin{vmatrix}
-            \mathbf{i} & \mathbf{j} & \mathbf{k}\\
-            \frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z}\\
-            P & Q & R
-        \end{vmatrix}
-        \overset{\Delta}{=} \nabla \times \mathbf{F}
-        \]
-    \end{mydef}
-    \begin{conclusion}{环流量与旋度的关系}{circle-flux-divergence-relation}
-        斯托克斯公式表述了向量场的旋度与环流量的关系:即斯托克斯公式可改写为
-        \[
-            \iint_{S} \mathbf{rot} ~ \mathbf{F} \cdot \mathbf{n} \mathrm{d} S = \oint_{\Gamma} \mathbf{F} \cdot \mathrm{d}\mathbf r
-        \]
-        其中\(\boldsymbol\tau\)为曲线\(\Gamma\)沿其定向的单位切向量。
-    \end{conclusion}
-\end{mydef}
+计算靠参数化。若平面曲线由
+\[
+    x=\varphi(t),\qquad y=\psi(t),\qquad \alpha\le t\le\beta
+\]
+给出，且 $\varphi,\psi$ 有连续导数、$(\varphi',\psi')\ne(0,0)$，则
+\[
+    \mathrm ds=\sqrt{\varphi'^2(t)+\psi'^2(t)}\,\mathrm dt ,
+\]
+于是
+\[
+    \int_L f(x,y)\,\mathrm ds
+    =\int_\alpha^\beta f(\varphi(t),\psi(t))
+    \sqrt{\varphi'^2(t)+\psi'^2(t)}\,\mathrm dt .
+\]
+这里积分下限小于上限。若曲线写成 $y=y(x)$，$a\le x\le b$，则 $\mathrm ds=\sqrt{1+y'^2}\,\mathrm dx$；若写成极坐标 $r=r(\theta)$，$\alpha\le\theta\le\beta$，则 $\mathrm ds=\sqrt{r^2+r'^2}\,\mathrm d\theta$。空间曲线再加一项 $z'^2$：
+\[
+    \mathrm ds=\sqrt{x'^2(t)+y'^2(t)+z'^2(t)}\,\mathrm dt .
+\]
 
-\begin{conclusion}{应用格林公式计算曲线积分}{Green-curve}
-    由格林公式\(
-        \int_{L} P \mathrm{d} x + Q \mathrm{d} y = 
-        \iint_{D} \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right) \mathrm{d} x \mathrm{d} y
-    \),若其中之一易算，另一也就求出
-    若平面区域\(D\)夹在外边界\(C\)与内边界\(C_0\)之间，并把两条曲线都取为逆时针方向，则区域的正向边界是\(C-C_0\)。由格林公式得
-    \[
-        \int_C P\,\mathrm dx+Q\,\mathrm dy
-        -\int_{C_0}P\,\mathrm dx+Q\,\mathrm dy
-        =\iint_D\left(\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}\right)\,\mathrm dx\,\mathrm dy.
-    \]
-    于是将求\(
-        \int_{C} P \mathrm{d} x + Q \mathrm{d} y
-    \)转化为求\(
-        \int_{C_0} P \mathrm{d} x + Q \mathrm{d} y
-    \)与\(\iint\limits_{D} \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right) \mathrm{d} x \mathrm{d} y\)
-    若在\(D\)上\(
-        \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right) = 0
-    \),则有
-    \[
-        \int_{C} P \mathrm{d} x + Q \mathrm{d} y = 
-        \int_{C_0} P \mathrm{d} x + Q \mathrm{d} y 
-    \]
-    于是将求\(
-        \int_{C} P \mathrm{d} x + Q \mathrm{d} y
-        \)转化为求\(\int_{C_0} P \mathrm{d} x + Q \mathrm{d} y\) \\
-    应用格林公式计算曲线积分时应注意以下两个条件
-    \begin{enumerate}
-        \item \(L\)必须是封闭曲线，若不封闭，要添加辅助线使之封闭，并保证添加得线的线积分可得。
-        \item \(P(x,y)\)和\(Q(x,y)\)在\(D\)上连续,若存在奇点，则挖去奇点。
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{应用高斯公式计算曲面积分}{Gauss-surface}
-    由高斯公式
-    \[
-        \iint\limits_{S} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y = 
-        \iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right) \mathrm{d} V
-    \]
-    若其中之一易算，另一也就求出
-    若闭曲面\(\Sigma\)与\(\Sigma_0\)围成的区域\(\Omega\),\(\Sigma\)为\(\Omega\)的外边界，\(
-        \Sigma_0
-    \)为\(\Omega\)的内边界，则
-    \[
+\begin{center}
+\begin{tikzpicture}[scale=1.05]
+\draw[->] (-0.1,0) -- (6.6,0) node[right] {$x$};
+\draw[->] (0,-0.1) -- (0,3.3) node[above] {$y$};
+\draw[gray!60] (0.3,0.8)--(1.1,0.98)--(1.9,1.4)--(2.7,2.05)--(3.4,2.4)--(4.4,2.38)--(5.2,1.9)--(6.0,1.7);
+\draw[blue!70, very thick] plot[smooth] coordinates {(0.3,0.8)(1.1,0.98)(1.9,1.4)(2.7,2.05)(3.4,2.4)(4.4,2.38)(5.2,1.9)(6.0,1.7)};
+\foreach \p in {(1.1,0.98),(1.9,1.4),(2.7,2.05),(3.4,2.4),(4.4,2.38),(5.2,1.9)} {\fill \p circle (1.3pt);}
+\fill (0.3,0.8) circle (1.8pt) node[below left,font=\scriptsize]{$A$};
+\fill (6.0,1.7) circle (1.8pt) node[below right,font=\scriptsize]{$B$};
+\draw[<->, red!70!black, thick] (2.75,2.06) .. controls (2.95,2.27) and (3.15,2.38) .. (3.38,2.38);
+\node[font=\scriptsize,red!70!black,anchor=north] at (3.05,2.14) {$\Delta s_i$};
+\fill[green!50!black] (3.0,2.30) circle (1.5pt) node[above,font=\scriptsize]{$(\xi_i,\eta_i)$};
+\draw[->, blue!70, very thick] (1.88,1.39) -- (2.22,1.59);
+\node[font=\scriptsize, blue!70, anchor=south east] at (2.24,1.60) {$L^+$};
+\draw[->] (4.55,0.35) -- (5.45,0.35) node[below,font=\scriptsize]{$\mathrm dx$};
+\draw[->] (5.45,0.35) -- (5.45,0.95) node[right,font=\scriptsize]{$\mathrm dy$};
+\draw[->, blue!70, thick] (4.55,0.35) -- (5.45,0.95) node[midway,below right,font=\scriptsize]{$\mathrm ds$};
+\end{tikzpicture}
+\end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 沿曲线取分点，用第 $i$ 段弧长 $\Delta s_i$ 乘该段上任一点的函数值，再求和。右下角的小三角形说明 $\mathrm ds^2=\mathrm dx^2+\mathrm dy^2$：弧长元是位移的长度，始终为正。}}
+
+曲面积分完全平行。一张曲面薄壳，面密度为 $\mu(x,y,z)$，把曲面 $\Sigma$ 分成小片，第 $i$ 片面积为 $\Delta S_i$，片上取点，质量近似为 $\mu\Delta S_i$，取极限得
+\[
+    \iint_\Sigma f(x,y,z)\,\mathrm dS
+    =\lim_{\lambda\to0}\sum_{i=1}^{n}f(\xi_i,\eta_i,\zeta_i)\Delta S_i .
+\]
+第一类曲面积分也叫对面积的曲面积分，与曲面的侧无关；$f\equiv1$ 时得到曲面面积。
+
+若曲面可写成 $z=z(x,y)$，$(x,y)\in D_{xy}$，且 $z$ 有连续偏导数，则
+\[
+    \iint_\Sigma f(x,y,z)\,\mathrm dS
+    =\iint_{D_{xy}}f(x,y,z(x,y))
+    \sqrt{1+z_x^2+z_y^2}\,\mathrm dx\,\mathrm dy .
+\]
+原因是曲面上的小片投影到 $xy$ 平面后面积缩小，缩小的比例由法向量与 $z$ 轴的夹角 $\gamma$ 决定：
+\[
+    \mathrm dS=\frac{\mathrm d\sigma}{|\cos\gamma|},
+    \qquad
+    |\cos\gamma|=\frac{1}{\sqrt{1+z_x^2+z_y^2}} .
+\]
+投影时要注意三点：被积函数中的 $z$ 要换成曲面方程 $z(x,y)$；面积元要乘 $\sqrt{1+z_x^2+z_y^2}$；积分区域是曲面在 $xy$ 平面上的投影 $D_{xy}$，不是曲面本身。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center, xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=0, xmax=1.5, ymin=0, ymax=1.5, zmin=-0.2, zmax=1.55,
+  view={58}{24}, width=0.7\linewidth, height=6.6cm,
+  ticks=none, font=\footnotesize, domain=0:1.2, y domain=0:1.2,
+  samples=2, samples y=2, z buffer=sort]
+\addplot3[surf, opacity=0.45, shader=flat, fill=blue!14, draw=blue!45] {0.35+0.25*x+0.15*y};
+\fill[red!25, opacity=0.85] (axis cs:0.4,0.4,0.51) -- (axis cs:0.8,0.4,0.61) -- (axis cs:0.8,0.8,0.67) -- (axis cs:0.4,0.8,0.57) -- cycle;
+\draw[red!70!black, thick] (axis cs:0.4,0.4,0.51) -- (axis cs:0.8,0.4,0.61) -- (axis cs:0.8,0.8,0.67) -- (axis cs:0.4,0.8,0.57) -- cycle;
+\fill[green!24, opacity=0.8] (axis cs:0.4,0.4,0) -- (axis cs:0.8,0.4,0) -- (axis cs:0.8,0.8,0) -- (axis cs:0.4,0.8,0) -- cycle;
+\draw[green!45!black, thick, dashed] (axis cs:0.4,0.4,0) -- (axis cs:0.8,0.4,0) -- (axis cs:0.8,0.8,0) -- (axis cs:0.4,0.8,0) -- cycle;
+\draw[gray!60,dashed,thin] (axis cs:0.4,0.4,0) -- (axis cs:0.4,0.4,0.51);
+\draw[gray!60,dashed,thin] (axis cs:0.8,0.4,0) -- (axis cs:0.8,0.4,0.61);
+\draw[gray!60,dashed,thin] (axis cs:0.8,0.8,0) -- (axis cs:0.8,0.8,0.67);
+\draw[gray!60,dashed,thin] (axis cs:0.4,0.8,0) -- (axis cs:0.4,0.8,0.57);
+\draw[->,thick,black!70] (axis cs:0.6,0.6,0.59) -- (axis cs:0.48,0.53,1.07);
+\node[font=\scriptsize,anchor=east] at (axis cs:0.46,0.51,1.08) {$\mathbf n$};
+\node[font=\scriptsize,red!70!black] at (axis cs:0.62,0.62,0.78) {$\mathrm dS$};
+\node[font=\scriptsize,green!40!black] at (axis cs:0.95,0.85,-0.08) {$\mathrm d\sigma$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 曲面上的小片（红）沿竖直方向投影到 $xy$ 平面，得到 $D_{xy}$ 中的小片（绿）。倾斜使曲面面积变大，$\mathrm dS=\mathrm d\sigma/|\cos\gamma|$；$\gamma$ 是法向量与 $z$ 轴的夹角。}}
+
+若曲面是 $x=x(y,z)$ 或 $y=y(z,x)$，把公式中的 $z_x,z_y$ 换成相应的偏导数，投影到 $yz$ 或 $zx$ 平面即可。选择投影平面时，避开法向量与坐标轴垂直的情形，否则 $\cos\gamma=0$、公式失效，应换一个平面投影。还有一条常用技巧：既然积分点都在曲面 $\Sigma$ 上，就可以用曲面方程改写被积函数。例如在球面 $x^2+y^2+z^2=R^2$ 上，$x^2+y^2$ 可以换成 $R^2-z^2$，往往能直接消去根式。
+\subsection{第二类曲线积分与第二类曲面积分}
+
+第一类积分只关心“长度”，第二类积分还要关心“方向”。最典型的背景是做功：质点受力 $\mathbf F=(P,Q)$ 沿曲线 $L$ 从 $A$ 移到 $B$，在一小段位移 $\Delta\mathbf r=(\Delta x,\Delta y)$ 上，力做的功近似为
+\[
+    \mathbf F\cdot\Delta\mathbf r=P\,\Delta x+Q\,\Delta y .
+\]
+把所有小段加起来取极限，就得到第二类曲线积分
+\[
+    \int_L P(x,y)\,\mathrm dx+Q(x,y)\,\mathrm dy
+    =\lim_{\lambda\to0}\sum_{i=1}^{n}
+    \left[P(\xi_i,\eta_i)\Delta x_i+Q(\xi_i,\eta_i)\Delta y_i\right].
+\]
+这里 $\Delta x_i=x_i-x_{i-1}$、$\Delta y_i=y_i-y_{i-1}$ 是分点坐标的差，可正可负，所以积分与曲线的方向有关。把 $L$ 反向记为 $L^-$，则
+\[
+    \int_{L^-}P\,\mathrm dx+Q\,\mathrm dy
+    =-\int_L P\,\mathrm dx+Q\,\mathrm dy .
+\]
+第一类曲线积分没有这个负号。
+
+若曲线由 $x=\varphi(t)$、$y=\psi(t)$ 给出，$t=\alpha$ 对应起点、$t=\beta$ 对应终点（$\alpha$ 不一定小于 $\beta$），则
+\[
+    \int_L P\,\mathrm dx+Q\,\mathrm dy
+    =\int_\alpha^\beta
+    \left[P(\varphi(t),\psi(t))\varphi'(t)
+    +Q(\varphi(t),\psi(t))\psi'(t)\right]\mathrm dt .
+\]
+空间曲线再加 $R\,\mathrm dz$ 项。由于方向已经由 $t$ 的起止值体现，这里不再要求下限小于上限，这是与第一类积分计算最大的区别。
+
+第二类曲线积分还可以写成第一类积分。设 $(\cos\alpha,\cos\beta)$ 是曲线沿定向的单位切向量，则 $\mathrm dx=\cos\alpha\,\mathrm ds$、$\mathrm dy=\cos\beta\,\mathrm ds$，于是
+\[
+    \int_L P\,\mathrm dx+Q\,\mathrm dy
+    =\int_L(P\cos\alpha+Q\cos\beta)\,\mathrm ds
+    =\int_L\mathbf F\cdot\boldsymbol\tau\,\mathrm ds .
+\]
+这就是“力乘位移”的向量形式。
+
+\begin{center}
+\begin{tikzpicture}[scale=1.05]
+\draw[->] (-0.1,0) -- (6.8,0) node[right] {$x$};
+\draw[->] (0,-0.1) -- (0,3.5) node[above] {$y$};
+\draw[blue!70,very thick] plot[smooth] coordinates {(0.4,0.7)(1.2,0.95)(2.0,1.3)(2.9,1.9)(3.9,2.45)(5.0,2.55)(6.2,2.2)};
+\fill (0.4,0.7) circle(1.8pt) node[below left,font=\scriptsize]{$A$};
+\fill (6.2,2.2) circle(1.8pt) node[right,font=\scriptsize]{$B$};
+\draw[->,blue!70,very thick] (1.50,1.09) -- (1.86,1.27);
+\node[font=\scriptsize,blue!70,anchor=north west] at (1.62,1.08) {$L^+$};
+\foreach \x/\y in {1.0/0.78, 2.0/1.10, 3.4/1.95, 4.6/2.45, 5.4/2.35} {
+  \draw[->,green!45!black,thick] (\x,\y) -- (\x+0.30,\y+0.34);
+}
+\node[font=\scriptsize,green!40!black] at (4.1,3.05) {$\mathbf F$};
+\draw[->,red!70!black,thick] (2.9,1.9) -- (3.7,2.34) node[midway,above left,font=\scriptsize]{$\mathrm d\mathbf r$};
+\draw[dashed,gray] (3.7,2.34) -- (3.7,1.9);
+\draw[dashed,gray] (2.9,1.9) -- (3.7,1.9);
+\node[font=\scriptsize] at (3.35,1.76) {$\mathrm dx$};
+\node[font=\scriptsize,anchor=west] at (3.73,2.12) {$\mathrm dy$};
+\draw[->,purple!70!black,thick] (2.9,1.9) -- (2.35,2.72) node[above,font=\scriptsize]{$\mathbf F$};
+\end{tikzpicture}
+\end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 沿 $L^+$ 走，位移 $\mathrm d\mathbf r$ 分解为 $\mathrm dx$ 与 $\mathrm dy$；功的微元是 $\mathbf F\cdot\mathrm d\mathbf r=P\,\mathrm dx+Q\,\mathrm dy$。把方向反过来，$\mathrm dx,\mathrm dy$ 同时变号，积分变号。}}
+
+曲面积分的第二类来自“通量”。流体以速度 $\mathbf v=(P,Q,R)$ 流动，穿过一块定向曲面小片 $\Delta S$ 的体积流量，等于速度在法向的投影乘以面积：$\mathbf v\cdot\mathbf n\,\Delta S$。把所有小片加起来，就得到第二类曲面积分
+\[
     \begin{aligned}
-    \iint\limits_{\Sigma} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y = 
-        \iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right) \mathrm{d} V \\
-        + \iint\limits_{\Sigma_0} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y
+    \iint_\Sigma &P\,\mathrm dy\,\mathrm dz
+    +Q\,\mathrm dz\,\mathrm dx
+    +R\,\mathrm dx\,\mathrm dy\\
+    &=\lim_{\lambda\to0}\sum_{i=1}^{n}
+    \Bigl[P(\xi_i,\eta_i,\zeta_i)(\Delta S_i)_{yz}
+    +Q(\xi_i,\eta_i,\zeta_i)(\Delta S_i)_{zx}\\
+    &\qquad\qquad\qquad
+    +R(\xi_i,\eta_i,\zeta_i)(\Delta S_i)_{xy}\Bigr].
     \end{aligned}
-    \]
-    其中\(\Sigma\)的法向指向\(\Omega\)的外部，\(\Sigma_0\)的法向指向\(\Omega\)的内部。
-    于是将求\(\iint\limits_{\Sigma} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y\)转化为求
-    \(\iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right) \mathrm{d} V\)
-    与\(
-    \iint\limits_{\Sigma_0} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y
-    \)
-    若在\(\Omega\)上\(
-        \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right) \equiv 0
-    \),则有
-    \[
-        \iint\limits_{\Sigma} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y = 
-        \iint\limits_{\Sigma_0} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y
-    \]
-\end{conclusion}
+\]
+$(\Delta S_i)_{yz}$ 等是曲面小片在三个坐标平面上的有向投影面积：法向量与相应坐标轴正向成锐角时为正，成钝角时为负。它不是一个永远为正的面积。
 
-\begin{conclusion}{应用斯托克斯公式计算曲线积分}{Stokes-curve}
-    常用斯托克斯公式来简化某些空间曲线积分的计算。
-\end{conclusion}
+因此第二类曲面积分必须指定曲面的“侧”。双侧曲面用单位法向量 $\mathbf n=(\cos\alpha,\cos\beta,\cos\gamma)$ 表示定向；封闭曲面通常取外法向（外侧），非封闭曲面用“上侧/下侧”“前侧/后侧”描述。换到另一侧，三个投影同时变号，积分变号。
 
-\begin{mydef}{曲线积分与路径无关问题}{path-independent}
-    若\(D\)是一个平面区域，若对\(D\)内任意两点\(A, B\)及\(D\)内从
-    \(A\)点到\(B\)的任意两条分段光滑曲线\(L_1, L_2\),有
-    \[
-        \int_{L_1} P \mathrm{d} x + Q \mathrm{d} y = \int_{L_2} P \mathrm{d} x + Q \mathrm{d} y
-    \]
-    恒成立，则称此\(
-    \int_{L} P \mathrm{d} x + Q \mathrm{d} y
-    \)与路径无关。
-\end{mydef}
+计算时把曲面投影到坐标平面。若 $\Sigma$ 为 $z=z(x,y)$，$(x,y)\in D_{xy}$，则
+\[
+    \iint_\Sigma R(x,y,z)\,\mathrm dx\,\mathrm dy
+    =\pm\iint_{D_{xy}}R(x,y,z(x,y))\,\mathrm dx\,\mathrm dy ,
+\]
+上侧（$\cos\gamma>0$）取正号，下侧（$\cos\gamma<0$）取负号。同理，$\Sigma$ 写成 $x=x(y,z)$ 时投影到 $yz$ 平面算 $P\,\mathrm dy\,\mathrm dz$，写成 $y=y(z,x)$ 时投影到 $zx$ 平面算 $Q\,\mathrm dz\,\mathrm dx$。三项合起来，若用 $z=z(x,y)$ 且取上侧，则
+\[
+    \iint_\Sigma P\,\mathrm dy\,\mathrm dz+Q\,\mathrm dz\,\mathrm dx+R\,\mathrm dx\,\mathrm dy
+    =\iint_{D_{xy}}
+    \left[-P\,z_x-Q\,z_y+R\right]\mathrm dx\,\mathrm dy ,
+\]
+被积函数中的 $x,y,z$ 都要用 $z=z(x,y)$ 代换；取下侧时整体加负号。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-0.1, xmax=2.35, ymin=-0.4, ymax=2.35,
-  xtick={0,1,2}, ytick={0,1,2},
-  legend pos=south east, font=\footnotesize,
-  domain=0:1, samples=100,
-]
-\addplot[blue!70,ultra thick] ({2*x},{2*x^2});
-\addlegendentry{$L_1:\;y=\frac{x^2}{2}$}
-\addplot[red!70,ultra thick] ({2*x},{2*sqrt(x)});
-\addlegendentry{$L_2:\;y=\sqrt{2x}$}
-\fill (axis cs:0,0) circle (2pt);
-\fill (axis cs:2,2) circle (2pt);
-\node[below left,font=\scriptsize] at (axis cs:0,0) {$A$};
-\node[above right,font=\scriptsize] at (axis cs:2,2) {$B$};
-\node[font=\scriptsize,blue!70,anchor=west] at (axis cs:1.58,1.28){$L_1$};
-\node[font=\scriptsize,red!70,anchor=west] at (axis cs:1.58,1.78){$L_2$};
-\draw[->,blue!70,thick] (axis cs:1.0,0.50) -- (axis cs:1.14,0.66);
-\draw[->,red!70,thick] (axis cs:1.0,1.414) -- (axis cs:1.14,1.51);
+  axis lines=center, xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=0, xmax=1.5, ymin=0, ymax=1.5, zmin=-0.15, zmax=1.6,
+  view={58}{24}, width=0.7\linewidth, height=6.8cm,
+  ticks=none, font=\footnotesize, domain=0:1.4, y domain=0:1.4,
+  samples=2, samples y=2, z buffer=sort]
+\addplot3[surf, opacity=0.5, shader=flat, fill=blue!18, draw=blue!45] {0.45+0.2*x+0.1*y};
+\fill[red!22, opacity=0.85] (axis cs:0.35,0.35,0.555) -- (axis cs:0.85,0.35,0.655) -- (axis cs:0.85,0.85,0.705) -- (axis cs:0.35,0.85,0.605) -- cycle;
+\draw[red!70!black, thick] (axis cs:0.35,0.35,0.555) -- (axis cs:0.85,0.35,0.655) -- (axis cs:0.85,0.85,0.705) -- (axis cs:0.35,0.85,0.605) -- cycle;
+\fill[green!24, opacity=0.75] (axis cs:0.35,0.35,0) -- (axis cs:0.85,0.35,0) -- (axis cs:0.85,0.85,0) -- (axis cs:0.35,0.85,0) -- cycle;
+\draw[green!45!black, dashed, thick] (axis cs:0.35,0.35,0) -- (axis cs:0.85,0.35,0) -- (axis cs:0.85,0.85,0) -- (axis cs:0.35,0.85,0) -- cycle;
+\draw[->,blue!70!black,very thick] (axis cs:0.6,0.6,0.63) -- (axis cs:0.455,0.528,1.35);
+\node[font=\scriptsize,anchor=east] at (axis cs:0.44,0.51,1.36) {$\mathbf n$};
+\draw[->,green!45!black,thick] (axis cs:0.45,0.45,0.20) -- (axis cs:0.45,0.45,1.10);
+\draw[->,green!45!black,thick] (axis cs:0.60,0.70,0.20) -- (axis cs:0.60,0.70,1.10);
+\draw[->,green!45!black,thick] (axis cs:0.78,0.50,0.20) -- (axis cs:0.78,0.50,1.10);
+\node[font=\scriptsize,green!40!black,anchor=east] at (axis cs:0.32,0.40,0.92) {$\mathbf F$};
+\node[font=\scriptsize,red!70!black] at (axis cs:0.62,0.63,0.82) {$\Sigma$};
+\node[font=\scriptsize,green!40!black,anchor=west] at (axis cs:1.10,0.95,0) {$D_{xy}$};
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 从 $A(0,0)$ 到 $B(2,2)$ 有两条不同的路径：$L_1$（蓝，抛物线 $y=\frac{x^2}{2}$）与 $L_2$（红，曲线 $y=\sqrt{2x}$）。若沿这两条路径的曲线积分 $\int_L P\mathrm{d}x+Q\mathrm{d}y$ 恒相等，则称该积分与路径无关。}}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 速度场 $\mathbf F$ 穿过定向曲面 $\Sigma$。通量微元是 $\mathbf F\cdot\mathbf n\,\mathrm dS$；投影到 $xy$ 平面后，$\mathrm dx\,\mathrm dy$ 是带符号的投影面积，取上侧为正、下侧为负。}}
 
-\begin{mydef}{微分式的原函数问题}{indefinite-integral}
-    若在区域\(D\)内\(\exists\)存在函数\(u(x, y)\)，使得\(
-        \mathrm{d} u = P \mathrm{d} x + Q \mathrm{d} y
-    \),则称\(
-        u(x, y)
-    \)是\(
-        P \mathrm{d} x + Q \mathrm{d} y
-    \)在区域\(D\)的原函数
-    关于原函数，有如下结论
-    \begin{enumerate}
-        \item 设\(u(x, y)\)是\(
-            P \mathrm{d} x + Q \mathrm{d} y
-        \)的原函数，则\(
-            P \mathrm{d} x + Q \mathrm{d} y 
-        \)的全体原函数为\(
-            u(x, y) + C
-        \),其中\(C\)为\(\forall\)常数。
-        \item 设\(P(x,y)\)和\(Q(x,y)\)在区域\(D\)内连续，则
-        \[
-            \mathrm{d} u = P \mathrm{d} x + Q \mathrm{d} y(
-                (x,y) \in D
-            ) \leftrightarrow \frac{\partial u}{\partial x} = P, \frac{\partial u}{\partial y} = Q(
-                (x,y) \in D
-            )
-        \]
-    \end{enumerate}
-\end{mydef}
-
-\begin{conclusion}{$\int_{L}P(x,y)dx+Q(x,y)dy$与路径无关时的特征}{path-independent-feature}
-    设\(P(x, y)\)和\(Q(x, y)\)在区域\(D\)内连续，若曲线积分\(\int_{L}P(x,y)dx+Q(x,y)dy\)与路径无关，则 \\
-    \(
-        \Leftrightarrow
-    \)对\(D\)内任意分段光滑曲线\(C\)，有
-    \(
-        \oint_{C} P(x,y)dx+Q(x,y)dy = 0 
-    \) \\
-    \(
-    \Leftrightarrow
-    \)在\(D\)内存在函数\(
-        u = u(x, y),
-    \)使得\(
-        \mathrm{d} u(x, y) = P \mathrm{d} x + Q \mathrm{d} y
-    (
-        \frac{\partial u}{\partial x} = P, \frac{\partial u}{\partial y} = Q
-        )
-    \)\\
-    此时\(u(x, y) = \int^{(x, y)}_{(x_0, y_0)} P \mathrm{d} x + Q \mathrm{d} y + C
-    \),其中\(C\)为任意常数
-    \newline
-    \newline
-    设\(P(x, y), Q(x, y)\)在区域\(D\)内有连续的一阶偏导数
-    \begin{enumerate}
-        \item 若\(\int_{L} P \mathrm{d} x + Q \mathrm{d} y\)与路径无关，则\(
-            \frac{\partial Q}{\partial x} = \frac{\partial P}{\partial y}(
-                (x, y) \in D
-            )
-        \)
-        \item 若\(D\)是单连通区域,又\(
-            \frac{\partial Q}{\partial x} = \frac{\partial P}{\partial y}(
-                (x, y) \in D
-            )
-        \),则\(
-            \int_{L} P \mathrm{d} x + Q \mathrm{d} y
-        \)在\(D\)内与路径无关。
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{如何判断曲线积分$\int_{L}P(x,y)dx+Q(x,y)dy$与路径无关}{path-independent-feature-judgement}
-    假设\(P(x, y), Q(x, y)\)在区域\(D\)连续或有连续的一阶偏导数
-    \begin{enumerate}
-        \item 判断曲线积分与路径有关（否定路径无关）
-        \begin{enumerate}
-            \item 存在分段光滑闭曲线\(C\subset D\)，使\(\oint_C P\,\mathrm dx+Q\,\mathrm dy\neq0\)
-            \item \(
-                \exists (x, y) \in D, \frac{\partial Q}{\partial x} \neq \frac{\partial P}{\partial y}
-            \)
-        \end{enumerate}
-        \item 判断曲线积分与路径无关
-        \begin{enumerate}
-            \item 求得\(u(x, y)\)使得\(
-                \mathrm{d} u = P(x, y) \mathrm{d} x + Q(x, y) \mathrm{d} y(
-                    \forall (x, y) \in D
-                )
-            \)
-            \item 若\(D\)是单连通区域,又\(
-                \frac{\partial Q}{\partial x} = \frac{\partial P}{\partial y}(
-                    (x, y) \in D
-                )
-            \),则\(
-                \int_{L} P \mathrm{d} x + Q \mathrm{d} y
-            \)在\(D\)内与路径无关。
-            \item 若\(D=D_0\setminus\{M_0\}\)，其中\(D_0\)单连通，且在\(D\)内有\(Q_x=P_y\)，仍不能直接断言路径无关。还需检验一条绕孔洞一周的闭曲线\(C_0\)：只有当\(\oint_{C_0}P\,\mathrm dx+Q\,\mathrm dy=0\)时，才可进一步推出所有闭路积分为零；若该积分非零，则积分与路径有关。
-        \end{enumerate}
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{积分与路径无关时求$I = \int_{L}P(x,y)dx+Q(x,y)dy$}{path-independent-integral}
-    设\(P(x, y), Q(x, y)\)在区域\(D\)内连续，又设积分\(\int_{L} P \mathrm{d} x + Q \mathrm{d} y\)与路径无关，则
-    可按如下方法求曲线积分\(
-        I = \int_{\overset{\frown}{AB}} P \mathrm{d} x + Q \mathrm{d} y\quad (
-            A, B \in D
-        )
-    \)
-    \begin{enumerate}
-        \item 此时一定\(
-            \exists u(x, y)
-        \)使得\(
-            \mathrm{d} u = P \mathrm{d} x + Q \mathrm{d} y(
-                \forall (x, y) \in D
-            )
-        \),若求得这种\(u\),则
-        \[
-            I = \int_{\overset{\frown}{AB}} P \mathrm{d} x + Q \mathrm{d} y = 
-            u(x, y)|_{A}^{B} = 
-            u(B) - u(A)
-        \]
-        \item 选取特殊的路径代替\(
-            \overset{\frown}{AB}
-        \)
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{积分与路径无关时求原函数}{path-independent-indefinite}
-    设\(P(x, y), Q(x, y)\)在区域\(D\)内连续，判断\(
-        P \mathrm{d} x + Q \mathrm{d} y
-    \)在\(D\)是否存在原函数等同于判断\(
-        \int_{L} P \mathrm{d} x + Q \mathrm{d} y
-    \)在\(D\)是否与路径无关，可用以下方法求原函数
-    \begin{enumerate}
-        \item 不定积分法 \\
-        由\(
-            \frac{\partial u}{\partial x} = P(x, y)
-        \),对\(x\)积分得\(
-            u = \int P(x, y) \mathrm{d} x + C(y)
-        \),由\(
-            \frac{\partial u}{\partial y} = Q(x, y)
-            = \frac{\partial}{\partial y} (\int P(x, y) \mathrm{d} x) + C'(y) = Q(x, y)
-        \)，求出\(C'(y)\),再求\(C(y)\)即可。 \\
-        \item 特殊路径积分法，若在单连通区域\(D\)内\(
-            \frac{\partial P}{\partial y} = \frac{\partial Q}{\partial x}
-        \),则积分与路径无关 \\
-        于是\(u(x, y) = \int_{(x_0 , y_0)}^{x, y} P \mathrm{d} x + Q \mathrm{d} y\)
-        即为原函数。\((x_0 , y_0)\)是\(D\)中的定点。\(
-        (x, y)\)是\(D\)中的动点,适当选取从\(
-            (x_0, y_0)
-        \)到\((x, y)\)的路径来求这个积分，若在非单连通区域内\(
-            \frac{\partial P}{\partial y} = \frac{\partial Q}{\partial x}\)
-            则不能保证积分与路径无关，仍可取特殊路径求出\(
-            u(x, y) = \int_{(x_0 , y_0)}^{x, y} P \mathrm{d} x + Q \mathrm{d} y
-            \)，但仍需进一步验证,若\(
-                \frac{\partial u}{\partial x} = P(x, y)\)和\(
-                \frac{\partial u}{\partial y} = Q(x, y)\)在\(D\)成立
-            则\(u(x, y)\)就是\(
-                P \mathrm{d} x + Q \mathrm{d} y
-            \)在\(D\)上的一个原函数，否则\(
-                P \mathrm{d} x + Q \mathrm{d} y
-            \)在\(D\)就不\(\exists\)原函数
-        \item 观察法(凑微分法)
-    \end{enumerate}
-\end{conclusion}
-\subsection{多元函数积分的几何应用}
-\begin{conclusion}{空间图形的体积}{space-volume}
-    平行截面为已知的体积和旋转体的体积可化为定积分来计算
-    对于柱形长条区域的体积
-    \begin{enumerate}
-        \item 设\(z = z_1(x, y), z = z_2(x, y)\)在有界闭区域\(D\)上连续，\(z_1(x, y) \leq z_2(x, y)\)，\(\Omega\)是由
-        曲面\(z = z_1(x, y)\)和\(z = z_2(x, y)\)所围成的空间区域及以\(D\)的边界为准线，母线平行于\(z\)轴的柱面所围成的空间区域(可称为柱形长条区域),则
-        \(\Omega\)的体积为
-        \[
-            V = \iiint\limits_{\Omega} \mathrm{d} V  = 
-            \iint\limits_{D} \left(\int_{z_1(x,y)}^{z_2(x,y)}\mathrm dz\right) \mathrm{d} x \mathrm{d} y
-            = \iint\limits_{D} [z_2(x, y) - z_1(x, y)] \mathrm{d} x \mathrm{d} y
-        \]
-        \item 特别地，\(z_1(x, y) = 0, z_2(x, y) = f(x, y)\)，得曲顶柱体的体积
-        为\[
-            V = \iint\limits_{D} f(x, y) \mathrm{d} x \mathrm{d} y
-        \]
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{一般曲面的面积}{surface-area}
-    设空间某平面图形的面积为\(A\)，该平面图形在\(xy\)平面上的投影为\(\sigma\),则
-    \[
-        A = \frac{\sigma}{|\cos \gamma|}
-    \]
-    其中\(\gamma\)法向量\(\mathbf{n}\)与\(z\)轴正向的夹角。
-    \begin{enumerate}
-        \item 设曲面\(S\)由方程\(z = f(x, y), (x, y) \in D\)给出，则\(D\)为\(S\)在\(xy\)平面上的投影区域，则
-        \(f(x, y)\)在有界闭区域\(D\)由连续的偏导数\(f'(x), f'(y)\),\(S\)上任意点处的单位法向量\(\mathbf{n} =
-        (\cos \alpha, \cos \beta, \cos \gamma) = \pm 
-        \dfrac{1}{\sqrt{1 + f'(x)^2 + f'(y)^2}}(
-            -f'(x), -f'(y), 1
-        )\)则\(S\)的面积为
-        \[
-            A = 
-            \iint\limits_{D} \frac{\mathrm{d} \sigma}{\cos \gamma} = 
-            \iint\limits_{D} \sqrt{1 + f'(x)^2 + f'(y)^2} \mathrm{d} x \mathrm{d} y
-        \]
-        \item 若曲面\(S\)的方程为\((x = g(y, z), (y, z) \in D_{yz})\)或\(
-            (y = h(x, z), (x, z) \in D_{xz})
-        \),则可得类似的计算公式
-        \item 柱面被曲面部分所得面积：设有\(Oxy\)平面上的光滑曲线\(L\),以\(L\)为准线，母线平行于\(z\)轴作柱面，此柱面
-        在\(xy\)平面与连续曲面\(z = f(x, y)(\geq 0)\)之间的部分的面积为\(
-        A = \int_{L} f(x, y) \mathrm{d} s
-        \)
-    \end{enumerate}
-\end{conclusion}
-
-\subsection{多元函数积分的物理应用}
-
-\begin{conclusion}{解决物理问题的步骤}{physics-integral}
-    \begin{enumerate}
-        \item 首先知道\(n\)个质点组的质量,质心，惯动惯量,对质点的引力等
-        \item 把相应的物体分割,近似看成\(n\)个质点组成的质点系，求出这些量的近似值
-        \item 无限细分，令\(n \to \infty\),就得到这些量相应的积分表示
-    \end{enumerate}
-    以上步骤可用微元法代替
-\end{conclusion}
-\begin{mydef}{质量、质心、形心与转动惯量}{mass-center-moment}
-    \begin{enumerate}
-        \item 质量：在空间直角坐标系\(Oxyz\)中，\(n\)个质点组成的质点组\(M_i(x_i, y_i, z_i)\)的质量为\(m_i\),则
-        \begin{enumerate}
-            \item 质心\(
-                (\bar{x}, \bar{y}, \bar{z})
-                = \dfrac{
-                    m_x, m_y, m_z
-                }{M}
-                =
-                \dfrac{
-                (
-                    \sum_{i}^{n} m_i x_i, \sum_{i}^{n} m_i y_i, \sum_{i}^{n} m_i z_i
-                )
-                }
-                {\sum_{i}^{n} m_i}
-            \)
-            \item 关于直线\(L\)与点\(P\)的转动惯量分别为\(
-                I_L = \sum_{i}^{n} r_i^2 m_i,
-                I_P = \sum_{i}^{n} d_i^2 m_i
-            \),其中\(
-                r_i, d_i
-            \)分别是点\(M_i\)到直线\(L\)与点\(P\)的距离
-        \end{enumerate}
-        \item 在空间直角坐标系\(Oxyz\)中，物体占据空间区域\(\Omega\)，体密度\(
-        \rho(x, y ,z)\),则
-        \begin{enumerate}
-            \item 质量：\(
-                M = \iiint\limits_{\Omega} \rho(x, y, z) \mathrm{d} V
-            \)
-            \item 质心
-            \(
-            (\bar{x}, \bar{y}, \bar{z}) =
-            \dfrac{
-            \iiint\limits_{\Omega} x \rho(x, y, z) \mathrm{d} V,
-            \iiint\limits_{\Omega} y \rho(x, y, z) \mathrm{d} V,
-            \iiint\limits_{\Omega} z \rho(x, y, z) \mathrm{d} V
-            }{
-                \iiint\limits_{\Omega} \rho \mathrm{d} V
-            }
-            \)
-            \(
-                \bar{x}, \bar{y}, \bar{z}
-            \)也叫作空间区域\(\Omega\)的形心
-            \item 关于\(x, y, z\)轴及原点的转动惯量分别为
-            \[
-                \begin{aligned}
-                &I_x = \iiint\limits_{\Omega} (y^2 + z^2) \rho(x, y, z) \mathrm{d} V,
-                I_y = \iiint\limits_{\Omega} (x^2 + z^2) \rho(x, y, z) \mathrm{d} V, \\
-                &I_z = \iiint\limits_{\Omega} (x^2 + y^2) \rho(x, y, z) \mathrm{d} V,
-                I_o = \iiint\limits_{\Omega} (x^2 + y^2 + z^2) \rho(x, y, z) \mathrm{d} V
-                \end{aligned}
-            \]
-        \end{enumerate}
-    \end{enumerate}
-\end{mydef}
-
-\begin{conclusion}{引力计算}{gravity-integral}
-    \begin{enumerate}
-        \item 质点\(M_0(x_0, y_0, z_0), M_i(x_i, y_i, z_i)\)的质量分别为\(m_0, m_i\),则质点\(M_i\) 
-        对\(M_0\)的引力为
-        \[
-            F = \frac{km_0m_i}{r_i^3} r_i
-        \]
-        其中\(k\)为引力常数，\(r_i = \overrightarrow{M_0 M_i}
-        = (x_i - x_0, y_i - y_0, z_i - z_0)\),\\
-        \[
-            r_i = |r_i| = \sqrt{(x_i - x_0)^2 + (y_i - y_0)^2 + (z_i - z_0)^2}
-        \]
-        \item 空间曲线\(L\)对外点\(M_0(x_0, y_0, z_0)\)处质量为\(m_0\)的质点的引力为
-        \[
-            F = \int_{L} km_0\rho(x, y, z) \frac{1}{r^3}(
-                x - x_0, y - y_0, z - z_0
-            ) \mathrm{d} s
-        \]
-        其中\(\rho(x, y, z)\)为曲线\(L\)的线密度，
-        \item 空间曲线或空间区域对外一点有类似的计算公式
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{功的计算}{work-integral}
-    \begin{enumerate}
-        \item 点\(M\)在常力\(
-            F = (P, Q. R)
-        \)作用下由\(
-            A(x_A, y_A, z_A)
-        \)沿直线运动到\(B(x_B, y_B, z_B)\),则力\(F\)做的功为
-        \[  
-            W = \mathbf{F} \cdot \overrightarrow{\text{AB}} = 
-            = P(x_B - x_A) + Q(y_B - y_A) + R(z_B - z_A)
-        \]
-        \item 点\(M\)在变力\(
-            \mathbf{F}(x, y, z) = (P(x, y, z), Q(x, y, z), R(x, y, z))
-            \)作用下由A沿直线运动到B,则力\(F\)做的功为
-            \[
-                W = \int_{\overset{\frown}{AB}} P(x, y, z) \mathrm{d} x + Q(x, y, z) \mathrm{d} y + R(x, y, z) \mathrm{d} z
-            \]
-        \item 质点\(\mathbf{M}\)在平面力\(
-            \mathbf{F}(x, y) = (
-                P(x, y), Q(x, y)
-            )
-        \)的作用下由\(A\)点沿平面曲线\(L\)运动到B,则力\(\mathbf{F}\)做的功为
-        \[
-            W = \int_{\overset{\frown}{AB}} P(x, y) \mathrm{d} x + Q(x, y) \mathrm{d} y
-        \]
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{流量计算}{flow-integral}
-    \begin{enumerate}
-        \item 流体在空间流动，流速\(\mathbf{v}\)为常向量,则单位时间内通过定向平面上区域\(D\)的流体体积(即体积流量，简称流量)为
-        \[
-            q=\mathbf v\cdot\mathbf n\,S=|\mathbf v|\cos\theta\,S
-        \]
-        其中\(\mathbf{n}\)为定向平面的法向量，\(\theta\)是\(
-            \mathbf{v}
-        \)与\(
-            \mathbf{n}
-        \)的夹角，\(S\)是\(D\)的面积。这里\(q\)是有向通量，可能为负；若求无向的“通过量”，应按题意取绝对值或分区积分。
-        \item 流体在空间流动，流速为
-        \[
-            \begin{aligned}
-                q &= \iint\limits_{S} \mathbf{v} \cdot \mathbf{n} \mathrm{d} S
-                = \iint\limits_{S} (P \cos \alpha + Q \cos \beta + R \cos \gamma) \mathrm{d} S \\
-                &= \iint\limits_{S} P \mathrm{d} y \mathrm{d} z + Q \mathrm{d} z \mathrm{d} x + R \mathrm{d} x \mathrm{d} y
-            \end{aligned}
-        \]
-        其中\(\mathbf{n}\)是曲面\(S\)的单位向量,且\(
-            \mathbf{n} = (
-                \cos \alpha, \cos \beta, \cos \gamma
-            )
-        \)
-    \end{enumerate}
-\end{conclusion}
-
-\section{习题}
-
-\subsection{基础过关题}
-
-\textbf{1.} 计算二重积分 $\displaystyle I = \iint_{D} (x+y)\,\mathrm{d}x\mathrm{d}y$，其中 $D$ 是由直线 $y=x$，$y=2x$，$x=1$ 所围成的闭区域。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 区域 $D$ 可表示为 $0\leq x\leq 1,\; x\leq y\leq 2x$。
+第二类曲面积分也能写成第一类：
 \[
-I = \int_{0}^{1}\mathrm{d}x\int_{x}^{2x}(x+y)\,\mathrm{d}y
-= \int_{0}^{1}\left[xy+\frac{y^{2}}{2}\right]_{y=x}^{y=2x}\mathrm{d}x
-= \int_{0}^{1}\left[(2x^{2}+2x^{2})-(x^{2}+\frac{x^{2}}{2})\right]\mathrm{d}x
+    \iint_\Sigma P\,\mathrm dy\,\mathrm dz+Q\,\mathrm dz\,\mathrm dx+R\,\mathrm dx\,\mathrm dy
+    =\iint_\Sigma(P\cos\alpha+Q\cos\beta+R\cos\gamma)\,\mathrm dS
+    =\iint_\Sigma\mathbf F\cdot\mathbf n\,\mathrm dS .
 \]
+这个式子说明：第二类曲面积分就是向量场沿曲面的通量。与第一类曲面积分相比，第一类只用 $\mathrm dS$，与侧无关；第二类用 $\mathbf n\,\mathrm dS$，与侧有关。投影方向可以选：若曲面既可写成 $z=z(x,y)$ 又可写成 $x=x(y,z)$，算 $R\,\mathrm dx\,\mathrm dy$ 时既可以投到 $xy$ 平面，也可以投到 $yz$ 平面，选投影后区域不分块、被积函数更简单的那一个。
+\subsection{Green 公式}
+
+平面闭曲线上的第二类曲线积分，可以用 Green 公式换成区域上的二重积分。先约定边界的正向：沿着边界行走，区域始终在左手边。对常见的单连通区域，外边界取逆时针；若区域内部有洞，外边界逆时针、洞的边界顺时针，这样每一段边界旁边区域都在左侧。
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+\fill[blue!10] (0,0) ellipse (3 and 1.8);
+\fill[white] (1.2,0) circle (0.5);
+\draw[thick,blue!70!black] (0,0) ellipse (3 and 1.8);
+\draw[thick,blue!70!black] (1.2,0) circle (0.5);
+\draw[->,very thick,red!70!black] (0.7,1.76) -- (-0.1,1.74);
+\draw[->,very thick,red!70!black] (-2.98,0.3) -- (-2.96,-0.5);
+\draw[->,very thick,red!70!black] (1.0,0.5) -- (1.4,0.5);
+\node[font=\scriptsize] at (-1.1,0.85) {$D$};
+\node[font=\scriptsize,blue!70!black] at (-0.5,1.9) {$L$};
+\node[font=\scriptsize,blue!70!black,anchor=south] at (1.2,0.58) {$L_0$};
+\node[font=\scriptsize,red!70!black] at (-0.6,1.55) {$+$};
+\node[font=\scriptsize,red!70!black] at (0.75,0.62) {$+$};
+\end{tikzpicture}
+\end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 区域的正向边界：外边界 $L$ 逆时针，洞的边界 $L_0$ 顺时针。判断标准只有一条——沿箭头走时，区域 $D$ 在左手边。}}
+
+设 $D$ 由分段光滑闭曲线围成，$P,Q$ 在 $D$ 上有连续的一阶偏导数，边界取正向，则
 \[
-= \int_{0}^{1}\frac{5}{2}x^{2}\,\mathrm{d}x = \frac{5}{2}\cdot\frac{1}{3}=\frac{5}{6}.
+    \iint_D\left(\frac{\partial Q}{\partial x}
+    -\frac{\partial P}{\partial y}\right)\mathrm dx\,\mathrm dy
+    =\oint_L P\,\mathrm dx+Q\,\mathrm dy .
+\]
+若 $D$ 有多个洞，右端要沿全部边界积分：外边界逆时针，每个洞的边界顺时针。
+
+公式的符号可以从一个 X-型区域看出来。设下边界为 $y=y_1(x)$、上边界为 $y=y_2(x)$，两条竖边上 $\mathrm dx=0$，于是
+\[
+    \oint_L P\,\mathrm dx
+    =\int_a^b\left[P(x,y_1(x))-P(x,y_2(x))\right]\mathrm dx
+    =-\int_a^b\int_{y_1(x)}^{y_2(x)}P_y(x,y)\,\mathrm dy\,\mathrm dx
+    =-\iint_D P_y\,\mathrm d\sigma .
+\]
+若 $D$ 同时是 Y-型区域，同理可得 $\oint_L Q\,\mathrm dy=\iint_D Q_x\,\mathrm d\sigma$。两式相加就是 Green 公式；一般区域可以拆成有限个这样的区域。
+
+取特殊的 $P,Q$ 可以得到面积公式。取 $P=-y,Q=x$，则 $Q_x-P_y=2$，所以
+\[
+    A=\iint_D\mathrm d\sigma
+    =\frac12\oint_L x\,\mathrm dy-y\,\mathrm dx .
+\]
+取 $P=0,Q=x$ 得 $A=\oint_L x\,\mathrm dy$；取 $P=-y,Q=0$ 得 $A=-\oint_L y\,\mathrm dx$。三条公式等价，算哪个方便用哪个。
+
+用 Green 公式时有两个常见操作。若 $L$ 不封闭，添一条容易计算的辅助曲线 $L_1$ 使其封闭，对 $L+L_1$ 用 Green 公式，再减去沿 $L_1$ 的积分。若 $P,Q$ 在 $D$ 内有奇点，先挖去以奇点为中心的小圆 $C_\varepsilon$，在剩下的区域上用 Green 公式。若在挖去奇点的区域上 $Q_x=P_y$，则外边界上的积分等于小圆上的积分，而小圆可以用参数方程直接算。还要注意：化成二重积分后，被积函数是定义在区域 $D$ 上的，不能再用原曲线方程代换；用曲线方程化简只适用于曲线积分本身。
+
+\subsubsection{路径无关}
+
+若在区域 $D$ 内，从任意一点 $A$ 到任意一点 $B$ 的积分
+\[
+    \int_L P\,\mathrm dx+Q\,\mathrm dy
+\]
+都与所走的分段光滑路径无关，就称这个积分与路径无关。等价地，沿 $D$ 内任意闭曲线的积分为零：
+\[
+    \oint_C P\,\mathrm dx+Q\,\mathrm dy=0 .
+\]
+此时存在函数 $u(x,y)$，使
+\[
+    \mathrm du=P\,\mathrm dx+Q\,\mathrm dy,
+    \qquad\text{即}\qquad u_x=P,\quad u_y=Q .
+\]
+$u$ 称为微分式 $P\,\mathrm dx+Q\,\mathrm dy$ 的原函数，沿着路径的积分等于 $u$ 在两端点的差：
+\[
+    \int_A^B P\,\mathrm dx+Q\,\mathrm dy=u(B)-u(A).
 \]
 
-\else \answerarea \fi%
-\textbf{2.} 计算二重积分 $\displaystyle I = \iint_{D} \sqrt{x^{2}+y^{2}}\,\mathrm{d}x\mathrm{d}y$，其中 $D$ 为圆域 $x^{2}+y^{2}\leq 2x$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 区域 $(x-1)^{2}+y^{2}\leq 1$，用极坐标 $x=r\cos\theta$，$y=r\sin\theta$。
-边界 $r=2\cos\theta$，$\theta\in[-\frac{\pi}{2},\frac{\pi}{2}]$。
+若 $P,Q$ 在 $D$ 内有连续一阶偏导数，则由路径无关可以推出
 \[
-I = \int_{-\pi/2}^{\pi/2}\mathrm{d}\theta\int_{0}^{2\cos\theta} r\cdot r\,\mathrm{d}r
-= \int_{-\pi/2}^{\pi/2}\frac{8\cos^{3}\theta}{3}\,\mathrm{d}\theta
-= \frac{16}{3}\int_{0}^{\pi/2}\cos^{3}\theta\,\mathrm{d}\theta
-= \frac{16}{3}\cdot\frac{2}{3}=\frac{32}{9}.
+    \frac{\partial P}{\partial y}=\frac{\partial Q}{\partial x}
 \]
+在 $D$ 内处处成立。反过来，若 $D$ 是单连通区域（区域内任一闭曲线围成的部分仍完全在区域内，通俗地说“没有洞”），且 $P_y=Q_x$，则积分与路径无关。单连通这个条件不能省。
 
-\else \answerarea \fi%
-\textbf{3.} 计算三重积分 $\displaystyle I = \iiint_{\Omega} z\,\mathrm{d}V$，其中 $\Omega$ 为上半球体 $x^{2}+y^{2}+z^{2}\leq R^{2},\; z\geq 0$。
+\begin{center}
+\begin{tikzpicture}[scale=0.78]
+\fill[blue!8] (0,0) ellipse (2.2 and 1.6);
+\draw[thick,blue!60!black] (0,0) ellipse (2.2 and 1.6);
+\fill (-1.5,-0.6) circle(1.6pt) node[below left,font=\scriptsize]{$A$};
+\fill (1.5,0.7) circle(1.6pt) node[above right,font=\scriptsize]{$B$};
+\draw[red!70,thick] (-1.5,-0.6) .. controls (-0.8,0.9) and (0.4,1.2) .. (1.5,0.7);
+\draw[green!45!black,thick] (-1.5,-0.6) .. controls (-0.5,-1.2) and (1.0,-0.9) .. (1.5,0.7);
+\draw[->,red!70,thick] (-0.1,1.05)--(0.25,1.12);
+\draw[->,green!45!black,thick] (0.7,-1.0)--(0.95,-0.87);
+\node[font=\scriptsize] at (0,-1.78) {单连通：任意两条路径可连续变形};
+\end{tikzpicture}
+\hspace{0.8em}
+\begin{tikzpicture}[scale=0.78]
+\fill[blue!8] (0,0) ellipse (2.2 and 1.6);
+\fill[white] (0.6,0) circle (0.55);
+\draw[thick,blue!60!black] (0,0) ellipse (2.2 and 1.6);
+\draw[thick,blue!60!black] (0.6,0) circle (0.55);
+\draw[thick,red!70!black] (0.6,0) circle (0.85);
+\draw[->,very thick,red!70!black] (0.6,0.85)--(0.18,0.80);
+\node[font=\scriptsize,red!70!black,anchor=north] at (0.6,-0.9) {$C_0$};
+\node[font=\scriptsize] at (-1.2,0.0) {$D$};
+\node[font=\scriptsize] at (0,-1.78) {有洞：$P_y=Q_x$ 仍可能有 $\oint_{C_0}\ne0$};
+\end{tikzpicture}
+\end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 左图是单连通区域，$A$ 到 $B$ 的两条路径可以连续变形，闭路都能缩成一点；右图挖去一个洞，绕洞的闭路 $C_0$ 缩不掉，即使 $P_y=Q_x$，沿 $C_0$ 的环量也可能不为零。}}
 
-\ifshowsolutions%
-\boxed{\textbf{解}} 用球坐标：$x=r\sin\varphi\cos\theta$，$y=r\sin\varphi\sin\theta$，$z=r\cos\varphi$，$\mathrm{d}V=r^{2}\sin\varphi\,\mathrm{d}r\mathrm{d}\varphi\mathrm{d}\theta$。
+经典的例子是
 \[
-I = \int_{0}^{2\pi}\mathrm{d}\theta\int_{0}^{\pi/2}\sin\varphi\,\mathrm{d}\varphi\int_{0}^{R} r\cos\varphi\cdot r^{2}\,\mathrm{d}r
-= 2\pi\int_{0}^{\pi/2}\sin\varphi\cos\varphi\,\mathrm{d}\varphi\cdot\frac{R^{4}}{4}
+    P=\frac{-y}{x^2+y^2},\qquad Q=\frac{x}{x^2+y^2},
 \]
+定义在挖去原点的平面上。直接求偏导会发现 $P_y=Q_x$，但沿绕原点一周的圆周积分不为零。原因就是区域有洞，不满足单连通的附加条件。
+
+判断路径无关时，可以按下面的顺序：先看 $P_y$ 与 $Q_x$ 是否恒等；若不等，积分与路径有关；若相等，再看区域有没有洞，没有洞就可以下结论，有洞则还要单独检查绕洞闭路的环量。计算时，若已确认与路径无关，可以选一条最省事的折线路径，或者求出原函数用端点值相减；求原函数可用不定积分法、特殊路径积分法或凑微分。例如沿 $(x_0,y_0)\to(x,y_0)\to(x,y)$ 的折线，
 \[
-= \frac{\pi R^{4}}{2}\int_{0}^{\pi/2}\frac{\sin 2\varphi}{2}\,\mathrm{d}\varphi
-= \frac{\pi R^{4}}{4}\cdot\left[-\frac{\cos 2\varphi}{2}\right]_{0}^{\pi/2}
-= \frac{\pi R^{4}}{4}\cdot\frac{1}{2}(-(-1)+1)=\frac{\pi R^{4}}{4}.
+    u(x,y)=\int_{x_0}^{x}P(t,y_0)\,\mathrm dt
+    +\int_{y_0}^{y}Q(x,t)\,\mathrm dt
 \]
+就是 $P\,\mathrm dx+Q\,\mathrm dy$ 的一个原函数（相差常数）。
 
-\else \answerarea \fi%
-\textbf{4.} 计算第一类曲线积分 $\displaystyle I = \int_{L} (x+y)\,\mathrm{d}s$，其中 $L$ 为连接点 $A(1,0)$ 与 $B(0,1)$ 的直线段。
+\subsection{Gauss 公式}
 
-\ifshowsolutions%
-\boxed{\textbf{解}} $L$ 的参数方程：$x=1-t,\; y=t\;(0\leq t\leq 1)$，$\mathrm{d}s=\sqrt{(-1)^{2}+1^{2}}\,\mathrm{d}t=\sqrt{2}\,\mathrm{d}t$。
+Green 公式把平面上的“边界”和“内部”联系起来。到了空间，边界变成封闭曲面，内部变成空间区域，对应的公式就是 Gauss 公式。
+
+设 $\Omega$ 是空间有界闭区域，边界 $S$ 由分块光滑的闭曲面组成，取外法向；$P,Q,R$ 在 $\Omega$ 上有连续一阶偏导数，则
 \[
-I = \int_{0}^{1}[(1-t)+t]\cdot\sqrt{2}\,\mathrm{d}t
-= \sqrt{2}\int_{0}^{1}1\,\mathrm{d}t = \sqrt{2}.
+    \iiint_\Omega\left(
+    \frac{\partial P}{\partial x}
+    +\frac{\partial Q}{\partial y}
+    +\frac{\partial R}{\partial z}\right)\mathrm dV
+    =\iint_S P\,\mathrm dy\,\mathrm dz
+    +Q\,\mathrm dz\,\mathrm dx
+    +R\,\mathrm dx\,\mathrm dy .
 \]
-
-\else \answerarea \fi%
-\textbf{5.} 利用 Green 公式计算曲线积分 $\displaystyle I = \oint_{L} (x^{2}y)\,\mathrm{d}x - (xy^{2})\,\mathrm{d}y$，其中 $L$ 为圆周 $x^{2}+y^{2}=a^{2}$ 的正向（逆时针方向）。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} $P=x^{2}y$，$Q=-xy^{2}$，则
-$\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}=-y^{2}-x^{2}=-(x^{2}+y^{2})$。
-由 Green 公式，$D: x^{2}+y^{2}\leq a^{2}$：
+用向量场 $\mathbf F=(P,Q,R)$ 写，就是
 \[
-I = \iint_{D}\bigl[-(x^{2}+y^{2})\bigr]\,\mathrm{d}x\mathrm{d}y
-= -\int_{0}^{2\pi}\mathrm{d}\theta\int_{0}^{a} r^{2}\cdot r\,\mathrm{d}r
-= -2\pi\cdot\frac{a^{4}}{4}=-\frac{\pi a^{4}}{2}.
+    \iiint_\Omega \operatorname{div}\mathbf F\,\mathrm dV
+    =\iint_S \mathbf F\cdot\mathbf n\,\mathrm dS,
 \]
-
-\else \answerarea \fi%
-\textbf{6.} 利用 Gauss 公式计算曲面积分 $\displaystyle I = \oiint_{S} (x^{3}\,\mathrm{d}y\mathrm{d}z + y^{3}\,\mathrm{d}z\mathrm{d}x + z^{3}\,\mathrm{d}x\mathrm{d}y)$，其中 $S$ 为球面 $x^{2}+y^{2}+z^{2}=R^{2}$ 的外侧。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 由 Gauss 公式，$\Omega$ 为球体 $x^{2}+y^{2}+z^{2}\leq R^{2}$：
+其中
 \[
-I = \iiint_{\Omega}(3x^{2}+3y^{2}+3z^{2})\,\mathrm{d}V = 3\iiint_{\Omega}(x^{2}+y^{2}+z^{2})\,\mathrm{d}V.
+    \operatorname{div}\mathbf F
+    =\frac{\partial P}{\partial x}
+    +\frac{\partial Q}{\partial y}
+    +\frac{\partial R}{\partial z}
 \]
-用球坐标：
+称为散度。右端是向量场穿过闭曲面的通量，左端是散度在区域上的体积分。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center, xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=-2.1, xmax=2.1, ymin=-2.1, ymax=2.1, zmin=-2.1, zmax=2.1,
+  view={62}{30}, width=0.72\linewidth, height=7cm,
+  ticks=none, font=\footnotesize]
+\addplot3[surf, opacity=0.12, draw=blue!35, domain=0:180, y domain=0:360, samples=18, samples y=30, z buffer=sort]
+  ({1.5*sin(x)*cos(y)},{1.5*sin(x)*sin(y)},{1.5*cos(x)});
+\draw[->,blue!70!black,thick] (axis cs:1.5,0,0) -- (axis cs:1.98,0,0);
+\draw[->,blue!70!black,thick] (axis cs:-1.5,0,0) -- (axis cs:-1.98,0,0);
+\draw[->,blue!70!black,thick] (axis cs:0,1.5,0) -- (axis cs:0,1.98,0);
+\draw[->,blue!70!black,thick] (axis cs:0,-1.5,0) -- (axis cs:0,-1.98,0);
+\draw[->,blue!70!black,thick] (axis cs:0,0,1.5) -- (axis cs:0,0,1.98);
+\draw[->,blue!70!black,thick] (axis cs:0,0,-1.5) -- (axis cs:0,0,-1.98);
+\draw[->,blue!70!black,thick] (axis cs:0.87,0.87,0.87) -- (axis cs:1.15,1.15,1.15);
+\node[font=\scriptsize] at (axis cs:0.30,0.25,0.45) {$\Omega$};
+\node[font=\scriptsize,blue!60!black] at (axis cs:1.55,0.25,0.55) {$S$};
+\node[font=\scriptsize,anchor=south] at (axis cs:1.30,0,0) {$\mathbf n$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 闭曲面 $S$ 上的法向量都指向区域 $\Omega$ 的外部。把这些外法向通量加起来，等于内部每一点的散度乘以体积元再累加；散度可理解为“单位体积向外冒出的通量”。}}
+
+散度的直观意义是源头的强弱：在一点附近取一个小区域 $\Omega_\varepsilon$，则
 \[
-I = 3\int_{0}^{2\pi}\mathrm{d}\theta\int_{0}^{\pi}\sin\varphi\,\mathrm{d}\varphi\int_{0}^{R} r^{2}\cdot r^{2}\,\mathrm{d}r
-= 3\cdot 2\pi\cdot 2\cdot\frac{R^{5}}{5}=\frac{12\pi R^{5}}{5}.
+    \operatorname{div}\mathbf F(M)
+    \approx\frac{1}{|\Omega_\varepsilon|}
+    \iint_{\partial\Omega_\varepsilon}
+    \mathbf F\cdot\mathbf n\,\mathrm dS .
 \]
+散度为正，说明该点附近有“源”，净流出为正；散度为负，说明有“汇”。Gauss 公式说的就是：内部所有源的强度加起来，等于穿过边界的净通量。
 
-\else \answerarea \fi%
-\textbf{7.} 求均匀半圆环 $D=\{(x,y)\mid 1\leq x^{2}+y^{2}\leq 4,\; y\geq 0\}$ 的形心坐标（面密度 $\rho=1$）。
+若 $\Omega$ 的边界不止一张曲面，比如外边界为 $\Sigma$、内部有空洞 $\Sigma_1,\dots,\Sigma_m$，则公式右端要沿全部边界积分。所有边界都取相对于 $\Omega$ 的外法向：外边界指向无穷远，空洞的边界指向洞内。
 
-\ifshowsolutions%
-\boxed{\textbf{解}} 质量 $M=\iint_{D}\mathrm{d}x\mathrm{d}y$。用极坐标：
+取 $P=x,Q=y,R=z$，则散度为 $3$，得到体积公式
 \[
-M = \int_{0}^{\pi}\mathrm{d}\theta\int_{1}^{2} r\,\mathrm{d}r = \pi\cdot\frac{1}{2}(4-1)=\frac{3\pi}{2}.
+    V=\iiint_\Omega\mathrm dV
+    =\frac13\iint_S x\,\mathrm dy\,\mathrm dz
+    +y\,\mathrm dz\,\mathrm dx
+    +z\,\mathrm dx\,\mathrm dy .
 \]
-由对称性 $\bar{x}=0$。
+和 Green 的面积公式一样，这是用边界积分求内部度量的办法。
+
+用 Gauss 公式时，若曲面不封闭，添一张容易算的辅助曲面封口，对封闭曲面用公式后再减去辅助面上的通量。若场在区域内有奇点，挖去以奇点为中心的小球面，在剩下的区域上用公式。如果在挖去奇点后的区域上散度恒为零，那么穿过包围奇点的任意两张闭曲面的通量相等，可以把难算的曲面换成容易算的小球面。
+
+\subsection{Stokes 公式}
+
+Gauss 公式处理的是“闭曲面与内部”，Stokes 公式处理的是“空间闭曲线与它张成的曲面”。设 $\Gamma$ 是分段光滑的空间闭曲线，$S$ 是以 $\Gamma$ 为边界的分块光滑曲面，$P,Q,R$ 在 $S$ 及其附近有连续一阶偏导数。$\Gamma$ 的正向与 $S$ 的侧按右手法则配合：右手四指沿 $\Gamma$ 的绕行方向弯曲，拇指指向 $S$ 的法向量 $\mathbf n$。则
 \[
-M_{x} = \iint_{D} y\,\mathrm{d}x\mathrm{d}y = \int_{0}^{\pi}\sin\theta\,\mathrm{d}\theta\int_{1}^{2} r^{2}\,\mathrm{d}r
-= \bigl[-\cos\theta\bigr]_{0}^{\pi}\cdot\frac{7}{3}=2\cdot\frac{7}{3}=\frac{14}{3}.
+    \begin{aligned}
+    \iint_S&\left(\frac{\partial R}{\partial y}
+    -\frac{\partial Q}{\partial z}\right)\mathrm dy\,\mathrm dz
+    +\left(\frac{\partial P}{\partial z}
+    -\frac{\partial R}{\partial x}\right)\mathrm dz\,\mathrm dx
+    +\left(\frac{\partial Q}{\partial x}
+    -\frac{\partial P}{\partial y}\right)\mathrm dx\,\mathrm dy\\
+    &=\oint_\Gamma P\,\mathrm dx+Q\,\mathrm dy+R\,\mathrm dz .
+    \end{aligned}
 \]
-故 $\bar{y}=\dfrac{M_{x}}{M}=\dfrac{14/3}{3\pi/2}=\dfrac{28}{9\pi}$。形心坐标为 $\bigl(0,\dfrac{28}{9\pi}\bigr)$。
-
-
-\else \answerarea \fi%
-\subsection{综合提高题}
-
-\textbf{8.} 计算二重积分 $\displaystyle I = \iint_{D} e^{\frac{y-x}{y+x}}\,\mathrm{d}x\mathrm{d}y$，其中 $D$ 是由 $x=0$，$y=0$，$x+y=1$ 所围成的闭区域。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 作变量代换 $u=y-x$，$v=y+x$。则 $x=\frac{v-u}{2}$，$y=\frac{v+u}{2}$。
-雅可比行列式：
+用行列式记，
 \[
-\frac{\partial(x,y)}{\partial(u,v)} = \begin{vmatrix}
--\frac{1}{2} & \frac{1}{2} \\[3pt]
-\frac{1}{2} & \frac{1}{2}
-\end{vmatrix} = -\frac{1}{4}-\frac{1}{4}=-\frac{1}{2},\quad
-\left|\frac{\partial(x,y)}{\partial(u,v)}\right|=\frac{1}{2}.
+    \iint_S
+    \begin{vmatrix}
+        \mathrm dy\,\mathrm dz & \mathrm dz\,\mathrm dx & \mathrm dx\,\mathrm dy\\
+        \dfrac{\partial}{\partial x} & \dfrac{\partial}{\partial y} & \dfrac{\partial}{\partial z}\\
+        P & Q & R
+    \end{vmatrix}
+    =\oint_\Gamma P\,\mathrm dx+Q\,\mathrm dy+R\,\mathrm dz .
 \]
-原区域 $D$ 变为 $D'$：由 $x\geq0\Rightarrow v\geq u$，$y\geq0\Rightarrow v\geq -u$，$x+y\leq1\Rightarrow v\leq 1$。
-即 $D'=\{(u,v)\mid |u|\leq v,\; 0\leq v\leq 1\}$。
+向量形式为
 \[
-I = \iint_{D'} e^{u/v}\cdot\frac{1}{2}\,\mathrm{d}u\mathrm{d}v
-= \frac{1}{2}\int_{0}^{1}\mathrm{d}v\int_{-v}^{v} e^{u/v}\,\mathrm{d}u
-= \frac{1}{2}\int_{0}^{1}\Bigl[ve^{u/v}\Bigr]_{u=-v}^{u=v}\mathrm{d}v
+    \iint_S(\nabla\times\mathbf F)\cdot\mathbf n\,\mathrm dS
+    =\oint_\Gamma\mathbf F\cdot\mathrm d\mathbf r,
 \]
+其中
 \[
-= \frac{1}{2}\int_{0}^{1} v(e-e^{-1})\,\mathrm{d}v
-= \frac{e-e^{-1}}{2}\cdot\frac{1}{2}=\frac{e-e^{-1}}{4}.
+    \nabla\times\mathbf F
+    =\left(
+    \frac{\partial R}{\partial y}-\frac{\partial Q}{\partial z},\
+    \frac{\partial P}{\partial z}-\frac{\partial R}{\partial x},\
+    \frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}
+    \right)
 \]
+称为旋度。左端是旋度穿过曲面的通量，右端是向量场沿边界的环量。
 
-\else \answerarea \fi%
-\textbf{9.} 验证曲线积分 $\displaystyle I = \int_{L} \frac{x\,\mathrm{d}y - y\,\mathrm{d}x}{x^{2}+y^{2}}$ 在以下两种情形下的值是否相同：
-\begin{enumerate}[label=(\arabic*)]
-    \item $L$ 为上半椭圆 $\dfrac{x^{2}}{a^{2}}+\dfrac{y^{2}}{b^{2}}=1\;(y\geq 0)$，从 $A(a,0)$ 到 $B(-a,0)$；
-    \item $L$ 为下半椭圆 $\dfrac{x^{2}}{a^{2}}+\dfrac{y^{2}}{b^{2}}=1\;(y\leq 0)$，从 $A(a,0)$ 到 $B(-a,0)$。
-\end{enumerate}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center, xlabel=$x$, ylabel=$y$, zlabel=$z$,
+  xmin=-1.5, xmax=1.5, ymin=-1.5, ymax=1.5, zmin=0, zmax=1.9,
+  view={60}{24}, width=0.7\linewidth, height=7cm,
+  ticks=none, font=\footnotesize]
+\addplot3[surf, opacity=0.55, shader=interp,
+  colormap={par}{rgb(0cm)=(0.9,0.95,1.0); rgb(1cm)=(0.55,0.75,0.95)},
+  domain=0:1, y domain=0:360, samples=10, samples y=60, z buffer=sort]
+  ({x*cos(y)},{x*sin(y)},{x^2});
+\addplot3[domain=0:360, samples=40, samples y=0, thick, red!70!black] ({cos(x)},{sin(x)},{1});
+\draw[->,very thick,red!70!black] (axis cs:0.998,-0.12,1) -- (axis cs:0.998,0.14,1);
+\draw[->,very thick,blue!70!black] (axis cs:0,0,0) -- (axis cs:0,0,1.05);
+\node[font=\scriptsize,anchor=west] at (axis cs:0.06,0.06,1.05) {$\mathbf n$};
+\node[font=\scriptsize,red!70!black] at (axis cs:1.08,0.16,1.02) {$\Gamma$};
+\node[font=\scriptsize] at (axis cs:0.45,0.35,0.35) {$S$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 曲面 $S$ 以 $\Gamma$ 为边界。$\Gamma$ 的箭头与法向量 $\mathbf n$ 满足右手法则：四指顺箭头弯曲，拇指指向 $\mathbf n$。换另一侧，$\Gamma$ 的方向也要反过来，两边同时变号，公式仍成立。}}
 
-\ifshowsolutions%
-\boxed{\textbf{解}} 记 $P=\dfrac{-y}{x^{2}+y^{2}}$，$Q=\dfrac{x}{x^{2}+y^{2}}$。当 $(x,y)\neq(0,0)$ 时，
+Stokes 公式把“沿边界的环量”换成“穿过曲面的旋度通量”。它有几个常用推论：
+
+\begin{itemize}
+    \item 若 $S$ 是 $xy$ 平面上的区域，$\mathbf n=(0,0,1)$，则旋度的 $z$ 分量为 $Q_x-P_y$，Stokes 公式退化为 Green 公式。
+    \item 若 $\nabla\times\mathbf F=\mathbf 0$ 且在单连通区域内，则沿任意闭曲线的环量为零，空间曲线积分与路径无关。
+    \item 只要两张曲面 $S_1,S_2$ 有相同的边界 $\Gamma$ 且定向相容，$\iint_{S_1}(\nabla\times\mathbf F)\cdot\mathbf n\,\mathrm dS$ 与 $\iint_{S_2}$ 相等。因此算 $\oint_\Gamma$ 时，可以选一张最容易算的曲面（通常是平面片）来用 Stokes。
+\end{itemize}
+
+三个公式的结构可以放在一张表里对照：
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+公式 & 联系 & 定向 \\
+\midrule
+Green & 平面闭曲线积分 $\leftrightarrow$ 二重积分 & 边界正向：区域在左 \\
+Gauss & 闭曲面积分 $\leftrightarrow$ 三重积分 & 边界取外法向 \\
+Stokes & 空间闭曲线积分 $\leftrightarrow$ 曲面积分 & 右手法则 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+三者本质上是同一个“边界与内部”的关系在不同维数下的表现：Green 是平面版本，Gauss 是“通量”版本，Stokes 是“环量”版本。
+\subsection{几何与物理应用}
+
+多元积分的应用大多可以归到“微元法”：先写出一个微小部分对应的量（质量、面积、功、通量），再在相应的区域、曲线或曲面上积分。关键是选对微元：面积用 $\mathrm d\sigma$，体积用 $\mathrm dV$，弧长用 $\mathrm ds$，曲面面积用 $\mathrm dS$。
+
+面积和体积是最直接的两类。平面区域 $D$ 的面积为
 \[
-\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}
-= \frac{y^{2}-x^{2}}{(x^{2}+y^{2})^{2}}-\frac{y^{2}-x^{2}}{(x^{2}+y^{2})^{2}}=0.
+    A=\iint_D\mathrm d\sigma ,
 \]
-但 $(0,0)$ 为奇点，向量场的定义域是穿孔平面，并非单连通区域。上下两条半椭圆弧合成的闭曲线环绕原点，因此不能仅由旋度为零断言两条路径上的积分相等。
-
-(1) 对上半椭圆弧令 $x=a\cos t$，$y=b\sin t$，$0\leqslant t\leqslant\pi$，则
+曲面 $\Sigma$ 的面积为
 \[
-\begin{aligned}
-I_1
-&=\int_0^\pi\frac{ab(\cos^2t+\sin^2t)}{a^2\cos^2t+b^2\sin^2t}\,\mathrm{d}t\\
-&=ab\int_0^\pi\frac{\mathrm{d}t}{a^2\cos^2t+b^2\sin^2t}=\pi.
-\end{aligned}
+    A=\iint_\Sigma\mathrm dS
+    =\iint_{D_{xy}}\sqrt{1+z_x^2+z_y^2}\,\mathrm dx\,\mathrm dy
 \]
-最后一步使用 $\displaystyle\int_0^\pi\frac{\mathrm{d}t}{a^2\cos^2t+b^2\sin^2t}=\frac{\pi}{ab}$。
-
-(2) 对下半椭圆弧取 $t$ 从 $0$ 变到 $-\pi$，同理得 $I_2=-\pi$。因此两条路径上的积分不同；其差 $I_1-I_2=2\pi$ 正是沿合成闭曲线逆时针绕原点一周的积分。
-
-\else \answerarea \fi%
-\textbf{10.} 利用 Stokes 公式计算曲线积分 $\displaystyle I = \oint_{L} y\,\mathrm{d}x + z\,\mathrm{d}y + x\,\mathrm{d}z$，其中 $L$ 为平面 $x+y+z=1$ 被三坐标面所截三角形的边界，其正向与 $z$ 轴正向成右手系。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 设 $S$ 为三角形区域：$x+y+z=1$，$x\geq0$，$y\geq0$，$z\geq0$。由 Stokes 公式：
+（曲面写成 $z=z(x,y)$ 时）。空间区域 $\Omega$ 的体积为
 \[
-I = \iint_{S} \begin{vmatrix}
-\mathrm{d}y\mathrm{d}z & \mathrm{d}z\mathrm{d}x & \mathrm{d}x\mathrm{d}y \\[3pt]
-\frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z} \\[3pt]
-y & z & x
-\end{vmatrix}
-= \iint_{S} (-1)\mathrm{d}y\mathrm{d}z + (-1)\mathrm{d}z\mathrm{d}x + (-1)\mathrm{d}x\mathrm{d}y.
+    V=\iiint_\Omega\mathrm dV
+    =\iint_{D_{xy}}\left[z_2(x,y)-z_1(x,y)\right]\mathrm dx\,\mathrm dy
 \]
-曲面 $S$ 在法向量 $\mathbf{n}=\frac{1}{\sqrt{3}}(1,1,1)$ 下的投影：
-对 $\mathrm{d}y\mathrm{d}z$ 项，$\cos\alpha=\frac{1}{\sqrt{3}}$，$\mathrm{d}y\mathrm{d}z=\frac{1}{\sqrt{3}}\mathrm{d}S$。
-同理 $\mathrm{d}z\mathrm{d}x=\mathrm{d}x\mathrm{d}y=\frac{1}{\sqrt{3}}\mathrm{d}S$。
-\[
-I = \iint_{S} \left(-\frac{3}{\sqrt{3}}\right)\mathrm{d}S = -\sqrt{3}\iint_{S}\mathrm{d}S.
-\]
-三角形 $S$ 的边长为 $\sqrt{2}$（每个坐标截距为 $1$），面积为 $\frac{\sqrt{3}}{2}$。
-故 $I = -\sqrt{3}\cdot\frac{\sqrt{3}}{2}=-\frac{3}{2}$。
+（区域夹在两张曲面之间时）。此外，以平面曲线 $L$ 为准线、母线平行于 $z$ 轴、高为 $f(x,y)$ 的柱面面积，等于 $\int_L f(x,y)\,\mathrm ds$：把柱面沿 $L$ 切成竖条，每条面积约为 $f\,\mathrm ds$。
 
-\else \answerarea \fi%
-\textbf{11.} 求曲面 $z=xy$ 被圆柱面 $x^{2}+y^{2}=a^{2}$ 所截部分的面积。
+质量、质心和转动惯量来自同一套“先算微元质量，再积分”的思路。以平面薄板为例，面密度为 $\rho(x,y)$：
+\[
+    M=\iint_D\rho\,\mathrm d\sigma,\qquad
+    \bar x=\frac1M\iint_D x\rho\,\mathrm d\sigma,\qquad
+    \bar y=\frac1M\iint_D y\rho\,\mathrm d\sigma .
+\]
+关于 $x$ 轴、$y$ 轴和原点的转动惯量分别为
+\[
+    I_x=\iint_D y^2\rho\,\mathrm d\sigma,\qquad
+    I_y=\iint_D x^2\rho\,\mathrm d\sigma,\qquad
+    I_O=\iint_D(x^2+y^2)\rho\,\mathrm d\sigma .
+\]
+空间物体把二重积分换成三重积分，并把 $I_x$ 的被积函数换成 $y^2+z^2$，其余类推：
+\[
+    M=\iiint_\Omega\rho\,\mathrm dV,\qquad
+    I_x=\iiint_\Omega(y^2+z^2)\rho\,\mathrm dV,\qquad
+    I_O=\iiint_\Omega(x^2+y^2+z^2)\rho\,\mathrm dV .
+\]
+曲线形细丝用 $\int_L\rho\,\mathrm ds$，曲面薄壳用 $\iint_\Sigma\rho\,\mathrm dS$，质心公式只是把积分域和微元换掉。密度为常数时，质心就是形心；若区域和密度都有对称性，可以先判断质心落在哪条对称轴上，少算一个坐标。
 
-\ifshowsolutions%
-\boxed{\textbf{解}} $z=f(x,y)=xy$，$f_{x}=y$，$f_{y}=x$。
-面积元素 $\mathrm{d}S=\sqrt{1+f_{x}^{2}+f_{y}^{2}}\,\mathrm{d}x\mathrm{d}y=\sqrt{1+x^{2}+y^{2}}\,\mathrm{d}x\mathrm{d}y$。
-区域 $D$ 为 $x^{2}+y^{2}\leq a^{2}$。用极坐标：
-\[
-A = \iint_{D}\sqrt{1+x^{2}+y^{2}}\,\mathrm{d}x\mathrm{d}y
-= \int_{0}^{2\pi}\mathrm{d}\theta\int_{0}^{a}\sqrt{1+r^{2}}\cdot r\,\mathrm{d}r
-\]
-\[
-= 2\pi\cdot\frac{1}{3}\Bigl[(1+r^{2})^{3/2}\Bigr]_{0}^{a}
-= \frac{2\pi}{3}\bigl[(1+a^{2})^{3/2}-1\bigr].
-\]
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+\draw[->] (-0.2,0) -- (6.3,0) node[right] {$x$};
+\draw[->] (0,-0.2) -- (0,3.7) node[above] {$y$};
+\fill[blue!12] plot[smooth cycle] coordinates {(0.6,0.8)(1.2,2.6)(2.8,3.0)(4.2,2.4)(5.0,1.2)(3.6,0.5)(1.8,0.4)};
+\draw[blue!50!black, thick] plot[smooth cycle] coordinates {(0.6,0.8)(1.2,2.6)(2.8,3.0)(4.2,2.4)(5.0,1.2)(3.6,0.5)(1.8,0.4)};
+\begin{scope}
+\clip plot[smooth cycle] coordinates {(0.6,0.8)(1.2,2.6)(2.8,3.0)(4.2,2.4)(5.0,1.2)(3.6,0.5)(1.8,0.4)};
+\fill[orange!25] (2.6,0) rectangle (3.0,3.4);
+\draw[orange!70!black, dashed] (2.6,0) -- (2.6,3.4);
+\draw[orange!70!black, dashed] (3.0,0) -- (3.0,3.4);
+\end{scope}
+\node[font=\scriptsize,orange!70!black,anchor=west] at (3.04,2.65) {$\mathrm dx$};
+\fill[red!70!black] (2.8,1.8) circle (2pt);
+\node[font=\scriptsize,red!70!black,anchor=north] at (2.8,1.74) {$(\bar x,\bar y)$};
+\draw[dashed,gray!70] (2.8,1.8) -- (2.8,0);
+\draw[dashed,gray!70] (2.8,1.8) -- (0,1.8);
+\node[font=\scriptsize,below] at (2.8,0) {$\bar x$};
+\node[font=\scriptsize,left] at (0,1.8) {$\bar y$};
+\node[font=\scriptsize,blue!50!black,anchor=west] at (4.35,2.35) {$\rho(x,y)$};
+\node[font=\scriptsize] at (1.2,1.3) {$D$};
+\end{tikzpicture}
+\end{center}
+\chninefigcap{\parbox[t]{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 薄板上的竖条（橙）宽 $\mathrm dx$，条上每一小块的质量为 $\rho(x,y)\,\mathrm dx\,\mathrm dy$。把所有竖条的“质量乘 $x$”累加再除以总质量，得到 $\bar x$；把“质量乘 $y^2$”累加，得到关于 $x$ 轴的转动惯量 $I_x$。}}
 
-\else \answerarea \fi%
-\textbf{12.} 判断第二类曲线积分 $\displaystyle I = \int_{L} (e^{x}\sin y - my)\,\mathrm{d}x + (e^{x}\cos y - m)\,\mathrm{d}y$ 是否与路径无关（$m$ 为常数），并求从 $O(0,0)$ 到 $A(\pi,2)$ 的积分值。
+功和流量是第二类积分的直接应用。力 $\mathbf F$ 沿曲线 $L$ 做的功为
+\[
+    W=\int_L\mathbf F\cdot\mathrm d\mathbf r
+    =\int_L P\,\mathrm dx+Q\,\mathrm dy+R\,\mathrm dz ;
+\]
+流速为 $\mathbf v$ 的流体在单位时间内穿过定向曲面 $\Sigma$ 的体积（流量）为
+\[
+    q=\iint_\Sigma\mathbf v\cdot\mathbf n\,\mathrm dS
+    =\iint_\Sigma P\,\mathrm dy\,\mathrm dz
+    +Q\,\mathrm dz\,\mathrm dx
+    +R\,\mathrm dx\,\mathrm dy .
+\]
+这两个式子的共同点是：微元都是“向量场点乘有向微元”，方向反了结果就变号。求“通过量”还是“净通量”，要看题目是否指定了侧；指定了侧就按定向算带符号的通量。
 
-\ifshowsolutions%
-\boxed{\textbf{解}} $P=e^{x}\sin y-my$，$Q=e^{x}\cos y-m$。
-\[
-\frac{\partial P}{\partial y}=e^{x}\cos y-m,\qquad
-\frac{\partial Q}{\partial x}=e^{x}\cos y.
-\]
-当 $\frac{\partial P}{\partial y}\neq\frac{\partial Q}{\partial x}$ 时积分与路径有关。实际上：
-$\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}=e^{x}\cos y-(e^{x}\cos y-m)=m$。
-当 $m\neq0$ 时非零，积分与路径有关；当 $m=0$ 时与路径无关。
-
-取路径 $L_{1}$（$x$ 轴：$y=0$，$x$ 从 $0$ 到 $\pi$）加 $L_{2}$（$x=\pi$，$y$ 从 $0$ 到 $2$）：
-\[
-\begin{aligned}
-I_{L_1}&=\int_0^\pi(0-0)\,\mathrm dx=0,\\
-I_{L_2}&=\int_0^2(e^\pi\cos y-m)\,\mathrm dy\\
-&=\bigl[e^\pi\sin y-my\bigr]_0^2=e^\pi\sin2-2m.
-\end{aligned}
-\]
-故 $I = e^{\pi}\sin 2-2m$。
-
-\else \answerarea \fi%
-\textbf{13.} 计算三重积分 $\displaystyle I = \iiint_{\Omega} (x^{2}+y^{2})\,\mathrm{d}V$，其中 $\Omega$ 是由曲面 $z=x^{2}+y^{2}$ 与平面 $z=4$ 所围成的闭区域。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 用柱坐标：$x=r\cos\theta$，$y=r\sin\theta$，$z=z$，$\mathrm{d}V=r\,\mathrm{d}r\mathrm{d}\theta\mathrm{d}z$。
-$\Omega$：$0\leq\theta\leq 2\pi$，$0\leq r\leq 2$，$r^{2}\leq z\leq 4$。
-\[
-I = \int_{0}^{2\pi}\mathrm{d}\theta\int_{0}^{2} r\,\mathrm{d}r\int_{r^{2}}^{4} r^{2}\,\mathrm{d}z
-= 2\pi\int_{0}^{2} r^{3}(4-r^{2})\,\mathrm{d}r
-= 2\pi\int_{0}^{2}(4r^{3}-r^{5})\,\mathrm{d}r
-\]
-\[
-= 2\pi\Bigl[r^{4}-\frac{r^{6}}{6}\Bigr]_{0}^{2}
-= 2\pi\left(16-\frac{64}{6}\right)=2\pi\cdot\frac{32}{6}=\frac{32\pi}{3}.
-\]
-
-
-\else \answerarea \fi%
-\subsection{真题风格与综合训练}
-
-\textbf{14.}（\boxed{\textbf{真题风格}}）计算曲面积分 $\displaystyle I = \oiint_{S} (x^{2}+y^{2}+z^{2})\,\mathrm{d}S$，其中 $S$ 为球面 $(x-a)^{2}+(y-b)^{2}+(z-c)^{2}=R^{2}$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 作平移变换 $u=x-a$，$v=y-b$，$w=z-c$，则 $S$ 变为球面 $u^{2}+v^{2}+w^{2}=R^{2}$。
-\[
-x^{2}+y^{2}+z^{2} = (u+a)^{2}+(v+b)^{2}+(w+c)^{2} = u^{2}+v^{2}+w^{2}+2(au+bv+cw)+(a^{2}+b^{2}+c^{2}).
-\]
-由于球面的对称性，$\oiint_{S} u\,\mathrm{d}S=\oiint_{S} v\,\mathrm{d}S=\oiint_{S} w\,\mathrm{d}S=0$。
-且 $\oiint_{S}(u^{2}+v^{2}+w^{2})\,\mathrm{d}S = R^{2}\oiint_{S}\mathrm{d}S = R^{2}\cdot 4\pi R^{2}=4\pi R^{4}$。
-又 $\oiint_{S}(a^{2}+b^{2}+c^{2})\,\mathrm{d}S = (a^{2}+b^{2}+c^{2})\cdot 4\pi R^{2}$。
-故
-\[
-I = 4\pi R^{4} + 4\pi R^{2}(a^{2}+b^{2}+c^{2}) = 4\pi R^{2}\bigl(R^{2}+a^{2}+b^{2}+c^{2}\bigr).
-\]
-
-\else \answerarea \fi%
-\textbf{15.}（\boxed{\textbf{真题风格}}）计算 $\displaystyle I = \oint_{L} \frac{x\,\mathrm{d}y - y\,\mathrm{d}x}{4x^{2}+y^{2}}$，其中 $L$ 为椭圆 $4x^{2}+y^{2}=1$，取正向。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 记 $P=\dfrac{-y}{4x^{2}+y^{2}}$，$Q=\dfrac{x}{4x^{2}+y^{2}}$。
-计算 $\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}$：
-\[
-\frac{\partial Q}{\partial x}=\frac{(4x^{2}+y^{2})-x\cdot 8x}{(4x^{2}+y^{2})^{2}}=\frac{y^{2}-4x^{2}}{(4x^{2}+y^{2})^{2}},
-\]
-\[
-\frac{\partial P}{\partial y}=\frac{-(4x^{2}+y^{2})+y\cdot 2y}{(4x^{2}+y^{2})^{2}}=\frac{y^{2}-4x^{2}}{(4x^{2}+y^{2})^{2}}.
-\]
-故 $\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}=0$（$(x,y)\neq(0,0)$）。
-
-原点 $(0,0)$ 在 $L$ 内部（为奇点）。取小椭圆
-$L_{\varepsilon}^{+}:4x^{2}+y^{2}=\varepsilon^{2}$ 的正向（逆时针）。
-在由 $L$ 与 $L_{\varepsilon}^{+}$ 围成的环域上，正向边界为
-$L-L_{\varepsilon}^{+}$，故由格林公式
-\[
-\oint_L(P\,\mathrm dx+Q\,\mathrm dy)
--\oint_{L_{\varepsilon}^{+}}(P\,\mathrm dx+Q\,\mathrm dy)=0.
-\]
-因此 $I$ 等于沿 $L_{\varepsilon}^{+}$ 的积分。作正向参数化
-$x=\frac{\varepsilon}{2}\cos t$，$y=\varepsilon\sin t$，$0\leq t\leq2\pi$，则
-\[
-\begin{aligned}
-I
-&=\int_0^{2\pi}
-\frac{(\varepsilon/2)\cos t\cdot\varepsilon\cos t
--\varepsilon\sin t\cdot[-(\varepsilon/2)\sin t]}
-{\varepsilon^2}\,\mathrm dt\\
-&=\frac12\int_0^{2\pi}(\cos^2t+\sin^2t)\,\mathrm dt
-=\pi.
-\end{aligned}
-\]
-
-\else \answerarea \fi%
-\textbf{16.}（\boxed{\textbf{真题风格}}）设 $f\in C^1(\mathbb R)$ 且 $f$ 有界，
-$\Sigma$ 为锥面 $z=\sqrt{x^{2}+y^{2}}$ 被平面 $z=1$ 和 $z=2$ 所截部分的外侧。计算广义曲面积分
-\[
-I=\iint_{\Sigma}\frac{x}{x^2+y^2}
-f\!\left(\frac yx\right)\mathrm dy\,\mathrm dz,
-\]
-其中在 $x=0$ 处按广义积分理解。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 参数化锥面
-\[
-\mathbf r(\theta,z)=(z\cos\theta,z\sin\theta,z),
-\quad 0\leq\theta\leq2\pi,\quad 1\leq z\leq2.
-\]
-其外侧有向面积元为
-\[
-\mathbf r_\theta\times\mathbf r_z\,\mathrm d\theta\,\mathrm dz
-=(z\cos\theta,z\sin\theta,-z)\,\mathrm d\theta\,\mathrm dz,
-\]
-故 $\mathrm dy\,\mathrm dz$ 对应的有向面积分量为
-$z\cos\theta\,\mathrm d\theta\,\mathrm dz$。于是
-\[
-\begin{aligned}
-I
-&=\int_1^2\!\int_0^{2\pi}
-\cos^2\theta\,f(\tan\theta)\,\mathrm d\theta\,\mathrm dz\\
-&=2\int_{-\pi/2}^{\pi/2}
-\cos^2\theta\,f(\tan\theta)\,\mathrm d\theta\\
-&=2\int_{-\infty}^{\infty}\frac{f(t)}{(1+t^2)^2}\,\mathrm dt.
-\end{aligned}
-\]
-\else \answerarea \fi%
-\subsection{其他技巧}
+\input{calculus/exercises/chap9.tex}

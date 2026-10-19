@@ -1,1041 +1,459 @@
 \section{线性方程组，向量，矩阵}
 
-\subsection{线性方程组与高斯消元法}
+\subsection{从方程组到矩阵}
 
-\begin{mydef}{线性方程组}{linear-equation-system}
-    含有 \(n\) 个未知数 \(x_1, x_2, \ldots, x_n\) 的 \(m\) 个方程构成的方程组
-    \[
-    \begin{cases}
-        a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n = b_1 \\
-        a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n = b_2 \\
-        \qquad \vdots \\
-        a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n = b_m
-    \end{cases}
-    \]
-    称为 \textbf{\(m \times n\) 线性方程组}。其中 \(a_{ij}\) 称为\textbf{系数}，\(b_i\) 称为\textbf{常数项}。\\
-    若所有 \(b_i = 0\)，则称为\textbf{齐次线性方程组}；否则称为\textbf{非齐次线性方程组}。
-\end{mydef}
-
-\begin{mydef}{初等行变换}{elementary-row-operations}
-    下列三种对线性方程组（或矩阵）行的变换称为\textbf{初等行变换}：
-    \begin{enumerate}
-        \item \textbf{倍乘变换}：以非零常数 \(k\) 乘以某一行（方程）的所有元素；
-        \item \textbf{倍加变换}：将某一行的 \(k\) 倍加到另一行上；
-        \item \textbf{对换变换}：交换两行的位置。
-    \end{enumerate}
-    初等行变换不改变线性方程组的解集，即变换前后的方程组\textbf{同解}。
-\end{mydef}
-
-\begin{mydef}{增广矩阵与系数矩阵}{augmented-and-coefficient-matrix}
-    将线性方程组的系数与常数项写成矩阵形式：
-    \[
-    \begin{pmatrix}
-        a_{11} & a_{12} & \cdots & a_{1n} \\
-        a_{21} & a_{22} & \cdots & a_{2n} \\
-        \vdots & \vdots & \ddots & \vdots \\
-        a_{m1} & a_{m2} & \cdots & a_{mn}
-    \end{pmatrix}
-    \]
-    称为\textbf{系数矩阵}。在其右侧添上常数项列得到的
-    \[
-    \left(\begin{array}{cccc|c}
-        a_{11} & a_{12} & \cdots & a_{1n} & b_1 \\
-        a_{21} & a_{22} & \cdots & a_{2n} & b_2 \\
-        \vdots & \vdots & \ddots & \vdots & \vdots \\
-        a_{m1} & a_{m2} & \cdots & a_{mn} & b_m
-    \end{array}\right)
-    \]
-    称为\textbf{增广矩阵}。线性方程组的初等行变换即对增广矩阵施行相应的行操作。
-\end{mydef}
-
-\begin{mydef}{行阶梯形矩阵}{row-echelon-form}
-    满足以下条件的矩阵称为\textbf{行阶梯形矩阵}：
-    \begin{enumerate}
-        \item 若有零行（元素全为零的行），则零行位于矩阵的最下方；
-        \item 每一非零行的第一个非零元素（称为\textbf{主元}）所在的列，在该主元下方的元素全为零；
-        \item 各非零行的主元所在列的列标随行标的增加而严格递增。
-    \end{enumerate}
-    若行阶梯形矩阵还满足：(1) 每个主元均为 \(1\)；(2) 每个主元所在列除主元外其余元素均为 \(0\)，则称为\textbf{行最简形矩阵}（或\textbf{简化行阶梯形矩阵}）。
-\end{mydef}
-
-\begin{formula}{高斯消元法}{gaussian-elimination}
-    高斯消元法是将线性方程组的增广矩阵通过初等行变换化为行阶梯形（或行最简形），从而求解方程组的方法：
-    \begin{enumerate}
-        \item \textbf{消元过程（前进）}：利用初等行变换将增广矩阵化为行阶梯形矩阵；
-        \item \textbf{回代过程（后退）}：从最后一个非零行开始，自下而上依次求出未知数的值。
-    \end{enumerate}
-    若化为行最简形，则可以直接读出方程组的解。
-\end{formula}
-
-\boxed{\textbf{例}}
-用高斯消元法求解线性方程组：
+先看一个三元方程组：
 \[
 \begin{cases}
-    x_1 + 2x_2 + x_3 = 3 \\
-    2x_1 + 5x_2 - x_3 = -4 \\
-    3x_1 - 2x_2 - x_3 = 5
+x_1+2x_2+x_3=3,\\
+2x_1+5x_2-x_3=-4,\\
+3x_1-2x_2-x_3=5.
 \end{cases}
 \]
-
-\textbf{解} 写出增广矩阵，施行初等行变换：
+消元时写不写 \(x_1,x_2,x_3\) 不影响计算，真正起作用的只有系数和右边的常数。把系数按原来的位置排成数表，最后一列写常数项，得到
 \[
 \left(\begin{array}{ccc|c}
-1 & 2 & 1 & 3 \\
-2 & 5 & -1 & -4 \\
+1 & 2 & 1 & 3\\
+2 & 5 & -1 & -4\\
+3 & -2 & -1 & 5
+\end{array}\right).
+\]
+这张表叫\textbf{增广矩阵}。去掉最后一列，剩下的 \(3\times 3\) 数表叫\textbf{系数矩阵}。第 \(i\) 行第 \(j\) 列的元素 \(a_{ij}\) 是第 \(i\) 个方程中 \(x_j\) 的系数；最后一列不是任何未知数的系数，只放等号右边的数。
+
+解方程时只允许做三件事：交换两个方程；把一个方程乘上非零常数；把一个方程的 \(k\) 倍加到另一个方程上。这三件事都不改变解集。搬到矩阵上，就是三种\textbf{初等行变换}：
+\begin{enumerate}
+\item 交换两行；
+\item 用非零数 \(k\) 乘某一行；
+\item 把第 \(j\) 行的 \(k\) 倍加到第 \(i\) 行（\(i\ne j\)）。
+\end{enumerate}
+只对行做。列变换相当于给未知数重新编号，做下去得到的解不对应原来的未知数，所以解方程组时不用列变换。但列变换和行变换一样，不改变矩阵的秩。
+
+为什么行变换不改变解集？每条新方程都是旧方程的线性组合，新方程组的解自然满足旧方程组。反过来，三种操作都能撤销：交换再交换就回去，乘 \(k\) 再乘 \(1/k\) 就回去，加 \(k\) 倍再减 \(k\) 倍就回去。所以旧解也满足新方程组。
+
+行变换的目标是把矩阵化成\textbf{行阶梯形}：每个非零行从左往右第一个非零元素叫\textbf{主元}，主元的位置逐行右移；主元正下方的元素全是 \(0\)；零行排在最后。如果再进一步，把每个主元化成 \(1\)，并把主元所在列的其余元素都化成 \(0\)，得到的就是\textbf{行最简形}，解可以直接读出来。
+
+用行变换解开头那个方程组：
+\[
+\left(\begin{array}{ccc|c}
+1 & 2 & 1 & 3\\
+2 & 5 & -1 & -4\\
 3 & -2 & -1 & 5
 \end{array}\right)
-\xrightarrow{r_2-2r_1,\;r_3-3r_1}
+\xrightarrow{r_2-2r_1,\ r_3-3r_1}
 \left(\begin{array}{ccc|c}
-1 & 2 & 1 & 3 \\
-0 & 1 & -3 & -10 \\
+1 & 2 & 1 & 3\\
+0 & 1 & -3 & -10\\
 0 & -8 & -4 & -4
-\end{array}\right).
+\end{array}\right),
 \]
 \[
 \left(\begin{array}{ccc|c}
-1 & 2 & 1 & 3 \\
-0 & 1 & -3 & -10 \\
+1 & 2 & 1 & 3\\
+0 & 1 & -3 & -10\\
 0 & -8 & -4 & -4
 \end{array}\right)
 \xrightarrow{r_3+8r_2}
 \left(\begin{array}{ccc|c}
-1 & 2 & 1 & 3 \\
-0 & 1 & -3 & -10 \\
-0 & 0 & -28 & -84
-\end{array}\right).
-\]
-\[
-\left(\begin{array}{ccc|c}
-1 & 2 & 1 & 3 \\
-0 & 1 & -3 & -10 \\
+1 & 2 & 1 & 3\\
+0 & 1 & -3 & -10\\
 0 & 0 & -28 & -84
 \end{array}\right)
 \xrightarrow{r_3/(-28)}
 \left(\begin{array}{ccc|c}
-1 & 2 & 1 & 3 \\
-0 & 1 & -3 & -10 \\
+1 & 2 & 1 & 3\\
+0 & 1 & -3 & -10\\
 0 & 0 & 1 & 3
 \end{array}\right).
 \]
+
+最后得到的矩阵，其阶梯结构可以用一张图看清：
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,scale=1.0]
+% 阶梯下方的零元素
+\fill[gray!24] (0,-1) rectangle (1,-2);
+\fill[gray!24] (0,-2) rectangle (1,-3);
+\fill[gray!24] (1,-2) rectangle (2,-3);
+% 网格
+\foreach \i in {1,2,3}{
+  \foreach \j in {1,2,3,4}{
+    \draw[gray!55] (\j-1,1-\i) rectangle ++(1,-1);
+  }
+}
+% 元素
+\node at (0.5,-0.5) {$1$}; \node at (1.5,-0.5) {$2$}; \node at (2.5,-0.5) {$1$}; \node at (3.5,-0.5) {$3$};
+\node at (0.5,-1.5) {$0$}; \node at (1.5,-1.5) {$1$}; \node at (2.5,-1.5) {$-3$}; \node at (3.5,-1.5) {$-10$};
+\node at (0.5,-2.5) {$0$}; \node at (1.5,-2.5) {$0$}; \node at (2.5,-2.5) {$1$}; \node at (3.5,-2.5) {$3$};
+% 增广分隔线
+\draw[black!55,thick] (3,0.06) -- (3,-3.06);
+% 阶梯边界
+\draw[blue!70!black,thick,dashed] (0,-1) -- (1,-1) -- (1,-2) -- (2,-2) -- (2,-3) -- (3,-3);
+% 主元
+\foreach \p in {(0.5,-0.5),(1.5,-1.5),(2.5,-2.5)}{
+  \draw[red,thick] \p circle (0.24);
+}
+\end{tikzpicture}
+\end{center}
+\noindent{\small 红圈标出的是主元，它们的位置逐行右移。灰格里的元素必须为零，虚线就是阶梯的边界。最后一列是常数项，不参与选主元。}
+
+接着回代。最后一行给出 \(x_3=3\)；代入第二行，\(x_2=-10+3x_3=-1\)；再代入第一行，\(x_1=3-2x_2-x_3=2\)。解为
+\[
+(x_1,x_2,x_3)=(2,-1,3).
+\]
+代回原方程组可以验算，三个等式都成立。如果继续化到行最简形，右端一列就是解，可以省掉回代。
+
+化到行阶梯形后，解的情况只有三种：
+\begin{enumerate}
+\item 出现形如 \(0= d\)（\(d\ne 0\)）的矛盾行，无解；
+\item 没有矛盾行，且主元个数等于未知数个数，解唯一；
+\item 没有矛盾行，且主元个数小于未知数个数，有自由未知量，解有无穷多个。
+\end{enumerate}
+第三种情形里，自由未知量可以任取，每取一组值就得到一个解。
+
+在计算机上做消元，还要多一步：选主元。先把绝对值最大的元素换到主元位置，再做除法，舍入误差会小很多。方程组的条件数 \(\kappa(A)\) 越大，输入的小扰动被放大得越厉害，解对舍入误差也越敏感。
+
+\subsection{矩阵的运算}
+
+\(m\times n\) 矩阵就是 \(m\) 行 \(n\) 列的数表，记作 \(A=(a_{ij})_{m\times n}\)。\(m=n\) 时叫方阵。
+
+同型矩阵才能相加，规则是元素对应相加：\((A+B)_{ij}=a_{ij}+b_{ij}\)。数乘是每个元素都乘 \(k\)：\((kA)_{ij}=ka_{ij}\)。这两种运算都满足交换律、结合律和分配律。
+
+矩阵乘法要复杂一些。先看形状：左矩阵的列数必须等于右矩阵的行数。设 \(A=(a_{ij})_{m\times s}\)，\(B=(b_{ij})_{s\times n}\)，则 \(C=AB\) 是 \(m\times n\) 矩阵，其元素为
+\[
+c_{ij}=\sum_{k=1}^{s}a_{ik}b_{kj}
+=a_{i1}b_{1j}+a_{i2}b_{2j}+\cdots+a_{is}b_{sj}.
+\]
+也就是说，\(c_{ij}\) 是 \(A\) 的第 \(i\) 行与 \(B\) 的第 \(j\) 列对应相乘再相加。
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,scale=1.12]
+% 矩阵 A
+\fill[blue!18] (0,0.7) rectangle (2.7,1.4);
+\foreach \i in {0,1,2}{
+  \foreach \j in {0,1,2}{
+    \draw[gray!55] (0.9*\j,0.7*\i) rectangle ++(0.9,0.7);
+  }
+}
+\node at (0.45,1.05) {$a_{i1}$};
+\node at (1.35,1.05) {$a_{i2}$};
+\node at (2.25,1.05) {$\cdots$};
+\node at (1.35,0.35) {$\vdots$};
+\node at (1.35,1.75) {$\vdots$};
+% 矩阵 B
+\fill[red!15] (4.5,0) rectangle (5.4,2.1);
+\foreach \i in {0,1,2}{
+  \foreach \j in {0,1}{
+    \draw[gray!55] (3.6+0.9*\j,0.7*\i) rectangle ++(0.9,0.7);
+  }
+}
+\node at (4.95,1.75) {$b_{1j}$};
+\node at (4.95,1.05) {$\vdots$};
+\node at (4.95,0.35) {$b_{sj}$};
+% 矩阵 C
+\fill[green!18] (7.3,0.35) rectangle (8.2,1.05);
+\foreach \i in {0,1}{
+  \foreach \j in {0,1}{
+    \draw[gray!55] (6.4+0.9*\j,0.35+0.7*\i) rectangle ++(0.9,0.7);
+  }
+}
+\node at (7.75,0.7) {$c_{ij}$};
+% 箭头
+\draw[->,thick,gray] (2.78,1.05) -- (3.52,1.05);
+\draw[->,thick,gray] (5.48,0.7) -- (6.32,0.7);
+% 标题
+\node[above] at (1.35,2.1) {$A$：\(m\times s\)};
+\node[above] at (4.5,2.1) {$B$：\(s\times n\)};
+\node[above] at (7.3,1.75) {$C=AB$：\(m\times n\)};
+% 公式
+\node at (4.1,-0.55) {$c_{ij}=a_{i1}b_{1j}+a_{i2}b_{2j}+\cdots+a_{is}b_{sj}$};
+\end{tikzpicture}
+\end{center}
+\noindent{\small 蓝行与红列配对，得到绿格的 \(c_{ij}\)。三张表的尺寸必须首尾相接：\(A\) 的列数等于 \(B\) 的行数，结果的尺寸是 \(m\times n\)。}
+
+这样定义是为了保证结合律，也让矩阵乘法对应线性变换的复合：先做 \(B\)，再做 \(A\)，就是 \(AB\)。换一个看法，\(AB\) 的第 \(j\) 列等于 \(A\) 乘 \(B\) 的第 \(j\) 列：
+\[
+AB=A(\boldsymbol b_1,\boldsymbol b_2,\ldots,\boldsymbol b_n)=(A\boldsymbol b_1,A\boldsymbol b_2,\ldots,A\boldsymbol b_n).
+\]
+
+\begin{center}
+\[
+A=\begin{pmatrix}1&2\\3&4\end{pmatrix},\qquad
+B=\begin{pmatrix}2&0\\1&3\end{pmatrix}.
+\]
+\end{center}
+计算得
+\[
+AB=\begin{pmatrix}4&6\\10&12\end{pmatrix},\qquad
+BA=\begin{pmatrix}2&4\\10&14\end{pmatrix}.
+\]
+两个结果不一样，所以矩阵乘法一般不可交换。即使 \(A,B\) 都是方阵，\(AB\) 和 \(BA\) 也可能不相等。
+
+乘法还有两个容易踩的坑。第一，消去律不成立：由 \(AB=AC\) 且 \(A\ne O\) 推不出 \(B=C\)。第二，有零因子：
+\[
+\begin{pmatrix}0&1\\0&0\end{pmatrix}
+\begin{pmatrix}1&0\\0&0\end{pmatrix}
+=\begin{pmatrix}0&0\\0&0\end{pmatrix},
+\]
+两个非零矩阵乘出了零矩阵。
+
+转置把行和列互换，\((A^{\mathrm T})_{ij}=a_{ji}\)。转置与乘法相遇时要反序：
+\[
+(AB)^{\mathrm T}=B^{\mathrm T}A^{\mathrm T}.
+\]
+方阵的幂规定为 \(A^0=I_n\)，\(A^k=AA\cdots A\)（\(k\) 个）。因为 \(A\) 与自身可交换，\(A^kA^l=A^{k+l}\) 成立。但 \((AB)^k\ne A^kB^k\)，除非 \(AB=BA\)。同样，
+\[
+(A+B)^2=A^2+AB+BA+B^2,
+\]
+中间两项不能合并成 \(2AB\)。
+
+\subsection{向量、线性组合与矩阵的秩}
+
+\(n\) 个实数排成一列，叫 \(n\) 维列向量：
+\[
+\boldsymbol\alpha=\begin{pmatrix}a_1\\a_2\\\vdots\\a_n\end{pmatrix}.
+\]
+\(a_i\) 是第 \(i\) 个分量。两个同维向量相加是分量相加，数乘是每个分量乘同一个数。这两种运算的规律，和矩阵的加法、数乘一样。
+
+内积把两个向量压成一个数：
+\[
+\boldsymbol\alpha^{\mathrm T}\boldsymbol\beta
+=a_1b_1+a_2b_2+\cdots+a_nb_n.
+\]
+两个非零向量的内积为 \(0\)，就说它们垂直（正交）。向量长度是 \(\|\boldsymbol\alpha\|=\sqrt{\boldsymbol\alpha^{\mathrm T}\boldsymbol\alpha}\)，长度为 \(1\) 的叫单位向量。
+
+给定向量 \(\boldsymbol\alpha_1,\ldots,\boldsymbol\alpha_n\) 和数 \(x_1,\ldots,x_n\)，和式
+\[
+x_1\boldsymbol\alpha_1+x_2\boldsymbol\alpha_2+\cdots+x_n\boldsymbol\alpha_n
+\]
+叫这组向量的一个\textbf{线性组合}，\(x_j\) 是组合系数。
+
+矩阵乘向量，正好是列向量的线性组合。把 \(A\) 按列分块：
+\[
+A\boldsymbol x=(\boldsymbol\alpha_1,\boldsymbol\alpha_2,\ldots,\boldsymbol\alpha_n)
+\begin{pmatrix}x_1\\x_2\\\vdots\\x_n\end{pmatrix}
+=x_1\boldsymbol\alpha_1+x_2\boldsymbol\alpha_2+\cdots+x_n\boldsymbol\alpha_n.
+\]
+于是 \(A\boldsymbol x=\boldsymbol b\) 有解，等价于 \(\boldsymbol b\) 能由 \(A\) 的列向量线性表示，组合系数就是解。
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,scale=1.0]
+\begin{scope}
+\clip (-0.5,-0.5) rectangle (6.0,5.2);
+\foreach \k in {-8,...,8}{
+  \draw[blue!45] ({\k-12},{2*\k-6}) -- ({\k+12},{2*\k+6});
+  \draw[red!35] ({2*\k-6},{\k-12}) -- ({2*\k+6},{\k+12});
+}
+\end{scope}
+\draw[->] (-0.5,0) -- (6.1,0) node[right] {\(x_1\)};
+\draw[->] (0,-0.5) -- (0,5.3) node[above] {\(x_2\)};
+\draw[->,very thick,red] (0,0) -- (2,1) node[above left] {\(\boldsymbol\alpha_1\)};
+\draw[->,very thick,green!45!black] (0,0) -- (1,2) node[above left] {\(\boldsymbol\alpha_2\)};
+\draw[->,very thick,black] (0,0) -- (5,4) node[above right] {\(\boldsymbol b\)};
+\draw[->,thick,blue,dashed] (0,0) -- (4,2);
+\draw[->,thick,blue,dashed] (4,2) -- (5,4);
+\node[blue,below right] at (3,1.5) {\(2\boldsymbol\alpha_1\)};
+\node[blue,anchor=west] at (4.62,2.9) {\(\boldsymbol\alpha_2\)};
+\end{tikzpicture}
+\end{center}
+\noindent{\small 两族平行线分别沿 \(\boldsymbol\alpha_1\) 和 \(\boldsymbol\alpha_2\) 的方向，它们的交点都是整数系数的组合。图中 \(\boldsymbol b=2\boldsymbol\alpha_1+\boldsymbol\alpha_2\)，所以方程 \(x_1\boldsymbol\alpha_1+x_2\boldsymbol\alpha_2=\boldsymbol b\) 有解 \((2,1)\)。系数允许取实数时，平面上的每个点都能到达；两个方向不共线，这就是原因。}
+
+接下来给“独立方向的个数”一个名字。
+
+\begin{mydef}{矩阵的秩}{rank}
+把矩阵 \(A\) 用初等行变换化成行阶梯形，非零行的个数称为 \(A\) 的\textbf{秩}，记作 \(r(A)\) 或 \(\operatorname{rank}(A)\)。不同的化法得到的非零行数相同，所以秩由 \(A\) 本身决定。
+\end{mydef}
+
+设 \(A\) 是 \(m\times n\) 矩阵。同一个数有三种读法：
+\begin{enumerate}
+\item 行阶梯形中主元的个数，也就是独立方程的个数；
+\item 列向量组中线性无关向量的最大个数，也就是列向量张成空间的维数；
+\item 行向量组中线性无关向量的最大个数。行秩等于列秩，所以不必区分。
+\end{enumerate}
+秩还有两条基本性质：\(r(A)=r(A^{\mathrm T})\)，以及 \(r(A)\le\min(m,n)\)。
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,scale=0.9]
+% 左：共线
+\begin{scope}
+\draw[->] (-1.6,0) -- (2.6,0) node[right] {\(x_1\)};
+\draw[->] (0,-1.6) -- (0,2.6) node[above] {\(x_2\)};
+\draw[gray!50] (-1.4,-1.4) -- (2.3,2.3);
+\draw[->,very thick,red] (0,0) -- (1,1);
+\draw[->,very thick,blue] (0,0) -- (2,2);
+\draw[->,very thick,green!45!black] (0,0) -- (-1,-1);
+\node[below right,red] at (0.55,0.55) {\(\boldsymbol\alpha_1\)};
+\node[above left,blue] at (2,2) {\(\boldsymbol\alpha_2\)};
+\node[below left,green!45!black] at (-1,-1) {\(\boldsymbol\alpha_3\)};
+\node[align=center] at (0.4,-2.15) {张成一条直线\\\(r=1\)};
+\end{scope}
+% 右：不共线
+\begin{scope}[xshift=6.4cm]
+\draw[->] (-0.8,0) -- (3.5,0) node[right] {\(x_1\)};
+\draw[->] (0,-1.2) -- (0,3.0) node[above] {\(x_2\)};
+\fill[blue!15] (0,0) -- (1,1) -- (3,2) -- (2,1) -- cycle;
+\draw[blue!45] (0,0) -- (1,1) -- (3,2) -- (2,1) -- cycle;
+\draw[->,very thick,red] (0,0) -- (1,1);
+\draw[->,very thick,blue] (0,0) -- (2,1);
+\node[above left,red] at (1,1) {\(\boldsymbol\alpha_1\)};
+\node[below right,blue] at (2,1) {\(\boldsymbol\alpha_2\)};
+\node[align=center] at (1,-2.15) {张成整个平面\\\(r=2\)};
+\end{scope}
+\end{tikzpicture}
+\end{center}
+\noindent{\small 左图三个向量在同一条直线上，无论怎么组合都离不开这条直线，秩为 \(1\)。右图两个向量不共线，取不同的组合系数可以达到平面上的任意点，秩为 \(2\)。秩就是独立方向的个数。}
+
+行变换不改变秩，也不改变列向量之间的线性关系：若某组系数使列向量的组合等于零，变换后同一组系数仍使它等于零。这就是行变换不改变解集的原因。
+
+第 2 章会讨论向量组的极大线性无关组。那里会看到，\(r(A)\) 正是 \(A\) 的列向量组的极大无关组所含向量的个数。
+
+\subsection{齐次方程组}
+
+齐次方程组写成 \(A\boldsymbol x=\boldsymbol 0\)。它一定有解：\(\boldsymbol x=\boldsymbol 0\) 总是解，叫零解。问题是还有没有别的解。
+
+设 \(A\) 是 \(m\times n\) 矩阵，\(r(A)=r\)。把 \(A\) 化成行最简形以后：
+\begin{enumerate}
+\item 主元所在的列对应\textbf{主变量}，共有 \(r\) 个；
+\item 其余的列对应\textbf{自由变量}，共有 \(n-r\) 个。
+\end{enumerate}
+自由变量可以任取。每取一组值，主变量就被唯一确定。所以 \(r=n\) 时没有自由变量，只有零解；\(r<n\) 时有非零解，且有无穷多个。
+
+能生成其余所有解的一组解，有专门的名字。
+\begin{mydef}{基础解系}{fundamental-system}
+齐次方程组 \(A\boldsymbol x=\boldsymbol 0\) 的一组解 \(\boldsymbol\xi_1,\ldots,\boldsymbol\xi_{n-r}\)，如果满足
+\begin{enumerate}
+\item 它们线性无关，即其中任何一个都不能由其余几个线性表示；
+\item 方程组的每个解都能写成它们的线性组合，
+\end{enumerate}
+就称它们为一个\textbf{基础解系}。
+\end{mydef}
+
+具体做法：把自由变量依次取 \(1\)（其余自由变量取 \(0\)），解出主变量，得到 \(n-r\) 个解。它们就是基础解系。通解为
+\[
+\boldsymbol x=k_1\boldsymbol\xi_1+k_2\boldsymbol\xi_2+\cdots+k_{n-r}\boldsymbol\xi_{n-r},
+\qquad k_1,\ldots,k_{n-r}\in\mathbb R.
+\]
+
+看一个例子。设
+\[
+A=\begin{pmatrix}1&1&1\\2&3&1\end{pmatrix}.
+\]
+化成行最简形：
+\[
+\begin{pmatrix}1&1&1\\2&3&1\end{pmatrix}
+\xrightarrow{r_2-2r_1}
+\begin{pmatrix}1&1&1\\0&1&-1\end{pmatrix}
+\xrightarrow{r_1-r_2}
+\begin{pmatrix}1&0&2\\0&1&-1\end{pmatrix}.
+\]
+这里 \(n=3\)，\(r=2\)，自由变量只有 \(x_3\)。方程化为
+\[
+x_1+2x_3=0,\qquad x_2-x_3=0.
+\]
+令 \(x_3=t\)，则 \(x_1=-2t\)，\(x_2=t\)，即
+\[
+\boldsymbol x=t\begin{pmatrix}-2\\1\\1\end{pmatrix}.
+\]
+基础解系只有一个向量 \(\boldsymbol\xi=(-2,1,1)^{\mathrm T}\)，通解是它的任意倍数。
+
+从几何上看，齐次方程组的解集是 \(\mathbb R^n\) 中过原点的子空间，维数为 \(n-r\)。两个解相加、一个解乘上常数，仍然是解。
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,scale=1.0]
+\draw[->] (-4.6,0) -- (2.6,0) node[right] {\(x_1\)};
+\draw[->] (0,-1.5) -- (0,2.6) node[above] {\(x_2\)};
+\draw[blue,line width=2.2pt] (2,-1) -- (-4,2);
+\draw[->,thick,red] (0,0) -- (-2,1) node[above left] {\(\boldsymbol\xi\)};
+\draw[->,thick,red,dashed] (-2,1) -- (-4,2) node[above left] {\(2\boldsymbol\xi\)};
+\fill[red] (-2,1) circle (1.6pt);
+\fill[red] (-4,2) circle (1.6pt);
+\fill (0,0) circle (1.5pt);
+\end{tikzpicture}
+\end{center}
+\noindent{\small 两个未知数的齐次方程 \(x_1+2x_2=0\) 的解是一条过原点的直线。\(\boldsymbol\xi\) 是解，\(2\boldsymbol\xi\) 也是解；任取两个解相加，仍然落在直线上。解集对加法、数乘封闭，是一个一维子空间，维数正好是 \(n-r=2-1=1\)。}
+
+\subsection{非齐次方程组与解的结构}
+
+非齐次方程组写成 \(A\boldsymbol x=\boldsymbol b\)，\(\boldsymbol b\ne\boldsymbol 0\)。它可能无解，所以先判断相容性。
+
+把增广矩阵 \((A\mid\boldsymbol b)\) 化成行阶梯形，比较两边的秩：
+\begin{itemize}
+\item 若 \(r(A)<r(A\mid\boldsymbol b)\)，最后一列出现主元，等价于某行变成 \(0=d\)（\(d\ne0\)），无解；
+\item 若 \(r(A)=r(A\mid\boldsymbol b)=r\)，有解。此时 \(r=n\) 唯一解，\(r<n\) 有无穷多解。
+\end{itemize}
+
+有解时，解集的结构很整齐。
+
+\begin{conclusion}{非齐次方程组解的结构}{nonhomogeneous-structure}
+设 \(A\boldsymbol x=\boldsymbol b\) 有解，\(\boldsymbol\eta_0\) 是它的一个特解，\(\boldsymbol\xi_1,\ldots,\boldsymbol\xi_{n-r}\) 是对应齐次方程组 \(A\boldsymbol x=\boldsymbol 0\) 的基础解系。则 \(A\boldsymbol x=\boldsymbol b\) 的全部解为
+\[
+\boldsymbol x=\boldsymbol\eta_0+k_1\boldsymbol\xi_1+\cdots+k_{n-r}\boldsymbol\xi_{n-r},
+\qquad k_i\in\mathbb R.
+\]
+\end{conclusion}
+
+道理很短。若 \(\boldsymbol x\) 和 \(\boldsymbol\eta_0\) 都满足 \(A\boldsymbol x=\boldsymbol b\)，则
+\[
+A(\boldsymbol x-\boldsymbol\eta_0)=A\boldsymbol x-A\boldsymbol\eta_0=\boldsymbol b-\boldsymbol b=\boldsymbol 0,
+\]
+所以 \(\boldsymbol x-\boldsymbol\eta_0\) 是齐次方程组的解。反过来，\(\boldsymbol\eta_0\) 加上任一齐次解，仍然满足 \(A\boldsymbol x=\boldsymbol b\)。
+
+把上一节的例子加上右端项：
 \[
 \left(\begin{array}{ccc|c}
-1 & 2 & 1 & 3 \\
-0 & 1 & -3 & -10 \\
-0 & 0 & 1 & 3
+1&1&1&2\\
+2&3&1&3
 \end{array}\right)
-\xrightarrow{r_2+3r_3,\;r_1-r_3}
+\xrightarrow{r_2-2r_1}
 \left(\begin{array}{ccc|c}
-1 & 2 & 0 & 0 \\
-0 & 1 & 0 & -1 \\
-0 & 0 & 1 & 3
+1&1&1&2\\
+0&1&-1&-1
+\end{array}\right)
+\xrightarrow{r_1-r_2}
+\left(\begin{array}{ccc|c}
+1&0&2&3\\
+0&1&-1&-1
 \end{array}\right).
 \]
+秩 \(r(A)=r(A\mid\boldsymbol b)=2<3\)，有无穷多解。方程化为
 \[
-\left(\begin{array}{ccc|c}
-1 & 2 & 0 & 0 \\
-0 & 1 & 0 & -1 \\
-0 & 0 & 1 & 3
-\end{array}\right)
-\xrightarrow{r_1-2r_2}
-\left(\begin{array}{ccc|c}
-1 & 0 & 0 & 2 \\
-0 & 1 & 0 & -1 \\
-0 & 0 & 1 & 3
-\end{array}\right)
+x_1=3-2x_3,\qquad x_2=-1+x_3.
 \]
-故方程组的解为 \(x_1 = 2, \ x_2 = -1, \ x_3 = 3\)。
+令 \(x_3=t\)，得
+\[
+\boldsymbol x=\begin{pmatrix}3\\-1\\0\end{pmatrix}
++t\begin{pmatrix}-2\\1\\1\end{pmatrix}.
+\]
+其中 \((3,-1,0)^{\mathrm T}\) 是一个特解，\((-2,1,1)^{\mathrm T}\) 是齐次方程组的基础解系。通解就是“一个特解加齐次通解”。
 
-\begin{conclusion}{消元法中的三种可能结果}{elimination-outcomes}
-    将增广矩阵化为行阶梯形后，方程组解的情况可由阶梯形直接判定：
-    \begin{enumerate}
-        \item \textbf{无解}：出现矛盾行，即某行左边系数全为零而右边常数非零（形如 \(0 = c,\ c \neq 0\)）；
-        \item \textbf{唯一解}：非零行数目等于未知数数目，且无矛盾行；
-        \item \textbf{无穷多解}：非零行数目小于未知数数目，且无矛盾行，此时存在自由未知量。
-    \end{enumerate}
-\end{conclusion}
-
-\noindent\textbf{拓展（数值线性代数 / 条件数）:} 高斯消元法在计算机中即为对系数矩阵做 \textbf{LU 分解} \(A = LU\)（\(L\) 为单位下三角，\(U\) 为上三角），把解 \(A\mathbf{x} = \mathbf{b}\) 化为两次三角回代。当系数矩阵的\textbf{条件数} \(\kappa(A) = \|A\|\,\|A^{-1}\|\) 很大时，方程组是\textbf{病态}的：解虽唯一，输入 \(\mathbf{b}\) 或 \(A\) 的微小扰动却被放大成解的显著误差，相对误差满足 \(\dfrac{\|\Delta \mathbf{x}\|}{\|\mathbf{x}\|} \le \kappa(A)\,\dfrac{\|\Delta \mathbf{b}\|}{\|\mathbf{b}\|}\)；浮点运算中解的误差因此受 \(\kappa(A)\) 与机器精度 \(\varepsilon\) 之积 \(\kappa(A)\varepsilon\) 支配——这是数值线性代数的核心议题，也提醒我们：病态系统上的偏差往往源于舍入误差放大，而非计算有误。\\
-\subsection{向量及其运算}
-
-\begin{mydef}{$n$ 维向量}{n-dimensional-vector}
-    \(n\) 个有序数 \(a_1, a_2, \ldots, a_n\) 构成的有序数组
-    \[
-    \boldsymbol{\alpha} = (a_1, a_2, \ldots, a_n)
-    \]
-    称为\textbf{\(n\) 维向量}，\(a_i\) 称为该向量的第 \(i\) 个\textbf{分量}（或\textbf{坐标}）。\\
-    向量通常分为\textbf{行向量}（横写）和\textbf{列向量}（竖写）：
-    \[
-    \boldsymbol{\alpha} = (a_1, a_2, \ldots, a_n), \qquad
-    \boldsymbol{\beta} = \begin{pmatrix} b_1 \\ b_2 \\ \vdots \\ b_n \end{pmatrix}
-    \]
-    若无特别说明，向量均指列向量。所有分量为零的向量称为\textbf{零向量}，记作 \(\boldsymbol{0}\)。
-\end{mydef}
-
-\begin{mydef}{向量的线性运算}{vector-linear-operations}
-    设 \(\boldsymbol{\alpha} = (a_1, a_2, \ldots, a_n)^\mathrm{T}\)，
-    \(\boldsymbol{\beta} = (b_1, b_2, \ldots, b_n)^\mathrm{T}\)，\(k\) 为实数：
-    \begin{enumerate}
-        \item \textbf{向量加法}：
-        \(\boldsymbol{\alpha} + \boldsymbol{\beta} = (a_1 + b_1, a_2 + b_2, \ldots, a_n + b_n)^\mathrm{T}\)；
-        \item \textbf{数乘}（标量乘法）：
-        \(k\boldsymbol{\alpha} = (ka_1, ka_2, \ldots, ka_n)^\mathrm{T}\)；
-        \item \textbf{负向量}：
-        \(-\boldsymbol{\alpha} = (-a_1, -a_2, \ldots, -a_n)^\mathrm{T}\)；
-        \item \textbf{向量减法}：
-        \(\boldsymbol{\alpha} - \boldsymbol{\beta} = \boldsymbol{\alpha} + (-\boldsymbol{\beta})\)。
-    \end{enumerate}
-\end{mydef}
-
-\begin{conclusion}{向量线性运算的性质}{vector-linear-properties}
-    设 \(\boldsymbol{\alpha}, \boldsymbol{\beta}, \boldsymbol{\gamma}\) 为 \(n\) 维向量，\(k, l\) 为实数，则：
-    \begin{enumerate}
-        \item 加法交换律：\(\boldsymbol{\alpha} + \boldsymbol{\beta} = \boldsymbol{\beta} + \boldsymbol{\alpha}\)
-        \item 加法结合律：\((\boldsymbol{\alpha} + \boldsymbol{\beta}) + \boldsymbol{\gamma} = \boldsymbol{\alpha} + (\boldsymbol{\beta} + \boldsymbol{\gamma})\)
-        \item 零向量：\(\boldsymbol{\alpha} + \boldsymbol{0} = \boldsymbol{\alpha}\)
-        \item 负向量：\(\boldsymbol{\alpha} + (-\boldsymbol{\alpha}) = \boldsymbol{0}\)
-        \item 数乘结合律：\(k(l\boldsymbol{\alpha}) = (kl)\boldsymbol{\alpha}\)
-        \item 数乘分配律：\((k + l)\boldsymbol{\alpha} = k\boldsymbol{\alpha} + l\boldsymbol{\alpha}\)，
-        \(k(\boldsymbol{\alpha} + \boldsymbol{\beta}) = k\boldsymbol{\alpha} + k\boldsymbol{\beta}\)
-        \item 单位元：\(1 \cdot \boldsymbol{\alpha} = \boldsymbol{\alpha}\)
-    \end{enumerate}
-    以上八条性质表明全体 \(n\) 维向量在加法和数乘下构成\textbf{线性空间}（向量空间）。
-\end{conclusion}
-
-\begin{mydef}{向量的内积（点积）}{vector-dot-product}
-    设 \(\boldsymbol{\alpha} = (a_1, a_2, \ldots, a_n)^\mathrm{T}\)，
-    \(\boldsymbol{\beta} = (b_1, b_2, \ldots, b_n)^\mathrm{T}\)，
-    则 \(\boldsymbol{\alpha}\) 与 \(\boldsymbol{\beta}\) 的\textbf{内积}（点积）定义为
-    \[
-    \boldsymbol{\alpha} \cdot \boldsymbol{\beta} = a_1b_1 + a_2b_2 + \cdots + a_nb_n = \sum_{i=1}^{n} a_i b_i
-    \]
-    也常记作 \(\langle \boldsymbol{\alpha}, \boldsymbol{\beta} \rangle\) 或 \(\boldsymbol{\alpha}^\mathrm{T}\boldsymbol{\beta}\)。
-\end{mydef}
-
-\begin{conclusion}{向量内积的性质}{vector-dot-product-properties}
-    设 \(\boldsymbol{\alpha}, \boldsymbol{\beta}, \boldsymbol{\gamma}\) 为 \(n\) 维向量，\(k\) 为实数，则：
-    \begin{enumerate}
-        \item 对称性：\(\boldsymbol{\alpha} \cdot \boldsymbol{\beta} = \boldsymbol{\beta} \cdot \boldsymbol{\alpha}\)
-        \item 线性性：\((\boldsymbol{\alpha} + \boldsymbol{\beta}) \cdot \boldsymbol{\gamma} = \boldsymbol{\alpha} \cdot \boldsymbol{\gamma} + \boldsymbol{\beta} \cdot \boldsymbol{\gamma}\)；
-        \((k\boldsymbol{\alpha}) \cdot \boldsymbol{\beta} = k(\boldsymbol{\alpha} \cdot \boldsymbol{\beta})\)
-        \item 正定性：\(\boldsymbol{\alpha} \cdot \boldsymbol{\alpha} \geq 0\)，且 \(\boldsymbol{\alpha} \cdot \boldsymbol{\alpha} = 0 \Leftrightarrow \boldsymbol{\alpha} = \boldsymbol{0}\)
-    \end{enumerate}
-\end{conclusion}
-
-\begin{mydef}{向量的长度与夹角}{vector-norm-and-angle}
-    向量 \(\boldsymbol{\alpha}\) 的\textbf{长度}（范数）定义为
-    \[
-    \| \boldsymbol{\alpha} \| = \sqrt{\boldsymbol{\alpha} \cdot \boldsymbol{\alpha}} = \sqrt{a_1^2 + a_2^2 + \cdots + a_n^2}
-    \]
-    长度为 \(1\) 的向量称为\textbf{单位向量}。\\
-    两个非零向量 \(\boldsymbol{\alpha}, \boldsymbol{\beta}\) 的\textbf{夹角} \(\theta\) 满足
-    \[
-    \cos\theta = \frac{\boldsymbol{\alpha} \cdot \boldsymbol{\beta}}{\| \boldsymbol{\alpha} \| \| \boldsymbol{\beta} \|}, \quad 0 \leq \theta \leq \pi
-    \]
-    若 \(\boldsymbol{\alpha} \cdot \boldsymbol{\beta} = 0\)，则称 \(\boldsymbol{\alpha}\) 与 \(\boldsymbol{\beta}\) \textbf{正交}（垂直）。
-\end{mydef}
-
-向量加法可用\textbf{平行四边形法则}直观表示；两个非零向量的夹角 \(\theta\) 则由内积给出，如下图（\(\boldsymbol{\alpha}=(3,1)\)，\(\boldsymbol{\beta}=(1,2)\)）：
 \begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  axis lines=center,
-  width=0.72\linewidth, height=6.2cm,
-  xlabel={$x_1$}, ylabel={$x_2$},
-  xmin=-0.6, xmax=4.9, ymin=-0.6, ymax=4.9,
-  xtick={1,2,3,4}, ytick={1,2,3,4},
-  font=\footnotesize,
-]
-\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:3,1);
-\draw[->,thick,red] (axis cs:0,0) -- (axis cs:1,2);
-\draw[->,thick,blue,dashed] (axis cs:1,2) -- (axis cs:4,3);
-\draw[->,thick,red,dashed] (axis cs:3,1) -- (axis cs:4,3);
-\draw[->,thick,black] (axis cs:0,0) -- (axis cs:4,3);
-\addplot[draw=black,thick,domain=18:63,samples=30] ({0.9*cos(x)},{0.9*sin(x)});
-\node[anchor=south east,blue] at (axis cs:3,1) {$\boldsymbol{\alpha}=(3,1)$};
-\node[anchor=south east,red] at (axis cs:1,2) {$\boldsymbol{\beta}=(1,2)$};
-\node[anchor=south west,black] at (axis cs:4,3) {$\boldsymbol{\alpha}+\boldsymbol{\beta}$};
-\node[font=\footnotesize] at (axis cs:1.15,0.72) {$\theta$};
-\end{axis}
+\begin{tikzpicture}[font=\footnotesize,scale=0.95]
+\draw[->] (-3.6,0) -- (4.9,0) node[right] {\(x_1\)};
+\draw[->] (0,-1.6) -- (0,3.6) node[above] {\(x_2\)};
+\draw[gray,dashed,thick] (2,-1) -- (-3,1.5);
+\draw[blue,thick] (4,-0.5) -- (-1,2);
+\draw[->,thick,orange!80!black] (0,0) -- (1,1) node[below right] {\(\boldsymbol\eta_0\)};
+\draw[->,very thick,red] (1,1) -- (-1,2) node[above left] {\(\boldsymbol\xi\)};
+\fill[red] (1,1) circle (1.5pt);
+\fill[red] (-1,2) circle (1.5pt);
+\fill[red] (3,0) circle (1.5pt);
+\node[blue,above right] at (2.55,0.32) {\(x_1+2x_2=3\)};
 \end{tikzpicture}
 \end{center}
+\noindent{\small 以两个未知数为例。灰虚线是齐次方程的解，蓝线是非齐次方程的解。蓝线是灰线平移 \(\boldsymbol\eta_0\) 得到的，方向不变；线上的点都能写成 \(\boldsymbol\eta_0+t\boldsymbol\xi\)。所以非齐次解集不是子空间，它是齐次解子空间的一个平移。}
 
-\boxed{\textbf{例}}
-\(\boldsymbol{\alpha} = (1, 2, -1)^\mathrm{T}\)，\(\boldsymbol{\beta} = (3, -1, 2)^\mathrm{T}\)，求 \(\boldsymbol{\alpha} + \boldsymbol{\beta}\)，\(2\boldsymbol{\alpha}\)，\(\boldsymbol{\alpha} \cdot \boldsymbol{\beta}\)，\(\|\boldsymbol{\alpha}\|\)。
-
-\textbf{解}
-\begin{align*}
-\boldsymbol{\alpha} + \boldsymbol{\beta} &= (1+3,\ 2+(-1),\ -1+2)^\mathrm{T} = (4, 1, 1)^\mathrm{T} \\
-2\boldsymbol{\alpha} &= (2, 4, -2)^\mathrm{T} \\
-\boldsymbol{\alpha} \cdot \boldsymbol{\beta} &= 1 \times 3 + 2 \times (-1) + (-1) \times 2 = 3 - 2 - 2 = -1 \\
-\|\boldsymbol{\alpha}\| &= \sqrt{1^2 + 2^2 + (-1)^2} = \sqrt{1 + 4 + 1} = \sqrt{6}
-\end{align*}
-
-\subsection{矩阵及其运算}
-
-\begin{mydef}{矩阵}{matrix}
-    由 \(m \times n\) 个数 \(a_{ij} \ (i = 1, 2, \ldots, m;\ j = 1, 2, \ldots, n)\) 排成 \(m\) 行 \(n\) 列的矩形数表
-    \[
-    A = \begin{pmatrix}
-        a_{11} & a_{12} & \cdots & a_{1n} \\
-        a_{21} & a_{22} & \cdots & a_{2n} \\
-        \vdots & \vdots & \ddots & \vdots \\
-        a_{m1} & a_{m2} & \cdots & a_{mn}
-    \end{pmatrix}
-    \]
-    称为 \textbf{\(m \times n\) 矩阵}，简记为 \(A = (a_{ij})_{m\times n}\)。\\
-    当 \(m = n\) 时称为\textbf{\(n\) 阶方阵}，此时 \(a_{11}, a_{22}, \ldots, a_{nn}\) 称为\textbf{主对角线元素}。
-\end{mydef}
-
-\begin{mydef}{特殊矩阵}{special-matrices}
-    \begin{enumerate}
-        \item \textbf{零矩阵}：所有元素均为零的矩阵，记作 \(O\) 或 \(O_{m\times n}\)。
-        \item \textbf{单位矩阵}（恒等矩阵）：主对角线元素全为 \(1\)，其余元素全为 \(0\) 的 \(n\) 阶方阵，记作 \(I_n\) 或 \(E_n\)：
-        \[
-        I_n = \begin{pmatrix}
-            1 & 0 & \cdots & 0 \\
-            0 & 1 & \cdots & 0 \\
-            \vdots & \vdots & \ddots & \vdots \\
-            0 & 0 & \cdots & 1
-        \end{pmatrix}
-        \]
-        \item \textbf{对角矩阵}：除主对角线外其余元素均为零的方阵，记作
-        \(\operatorname{diag}(d_1, d_2, \ldots, d_n)\)。
-        \item \textbf{数量矩阵}：主对角线元素全相等的对角矩阵，即 \(kI_n\)。
-        \item \textbf{上三角矩阵}：主对角线下方元素全为零的方阵，即当 \(i > j\) 时 \(a_{ij} = 0\)。
-        \item \textbf{下三角矩阵}：主对角线上方元素全为零的方阵，即当 \(i < j\) 时 \(a_{ij} = 0\)。
-        \item \textbf{对称矩阵}：满足 \(A^\mathrm{T} = A\) 的方阵，即 \(a_{ij} = a_{ji}\) 对所有 \(i, j\) 成立。
-        \item \textbf{反对称矩阵}：满足 \(A^\mathrm{T} = -A\) 的方阵，即 \(a_{ij} = -a_{ji}\)，主对角线元素必为零。
-    \end{enumerate}
-\end{mydef}
-
-\begin{formula}{矩阵的线性运算}{matrix-linear-operations}
-    设 \(A = (a_{ij})_{m\times n},\ B = (b_{ij})_{m\times n}\)，\(k\) 为实数：
-    \begin{enumerate}
-        \item \textbf{矩阵加法}（同型矩阵）：
-        \(A + B = (a_{ij} + b_{ij})_{m\times n}\)
-        \item \textbf{数乘}：
-        \(kA = (ka_{ij})_{m\times n}\)
-    \end{enumerate}
-\end{formula}
-
-\begin{conclusion}{矩阵线性运算的性质}{matrix-linear-properties}
-    设 \(A, B, C\) 为同型矩阵，\(k, l\) 为实数：
-    \begin{enumerate}
-        \item \(A + B = B + A\)
-        \item \((A + B) + C = A + (B + C)\)
-        \item \(A + O = A\)
-        \item \(A + (-A) = O\)
-        \item \(k(A + B) = kA + kB\)
-        \item \((k + l)A = kA + lA\)
-        \item \(k(lA) = (kl)A\)
-        \item \(1 \cdot A = A\)
-    \end{enumerate}
-\end{conclusion}
-
-\begin{formula}{矩阵乘法}{matrix-multiplication}
-    设 \(A = (a_{ij})_{m\times s}\)，\(B = (b_{ij})_{s\times n}\)，则乘积 \(C = AB = (c_{ij})_{m\times n}\)，其中
-    \[
-    c_{ij} = a_{i1}b_{1j} + a_{i2}b_{2j} + \cdots + a_{is}b_{sj} = \sum_{k=1}^{s} a_{ik}b_{kj}
-    \]
-    即 \(C\) 的第 \(i\) 行第 \(j\) 列元素是 \(A\) 的第 \(i\) 行与 \(B\) 的第 \(j\) 列对应元素乘积之和。\\
-    注意：矩阵乘法要求\textbf{左矩阵的列数等于右矩阵的行数}，否则乘法无定义。
-\end{formula}
-
-\boxed{\textbf{例}}
-设 \(A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}\)，\(B = \begin{pmatrix} 2 & 0 \\ 1 & 3 \end{pmatrix}\)，求 \(AB\) 和 \(BA\)。
-
-\textbf{解}
-\[
-AB = \begin{pmatrix} 1 \cdot 2 + 2 \cdot 1 & 1 \cdot 0 + 2 \cdot 3 \\ 3 \cdot 2 + 4 \cdot 1 & 3 \cdot 0 + 4 \cdot 3 \end{pmatrix}
-= \begin{pmatrix} 4 & 6 \\ 10 & 12 \end{pmatrix}
-\]
-\[
-BA = \begin{pmatrix} 2 \cdot 1 + 0 \cdot 3 & 2 \cdot 2 + 0 \cdot 4 \\ 1 \cdot 1 + 3 \cdot 3 & 1 \cdot 2 + 3 \cdot 4 \end{pmatrix}
-= \begin{pmatrix} 2 & 4 \\ 10 & 14 \end{pmatrix}
-\]
-注意到 \(AB \neq BA\)，说明\textbf{矩阵乘法不满足交换律}。
-
-\begin{conclusion}{矩阵乘法的性质}{matrix-multiplication-properties}
-    在矩阵乘法有定义的前提下：
-    \begin{enumerate}
-        \item 结合律：\((AB)C = A(BC)\)
-        \item 分配律：\(A(B + C) = AB + AC\)，\((B + C)A = BA + CA\)
-        \item 数乘结合律：\(k(AB) = (kA)B = A(kB)\)
-        \item 单位矩阵：若 \(A\) 为 \(m \times n\) 矩阵，则 \(I_m A = A I_n = A\)
-        \item \textbf{不满足交换律}：一般 \(AB \neq BA\)（即使两方阵同阶）
-        \item \textbf{不满足消去律}：由 \(AB = AC\) 且 \(A \neq O\) 不能推出 \(B = C\)
-        \item \textbf{有零因子}：可能 \(A \neq O,\ B \neq O\) 但 \(AB = O\)
-    \end{enumerate}
-\end{conclusion}
-
-\begin{formula}{方阵的幂}{matrix-power}
-    设 \(A\) 为 \(n\) 阶方阵，定义
-    \[
-    A^0 = I_n, \quad A^k = \underbrace{AA\cdots A}_{k\text{ 个}}, \quad k = 1, 2, \ldots
-    \]
-    幂运算性质：\(A^k A^l = A^{k+l}\)，\((A^k)^l = A^{kl}\)。\\
-    一般 \((AB)^k \neq A^k B^k\)，仅当 \(AB = BA\) 时可交换时成立。
-\end{formula}
-
-\begin{formula}{矩阵的转置}{matrix-transpose}
-    将矩阵 \(A = (a_{ij})_{m\times n}\) 的行与列互换得到的 \(n \times m\) 矩阵称为 \(A\) 的\textbf{转置}，记作 \(A^\mathrm{T}\)，即
-    \[
-    (A^\mathrm{T})_{ij} = a_{ji}
-    \]
-\end{formula}
-
-\begin{conclusion}{转置的性质}{transpose-properties}
-    \begin{enumerate}
-        \item \((A^\mathrm{T})^\mathrm{T} = A\)
-        \item \((A + B)^\mathrm{T} = A^\mathrm{T} + B^\mathrm{T}\)
-        \item \((kA)^\mathrm{T} = kA^\mathrm{T}\)
-        \item \((AB)^\mathrm{T} = B^\mathrm{T}A^\mathrm{T}\)（注意顺序反转）
-    \end{enumerate}
-\end{conclusion}
-
-\boxed{\textbf{例}}
-设 \(A = \begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{pmatrix}\)，则
-\(A^\mathrm{T} = \begin{pmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{pmatrix}\)。
-
-\boxed{\textbf{例}}
-验证 \((AB)^\mathrm{T} = B^\mathrm{T} A^\mathrm{T}\)。设
-\(A = \begin{pmatrix} 1 & 2 \\ 0 & 1 \end{pmatrix},
-B = \begin{pmatrix} 2 & 1 \\ 3 & 0 \end{pmatrix}\)：
-\[
-AB = \begin{pmatrix} 8 & 1 \\ 3 & 0 \end{pmatrix},\quad
-(AB)^\mathrm{T} = \begin{pmatrix} 8 & 3 \\ 1 & 0 \end{pmatrix}
-\]
-\[
-B^\mathrm{T}A^\mathrm{T} = \begin{pmatrix} 2 & 3 \\ 1 & 0 \end{pmatrix}
-\begin{pmatrix} 1 & 0 \\ 2 & 1 \end{pmatrix}
-= \begin{pmatrix} 8 & 3 \\ 1 & 0 \end{pmatrix} = (AB)^\mathrm{T}
-\]
-
-\subsection{线性方程组、向量与矩阵的关系}
-
-\begin{conclusion}{线性方程组的三种表示形式}{three-forms-of-linear-system}
-    线性方程组
-    \[
-    \begin{cases}
-        a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n = b_1 \\
-        a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n = b_2 \\
-        \qquad \vdots \\
-        a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n = b_m
-    \end{cases}
-    \]
-    有以下三种等价的表示形式：
-    \begin{enumerate}
-        \item \textbf{矩阵形式}：\(A\boldsymbol{x} = \boldsymbol{b}\)，其中
-        \[
-        A = (a_{ij})_{m\times n},\quad
-        \boldsymbol{x} = \begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{pmatrix},\quad
-        \boldsymbol{b} = \begin{pmatrix} b_1 \\ b_2 \\ \vdots \\ b_m \end{pmatrix}
-        \]
-        这里 \(A\) 为系数矩阵，\(\boldsymbol{x}\) 为未知数列向量，\(\boldsymbol{b}\) 为常数项列向量。
-
-        \item \textbf{向量形式}：\(x_1\boldsymbol{\alpha}_1 + x_2\boldsymbol{\alpha}_2 + \cdots + x_n\boldsymbol{\alpha}_n = \boldsymbol{b}\)，其中
-        \[
-        \boldsymbol{\alpha}_j = \begin{pmatrix} a_{1j} \\ a_{2j} \\ \vdots \\ a_{mj} \end{pmatrix} \quad (j = 1, 2, \ldots, n)
-        \]
-        即 \(\boldsymbol{\alpha}_j\) 是矩阵 \(A\) 的第 \(j\) 列列向量。
-
-        \item \textbf{增广矩阵形式}：将系数矩阵与常数项列合并为增广矩阵 \((A \mid \boldsymbol{b})\)。
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{矩阵形式与消元法的对应}{matrix-form-and-elimination}
-    使用矩阵记法，初等行变换对应于对增广矩阵 \((A \mid \boldsymbol{b})\) 施行行操作。
-    高斯消元法实质上就是将增广矩阵通过初等行变换化为行阶梯形或行最简形：
-    \[
-    (A \mid \boldsymbol{b}) \xrightarrow{\text{初等行变换}} (U \mid \boldsymbol{c})
-    \]
-    其中 \(U\) 为行阶梯形矩阵。此时方程组 \(U\boldsymbol{x} = \boldsymbol{c}\) 与原方程组 \(A\boldsymbol{x} = \boldsymbol{b}\) 同解。
-\end{conclusion}
-
-\begin{conclusion}{向量的线性组合与方程组}{linear-combination-and-system}
-    从向量观点看，线性方程组 \(A\boldsymbol{x} = \boldsymbol{b}\) 是否有解，等价于问向量 \(\boldsymbol{b}\) 是否可以表示为系数矩阵列向量组 \(\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_n\) 的\textbf{线性组合}，即是否存在实数 \(x_1, x_2, \ldots, x_n\) 使得
-    \[
-    x_1\boldsymbol{\alpha}_1 + x_2\boldsymbol{\alpha}_2 + \cdots + x_n\boldsymbol{\alpha}_n = \boldsymbol{b}
-    \]
-    若有解，则解 \((x_1, x_2, \ldots, x_n)^\mathrm{T}\) 就是该线性组合的系数。
-\end{conclusion}
-
-几何上，方程组 \(A\boldsymbol{x} = \boldsymbol{b}\) 有解当且仅当 \(\boldsymbol{b}\) 落在由 \(\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_n\) 张成的子空间中。下例中 \(\boldsymbol{b} = 2\boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2\)（\(\boldsymbol{\alpha}_1=(2,1)\)，\(\boldsymbol{\alpha}_2=(3,-2)\)，\(\boldsymbol{b}=(7,0)\)）：
+三种情形可以用一张表记住（以 \(n=2\)、两条直线为例）：
 \begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  axis lines=center,
-  width=0.72\linewidth, height=6.4cm,
-  xlabel={$x_1$}, ylabel={$x_2$},
-  xmin=-1.2, xmax=8.6, ymin=-3.4, ymax=3.2,
-  xtick={2,4,6,8}, ytick={-2,-1,0,1,2},
-  font=\footnotesize,
-]
-\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:2,1);
-\draw[->,thick,blue] (axis cs:2,1) -- (axis cs:4,2);
-\draw[->,thick,blue,dashed] (axis cs:4,2) -- (axis cs:7,0);
-\draw[->,thick,red] (axis cs:0,0) -- (axis cs:3,-2);
-\draw[->,thick,black] (axis cs:0,0) -- (axis cs:7,0);
-\node[anchor=south,blue] at (axis cs:2,1) {$\boldsymbol{\alpha}_1$};
-\node[anchor=north,red] at (axis cs:3,-2) {$\boldsymbol{\alpha}_2$};
-\node[anchor=south,black] at (axis cs:7,0) {$\boldsymbol{b}$};
-\node[blue] at (axis cs:3.1,2.1) {$2\boldsymbol{\alpha}_1$};
-\end{axis}
-\end{tikzpicture}
+\begin{tabular}{ccc}
+\toprule
+秩的关系 & 两条直线 & 解的情况 \\
+\midrule
+\(r(A)<r(A\mid\boldsymbol b)\) & 平行且不重合 & 无解 \\
+\(r(A)=r(A\mid\boldsymbol b)=n\) & 交于一点 & 唯一解 \\
+\(r(A)=r(A\mid\boldsymbol b)<n\) & 重合 & 无穷多解，\(n-r\) 个自由未知量 \\
+\bottomrule
+\end{tabular}
 \end{center}
 
-\boxed{\textbf{例}}
-将方程组写作矩阵形式和向量形式：
-\[
-\begin{cases}
-    2x_1 + 3x_2 = 7 \\
-    x_1 - 2x_2 = 0
-\end{cases}
-\]
+最后把两节合起来看。秩 \(r\) 是独立约束的个数，\(n-r\) 是自由度。齐次方程组的解集是 \(n-r\) 维子空间，非齐次方程组的解集是这个子空间平移一个特解。行变换、秩、解的结构，说的是同一件事。
 
-\textbf{解}
-\textbf{矩阵形式}：
-\[
-\underbrace{\begin{pmatrix} 2 & 3 \\ 1 & -2 \end{pmatrix}}_{A}
-\underbrace{\begin{pmatrix} x_1 \\ x_2 \end{pmatrix}}_{\boldsymbol{x}}
-= \underbrace{\begin{pmatrix} 7 \\ 0 \end{pmatrix}}_{\boldsymbol{b}}
-\]
-
-\textbf{向量形式}：
-\[
-x_1\begin{pmatrix} 2 \\ 1 \end{pmatrix}
-+ x_2\begin{pmatrix} 3 \\ -2 \end{pmatrix}
-= \begin{pmatrix} 7 \\ 0 \end{pmatrix}
-\]
-即问 \(\boldsymbol{b} = \binom{7}{0}\) 能否由 \(\boldsymbol{\alpha}_1 = \binom{2}{1}\) 和 \(\boldsymbol{\alpha}_2 = \binom{3}{-2}\) 线性表示。
-
-解此方程组得 \(x_1 = 2,\ x_2 = 1\)，故
-\[
-2\begin{pmatrix} 2 \\ 1 \end{pmatrix} + 1\begin{pmatrix} 3 \\ -2 \end{pmatrix} = \begin{pmatrix} 7 \\ 0 \end{pmatrix}
-\]
-
-\begin{conclusion}{本章核心关系总结}{chapter1-summary}
-    \begin{enumerate}
-        \item \textbf{线性方程组 \(\leftrightarrow\) 矩阵}：方程组可用增广矩阵表示，初等行变换不改变解集，高斯消元法通过化矩阵为行阶梯形求解。
-        \item \textbf{线性方程组 \(\leftrightarrow\) 向量}：方程组 \(A\boldsymbol{x} = \boldsymbol{b}\) 等价于问 \(\boldsymbol{b}\) 能否表示为 \(A\) 的列向量的线性组合。
-        \item \textbf{矩阵 \(\leftrightarrow\) 向量}：矩阵可看作由行向量或列向量组成；矩阵乘法 \(A\boldsymbol{x}\) 恰好就是 \(A\) 的列向量的线性组合。
-        \item \textbf{矩阵运算与线性变换}：\(m \times n\) 矩阵 \(A\) 定义了从 \(\mathbb{R}^n\) 到 \(\mathbb{R}^m\) 的线性变换 \(\boldsymbol{x} \mapsto A\boldsymbol{x}\)。
-    \end{enumerate}
-    这三种视角的统一是线性代数最重要的思想方法。
-\end{conclusion}
-
-\(m \times n\) 矩阵 \(A\) 定义了从 \(\mathbb{R}^n\) 到 \(\mathbb{R}^m\) 的线性变换 \(\boldsymbol{x} \mapsto A\boldsymbol{x}\)。下图展示 \(A = \begin{pmatrix} 2 & 1 \\ 1 & 1 \end{pmatrix}\) 把标准单位正方形映为平行四边形（基向量 \(\boldsymbol{e}_1, \boldsymbol{e}_2\) 分别映到 \(A\boldsymbol{e}_1, A\boldsymbol{e}_2\)）：
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  axis lines=center,
-  width=0.8\linewidth, height=5.8cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-0.6, xmax=3.8, ymin=-0.6, ymax=2.8,
-  xtick={1,2,3}, ytick={1,2},
-  font=\footnotesize,
-]
-\draw[gray!60,dashed,thick] (axis cs:0,0) rectangle (axis cs:1,1);
-\draw[blue,thick,fill=blue!12] (axis cs:0,0) -- (axis cs:2,1) -- (axis cs:3,2) -- (axis cs:1,1) -- cycle;
-\draw[->,thick,black] (axis cs:0,0) -- (axis cs:1,0);
-\draw[->,thick,black] (axis cs:0,0) -- (axis cs:0,1);
-\draw[->,thick,red] (axis cs:0,0) -- (axis cs:2,1);
-\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,1);
-\node[black,anchor=north] at (axis cs:1,0) {$\boldsymbol{e}_1$};
-\node[black,anchor=east] at (axis cs:0,1) {$\boldsymbol{e}_2$};
-\node[red,anchor=north west] at (axis cs:2,1) {$A\boldsymbol{e}_1$};
-\node[green!50!black,anchor=south east] at (axis cs:1,1) {$A\boldsymbol{e}_2$};
-\node[gray!60] at (axis cs:0.4,0.6) {原正方形};
-\node[blue] at (axis cs:1.55,1.75) {像};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-
-\newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（填空题）} 设 \(A, B\) 均为 \(n\) 阶方阵，则 \((A+B)^2 = \underline{\qquad}\)。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} \((A+B)^2 = (A+B)(A+B) = A^2 + AB + BA + B^2\)。注意：矩阵乘法一般不满足交换律，即 \(AB \neq BA\)，因此\textbf{不能}写成 \(A^2 + 2AB + B^2\)。仅当 \(AB = BA\) 时才有 \((A+B)^2 = A^2 + 2AB + B^2\)。
-
-\else \answerarea \fi%
-\item \textbf{（选择题）} 设 \(A\) 为 \(n\) 阶方阵，则下列矩阵中必为对称矩阵的是 \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item \(A + A^\mathrm{T}\)
-    \item \(A - A^\mathrm{T}\)
-    \item \(AA^\mathrm{T}\)
-    \item \(A^\mathrm{T}A\)
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 (A)、(C)、(D)。
-
-\textbf{分析：}
-\begin{itemize}
-    \item (A) \((A + A^\mathrm{T})^\mathrm{T} = A^\mathrm{T} + (A^\mathrm{T})^\mathrm{T} = A^\mathrm{T} + A = A + A^\mathrm{T}\)，故 \(A + A^\mathrm{T}\) 必为对称矩阵。
-    \item (B) \((A - A^\mathrm{T})^\mathrm{T} = A^\mathrm{T} - A = -(A - A^\mathrm{T})\)，故 \(A - A^\mathrm{T}\) 为反对称矩阵，不是对称矩阵（除非它为零矩阵）。
-    \item (C) \((AA^\mathrm{T})^\mathrm{T} = (A^\mathrm{T})^\mathrm{T}A^\mathrm{T} = AA^\mathrm{T}\)，故 \(AA^\mathrm{T}\) 必为对称矩阵。
-    \item (D) \((A^\mathrm{T}A)^\mathrm{T} = A^\mathrm{T}(A^\mathrm{T})^\mathrm{T} = A^\mathrm{T}A\)，故 \(A^\mathrm{T}A\) 必为对称矩阵。
-\end{itemize}
-注：若题目为单选题，则常见的考法是考察 (A) 与 (B) 的区分。
-
-\else \answerarea \fi%
-\item \textbf{（计算题）} 用高斯消元法求解含参数 \(a\) 的线性方程组，并讨论 \(a\) 取何值时方程组有唯一解、无解、无穷多解：
-\[
-\begin{cases}
-    x_1 + x_2 + x_3 = a \\
-    x_1 + ax_2 + x_3 = 1 \\
-    x_1 + x_2 + ax_3 = 1
-\end{cases}
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 写出增广矩阵，作初等行变换：
-\[
-\begin{aligned}
-\left(\begin{array}{ccc|c}
-1 & 1 & 1 & a \\
-1 & a & 1 & 1 \\
-1 & 1 & a & 1
-\end{array}\right)
-&\xrightarrow{r_2 - r_1 \atop r_3 - r_1}
-\left(\begin{array}{ccc|c}
-1 & 1 & 1 & a \\
-0 & a-1 & 0 & 1-a \\
-0 & 0 & a-1 & 1-a
-\end{array}\right)
-\end{aligned}
-\]
-
-\textbf{情形讨论：}
-\begin{enumerate}
-    \item 当 \(a \neq 1\) 时，\(a-1 \neq 0\)，可化为：
-    \[
-    \left(\begin{array}{ccc|c}
-    1 & 1 & 1 & a \\
-    0 & 1 & 0 & -1 \\
-    0 & 0 & 1 & -1
-    \end{array}\right)
-    \xrightarrow{\ }
-    \left(\begin{array}{ccc|c}
-    1 & 0 & 0 & a+2 \\
-    0 & 1 & 0 & -1 \\
-    0 & 0 & 1 & -1
-    \end{array}\right)
-    \]
-    方程组有\textbf{唯一解}：\(x_1 = a+2,\; x_2 = -1,\; x_3 = -1\)。
-
-    \item 当 \(a = 1\) 时，增广矩阵化为：
-    \[
-    \left(\begin{array}{ccc|c}
-    1 & 1 & 1 & 1 \\
-    0 & 0 & 0 & 0 \\
-    0 & 0 & 0 & 0
-    \end{array}\right)
-    \]
-    非零行数为 \(1 <\) 未知数个数 \(3\)，且无矛盾行。方程组有\textbf{无穷多解}：
-    \[
-    x_1 = 1 - x_2 - x_3, \quad x_2, x_3 \text{ 为自由未知量}
-    \]
-
-\end{enumerate}
-\else \answerarea \fi%
-综上：\(a \neq 1\) 时唯一解；\(a = 1\) 时无穷多解；不存在无解情形。
-
-\item \textbf{（计算题）} 设 \(\boldsymbol{\alpha} = (1, 0, -1, 2)^\mathrm{T}\)，\(\boldsymbol{\beta} = (2, -1, 3, 1)^\mathrm{T}\)，求：
-\begin{enumerate}[label=(\arabic*)]
-    \item \(\boldsymbol{\alpha} \cdot \boldsymbol{\beta}\)；
-    \item \(\|\boldsymbol{\alpha}\|\) 和 \(\|\boldsymbol{\beta}\|\)；
-    \item \(\boldsymbol{\alpha}\) 与 \(\boldsymbol{\beta}\) 的夹角 \(\theta\)；
-    \item \(\boldsymbol{\alpha}\) 在 \(\boldsymbol{\beta}\) 上的投影 \(\operatorname{proj}_{\boldsymbol{\beta}}\boldsymbol{\alpha}\)。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\begin{enumerate}[label=(\arabic*)]
-    \item \(\boldsymbol{\alpha} \cdot \boldsymbol{\beta} = 1 \times 2 + 0 \times (-1) + (-1) \times 3 + 2 \times 1 = 2 + 0 - 3 + 2 = 1\)。
-    \item
-    \[
-    \begin{aligned}
-    \|\boldsymbol\alpha\|
-    &=\sqrt{1^2+0^2+(-1)^2+2^2}=\sqrt6,\\
-    \|\boldsymbol\beta\|
-    &=\sqrt{2^2+(-1)^2+3^2+1^2}=\sqrt{15}.
-    \end{aligned}
-    \]
-    \item
-    \[
-    \cos\theta
-    =\frac{\boldsymbol\alpha\cdot\boldsymbol\beta}
-    {\|\boldsymbol\alpha\|\,\|\boldsymbol\beta\|}
-    =\frac{1}{\sqrt6\sqrt{15}}
-    =\frac{1}{3\sqrt{10}},
-    \]
-    故 \(\displaystyle\theta=\arccos\frac{1}{3\sqrt{10}}\)。
-    \item
-    \[
-    \begin{aligned}
-    \operatorname{proj}_{\boldsymbol\beta}\boldsymbol\alpha
-    &=\frac{\boldsymbol\alpha\cdot\boldsymbol\beta}{\|\boldsymbol\beta\|^2}\boldsymbol\beta\\
-    &=\frac1{15}(2,-1,3,1)^\mathrm T
-    =\left(\frac2{15},-\frac1{15},\frac15,\frac1{15}\right)^\mathrm T.
-    \end{aligned}
-    \]
-
-\end{enumerate}
-\else \answerarea \fi%
-
-\item \textbf{（证明题）} 设 \(A\) 为任意 \(m \times n\) 实矩阵，证明：
-\begin{enumerate}[label=(\arabic*)]
-    \item \(A^\mathrm{T}A\) 和 \(AA^\mathrm{T}\) 均为对称矩阵；
-    \item \(A + A^\mathrm{T}\) 为对称矩阵，\(A - A^\mathrm{T}\) 为反对称矩阵（当 \(m = n\) 时）。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{证明}}
-\begin{enumerate}[label=(\arabic*)]
-    \item 由转置性质：
-    \[
-    (A^\mathrm{T}A)^\mathrm{T} = A^\mathrm{T}(A^\mathrm{T})^\mathrm{T} = A^\mathrm{T}A,
-    \]
-    故 \(A^\mathrm{T}A\) 为对称矩阵。同理
-    \[
-    (AA^\mathrm{T})^\mathrm{T} = (A^\mathrm{T})^\mathrm{T}A^\mathrm{T} = AA^\mathrm{T},
-    \]
-    故 \(AA^\mathrm{T}\) 也为对称矩阵。
-    \item 设 \(A\) 为方阵。则
-    \[
-    (A + A^\mathrm{T})^\mathrm{T} = A^\mathrm{T} + (A^\mathrm{T})^\mathrm{T} = A^\mathrm{T} + A = A + A^\mathrm{T},
-    \]
-    故 \(A + A^\mathrm{T}\) 为对称矩阵。
-    \[
-    (A - A^\mathrm{T})^\mathrm{T} = A^\mathrm{T} - (A^\mathrm{T})^\mathrm{T} = A^\mathrm{T} - A = -(A - A^\mathrm{T}),
-    \]
-    故 \(A - A^\mathrm{T}\) 为反对称矩阵。\(\square\)
-
-\end{enumerate}
-\else \answerarea \fi%
-
-\item \textbf{（选择题）} 设 \(A, B\) 为 \(n\) 阶方阵，\(I\) 为 \(n\) 阶单位矩阵，则下列命题中\textbf{一定成立}的是 \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item \((AB)^2 = A^2B^2\)
-    \item 若 \(AB = O\)，则 \(A = O\) 或 \(B = O\)
-    \item 若 \(AB = AC\) 且 \(A \neq O\)，则 \(B = C\)
-    \item \((A+I)(A-I) = A^2 - I\)
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 (D)。
-
-\textbf{分析：}
-\begin{itemize}
-    \item (A) 不成立。\((AB)^2 = ABAB\)，仅当 \(AB = BA\) 时才有 \(ABAB = A^2B^2\)。反例：取 \(A = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}\)，\(B = \begin{pmatrix} 0 & 0 \\ 1 & 0 \end{pmatrix}\)，则 \(AB \neq BA\)。
-    \item (B) 不成立。矩阵乘法存在\textbf{零因子}。反例：\(A = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix} \neq O\)，\(B = \begin{pmatrix} 0 & 0 \\ 0 & 1 \end{pmatrix} \neq O\)，但 \(AB = O\)。
-    \item (C) 不成立。矩阵乘法不满足消去律。反例：取 \(A = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}\)，\(B = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}\)，\(C = \begin{pmatrix} 1 & 0 \\ 0 & 2 \end{pmatrix}\)，则 \(AB = AC = A\)，但 \(B \neq C\)。
-    \item (D) 成立。\((A+I)(A-I) = A(A-I) + I(A-I) = A^2 - A + A - I = A^2 - I\)。这里 \(A\) 与 \(I\) 可交换，故展开式成立。
-\end{itemize}
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{综合提高题}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（典型证明题）} 设 \(A\) 为 \(m \times n\) 实矩阵，证明：若 \(A^\mathrm{T}A = O\)，则 \(A = O\)。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}} 记 \(A = (a_{ij})_{m\times n}\)。设 \(A\) 的列向量为 \(\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\ldots,\boldsymbol{\alpha}_n\)，则 \(A^\mathrm{T}A\) 的 \((i,j)\) 元为 \(\boldsymbol{\alpha}_i^\mathrm{T}\boldsymbol{\alpha}_j\)，其第 \(i\) 个对角元为
-\[
-(A^\mathrm{T}A)_{ii} = \boldsymbol{\alpha}_i^\mathrm{T}\boldsymbol{\alpha}_i = \|\boldsymbol{\alpha}_i\|^2 = \sum_{k=1}^{m} a_{ki}^2
-\]
-
-由 \(A^\mathrm{T}A = O\) 知所有对角元均为零，故对每个 \(i = 1,2,\ldots,n\) 有
-\[
-\sum_{k=1}^{m} a_{ki}^2 = 0
-\]
-由于各项均为非负实数，必有 \(a_{ki} = 0\) 对所有 \(k = 1,2,\ldots,m\) 成立，从而 \(A\) 的所有元素均为零，即 \(A = O\)。\(\square\)
-
-\boxed{\text{注}} 此结论是线性代数核心结论之一。类似的还有：若 \(AA^\mathrm{T} = O\)，则 \(A = O\)。其证明思路完全相同——考察 \(AA^\mathrm{T}\) 的行范数。这一结论在讨论矩阵秩的性质以及最小二乘问题中反复出现。
-
-\else \answerarea \fi%
-\item \textbf{（计算题）} 讨论 \(\lambda\) 取何值时，下列线性方程组有唯一解、无解或有无穷多解，并在有无穷多解时求出通解：
-\[
-\begin{cases}
-    \lambda x_1 + x_2 + x_3 = 1 \\
-    x_1 + \lambda x_2 + x_3 = \lambda \\
-    x_1 + x_2 + \lambda x_3 = \lambda^2
-\end{cases}
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 系数矩阵的行列式为
-\[
-\det A = \begin{vmatrix}
-\lambda & 1 & 1 \\
-1 & \lambda & 1 \\
-1 & 1 & \lambda
-\end{vmatrix}
-= \lambda^3 - 3\lambda + 2 = (\lambda-1)^2(\lambda+2)
-\]
-
-\begin{enumerate}
-    \item 当 \(\lambda \neq 1\) 且 \(\lambda \neq -2\) 时，\(\det A \neq 0\)，由 Cramer 法则，方程组有\textbf{唯一解}。
-
-    \item 当 \(\lambda = -2\) 时，增广矩阵为
-    \[
-    \left(\begin{array}{ccc|c}
-    -2 & 1 & 1 & 1 \\
-    1 & -2 & 1 & -2 \\
-    1 & 1 & -2 & 4
-    \end{array}\right)
-    \sim
-    \left(\begin{array}{ccc|c}
-    1 & 1 & -2 & 4 \\
-    0 & -3 & 3 & -6 \\
-    0 & 3 & -3 & 9
-    \end{array}\right)
-    \sim
-    \left(\begin{array}{ccc|c}
-    1 & 1 & -2 & 4 \\
-    0 & 1 & -1 & 2 \\
-    0 & 0 & 0 & 3
-    \end{array}\right)
-    \]
-    第三行出现矛盾 \(0 = 3\)，故方程组\textbf{无解}。
-
-    \item 当 \(\lambda = 1\) 时，三个方程均化为 \(x_1 + x_2 + x_3 = 1\)，增广矩阵为
-    \[
-    \left(\begin{array}{ccc|c}
-    1 & 1 & 1 & 1 \\
-    1 & 1 & 1 & 1 \\
-    1 & 1 & 1 & 1
-    \end{array}\right)
-    \sim
-    \left(\begin{array}{ccc|c}
-    1 & 1 & 1 & 1 \\
-    0 & 0 & 0 & 0 \\
-    0 & 0 & 0 & 0
-    \end{array}\right)
-    \]
-    非零行数为 \(1\)，未知数为 \(3\)，有无穷多解。通解为：
-    \[
-    x_1 = 1 - x_2 - x_3, \quad x_2, x_3 \text{ 为自由未知量}
-    \]
-    或写作向量形式：
-    \[
-    \begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix}
-    = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}
-    + k_1\begin{pmatrix} -1 \\ 1 \\ 0 \end{pmatrix}
-    + k_2\begin{pmatrix} -1 \\ 0 \\ 1 \end{pmatrix}, \quad k_1,k_2 \in \mathbb{R}
-    \]
-
-\end{enumerate}
-\else \answerarea \fi%
-
-\item \textbf{（证明题）} 设 \(A\) 为任意 \(n\) 阶方阵，证明：\(A\) 可以唯一地表示为一个对称矩阵与一个反对称矩阵之和。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}} 
-\textbf{存在性：} 令
-\[
-S = \frac{A + A^\mathrm{T}}{2}, \quad K = \frac{A - A^\mathrm{T}}{2}
-\]
-则 \(S^\mathrm{T} = \frac{A^\mathrm{T} + A}{2} = S\)，故 \(S\) 为对称矩阵；
-\(K^\mathrm{T} = \frac{A^\mathrm{T} - A}{2} = -K\)，故 \(K\) 为反对称矩阵。
-
-且 \(S + K = \frac{A + A^\mathrm{T}}{2} + \frac{A - A^\mathrm{T}}{2} = A\)，故 \(A\) 确实可分解为对称矩阵与反对称矩阵之和。
-
-\textbf{唯一性：} 设 \(A = S_1 + K_1 = S_2 + K_2\)，其中 \(S_1, S_2\) 对称，\(K_1, K_2\) 反对称。则
-\[
-S_1 - S_2 = K_2 - K_1
-\]
-左边为对称矩阵（两对称矩阵之差仍为对称矩阵），右边为反对称矩阵（两反对称矩阵之差仍为反对称矩阵）。一个矩阵同时为对称和反对称，则该矩阵必为零矩阵。故 \(S_1 = S_2\)，\(K_1 = K_2\)，即分解唯一。\(\square\)
-
-\boxed{\text{注}} 此分解称为矩阵的\textbf{对称-反对称分解}（Cartesian decomposition），在矩阵分析和偏微分方程中有重要应用。特别的，\(\frac{A + A^\mathrm{T}}{2}\) 称为 \(A\) 的\textbf{对称部分}，\(\frac{A - A^\mathrm{T}}{2}\) 称为 \(A\) 的\textbf{反对称部分}。
-
-\else \answerarea \fi%
-\item \textbf{（计算与证明题）} 利用二次型的判别式方法证明 Cauchy-Schwarz 不等式：
-\[
-\bigl(\sum_{i=1}^{n} a_i^2\bigr)\bigl(\sum_{i=1}^{n} b_i^2\bigr) \geq \bigl(\sum_{i=1}^{n} a_i b_i\bigr)^2
-\]
-并指出等号成立的条件。
-
-\ifshowsolutions%
-\boxed{\textbf{解与证明}} 构造关于 \(x\) 的二次三项式：
-\[
-f(x) = \sum_{i=1}^{n} (a_i x + b_i)^2 = \bigl(\sum_{i=1}^{n} a_i^2\bigr)x^2 + 2\bigl(\sum_{i=1}^{n} a_i b_i\bigr)x + \bigl(\sum_{i=1}^{n} b_i^2\bigr) \geq 0
-\]
-
-由于平方和恒非负，故对任意实数 \(x\) 有 \(f(x) \geq 0\)。将 \(f(x)\) 视为关于 \(x\) 的二次函数：
-\[
-f(x) = Ax^2 + 2Bx + C, \quad A = \sum a_i^2,\; B = \sum a_i b_i,\; C = \sum b_i^2
-\]
-
-当 \(A > 0\) 时（即 \(\boldsymbol{a} = (a_1,\ldots,a_n)^\mathrm{T} \neq \boldsymbol{0}\)），二次函数恒非负的充要条件是其判别式 \(\Delta \leq 0\)：
-\[
-\Delta = (2B)^2 - 4AC = 4B^2 - 4AC \leq 0 \;\Longrightarrow\; B^2 \leq AC
-\]
-即 \(\bigl(\sum a_i b_i\bigr)^2 \leq \bigl(\sum a_i^2\bigr)\bigl(\sum b_i^2\bigr)\)。
-
-当 \(A = 0\) 时（即所有 \(a_i = 0\)），不等式两边均为零，显然成立。
-
-\textbf{等号成立条件：} 等号 \(\Delta = 0\) 成立当且仅当二次函数 \(f(x)\) 有重根，即存在 \(x_0\) 使得 \(f(x_0) = \sum (a_i x_0 + b_i)^2 = 0\)。这意味着对每个 \(i\) 有 \(a_i x_0 + b_i = 0\)，即向量 \(\boldsymbol{a}\) 与 \(\boldsymbol{b}\) 成比例：存在常数 \(k = -x_0\) 使得 \(b_i = k a_i\)（或 \(a_i = 0\) 对所有 \(i\)，此时 \(\boldsymbol{a} = \boldsymbol{0}\)）。
-
-换言之，Cauchy-Schwarz 不等式等号成立当且仅当 \(\boldsymbol{a}\) 与 \(\boldsymbol{b}\) 线性相关。\(\square\)
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（选择题，\boxed{\textbf{真题风格}}）} 对线性方程组的增广矩阵作初等行变换，以下说法\textbf{正确}的是 \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item 初等行变换可能改变方程组的解
-    \item 化为行阶梯形后，非零行的行数等于未知数的个数
-    \item 若出现某行系数全为零而常数项非零，则方程组无解
-    \item 若行阶梯形中非零行数等于未知数个数，则方程组必有无穷多解
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 (C)。
-
-\textbf{分析：}
-\begin{itemize}
-    \item (A) 错误。初等行变换不改变方程组的解集（同解变形）。
-    \item (B) 错误。非零行的行数等于系数矩阵的秩，而未知数个数为 \(n\)。二者未必相等（秩可以小于 \(n\)）。
-    \item (C) 正确。若出现形如 \(0 = c\ (c \neq 0)\) 的矛盾行，方程组无解。
-    \item (D) 错误。非零行数等于未知数个数时，每个未知数均可唯一确定，方程组有\textbf{唯一解}（前提是无矛盾行）。若非零行数小于未知数个数，才可能有无穷多解。
-\end{itemize}
-
-\else \answerarea \fi%
-\item \textbf{（填空题，\boxed{\textbf{真题风格}}）} 设 \(A = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix}\)，则 \(A^{2025} = \underline{\qquad}\)。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 先计算 \(A\) 的前几次幂，寻找规律：
-\[
-A = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix},\quad
-A^2 = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix}\begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix} = \begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix} = -I
-\]
-\[
-A^3 = A^2 \cdot A = (-I)A = -A,\quad
-A^4 = A^2 \cdot A^2 = (-I)(-I) = I
-\]
-
-可见 \(A\) 的幂以周期 \(4\) 循环：\(A, A^2 = -I, A^3 = -A, A^4 = I, A^5 = A, \ldots\)
-
-一般地，\(A^k = (-1)^{\lfloor k/2 \rfloor} A^{k \bmod 2}\) 当 \(k\) 为奇数时的更精确形式为：
-\[
-A^{4m} = I,\quad A^{4m+1} = A,\quad A^{4m+2} = -I,\quad A^{4m+3} = -A
-\]
-
-由于 \(2025 \div 4 = 506\) 余 \(1\)，即 \(2025 = 4 \times 506 + 1\)，故
-\[
-A^{2025} = A^{4 \times 506 + 1} = A = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix}
-\]
-
-\boxed{\text{注}} 处理矩阵幂时，可从低次幂或矩阵满足的多项式关系入手；验证周期后，再按指数对周期取模化简。矩阵的阶数本身不能决定幂的周期，不能据此猜测周期。
-
-\else \answerarea \fi%
-\item \textbf{（计算题，\boxed{\textbf{真题风格}}，经典含参讨论）} 设线性方程组
-\[
-\begin{cases}
-    x_1 + x_2 + kx_3 = 4 \\
-    x_1 + kx_2 + x_3 = k^2 \\
-    -x_1 + x_2 + 2x_3 = -4
-\end{cases}
-\]
-讨论参数 \(k\) 取何值时方程组有唯一解、无解、无穷多解，并在有无穷多解时求出全部解。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 写出增广矩阵，作初等行变换：
-\[
-\begin{aligned}
-\left(\begin{array}{ccc|c}
-1 & 1 & k & 4 \\
-1 & k & 1 & k^2 \\
--1 & 1 & 2 & -4
-\end{array}\right)
-&\xrightarrow{r_2 - r_1 \atop r_3 + r_1}
-\left(\begin{array}{ccc|c}
-1 & 1 & k & 4 \\
-0 & k-1 & 1-k & k^2-4 \\
-0 & 2 & k+2 & 0
-\end{array}\right) \\
-&\xrightarrow{r_3 - \frac{2}{k-1}r_2\ (\text{当 } k \neq 1)}
-\left(\begin{array}{ccc|c}
-1 & 1 & k & 4 \\
-0 & k-1 & 1-k & k^2-4 \\
-0 & 0 & (k+2) - \frac{2(1-k)}{k-1} & -\frac{2(k^2-4)}{k-1}
-\end{array}\right)
-\end{aligned}
-\]
-
-为更清晰地讨论，换用行列式方法。系数矩阵的行列式为：
-\[
-\begin{aligned}
-\det A
-&= \begin{vmatrix}
-1 & 1 & k \\
-1 & k & 1 \\
--1 & 1 & 2
-\end{vmatrix}\\
-&=\begin{vmatrix}k&1\\1&2\end{vmatrix}
--\begin{vmatrix}1&1\\-1&2\end{vmatrix}
-+k\begin{vmatrix}1&k\\-1&1\end{vmatrix}\\
-&=(2k-1)-3+k(1+k)=k^2+3k-4=(k-1)(k+4).
-\end{aligned}
-\]
-
-\begin{enumerate}
-    \item 当 \(k \neq 1\) 且 \(k \neq -4\) 时，\(\det A \neq 0\)，方程组有\textbf{唯一解}。
-
-    \item 当 \(k = 1\) 时，增广矩阵为
-    \[
-    \left(\begin{array}{ccc|c}
-    1 & 1 & 1 & 4 \\
-    1 & 1 & 1 & 1 \\
-    -1 & 1 & 2 & -4
-    \end{array}\right)
-    \]
-    观察第一、二行：\(x_1 + x_2 + x_3 = 4\) 且 \(x_1 + x_2 + x_3 = 1\)，矛盾！故方程组\textbf{无解}。
-
-    \item 当 \(k = -4\) 时，增广矩阵为
-    \[
-    \left(\begin{array}{ccc|c}
-    1 & 1 & -4 & 4 \\
-    1 & -4 & 1 & 16 \\
-    -1 & 1 & 2 & -4
-    \end{array}\right)
-    \xrightarrow{r_2 - r_1 \atop r_3 + r_1}
-    \left(\begin{array}{ccc|c}
-    1 & 1 & -4 & 4 \\
-    0 & -5 & 5 & 12 \\
-    0 & 2 & -2 & 0
-    \end{array}\right)
-    \]
-    \[
-    \xrightarrow{r_3 \times \frac{5}{2} + r_2}
-    \left(\begin{array}{ccc|c}
-    1 & 1 & -4 & 4 \\
-    0 & -5 & 5 & 12 \\
-    0 & 0 & 0 & 12
-    \end{array}\right)
-    \]
-    第三行出现 \(0 = 12\)，矛盾！故 \(k = -4\) 时也\textbf{无解}。
-
-\end{enumerate}
-\else \answerarea \fi%
-
-综上：当 \(k \neq 1\) 且 \(k \neq -4\) 时唯一解；当 \(k = 1\) 或 \(k = -4\) 时无解；不存在无穷多解情形。
-
-\boxed{\text{注}} 经典考研含参讨论题的核心步骤：(1) 计算系数行列式，确定 \(\det A \neq 0\) 时的情形；(2) 对使 \(\det A = 0\) 的各个参数值，分别代入增广矩阵具体讨论（化阶梯形、判秩）。注意：\(\det A = 0\) 时方程组可能是无解，也可能是无穷多解——必须分别验证，不能仅凭行列式为零就断定有无穷多解。
-
-\end{enumerate}
+\input{algebra/exercises/chap1.tex}

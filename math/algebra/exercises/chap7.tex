@@ -1,0 +1,723 @@
+\section{习题}
+
+\subsection{本章速览}
+\begin{itemize}
+  \item 二次型与实对称矩阵一一对应：\(f=\mathbf{x}^{\mathsf T}A\mathbf{x}\)，其中平方项系数放在对角元，交叉项系数的一半放在相应的非对角元。
+  \item 只含平方项的形式称为标准形；系数仅为 \(1,-1,0\) 的标准形称为规范形。规范形由正惯性指数 \(p\)、负惯性指数 \(q\) 唯一确定，且 \(p+q=\operatorname{rank}(A)\)。惯性定理指出：无论用哪种可逆线性变换化标准形，\(p,q\) 都不会改变。
+  \item 作可逆线性变换 \(\mathbf{x}=C\mathbf{y}\)，二次型的矩阵变为 \(C^{\mathsf T}AC\)，即矩阵作合同变换。合同不保持特征值和行列式，但保持秩与正、负惯性指数；两个同阶实对称矩阵合同，当且仅当它们的 \(p,q\) 分别相同。
+  \item 实对称矩阵可用正交矩阵对角化：\(Q^{\mathsf T}AQ=\operatorname{diag}(\lambda_1,\ldots,\lambda_n)\)。故正交变换下的标准形系数就是全部特征值。
+  \item 正定的等价判定：特征值全正；\(p=n\)；\(A\) 与 \(I\) 合同；各阶顺序主子式全正；存在可逆 \(C\) 使 \(A=C^{\mathsf T}C\)。负定则要求 \((-1)^k\Delta_k>0\)。
+  \item 二次曲面先用正交变换消去交叉项，再配方平移。二次部分的惯性指数只决定“大类”，完整类型还要看一次项与常数项，不能只看特征值的正负。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 用配方法将二次型
+\[
+f(x_1,x_2,x_3)=x_1^2+2x_1x_2+4x_1x_3+2x_2^2+6x_2x_3+5x_3^2
+\]
+化为标准形，写出所用的可逆线性变换 \(\mathbf{x}=C\mathbf{y}\)，并求 \(f\) 的秩、正惯性指数与负惯性指数。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 先按 \(x_1\) 配成完全平方，再把剩下的 \(x_2,x_3\) 部分配方；由 \(y\) 与 \(x\) 的关系反解出变换矩阵。
+
+先把含 \(x_1\) 的项归并：
+\[
+(x_1+x_2+2x_3)^2=x_1^2+2x_1x_2+4x_1x_3+x_2^2+4x_2x_3+4x_3^2.
+\]
+用 \(f\) 减去它，余下
+\[
+2x_2^2+6x_2x_3+5x_3^2-\bigl(x_2^2+4x_2x_3+4x_3^2\bigr)
+=x_2^2+2x_2x_3+x_3^2=(x_2+x_3)^2.
+\]
+所以
+\[
+f=(x_1+x_2+2x_3)^2+(x_2+x_3)^2.
+\]
+令
+\[
+y_1=x_1+x_2+2x_3,\qquad y_2=x_2+x_3,\qquad y_3=x_3,
+\]
+则 \(f=y_1^2+y_2^2\)。由上式反解：
+\[
+x_3=y_3,\qquad x_2=y_2-y_3,\qquad x_1=y_1-y_2-y_3,
+\]
+即
+\[
+\begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix}
+=\begin{pmatrix}
+1&-1&-1\\
+0&1&-1\\
+0&0&1
+\end{pmatrix}
+\begin{pmatrix}y_1\\y_2\\y_3\end{pmatrix}.
+\]
+变换矩阵 \(C\) 为上三角矩阵，\(\det C=1\neq0\)，确实可逆。标准形中没有 \(y_3^2\) 项，故秩为 \(2\)，正惯性指数 \(p=2\)，负惯性指数 \(q=0\)（二次型半正定）。
+
+\boxed{\text{答案：}\ f=y_1^2+y_2^2,\ \operatorname{rank}(f)=2,\ p=2,\ q=0.}
+\else \answerarea[8] \fi%
+
+\textbf{2.} 用正交变换将二次型
+\[
+f(x_1,x_2)=2x_1^2+2x_2^2+2x_1x_2
+\]
+化为标准形，写出一个正交矩阵 \(Q\)，并判断 \(f\) 是否正定。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 写出对称矩阵，求特征值与单位特征向量，以它们为列构造正交矩阵。
+
+二次型的矩阵为
+\[
+A=\begin{pmatrix}2&1\\1&2\end{pmatrix}.
+\]
+特征多项式
+\[
+|\lambda I-A|=\begin{vmatrix}\lambda-2&-1\\-1&\lambda-2\end{vmatrix}
+=(\lambda-2)^2-1=(\lambda-1)(\lambda-3),
+\]
+故特征值为 \(\lambda_1=3,\ \lambda_2=1\)。
+
+当 \(\lambda_1=3\) 时，解 \((A-3I)\mathbf{v}=0\)：
+\[
+\begin{pmatrix}-1&1\\1&-1\end{pmatrix}\mathbf{v}=0
+\ \Longrightarrow\ \mathbf{v}=t(1,1)^{\mathsf T},
+\]
+取单位向量 \(\mathbf{q}_1=\frac1{\sqrt2}(1,1)^{\mathsf T}\)。
+
+当 \(\lambda_2=1\) 时，解 \((A-I)\mathbf{v}=0\)：
+\[
+\begin{pmatrix}1&1\\1&1\end{pmatrix}\mathbf{v}=0
+\ \Longrightarrow\ \mathbf{v}=t(1,-1)^{\mathsf T},
+\]
+取单位向量 \(\mathbf{q}_2=\frac1{\sqrt2}(1,-1)^{\mathsf T}\)。
+
+两特征向量已正交（对应不同特征值），故
+\[
+Q=(\mathbf{q}_1,\mathbf{q}_2)
+=\frac1{\sqrt2}\begin{pmatrix}1&1\\1&-1\end{pmatrix},
+\qquad Q^{\mathsf T}Q=I.
+\]
+作正交变换 \(\mathbf{x}=Q\mathbf{y}\)，则
+\[
+f=\mathbf{y}^{\mathsf T}(Q^{\mathsf T}AQ)\mathbf{y}
+=3y_1^2+y_2^2.
+\]
+两个特征值 \(3,1\) 都大于零，所以 \(f\) 正定（也可由 \(\Delta_1=2>0,\ \Delta_2=3>0\) 判定）。
+
+\boxed{\text{答案：}\ f=3y_1^2+y_2^2,\ Q=\frac1{\sqrt2}\begin{pmatrix}1&1\\1&-1\end{pmatrix};\ f\text{ 正定}.}
+\else \answerarea[8] \fi%
+
+\textbf{3.} 设
+\[
+A=\begin{pmatrix}1&2\\2&1\end{pmatrix}.
+\]
+求可逆矩阵 \(C\)，使 \(C^{\mathsf T}AC=\operatorname{diag}(1,-3)\)，并求 \(A\) 的正、负惯性指数。进一步判断 \(A\) 是否与 \(\operatorname{diag}(1,-1)\) 合同；若合同，给出相应的变换矩阵。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 二次型 \(f=\mathbf{x}^{\mathsf T}A\mathbf{x}=x_1^2+4x_1x_2+x_2^2\) 配方得 \(y_1^2-3y_2^2\)，由此读出变换矩阵；再对负项作伸缩即可把系数 \(-3\) 变成 \(-1\)。
+
+配方：
+\[
+f=x_1^2+4x_1x_2+x_2^2=(x_1+2x_2)^2-3x_2^2.
+\]
+令
+\[
+y_1=x_1+2x_2,\qquad y_2=x_2,
+\]
+即
+\[
+x_1=y_1-2y_2,\qquad x_2=y_2,
+\]
+写成矩阵形式 \(\mathbf{x}=C\mathbf{y}\)，其中
+\[
+C=\begin{pmatrix}1&-2\\0&1\end{pmatrix},\qquad \det C=1\neq0.
+\]
+直接计算可验证
+\[
+C^{\mathsf T}AC
+=\begin{pmatrix}1&0\\-2&1\end{pmatrix}
+\begin{pmatrix}1&2\\2&1\end{pmatrix}
+\begin{pmatrix}1&-2\\0&1\end{pmatrix}
+=\begin{pmatrix}1&0\\0&-3\end{pmatrix}.
+\]
+因此标准形为 \(y_1^2-3y_2^2\)，正惯性指数 \(p=1\)，负惯性指数 \(q=1\)。
+
+矩阵 \(\operatorname{diag}(1,-1)\) 的正、负惯性指数同样是 \(p=1,q=1\)。由惯性定理，两个同阶实对称矩阵合同当且仅当正、负惯性指数分别相同，故 \(A\) 与 \(\operatorname{diag}(1,-1)\) 合同。
+
+若要写出显式变换，只需再把 \(y_2\) 伸缩：令
+\[
+z_1=y_1,\qquad z_2=\sqrt3\,y_2
+\quad\Longleftrightarrow\quad
+y_1=z_1,\quad y_2=\frac1{\sqrt3}z_2,
+\]
+即 \(\mathbf{y}=D\mathbf{z}\)，\(D=\operatorname{diag}\!\left(1,\frac1{\sqrt3}\right)\)。于是 \(\mathbf{x}=CD\mathbf{z}\)，且
+\[
+(CD)^{\mathsf T}A(CD)
+=D^{\mathsf T}\operatorname{diag}(1,-3)D
+=\operatorname{diag}(1,-1).
+\]
+其中
+\[
+CD=\begin{pmatrix}1&-\frac{2}{\sqrt3}\\[2pt]0&\frac1{\sqrt3}\end{pmatrix},
+\qquad \det(CD)=\frac1{\sqrt3}\neq0.
+\]
+
+\boxed{\text{答案：}\ C=\begin{pmatrix}1&-2\\0&1\end{pmatrix}\text{ 使 }C^{\mathsf T}AC=\operatorname{diag}(1,-3);\ p=1,\ q=1;\ A\text{ 与 }\operatorname{diag}(1,-1)\text{ 合同}.}
+\else \answerarea[10] \fi%
+
+\textbf{4.} 化简方程
+\[
+x^2+2y^2-3z^2+2x-4y+1=0,
+\]
+指出它表示什么曲面，并写出其中心（若存在）。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 没有交叉项，直接分别对 \(x,y\) 配方，把一次项吸收进平方，再将常数移到右边，与二次曲面的标准方程对照。
+
+分别配方：
+\[
+x^2+2x=(x+1)^2-1,\qquad
+2y^2-4y=2(y-1)^2-2.
+\]
+代入原方程：
+\[
+(x+1)^2-1+2(y-1)^2-2-3z^2+1=0,
+\]
+即
+\[
+(x+1)^2+2(y-1)^2-3z^2=2.
+\]
+令
+\[
+X=x+1,\qquad Y=y-1,\qquad Z=z,
+\]
+得
+\[
+X^2+2Y^2-3Z^2=2,
+\]
+两边除以 \(2\)：
+\[
+\frac{X^2}{2}+\frac{Y^2}{1}-\frac{Z^2}{2/3}=1.
+\]
+这是单叶双曲面的标准形式：左端两项为正、一项为负，右端为正常数 \(1\)。其中心为
+\[
+(x,y,z)=(-1,\,1,\,0).
+\]
+（若右端为 \(0\) 则是二次锥面；右端为负则化为双叶双曲面。这里右端为正，故为单叶双曲面。）
+
+\boxed{\text{答案：}\ \frac{(x+1)^2}{2}+(y-1)^2-\frac{3z^2}{2}=1,\ \text{单叶双曲面，中心 }(-1,1,0).}
+\else \answerarea[8] \fi%
+
+\textbf{5.} 求 \(a\) 的取值范围，使实对称矩阵
+\[
+A=\begin{pmatrix}
+2&a&0\\
+a&2&a\\
+0&a&2
+\end{pmatrix}
+\]
+正定。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 用 Sylvester 准则：实对称矩阵正定当且仅当各阶顺序主子式全大于零。逐个算出 \(\Delta_1,\Delta_2,\Delta_3\)，再取交集。
+
+各阶顺序主子式为
+\[
+\Delta_1=2>0,
+\]
+\[
+\Delta_2=\begin{vmatrix}2&a\\a&2\end{vmatrix}=4-a^2,
+\]
+\[
+\Delta_3=\begin{vmatrix}
+2&a&0\\
+a&2&a\\
+0&a&2
+\end{vmatrix}
+=2\begin{vmatrix}2&a\\a&2\end{vmatrix}
+-a\begin{vmatrix}a&a\\0&2\end{vmatrix}
+=2(4-a^2)-a(2a)
+=8-4a^2.
+\]
+正定要求
+\[
+\Delta_2=4-a^2>0,\qquad \Delta_3=4(2-a^2)>0.
+\]
+第一式给出 \(a^2<4\)，第二式给出 \(a^2<2\)。两者取交集得
+\[
+a^2<2,\qquad\text{即}\quad -\sqrt2<a<\sqrt2.
+\]
+（此时 \(\Delta_1>0\) 自动成立。也可由特征值 \(2,\ 2+\sqrt2\,a,\ 2-\sqrt2\,a\) 全正得到同一结论。）
+
+\boxed{\text{答案：}\ -\sqrt2<a<\sqrt2.}
+\else \answerarea[8] \fi%
+
+\subsection{综合提高题}
+
+\textbf{6.} 已知 \(a>0\)，二次型
+\[
+f(x_1,x_2,x_3)=2x_1^2+3x_2^2+3x_3^2+2ax_2x_3
+\]
+经正交变换化为标准形
+\[
+y_1^2+2y_2^2+5y_3^2.
+\]
+求 \(a\) 的值，并写出一个相应的正交矩阵 \(Q\)。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 正交变换不改变特征值，所以标准形的系数 \(1,2,5\) 就是 \(A\) 的全部特征值。先求含参数的特征值，再与 \(1,2,5\) 对应。
+
+二次型的矩阵为
+\[
+A=\begin{pmatrix}
+2&0&0\\
+0&3&a\\
+0&a&3
+\end{pmatrix}.
+\]
+按第一行展开特征多项式：
+\[
+|\lambda I-A|
+=(\lambda-2)\begin{vmatrix}\lambda-3&-a\\-a&\lambda-3\end{vmatrix}
+=(\lambda-2)\bigl[(\lambda-3)^2-a^2\bigr].
+\]
+于是
+\[
+(\lambda-3)^2-a^2=(\lambda-3-a)(\lambda-3+a),
+\]
+特征值为
+\[
+\lambda_1=2,\qquad \lambda_2=3+a,\qquad \lambda_3=3-a.
+\]
+正交变换后的标准形系数必为这三个数（顺序可换），故
+\[
+\{2,\ 3+a,\ 3-a\}=\{1,\ 2,\ 5\}.
+\]
+因为 \(a>0\)，有 \(3+a>3-a\)。集合中的最大数为 \(5\)，故只能
+\[
+3+a=5,\qquad 3-a=1,
+\]
+解得 \(a=2\)（此时中间值 \(2\) 也与集合中的 \(2\) 吻合）。
+
+下面求正交矩阵。当 \(a=2\) 时，
+\[
+A=\begin{pmatrix}
+2&0&0\\
+0&3&2\\
+0&2&3
+\end{pmatrix}.
+\]
+分别求单位特征向量：
+
+对 \(\lambda=1\)，解 \((A-I)\mathbf{v}=0\)：
+\[
+\begin{pmatrix}1&0&0\\0&2&2\\0&2&2\end{pmatrix}\mathbf{v}=0
+\ \Longrightarrow\ \mathbf{v}=t(0,1,-1)^{\mathsf T},
+\]
+取 \(\mathbf{q}_1=\frac1{\sqrt2}(0,1,-1)^{\mathsf T}\)。
+
+对 \(\lambda=2\)，解 \((A-2I)\mathbf{v}=0\)：
+\[
+\begin{pmatrix}0&0&0\\0&1&2\\0&2&1\end{pmatrix}\mathbf{v}=0
+\ \Longrightarrow\ \mathbf{v}=t(1,0,0)^{\mathsf T},
+\]
+取 \(\mathbf{q}_2=(1,0,0)^{\mathsf T}\)。
+
+对 \(\lambda=5\)，解 \((A-5I)\mathbf{v}=0\)：
+\[
+\begin{pmatrix}-3&0&0\\0&-2&2\\0&2&-2\end{pmatrix}\mathbf{v}=0
+\ \Longrightarrow\ \mathbf{v}=t(0,1,1)^{\mathsf T},
+\]
+取 \(\mathbf{q}_3=\frac1{\sqrt2}(0,1,1)^{\mathsf T}\)。
+
+三个向量两两正交且均为单位向量，令
+\[
+Q=(\mathbf{q}_1,\mathbf{q}_2,\mathbf{q}_3)
+=\begin{pmatrix}
+0&1&0\\
+\frac1{\sqrt2}&0&\frac1{\sqrt2}\\
+-\frac1{\sqrt2}&0&\frac1{\sqrt2}
+\end{pmatrix}.
+\]
+则 \(Q^{\mathsf T}Q=I\)，且直接计算得
+\[
+Q^{\mathsf T}AQ=\operatorname{diag}(1,2,5).
+\]
+作正交变换 \(\mathbf{x}=Q\mathbf{y}\)，即得 \(f=y_1^2+2y_2^2+5y_3^2\)。
+
+\boxed{\text{答案：}\ a=2,\quad Q=\begin{pmatrix}0&1&0\\ \frac1{\sqrt2}&0&\frac1{\sqrt2}\\ -\frac1{\sqrt2}&0&\frac1{\sqrt2}\end{pmatrix}.}
+\else \answerarea[12] \fi%
+
+\textbf{7.} 求 \(t\) 的取值范围，使二次型
+\[
+f(x_1,x_2,x_3)=x_1^2+x_2^2+5x_3^2+2tx_1x_2-2x_1x_3+4x_2x_3
+\]
+正定。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 先正确写出对称矩阵（交叉项系数取一半），再用顺序主子式判别法。三个不等式要分别解出后取交集。
+
+二次型的矩阵为
+\[
+A=\begin{pmatrix}
+1&t&-1\\
+t&1&2\\
+-1&2&5
+\end{pmatrix},
+\]
+因为 \(2tx_1x_2\) 给出 \(a_{12}=a_{21}=t\)，\(-2x_1x_3\) 给出 \(a_{13}=a_{31}=-1\)，\(4x_2x_3\) 给出 \(a_{23}=a_{32}=2\)。
+
+顺序主子式：
+\[
+\Delta_1=1>0,
+\]
+\[
+\Delta_2=\begin{vmatrix}1&t\\t&1\end{vmatrix}=1-t^2,
+\]
+\[
+\begin{aligned}
+\Delta_3
+&=\begin{vmatrix}
+1&t&-1\\
+t&1&2\\
+-1&2&5
+\end{vmatrix}\\
+&=1\cdot(1\cdot5-2\cdot2)
+-t\cdot\bigl(t\cdot5-2\cdot(-1)\bigr)
++(-1)\cdot\bigl(t\cdot2-1\cdot(-1)\bigr)\\
+&=(5-4)-t(5t+2)-(2t+1)\\
+&=1-5t^2-2t-2t-1\\
+&=-5t^2-4t=-t(5t+4).
+\end{aligned}
+\]
+正定要求
+\[
+\Delta_2=1-t^2>0,\qquad \Delta_3=-t(5t+4)>0.
+\]
+第一式给出 \(-1<t<1\)。第二式即 \(t(5t+4)<0\)，而方程 \(t(5t+4)=0\) 的两根为 \(t=0\) 和 \(t=-\frac45\)，开口向上的二次式在两根之间取负值，故
+\[
+-\frac45<t<0.
+\]
+它与 \(-1<t<1\) 的交集为
+\[
+-\frac45<t<0.
+\]
+
+\boxed{\text{答案：}\ -\frac45<t<0.}
+\else \answerarea[10] \fi%
+
+\textbf{8.} 设 \(A\) 为 \(3\) 阶实对称矩阵，且满足 \(A^2=A\)。证明：存在正交矩阵 \(Q\)，使
+\[
+Q^{\mathsf T}AQ=\operatorname{diag}(I_r,0),
+\]
+其中 \(r=\operatorname{rank}(A)\)。并写出二次型 \(f=\mathbf{x}^{\mathsf T}A\mathbf{x}\) 的规范形；若 \(\operatorname{tr}A=2\)，再具体写出规范形。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 由 \(A^2=A\) 确定特征值只能取 \(0,1\)；实对称矩阵必可正交对角化；对角线上 \(1\) 的个数既是秩也是迹。
+
+由 \(A^2=A\) 得
+\[
+A^2-A=0,\qquad A(A-I)=0.
+\]
+设 \(\lambda\) 是 \(A\) 的任一特征值，对应的非零特征向量为 \(\mathbf{v}\)，则
+\[
+A^2\mathbf{v}=\lambda^2\mathbf{v},\qquad A\mathbf{v}=\lambda\mathbf{v}.
+\]
+由 \(A^2\mathbf{v}=A\mathbf{v}\) 得
+\[
+\lambda^2\mathbf{v}=\lambda\mathbf{v}
+\ \Longrightarrow\ (\lambda^2-\lambda)\mathbf{v}=0
+\ \Longrightarrow\ \lambda(\lambda-1)=0.
+\]
+所以
+\[
+\lambda\in\{0,1\}.
+\]
+
+因为 \(A\) 是实对称矩阵，故存在正交矩阵 \(Q\)，使
+\[
+Q^{\mathsf T}AQ=\operatorname{diag}(\lambda_1,\lambda_2,\lambda_3),
+\]
+其中 \(\lambda_i\in\{0,1\}\)。适当调整 \(Q\) 的列次序，可把等于 \(1\) 的特征值排在前面，于是
+\[
+Q^{\mathsf T}AQ=\operatorname{diag}(1,\ldots,1,0,\ldots,0)
+=\operatorname{diag}(I_r,0),
+\]
+其中 \(r\) 为对角线上 \(1\) 的个数。由于正交变换不改变秩，
+\[
+r=\operatorname{rank}\bigl(\operatorname{diag}(I_r,0)\bigr)=\operatorname{rank}(A).
+\]
+（同时 \(r=\operatorname{tr}A\)，因为对角化后迹等于对角元之和。）
+
+作正交变换 \(\mathbf{x}=Q\mathbf{y}\)，则
+\[
+f=\mathbf{x}^{\mathsf T}A\mathbf{x}
+=\mathbf{y}^{\mathsf T}(Q^{\mathsf T}AQ)\mathbf{y}
+=y_1^2+\cdots+y_r^2.
+\]
+这正是规范形，且 \(p=r,\ q=0\)（半正定）。
+
+若 \(\operatorname{tr}A=2\)，则 \(r=2\)，规范形为
+\[
+f=y_1^2+y_2^2.
+\]
+
+\boxed{\text{答案：}\ f=y_1^2+\cdots+y_r^2\ (r=\operatorname{rank}A);\ \text{当 }\operatorname{tr}A=2\text{ 时 }f=y_1^2+y_2^2.}
+\else \answerarea[12] \fi%
+
+\textbf{9.} 用正交变换化简二次曲面方程
+\[
+2x^2+2y^2+2z^2+2xy+2xz+2yz=3,
+\]
+写出标准形，指出曲面类型，并给出一个可用的正交变换。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 先写出二次部分的矩阵，求特征值与单位特征向量；正交变换后交叉项消失，再按系数判断曲面类型。
+
+二次部分的矩阵为
+\[
+A=\begin{pmatrix}
+2&1&1\\
+1&2&1\\
+1&1&2
+\end{pmatrix}.
+\]
+注意 \(A=I+J\)，其中 \(J\) 为全 \(1\) 矩阵。\(J\) 的特征值为 \(3\)（特征向量 \((1,1,1)^{\mathsf T}\)）和 \(0\)（二重，特征子空间为平面 \(x+y+z=0\)）。因此 \(A\) 的特征值为
+\[
+\lambda_1=4,\qquad \lambda_2=\lambda_3=1.
+\]
+
+取单位特征向量：
+\[
+\mathbf{q}_1=\frac1{\sqrt3}(1,1,1)^{\mathsf T}\quad(\lambda_1=4),
+\]
+在平面 \(x+y+z=0\) 内取两个正交的单位向量
+\[
+\mathbf{q}_2=\frac1{\sqrt2}(1,-1,0)^{\mathsf T},\qquad
+\mathbf{q}_3=\frac1{\sqrt6}(1,1,-2)^{\mathsf T}
+\quad(\lambda_2=\lambda_3=1).
+\]
+它们两两正交且均为单位向量。令
+\[
+Q=(\mathbf{q}_1,\mathbf{q}_2,\mathbf{q}_3)
+=\begin{pmatrix}
+\frac1{\sqrt3}&\frac1{\sqrt2}&\frac1{\sqrt6}\\[2pt]
+\frac1{\sqrt3}&-\frac1{\sqrt2}&\frac1{\sqrt6}\\[2pt]
+\frac1{\sqrt3}&0&-\frac2{\sqrt6}
+\end{pmatrix},
+\]
+则 \(Q^{\mathsf T}Q=I\)，且
+\[
+Q^{\mathsf T}AQ=\operatorname{diag}(4,1,1).
+\]
+作正交变换
+\[
+\begin{pmatrix}x\\y\\z\end{pmatrix}=Q\begin{pmatrix}X\\Y\\Z\end{pmatrix},
+\]
+原方程化为
+\[
+4X^2+Y^2+Z^2=3,
+\]
+即
+\[
+\frac{X^2}{3/4}+\frac{Y^2}{3}+\frac{Z^2}{3}=1.
+\]
+这是旋转椭球面：三个半轴中有两个相等（均为 \(\sqrt3\)），另一个为 \(\frac{\sqrt3}{2}\)，对称轴沿方向 \((1,1,1)\)。
+
+\boxed{\text{答案：}\ 4X^2+Y^2+Z^2=3;\ \text{旋转椭球面}.}
+\else \answerarea[12] \fi%
+
+\subsection{真题风格与综合训练}
+
+\textbf{10.}（选择题）设 \(A,B\) 均为 \(n\) 阶实对称矩阵，则下列命题中正确的是（\quad）
+
+\begin{center}
+\begin{tabular}{l}
+(A) 若 \(\operatorname{rank}(A)=\operatorname{rank}(B)\)，则 \(A\) 与 \(B\) 合同；\\[3pt]
+(B) 若 \(A\) 与 \(B\) 的正、负惯性指数分别相同，则 \(A\) 与 \(B\) 合同；\\[3pt]
+(C) 若 \(A\) 合同于 \(I_n\)，则 \(A\) 的特征值全为 \(1\)；\\[3pt]
+(D) 若 \(A\) 与 \(B\) 合同，则 \(\det A=\det B\)。
+\end{tabular}
+\end{center}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 合同的完全不变量是正、负惯性指数（等价于秩与符号差），不是秩、特征值或行列式。
+
+逐项判断：
+
+(A) 错。取
+\[
+A=\operatorname{diag}(1,1),\qquad B=\operatorname{diag}(1,-1).
+\]
+两者秩都为 \(2\)，但 \(A\) 的 \(p=2,q=0\)，\(B\) 的 \(p=1,q=1\)。正、负惯性指数不同，由惯性定理它们不合同。
+
+(B) 对。设 \(A,B\) 的正、负惯性指数分别为 \(p,q\)。由惯性定理，\(A\) 合同于
+\[
+\operatorname{diag}(I_p,-I_q,0),\qquad
+B\text{ 也合同于 }\operatorname{diag}(I_p,-I_q,0).
+\]
+合同关系具有传递性，故 \(A\) 与 \(B\) 合同。
+
+(C) 错。\(A\) 合同于 \(I_n\) 等价于 \(A\) 正定，只要求特征值全为正，不要求等于 \(1\)。例如
+\[
+A=\operatorname{diag}(2,2)
+\]
+正定，且取 \(C=\operatorname{diag}\bigl(\frac1{\sqrt2},\frac1{\sqrt2}\bigr)\) 有 \(C^{\mathsf T}AC=I_2\)，但 \(A\) 的特征值为 \(2,2\)。
+
+(D) 错。若 \(B=C^{\mathsf T}AC\)，则
+\[
+\det B=\det(C^{\mathsf T})\det A\det C=(\det C)^2\det A.
+\]
+一般情况下 \((\det C)^2\neq1\)。例如 \(A=I_2,\ C=2I_2\)，则 \(B=4I_2\)，而 \(\det A=1,\ \det B=16\)。
+
+\boxed{\text{答案：}(B)}
+\else \answerarea[8] \fi%
+
+\textbf{11.}（填空题）二次型
+\[
+f(x_1,x_2,x_3)=x_1^2+x_2^2+x_3^2+2x_1x_2+2x_2x_3+2x_3x_1
+\]
+的秩为 \underline{\qquad}，正惯性指数为 \underline{\qquad}，规范形为 \underline{\qquad}。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 不要急于算特征值，先观察三个交叉项的系数都是 \(2\)，恰好能合成一个完全平方。
+
+注意到
+\[
+(x_1+x_2+x_3)^2
+=x_1^2+x_2^2+x_3^2+2x_1x_2+2x_2x_3+2x_3x_1,
+\]
+故
+\[
+f=(x_1+x_2+x_3)^2.
+\]
+令
+\[
+y_1=x_1+x_2+x_3,\qquad y_2=x_2,\qquad y_3=x_3,
+\]
+该变换的矩阵为
+\[
+\begin{pmatrix}1&1&1\\0&1&0\\0&0&1\end{pmatrix},
+\qquad \det=1\neq0,
+\]
+是可逆线性变换，且 \(f=y_1^2\)。
+
+因此 \(f\) 的矩阵秩为 \(1\)，正惯性指数 \(p=1\)，负惯性指数 \(q=0\)，规范形为
+\[
+z_1^2
+\]
+（只含一个正平方项）。
+
+也可用矩阵验证：二次型的矩阵为全 \(1\) 矩阵 \(J\)，其特征值为 \(3,0,0\)。正交变换后标准形为 \(3z_1^2\)，再令 \(z_1'=\sqrt3\,z_1\) 即得规范形 \(z_1'^2\)。
+
+\boxed{\text{答案：}\ \text{秩 }1;\ \text{正惯性指数 }1;\ \text{规范形 }z_1^2.}
+\else \answerarea[6] \fi%
+
+\textbf{12.}（解答题）设
+\[
+f(x_1,x_2,x_3)=x_1^2+x_2^2+x_3^2+2a(x_1x_2+x_2x_3+x_3x_1).
+\]
+\begin{enumerate}
+  \item 求 \(f\) 的矩阵 \(A\) 的全部特征值；
+  \item 求 \(a\) 的取值范围，使 \(f\) 正定；
+  \item 当 \(a=-\frac12\) 时，求 \(f\) 的规范形，并指出曲面 \(f=1\) 的类型。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+
+\textbf{思路：} 矩阵可写成 \((1-a)I+aJ\)，其中 \(J\) 为全 \(1\) 矩阵；利用 \(J\) 的特征值 \(3,0,0\) 直接得到 \(A\) 的特征值。正定性看特征值符号；\(a=-\frac12\) 时出现零特征值，曲面退化。
+
+(1) 二次型的矩阵为
+\[
+A=\begin{pmatrix}
+1&a&a\\
+a&1&a\\
+a&a&1
+\end{pmatrix}
+=(1-a)I+aJ,
+\]
+其中 \(J\) 为三阶全 \(1\) 矩阵。
+
+\(J\) 的特征值为 \(3\)（特征向量 \((1,1,1)^{\mathsf T}\)）和 \(0\)（二重，特征子空间为平面 \(x_1+x_2+x_3=0\)）。于是 \(A\) 的特征值为
+\[
+\lambda_1=(1-a)+3a=1+2a,
+\]
+\[
+\lambda_2=\lambda_3=(1-a)+0=1-a.
+\]
+即特征值为
+\[
+1+2a,\quad 1-a,\quad 1-a.
+\]
+（也可直接计算 \(|\lambda I-A|=(\lambda-1-2a)(\lambda-1+a)^2\) 验证。）
+
+(2) \(f\) 正定当且仅当所有特征值大于零：
+\[
+1+2a>0\quad\Longleftrightarrow\quad a>-\frac12,
+\]
+\[
+1-a>0\quad\Longleftrightarrow\quad a<1.
+\]
+两者同时成立，故
+\[
+-\frac12<a<1.
+\]
+
+(3) 当 \(a=-\frac12\) 时，特征值为
+\[
+\lambda_1=1+2\cdot\Bigl(-\frac12\Bigr)=0,\qquad
+\lambda_2=\lambda_3=1-\Bigl(-\frac12\Bigr)=\frac32.
+\]
+取正交矩阵（列向量分别为三个互相正交的单位特征向量）
+\[
+Q=\begin{pmatrix}
+\frac1{\sqrt3}&\frac1{\sqrt2}&\frac1{\sqrt6}\\[2pt]
+\frac1{\sqrt3}&-\frac1{\sqrt2}&\frac1{\sqrt6}\\[2pt]
+\frac1{\sqrt3}&0&-\frac2{\sqrt6}
+\end{pmatrix},
+\]
+则 \(Q^{\mathsf T}AQ=\operatorname{diag}\bigl(0,\frac32,\frac32\bigr)\)。作正交变换 \(\mathbf{x}=Q\mathbf{y}\)，得
+\[
+f=\frac32\,y_2^2+\frac32\,y_3^2.
+\]
+再令
+\[
+z_1=y_1,\qquad z_2=\sqrt{\frac32}\,y_2,\qquad z_3=\sqrt{\frac32}\,y_3,
+\]
+该伸缩变换可逆，且
+\[
+f=z_2^2+z_3^2.
+\]
+这就是规范形，正惯性指数 \(p=2\)，负惯性指数 \(q=0\)，秩 \(r=2\)。
+
+曲面 \(f=1\) 即
+\[
+z_2^2+z_3^2=1.
+\]
+在 \((z_1,z_2,z_3)\) 空间中，方程与 \(z_1\) 无关，是母线平行于 \(z_1\) 轴的椭圆柱面；回到原坐标，母线方向为 \((1,1,1)\)（即 \(A\) 的零特征值对应的特征向量方向）。
+
+\boxed{\text{答案：}(1)\ 1+2a,\ 1-a,\ 1-a;\quad (2)\ -\frac12<a<1;\quad (3)\ f=z_2^2+z_3^2,\ \text{椭圆柱面}.}
+\else \answerarea[14] \fi%

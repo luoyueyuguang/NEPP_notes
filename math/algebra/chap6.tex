@@ -1,1159 +1,474 @@
 \section{特征向量与特征值}
 
-\subsection{特征值与特征向量的定义}
+\subsection{特征值与特征向量}
 
-\begin{mydef}{特征值与特征向量}{eigenvalue-and-eigenvector}
-设 \(A\) 为 \(n\) 阶方阵，若存在数 \(\lambda\) 和非零列向量 \(\mathbf{x}\)，使得
+矩阵乘法通常会同时改变向量的长度和方向。取
 \[
-A\mathbf{x} = \lambda \mathbf{x}
+A=\begin{pmatrix}2&1\\1&2\end{pmatrix},\qquad
+\mathbf{x}=\begin{pmatrix}1\\2\end{pmatrix},
 \]
-则称 \(\lambda\) 为矩阵 \(A\) 的\textbf{特征值}（eigenvalue），\(\mathbf{x}\) 为 \(A\) 的属于特征值 \(\lambda\) 的\textbf{特征向量}（eigenvector）。
-
-上式可改写为
+则 \(A\mathbf{x}=(4,5)^{\mathrm{T}}\)，与 \((1,2)^{\mathrm{T}}\) 不同向。但换两个向量试试：
 \[
-(\lambda I - A)\mathbf{x} = \mathbf{0}
+A\begin{pmatrix}1\\1\end{pmatrix}=\begin{pmatrix}3\\3\end{pmatrix}=3\begin{pmatrix}1\\1\end{pmatrix},
+\qquad
+A\begin{pmatrix}1\\-1\end{pmatrix}=\begin{pmatrix}1\\-1\end{pmatrix}=1\begin{pmatrix}1\\-1\end{pmatrix}.
 \]
-这是一个齐次线性方程组。它有非零解 \(\mathbf{x} \neq \mathbf{0}\) 的充要条件是系数矩阵的行列式为零：
-\[
-|\lambda I - A| = 0
-\]
-该方程称为 \(A\) 的\textbf{特征方程}（characteristic equation）。
-\end{mydef}
-
-\begin{formula}{特征值与特征向量的计算步骤}{compute-eigenvalue}
-\begin{enumerate}
-    \item 计算特征多项式 \(f(\lambda) = |\lambda I - A|\)，并解特征方程 \(f(\lambda) = 0\)，求出全部特征值 \(\lambda_1, \lambda_2, \ldots, \lambda_n\)。
-    \item 对每个特征值 \(\lambda_i\)，解齐次线性方程组 \((\lambda_i I - A)\mathbf{x} = \mathbf{0}\)，求出全部非零解，即得属于 \(\lambda_i\) 的全部特征向量。
-\end{enumerate}
-\end{formula}
-
-\boxed{\textbf{几何意义}} 矩阵 \(A\) 作用于其特征向量 \(\mathbf{x}\)，等价于对 \(\mathbf{x}\) 进行伸缩变换（伸缩因子为 \(\lambda\)），方向保持不变（当 \(\lambda > 0\)）或反向（当 \(\lambda < 0\)）。若 \(\lambda = 0\)，则 \(A\mathbf{x} = \mathbf{0}\)，特征向量被压缩到原点。
+这两个方向被 \(A\) 作用后仍留在原来的直线上，只是长度变了。找这种“不被扭弯”的方向，就是本章要解决的问题。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.62\linewidth, height=6cm, axis equal image,
+  width=0.62\linewidth, height=5.8cm, axis equal image, axis lines=middle,
   xmin=-3.4, xmax=3.4, ymin=-3.4, ymax=3.4,
-  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
+  xlabel={$x$}, ylabel={$y$}, font=\footnotesize, ticks=none,
 ]
-% 单位圆
-\addplot[gray!60, dashed, domain=0:360, samples=160] ({cos(x)},{sin(x)});
-% 对称矩阵 A = [3 1; 1 3] 将单位圆映为椭圆，主轴沿特征方向 (1,1), (1,-1)，半轴长 = |特征值| = 4, 2
-\addplot[blue, thick, domain=0:360, samples=200] ({(4*cos(x)+2*sin(x))/1.4142},{(4*cos(x)-2*sin(x))/1.4142});
-% 特征向量方向
-\draw[->,red,thick] (axis cs:0,0) -- (axis cs:0.7071,0.7071);
-\node[red,font=\scriptsize] at (axis cs:1.02,1.28){$\mathbf{p}_1$};
-\draw[->,red,thick] (axis cs:0,0) -- (axis cs:0.7071,-0.7071);
-\node[red,font=\scriptsize] at (axis cs:1.02,-1.28){$\mathbf{p}_2$};
-% A p_i = lambda_i p_i: 沿特征方向被拉伸 lambda 倍到达椭圆边缘
-\draw[->,red!70,dashed] (axis cs:0,0) -- (axis cs:2.8284,2.8284) node[above,font=\scriptsize]{$4\mathbf{p}_1$};
-\draw[->,red!70,dashed] (axis cs:0,0) -- (axis cs:1.4142,-1.4142) node[below,font=\scriptsize]{$2\mathbf{p}_2$};
+\addplot[gray, thick, dashed, domain=0:360, samples=160] ({cos(x)},{sin(x)});
+\addplot[blue, thick, domain=0:360, samples=240]
+  ({(3*cos(x)+sin(x))/1.41421356},{(3*cos(x)-sin(x))/1.41421356});
+\draw[->,red,thick] (axis cs:0,0) -- (axis cs:0.7071,0.7071)
+  node[above right,font=\scriptsize]{$\mathbf{q}_1$};
+\draw[->,red,thick] (axis cs:0,0) -- (axis cs:2.1213,2.1213)
+  node[above right,font=\scriptsize]{$3\mathbf{q}_1$};
+\draw[->,blue,thick] (axis cs:0,0) -- (axis cs:0.7071,-0.7071)
+  node[below right,font=\scriptsize]{$\mathbf{q}_2$};
+\node[font=\scriptsize,blue] at (axis cs:0,-2.85) {$A$ 把单位圆映成椭圆};
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 单位圆（灰虚线）经 \(A\) 映成椭圆（蓝线）。沿 \(\mathbf{q}_1=(1,1)^{\mathrm{T}}/\sqrt2\) 方向被拉长 \(3\) 倍，沿 \(\mathbf{q}_2=(1,-1)^{\mathrm{T}}/\sqrt2\) 方向长度不变；其余方向的向量都会拐弯。}}
 
-\boxed{\text{注}} 
+\begin{mydef}{特征值与特征向量}{eigenvalue-eigenvector}
+设 \(A\) 为 \(n\) 阶方阵。若存在数 \(\lambda\) 和非零列向量 \(\mathbf{x}\)，使得
+\[
+A\mathbf{x}=\lambda\mathbf{x},
+\]
+则称 \(\lambda\) 为 \(A\) 的\textbf{特征值}（eigenvalue），\(\mathbf{x}\) 为属于 \(\lambda\) 的\textbf{特征向量}（eigenvector）。
+
+把等式移项得 \((\lambda I-A)\mathbf{x}=\mathbf{0}\)。这是关于 \(\mathbf{x}\) 的齐次线性方程组，有非零解当且仅当
+\[
+|\lambda I-A|=0.
+\]
+这个方程称为 \(A\) 的\textbf{特征方程}，左端的行列式是 \(\lambda\) 的多项式。
+\end{mydef}
+
+特征向量必须非零，否则任何 \(\lambda\) 都满足 \(A\mathbf{x}=\lambda\mathbf{x}\)，定义就失去意义。特征值则可以是零：\(\lambda=0\) 时 \(A\mathbf{x}=\mathbf{0}\)，说明 \(A\) 有非零的零空间，即 \(A\) 不可逆。
+
+同一个特征值 \(\lambda\) 的全部特征向量，再添上零向量，构成齐次方程组 \((\lambda I-A)\mathbf{x}=\mathbf{0}\) 的解空间，称为 \(\lambda\) 的\textbf{特征子空间}，记作 \(V_\lambda\)。它的维数就是属于 \(\lambda\) 的线性无关特征向量的最大个数。
+
+\begin{formula}{求特征值与特征向量的步骤}{eigen-computation}
 \begin{enumerate}
-    \item 特征向量必须是非零向量。若 \(\mathbf{x}\) 是特征向量，则 \(k\mathbf{x} \; (k \neq 0)\) 也是属于同一特征值的特征向量。
-    \item 属于不同特征值的特征向量是线性无关的。
-    \item 若 \(\lambda\) 是 \(A\) 的特征值，\(\mathbf{x}\) 是对应的特征向量，则对任意多项式 \(g(t)\)，有 \(g(A)\mathbf{x} = g(\lambda)\mathbf{x}\)，即 \(g(\lambda)\) 是 \(g(A)\) 的特征值，且 \(\mathbf{x}\) 仍是其特征向量。
+  \item 计算特征多项式 \(f(\lambda)=|\lambda I-A|\)，解 \(f(\lambda)=0\) 得到全部特征值。
+  \item 对每个特征值 \(\lambda_i\)，解齐次方程组 \((\lambda_i I-A)\mathbf{x}=\mathbf{0}\)，取基础解系，得到属于 \(\lambda_i\) 的一组线性无关特征向量。全部非零线性组合都是属于 \(\lambda_i\) 的特征向量。
 \end{enumerate}
+\end{formula}
+
+\textbf{例} 对上面的 \(A=\begin{pmatrix}2&1\\1&2\end{pmatrix}\)，先算
+\[
+|\lambda I-A|=
+\begin{vmatrix}\lambda-2&-1\\-1&\lambda-2\end{vmatrix}
+=(\lambda-2)^2-1=(\lambda-3)(\lambda-1),
+\]
+特征值为 \(3\) 和 \(1\)。
+
+当 \(\lambda=3\) 时，
+\[
+(3I-A)\mathbf{x}=\begin{pmatrix}1&-1\\-1&1\end{pmatrix}
+\begin{pmatrix}x_1\\x_2\end{pmatrix}=\mathbf{0},
+\]
+即 \(x_1=x_2\)，全部特征向量为 \(k(1,1)^{\mathrm{T}}\;(k\neq0)\)。
+
+当 \(\lambda=1\) 时，
+\[
+(I-A)\mathbf{x}=\begin{pmatrix}-1&-1\\-1&-1\end{pmatrix}
+\begin{pmatrix}x_1\\x_2\end{pmatrix}=\mathbf{0},
+\]
+即 \(x_1+x_2=0\)，全部特征向量为 \(k(1,-1)^{\mathrm{T}}\;(k\neq0)\)。
+
+这两组解正好对应图中的两个特征方向。
+
+有几点性质后面会反复用到。第一，若 \(\mathbf{x}\) 是特征向量，则 \(k\mathbf{x}\;(k\neq0)\) 也是同一特征值的特征向量，所以特征向量总是成整条直线出现，写答案时用通解表示。
+
+第二，属于不同特征值的特征向量一定线性无关。设 \(\lambda_1,\dots,\lambda_m\) 互不相同，\(\mathbf{x}_i\) 属于 \(\lambda_i\)。若它们线性相关，取一个项数最少的非平凡关系
+\[
+c_1\mathbf{x}_1+\cdots+c_k\mathbf{x}_k=\mathbf{0}.
+\]
+两边左乘 \(A-\lambda_k I\)，利用 \(A\mathbf{x}_i=\lambda_i\mathbf{x}_i\)，得到
+\[
+c_1(\lambda_1-\lambda_k)\mathbf{x}_1+\cdots+c_{k-1}(\lambda_{k-1}-\lambda_k)\mathbf{x}_{k-1}=\mathbf{0},
+\]
+项数少了一项。反复这样做会把关系压到只剩一项，与该系数非零矛盾。
+
+第三，若 \(A\mathbf{x}=\lambda\mathbf{x}\)，则
+\[
+A^2\mathbf{x}=\lambda^2\mathbf{x},\qquad A^k\mathbf{x}=\lambda^k\mathbf{x},
+\]
+对任意多项式 \(g(t)\) 也有 \(g(A)\mathbf{x}=g(\lambda)\mathbf{x}\)。也就是说，\(g(\lambda)\) 是 \(g(A)\) 的特征值，且 \(\mathbf{x}\) 仍是对应的特征向量。这条性质是后面计算矩阵幂和矩阵多项式的依据。
+
+把这些性质串起来，还能得到两个常用结论。若 \(A\) 可逆，则 \(\lambda\neq0\)，在 \(A\mathbf{x}=\lambda\mathbf{x}\) 两边左乘 \(A^{-1}\)，得
+\[
+A^{-1}\mathbf{x}=\frac1\lambda\mathbf{x},
+\]
+所以 \(A^{-1}\) 的特征值是 \(1/\lambda\)，特征向量仍是 \(\mathbf{x}\)。伴随矩阵满足 \(A^*=|A|A^{-1}\)（\(A\) 可逆时），因此 \(A^*\) 的特征值是 \(|A|/\lambda\)，特征向量同样不变。
 
 \subsection{特征多项式}
 
-\begin{mydef}{特征多项式}{characteristic-polynomial}
-设 \(A = (a_{ij})_{n \times n}\)，称
+特征多项式定义为
 \[
-f(\lambda) = |\lambda I - A| = 
+f(\lambda)=|\lambda I-A|=
 \begin{vmatrix}
-\lambda - a_{11} & -a_{12} & \cdots & -a_{1n} \\
--a_{21} & \lambda - a_{22} & \cdots & -a_{2n} \\
-\vdots & \vdots & \ddots & \vdots \\
--a_{n1} & -a_{n2} & \cdots & \lambda - a_{nn}
-\end{vmatrix}
+\lambda-a_{11}&-a_{12}&\cdots&-a_{1n}\\
+-a_{21}&\lambda-a_{22}&\cdots&-a_{2n}\\
+\vdots&\vdots&\ddots&\vdots\\
+-a_{n1}&-a_{n2}&\cdots&\lambda-a_{nn}
+\end{vmatrix}.
 \]
-为矩阵 \(A\) 的\textbf{特征多项式}。它是关于 \(\lambda\) 的 \(n\) 次多项式，按降幂排列可写为
+它是首项系数为 \(1\) 的 \(n\) 次多项式。完整展开很麻烦，但有两个系数可以直接读出来：
 \[
-f(\lambda) = |\lambda I - A| = \lambda^n - (\operatorname{tr} A)\lambda^{n-1} + \cdots + (-1)^n |A|
+f(\lambda)=\lambda^n-(\operatorname{tr}A)\lambda^{n-1}+\cdots+(-1)^n|A|.
 \]
-\end{mydef}
+其中 \(\operatorname{tr}A=a_{11}+a_{22}+\cdots+a_{nn}\) 是主对角线元素之和，称为 \(A\) 的\textbf{迹}。
 
-\begin{conclusion}{特征多项式的基本性质}{properties-of-characteristic-polynomial}
-设 \(n\) 阶方阵 \(A\) 的特征值为 \(\lambda_1, \lambda_2, \ldots, \lambda_n\)（重根按重数计），则：
-\begin{enumerate}
-    \item \(\lambda_1 + \lambda_2 + \cdots + \lambda_n = \operatorname{tr} A = a_{11} + a_{22} + \cdots + a_{nn}\)（迹等于特征值之和）
-    \item \(\lambda_1 \lambda_2 \cdots \lambda_n = |A|\)（行列式等于特征值之积）
-    \item \(A\) 可逆 \(\Leftrightarrow\) \(|A| \neq 0 \Leftrightarrow\) \(A\) 的所有特征值均不为零
-    \item 若 \(\lambda\) 是 \(A\) 的特征值，则 \(\lambda^k\) 是 \(A^k\) 的特征值，\(\frac{1}{\lambda}\)（当 \(\lambda \neq 0\) 时）是 \(A^{-1}\) 的特征值
-    \item \(A\) 与 \(A^{\mathrm{T}}\) 有相同的特征值
-\end{enumerate}
+理由不难看出：在对角线乘积 \(\prod_i(\lambda-a_{ii})\) 中，\(\lambda^{n-1}\) 项来自 \(n-1\) 个因子取 \(\lambda\)、剩下一个因子取 \(-a_{ii}\)，系数正好是 \(-\sum_i a_{ii}\)；其他展开项的 \(\lambda\) 次数最多为 \(n-2\)。常数项则令 \(\lambda=0\) 直接得到 \(|{-A}|=(-1)^n|A|\)。
+
+设 \(A\) 的 \(n\) 个特征值（重根按重数计）为 \(\lambda_1,\dots,\lambda_n\)。由韦达定理，
+\[
+\lambda_1+\cdots+\lambda_n=\operatorname{tr}A,\qquad
+\lambda_1\lambda_2\cdots\lambda_n=|A|.
+\]
+这两个等式是最快的验算工具：特征值算完，先看和是否等于迹、积是否等于行列式，能拦住大部分算术错误。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.7\linewidth, height=4.9cm,
+  xmin=-0.45, xmax=4.45, ymin=-1.7, ymax=5.2,
+  xlabel={$\lambda$}, ylabel={$f(\lambda)$},
+  xtick={1,2,3}, ytick={-1,3},
+  font=\footnotesize, clip=false,
+]
+\addplot[blue, thick, domain=-0.35:4.35, samples=140]{x^2-4*x+3};
+\addplot[only marks, mark=*, mark size=1.7pt, red] coordinates {(1,0)(3,0)};
+\draw[dashed,gray!60] (axis cs:0,3) -- (axis cs:1,3);
+\node[font=\scriptsize,anchor=west] at (axis cs:0.08,3.35) {$f(0)=|A|=3$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize \(f(\lambda)=\lambda^2-4\lambda+3\) 的图像。曲线与横轴的交点就是特征值 \(1\) 和 \(3\)，与纵轴的交点 \(f(0)=3\) 等于 \(|A|\)。两根之和 \(4\) 正是迹；根的位置和这两个系数互相牵制。}}
+
+Cayley--Hamilton 定理把这个多项式与矩阵本身联系起来：把 \(\lambda\) 换成 \(A\)，结果竟然是零矩阵。
+
+\begin{conclusion}{Cayley--Hamilton 定理}{cayley-hamilton}
+设 \(A\) 是 \(n\) 阶方阵，\(f(\lambda)=|\lambda I-A|\) 是它的特征多项式，则
+\[
+f(A)=O.
+\]
+即任意方阵都满足自己的特征方程。
 \end{conclusion}
 
-\begin{formula}{特征值的运算性质}{eigenvalue-operations}
-设 \(\lambda\) 是 \(A\) 的特征值，\(\mathbf{x}\) 是对应的特征向量，则：
-\begin{enumerate}
-    \item \(kA\) 的特征值为 \(k\lambda\)，特征向量仍为 \(\mathbf{x}\)
-    \item \(A^m\) 的特征值为 \(\lambda^m\)，特征向量仍为 \(\mathbf{x}\)
-    \item 若 \(A\) 可逆，则 \(A^{-1}\) 的特征值为 \(\lambda^{-1}\)，特征向量仍为 \(\mathbf{x}\)
-    \item \(A^*\)（伴随矩阵）的特征值为 \(\frac{|A|}{\lambda}\)（当 \(A\) 可逆时），特征向量仍为 \(\mathbf{x}\)
-    \item \(g(A)\) 的特征值为 \(g(\lambda)\)，其中 \(g(t)\) 为任意多项式
-\end{enumerate}
-\end{formula}
+对上面的二阶例子，\(f(\lambda)=\lambda^2-4\lambda+3\)，于是 \(A^2-4A+3I=O\)。这条式子有两个直接用途。
 
-\noindent\textbf{拓展（数值特征值）:} 对高阶矩阵，展开行列式求特征多项式再解 \(n\) 次方程，计算量过大且数值不稳，实际改用\textbf{幂法}求模最大的特征值、用\textbf{QR 迭代}逐步求得主要特征值。特征值更刻画了迭代的稳定性：迭代法（如 Jacobi、Gauss--Seidel 解线性方程组，或求 Markov 链的平稳分布）收敛的常用判据是迭代矩阵的谱半径 \(\rho(A) = \max_i |\lambda_i| < 1\)，\(\rho(A)\) 越小收敛越快。\\
-\subsection{相似矩阵}
+一是降次：把 \(A^2\) 写成 \(4A-3I\)，再乘 \(A\) 就能把 \(A^3\) 也表示成 \(A\) 与 \(I\) 的组合，如此递推，任意高次幂都能降到一次。
+
+二是求逆。因为 \(A^2-4A+3I=O\)，移项得
+\[
+A(4I-A)=3I,\qquad\text{所以}\qquad
+A^{-1}=\frac13(4I-A)=\frac13\begin{pmatrix}2&-1\\-1&2\end{pmatrix}.
+\]
+这与用伴随矩阵算出的结果一致。注意前提是常数项 \((-1)^n|A|\neq0\)，否则 \(A\) 本来就不可逆。
+
+\subsection{相似与对角化}
+
+同一个线性变换，换一组基，矩阵就换一副样子。设 \(P\) 的列是新基，向量在新基下的坐标是 \(\mathbf{y}=P^{-1}\mathbf{x}\)，那么
+\[
+A\mathbf{x}=AP\mathbf{y}=P(P^{-1}AP)\mathbf{y}.
+\]
+所以线性变换在新基下的矩阵是 \(P^{-1}AP\)。
 
 \begin{mydef}{相似矩阵}{similar-matrices}
-设 \(A, B\) 为 \(n\) 阶方阵，若存在可逆矩阵 \(P\)，使得
+设 \(A,B\) 为 \(n\) 阶方阵。若存在可逆矩阵 \(P\)，使得
 \[
-B = P^{-1}AP
+B=P^{-1}AP,
 \]
-则称 \(A\) 与 \(B\) \textbf{相似}（similar），记作 \(A \sim B\)。变换 \(A \mapsto P^{-1}AP\) 称为\textbf{相似变换}。
+则称 \(A\) 与 \(B\) \textbf{相似}，记作 \(A\sim B\)。变换 \(A\mapsto P^{-1}AP\) 称为相似变换。
 \end{mydef}
 
-\begin{conclusion}{相似矩阵的基本性质}{properties-of-similar-matrices}
-若 \(A \sim B\)，则：
-\begin{enumerate}
-    \item 反身性：\(A \sim A\)
-    \item 对称性：若 \(A \sim B\)，则 \(B \sim A\)
-    \item 传递性：若 \(A \sim B\) 且 \(B \sim C\)，则 \(A \sim C\)
-    \item \(A\) 与 \(B\) 有相同的特征多项式，从而有相同的特征值（包括重数）
-    \item \(|A| = |B|\)，\(\operatorname{tr} A = \operatorname{tr} B\)
-    \item \(r(A) = r(B)\)（秩相等）
-    \item 若 \(A\) 可逆，则 \(B\) 也可逆，且 \(A^{-1} \sim B^{-1}\)
-    \item 对任意多项式 \(g(t)\)，有 \(g(A) \sim g(B)\)
-\end{enumerate}
-\end{conclusion}
+相似矩阵有相同的特征多项式：
+\[
+|\lambda I-P^{-1}AP|
+=|P^{-1}(\lambda I-A)P|
+=|P^{-1}|\,|\lambda I-A|\,|P|
+=|\lambda I-A|.
+\]
+因此它们的特征值（包括代数重数）、迹、行列式都相同；秩也相同，因为左右乘可逆矩阵不改变秩。
 
-\boxed{\text{注}} 特征值相同只是相似的必要条件，而非充分条件。两个矩阵可以有相同的特征值，但不一定相似（还需考虑特征向量的结构，即 Jordan 标准形是否相同）。
+转置也有相同的特征多项式：
+\[
+|\lambda I-A^{\mathrm{T}}|=|(\lambda I-A)^{\mathrm{T}}|=|\lambda I-A|,
+\]
+所以 \(A\) 与 \(A^{\mathrm{T}}\) 的特征值相同，但特征向量一般不同。这一点常被用来计算与转置有关的题目。
 
-\subsection{矩阵的对角化}
+反过来不成立。单位矩阵 \(I\) 与 \(J=\begin{pmatrix}1&1\\0&1\end{pmatrix}\) 的特征值都是 \(1,1\)，但 \(I\) 只与自己相似，\(J\neq I\)，所以二者不相似。特征值相同只是相似的必要条件；要判断相似，还得看特征向量的结构。
+
+对角化是相似变换里最省事的一种：把矩阵化成对角形。
 
 \begin{mydef}{可对角化}{diagonalizable}
-若 \(n\) 阶方阵 \(A\) 相似于一个对角矩阵 \(\Lambda\)，即存在可逆矩阵 \(P\)，使得
+若 \(n\) 阶方阵 \(A\) 相似于对角矩阵，即存在可逆矩阵 \(P\) 和数 \(\lambda_1,\dots,\lambda_n\)，使得
 \[
-P^{-1}AP = \Lambda = \operatorname{diag}(\lambda_1, \lambda_2, \ldots, \lambda_n)
+P^{-1}AP=\operatorname{diag}(\lambda_1,\dots,\lambda_n),
 \]
-则称 \(A\) \textbf{可对角化}（diagonalizable）。此时 \(P\) 的列向量就是 \(A\) 的 \(n\) 个线性无关的特征向量，\(\Lambda\) 的对角元就是对应的特征值。
+则称 \(A\) \textbf{可对角化}。
 \end{mydef}
 
-\boxed{\textbf{对角化的几何意义}} 对角化意味着我们找到了一组基（由特征向量构成），在这组基下，线性变换 \(A\) 的作用表现为在各个基方向上的独立伸缩。这是最简洁的表示形式。
+设 \(P=(\mathbf{p}_1,\dots,\mathbf{p}_n)\)，\(\Lambda=\operatorname{diag}(\lambda_1,\dots,\lambda_n)\)。等式 \(P^{-1}AP=\Lambda\) 等价于 \(AP=P\Lambda\)。逐列看，就是
+\[
+A\mathbf{p}_j=\lambda_j\mathbf{p}_j,\qquad j=1,\dots,n.
+\]
+所以 \(P\) 的每一列都必须是 \(A\) 的特征向量，而且 \(P\) 可逆要求这 \(n\) 列线性无关。反过来，只要能凑出 \(n\) 个线性无关的特征向量，按顺序排成 \(P\)，对角元按同样顺序排成 \(\Lambda\)，就完成了对角化。
+
+问题归结为：特征向量够不够用？这要用重数来回答。特征值 \(\lambda_0\) 作为特征多项式根的重数，称为它的\textbf{代数重数} \(m_a(\lambda_0)\)；特征子空间 \(V_{\lambda_0}\) 的维数，称为它的\textbf{几何重数} \(m_g(\lambda_0)\)。两者总有
+\[
+1\le m_g(\lambda_0)\le m_a(\lambda_0).
+\]
+几何重数不超过代数重数，这个不等式要用 Jordan 标准形或广义特征子空间来证明，这里先记住结论。
+
+\begin{conclusion}{可对角化的充要条件}{diagonalizable-criterion}
+\(n\) 阶方阵 \(A\) 可对角化，当且仅当
+\[
+\sum_{\lambda_0} m_g(\lambda_0)=n,
+\]
+等价地说，每个特征值都满足 \(m_g(\lambda_0)=m_a(\lambda_0)\)。
+
+特别地，若 \(A\) 有 \(n\) 个互不相同的特征值，则 \(A\) 一定可对角化；这只是充分条件，不是必要条件。
+\end{conclusion}
+
+看一个不可对角化的例子：
+\[
+A=\begin{pmatrix}1&2\\0&1\end{pmatrix}.
+\]
+特征多项式是 \((\lambda-1)^2\)，所以 \(\lambda=1\) 的代数重数为 \(2\)。但
+\[
+A-I=\begin{pmatrix}0&2\\0&0\end{pmatrix}
+\]
+的秩为 \(1\)，零空间维数为 \(2-1=1\)，即几何重数只有 \(1\)。属于 \(1\) 的特征向量只有 \(k(1,0)^{\mathrm{T}}\) 这一条直线，凑不出两组线性无关的特征向量，因此 \(A\) 不可对角化。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.72\linewidth, height=5.4cm, axis equal image,
-  xmin=-0.4, xmax=3.7, ymin=-0.4, ymax=3.7,
-  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
+  width=0.62\linewidth, height=5.2cm, axis equal image, axis lines=middle,
+  xmin=-0.35, xmax=3.45, ymin=-0.45, ymax=1.75,
+  xlabel={$x$}, ylabel={$y$}, font=\footnotesize, ticks=none,
 ]
-% 单位正方形
-\draw[gray!60, thick] (axis cs:0,0) rectangle (axis cs:1,1);
-% A = [2 1; 0 3] 把单位正方形映成平行四边形（特征方向非正交，仍可对角化）
-\draw[blue, thick] (axis cs:0,0) -- (axis cs:2,0) -- (axis cs:3,3) -- (axis cs:1,3) -- cycle;
-% 特征向量 p1=(1,0) 与其像 2p1
-\draw[->,red,thick] (axis cs:0,0) -- (axis cs:1,0) node[below,font=\scriptsize]{$\mathbf{p}_1$};
-\draw[->,red!70,dashed] (axis cs:0,0) -- (axis cs:2,0) node[below left,font=\scriptsize]{$2\mathbf{p}_1$};
-% 特征向量 p2=(1,1) 与其像 3p2
-\draw[->,red,thick] (axis cs:0,0) -- (axis cs:1,1) node[above,font=\scriptsize]{$\mathbf{p}_2$};
-\draw[->,red!70,dashed] (axis cs:0,0) -- (axis cs:3,3) node[above right,font=\scriptsize]{$3\mathbf{p}_2$};
+\draw[gray!40, fill=gray!12, thick] (axis cs:0,0) rectangle (axis cs:1,1);
+\draw[blue, thick] (axis cs:0,0) -- (axis cs:1,0) -- (axis cs:3,1) -- (axis cs:2,1) -- cycle;
+\draw[->,red,thick] (axis cs:0,0) -- (axis cs:1,0)
+  node[below,font=\scriptsize]{$\mathbf{p}_1$};
+\draw[->,orange!80!black,thick] (axis cs:0,1) -- (axis cs:2,1)
+  node[anchor=south,font=\scriptsize]{$A\mathbf{e}_2$};
+\node[font=\scriptsize,blue] at (axis cs:2.35,1.5) {$A=\begin{pmatrix}1&2\\0&1\end{pmatrix}$};
 \end{axis}
 \end{tikzpicture}
-\par\smallskip
-{\centering\scriptsize
-{$A=\begin{pmatrix}2&1\\0&3\end{pmatrix}$}\quad 特征方向独立伸缩 $\Rightarrow$ 可对角化\par}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 剪切矩阵把单位正方形（灰）压成平行四边形（蓝）。水平方向的向量不动，这是唯一的特征方向；竖直向量被推斜。一个方向撑不起整个平面，所以找不到两组线性无关的特征向量，矩阵不能对角化。}}
 
-\subsection{代数重数与几何重数}
+若 \(A\) 可对角化，\(P^{-1}AP=\Lambda\) 的几何含义是：在由特征向量组成的基下，\(A\) 只沿各个基方向独立伸缩，不再混合坐标。这也是后面算 \(A^k\)、解微分方程组时总想先对角化的原因。
+\subsection{实对称矩阵的谱分解}
 
-\begin{mydef}{代数重数与几何重数}{algebraic-and-geometric-multiplicity}
-设 \(\lambda_0\) 是 \(n\) 阶方阵 \(A\) 的一个特征值：
-\begin{enumerate}
-    \item \(\lambda_0\) 作为特征多项式 \(f(\lambda) = |\lambda I - A|\) 的根的重数，称为 \(\lambda_0\) 的\textbf{代数重数}（algebraic multiplicity），记为 \(m_a(\lambda_0)\)。
-    \item 齐次线性方程组 \((\lambda_0 I - A)\mathbf{x} = \mathbf{0}\) 的解空间的维数，即属于 \(\lambda_0\) 的线性无关特征向量的最大个数，称为 \(\lambda_0\) 的\textbf{几何重数}（geometric multiplicity），记为 \(m_g(\lambda_0)\)。
-\end{enumerate}
-\end{mydef}
+实对称矩阵是满足 \(A=A^{\mathrm{T}}\) 的实方阵。这类矩阵的对角化不需要额外条件，而且得到的特征向量还能选成标准正交基。
 
-\begin{conclusion}{代数重数与几何重数的关系}{algebraic-vs-geometric-multiplicity}
-对任意特征值 \(\lambda_0\)，恒有
+先看三个基本事实。
+
+\textbf{特征值全是实数。} 设 \(A\mathbf{x}=\lambda\mathbf{x}\)，其中 \(\mathbf{x}\) 是非零复向量。两边左乘 \(\overline{\mathbf{x}}^{\mathrm{T}}\)，得
 \[
-1 \leq m_g(\lambda_0) \leq m_a(\lambda_0)
+\overline{\mathbf{x}}^{\mathrm{T}}A\mathbf{x}
+=\lambda\,\overline{\mathbf{x}}^{\mathrm{T}}\mathbf{x}.
 \]
-即几何重数不超过代数重数。
+左端是一个数，且
+\[
+\overline{\overline{\mathbf{x}}^{\mathrm{T}}A\mathbf{x}}
+=\mathbf{x}^{\mathrm{T}}A\overline{\mathbf{x}}
+=(A\mathbf{x})^{\mathrm{T}}\overline{\mathbf{x}}
+=\overline{\mathbf{x}}^{\mathrm{T}}A\mathbf{x},
+\]
+所以左端为实数；而 \(\overline{\mathbf{x}}^{\mathrm{T}}\mathbf{x}>0\)，故 \(\lambda\) 为实数。
+
+\textbf{不同特征值的特征向量正交。} 设 \(A\mathbf{x}=\lambda_1\mathbf{x}\)，\(A\mathbf{y}=\lambda_2\mathbf{y}\)，且 \(\lambda_1\neq\lambda_2\)。则
+\[
+\lambda_1\mathbf{x}\cdot\mathbf{y}
+=(A\mathbf{x})\cdot\mathbf{y}
+=\mathbf{x}\cdot(A\mathbf{y})
+=\lambda_2\mathbf{x}\cdot\mathbf{y}.
+\]
+移项得 \((\lambda_1-\lambda_2)\mathbf{x}\cdot\mathbf{y}=0\)，故 \(\mathbf{x}\cdot\mathbf{y}=0\)。
+
+\textbf{一定存在标准正交的特征向量基。} 这是谱定理的内容。
+
+\begin{conclusion}{实对称矩阵的谱定理}{spectral-theorem}
+设 \(A\) 是 \(n\) 阶实对称矩阵，则存在正交矩阵 \(Q\)（即 \(Q^{\mathrm{T}}Q=I\)），使得
+\[
+Q^{\mathrm{T}}AQ=Q^{-1}AQ=\operatorname{diag}(\lambda_1,\dots,\lambda_n),
+\]
+其中 \(\lambda_1,\dots,\lambda_n\) 是 \(A\) 的全部特征值，均为实数。\(Q\) 的列是两两正交的单位特征向量，构成 \(\mathbb{R}^n\) 的一组标准正交基。
 \end{conclusion}
 
-\begin{conclusion}{矩阵可对角化的充要条件}{diagonalizability-condition}
-\(n\) 阶方阵 \(A\) 可对角化的充要条件是：
-\begin{enumerate}
-    \item \(A\) 有 \(n\) 个线性无关的特征向量；或等价地
-    \item \(A\) 的每个特征值的几何重数都等于其代数重数，即 \(m_g(\lambda_i) = m_a(\lambda_i)\) 对所有特征值 \(\lambda_i\) 成立。
-\end{enumerate}
+由谱定理，实对称矩阵一定可对角化，且 \(\operatorname{r}(A)\) 等于非零特征值的个数（重数计入）。
 
-特别地，若 \(A\) 有 \(n\) 个互不相同的特征值，则 \(A\) 一定可对角化（充分非必要条件）。
-\end{conclusion}
-
-\begin{formula}{对角化的步骤}{diagonalization-steps}
+求 \(Q\) 的步骤与一般对角化相同，只是多了正交化和单位化：
+\begin{formula}{实对称矩阵的正交对角化步骤}{orthogonal-diagonalization}
 \begin{enumerate}
-    \item 求特征值：解特征方程 \(|\lambda I - A| = 0\)，得全部特征值 \(\lambda_1, \lambda_2, \ldots, \lambda_n\)。
-    \item 求特征向量：对每个特征值 \(\lambda_i\)，解 \((\lambda_i I - A)\mathbf{x} = \mathbf{0}\)，求出基础解系，得到一组线性无关的特征向量 \(\mathbf{p}_1, \mathbf{p}_2, \ldots, \mathbf{p}_n\)。
-    \item 构造可逆矩阵 \(P = (\mathbf{p}_1, \mathbf{p}_2, \ldots, \mathbf{p}_n)\)，则有
-    \[
-    P^{-1}AP = \operatorname{diag}(\lambda_1, \lambda_2, \ldots, \lambda_n)
-    \]
-    其中 \(\lambda_i\) 与 \(\mathbf{p}_i\) 的排列顺序一一对应。
+  \item 解 \(|\lambda I-A|=0\)，求出全部特征值。
+  \item 对每个特征值解 \((\lambda I-A)\mathbf{x}=\mathbf{0}\)，取基础解系。
+  \item 若某个特征值重数大于 \(1\)，对它对应的基础解系做 Gram--Schmidt 正交化；不同特征值的向量已经自动正交，不必再处理。
+  \item 把所有特征向量单位化，按列排成 \(Q\)，则 \(Q^{\mathrm{T}}AQ=\operatorname{diag}(\lambda_1,\dots,\lambda_n)\)，对角元的顺序与 \(Q\) 的列一一对应。
 \end{enumerate}
 \end{formula}
 
-\boxed{\textbf{例}} 判断矩阵 \(A = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}\) 是否可对角化。
+对前面的 \(A=\begin{pmatrix}2&1\\1&2\end{pmatrix}\)，属于 \(3\) 的单位特征向量是
+\[
+\mathbf{q}_1=\frac1{\sqrt2}\begin{pmatrix}1\\1\end{pmatrix},
+\]
+属于 \(1\) 的单位特征向量是
+\[
+\mathbf{q}_2=\frac1{\sqrt2}\begin{pmatrix}1\\-1\end{pmatrix}.
+\]
+它们正交。取
+\[
+Q=(\mathbf{q}_1,\mathbf{q}_2)=\frac1{\sqrt2}\begin{pmatrix}1&1\\1&-1\end{pmatrix},
+\]
+则
+\[
+Q^{\mathrm{T}}AQ=\begin{pmatrix}3&0\\0&1\end{pmatrix}.
+\]
 
-\textbf{解：} \(|\lambda I - A| = \begin{vmatrix} \lambda - 1 & -1 \\ 0 & \lambda - 1 \end{vmatrix} = (\lambda - 1)^2\)，特征值 \(\lambda = 1\)（二重根）。
+把 \(Q^{\mathrm{T}}AQ=\Lambda\) 两边左乘 \(Q\)、右乘 \(Q^{\mathrm{T}}\)，得到
+\[
+A=Q\Lambda Q^{\mathrm{T}}
+=\lambda_1\mathbf{q}_1\mathbf{q}_1^{\mathrm{T}}
++\lambda_2\mathbf{q}_2\mathbf{q}_2^{\mathrm{T}}
++\cdots+
+\lambda_n\mathbf{q}_n\mathbf{q}_n^{\mathrm{T}}.
+\]
+这就是\textbf{谱分解}。每一项 \(\mathbf{q}_i\mathbf{q}_i^{\mathrm{T}}\) 是一个秩一矩阵。记 \(P_i=\mathbf{q}_i\mathbf{q}_i^{\mathrm{T}}\)，它把向量投影到 \(\mathbf{q}_i\) 方向上；不同项的投影矩阵互相正交，即 \(P_iP_j=O\;(i\neq j)\)。所以谱分解把 \(A\) 拆成了若干个互不干扰的一维伸缩。
 
-\(m_a(1) = 2\)。几何重数：解 \((I - A)\mathbf{x} = \begin{pmatrix} 0 & -1 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \mathbf{0}\)，得 \(x_2 = 0\)，解空间维数为 \(1\)，故 \(m_g(1) = 1 < m_a(1) = 2\)。因此 \(A\) 不可对角化。
+对上面的二阶例子，直接验证：
+\[
+A=3\cdot\frac12\begin{pmatrix}1&1\\1&1\end{pmatrix}
++1\cdot\frac12\begin{pmatrix}1&-1\\-1&1\end{pmatrix}
+=\begin{pmatrix}2&1\\1&2\end{pmatrix}.
+\]
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.62\linewidth, height=5.2cm, axis equal image,
-  xmin=-0.4, xmax=2.8, ymin=-0.5, ymax=1.9,
-  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
+  width=0.66\linewidth, height=5.8cm, axis equal image, axis lines=middle,
+  xmin=-0.8, xmax=4.3, ymin=-1.25, ymax=3.85,
+  xlabel={$x$}, ylabel={$y$}, font=\footnotesize, ticks=none,
 ]
-% A = [1 1; 0 1]: 剪切，几何重数 < 代数重数，故不可对角化
-\draw[gray!60, thick] (axis cs:0,0) rectangle (axis cs:1,1);
-\draw[blue, thick] (axis cs:0,0) -- (axis cs:1,0) -- (axis cs:2,1) -- (axis cs:1,1) -- cycle;
-\draw[->,red,thick] (axis cs:0,0) -- (axis cs:1,0) node[below,font=\scriptsize]{$\mathbf{p}$};
-\node[font=\scriptsize,blue] at (axis cs:1.55,1.62){$A=\begin{pmatrix}1&1\\0&1\end{pmatrix}$};
-\node[font=\scriptsize,red] at (axis cs:1.55,-0.42){仅一个特征方向，故不可对角化};
+\draw[dashed,gray!60] (axis cs:-0.5,-0.5) -- (axis cs:3.9,3.9);
+\draw[dashed,gray!60] (axis cs:-1.1,1.1) -- (axis cs:1.1,-1.1);
+\node[gray!70!black,font=\scriptsize,fill=white,inner sep=1pt,anchor=south east] at (axis cs:2.3,2.15) {$\mathbf{q}_1$};
+\node[gray!70!black,font=\scriptsize,fill=white,inner sep=1pt,anchor=north west] at (axis cs:-0.75,0.75) {$\mathbf{q}_2$};
+\draw[->,red,thick] (axis cs:0,0) -- (axis cs:3,3)
+  node[anchor=south east,font=\scriptsize]{$3P_1\mathbf{x}$};
+\draw[->,blue,thick] (axis cs:0,0) -- (axis cs:0.5,-0.5)
+  node[anchor=north west,font=\scriptsize]{$P_2\mathbf{x}$};
+\draw[->,black,thick] (axis cs:0,0) -- (axis cs:1.5,0.5)
+  node[anchor=north west,font=\scriptsize]{$\mathbf{x}$};
+\draw[->,purple,very thick] (axis cs:0,0) -- (axis cs:3.5,2.5)
+  node[anchor=south west,font=\scriptsize]{$A\mathbf{x}$};
+\draw[dashed,red!60] (axis cs:3,3) -- (axis cs:3.5,2.5);
+\draw[dashed,blue!60] (axis cs:0.5,-0.5) -- (axis cs:3.5,2.5);
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 取 \(\mathbf{x}=(1.5,0.5)^{\mathrm{T}}\)。先投影到 \(\mathbf{q}_1,\mathbf{q}_2\) 两个正交方向，得到 \(P_1\mathbf{x}=(1,1)^{\mathrm{T}}\) 和 \(P_2\mathbf{x}=(0.5,-0.5)^{\mathrm{T}}\)；分别乘 \(\lambda_1=3\)、\(\lambda_2=1\) 后相加，正好得到 \(A\mathbf{x}=(3.5,2.5)^{\mathrm{T}}\)。虚线平行四边形就是这个加法。}}
 
-\subsection{实对称矩阵的对角化}
+谱分解在实际问题里很常见。若 \(A\) 是数据的协方差矩阵，\(\lambda_i\) 表示数据沿主轴 \(\mathbf{q}_i\) 方向的方差，\(\lambda_i/\sum_j\lambda_j\) 就是该主成分解释的方差比例，这正是主成分分析的出发点。在二次型 \(f(\mathbf{x})=\mathbf{x}^{\mathrm{T}}A\mathbf{x}\) 中，令 \(\mathbf{x}=Q\mathbf{y}\) 后交叉项全部消失，只剩 \(\sum_i\lambda_i y_i^2\)，曲面的主轴方向和伸缩比例也由特征值给出。
 
-\begin{mydef}{实对称矩阵的正交对角化}{orthogonal-diagonalization}
-设 \(A\) 为 \(n\) 阶实对称矩阵（即 \(A = A^{\mathrm{T}}\)），则存在正交矩阵 \(Q\)（即 \(Q^{\mathrm{T}} = Q^{-1}\)），使得
+\subsection{矩阵幂的计算}
+
+对角化最直接的用途是算高次幂。若 \(A=P\Lambda P^{-1}\)，则
 \[
-Q^{\mathrm{T}}AQ = Q^{-1}AQ = \Lambda = \operatorname{diag}(\lambda_1, \lambda_2, \ldots, \lambda_n)
+A^k=P\Lambda^kP^{-1}
+=P\operatorname{diag}(\lambda_1^k,\dots,\lambda_n^k)P^{-1}.
 \]
-其中 \(\lambda_1, \lambda_2, \ldots, \lambda_n\) 为 \(A\) 的全部特征值（均为实数）。这一过程称为\textbf{正交对角化}。
-\end{mydef}
+中间展开时 \(P^{-1}P\) 两两抵消，只剩 \(k\) 个 \(\Lambda\) 相乘。对角矩阵的乘法就是对角元各自相乘，所以求 \(A^k\) 变成求 \(n\) 个数的 \(k\) 次方。
 
-\begin{conclusion}{实对称矩阵的特征值与特征向量的性质（谱定理）}{spectral-theorem}
-设 \(A\) 为 \(n\) 阶实对称矩阵，则：
-\begin{enumerate}
-    \item \(A\) 的特征值全都是实数。
-    \item \(A\) 的属于不同特征值的特征向量彼此正交。
-    \item \(A\) 一定可以正交对角化，即存在正交矩阵 \(Q\)，使 \(Q^{\mathrm{T}}AQ\) 为对角矩阵。
-    \item \(Q\) 的列向量是 \(A\) 的 \(n\) 个两两正交的单位特征向量，构成 \(\mathbb{R}^n\) 的一组标准正交基。
-    \item \(A\) 的秩等于其非零特征值的个数（计重数）。
-\end{enumerate}
-上述结论合称为\textbf{实对称矩阵的谱定理}（Spectral Theorem）。
-\end{conclusion}
-
-\begin{formula}{实对称矩阵正交对角化的步骤}{orthogonal-diagonalization-steps}
-\begin{enumerate}
-    \item 求特征值：解 \(|\lambda I - A| = 0\)，得全部特征值 \(\lambda_1, \ldots, \lambda_n\)。
-    \item 求特征向量：对每个特征值 \(\lambda_i\)，解 \((\lambda_i I - A)\mathbf{x} = \mathbf{0}\)，得基础解系。
-    \item 正交化：对属于同一特征值的特征向量，用 Schmidt 正交化方法将其化为正交向量组（属于不同特征值的特征向量自动正交）。
-    \item 单位化：将所有正交特征向量单位化，得到标准正交向量组 \(\mathbf{q}_1, \ldots, \mathbf{q}_n\)。
-    \item 构造正交矩阵 \(Q = (\mathbf{q}_1, \mathbf{q}_2, \ldots, \mathbf{q}_n)\)，则 \(Q^{\mathrm{T}}AQ = \operatorname{diag}(\lambda_1, \ldots, \lambda_n)\)。
-\end{enumerate}
-\end{formula}
-
-\noindent\textbf{拓展（SVD 与谱方法）:} 实对称矩阵的谱分解 \(A = Q\Lambda Q^{\mathrm{T}}\)（\(\Lambda = \operatorname{diag}(\lambda_1, \ldots, \lambda_n)\)，取 \(\lambda_1 \ge \cdots \ge \lambda_n\)，\(Q\) 的列是正交单位特征向量 \(\mathbf{q}_1, \ldots, \mathbf{q}_n\)）正是\textbf{主成分分析（PCA）}的基础：对协方差矩阵，特征值 \(\lambda_i\) 等于数据沿主轴 \(\mathbf{q}_i\) 的方差，而 \(\lambda_i/\sum_j \lambda_j\) 即该主成分的「方差占比」，\(\mathbf{q}_i\) 即主轴方向；奇异值分解（SVD）\(A = U\Sigma V^{\mathrm{T}}\) 把谱分解推广到任意矩阵（不必对称），成为降维、推荐系统与数据压缩的通用工具。\\
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.62\linewidth, height=5cm, axis equal image,
-  xmin=-3.5, xmax=3.5, ymin=-3, ymax=3,
-  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
-]
-\addplot[black!55,samples=120,domain=0:360] ({2.5*cos(x)*cos(30)-0.9*sin(x)*sin(30)},{2.5*cos(x)*sin(30)+0.9*sin(x)*cos(30)});
-\draw[->,blue,thick] (axis cs:0,0) -- (axis cs:2.165,1.25) node[above,font=\scriptsize]{$\mathbf{q}_1$};
-\draw[->,red,thick] (axis cs:0,0) -- (axis cs:-0.45,0.78) node[left,font=\scriptsize]{$\mathbf{q}_2$};
-\node[font=\scriptsize,black] at (axis cs:0,-2.4){$\lambda_1 \ge \lambda_2$：主轴方向数据方差大};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-\subsection{Cayley-Hamilton 定理}
-
-\noindent\textbf{考研定位：}本节及后续的 Jordan 标准形、Gershgorin 圆盘定理和不变子空间均属拓展阅读，不作为现行考研数学一主线要求。备考时应优先掌握特征值与特征向量、相似对角化以及实对称矩阵的正交对角化。
-
-\begin{conclusion}{Cayley-Hamilton 定理}{cayley-hamilton-theorem}
-设 \(A\) 为 \(n\) 阶方阵，其特征多项式为
+对 \(A=\begin{pmatrix}2&1\\1&2\end{pmatrix}\)，用前面得到的 \(Q\) 和 \(\Lambda=\operatorname{diag}(3,1)\)：
 \[
-f(\lambda) = |\lambda I - A| = \lambda^n + a_{n-1}\lambda^{n-1} + \cdots + a_1\lambda + a_0
-\]
-则将矩阵 \(A\) 代入其特征多项式，有
-\[
-f(A) = A^n + a_{n-1}A^{n-1} + \cdots + a_1A + a_0 I = O
-\]
-即任意方阵都满足其自身的特征方程。
-\end{conclusion}
-
-\boxed{\text{注}} Cayley-Hamilton 定理是矩阵理论中极为深刻的结论。它表明 \(A\) 的高次幂总可以用低次幂的线性组合来表示，这在实际计算（特别是求 \(A^k\) 和 \(A^{-1}\)）中非常有用。
-
-\begin{conclusion}{Cayley-Hamilton 定理的应用}{applications-of-cayley-hamilton}
-\begin{enumerate}
-    \item \textbf{求矩阵的高次幂}：利用 \(f(A) = O\)，将 \(A^n\) 表示为 \(I, A, \ldots, A^{n-1}\) 的线性组合，从而可用递推方法求出 \(A^k\)（\(k \geq n\)）。
-    \item \textbf{求逆矩阵}：若 \(A\) 可逆（即 \(a_0 = (-1)^n|A| \neq 0\)），由 \(f(A) = O\) 移项可得
-    \[
-    A^{-1} = -\frac{1}{a_0}(A^{n-1} + a_{n-1}A^{n-2} + \cdots + a_1 I)
-    \]
-    即逆矩阵可表示为 \(A\) 的多项式。
-    \item \textbf{求矩阵多项式}：对于任意次数 \(\geq n\) 的矩阵多项式，可将其次数降低到不超过 \(n-1\)。
-    \item \textbf{最小多项式}：Cayley-Hamilton 定理保证 \(A\) 的最小多项式 \(m(\lambda)\)（即使 \(m(A) = O\) 的次数最低的首一多项式）整除特征多项式 \(f(\lambda)\)。
-\end{enumerate}
-\end{conclusion}
-
-\boxed{\textbf{例}} 设 \(A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}\)，利用 Cayley-Hamilton 定理求 \(A^{-1}\)。
-
-\textbf{解：} \(f(\lambda) = |\lambda I - A| = \begin{vmatrix} \lambda - 1 & -2 \\ -3 & \lambda - 4 \end{vmatrix} = \lambda^2 - 5\lambda - 2\)。
-
-由 Cayley-Hamilton 定理：\(A^2 - 5A - 2I = O\)。
-
-移项得 \(A(A - 5I) = 2I\)，故 \(A^{-1} = \frac{1}{2}(A - 5I) = \frac{1}{2}\begin{pmatrix} -4 & 2 \\ 3 & -1 \end{pmatrix} = \begin{pmatrix} -2 & 1 \\ \frac{3}{2} & -\frac{1}{2} \end{pmatrix}\)。
-
-\subsection{Jordan 标准形}
-
-\noindent\textbf{拓展阅读：}本节用于补充矩阵相似分类的背景，不作为考研数学一主线要求。
-
-当矩阵不可对角化时，它仍然可以相似于一个接近对角的矩阵——Jordan 标准形，这是相似变换下最简化的形式。
-
-\begin{mydef}{Jordan 块与 Jordan 标准形}{jordan-canonical-form}
-形如
-\[
-J_k(\lambda) = 
+A^k=Q\begin{pmatrix}3^k&0\\0&1\end{pmatrix}Q^{\mathrm{T}}
+=\frac12
 \begin{pmatrix}
-\lambda & 1 & 0 & \cdots & 0 \\
-0 & \lambda & 1 & \cdots & 0 \\
-0 & 0 & \lambda & \cdots & 0 \\
-\vdots & \vdots & \vdots & \ddots & 1 \\
-0 & 0 & 0 & \cdots & \lambda
-\end{pmatrix}_{k \times k}
+3^k+1&3^k-1\\
+3^k-1&3^k+1
+\end{pmatrix}.
 \]
-的矩阵称为属于特征值 \(\lambda\) 的 \(k\) 阶\textbf{Jordan 块}。由若干个 Jordan 块构成的准对角矩阵
+令 \(k=1\)，右边是 \(\frac12\begin{pmatrix}4&2\\2&4\end{pmatrix}=\begin{pmatrix}2&1\\1&2\end{pmatrix}\)，与 \(A\) 一致；令 \(k=0\)，右边是 \(I\)。这两个特殊值可以快速检查公式有没有写错。
+
+当 \(k\) 很大时，\(3^k\) 远大于 \(1^k\)，于是
 \[
-J = \operatorname{diag}(J_{k_1}(\lambda_1), J_{k_2}(\lambda_2), \ldots, J_{k_s}(\lambda_s))
+A^k\approx\frac{3^k}{2}\begin{pmatrix}1&1\\1&1\end{pmatrix}
+=3^k\mathbf{q}_1\mathbf{q}_1^{\mathrm{T}}.
 \]
-称为\textbf{Jordan 标准形}（Jordan canonical form），其中不同的 \(\lambda_i\) 可以相同。
-\end{mydef}
+主导项就是最大特征值对应的那个投影。这也解释了为什么迭代 \(A^k\mathbf{x}\) 的方向会越来越靠近主特征向量：其他方向按 \((\lambda_i/\lambda_1)^k\) 衰减掉了。
 
-\begin{conclusion}{Jordan 标准形定理}{jordan-canonical-form-theorem}
-设 \(A\) 为 \(n\) 阶复方阵，其特征多项式在复数域上可分解为一次因式的乘积：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.72\linewidth, height=4.9cm,
+  xmin=-0.25, xmax=6.35, ymin=0, ymax=48,
+  xlabel={$k$}, ylabel={方向角（度）},
+  xtick={0,1,2,3,4,5,6}, ytick={0,15,30,45},
+  font=\footnotesize, clip=false,
+]
+\addplot[blue, thick, mark=*, mark size=1.5pt] coordinates {
+  (0,0) (1,26.565) (2,38.660) (3,42.878)
+  (4,44.292) (5,44.763) (6,44.922)
+};
+\draw[dashed,gray!70] (axis cs:0,45) -- (axis cs:6.35,45);
+\node[font=\scriptsize,anchor=south east] at (axis cs:6.3,45.4) {$45^\circ$ 渐近线};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize \(A^k\mathbf{e}_1\) 与 \(x\) 轴的夹角随 \(k\) 的变化。角度单调上升并逼近 \(45^\circ\)，也就是 \(\mathbf{q}_1\) 的方向；误差每步按 \(|\lambda_2/\lambda_1|=1/3\) 缩小，所以曲线先快后慢。特征值比值越小，曲线越早贴近渐近线。}}
+
+若 \(A\) 不可对角化，也有办法。先看只有一个特征值 \(\lambda\) 的情形（多个特征值可以按 Jordan 块分开处理），此时可写成
 \[
-f(\lambda) = (\lambda - \lambda_1)^{m_1}(\lambda - \lambda_2)^{m_2} \cdots (\lambda - \lambda_s)^{m_s}
+A=\lambda I+N,
 \]
-则 \(A\) 相似于一个唯一的 Jordan 标准形 \(J\)（不计 Jordan 块的排列顺序）。其中：
-\begin{enumerate}
-    \item 对角线上是 \(A\) 的全部特征值，每个特征值 \(\lambda_i\) 出现 \(m_i\) 次（等于其代数重数）。
-    \item 特征值 \(\lambda_i\) 对应的 Jordan 块的个数等于其几何重数 \(m_g(\lambda_i)\)。
-    \item \(\lambda_i\) 对应的最大 Jordan 块的阶数等于 \((\lambda_i I - A)^k\) 的零空间首次稳定时的 \(k\)。
-\end{enumerate}
-\end{conclusion}
-
-\boxed{\text{注}} Jordan 标准形是矩阵相似分类的最终答案：
-\begin{enumerate}
-    \item 若所有 Jordan 块都是 \(1 \times 1\) 的，则 Jordan 标准形即为对角矩阵，此时矩阵可对角化。
-    \item 若存在大于 \(1\) 阶的 Jordan 块，则矩阵不可对角化。Jordan 块的大小刻画了矩阵"偏离可对角化"的程度。
-    \item 两个复方阵相似当且仅当它们有相同的 Jordan 标准形（不计块的排列顺序）。
-\end{enumerate}
-
-\subsection{特征值的估计}
-
-\noindent\textbf{拓展阅读：}Gershgorin 圆盘定理不作为考研数学一主线要求。
-
-\begin{conclusion}{Gershgorin 圆盘定理}{gershgorin-circle-theorem}
-设 \(A = (a_{ij})_{n \times n}\)，对每个 \(i = 1, 2, \ldots, n\)，定义圆盘（Gershgorin 圆盘）
+其中 \(N=A-\lambda I\) 是幂零矩阵，即某个 \(N^m=O\)。由于 \(\lambda I\) 与任何矩阵都交换，二项式定理仍然成立：
 \[
-D_i = \left\{ z \in \mathbb{C} : |z - a_{ii}| \leq R_i \right\}, \quad R_i = \sum_{j \neq i} |a_{ij}|
+A^k=(\lambda I+N)^k
+=\sum_{j=0}^{k}\binom{k}{j}\lambda^{k-j}N^j.
 \]
-即圆盘以对角元 \(a_{ii}\) 为圆心，以第 \(i\) 行非对角元的绝对值之和为半径。则 \(A\) 的每个特征值都落在这些圆盘的并集之中：
+当 \(j\ge m\) 时 \(N^j=O\)，所以求和其实只有前 \(m\) 项；当 \(\lambda\neq0\) 时，它是一个关于 \(k\) 的多项式乘以 \(\lambda^k\)。
+
+例如
 \[
-\lambda \in \bigcup_{i=1}^{n} D_i
+A=\begin{pmatrix}2&1\\0&2\end{pmatrix}=2I+N,\qquad
+N=\begin{pmatrix}0&1\\0&0\end{pmatrix},\quad N^2=O.
 \]
-同理，特征值也落在以列为基础的圆盘并集之中。
-\end{conclusion}
+于是
+\[
+A^k=2^kI+k\,2^{k-1}N
+=\begin{pmatrix}2^k&k\,2^{k-1}\\0&2^k\end{pmatrix}.
+\]
+对角线上仍是 \(2^k\)，但右上角多出一个随 \(k\) 线性增长的项，这正是不可对角化带来的差别。
 
-\boxed{\textbf{应用}} Gershgorin 定理可用于：
-\begin{enumerate}
-    \item 特征值的粗略定位（例如判断特征值的实部范围）。
-    \item 证明矩阵可逆：若所有 Gershgorin 圆盘都不包含原点（即 \(|a_{ii}| > \sum_{j \neq i} |a_{ij}|\) 对所有 \(i\) 成立——严格对角占优矩阵），则 \(A\) 可逆。
-    \item 估计特征值的模的上界（谱半径 \(\rho(A) \leq \max_i \sum_{j} |a_{ij}|\)）。
-\end{enumerate}
+秩一矩阵还有更快的公式。若 \(A=\mathbf{u}\mathbf{v}^{\mathrm{T}}\)，则
+\[
+A^2=\mathbf{u}\mathbf{v}^{\mathrm{T}}\mathbf{u}\mathbf{v}^{\mathrm{T}}
+=(\mathbf{v}^{\mathrm{T}}\mathbf{u})\,\mathbf{u}\mathbf{v}^{\mathrm{T}}
+=(\mathbf{v}^{\mathrm{T}}\mathbf{u})A,
+\]
+所以
+\[
+A^k=(\mathbf{v}^{\mathrm{T}}\mathbf{u})^{k-1}A\qquad(k\ge1).
+\]
+一个数 \(\mathbf{v}^{\mathrm{T}}\mathbf{u}\) 就决定了整个幂序列。
 
-\subsection{不变子空间}
+Cayley--Hamilton 定理则提供了另一条降次途径：把 \(A^n\) 用 \(I,A,\dots,A^{n-1}\) 表示，再递推高次幂。矩阵阶数不高、幂次也不高时，这比求特征向量更省事。
 
-\noindent\textbf{拓展阅读：}本节仅帮助理解特征子空间与对角化，不作为考研数学一主线要求。
-
-\begin{mydef}{不变子空间}{invariant-subspace}
-设 \(A\) 为 \(n\) 阶方阵，\(W\) 是 \(\mathbb{R}^n\)（或 \(\mathbb{C}^n\)）的一个子空间。若对任意 \(\mathbf{x} \in W\)，有 \(A\mathbf{x} \in W\)，则称 \(W\) 是 \(A\) 的\textbf{不变子空间}（invariant subspace）。
-\end{mydef}
-
-\begin{conclusion}{特征子空间与不变子空间}{eigenspace-and-invariant-subspace}
-\begin{enumerate}
-    \item 属于特征值 \(\lambda\) 的全体特征向量加上零向量构成 \(A\) 的一个不变子空间，称为\textbf{特征子空间}，记作 \(V_\lambda = \{\mathbf{x} \mid A\mathbf{x} = \lambda \mathbf{x}\}\)。
-    \item \(V_\lambda\) 的维数即为 \(\lambda\) 的几何重数 \(m_g(\lambda)\)。
-    \item 若 \(A\) 限制在不变子空间 \(W\) 上，则可以缩小为一个阶数更低的线性变换，其矩阵表示也更简单。对角化（以及 Jordan 标准形）的本质就是将整个空间分解为特征子空间和广义特征子空间的直和。
-\end{enumerate}
-\end{conclusion}
+最后提一句更一般的图景。在复数域上，任何方阵都相似于一个 Jordan 标准形：对角线上是特征值，对角线上方可能有 \(1\)。Jordan 块的个数等于几何重数，最大块的阶数刻画了“不能对角化”的程度。再往外，Gershgorin 圆盘定理用对角元和行内非对角元绝对值之和，在复平面上圈出特征值所在的区域。这两部分超出考研主线，知道结论即可。
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\textbf{1.} \textbf{（计算题）} 求矩阵 \(A = \begin{pmatrix}
-2 & 1 & 1 \\
-1 & 2 & 1 \\
-1 & 1 & 2
-\end{pmatrix}\) 的全部特征值与特征向量。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-特征多项式：
-\[
-|\lambda I - A| = \begin{vmatrix}
-\lambda - 2 & -1 & -1 \\
--1 & \lambda - 2 & -1 \\
--1 & -1 & \lambda - 2
-\end{vmatrix}
-\]
-将第2、3行加到第1行：
-\[
-= \begin{vmatrix}
-\lambda - 4 & \lambda - 4 & \lambda - 4 \\
--1 & \lambda - 2 & -1 \\
--1 & -1 & \lambda - 2
-\end{vmatrix}
-= (\lambda - 4)\begin{vmatrix}
-1 & 1 & 1 \\
--1 & \lambda - 2 & -1 \\
--1 & -1 & \lambda - 2
-\end{vmatrix}
-\]
-第2、3列各减去第1列：
-\[
-= (\lambda - 4)\begin{vmatrix}
-1 & 0 & 0 \\
--1 & \lambda - 1 & 0 \\
--1 & 0 & \lambda - 1
-\end{vmatrix}
-= (\lambda - 4)(\lambda - 1)^2
-\]
-故特征值为 \(\lambda_1 = 4\)（单根），\(\lambda_2 = \lambda_3 = 1\)（二重根）。
-
-\textbf{对 \(\lambda = 4\)}：解 \((4I - A)\mathbf{x} = \mathbf{0}\)，即
-\[
-\begin{pmatrix}
-2 & -1 & -1 \\
--1 & 2 & -1 \\
--1 & -1 & 2
-\end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-\]
-解得 \(x_1 = x_2 = x_3\)，取 \(\mathbf{p}_1 = (1, 1, 1)^{\mathrm{T}}\)。全部特征向量为 \(k_1\mathbf{p}_1\;(k_1 \neq 0)\)。
-
-\textbf{对 \(\lambda = 1\)}：解 \((I - A)\mathbf{x} = \mathbf{0}\)，即
-\[
-\begin{pmatrix}
--1 & -1 & -1 \\
--1 & -1 & -1 \\
--1 & -1 & -1
-\end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-\]
-即 \(x_1 + x_2 + x_3 = 0\)。基础解系取 \(\mathbf{p}_2 = (1, -1, 0)^{\mathrm{T}}, \mathbf{p}_3 = (1, 0, -1)^{\mathrm{T}}\)。全部特征向量为 \(k_2\mathbf{p}_2 + k_3\mathbf{p}_3\;(k_2, k_3\text{ 不全为零})\)。
-
-\boxed{\text{注}} 本题矩阵 \(A = \begin{pmatrix} 2 & 1 & 1 \\ 1 & 2 & 1 \\ 1 & 1 & 2 \end{pmatrix}\) 的每行元素之和均为 \(4\)，故 \(\lambda = 4\) 是一个特征值，对应特征向量 \((1,1,1)^{\mathrm{T}}\)——这是「行和」技巧在特征值计算中的常见应用。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{2.} \textbf{（选择题）} 设 \(\lambda\) 是 \(n\) 阶可逆方阵 \(A\) 的一个特征值，\(\mathbf{x}\) 是对应的特征向量，则下列矩阵中，以 \(\mathbf{x}\) 为特征向量的是（\quad）
-\begin{enumerate}[label=(\Alph*)]
-    \item \(A^2\)，对应的特征值为 \(\lambda^2\)
-    \item \(A^{-1}\)，对应的特征值为 \(\lambda^{-1}\)
-    \item \(A^*\)（伴随矩阵），对应的特征值为 \(|A|/\lambda\)
-    \item \(A^{\mathrm{T}}\)，对应的特征值不一定为 \(\lambda\)
-\end{enumerate}
-其中\textbf{不一定成立}的是\underline{\quad\quad}。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} \textbf{答案：D。}
-
-由特征值与特征向量的定义 \(A\mathbf{x} = \lambda\mathbf{x}\)：
-\begin{itemize}
-    \item \(A^2\mathbf{x} = A(\lambda\mathbf{x}) = \lambda^2\mathbf{x}\)，故选项A成立。
-    \item 由 \(A\mathbf{x} = \lambda\mathbf{x}\) 且 \(A\) 可逆（\(\lambda \neq 0\)），两边左乘 \(A^{-1}\) 得 \(\mathbf{x} = \lambda A^{-1}\mathbf{x}\)，即 \(A^{-1}\mathbf{x} = \lambda^{-1}\mathbf{x}\)，故选项B成立。
-    \item 利用 \(A^* = |A|A^{-1}\)，得 \(A^*\mathbf{x} = |A|A^{-1}\mathbf{x} = \frac{|A|}{\lambda}\mathbf{x}\)，故选项C成立。
-    \item \(A^{\mathrm{T}}\) 与 \(A\) 有相同的特征值，但特征向量一般不同（除非 \(A\) 是实对称矩阵等特殊情况）。例如 \(A = \begin{pmatrix} 1 & 1 \\ 0 & 2 \end{pmatrix}\)，\(\lambda = 1\) 的特征向量为 \((1,0)^{\mathrm{T}}\)，但 \(A^{\mathrm{T}} = \begin{pmatrix} 1 & 0 \\ 1 & 2 \end{pmatrix}\) 的属于 \(\lambda = 1\) 的特征向量为 \((1,-1)^{\mathrm{T}}\)，二者不同。故D不一定成立。
-\end{itemize}
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{3.} \textbf{（填空题）} 设三阶方阵 \(A\) 的三个特征值为 \(1, 2, 3\)，则
-\begin{enumerate}[label=(\arabic*)]
-    \item \(|A| = \underline{\quad\quad}\)
-    \item \(\operatorname{tr}(A) = \underline{\quad\quad}\)
-    \item 矩阵 \(A^2 + A + I\) 的三个特征值为 \(\underline{\quad\quad}, \underline{\quad\quad}, \underline{\quad\quad}\)
-    \item \(|A^2 + A + I| = \underline{\quad\quad}\)
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\begin{enumerate}[label=(\arabic*)]
-    \item \(|A| = \lambda_1\lambda_2\lambda_3 = 1 \times 2 \times 3 = 6\)。
-    \item \(\operatorname{tr}(A) = \lambda_1 + \lambda_2 + \lambda_3 = 1 + 2 + 3 = 6\)。
-    \item 若 \(\lambda\) 是 \(A\) 的特征值，则 \(g(\lambda)\) 是 \(g(A)\) 的特征值。取 \(g(t) = t^2 + t + 1\)，则：
-    \[
-    g(1) = 1^2+1+1 = 3,\quad g(2) = 2^2+2+1 = 7,\quad g(3) = 3^2+3+1 = 13
-    \]
-    故 \(A^2 + A + I\) 的三个特征值为 \(3, 7, 13\)。
-    \item \(|A^2 + A + I| = 3 \times 7 \times 13 = 273\)。
-
-\end{enumerate}
-\else \answerarea \fi%
-
-\vspace{0.5cm}
-
-\textbf{4.} \textbf{（拓展选择题：相似分类）} 下列矩阵中，与矩阵 \(A = \begin{pmatrix}
-1 & 1 & 0 \\
-0 & 1 & 0 \\
-0 & 0 & 2
-\end{pmatrix}\) 不相似的是（\quad）
-\begin{enumerate}[label=(\Alph*)]
-    \item \(\begin{pmatrix} 1 & 0 & 0 \\ 1 & 1 & 0 \\ 0 & 0 & 2 \end{pmatrix}\)
-    \item \(\begin{pmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \\ 0 & 0 & 2 \end{pmatrix}\)
-    \item \(\begin{pmatrix} 1 & 0 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & 1 \end{pmatrix}\)
-    \item \(\begin{pmatrix} 2 & 0 & 0 \\ 0 & 1 & 1 \\ 0 & 0 & 1 \end{pmatrix}\)
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} \textbf{答案：C。}
-
-先分析矩阵 \(A\)：左上角的 \(2\) 阶子块 \(\begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}\) 是不可对角化的（Jordan 块），\(\lambda = 2\) 是孤立特征值。因此 \(A\) 的 Jordan 标准形为 \(J_2(1) \oplus J_1(2) = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 2 \end{pmatrix}\)（即 \(A\) 自身）。
-
-逐一排查：
-\begin{itemize}
-    \item (A) \(\begin{pmatrix} 1 & 0 & 0 \\ 1 & 1 & 0 \\ 0 & 0 & 2 \end{pmatrix}\) 特征值为 \(1,1,2\)。对 \(\lambda=1\)，该矩阵减去 \(I\) 后为 \(\begin{pmatrix} 0 & 0 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{pmatrix}\)，秩为 \(2\)，\(m_g(1)=1 < m_a(1)=2\)，不可对角化。其 Jordan 标准形为 \(J_2(1) \oplus J_1(2)\)，与 \(A\) \textbf{相同}，故 (A) 与 \(A\) \textbf{相似}。
-    \item (B) 特征多项式为 \((\lambda-1)^2(\lambda-2)\)。对 \(\lambda=1\)，\(B-I = \begin{pmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ 0 & 0 & 1 \end{pmatrix}\)，秩为 \(2\)，\(m_g(1)=1 < m_a(1)=2\)，不可对角化。其 Jordan 标准形为 \(J_2(1) \oplus J_1(2)\)，与 \(A\) \textbf{相同}，故 \(B\) 与 \(A\) \textbf{相似}。
-    \item (C) 可对角化，与 \(A\) 不相似。
-    \item (D) 特征值为 \(2, 1, 1\)。对 \(\lambda = 1\)，\(D-I = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 0 & 1 \\ 0 & 0 & 0 \end{pmatrix}\)，秩为 \(2\)，\(m_g(1)=1\)，不可对角化。其 Jordan 标准形亦为 \(J_2(1) \oplus J_1(2)\)，故 \(D\) 也与 \(A\) \textbf{相似}。
-\end{itemize}
-
-因此 (A)(B)(D) 均与 \(A\) 相似，(C) 与 \(A\) 不相似。本题答案为 (C)。
-
-\boxed{\text{注}} 矩阵 \(A\)、选项 (A)(B)(D) 四者的 Jordan 标准形均为 \(J_2(1) \oplus J_1(2)\)（不计 Jordan 块的排列顺序），故彼此相似。判断相似的核心是比较 Jordan 标准形，而非对角块的排列顺序。
-
-\vspace{0.5cm}
-
-
-\else \answerarea \fi%
-\textbf{5.} \textbf{（计算题）} 将矩阵 \(A = \begin{pmatrix}
-1 & 0 & 2 \\
-0 & 2 & 0 \\
-0 & 0 & 2
-\end{pmatrix}\) 对角化，即求可逆矩阵 \(P\) 和对角矩阵 \(\Lambda\)，使得 \(P^{-1}AP = \Lambda\)。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-矩阵 \(A\) 的特征多项式：
-\[
-|\lambda I - A| = \begin{vmatrix}
-\lambda - 1 & 0 & -2 \\
-0 & \lambda - 2 & 0 \\
-0 & 0 & \lambda - 2
-\end{vmatrix}
-= (\lambda - 1)(\lambda - 2)^2
-\]
-特征值为 \(\lambda_1 = 1\)，\(\lambda_2 = \lambda_3 = 2\)。
-
-\textbf{对 \(\lambda = 1\)}：解 \((I - A)\mathbf{x} = \mathbf{0}\)，即
-\[
-\begin{pmatrix}
-0 & 0 & -2 \\
-0 & -1 & 0 \\
-0 & 0 & -1
-\end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-\]
-得 \(x_3 = 0, x_2 = 0\)，\(x_1\) 自由。取 \(\mathbf{p}_1 = (1, 0, 0)^{\mathrm{T}}\)。\(m_g(1) = 1 = m_a(1)\)。
-
-\textbf{对 \(\lambda = 2\)}：解 \((2I - A)\mathbf{x} = \mathbf{0}\)，即
-\[
-\begin{pmatrix}
-1 & 0 & -2 \\
-0 & 0 & 0 \\
-0 & 0 & 0
-\end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-\]
-得 \(x_1 = 2x_3\)，\(x_2\) 与 \(x_3\) 自由。基础解系取 \(\mathbf{p}_2 = (2, 0, 1)^{\mathrm{T}}, \mathbf{p}_3 = (0, 1, 0)^{\mathrm{T}}\)。\(m_g(2) = 2 = m_a(2)\)。
-
-故 \(A\) 可对角化。令
-\[
-P = (\mathbf{p}_1, \mathbf{p}_2, \mathbf{p}_3) = \begin{pmatrix}
-1 & 2 & 0 \\
-0 & 0 & 1 \\
-0 & 1 & 0
-\end{pmatrix},\qquad
-\Lambda = \operatorname{diag}(1, 2, 2) = \begin{pmatrix}
-1 & 0 & 0 \\
-0 & 2 & 0 \\
-0 & 0 & 2
-\end{pmatrix}
-\]
-则有 \(P^{-1}AP = \Lambda\)。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{6.} \textbf{（计算题）} 设实对称矩阵 \(A = \begin{pmatrix}
-2 & -1 & -1 \\
--1 & 2 & -1 \\
--1 & -1 & 2
-\end{pmatrix}\)，求正交矩阵 \(Q\)，使得 \(Q^{\mathrm{T}}AQ\) 为对角矩阵。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-特征多项式：
-\[
-|\lambda I - A| = \begin{vmatrix}
-\lambda - 2 & 1 & 1 \\
-1 & \lambda - 2 & 1 \\
-1 & 1 & \lambda - 2
-\end{vmatrix}
-\]
-将第2、3行加到第1行：
-\[
-= \begin{vmatrix}
-\lambda & \lambda & \lambda \\
-1 & \lambda - 2 & 1 \\
-1 & 1 & \lambda - 2
-\end{vmatrix}
-= \lambda\begin{vmatrix}
-1 & 1 & 1 \\
-1 & \lambda - 2 & 1 \\
-1 & 1 & \lambda - 2
-\end{vmatrix}
-\]
-第1行乘以 \(-1\) 加到第2、3行：
-\[
-= \lambda\begin{vmatrix}
-1 & 1 & 1 \\
-0 & \lambda - 3 & 0 \\
-0 & 0 & \lambda - 3
-\end{vmatrix}
-= \lambda(\lambda - 3)^2
-\]
-特征值为 \(\lambda_1 = 0\)，\(\lambda_2 = \lambda_3 = 3\)。
-
-\textbf{对 \(\lambda = 0\)}：解 \((0I - A)\mathbf{x} = -A\mathbf{x} = \mathbf{0}\)，即
-\[
-\begin{pmatrix}
--2 & 1 & 1 \\
-1 & -2 & 1 \\
-1 & 1 & -2
-\end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-\]
-解得 \(x_1 = x_2 = x_3\)。取 \(\boldsymbol{\alpha}_1 = (1, 1, 1)^{\mathrm{T}}\)，单位化得 \(\mathbf{q}_1 = \left(\frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}}\right)^{\mathrm{T}}\)。
-
-\textbf{对 \(\lambda = 3\)（二重根）}：解 \((3I - A)\mathbf{x} = \mathbf{0}\)，即
-\[
-\begin{pmatrix}
-1 & 1 & 1 \\
-1 & 1 & 1 \\
-1 & 1 & 1
-\end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-\]
-得 \(x_1 + x_2 + x_3 = 0\)。基础解系取 \(\boldsymbol{\alpha}_2 = (1, -1, 0)^{\mathrm{T}}, \boldsymbol{\alpha}_3 = (1, 0, -1)^{\mathrm{T}}\)。
-
-\(\boldsymbol{\alpha}_2\) 与 \(\boldsymbol{\alpha}_3\) 属于同一特征值，需要 Schmidt 正交化（它们与 \(\boldsymbol{\alpha}_1\) 自动正交）：
-\[
-\boldsymbol{\beta}_2 = \boldsymbol{\alpha}_2 = (1, -1, 0)^{\mathrm{T}}
-\]
-\[
-\boldsymbol{\beta}_3 = \boldsymbol{\alpha}_3 - \frac{\langle\boldsymbol{\alpha}_3, \boldsymbol{\beta}_2\rangle}{\langle\boldsymbol{\beta}_2, \boldsymbol{\beta}_2\rangle}\boldsymbol{\beta}_2
-= \begin{pmatrix} 1 \\ 0 \\ -1 \end{pmatrix} - \frac{1}{2}\begin{pmatrix} 1 \\ -1 \\ 0 \end{pmatrix}
-= \begin{pmatrix} \frac{1}{2} \\[2pt] \frac{1}{2} \\[2pt] -1 \end{pmatrix}
-\]
-单位化：
-\[
-\mathbf{q}_2 = \frac{\boldsymbol{\beta}_2}{\|\boldsymbol{\beta}_2\|} = \left(\frac{1}{\sqrt{2}}, -\frac{1}{\sqrt{2}}, 0\right)^{\mathrm{T}}
-\]
-\[
-\mathbf{q}_3 = \frac{\boldsymbol{\beta}_3}{\|\boldsymbol{\beta}_3\|} = \left(\frac{1}{\sqrt{6}}, \frac{1}{\sqrt{6}}, -\frac{2}{\sqrt{6}}\right)^{\mathrm{T}}
-\]
-故正交矩阵
-\[
-Q = (\mathbf{q}_1, \mathbf{q}_2, \mathbf{q}_3) = \begin{pmatrix}
-\frac{1}{\sqrt{3}} & \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{6}} \\[4pt]
-\frac{1}{\sqrt{3}} & -\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{6}} \\[4pt]
-\frac{1}{\sqrt{3}} & 0 & -\frac{2}{\sqrt{6}}
-\end{pmatrix}
-\]
-且 \(Q^{\mathrm{T}}AQ = \operatorname{diag}(0, 3, 3)\)。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{7.} \textbf{（选择题）} 矩阵 \(A = \begin{pmatrix}
-1 & 1 & 0 \\
-0 & 1 & 1 \\
-0 & 0 & 1
-\end{pmatrix}\) 是否可对角化？下列分析正确的是（\quad）
-\begin{enumerate}[label=(\Alph*)]
-    \item 可对角化，因为 \(A\) 有三个（计重数）实特征值
-    \item 可对角化，因为 \(A\) 的特征值 \(\lambda = 1\) 为三重根，必有三个线性无关的特征向量
-    \item 不可对角化，因为 \(\lambda = 1\) 的几何重数 \(m_g(1) = 1 < m_a(1) = 3\)
-    \item 不可对角化，因为 \(A\) 不是对称矩阵
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} \textbf{答案：C。}
-
-特征多项式 \(|\lambda I - A| = \begin{vmatrix} \lambda - 1 & -1 & 0 \\ 0 & \lambda - 1 & -1 \\ 0 & 0 & \lambda - 1 \end{vmatrix} = (\lambda - 1)^3\)，特征值 \(\lambda = 1\)（三重），\(m_a(1) = 3\)。
-
-几何重数：解 \((I - A)\mathbf{x} = \mathbf{0}\)，即
-\[
-\begin{pmatrix}
-0 & -1 & 0 \\
-0 & 0 & -1 \\
-0 & 0 & 0
-\end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-\]
-得 \(x_2 = 0, x_3 = 0\)，解空间维数 \(m_g(1) = 1 < m_a(1) = 3\)。故不可对角化。
-
-分析各选项：
-\begin{itemize}
-    \item (A) 错误：有实特征值不保证可对角化（本反例即说明）。
-    \item (B) 错误：三重根的特征值不一定有三个线性无关的特征向量。
-    \item (C) 正确：\(m_g(1) = 1 < 3\)，故不可对角化。
-    \item (D) 错误：不可对角化的原因不在于是否对称，而在于几何重数小于代数重数。
-\end{itemize}
-
-
-\else \answerarea \fi%
-\subsection{综合提高题}
-
-\textbf{8.} \textbf{（典型综合证明题，\(\star\star\star\)）} 设 \(A\) 为 \(n\) 阶方阵，满足 \(A^2 = A\)（幂等矩阵）。证明：
-\begin{enumerate}[label=(\arabic*)]
-    \item \(A\) 的特征值只能为 \(0\) 或 \(1\)；
-    \item \(A\) 一定可对角化；
-    \item \(\operatorname{rank}(A) = \operatorname{tr}(A)\)，即 \(A\) 的秩等于其迹。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-\textbf{(1)} 设 \(\lambda\) 是 \(A\) 的特征值，\(\mathbf{x} \neq \mathbf{0}\) 是对应的特征向量，则
-\[
-A\mathbf{x} = \lambda\mathbf{x}
-\]
-两边左乘 \(A\) 得 \(A^2\mathbf{x} = \lambda A\mathbf{x} = \lambda^2\mathbf{x}\)。又由 \(A^2 = A\) 得 \(A^2\mathbf{x} = A\mathbf{x} = \lambda\mathbf{x}\)。于是
-\[
-\lambda^2\mathbf{x} = \lambda\mathbf{x} \quad\Longrightarrow\quad (\lambda^2 - \lambda)\mathbf{x} = \mathbf{0}
-\]
-由 \(\mathbf{x} \neq \mathbf{0}\) 得 \(\lambda^2 - \lambda = 0\)，即 \(\lambda(\lambda - 1) = 0\)，故 \(\lambda = 0\) 或 \(\lambda = 1\)。
-
-\textbf{(2)} 由 \(A^2 = A\) 可得 \(A(A - I) = O\)。对任意 \(\mathbf{x} \in \mathbb{R}^n\)，有
-\[
-\mathbf{x} = (I - A)\mathbf{x} + A\mathbf{x}
-\]
-注意到 \((I - A)^2 = I - 2A + A^2 = I - A\)，故 \(I - A\) 也是幂等矩阵。对于幂等矩阵，\(\mathbb{R}^n\) 可分解为其零空间与值域的直和：
-\[
-\mathbb{R}^n = \operatorname{Ker}(A) \oplus \operatorname{Im}(A) \quad\text{（或等价地 } \mathbb{R}^n = V_0 \oplus V_1\text{）}
-\]
-其中 \(V_0 = \{\mathbf{x} \mid A\mathbf{x} = \mathbf{0}\}\)（\(\lambda = 0\) 的特征子空间），\(V_1 = \{\mathbf{x} \mid A\mathbf{x} = \mathbf{x}\}\)（\(\lambda = 1\) 的特征子空间）。选取 \(V_0\) 和 \(V_1\) 的基合并，即得 \(n\) 个线性无关的特征向量，故 \(A\) 可对角化。
-
-\boxed{\text{注}} 另一思路：最小多项式 \(m_A(\lambda)\) 整除 \(\lambda(\lambda - 1)\)（因为 \(A^2 - A = O\)），故 \(m_A(\lambda)\) 无重根，从而 \(A\) 可对角化。
-
-\textbf{(3)} 因 \(A\) 可对角化，存在可逆矩阵 \(P\) 使得
-\[
-P^{-1}AP = \Lambda = \operatorname{diag}(\underbrace{1, \ldots, 1}_{r}, \underbrace{0, \ldots, 0}_{n-r})
-\]
-其中 \(r\) 为特征值 \(1\) 的重数。注意到相似变换不改变秩和迹：
-\[
-\operatorname{rank}(A) = \operatorname{rank}(\Lambda) = r,\qquad \operatorname{tr}(A) = \operatorname{tr}(\Lambda) = r
-\]
-故 \(\operatorname{rank}(A) = \operatorname{tr}(A)\)。证毕。
-
-\boxed{\text{注}} 这是考研线代中最经典的幂等矩阵结论，三道子问题环环相扣。\textbf{秩等于迹} 是幂等矩阵的独有性质，在秩不等式证明和矩阵分解中频繁使用。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{9.} \textbf{（证明题）} 设 \(A\) 为 \(n\) 阶方阵，满足 \(A^2 = I\)。证明：\(A\) 的特征值只能为 \(1\) 或 \(-1\)，且 \(A\) 一定可对角化。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-\textbf{特征值部分：} 设 \(\lambda\) 是 \(A\) 的特征值，\(\mathbf{x} \neq \mathbf{0}\) 是对应的特征向量。由 \(A\mathbf{x} = \lambda\mathbf{x}\) 得 \(A^2\mathbf{x} = \lambda^2\mathbf{x}\)。又由 \(A^2 = I\) 得 \(A^2\mathbf{x} = \mathbf{x}\)。故
-\[
-\lambda^2\mathbf{x} = \mathbf{x} \quad\Longrightarrow\quad (\lambda^2 - 1)\mathbf{x} = \mathbf{0}
-\]
-由 \(\mathbf{x} \neq \mathbf{0}\) 得 \(\lambda^2 = 1\)，即 \(\lambda = 1\) 或 \(\lambda = -1\)。
-
-\textbf{可对角化部分：} 对任意 \(\mathbf{x}\in\mathbb R^n\)，写成
-\[
-\mathbf{x}=\frac12(I+A)\mathbf{x}+\frac12(I-A)\mathbf{x}.
-\]
-记 \(\mathbf{x}_+=\frac12(I+A)\mathbf{x}\)、\(\mathbf{x}_-=\frac12(I-A)\mathbf{x}\)。由 \(A^2=I\) 得
-\[
-A\mathbf{x}_+=\mathbf{x}_+,
-\qquad
-A\mathbf{x}_-=-\mathbf{x}_-.
-\]
-故每个向量都可写成属于特征值 \(1\) 与 \(-1\) 的特征子空间中向量之和。又两特征子空间的交只有零向量，因此
-\[
-\mathbb R^n=V_1\oplus V_{-1}.
-\]
-分别取 \(V_1\) 与 \(V_{-1}\) 的一组基并合并，便得到 \(n\) 个线性无关的特征向量，所以 \(A\) 可对角化。
-
-\boxed{\text{注}} 若 \(A\) 可对角化且特征值只有 \(\pm 1\)，则存在可逆矩阵 \(P\) 使得 \(P^{-1}AP = \operatorname{diag}(1, \ldots, 1, -1, \ldots, -1)\)，这类似于「反射矩阵」的对角表示。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{10.} \textbf{（证明题）} 设 \(A\) 为 \(n\) 阶实对称矩阵，且满足 \(A^2 = O\)。证明：\(A = O\)。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-因为 \(A\) 为 \(n\) 阶实对称矩阵（\(A^{\mathrm{T}} = A\)），且 \(A^2 = O\)，故对任意 \(\mathbf{x} \in \mathbb{R}^n\)，
-\[
-\mathbf{x}^{\mathrm{T}}A^2\mathbf{x} = \mathbf{x}^{\mathrm{T}}A^{\mathrm{T}}A\mathbf{x} = (A\mathbf{x})^{\mathrm{T}}(A\mathbf{x}) = \|A\mathbf{x}\|^2
-\]
-又由 \(A^2 = O\) 得 \(\mathbf{x}^{\mathrm{T}}A^2\mathbf{x} = 0\)，故 \(\|A\mathbf{x}\|^2 = 0\)，即 \(A\mathbf{x} = \mathbf{0}\)。
-
-由 \(\mathbf{x}\) 的任意性，得 \(A = O\)。证毕。
-
-\boxed{\text{注}} 本结论依赖于「实对称」条件。若去掉此条件，结论不成立：例如 \(A = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}\)，有 \(A^2 = O\) 但 \(A \neq O\)。核心技巧是将 \(A^2\) 转化为二次型 \(\|A\mathbf{x}\|^2\)，利用了实对称性 \(A^{\mathrm{T}} = A\)。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{11.} \textbf{（拓展：Cayley--Hamilton 定理）} 设 \(A = \begin{pmatrix}
-1 & 1 & 1 \\
-0 & 1 & 1 \\
-0 & 0 & 1
-\end{pmatrix}\)。
-\begin{enumerate}[label=(\arabic*)]
-    \item 求 \(A\) 的特征多项式和特征值；
-    \item 利用 Cayley-Hamilton 定理求 \(A^n\) 的表达式（\(n \geq 2\)）。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-\textbf{(1)} 矩阵 \(A\) 为上三角矩阵，特征多项式
-\[
-f(\lambda) = |\lambda I - A| = \begin{vmatrix}
-\lambda - 1 & -1 & -1 \\
-0 & \lambda - 1 & -1 \\
-0 & 0 & \lambda - 1
-\end{vmatrix}
-= (\lambda - 1)^3
-\]
-特征值 \(\lambda = 1\)（三重）。
-
-\textbf{(2)} 由 Cayley-Hamilton 定理：
-\[
-f(A) = (A - I)^3 = O
-\]
-令 \(B = A - I = \begin{pmatrix} 0 & 1 & 1 \\ 0 & 0 & 1 \\ 0 & 0 & 0 \end{pmatrix}\)，则
-\[
-B = \begin{pmatrix} 0 & 1 & 1 \\ 0 & 0 & 1 \\ 0 & 0 & 0 \end{pmatrix},\quad
-B^2 = \begin{pmatrix} 0 & 0 & 1 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix},\quad
-B^3 = O
-\]
-此时 \(A = I + B\)，利用二项式定理（\(I\) 与 \(B\) 可交换，且 \(B^3 = O\)）：
-\[
-A^n = (I + B)^n = \sum_{k=0}^{n} \binom{n}{k} B^k = I + nB + \binom{n}{2}B^2
-\]
-代入：
-\[
-A^n = \begin{pmatrix}
-1 & 0 & 0 \\
-0 & 1 & 0 \\
-0 & 0 & 1
-\end{pmatrix} + n\begin{pmatrix}
-0 & 1 & 1 \\
-0 & 0 & 1 \\
-0 & 0 & 0
-\end{pmatrix} + \frac{n(n-1)}{2}\begin{pmatrix}
-0 & 0 & 1 \\
-0 & 0 & 0 \\
-0 & 0 & 0
-\end{pmatrix}
-\]
-\[
-A^n = \begin{pmatrix}
-1 & n & n + \frac{n(n-1)}{2} \\[4pt]
-0 & 1 & n \\[4pt]
-0 & 0 & 1
-\end{pmatrix}
-= \begin{pmatrix}
-1 & n & \frac{n(n+1)}{2} \\[4pt]
-0 & 1 & n \\[4pt]
-0 & 0 & 1
-\end{pmatrix}
-\]
-
-\boxed{\text{注}} 利用 \(A = I + B\) 分解，结合幂零矩阵 \(B^3 = O\) 使用二项式展开，是求这类上三角 Jordan 块矩阵高次幂的标准高效方法。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{12.} \textbf{（拓展证明题：最小多项式）} 设 \(A, B\) 为 \(n\) 阶方阵，且 \(A \sim B\)（即存在可逆矩阵 \(P\) 使得 \(B = P^{-1}AP\)）。证明：对任意多项式 \(g(t)\)，有 \(g(A) \sim g(B)\)，并由此说明 \(A\) 与 \(B\) 有相同的最小多项式。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-由 \(A \sim B\)，存在可逆矩阵 \(P\) 使得 \(B = P^{-1}AP\)。
-
-设 \(g(t) = a_m t^m + a_{m-1} t^{m-1} + \cdots + a_1 t + a_0\)，则
-\[
-\begin{aligned}
-g(B) &= a_m B^m + a_{m-1} B^{m-1} + \cdots + a_1 B + a_0 I \\
-&= a_m (P^{-1}AP)^m + a_{m-1}(P^{-1}AP)^{m-1} + \cdots + a_1(P^{-1}AP) + a_0 I
-\end{aligned}
-\]
-注意到 \((P^{-1}AP)^k = P^{-1}A^k P\)（夹在中间的全部 \(PP^{-1}\) 抵消），故
-\[
-\begin{aligned}
-g(B) &= P^{-1}(a_m A^m + a_{m-1} A^{m-1} + \cdots + a_1 A + a_0 I)P \\
-&= P^{-1}g(A)P
-\end{aligned}
-\]
-因此 \(g(A) \sim g(B)\)。证毕。
-
-\textbf{推论（最小多项式）：} 设 \(m_A(\lambda)\) 为 \(A\) 的最小多项式，则 \(m_A(A) = O\)。由上述结论，\(m_A(B) = P^{-1}m_A(A)P = O\)，故 \(m_A(\lambda)\) 也是 \(B\) 的零化多项式，从而 \(m_B(\lambda) \mid m_A(\lambda)\)。同理 \(m_A(\lambda) \mid m_B(\lambda)\)。二者均为首一多项式，故 \(m_A(\lambda) = m_B(\lambda)\)，即相似矩阵有相同的最小多项式。
-
-
-\else \answerarea \fi%
-\subsection{真题风格与综合训练}
-
-\textbf{13.} \textbf{（\boxed{\textbf{真题风格}}，综合题）} 设矩阵 \(A = \begin{pmatrix}
-1 & a & 1 \\
-0 & 1 & b \\
-0 & 0 & 2
-\end{pmatrix}\)，其中 \(a, b\) 为参数。
-\begin{enumerate}[label=(\arabic*)]
-    \item 求 \(A\) 的特征值，并讨论 \(A\) 可对角化的充要条件；
-    \item 当 \(A\) 可对角化时，求可逆矩阵 \(P\) 和对角矩阵 \(\Lambda\)，使得 \(P^{-1}AP = \Lambda\)。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-\textbf{(1)} 特征多项式：
-\[
-|\lambda I - A| = \begin{vmatrix}
-\lambda - 1 & -a & -1 \\
-0 & \lambda - 1 & -b \\
-0 & 0 & \lambda - 2
-\end{vmatrix}
-= (\lambda - 1)^2(\lambda - 2)
-\]
-特征值为 \(\lambda_1 = \lambda_2 = 1\)（二重），\(\lambda_3 = 2\)（单根）。
-
-\(\lambda = 2\) 为单根，其几何重数自动等于代数重数（\(m_g(2) = m_a(2) = 1\)）。故 \(A\) 可对角化的充要条件为 \(m_g(1) = m_a(1) = 2\)，即矩阵 \(I - A\) 的秩为 \(3 - 2 = 1\)。
-\[
-I - A = \begin{pmatrix}
-0 & -a & -1 \\
-0 & 0 & -b \\
-0 & 0 & -1
-\end{pmatrix}
-\]
-该矩阵的秩为 \(1\) 当且仅当第一行与第三行成比例。第三行为 \((0, 0, -1)\)，第一行为 \((0, -a, -1)\)。要使其成比例，需 \(-a = 0\)（否则第一行含有非零的第二分量，无法与 \((0,0,-1)\) 成比例），即 \(a = 0\)。此时第一行为 \((0, 0, -1)\) 与第三行 \((0, 0, -1)\) 成比例。
-而当 \(a = 0\) 时，\(b\) 可任意取值（第二行 \((0, 0, -b)\) 也自动与 \((0, 0, -1)\) 成比例）。故 \(A\) 可对角化的充要条件为 \(a = 0\)。
-
-\textbf{(2)} 当 \(a = 0\) 时，\(A = \begin{pmatrix} 1 & 0 & 1 \\ 0 & 1 & b \\ 0 & 0 & 2 \end{pmatrix}\)。
-
-求特征向量：
-\begin{itemize}
-    \item 对 \(\lambda = 1\)（二重）：解 \((I - A)\mathbf{x} = \mathbf{0}\)，即
-    \[
-    \begin{pmatrix}
-    0 & 0 & -1 \\
-    0 & 0 & -b \\
-    0 & 0 & 1
-    \end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-    \]
-    得 \(x_3 = 0\)，\(x_1, x_2\) 自由。取 \(\mathbf{p}_1 = (1, 0, 0)^{\mathrm{T}}\)，\(\mathbf{p}_2 = (0, 1, 0)^{\mathrm{T}}\)。
-    \item 对 \(\lambda = 2\)：解 \((2I - A)\mathbf{x} = \mathbf{0}\)，即
-    \[
-    \begin{pmatrix}
-    1 & 0 & -1 \\
-    0 & 1 & -b \\
-    0 & 0 & 0
-    \end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-    \]
-    得 \(x_1 = x_3\)，\(x_2 = b x_3\)。取 \(\mathbf{p}_3 = (1, b, 1)^{\mathrm{T}}\)。
-\end{itemize}
-
-令
-\[
-P = (\mathbf{p}_1, \mathbf{p}_2, \mathbf{p}_3) = \begin{pmatrix}
-1 & 0 & 1 \\
-0 & 1 & b \\
-0 & 0 & 1
-\end{pmatrix},\qquad
-\Lambda = \operatorname{diag}(1, 1, 2)
-\]
-则有 \(P^{-1}AP = \Lambda\)。
-
-\boxed{\text{注}} 本题的典型考研考法是：给出含参数矩阵，讨论参数取何值时矩阵可对角化，并求对角化形式。关键步骤是将「可对角化」转化为「几何重数 = 代数重数」的秩条件。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{14.} \textbf{（\boxed{\textbf{真题风格}}，证明题）} 设 \(A\) 为 \(n\) 阶实对称矩阵，\(\lambda_1, \lambda_2\) 是 \(A\) 的两个不同的特征值，\(\mathbf{x}_1, \mathbf{x}_2\) 分别是对应的特征向量。证明：
-\begin{enumerate}[label=(\arabic*)]
-    \item \(\mathbf{x}_1\) 与 \(\mathbf{x}_2\) 正交；
-    \item 存在正交矩阵 \(Q\) 使得 \(Q^{\mathrm{T}}AQ\) 为对角矩阵（概述证明思路即可，可基于数学归纳法）。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-\textbf{(1)} 由 \(A\mathbf{x}_1 = \lambda_1\mathbf{x}_1\)，\(A\mathbf{x}_2 = \lambda_2\mathbf{x}_2\)，且 \(A^{\mathrm{T}} = A\)。考虑
-\[
-\begin{aligned}
-\lambda_1\langle\mathbf{x}_1,\mathbf{x}_2\rangle
-&=\langle A\mathbf{x}_1,\mathbf{x}_2\rangle
-=\mathbf{x}_1^{\mathrm T}A^{\mathrm T}\mathbf{x}_2\\
-&=\mathbf{x}_1^{\mathrm T}A\mathbf{x}_2
-=\langle\mathbf{x}_1,A\mathbf{x}_2\rangle
-=\lambda_2\langle\mathbf{x}_1,\mathbf{x}_2\rangle.
-\end{aligned}
-\]
-故 \((\lambda_1 - \lambda_2)\langle\mathbf{x}_1, \mathbf{x}_2\rangle = 0\)。由 \(\lambda_1 \neq \lambda_2\) 得 \(\langle\mathbf{x}_1, \mathbf{x}_2\rangle = 0\)，即 \(\mathbf{x}_1\) 与 \(\mathbf{x}_2\) 正交。
-
-\textbf{(2)} 使用数学归纳法证明实对称矩阵可正交对角化：
-
-\textit{归纳基础}：\(n = 1\) 时显然成立。
-
-\textit{归纳步骤}：设对 \(n-1\) 阶实对称矩阵结论成立。先说明 \(A\) 存在实特征值及对应的实特征向量。在复数域中取特征对
-\(A\mathbf v=\lambda_1\mathbf v\)，其中 \(\mathbf v\ne\mathbf0\)。因 \(A^{\mathrm H}=A\)，有
-\[
-\lambda_1\mathbf v^{\mathrm H}\mathbf v
-=\mathbf v^{\mathrm H}A\mathbf v
-=\overline{\mathbf v^{\mathrm H}A\mathbf v}
-=\overline{\lambda_1}\,\mathbf v^{\mathrm H}\mathbf v.
-\]
-由 \(\mathbf v^{\mathrm H}\mathbf v>0\) 得 \(\lambda_1=\overline{\lambda_1}\)，故 \(\lambda_1\in\mathbb R\)。再写
-\(\mathbf v=\mathbf u+\mathrm i\mathbf w\)，其中 \(\mathbf u,\mathbf w\in\mathbb R^n\)。由于 \(A\) 与 \(\lambda_1\) 均为实的，比较实部、虚部得
-\(A\mathbf u=\lambda_1\mathbf u\)、\(A\mathbf w=\lambda_1\mathbf w\)。\(\mathbf u,\mathbf w\) 不会同时为零，故至少存在一个非零实特征向量，将其单位化后记为 \(\mathbf q_1\)。
-
-将 \(\mathbf{q}_1\) 扩展为 \(\mathbb{R}^n\) 的一组标准正交基，构成正交矩阵 \(Q_1 = (\mathbf{q}_1, \mathbf{q}_2, \ldots, \mathbf{q}_n)\)，则
-\[
-Q_1^{\mathrm{T}}AQ_1 = \begin{pmatrix}
-\lambda_1 & \mathbf{0}^{\mathrm{T}} \\
-\mathbf{0} & A_1
-\end{pmatrix}
-\]
-其中 \(A_1\) 为 \((n-1)\) 阶实对称矩阵。由归纳假设，存在 \((n-1)\) 阶正交矩阵 \(Q_2\) 使得 \(Q_2^{\mathrm{T}}A_1Q_2 = \Lambda_1\)。令
-\[
-Q = Q_1\begin{pmatrix} 1 & \mathbf{0}^{\mathrm{T}} \\ \mathbf{0} & Q_2 \end{pmatrix}
-\]
-则 \(Q\) 为正交矩阵，且 \(Q^{\mathrm{T}}AQ = \operatorname{diag}(\lambda_1, \Lambda_1)\)。证毕。
-
-\boxed{\text{注}} 这是「谱定理」的经典证明。(1) 是实对称矩阵属于不同特征值的特征向量正交的核心证明——\textbf{考研高频}。(2) 的归纳法证明清楚地揭示了正交对角化的构造过程。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{15.} \textbf{（\boxed{\textbf{真题风格}}，计算题）} 设实对称矩阵 \(A = \begin{pmatrix}
-0 & 1 & 1 \\
-1 & 0 & 1 \\
-1 & 1 & 0
-\end{pmatrix}\)，求正交矩阵 \(Q\) 使得 \(Q^{\mathrm{T}}AQ\) 为对角矩阵。\\
-\boxed{\text{注}} 本题要求对重特征值对应的特征向量进行 Schmidt 正交化。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-矩阵 \(A\) 的特征多项式：
-\[
-|\lambda I - A| = \begin{vmatrix}
-\lambda & -1 & -1 \\
--1 & \lambda & -1 \\
--1 & -1 & \lambda
-\end{vmatrix}
-\]
-将第2、3行加到第1行：
-\[
-= \begin{vmatrix}
-\lambda - 2 & \lambda - 2 & \lambda - 2 \\
--1 & \lambda & -1 \\
--1 & -1 & \lambda
-\end{vmatrix}
-= (\lambda - 2)\begin{vmatrix}
-1 & 1 & 1 \\
--1 & \lambda & -1 \\
--1 & -1 & \lambda
-\end{vmatrix}
-\]
-第1行加到第2、3行：
-\[
-= (\lambda - 2)\begin{vmatrix}
-1 & 1 & 1 \\
-0 & \lambda + 1 & 0 \\
-0 & 0 & \lambda + 1
-\end{vmatrix}
-= (\lambda - 2)(\lambda + 1)^2
-\]
-特征值为 \(\lambda_1 = 2\)（单根），\(\lambda_2 = \lambda_3 = -1\)（二重根）。
-
-\textbf{对 \(\lambda = 2\)}：解 \((2I - A)\mathbf{x} = \mathbf{0}\)，即
-\[
-\begin{pmatrix}
-2 & -1 & -1 \\
--1 & 2 & -1 \\
--1 & -1 & 2
-\end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-\]
-解得 \(x_1 = x_2 = x_3\)。取 \(\boldsymbol{\alpha}_1 = (1, 1, 1)^{\mathrm{T}}\)，单位化得 \(\mathbf{q}_1 = \left(\frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}}\right)^{\mathrm{T}}\)。
-
-\textbf{对 \(\lambda = -1\)（二重根）}：解 \((-I - A)\mathbf{x} = \mathbf{0}\)，即
-\[
-\begin{pmatrix}
--1 & -1 & -1 \\
--1 & -1 & -1 \\
--1 & -1 & -1
-\end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \mathbf{0}
-\]
-得 \(x_1 + x_2 + x_3 = 0\)。基础解系取 \(\boldsymbol{\alpha}_2 = (1, -1, 0)^{\mathrm{T}}\)，\(\boldsymbol{\alpha}_3 = (1, 0, -1)^{\mathrm{T}}\)。
-
-\textbf{Schmidt 正交化}（\(\boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3\) 属于同一特征值，需正交化；它们与 \(\boldsymbol{\alpha}_1\) 因属于不同特征值而已自动正交）：
-\[
-\boldsymbol{\beta}_2 = \boldsymbol{\alpha}_2 = (1, -1, 0)^{\mathrm{T}}
-\]
-\[
-\boldsymbol{\beta}_3 = \boldsymbol{\alpha}_3 - \frac{\langle\boldsymbol{\alpha}_3, \boldsymbol{\beta}_2\rangle}{\langle\boldsymbol{\beta}_2, \boldsymbol{\beta}_2\rangle}\boldsymbol{\beta}_2
-= \begin{pmatrix} 1 \\ 0 \\ -1 \end{pmatrix} - \frac{1}{2}\begin{pmatrix} 1 \\ -1 \\ 0 \end{pmatrix}
-= \begin{pmatrix} \frac{1}{2} \\[2pt] \frac{1}{2} \\[2pt] -1 \end{pmatrix}
-\]
-
-\textbf{单位化}：
-\[
-\mathbf{q}_2 = \frac{\boldsymbol{\beta}_2}{\|\boldsymbol{\beta}_2\|} = \left(\frac{1}{\sqrt{2}}, -\frac{1}{\sqrt{2}}, 0\right)^{\mathrm{T}}
-\]
-\[
-\mathbf{q}_3 = \frac{\boldsymbol{\beta}_3}{\|\boldsymbol{\beta}_3\|}
-= \frac{1}{\sqrt{\frac{1}{4}+\frac{1}{4}+1}}\begin{pmatrix} \frac{1}{2} \\[2pt] \frac{1}{2} \\[2pt] -1 \end{pmatrix}
-= \sqrt{\frac{2}{3}}\begin{pmatrix} \frac{1}{2} \\[2pt] \frac{1}{2} \\[2pt] -1 \end{pmatrix}
-= \left(\frac{1}{\sqrt{6}}, \frac{1}{\sqrt{6}}, -\frac{2}{\sqrt{6}}\right)^{\mathrm{T}}
-\]
-
-故正交矩阵和对应的对角矩阵：
-\[
-Q = (\mathbf{q}_1, \mathbf{q}_2, \mathbf{q}_3) = \begin{pmatrix}
-\frac{1}{\sqrt{3}} & \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{6}} \\[4pt]
-\frac{1}{\sqrt{3}} & -\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{6}} \\[4pt]
-\frac{1}{\sqrt{3}} & 0 & -\frac{2}{\sqrt{6}}
-\end{pmatrix},\qquad
-Q^{\mathrm{T}}AQ = \operatorname{diag}(2, -1, -1)
-\]
-
-\boxed{\text{注}} 本题与第6题是同一类问题（实对称矩阵的正交对角化），但特征值不同（本题为 \(2, -1, -1\)，第6题为 \(0, 3, 3\)）。「正交对角化 + Schmidt 正交化」是常见综合训练。属于不同特征值的特征向量已自动正交，只需对同一重特征值对应的特征向量作 Schmidt 正交化。
-
-\else \answerarea \fi%
+\input{algebra/exercises/chap6.tex}

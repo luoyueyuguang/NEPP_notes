@@ -1,0 +1,204 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 关于 I/O 接口与 I/O 端口，下列说法中错误的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X X@{}}
+(A) 一个 I/O 接口中通常包含数据、状态、控制等多个端口 & (B) I/O 端口是接口中能被 CPU 用指令直接访问的寄存器 \\[4pt]
+(C) 统一编址时，I/O 端口与主存单元共用地址空间，可用访存指令访问 & (D) 独立编址时，I/O 端口地址与主存地址数值相同时会产生冲突
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} I/O 接口是完成数据缓冲、地址译码、状态登记等功能的电路实体，内部可以有多个寄存器；其中能被 CPU 寻址访问的寄存器才叫 I/O 端口，所以 (A)、(B) 正确。统一编址把端口映射进主存地址空间，CPU 用普通的取数/存数指令访问，只是地址译码时落到接口而不是主存，(C) 正确。独立编址为 I/O 端口单独划出一套地址空间，并用专门的 I/O 指令和 I/O 控制信号区分，端口地址数值即使与某个主存地址相同，也走不同的地址空间和译码通路，不会冲突，(D) 错误。\boxed{\text{\textbf{答案：}(D)}}\else \answerarea \fi
+
+\item \textbf{（填空题）} CPU 响应可屏蔽中断时，由硬件自动完成的主要操作包括：关中断、保存\underline{\qquad\qquad}、识别中断源并取得\underline{\qquad\qquad}，再据此查中断向量表转入中断服务程序。中断服务程序开头用压栈指令保存通用寄存器，这一操作称为\underline{\qquad\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 中断响应周期完成的是进入中断服务程序之前必须由硬件保证的工作。第一，关中断，防止响应过程被新的可屏蔽中断打断；第二，保存断点，即把当前程序的程序计数器 PC（或 IP）和程序状态字 PSW 压栈，以便返回；第三，识别中断源，由中断控制器给出当前最高优先级请求的中断类型号；第四，按类型号查中断向量表，取得服务程序入口地址并装入 PC。通用寄存器的内容因程序而异，硬件并不知道哪些有用，只能由中断服务程序用 PUSH 指令自行保存，这一步叫保护现场。保护断点由硬件完成、保护现场由软件完成，是两者最容易被混淆的地方。\boxed{\text{\textbf{答案：}断点（PC 与 PSW）；中断类型号；保护现场}}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某机的中断向量表基址为 \texttt{0x00002000}，每个表项占 8 字节，表项中存放对应中断服务程序的入口地址。中断类型号 \texttt{0x40}～\texttt{0x4F} 共 16 个表项，则类型号 \texttt{0x40} 的表项首地址为\underline{\qquad\qquad}，类型号 \texttt{0x4F} 的表项首地址为\underline{\qquad\qquad}，这 16 个表项共占\underline{\qquad\qquad}字节。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 表项地址按“基址 $+$ 类型号 $\times$ 表项长度”计算。类型号 \texttt{0x40} 对应
+\[
+\texttt{0x00002000}+\texttt{0x40}\times 8
+=\texttt{0x00002000}+\texttt{0x200}
+=\texttt{0x00002200}.
+\]
+类型号 \texttt{0x4F} 比 \texttt{0x40} 大 $15$，地址增加 $15\times 8=120=\texttt{0x78}$，故为
+\[
+\texttt{0x00002200}+\texttt{0x78}=\texttt{0x00002278}.
+\]
+16 个表项占 $16\times8=128$ 字节，地址范围是 \texttt{0x2200}～\texttt{0x227F}，最后一个字节正好是 \texttt{0x227F}。注意表项里存的是入口地址，不是类型号本身。\boxed{\text{\textbf{答案：}\texttt{0x00002200}；\texttt{0x00002278}；128}}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 某系统采用程序查询方式从外设输入数据。下列叙述中正确的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X X@{}}
+(A) 外设就绪后主动向 CPU 发中断请求，CPU 再读数据 & (B) CPU 在等待设备就绪期间可转去执行其他用户程序 \\[4pt]
+(C) CPU 反复读状态端口，检测到就绪标志后再读数据端口 & (D) 数据传送由 DMA 控制器控制，CPU 只负责启动
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 程序查询方式由 CPU 主动、反复地读状态端口，检查“就绪”位；未就绪就继续查询，就绪后执行输入指令从数据端口取数。整个过程中 CPU 与外设串行工作，等待期间不能转去执行别的程序。(A) 描述的是中断方式，(B) 是中断方式相对查询方式的优点，(D) 描述的是 DMA 方式，都不属于程序查询。\boxed{\text{\textbf{答案：}(C)}}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 下列关于 DMA 传送过程的叙述中，正确的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X X@{}}
+(A) 预处理阶段由 DMAC 设置 CPU 中的地址寄存器和字计数器 & (B) 数据传送阶段每传一个数据，CPU 都要执行一次中断服务程序 \\[4pt]
+(C) 后处理阶段由 CPU 执行程序检查传送结果并决定是否继续 & (D) 传送的数据必须经过 CPU 的通用寄存器
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} DMA 分三段：预处理阶段 CPU 用 I/O 指令把主存起始地址、传送字数、方向等写入 DMAC 的地址寄存器和字计数器，是 CPU 设置 DMAC，不是 DMAC 设置 CPU，(A) 错。数据传送阶段由 DMAC 控制总线，在主存与外设之间直接搬运，CPU 不逐字执行指令，也不逐字进中断，(B)、(D) 错。整块传完后 DMAC 发一次中断，CPU 执行后处理程序检查有无错误、是否启动下一块，故 (C) 对。\boxed{\text{\textbf{答案：}(C)}}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某磁盘转速为 $6000\ \mathrm{r/min}$，平均寻道时间为 $6\ \mathrm{ms}$，每磁道有 300 个扇区，每扇区 512 B。忽略控制器和排队开销，读一个扇区的平均存取时间为\underline{\qquad\qquad}，磁盘持续传输率为\underline{\qquad\qquad}$\mathrm{MB/s}$（取 $1\ \mathrm{MB}=10^{6}\ \mathrm{B}$，保留两位小数）。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 转速 $6000\ \mathrm{r/min}=100\ \mathrm{r/s}$，转一圈的时间为
+\[
+T_{\text{rot}}=\frac{1}{100}=0.01\ \mathrm{s}=10\ \mathrm{ms}.
+\]
+平均旋转延迟取半圈，即 $10/2=5\ \mathrm{ms}$。一个扇区的传输时间为
+\[
+t_{\text{sec}}=\frac{10\ \mathrm{ms}}{300}=0.0333\ \mathrm{ms}.
+\]
+故平均存取时间
+\[
+T_{\text{access}}=6+5+0.0333=11.0333\ \mathrm{ms}\approx 11.03\ \mathrm{ms}.
+\]
+持续传输率为一个扇区数据量除以一个扇区的传输时间：
+\[
+R=\frac{512\ \mathrm{B}}{0.0333\times10^{-3}\ \mathrm{s}}
+=15.36\times10^{6}\ \mathrm{B/s}=15.36\ \mathrm{MB/s}.
+\]
+也可用“每圈容量 $\times$ 每秒圈数”校验：$300\times512\times100=15.36\times10^{6}\ \mathrm{B/s}$。\par\noindent\boxed{\text{\textbf{答案：}$11.03\ \mathrm{ms}$；$15.36\ \mathrm{MB/s}$}}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 某中断系统支持多重中断，中断源优先级为 $A>B>C$，各中断服务程序都在保护现场之后开中断。主程序运行期间 $C$ 先请求并被响应；$C$ 开中断后 $A$ 请求到达并被响应；$A$ 执行期间 $B$ 请求到达。下列执行顺序中正确的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X X@{}}
+(A) 主程序 $\to C\to A\to B\to C\to$ 主程序 & (B) 主程序 $\to C\to A\to C\to B\to$ 主程序 \\[4pt]
+(C) 主程序 $\to A\to B\to C\to$ 主程序 & (D) 主程序 $\to C\to B\to A\to C\to$ 主程序
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 按“谁能打断谁”逐步跟踪。$C$ 正在执行且已开中断，$A$ 的优先级高于 $C$，所以 $A$ 可以打断 $C$，形成 $C\to A$ 的嵌套。$A$ 执行期间 $B$ 到达，但 $B$ 的优先级低于 $A$，不能打断 $A$，$B$ 只能保持挂起。$A$ 结束后执行中断返回，回到被它打断的 $C$；此时 $C$ 处于开中断状态，挂起的 $B$ 优先级高于 $C$，于是在 $C$ 继续之前先响应 $B$。$B$ 返回后再把 $C$ 剩余部分执行完，最后返回主程序。因此完整顺序是 $C\to A\to B\to C$。注意 $B$ 不能越过 $A$，也不会在 $A$ 返回后先回到主程序再重新进入 $B$。\boxed{\text{\textbf{答案：}(A)}}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 某系统采用周期挪用（周期窃取）DMA 方式从磁盘读入数据。下列叙述中正确的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X X@{}}
+(A) DMAC 取得总线后一直占用到整个数据块传送结束 & (B) DMA 请求与中断请求都在当前指令执行结束后才被采样 \\[4pt]
+(C) DMAC 每传送一个数据占用一个（或几个）总线周期，随后归还总线 & (D) DMA 传送结束后无需通知 CPU，CPU 也不需要做任何收尾工作
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 周期挪用的“挪用”就是一次只借一个总线周期：DMAC 每传一个字（或一次总线宽度的数据）申请一次总线，传完立即释放，CPU 可在未被占用的周期继续访存，故 (C) 对。(A) 描述的是停止 CPU 访存（成组传送）方式，DMAC 会连续霸占总线到整块结束。DMA 请求通常在总线周期边界被采样，CPU 让出的是接下来的总线周期，不必等当前指令执行完；中断请求才在指令边界响应，二者粒度不同，(B) 错。DMA 整块结束后 DMAC 要发中断，CPU 通过后处理程序检查错误、决定是否继续，(D) 错。\boxed{\text{\textbf{答案：}(C)}}\else \answerarea \fi
+
+\item \textbf{（综合应用题）} 某计算机主频为 $1\ \mathrm{GHz}$，某外设以 $4\ \mathrm{MB/s}$ 的速率持续输入数据（$1\ \mathrm{MB}=10^{6}\ \mathrm{B}$）。
+\begin{enumerate}
+\item[(1)] 采用中断方式，每次中断传送 4 B，每次中断从响应到返回共执行 200 个时钟周期（含保护与恢复现场）。求每秒中断次数及 CPU 用于该外设的时间占比。
+\item[(2)] 采用 DMA 方式，每块 8 KB，预处理需 500 个时钟周期，整块传完后的中断后处理需 300 个时钟周期。周期挪用 DMA 每传送 4 B 占用 1 个总线周期，总线周期为 $0.05\ \mu\mathrm{s}$。求每秒 DMA 块数、CPU 用于预处理和后处理的时间占比，以及 DMA 占用总线的比例。
+\item[(3)] 从 CPU 开销角度比较两种方式。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 统一口径：$1\ \mathrm{GHz}$ 时一个时钟周期为 $1\ \mathrm{ns}$。
+
+(1) 每秒需传送的数据为 $4\times10^{6}\ \mathrm{B}$，每次中断传 4 B，故
+\[
+N_{\text{int}}=\frac{4\times10^{6}}{4}=10^{6}\ \text{次/s}.
+\]
+每次中断 200 个时钟周期，即 $200\ \mathrm{ns}$，每秒中断处理时间为
+\[
+T_{\text{int}}=10^{6}\times200\ \mathrm{ns}=0.2\ \mathrm{s}.
+\]
+CPU 时间占比为 $0.2/1=20\%$。
+
+(2) 每块 8 KB $=8192$ B，每秒块数为
+\[
+N_{\text{blk}}=\frac{4\times10^{6}}{8192}=488.28125\ \text{块/s}.
+\]
+每块 CPU 开销为 $500+300=800$ 个时钟周期 $=800\ \mathrm{ns}$，故每秒 CPU 开销
+\[
+T_{\text{CPU}}=488.28125\times800\ \mathrm{ns}
+=390625\ \mathrm{ns}
+=0.390625\ \mathrm{ms},
+\]
+占比为
+\[
+\frac{0.390625\times10^{-3}}{1}=3.90625\times10^{-4}\approx0.039\%.
+\]
+DMA 每传 4 B 占一个总线周期。每秒传送次数仍为 $10^{6}$ 次，总线占用时间为
+\[
+T_{\text{bus}}=10^{6}\times0.05\ \mu\mathrm{s}
+=0.05\ \mathrm{s},
+\]
+占总线时间的 $5\%$。
+
+(3) 中断方式下 CPU 要花 $20\%$ 的时间，DMA 方式下预处理和后处理只占约 $0.039\%$，后者约为前者的 $1/512$。原因是中断每 4 B 就打断一次 CPU，而 DMA 每 8 KB 才中断一次，中断次数减少为 $1/2048$；虽然每次 DMA 收尾的指令数更多（800 对 200 个周期），但远不足以抵消次数上的巨大差别。DMA 的代价是额外占用 $5\%$ 的总线时间，这部分开销用于搬数据本身，而不是用于执行指令。\boxed{\text{\textbf{答案：}(1) $10^{6}$ 次/s，$20\%$；(2) $488.28$ 块/s，约 $0.039\%$，总线占用 $5\%$；}}\par\noindent
+\boxed{\text{(3) DMA 的 CPU 开销约为中断方式的 $1/512$}}\else \answerarea[10] \fi
+
+\item \textbf{（综合应用题）} 某磁盘转速为 $7200\ \mathrm{r/min}$，平均寻道时间为 $8\ \mathrm{ms}$，每磁道 400 个扇区，每扇区 512 B。磁盘通过周期挪用 DMA 向主存传送数据，DMAC 每传送 4 B 占用一个总线周期，总线周期为 $0.08\ \mu\mathrm{s}$，系统主频为 $1\ \mathrm{GHz}$。
+\begin{enumerate}
+\item[(1)] 求读一个扇区的平均存取时间（寻道时间 $+$ 平均旋转延迟 $+$ 传输时间），以及磁盘持续传输率。
+\item[(2)] 连续传送时，求 DMA 占用总线的比例。
+\item[(3)] 若每传送 4 KB 产生一次 DMA 结束中断，中断处理需 200 个时钟周期，求每秒中断次数及 CPU 开销占比。
+\item[(4)] 若不用 DMA，而用中断方式每次传送 4 B，每次中断处理需 100 个时钟周期，求 CPU 开销占比，并说明磁盘为何采用 DMA。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $7200\ \mathrm{r/min}=120\ \mathrm{r/s}$，转一圈的时间为
+\[
+T_{\text{rot}}=\frac{1}{120}\ \mathrm{s}=8.3333\ \mathrm{ms}.
+\]
+平均旋转延迟取半圈，为 $4.1667\ \mathrm{ms}$。一个扇区的传输时间为
+\[
+t_{\text{sec}}=\frac{8.3333\ \mathrm{ms}}{400}=0.020833\ \mathrm{ms}.
+\]
+
+(1) 平均存取时间
+\[
+T_{\text{access}}=8+4.1667+0.020833
+=12.1875\ \mathrm{ms}\approx12.19\ \mathrm{ms}.
+\]
+持续传输率为
+\[
+R=\frac{512\ \mathrm{B}}{0.020833\times10^{-3}\ \mathrm{s}}
+=24.576\times10^{6}\ \mathrm{B/s}=24.576\ \mathrm{MB/s}.
+\]
+校验：一圈传 $400\times512=204800$ B，每秒 120 圈，故 $204800\times120=24.576\times10^{6}\ \mathrm{B/s}$。
+
+(2) DMA 每 4 B 占一个总线周期。每秒传送次数为
+\[
+\frac{24.576\times10^{6}}{4}=6.144\times10^{6}\ \text{次/s},
+\]
+总线占用时间为
+\[
+6.144\times10^{6}\times0.08\ \mu\mathrm{s}
+=0.49152\ \mathrm{s},
+\]
+占比为 $49.152\%\approx49.15\%$。
+
+(3) 每块 4 KB $=4096$ B，每秒块数为
+\[
+\frac{24.576\times10^{6}}{4096}=6000\ \text{块/s}.
+\]
+每次中断处理 200 个时钟周期，即 $200\ \mathrm{ns}$，每秒开销
+\[
+6000\times200\ \mathrm{ns}=1.2\ \mathrm{ms},
+\]
+占 CPU 时间的 $0.12\%$。
+
+(4) 中断方式每次传 4 B，每秒中断 $6.144\times10^{6}$ 次。每次 100 个时钟周期即 $100\ \mathrm{ns}$，CPU 开销为
+\[
+6.144\times10^{6}\times100\ \mathrm{ns}=0.6144\ \mathrm{s},
+\]
+占比 $61.44\%$。磁盘是高速块设备，若按 4 B 一次中断，CPU 大部分时间都在响应中断和搬数，无法处理正常程序；DMA 把传送粒度提高到 4 KB，CPU 只在块结束时中断一次，占比降到 $0.12\%$。DMA 虽然占用约 $49.15\%$ 的总线周期，但这些周期本来也要用于把磁盘数据写入主存，属于必要的数据搬运，而不是额外的指令开销。\par\noindent\boxed{\text{\textbf{答案：}(1) $12.19\ \mathrm{ms}$，$24.576\ \mathrm{MB/s}$；}}\par\noindent
+\boxed{\text{(2) $49.15\%$；}}\par\noindent
+\boxed{\text{(3) $6000$ 次/s，CPU 开销 $0.12\%$；}}\par\noindent
+\boxed{\text{(4) $61.44\%$，DMA 把中断次数降到 $1/1024$}}\else \answerarea[10] \fi
+
+\end{enumerate}

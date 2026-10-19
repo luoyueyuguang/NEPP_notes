@@ -1,1067 +1,740 @@
 \section{一元函数积分学}
-\subsection{不定积分}
-\begin{mydef}{原函数与不定积分的定义}{primitive function and indefinite integral}
-    设在区间\(I\)上，\(F'(x)=f(x)\)或\(\mathrm{d}F(x)=f(x)\mathrm{d}x\)，则称\(F(x)\)为\(f(x)\)在\(I\)上的\textbf{原函数}。\par
-    \(f(x)\)在区间\(I\)上的全体原函数称为\(f(x)\)在\(I\)上的\textbf{不定积分}，记为\(\displaystyle\int f(x)\mathrm{d}x\)，即
-    \[
-        \int f(x)\mathrm{d}x = F(x) + C
-    \]
-    其中\(\int\)为积分号，\(f(x)\)为被积函数，\(f(x)\mathrm{d}x\)为被积表达式，\(x\)为积分变量，\(C\)为积分常数。
+
+积分学研究两件事。一件是由导数还原函数，这是不定积分；另一件是把无限多个无穷小量加起来，这是定积分。牛顿--莱布尼茨公式把两者接在一起：先找原函数，再用端点值相减。
+
+%========================================================
+\subsection{原函数与不定积分}
+
+先看一个例子。\((x^3/3)'=x^2\)，所以 \(x^3/3\) 是 \(x^2\) 的一个原函数。把 \(x^3/3\) 换成 \(x^3/3+1\) 或 \(x^3/3-2\)，导数仍然是 \(x^2\)。同一族函数只差一个常数。
+
+\begin{mydef}{原函数与不定积分}{primitive-and-indefinite}
+设 \(f\) 在区间 \(I\) 上有定义。若存在函数 \(F\)，使得对每个 \(x\in I\) 都有
+\[
+  F'(x)=f(x),
+\]
+则称 \(F\) 为 \(f\) 在 \(I\) 上的\textbf{原函数}。\(f\) 的全体原函数记作
+\[
+  \int f(x)\,\mathrm{d}x=F(x)+C,
+\]
+称为 \(f\) 的\textbf{不定积分}。其中 \(\int\) 是积分号，\(f(x)\) 是被积函数，\(x\) 是积分变量，\(C\) 是任意常数。
 \end{mydef}
 
-\begin{conclusion}{原函数与不定积分的关系}{primitive function and indefinite integral and differential}
-    非所有函数都有原函数，但在区间上连续的函数必有原函数。\\
-    若\(F(x)\)是\(f(x)\)的一个原函数，则其全体原函数为\(F(x)+C\)（\(C\)为任意常数）。\\
-    不定积分与微分（导数）互为逆运算：
-    \[
-        \frac{\mathrm{d}}{\mathrm{d}x}\left[\int f(x)\mathrm{d}x\right] = f(x),\quad
-        \int f'(x)\mathrm{d}x = f(x) + C
-    \]
-    \[
-        \mathrm{d}\left[\int f(x)\mathrm{d}x\right] = f(x)\mathrm{d}x,\quad
-        \int \mathrm{d}F(x) = F(x) + C
-    \]
-    \textbf{注：}先积后微，作用抵消；先微后积，差常数\(C\)。
-\end{conclusion}
+为什么全体原函数恰好是 \(F(x)+C\)？若 \(F\) 与 \(G\) 都可导，且 \(F'=G'=f\)，则 \((G-F)'=0\)。由拉格朗日中值定理，\(G-F\) 在区间 \(I\) 上恒为常数。这里“区间”两个字不能省：如果定义域是两个不相连的区间，两边可以各取不同的常数。
 
-\begin{conclusion}{求不定积分与求微分(导数)的关系}{indefinite integral and differential}
-    求不定积分与求微分（导数）互为逆运算，具体表现为：
-    \[
-        \frac{\mathrm{d}}{\mathrm{d}x}\left[\int f(x)\mathrm{d}x\right] = f(x),\quad
-        \int f'(x)\mathrm{d}x = f(x) + C
-    \]
-    即：先求不定积分再求导，还原为被积函数；先求导再求不定积分，还原到相差一个常数。
-\end{conclusion}
+\noindent\textbf{基本积分表}不必死背全部，常用的几类记熟即可：
+\[
+\begin{aligned}
+&\int x^\mu\,\mathrm{d}x=\frac{x^{\mu+1}}{\mu+1}+C\ (\mu\ne-1),\qquad
+\int \frac{\mathrm{d}x}{x}=\ln|x|+C,\\
+&\int e^x\,\mathrm{d}x=e^x+C,\qquad
+\int a^x\,\mathrm{d}x=\frac{a^x}{\ln a}+C\ (a>0,\ a\ne1),\\
+&\int \sin x\,\mathrm{d}x=-\cos x+C,\qquad
+\int \cos x\,\mathrm{d}x=\sin x+C,\\
+&\int \frac{\mathrm{d}x}{1+x^2}=\arctan x+C,\qquad
+\int \frac{\mathrm{d}x}{\sqrt{1-x^2}}=\arcsin x+C.
+\end{aligned}
+\]
+带绝对值的 \(\ln|x|\) 不是装饰。\(1/x\) 在 \(x<0\) 时也有原函数 \(\ln(-x)\)，合并写成 \(\ln|x|\) 才能覆盖两侧。
 
-\begin{conclusion}{不定积分的简单性质}{properties of indefinite integral}
-    \textbf{线性性质：}
-    \[
-        \int [\alpha f(x) + \beta g(x)]\mathrm{d}x = \alpha\int f(x)\mathrm{d}x + \beta\int g(x)\mathrm{d}x
-    \]
-    其中\(\alpha,\beta\)为常数。该性质可由求导的线性性质直接推得。\par
-    \textbf{注：}积分运算对加法可分配，常数因子可提到积分号外。
-\end{conclusion}
-\subsection{定积分}
+求不定积分时，常数因子可以提到积分号外，和差可以逐项积：
+\[
+  \int\bigl[\alpha f(x)+\beta g(x)\bigr]\mathrm{d}x
+  =\alpha\int f(x)\,\mathrm{d}x+\beta\int g(x)\,\mathrm{d}x .
+\]
+例如
+\[
+  \int\left(3x^2-\frac{2}{x}\right)\mathrm{d}x=x^3-2\ln|x|+C.
+\]
 
-\begin{mydef}{定积分的定义与几何意义}{definite integral}
-    设函数\(f(x)\)在\([a,b]\)上有界，在\([a,b]\)中任意插入\(n-1\)个分点
-    \[
-        a = x_0 < x_1 < x_2 < \cdots < x_{n-1} < x_n = b
-    \]
-    将\([a,b]\)分成\(n\)个小区间\([x_{i-1},x_i]\)，记\(\Delta x_i = x_i - x_{i-1}\)，任取\(\xi_i \in [x_{i-1},x_i]\)，作和式
-    \[
-        S_n = \sum_{i=1}^{n} f(\xi_i)\Delta x_i
-    \]
-    令\(\lambda = \max\{\Delta x_1,\Delta x_2,\ldots,\Delta x_n\}\)，若极限\(\displaystyle\lim_{\lambda \to 0} S_n\)存在且与分法及\(\xi_i\)的取法无关，则称\(f(x)\)在\([a,b]\)上\textbf{可积}，此极限称为\(f(x)\)在\([a,b]\)上的\textbf{定积分}，记为
-    \[
-        \int_{a}^{b} f(x)\mathrm{d}x = \lim_{\lambda \to 0}\sum_{i=1}^{n} f(\xi_i)\Delta x_i
-    \]
-    其中\(a\)为积分下限，\(b\)为积分上限，\([a,b]\)为积分区间。\par
-    \textbf{几何意义：}当\(f(x) \geqslant 0\)时，\(\int_{a}^{b} f(x)\mathrm{d}x\)表示由曲线\(y=f(x)\)、直线\(x=a,x=b\)及\(x\)轴所围成的曲边梯形的面积；当\(f(x)\)变号时，定积分表示\(x\)轴上方面积减去下方面积的代数和。
-\end{mydef}
+连续函数一定有原函数。这一点在 \S1.3 用变上限积分证明。但“有原函数”不等于“原函数能写成初等函数”。\(\int e^{-x^2}\mathrm{d}x\)、\(\int \frac{\sin x}{x}\mathrm{d}x\) 都属于后一类。考试里遇到它们，通常只需判断可积性或做数值估计，不必硬凑初等表达式。
 
 \begin{center}
 \begin{tikzpicture}
-\begin{axis}[width=0.8\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-0.12, xmax=2.15, ymin=-0.12, ymax=2.4,
-  xtick={0,0.5,1,1.5,2}, ytick={0,1,2},
-  domain=0:2, samples=160, font=\footnotesize,
-  legend pos=north west]
-\addplot[ybar interval,fill=orange!28,draw=orange!60,domain=0:2,samples=9] {x^2/2};
-\addlegendentry{黎曼和 $\sum f(\xi_i)\Delta x_i$}
-\addplot[blue,thick] {x^2/2};
-\addlegendentry{$y=f(x)=\frac{x^2}{2}$}
+\begin{axis}[width=0.78\linewidth, height=5.2cm,
+  xlabel={\(x\)}, ylabel={\(y\)},
+  xmin=-1.65, xmax=1.65, ymin=-2.1, ymax=2.5,
+  xtick={-1,0,1}, ytick={-1,0,1,2},
+  domain=-1.5:1.5, samples=140, font=\footnotesize,
+  legend pos=south east,
+  legend style={font=\scriptsize, draw=black!40}]
+\addplot[blue,thick] {x^3/3};
+\addlegendentry{\(C=0\)}
+\addplot[blue!55,thick,dashed] {x^3/3+1};
+\addlegendentry{\(C=1\)}
+\addplot[blue!55,thick,dotted,line width=1.2pt] {x^3/3-1};
+\addlegendentry{\(C=-1\)}
+\draw[red,thick] (axis cs:1,0.3333) -- (axis cs:1.55,0.8833);
+\draw[red,thick] (axis cs:1,1.3333) -- (axis cs:1.55,1.8833);
+\draw[red,thick] (axis cs:1,-0.6667) -- (axis cs:1.55,-0.1167);
+
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\centerline{\footnotesize 用若干小矩形面积之和逼近曲边梯形面积，当 $\lambda=\max\Delta x_i\to 0$ 时，其极限即为定积分。}
-\noindent\textbf{拓展（数值积分）:}定积分 $\int_a^b f$ 本身是黎曼和的极限，计算机无法真正“求极限”，于是截断为有限项：在等分点 $x_i=a+ih$ 上，梯形公式 $\int_a^b f\approx\frac{h}{2}\bigl[f(x_0)+2\sum x_i+f(x_n)\bigr]$，Simpson 公式再用抛物线代替直线、获得更高阶精度，这就是“数值积分”的基础；对高维积分，蒙特卡洛方法用随机采样估计平均值的积分。现实中任何定积分在内存里都只能以这样的离散求和近似。
+\nopagebreak[4]\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 三条曲线是 \(y=x^3/3+C\) 在 \(C=-1,0,1\) 时的图像。它们只上下平移，同一横坐标处的切线互相平行：例如 \(x=1\) 处三条切线斜率都为 \(1\)。图里画出的短红线就是这三条切线。给定曲线经过的一个点，就能把 \(C\) 定下来。}}
 
-\begin{conclusion}{函数在区间的可积性}{integrability}
-    \textbf{可积的充分条件：}
-    \begin{enumerate}
-        \item 若\(f(x)\)在\([a,b]\)上连续，则\(f(x)\)在\([a,b]\)上可积；
-        \item 若\(f(x)\)在\([a,b]\)上有界且仅有有限个第一类间断点，则\(f(x)\)在\([a,b]\)上可积；
-        \item 若\(f(x)\)在\([a,b]\)上单调有界，则\(f(x)\)在\([a,b]\)上可积。
-    \end{enumerate}
-    \textbf{注：}有界是可积的必要条件——若\(f(x)\)在\([a,b]\)上可积，则\(f(x)\)在\([a,b]\)上必有界。无界函数在闭区间上不可积（属于反常积分范畴）。
-\end{conclusion}
+%========================================================
+\subsection{定积分：分割、求和、取极限}
 
-\begin{conclusion}{定积分的基本性质}{properties of definite integral}
-    \textbf{规定：}\(\int_{a}^{a} f(x)\mathrm{d}x = 0\)，\(\int_{a}^{b} f(x)\mathrm{d}x = -\int_{b}^{a} f(x)\mathrm{d}x\)。\par
-    \textbf{1. 线性性质：}\(\displaystyle\int_{a}^{b} [\alpha f(x) + \beta g(x)]\mathrm{d}x = \alpha\int_{a}^{b} f(x)\mathrm{d}x + \beta\int_{a}^{b} g(x)\mathrm{d}x\)\par
-    \textbf{2. 区间可加性：}\(\displaystyle\int_{a}^{b} f(x)\mathrm{d}x = \int_{a}^{c} f(x)\mathrm{d}x + \int_{c}^{b} f(x)\mathrm{d}x\)（对任意\(c\)成立）\par
-    \textbf{3. 保序性：}若\(f(x) \leqslant g(x)\)在\([a,b]\)上成立，则\(\int_{a}^{b} f(x)\mathrm{d}x \leqslant \int_{a}^{b} g(x)\mathrm{d}x\)（其中\(a<b\)）\par
-    \textbf{4. 估值定理：}设\(m \leqslant f(x) \leqslant M\)，则\(m(b-a) \leqslant \int_{a}^{b} f(x)\mathrm{d}x \leqslant M(b-a)\)\par
-    \textbf{5. 积分中值定理：}若\(f(x)\)在\([a,b]\)上连续，则\(\exists\,\xi \in [a,b]\)使
-    \[
-        \int_{a}^{b} f(x)\mathrm{d}x = f(\xi)(b-a)
-    \]
-    \textbf{6. 绝对值不等式：}\(\displaystyle\left|\int_{a}^{b} f(x)\mathrm{d}x\right| \leqslant \int_{a}^{b} |f(x)|\mathrm{d}x\)（其中\(a<b\)）
-\end{conclusion}
+先用一个具体例子说明“曲边梯形面积”怎么算。求 \(y=x^2\) 在 \([0,1]\) 上与 \(x\) 轴围成的面积。把 \([0,1]\) 等分成 \(n\) 份，每份宽 \(1/n\)，第 \(k\) 个小区间取右端点 \(k/n\) 作高，得到矩形面积和
+\[
+  S_n=\sum_{k=1}^{n}\left(\frac{k}{n}\right)^2\frac{1}{n}
+  =\frac{1}{n^3}\sum_{k=1}^{n}k^2
+  =\frac{(n+1)(2n+1)}{6n^2}.
+\]
+令 \(n\to\infty\)，\(S_n\to 1/3\)。这个极限就是面积。
 
-\begin{conclusion}{变限定积分函数的连续与可导性}{continuity and differentiability of definite integral function}
-    设\(f(x)\)在\([a,b]\)上可积，定义变上限积分函数
-    \[
-        \Phi(x) = \int_{a}^{x} f(t)\mathrm{d}t,\quad x \in [a,b]
-    \]
-    则：
-    \begin{enumerate}
-        \item \(\Phi(x)\)在\([a,b]\)上连续（只要\(f\)可积即可）；
-        \item 若\(f(x)\)在\([a,b]\)上连续，则\(\Phi(x)\)在\([a,b]\)上可导，且
-        \[
-            \Phi'(x) = \frac{\mathrm{d}}{\mathrm{d}x}\int_{a}^{x} f(t)\mathrm{d}t = f(x)
-        \]
-    \end{enumerate}
-    \textbf{推广：}\(\displaystyle\frac{\mathrm{d}}{\mathrm{d}x}\int_{a}^{\varphi(x)} f(t)\mathrm{d}t = f(\varphi(x))\cdot\varphi'(x)\)
-\end{conclusion}
-
-\begin{conclusion}{原函数的有关问题}{properties of primitive function}
-    \textbf{原函数存在定理：}若\(f(x)\)在区间\(I\)上连续，则\(f(x)\)在\(I\)上必存在原函数。\par
-    变上限积分\(\Phi(x)=\int_{a}^{x} f(t)\mathrm{d}t\)就是\(f(x)\)的一个原函数，即：连续函数的不定积分可用变上限积分表示。\par
-    \textbf{注：}
-    \begin{itemize}
-        \item 初等函数在其定义区间内必有原函数，但原函数不一定是初等函数（如\(\int e^{-x^2}\mathrm{d}x\)、\(\int \frac{\sin x}{x}\mathrm{d}x\)等无法用初等函数表示）。
-        \item 可积\(\not\Rightarrow\)有原函数（有第一类间断点的函数无原函数）；有原函数\(\not\Rightarrow\)可积（如无界导函数的原函数）。
-    \end{itemize}
-\end{conclusion}
-
-\begin{formula}{牛顿莱布尼茨公式}{Newton-Leibniz formula}
-    设\(f(x)\)在\([a,b]\)上连续（更一般地，\(f\)可积且存在原函数\(F\)），并且\(F'(x)=f(x)\)，则
-    \[
-        \boxed{\int_{a}^{b} f(x)\mathrm{d}x = F(b) - F(a) = \Bigl.F(x)\Bigr|_{a}^{b}}
-    \]
-    该公式将定积分计算转化为求原函数在上下限处的差值，是微积分学的基本定理。
-\end{formula}
-
-\begin{conclusion}{对称区间上奇偶函数的定积分}{definite integral of even and odd functions}
-    设\(f(x)\)在\([-a,a]\)上可积：
-    \begin{enumerate}
-        \item 若\(f(x)\)为奇函数，则\(\displaystyle\int_{-a}^{a} f(x)\mathrm{d}x = 0\)；
-        \item 若\(f(x)\)为偶函数，则\(\displaystyle\int_{-a}^{a} f(x)\mathrm{d}x = 2\int_{0}^{a} f(x)\mathrm{d}x\)。
-    \end{enumerate}
-    \textbf{注：}奇函数在对称区间上的积分值恒为零，偶函数的积分值等于半区间积分的两倍。此性质常用于简化计算。
-\end{conclusion}
-
-\begin{conclusion}{周期函数的积分}{definite integral of periodic functions}
-    设\(f(x)\)是以\(T\)为周期的可积周期函数，则：
-    \begin{enumerate}
-        \item 周期函数在任意一个周期长度区间上的积分值相等：\(\displaystyle\int_{a}^{a+T} f(x)\mathrm{d}x = \int_{0}^{T} f(x)\mathrm{d}x\)
-        \item \(\displaystyle\int_{a}^{a+nT} f(x)\mathrm{d}x = n\int_{0}^{T} f(x)\mathrm{d}x \quad (n \in \mathbb{N})\)
-    \end{enumerate}
-\end{conclusion}
-
-\begin{tablebox}{基本积分表}
-    \[
-    \begin{aligned}
-        &\text{1.}\; \int k\,\mathrm{d}x = kx + C \quad (k\text{为常数})\\[4pt]
-        &\text{2.}\; \int x^{\mu}\mathrm{d}x = \frac{x^{\mu+1}}{\mu+1} + C \quad (\mu \neq -1)\\[4pt]
-        &\text{3.}\; \int \frac{1}{x}\mathrm{d}x = \ln|x| + C\\[4pt]
-        &\text{4.}\; \int e^{x}\mathrm{d}x = e^{x} + C\\[4pt]
-        &\text{5.}\; \int a^{x}\mathrm{d}x = \frac{a^{x}}{\ln a} + C \quad (a>0,a\neq 1)\\[4pt]
-        &\text{6.}\; \int \sin x\,\mathrm{d}x = -\cos x + C\\[4pt]
-        &\text{7.}\; \int \cos x\,\mathrm{d}x = \sin x + C\\[4pt]
-        &\text{8.}\; \int \tan x\,\mathrm{d}x = -\ln|\cos x| + C\\[4pt]
-        &\text{9.}\; \int \cot x\,\mathrm{d}x = \ln|\sin x| + C\\[4pt]
-        &\text{10.}\; \int \sec x\,\mathrm{d}x = \ln|\sec x + \tan x| + C\\[4pt]
-        &\text{11.}\; \int \csc x\,\mathrm{d}x = \ln|\csc x - \cot x| + C\\[4pt]
-        &\text{12.}\; \int \sec^{2}x\,\mathrm{d}x = \tan x + C\\[4pt]
-        &\text{13.}\; \int \csc^{2}x\,\mathrm{d}x = -\cot x + C\\[4pt]
-        &\text{14.}\; \int \sec x\tan x\,\mathrm{d}x = \sec x + C\\[4pt]
-        &\text{15.}\; \int \csc x\cot x\,\mathrm{d}x = -\csc x + C\\[4pt]
-        &\text{16.}\; \int \frac{1}{\sqrt{1-x^{2}}}\mathrm{d}x = \arcsin x + C\\[4pt]
-        &\text{17.}\; \int \frac{1}{1+x^{2}}\mathrm{d}x = \arctan x + C\\[4pt]
-        &\text{18.}\; \int \frac{1}{\sqrt{a^{2}-x^{2}}}\mathrm{d}x
-        =\arcsin\frac{x}{a}+C\quad(a>0)
-    \end{aligned}
-    \]
-    \[
-    \begin{aligned}
-    \text{19.}\quad &\int \frac{\mathrm{d}x}{a^{2}+x^{2}}
-      =\frac{1}{a}\arctan\frac{x}{a}+C \quad (a>0),\\[4pt]
-    \text{20.}\quad &\int \frac{\mathrm{d}x}{x^{2}-a^{2}}
-      =\frac{1}{2a}\ln\left|\frac{x-a}{x+a}\right|+C \quad (a\ne0),\\[4pt]
-    \text{21.}\quad &\int \frac{\mathrm{d}x}{\sqrt{x^{2}\pm a^{2}}}
-      =\ln\left|x+\sqrt{x^{2}\pm a^{2}}\right|+C \quad (a>0,\text{被积函数有定义}),\\[4pt]
-    \text{22.}\quad &\int \sqrt{a^{2}-x^{2}}\,\mathrm{d}x
-      =\frac{x}{2}\sqrt{a^{2}-x^{2}}\\
-      &\qquad+\frac{a^{2}}{2}\arcsin\frac{x}{a}+C \quad (a>0).
-    \end{aligned}
-    \]
-\end{tablebox}
-
-\begin{conclusion}{利用定积分求某些和式函数的极限}{definite integral of summation function}
-    若\(f(x)\)在\([0,1]\)上可积，则
-    \[
-        \lim_{n \to \infty} \frac{1}{n}\sum_{k=1}^{n} f\left(\frac{k}{n}\right) = \int_{0}^{1} f(x)\mathrm{d}x
-    \]
-    一般地，将\(\displaystyle\frac{k}{n}\)视为\(x\)，\(\displaystyle\frac{1}{n}\)视为\(\mathrm{d}x\)，则和式极限可转化为定积分。\par
-    \textbf{推广：}\(\displaystyle\lim_{n \to \infty} \frac{b-a}{n}\sum_{k=1}^{n} f\left(a + \frac{k(b-a)}{n}\right) = \int_{a}^{b} f(x)\mathrm{d}x\)
-\end{conclusion}
-\subsection{基本积分表与积分法则}
-
-\begin{conclusion}{分项积分法}{partial-integral-method}
-    将被积函数拆分为若干简单函数之和（差），利用积分的线性性质逐项积分。
-    \[
-        \int [f_1(x) + f_2(x) + \cdots + f_n(x)]\mathrm{d}x = \int f_1(x)\mathrm{d}x + \int f_2(x)\mathrm{d}x + \cdots + \int f_n(x)\mathrm{d}x
-    \]
-    常用于多项式、有理函数、三角函数组合等情形。\par
-    \textbf{例：}\(\displaystyle\int (x^2 + \sin x)\mathrm{d}x = \int x^2\mathrm{d}x + \int \sin x\mathrm{d}x = \frac{x^3}{3} - \cos x + C\)
-\end{conclusion}
-
-\begin{conclusion}{分段积分法}{piecewise-integral-method}
-    当被积函数为分段函数时，需按分段点将积分区间拆分，在各子区间上分别积分后相加。
-    \[
-        \int_{a}^{b} f(x)\mathrm{d}x = \int_{a}^{c} f(x)\mathrm{d}x + \int_{c}^{b} f(x)\mathrm{d}x
-    \]
-    当\(f(x)\)含绝对值时，需先去掉绝对值符号，确定各区间上的表达式后再积分。
-\end{conclusion}
-
-\begin{conclusion}{换元积分法}{integral-method-by-substitution-method}
-    换元积分法（也称变量代换法）是积分计算中最基本、最重要的方法之一。其核心思想是通过适当的变量代换，将复杂的被积函数转化为基本积分表中的形式。\par
-    换元积分法分为\textbf{第一类换元法}（凑微分法）和\textbf{第二类换元法}。对定积分的换元，还需同时变换积分上下限。
-\end{conclusion}
-
-
-\begin{conclusion}{不定积分的换元积分法}{integral-method-by-substitution}
-    \textbf{第一类换元法（凑微分法）：}设\(\int f(u)\mathrm{d}u = F(u) + C\)，则
-    \[
-        \int f[\varphi(x)]\varphi'(x)\mathrm{d}x = \int f(u)\mathrm{d}u = F(u) + C = F[\varphi(x)] + C
-    \]
-    关键技术：将被积表达式的一部分"凑"成\(\mathrm{d}u = \varphi'(x)\mathrm{d}x\)的形式。\par
-    \textbf{第二类换元法：}设\(x = \psi(t)\)单调可导且\(\psi'(t) \neq 0\)，则
-    \[
-        \int f(x)\mathrm{d}x = \int f[\psi(t)]\psi'(t)\mathrm{d}t
-    \]
-    积分后再将\(t = \psi^{-1}(x)\)代回。
-\end{conclusion}
-
-\begin{conclusion}{定积分的换元积分法}{integral-method-by-substitution of definite integral}
-    设\(x = \varphi(t)\)满足：(1) \(\varphi(\alpha)=a,\varphi(\beta)=b\)；(2) \(\varphi(t)\)在\([\alpha,\beta]\)（或\([\beta,\alpha]\)）上单值且有连续导数，则
-    \[
-        \int_{a}^{b} f(x)\mathrm{d}x = \int_{\alpha}^{\beta} f[\varphi(t)]\varphi'(t)\mathrm{d}t
-    \]
-    \textbf{关键：}换元必须同时变换积分上下限（"三换"：换被积函数、换积分变量、换积分上下限），且无需将变量代回。
-\end{conclusion}
-
-
-\begin{conclusion}{常见的替换}{common substitutions}
-    \begin{conclusion}{三角函数替换}{trigonometric substitution}
-        被积函数含\(\sqrt{a^2-x^2}\)时，令\(x = a\sin t\)（或\(x = a\cos t\)）；\\
-        被积函数含\(\sqrt{a^2+x^2}\)时，令\(x = a\tan t\)；\\
-        被积函数含\(\sqrt{x^2-a^2}\)时，令\(x = a\sec t\)；\\
-        万能代换（处理三角函数有理式）：令\(\displaystyle t = \tan\frac{x}{2}\)，则
-        \[
-            \sin x = \frac{2t}{1+t^2},\quad \cos x = \frac{1-t^2}{1+t^2},\quad \mathrm{d}x = \frac{2}{1+t^2}\mathrm{d}t
-        \]
-    \end{conclusion}
-
-    \begin{conclusion}{幂函数替换}{power substitution}
-        被积函数含\(\sqrt[n]{ax+b}\)时，令\(t = \sqrt[n]{ax+b}\)（即\(t^n = ax+b\)），化为有理函数积分。\\
-        被积函数含\(\sqrt[n]{\frac{ax+b}{cx+d}}\)时，令\(t = \sqrt[n]{\frac{ax+b}{cx+d}}\)。\\
-        倒代换：令\(\displaystyle x = \frac{1}{t}\)，常用于分母次数远高于分子的情形。
-    \end{conclusion}
-
-    \begin{conclusion}{指数函数替换}{exponential substitution}
-        被积函数含\(e^x\)或\(a^x\)时，可令\(t = e^x\)（则\(\mathrm{d}x = \frac{\mathrm{d}t}{t}\)）或\(t = a^x\)（则\(\mathrm{d}x = \frac{\mathrm{d}t}{t\ln a}\)），\\
-        将积分化为关于\(t\)的有理函数或较简单的形式。
-    \end{conclusion}
-\end{conclusion}
-
-\begin{conclusion}{分部积分法}{integral-method-by-integration-by-parts}
-    由乘积的导数公式\((uv)' = u'v + uv'\)得：
-    \[
-        \boxed{\int u\,\mathrm{d}v = uv - \int v\,\mathrm{d}u}
-    \]
-    \textbf{选取\(u\)的优先顺序（LIATE法则）：}\\
-    对数函数\(\succ\)反三角函数\(\succ\)幂函数（代数函数）\(\succ\)三角函数\(\succ\)指数函数\par
-    \textbf{常见类型：}
-    \begin{itemize}
-        \item \(\displaystyle\int x^n e^{ax}\mathrm{d}x,\;\int x^n \sin ax\,\mathrm{d}x,\;\int x^n \cos ax\,\mathrm{d}x\)：令\(u=x^n\)
-        \item \(\displaystyle\int x^n \ln x\,\mathrm{d}x,\;\int x^n \arcsin x\,\mathrm{d}x,\;\int x^n \arctan x\,\mathrm{d}x\)：令\(u\)为对数或反三角函数
-        \item \(\displaystyle\int e^{ax}\sin bx\,\mathrm{d}x,\;\int e^{ax}\cos bx\,\mathrm{d}x\)：两次分部积分后解方程
-    \end{itemize}
-\end{conclusion}
-
-\subsection{几种特殊函数的积分}
-
-\begin{conclusion}{有理函数的积分}{definite integral of rational functions}
-    有理函数\(R(x)=\frac{P(x)}{Q(x)}\)（\(P,Q\)为多项式）的积分一般步骤：
-    \begin{enumerate}
-        \item 若为假分式（\(\deg P \geqslant \deg Q\)），先通过多项式除法化为多项式与真分式之和；
-        \item 将真分式的分母在实数范围内分解为一次因式和二次质因式的乘积；
-        \item 利用部分分式分解法，将真分式拆分为
-        \[
-            \frac{A}{(x-a)^k},\quad \frac{Bx+C}{(x^2+px+q)^m}
-        \]
-        等形式之和，再逐项积分。
-    \end{enumerate}
-    \textbf{注：}部分分式分解是核心技巧，需通过待定系数法确定各分式的系数。
-\end{conclusion}
-
-\begin{conclusion}{无理函数的积分}{definite integral of irrational functions}
-    无理函数积分的基本思路是通过适当的变量代换，将其转化为有理函数积分。常见类型：
-    \begin{itemize}
-        \item 含\(\sqrt[n]{ax+b}\)：令\(t = \sqrt[n]{ax+b}\)
-        \item 含\(\sqrt[n]{\frac{ax+b}{cx+d}}\)：令\(t = \sqrt[n]{\frac{ax+b}{cx+d}}\)
-        \item 含\(\sqrt{ax^2+bx+c}\)：通过配方法化为\(\sqrt{u^2\pm a^2}\)或\(\sqrt{a^2-u^2}\)，再用三角代换（欧拉代换也是一种通用方法）
-        \item 二项微分式\(\int x^m(a+bx^n)^p\mathrm{d}x\)（切比雪夫积分）：当\(p\)、\(\frac{m+1}{n}\)、\(p+\frac{m+1}{n}\)之一为整数时可化为有理函数积分
-    \end{itemize}
-\end{conclusion}
-
-\begin{conclusion}{三角函数有理式的积分}{definite integral of trigonometric rational functions}
-    三角函数有理式\(R(\sin x,\cos x)\)的积分方法：
-    \begin{enumerate}
-        \item \textbf{万能代换：}令\(t = \tan\frac{x}{2}\)，则
-        \[
-            \sin x = \frac{2t}{1+t^2},\quad \cos x = \frac{1-t^2}{1+t^2},\quad \mathrm{d}x = \frac{2}{1+t^2}\mathrm{d}t
-        \]
-        化为\(t\)的有理函数积分（通用但计算量大）。
-        \item \textbf{特殊情形简化：}
-        \begin{itemize}
-            \item 若\(R(-\sin x,\cos x) = -R(\sin x,\cos x)\)，令\(t = \cos x\)
-            \item 若\(R(\sin x,-\cos x) = -R(\sin x,\cos x)\)，令\(t = \sin x\)
-            \item 若\(R(-\sin x,-\cos x) = R(\sin x,\cos x)\)，令\(t = \tan x\)
-        \end{itemize}
-        \item 利用三角恒等式（积化和差、倍角公式等）简化被积函数。
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{积分计算技巧}{integral-calculation-skills}
-    综合运用各种积分方法的技巧：
-    \begin{enumerate}
-        \item \textbf{对称性利用：}利用奇偶函数在对称区间上的积分性质简化计算。
-        \item \textbf{区间变换：}利用换元（如\(x = a+b-t\)）变换积分区间，常用于\(\int_{a}^{b} f(x)\mathrm{d}x = \int_{a}^{b} f(a+b-x)\mathrm{d}x\)。
-        \item \textbf{递推公式：}建立\(I_n\)与\(I_{n-1}\)的关系，如\(\int \sin^n x\,\mathrm{d}x\)、\(\int \frac{1}{(x^2+a^2)^n}\mathrm{d}x\)等的递推。
-        \item \textbf{组合换元：}换元法与分部积分法结合使用。
-        \item \textbf{拆项凑微分：}将分子拆分为分母导数的常数倍与常数之和，如\(\int \frac{Ax+B}{x^2+px+q}\mathrm{d}x\)。
-        \item \textbf{利用已知公式和恒等式：}灵活运用三角恒等式、代数恒等式化简被积函数。
-        \item \textbf{积分方程：}通过积分建立关于所求积分的方程，解出积分值（如\(\int e^{ax}\cos bx\,\mathrm{d}x\)类）。
-    \end{enumerate}
-    \textbf{注：}实际计算中，往往需要多种方法的有机结合，建议多练习以培养"积分直觉"。
-\end{conclusion}
-\subsection{反常积分(广义积分)}
-\begin{mydef}{无穷区间的反常积分的概念}{infinitesimal integral}
-    \textbf{无穷区间上的反常积分}是指积分区间为无穷区间的积分。\\
-    \(\displaystyle\int_{a}^{+\infty} f(x)\mathrm{d}x = \lim\limits_{b \to +\infty} \int_{a}^{b} f(x)\mathrm{d}x\)\\
-    \(\displaystyle\int_{-\infty}^{b} f(x)\mathrm{d}x = \lim\limits_{a \to -\infty} \int_{a}^{b} f(x)\mathrm{d}x\)\\
-    \(\displaystyle\int_{-\infty}^{+\infty} f(x)\mathrm{d}x = \int_{-\infty}^{c} f(x)\mathrm{d}x + \int_{c}^{+\infty} f(x)\mathrm{d}x\)\\
-    若上述极限存在且为有限值，则称反常积分\textbf{收敛}，否则称反常积分\textbf{发散}。\\
-    \(\int_{-\infty}^{+\infty} f(x)\mathrm{d}x\)收敛当且仅当两个积分均收敛。
-\end{mydef}
-\begin{mydef}{无界函数的反常积分的概念}{improper integral of unbounded function}
-    \textbf{瑕积分}是指被积函数在积分区间内存在无穷间断点（瑕点）的积分。\\
-    设\(a\)为瑕点（\(\lim\limits_{x \to a^{+}} f(x) = \infty\)），则\\
-    \(\displaystyle\int_{a}^{b} f(x)\mathrm{d}x = \lim\limits_{\varepsilon \to 0^{+}} \int_{a+\varepsilon}^{b} f(x)\mathrm{d}x\)\\
-    设\(b\)为瑕点（\(\lim\limits_{x \to b^{-}} f(x) = \infty\)），则\\
-    \(\displaystyle\int_{a}^{b} f(x)\mathrm{d}x = \lim\limits_{\varepsilon \to 0^{+}} \int_{a}^{b-\varepsilon} f(x)\mathrm{d}x\)\\
-    设\(c \in (a,b)\)为瑕点，则\(\int_{a}^{b} f = \int_{a}^{c} f + \int_{c}^{b} f\)，\\
-    仅当两者均收敛时原积分收敛。
-\end{mydef}
-\begin{conclusion}{常见的反常积分}{definite integral of improper functions}
-    \textbf{\(\bm{p}\)-积分（无穷区间）}：\(\displaystyle\int_{1}^{+\infty} \frac{1}{x^{p}}\mathrm{d}x\)
-    \begin{enumerate}
-        \item 当\(p > 1\)时收敛，\(\displaystyle\int_{1}^{+\infty} \frac{1}{x^{p}}\mathrm{d}x = \frac{1}{p-1}\)
-        \item 当\(p \leqslant 1\)时发散
-    \end{enumerate}
-    \textbf{\(\bm{p}\)-积分（瑕积分）}：\(\displaystyle\int_{0}^{1} \frac{1}{x^{p}}\mathrm{d}x\)
-    \begin{enumerate}
-        \item 当\(p < 1\)时收敛，\(\displaystyle\int_{0}^{1} \frac{1}{x^{p}}\mathrm{d}x = \frac{1}{1-p}\)
-        \item 当\(p \geqslant 1\)时发散
-    \end{enumerate}
-        \textbf{常用结论}：\(\displaystyle\int_{2}^{+\infty} \frac{1}{x\ln^{p}x}\mathrm{d}x\)在\(p>1\)时收敛，\(p\leqslant 1\)时发散。
- \end{conclusion}
+一般情形把“等分”和“右端点”都放开。在 \([a,b]\) 中插入分点
+\[
+  a=x_0<x_1<\cdots<x_n=b,
+\]
+第 \(i\) 个小区间长 \(\Delta x_i=x_i-x_{i-1}\)，在其中任取一点 \(\xi_i\)，作和
+\[
+  S=\sum_{i=1}^{n} f(\xi_i)\Delta x_i .
+\]
+记 \(\lambda=\max_i\Delta x_i\)。如果 \(\lambda\to0\) 时 \(S\) 的极限存在，并且这个极限与分法、与 \(\xi_i\) 的取法都无关，就称 \(f\) 在 \([a,b]\) 上可积，极限称为定积分：
+\[
+  \int_a^b f(x)\,\mathrm{d}x=\lim_{\lambda\to0}\sum_{i=1}^{n}f(\xi_i)\Delta x_i .
+\]
+这里 \(\lambda\to0\) 比“\(n\to\infty\)”更强：不仅份数要增多，最宽的那一段也必须变窄。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[width=0.82\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=0.9, xmax=8.2, ymin=0, ymax=3,
-  xtick={1,2,4,6,8}, ytick={0,1,2,3},
-  domain=1:8, samples=200, font=\footnotesize,
-  legend pos=north east,
-  legend style={draw=black!50, fill=white, font=\scriptsize}]
-\draw[dashed,gray!50] (axis cs:1,0) -- (axis cs:1,3);
-\addplot[red,thick] {x^(-0.5)};
-\addlegendentry{$p=\frac{1}{2}$（发散）}
-\addplot[blue,thick] {1/x};
-\addlegendentry{$p=1$（发散）}
-\addplot[green!55!black,thick] {1/x^2};
-\addlegendentry{$p=2$（收敛）}
-\node[font=\scriptsize,red!70!black,anchor=west] at (axis cs:2.55,0.95){$p=\frac{1}{2}$};
-\node[font=\scriptsize,blue!70!black,anchor=west] at (axis cs:2.75,0.50){$p=1$};
-\node[font=\scriptsize,green!55!black,anchor=west] at (axis cs:3.00,0.225){$p=2$};
+  xlabel={\(x\)}, ylabel={\(y\)},
+  xmin=-0.05, xmax=2.1, ymin=0, ymax=2.85,
+  xtick={0,0.5,1,1.5,2}, ytick={1,2},
+  domain=0:2, samples=160, font=\footnotesize]
+\draw[fill=orange!25,draw=orange!65] (axis cs:0,0) rectangle (axis cs:0.25,0.2094);
+\draw[fill=orange!25,draw=orange!65] (axis cs:0.25,0) rectangle (axis cs:0.55,0.2960);
+\draw[fill=orange!25,draw=orange!65] (axis cs:0.55,0) rectangle (axis cs:0.9,0.5154);
+\draw[fill=orange!25,draw=orange!65] (axis cs:0.9,0) rectangle (axis cs:1.15,0.8304);
+\draw[fill=orange!25,draw=orange!65] (axis cs:1.15,0) rectangle (axis cs:1.55,1.2935);
+\draw[fill=orange!25,draw=orange!65] (axis cs:1.55,0) rectangle (axis cs:1.8,1.8834);
+\draw[fill=orange!25,draw=orange!65] (axis cs:1.8,0) rectangle (axis cs:2.0,2.3660);
+\addplot[blue,thick] {0.2+0.6*x^2};
+\draw[<->] (axis cs:1.15,0.1)--(axis cs:1.55,0.1)
+  node[pos=0.24,above,font=\scriptsize] {\(\Delta x_i=\lambda\)};
+\draw[dashed,red!70] (axis cs:1.35,0)--(axis cs:1.35,{0.2+0.6*1.35*1.35});
+\node[font=\scriptsize,red!70!black,anchor=west] at (axis cs:1.37,1.35) {\(\xi_i\)};
 \end{axis}
+\end{tikzpicture}\\[2pt]
+\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 这里故意用了不等距分割：每块矩形宽 \(\Delta x_i\)，高取小区间内某点 \(\xi_i\) 的函数值。最宽的一块的宽度就是 \(\lambda\)。分割加密时，\(\lambda\) 变小，矩形面积和更贴近曲线下的面积。}
+\end{center}
+
+定积分是一个带符号的面积。\(f\ge0\) 时，它等于曲线与 \(x\) 轴之间的面积；\(f\) 变号时，\(x\) 轴上方的面积取正号，下方的面积取负号。例如
+\[
+  \int_{-1}^{1}x\,\mathrm{d}x=0,
+\]
+但曲线 \(y=x\) 与 \(x\) 轴在 \([-1,1]\) 上围成的几何面积是 \(1\)。两者不是一回事。
+
+哪些函数可积？以下三条充分条件够用：
+\begin{itemize}
+  \item \(f\) 在 \([a,b]\) 上连续；
+  \item \(f\) 在 \([a,b]\) 上有界，且只有有限个第一类间断点；
+  \item \(f\) 在 \([a,b]\) 上单调且有界。
+\end{itemize}
+有界是可积的必要条件：可积函数一定有界。无界函数的积分不属于这里的定积分，要放到 \S1.7 的反常积分里讨论。
+
+%========================================================
+\subsection{定积分的性质与微积分基本定理}
+
+定积分的性质大多来自“面积”的直观。设 \(f,g\) 在 \([a,b]\) 上可积，则
+\[
+\begin{aligned}
+&\int_a^b \bigl[\alpha f(x)+\beta g(x)\bigr]\mathrm{d}x
+ =\alpha\int_a^b f(x)\,\mathrm{d}x+\beta\int_a^b g(x)\,\mathrm{d}x,\\
+&\int_a^b f(x)\,\mathrm{d}x=\int_a^c f(x)\,\mathrm{d}x+\int_c^b f(x)\,\mathrm{d}x,\\
+&f\le g\ \Rightarrow\ \int_a^b f\le\int_a^b g,\qquad
+\left|\int_a^b f\right|\le\int_a^b|f| .
+\end{aligned}
+\]
+区间可加性对任意 \(c\) 成立，\(c\) 不必落在 \([a,b]\) 内；只要出现的积分都有意义即可。规定
+\[
+  \int_a^a f=0,\qquad \int_a^b f=-\int_b^a f,
+\]
+可加性就对所有位置都成立。
+
+由 \(m\le f\le M\) 得估值
+\[
+  m(b-a)\le\int_a^b f(x)\,\mathrm{d}x\le M(b-a).
+\]
+若 \(f\) 在 \([a,b]\) 上连续，则存在 \(\xi\in[a,b]\)，使
+\[
+  \int_a^b f(x)\,\mathrm{d}x=f(\xi)(b-a).
+\]
+这就是积分中值定理。它说曲边梯形的面积等于某个矩形面积，矩形的高是函数在区间内某点的值。注意 \(\xi\) 只保证存在，通常求不出来。
+
+对称性和周期性可以直接省掉一半计算：
+\[
+  \int_{-a}^{a}f(x)\,\mathrm{d}x=
+  \begin{cases}
+    0, & f\ \text{为奇函数},\\[2pt]
+    2\displaystyle\int_0^a f(x)\,\mathrm{d}x, & f\ \text{为偶函数}.
+  \end{cases}
+\]
+若 \(f\) 以 \(T\) 为周期且可积，则
+\[
+  \int_a^{a+T}f(x)\,\mathrm{d}x=\int_0^T f(x)\,\mathrm{d}x .
+\]
+例如 \(x^3\cos x\) 是奇函数，所以 \(\int_{-2}^{2}(x^3\cos x+3)\,\mathrm{d}x=0+3\cdot4=12\)。
+
+\noindent\textbf{变上限积分。} 固定 \(a\)，让上限动起来：
+\[
+  \Phi(x)=\int_a^x f(t)\,\mathrm{d}t .
+\]
+只要 \(f\) 可积，\(\Phi\) 就连续。若 \(f\) 在 \([a,b]\) 上连续，则 \(\Phi\) 可导，且
+\[
+  \Phi'(x)=\frac{\mathrm{d}}{\mathrm{d}x}\int_a^x f(t)\,\mathrm{d}t=f(x).
+\]
+证明只用一次积分中值定理：
+\[
+  \frac{\Phi(x+h)-\Phi(x)}{h}
+  =\frac{1}{h}\int_x^{x+h}f(t)\,\mathrm{d}t=f(\xi_h),
+\]
+其中 \(\xi_h\) 介于 \(x\) 与 \(x+h\) 之间。令 \(h\to0\)，由 \(f\) 连续得 \(f(\xi_h)\to f(x)\)。
+
+\noindent\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}
+\pgfmathsetmacro{\fa}{1+0.5*sin(deg(2))}
+\pgfmathsetmacro{\fb}{1+0.5*sin(deg(2.35))}
+\begin{axis}[width=0.8\linewidth, height=5.2cm,
+  xlabel={}, ylabel={\(y\)},
+  xmin=-0.1, xmax=4.3, ymin=0, ymax=1.9,
+  xtick={0,2}, xticklabels={\(a\),\(x\)},
+  ytick={0,1}, font=\footnotesize]
+\addplot[draw=none, fill=blue!12, domain=0:2, samples=80]
+  {1+0.5*sin(deg(x))} \closedcycle;
+\fill[orange!35] (axis cs:2,0)--(axis cs:2,\fa)
+  --(axis cs:2.35,\fb)--(axis cs:2.35,0)--cycle;
+\draw[<->] (axis cs:2,0.22)--(axis cs:2.35,0.22)
+  node[midway,above,font=\scriptsize] {\(\Delta x\)};
+\addplot[blue,thick,domain=0:4.1,samples=180] {1+0.5*sin(deg(x))};
+\draw[dashed,gray!60] (axis cs:2,0)--(axis cs:2,\fa);
+\node[font=\scriptsize,blue!60!black] at (axis cs:1.0,0.45) {\(\Phi(x)\)};
+\node[font=\scriptsize,orange!70!black,align=center] at (axis cs:2.7,0.55)
+  {面积增量\\ \(\approx f(x)\Delta x\)};
+\end{axis}
+\end{tikzpicture}\\[2pt]
+\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 蓝色区域是 \(\Phi(x)=\int_a^x f(t)\,\mathrm{d}t\)。上限从 \(x\) 增加到 \(x+\Delta x\) 时，面积只多出橙色窄条；窄条的高接近 \(f(x)\)，宽是 \(\Delta x\)。所以 \(\Phi\) 的增长率就是曲线的高 \(f(x)\)。}
+\end{minipage}
+
+\noindent\textbf{牛顿--莱布尼茨公式。} 若 \(F'(x)=f(x)\)，且 \(f\) 在 \([a,b]\) 上连续，则
+\[
+  \boxed{\int_a^b f(x)\,\mathrm{d}x=F(b)-F(a)=\Bigl.F(x)\Bigr|_a^b.}
+\]
+理由很短：\(\Phi(x)=\int_a^x f\) 与 \(F(x)\) 都是 \(f\) 的原函数，所以 \(\Phi=F+C\)。于是
+\[
+  \int_a^b f=\Phi(b)-\Phi(a)=F(b)-F(a).
+\]
+公式要求 \(F\) 在 \([a,b]\) 上是 \(f\) 的原函数。随手拿一个函数代进去不行；端点处不连续、原函数选错，都会出错。
+
+上限、下限本身是函数时，
+\[
+  \frac{\mathrm{d}}{\mathrm{d}x}\int_{\varphi(x)}^{\psi(x)}f(t)\,\mathrm{d}t
+  =f(\psi(x))\psi'(x)-f(\varphi(x))\varphi'(x).
+\]
+这是把 \(\int_{\varphi}^{\psi}=\int_a^{\psi}-\int_a^{\varphi}\) 拆开，再用链式法则。
+
+%========================================================
+\subsection{换元积分法}
+
+\noindent\textbf{第一类换元（凑微分）。} 先看 \(\int 2x e^{x^2}\,\mathrm{d}x\)。这里 \(2x\) 正好是 \(x^2\) 的导数。令 \(u=x^2\)，则 \(\mathrm{d}u=2x\,\mathrm{d}x\)，积分变成 \(\int e^u\,\mathrm{d}u\)。一般地，若 \(f\) 连续、\(\varphi\) 可导，则
+\[
+  \int f(\varphi(x))\varphi'(x)\,\mathrm{d}x=\int f(u)\,\mathrm{d}u,\qquad u=\varphi(x).
+\]
+用起来就是把 \(\varphi'(x)\,\mathrm{d}x\) 看成 \(\mathrm{d}u\)。关键是先认出内层函数的导数是否已经乘在外面。上例补上常数：\(\int 2x e^{x^2}\mathrm{d}x=e^{x^2}+C\)。
+
+\noindent\textbf{第二类换元。} 反过来令 \(x=\psi(t)\)，则
+\[
+  \int f(x)\,\mathrm{d}x=\int f(\psi(t))\psi'(t)\,\mathrm{d}t .
+\]
+设 \(f\) 连续。为了能回代，通常要求 \(\psi\) 在所用区间上单调、可导，且 \(\psi'(t)\ne0\)。常见的三角代换就是这一类的代表：
+\[
+\begin{array}{ll}
+\sqrt{a^2-x^2}: & x=a\sin t,\quad |t|\le\pi/2,\\[2pt]
+\sqrt{a^2+x^2}: & x=a\tan t,\quad |t|<\pi/2,\\[2pt]
+\sqrt{x^2-a^2}: & x=a\sec t,\quad 0\le t<\pi/2\ (x\ge a).
+\end{array}
+\]
+当 \(x\le-a\) 时，取 \(t\in(\pi/2,\pi]\)，根号仍为正，符号由 \(\tan t\) 承担。三种代换的微分分别是 \(\mathrm{d}x=a\cos t\,\mathrm{d}t\)、\(a\sec^2t\,\mathrm{d}t\)、\(a\sec t\tan t\,\mathrm{d}t\)。
+代换的依据是勾股关系。下面的图把三条边和角 \(t\) 画在一起，代换后根号会消失。
+
+\noindent\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}[scale=1.08,font=\footnotesize]
+% (a) x=a sin t
+\begin{scope}
+  \draw[thick] (0,0)--(2.2,0)--(2.2,1.1)--cycle;
+  \draw (2.2,0) rectangle ++(-0.16,0.16);
+  \node[below] at (1.1,-0.05) {\(\sqrt{a^2-x^2}\)};
+  \node[right] at (2.25,0.55) {\(x\)};
+  \node[above left] at (1.05,0.68) {\(a\)};
+  \node at (0.38,0.14) {\(t\)};
+  \node at (1.1,-0.82) {(a) \(x=a\sin t\)};
+\end{scope}
+% (b) x=a tan t
+\begin{scope}[xshift=4.4cm]
+  \draw[thick] (0,0)--(2.2,0)--(2.2,1.45)--cycle;
+  \draw (2.2,0) rectangle ++(-0.16,0.16);
+  \node[below] at (1.1,-0.05) {\(a\)};
+  \node[right] at (2.25,0.72) {\(x\)};
+  \node[above left] at (1.0,0.9) {\(\sqrt{a^2+x^2}\)};
+  \node at (0.38,0.16) {\(t\)};
+  \node at (1.1,-0.82) {(b) \(x=a\tan t\)};
+\end{scope}
+% (c) x=a sec t
+\begin{scope}[xshift=8.8cm]
+  \draw[thick] (0,0)--(1.55,0)--(1.55,1.65)--cycle;
+  \draw (1.55,0) rectangle ++(-0.16,0.16);
+  \node[below] at (0.77,-0.05) {\(a\)};
+  \node[right] at (1.6,0.82) {\(\sqrt{x^2-a^2}\)};
+  \node[above left] at (0.8,0.95) {\(x\)};
+  \node at (0.4,0.14) {\(t\)};
+  \node at (0.9,-0.82) {(c) \(x=a\sec t\)};
+\end{scope}
+\end{tikzpicture}\\[2pt]
+\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 三个直角三角形对应三种根式。斜边、邻边、对边分别用 \(a\)、\(x\) 和根式表示，角 \(t\) 一定，三边比例就定了。看图时先找角 \(t\) 的邻边和对边，就能确定该用哪条代换。}
+\end{minipage}
+
+\noindent\textbf{定积分换元。} 设 \(x=\psi(t)\) 在 \([\alpha,\beta]\) 上单调且有连续导数，\(\psi(\alpha)=a\)，\(\psi(\beta)=b\)，则
+\[
+  \int_a^b f(x)\,\mathrm{d}x=\int_\alpha^\beta f(\psi(t))\psi'(t)\,\mathrm{d}t .
+\]
+定积分换元要换三样：被积函数、微分、上下限。换完之后直接算 \(t\) 的积分，不必回代成 \(x\)。这一点比不定积分省事。
+
+例：
+\[
+  \int_0^1\sqrt{1-x^2}\,\mathrm{d}x
+  \xlongequal{x=\sin t}\int_0^{\pi/2}\cos^2t\,\mathrm{d}t
+  =\frac{\pi}{4}.
+\]
+这里 \(x\) 从 \(0\) 到 \(1\)，对应的 \(t\) 从 \(0\) 到 \(\pi/2\)。\(\sin t\) 在这个区间上单调，满足换元条件。
+
+%========================================================
+\subsection{分部积分法}
+
+乘积求导公式给出
+\[
+  (uv)'=u'v+uv'.
+\]
+移项并在两边积分：
+\[
+  \boxed{\int u\,\mathrm{d}v=uv-\int v\,\mathrm{d}u.}
+\]
+定积分版本是
+\[
+  \int_a^b u\,\mathrm{d}v=\Bigl.uv\Bigr|_a^b-\int_a^b v\,\mathrm{d}u .
+\]
+它把“积 \(u\,\mathrm{d}v\)”换成“积 \(v\,\mathrm{d}u\)”。当后者更简单时，这一步就赚了。
+
+选择 \(u\) 和 \(\mathrm{d}v\) 没有固定法则，但有几个常用方向：
+\begin{itemize}
+  \item 多项式乘指数或三角函数，如 \(\int x^ne^{ax}\mathrm{d}x\)、\(\int x^n\sin ax\,\mathrm{d}x\)：取 \(u=x^n\)，每分部一次降一次幂。
+  \item 多项式乘对数或反三角函数，如 \(\int x^n\ln x\,\mathrm{d}x\)、\(\int x^n\arctan x\,\mathrm{d}x\)：取 \(u=\ln x\) 或 \(\arctan x\)，把多项式留给 \(\mathrm{d}v\)。
+  \item 只有对数或反三角函数，如 \(\int\ln x\,\mathrm{d}x\)：把 \(\mathrm{d}v=\mathrm{d}x\)，即 \(v=x\)。
+  \item \(e^{ax}\sin bx\)、\(e^{ax}\cos bx\)：分部两次，右边重新出现原积分，移项解方程。
+\end{itemize}
+这几条不是定理，只是经验。判断标准始终是：换过之后，\(\int v\,\mathrm{d}u\) 是否比原积分好算。
+
+例子：
+\[
+  \int x e^x\,\mathrm{d}x=xe^x-\int e^x\,\mathrm{d}x=(x-1)e^x+C,
+\]
+\[
+  \int \ln x\,\mathrm{d}x=x\ln x-\int x\cdot\frac{1}{x}\,\mathrm{d}x=x\ln x-x+C.
+\]
+对 \(I=\int e^x\sin x\,\mathrm{d}x\)，连续分部两次得
+\[
+  I=e^x\sin x-e^x\cos x-I,
+\]
+所以
+\[
+  I=\frac{e^x(\sin x-\cos x)}{2}+C.
+\]
+这里“加 \(C\)”不能忘，移项时出现的是不定积分。
+
+\begin{center}
+\begin{tikzpicture}[scale=1.05,font=\footnotesize]
+\def\aa{0.7}
+\def\bb{2.7}
+\draw[->] (0,0)--(4.1,0) node[right] {\(u\)};
+\draw[->] (0,0)--(0,3.4) node[above] {\(v\)};
+\pgfmathsetmacro{\va}{0.32*\aa*\aa+0.45}
+\pgfmathsetmacro{\vb}{0.32*\bb*\bb+0.45}
+\fill[orange!25]
+  (0,\va)--(0,\vb)--(\bb,\vb)
+  -- plot[domain=\bb:\aa,smooth,samples=70] (\x,{0.32*\x*\x+0.45})
+  -- cycle;
+\fill[blue!12]
+  (\aa,0)--(\aa,\va)
+  -- plot[domain=\aa:\bb,smooth,samples=70] (\x,{0.32*\x*\x+0.45})
+  -- (\bb,0)--cycle;
+\draw[thick,blue,domain=0.15:2.95,smooth,samples=90]
+  plot (\x,{0.32*\x*\x+0.45});
+\draw[dashed,gray!65] (\aa,0)--(\aa,\va);
+\draw[dashed,gray!65] (\bb,0)--(\bb,\vb);
+\draw[dashed,gray!65] (0,\va)--(\bb,\va);
+\draw[dashed,gray!65] (0,\vb)--(\bb,\vb);
+\node[below] at (\aa,0) {\(a\)};
+\node[below] at (\bb,0) {\(b\)};
+\node[left] at (0,\va) {\(v(a)\)};
+\node[left] at (0,\vb) {\(v(b)\)};
+\node[font=\scriptsize,orange!65!black] at (0.42,1.9) {\(\displaystyle\int_a^b u\,\mathrm{d}v\)};
+\node[font=\scriptsize,blue!60!black] at (2.05,0.42) {\(\displaystyle\int_a^b v\,\mathrm{d}u\)};
 \end{tikzpicture}
 \end{center}
-\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 比较 $\int_1^{+\infty}\frac{1}{x^p}\mathrm{d}x$：三条曲线都以 $(1,1)$ 为起点、随后衰减，$p$ 越大衰减越快。$p>1$ 时尾部面积有限（收敛），$p\le1$ 时尾部面积无限（发散）。}}
-\begin{conclusion}{反常积分的运算法则与计算}{definite integral of improper functions' calculation}
-    \begin{enumerate}
-        \item \textbf{线性性质}：若\(\int_{a}^{+\infty} f\)与\(\int_{a}^{+\infty} g\)均收敛，则\\
-        \(\displaystyle\int_{a}^{+\infty} [\alpha f(x) + \beta g(x)]\mathrm{d}x = \alpha\int_{a}^{+\infty} f(x)\mathrm{d}x + \beta\int_{a}^{+\infty} g(x)\mathrm{d}x\)
-        \item \textbf{分部积分}：\(\displaystyle\int_{a}^{+\infty} u\mathrm{d}v = uv\big|_{a}^{+\infty} - \int_{a}^{+\infty} v\mathrm{d}u\)，
-        其中\(uv\big|_{a}^{+\infty} = \lim\limits_{b\to+\infty} u(b)v(b) - u(a)v(a)\)
-        \item \textbf{换元积分}：设\(x = \varphi(t)\)单调可导，则\\
-        \(\displaystyle\int_{a}^{+\infty} f(x)\mathrm{d}x = \int_{\alpha}^{\beta} f(\varphi(t))\varphi'(t)\mathrm{d}t\)，
-        注意换元后可能改变积分类型（无穷区间\(\leftrightarrow\)瑕积分）
-        \item \textbf{牛顿—莱布尼茨公式的推广}：若\(F'(x)=f(x)\)，则\\
-        \(\displaystyle\int_{a}^{+\infty} f(x)\mathrm{d}x = \lim\limits_{b\to+\infty} F(b) - F(a) = F(x)\big|_{a}^{+\infty}\)
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{反常积分的收敛的比较判别法}{definite integral of improper functions' convergence}
-    \begin{conclusion}{比较原理}{comparison principle}
-        设\(f(x), g(x)\)在\([a, +\infty)\)上非负可积，且\(0 \leqslant f(x) \leqslant g(x)\)，则\\
-        \begin{enumerate}
-            \item 若\(\int_{a}^{+\infty} g(x)\mathrm{d}x\)收敛，则\(\int_{a}^{+\infty} f(x)\mathrm{d}x\)收敛
-            \item 若\(\int_{a}^{+\infty} f(x)\mathrm{d}x\)发散，则\(\int_{a}^{+\infty} g(x)\mathrm{d}x\)发散
-        \end{enumerate}
-        \textbf{极限形式}：设\(\lim\limits_{x\to+\infty} \frac{f(x)}{g(x)} = l\)
-        \begin{enumerate}
-            \item 若\(0 < l < +\infty\)，则\(\int_{a}^{+\infty} f\)与\(\int_{a}^{+\infty} g\)同敛散
-            \item 若\(l = 0\)且\(\int_{a}^{+\infty} g\)收敛，则\(\int_{a}^{+\infty} f\)收敛
-            \item 若\(l = +\infty\)且\(\int_{a}^{+\infty} g\)发散，则\(\int_{a}^{+\infty} f\)发散
-        \end{enumerate}
-        \textbf{\(\bm{p}\)-判别法}：以\(\int_{1}^{+\infty} \frac{1}{x^{p}}\mathrm{d}x\)与\(\int_{a}^{b} \frac{1}{(x-a)^{p}}\mathrm{d}x\)为比较基准。
-    \end{conclusion}
-\end{conclusion}
-\subsection{微元分析法}
-\begin{conclusion}{微元分析法}{microelemental analysis}
-    \textbf{微元法}（元素法）是定积分应用的基本方法，其核心思想是"以直代曲，以常代变"。\\
-    具体步骤：\\
-    \begin{enumerate}
-        \item 选取积分变量\(x\)，确定积分区间\([a,b]\)
-        \item 在\([x, x+\mathrm{d}x]\)上，"以不变代变"求出部分量的近似值\\
-        \(\mathrm{d}U = f(x)\mathrm{d}x\)，称为\textbf{微元}
-        \item 以所求量\(U\)的微元\(f(x)\mathrm{d}x\)为被积表达式，在\([a,b]\)上积分\\
-        \(\displaystyle U = \int_{a}^{b} f(x)\mathrm{d}x\)
-    \end{enumerate}
-    关键：正确写出微元\(\mathrm{d}U\)的表达式，且误差为\(\mathrm{d}x\)的高阶无穷小。
-\end{conclusion}
+\nopagebreak[4]\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 曲线是 \(v=v(u)\)。橙色区域是 \(\int_a^b u\,\mathrm{d}v\)，蓝色区域是 \(\int_a^b v\,\mathrm{d}u\)。两块合起来等于大矩形 \(b\,v(b)\) 减去小矩形 \(a\,v(a)\)，即 \(\bigl.uv\bigr|_a^b\)。这正是分部积分公式的几何含义：把难算的一块换成另一块。}}
 
-\subsection{一元函数积分学的几何应用}
-\begin{conclusion}{平面图形的面积}{area of plane figure}
-    \textbf{直角坐标下的面积公式}：\\
-    由曲线\(y = f(x), y = g(x)\)（\(f(x) \geqslant g(x)\)）与直线\(x=a, x=b\)围成的面积\\
-    \(\displaystyle A = \int_{a}^{b} [f(x) - g(x)]\mathrm{d}x = \int_{a}^{b} |f(x)-g(x)|\mathrm{d}x\)\\
-    由曲线\(x = \varphi(y), x = \psi(y)\)（\(\varphi(y) \geqslant \psi(y)\)）与直线\(y=c, y=d\)围成的面积\\
-    \(\displaystyle A = \int_{c}^{d} [\varphi(y) - \psi(y)]\mathrm{d}y\)\\
-    \textbf{极坐标下的面积公式}：\\
-    由曲线\(r = r(\theta)\)与射线\(\theta=\alpha, \theta=\beta\)围成的曲边扇形面积\\
-    \(\displaystyle A = \frac{1}{2}\int_{\alpha}^{\beta} r^{2}(\theta)\mathrm{d}\theta\)\\
-    由曲线\(r = r_{1}(\theta), r = r_{2}(\theta)\)（\(r_{2} \geqslant r_{1}\)）围成的面积\\
-    \(\displaystyle A = \frac{1}{2}\int_{\alpha}^{\beta} \big[r_{2}^{2}(\theta) - r_{1}^{2}(\theta)\big]\mathrm{d}\theta\)\\
-    \textbf{参数方程下}：若一段简单曲线可用\(x=x(t),y=y(t)\)表示，且与坐标轴或其他边界围成图形，则应按曲线方向和边界具体写面积。例如曲线从左向右且位于\(x\)轴上方时，
-    \[
-      A=\int_a^b y(t)x'(t)\,\mathrm dt.
-    \]
-    对正向简单闭曲线，也可用\(A=\frac12\oint_C(x\,\mathrm dy-y\,\mathrm dx)\)。不能一般性地写成\(\int|yx'|\,\mathrm dt\)，否则在回折曲线上可能重复计数。
-\end{conclusion}
+%========================================================
+\subsection{有理函数的积分}
+
+有理函数是两个多项式的商 \(R(x)=P(x)/Q(x)\)。它的积分有固定流程。
+
+\begin{enumerate}
+  \item 若分子次数不低于分母次数（假分式），先做多项式除法：
+  \[
+    \frac{P(x)}{Q(x)}=S(x)+\frac{r(x)}{Q(x)},
+  \]
+  其中 \(S\) 是多项式，\(\deg r<\deg Q\)。多项式部分直接积。
+  \item 把 \(Q(x)\) 在实数范围内分解成一次因式与不可约二次因式的乘积。不可约二次因式指判别式小于零的二次式。
+  \item 按因式写部分分式。每个 \((x-a)^k\) 贡献
+  \[
+    \frac{A_1}{x-a}+\frac{A_2}{(x-a)^2}+\cdots+\frac{A_k}{(x-a)^k},
+  \]
+  每个 \((x^2+px+q)^m\) 贡献
+  \[
+    \frac{B_1x+C_1}{x^2+px+q}+\cdots+\frac{B_mx+C_m}{(x^2+px+q)^m}.
+  \]
+  用待定系数法求常数。
+  \item 逐项积分。一次因式给对数；\((x-a)^k\)（\(k\ge2\)）给幂函数；不可约二次因式配方后给对数加反正切。
+\end{enumerate}
+
+例 1：
+\[
+  \frac{x+2}{x^2-1}=\frac{3/2}{x-1}-\frac{1/2}{x+1}.
+\]
+两边乘以 \(x^2-1\) 比较系数即可。于是
+\[
+  \int\frac{x+2}{x^2-1}\,\mathrm{d}x
+  =\frac32\ln|x-1|-\frac12\ln|x+1|+C.
+\]
+
+例 2：
+\[
+  \int\frac{2x+1}{x^2+2x+5}\,\mathrm{d}x .
+\]
+分母配方为 \((x+1)^2+4\)。分子拆成“分母导数加常数”：
+\[
+  2x+1=(2x+2)-1.
+\]
+因此
+\[
+  \int\frac{2x+1}{x^2+2x+5}\,\mathrm{d}x
+  =\ln(x^2+2x+5)-\frac12\arctan\frac{x+1}{2}+C.
+\]
+一般地，遇 \(\frac{Bx+C}{x^2+px+q}\)，先把分子写成 \(\frac B2(2x+p)+\left(C-\frac{Bp}{2}\right)\)，再拆成对数与反正切两项。
+
+重因式也不难，只是多一项。例如
+\[
+  \frac{1}{x(x-1)^2}=\frac{1}{x}-\frac{1}{x-1}+\frac{1}{(x-1)^2},
+\]
+积分得
+\[
+  \ln|x|-\ln|x-1|-\frac{1}{x-1}+C.
+\]
 
 \begin{center}
 \begin{tikzpicture}
-\begin{axis}[width=0.8\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-0.05, xmax=1.15, ymin=-0.05, ymax=1.15,
-  xtick={0,0.5,1}, ytick={0,0.5,1},
-  domain=0:1, samples=160, font=\footnotesize,
-  legend pos=north west]
-\addplot[draw=none,fill=orange!25] coordinates {(0,0) (0.05,0.224) (0.1,0.316) (0.15,0.387) (0.2,0.447) (0.25,0.5) (0.3,0.548) (0.35,0.592) (0.4,0.632) (0.45,0.671) (0.5,0.707) (0.55,0.742) (0.6,0.775) (0.65,0.806) (0.7,0.837) (0.75,0.866) (0.8,0.894) (0.85,0.922) (0.9,0.949) (0.95,0.975) (1,1) (1,1) (0.95,0.902) (0.9,0.81) (0.85,0.722) (0.8,0.64) (0.75,0.562) (0.7,0.49) (0.65,0.423) (0.6,0.36) (0.55,0.303) (0.5,0.25) (0.45,0.203) (0.4,0.16) (0.35,0.122) (0.3,0.09) (0.25,0.062) (0.2,0.04) (0.15,0.022) (0.1,0.01) (0.05,0.003) (0,0)};
-\addplot[blue,thick] {sqrt(x)};
-\addlegendentry{$y=\sqrt{x}$}
-\addplot[red,thick] {x^2};
-\addlegendentry{$y=x^2$}
+\begin{axis}[width=0.86\linewidth, height=5.7cm,
+  xlabel={\(x\)}, ylabel={\(y\)},
+  xmin=-4, xmax=4, ymin=-6, ymax=6,
+  xtick={-3,-1,1,3}, ytick={-4,0,4},
+  domain=-4:4, samples=140, font=\footnotesize,
+  legend pos=south east,
+  legend style={font=\scriptsize, draw=black!40},
+  restrict y to domain=-6:6]
+\addplot[blue,thick,domain=-4:-1.08] {(x+2)/(x^2-1)};
+\addplot[blue,thick,domain=-0.92:0.92] {(x+2)/(x^2-1)};
+\addplot[blue,thick,domain=1.08:4] {(x+2)/(x^2-1)};
+\addlegendentry{\(y=\frac{x+2}{x^2-1}\)}
+\addplot[red,dashed,thick,domain=-4:-1.05] {1.5/(x-1)};
+\addplot[red,dashed,thick,domain=1.05:4,forget plot] {1.5/(x-1)};
+\addlegendentry{\(\frac{3}{2(x-1)}\)}
+\addplot[green!55!black,dashdotted,thick,domain=-4:-1.05] {-0.5/(x+1)};
+\addplot[green!55!black,dashdotted,thick,domain=-0.95:4,forget plot] {-0.5/(x+1)};
+\addlegendentry{\(-\frac{1}{2(x+1)}\)}
+\draw[dashed,gray!70] (axis cs:-1,-6)--(axis cs:-1,6);
+\draw[dashed,gray!70] (axis cs:1,-6)--(axis cs:1,6);
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\centerline{\footnotesize 交点 $(0,0),(1,1)$，在 $[0,1]$ 上 $\sqrt{x}\ge x^2$，面积 $A=\int_0^1(\sqrt{x}-x^2)\,\mathrm{d}x=\frac{1}{3}$。}
-\begin{conclusion}{平面曲线的弧微分与弧长}{arc differential and arc length of plane curve}
-    \textbf{弧微分公式}：\\
-    \(\displaystyle \mathrm{d}s = \sqrt{(\mathrm{d}x)^{2} + (\mathrm{d}y)^{2}} = \sqrt{1 + (y')^{2}}\,\mathrm{d}x\)\\
-    \textbf{直角坐标}：曲线\(y = f(x), x\in[a,b]\)\\
-    \(\displaystyle L = \int_{a}^{b} \sqrt{1 + [f'(x)]^{2}}\,\mathrm{d}x\)\\
-    \textbf{参数方程}：曲线\(\begin{cases} x = x(t) \\ y = y(t) \end{cases}, t\in[\alpha,\beta]\)\\
-    \(\displaystyle L = \int_{\alpha}^{\beta} \sqrt{[x'(t)]^{2} + [y'(t)]^{2}}\,\mathrm{d}t\)\\
-    \textbf{极坐标}：曲线\(r = r(\theta), \theta\in[\alpha,\beta]\)\\
-    \(\displaystyle L = \int_{\alpha}^{\beta} \sqrt{r^{2}(\theta) + [r'(\theta)]^{2}}\,\mathrm{d}\theta\)
-\end{conclusion}
-\begin{conclusion}{平面曲线的曲率}{curvature of plane curve}
-    \textbf{曲率}：刻画曲线弯曲程度的量。\\
-    设曲线\(y = f(x)\)二阶可导，则曲率\\
-    \(\displaystyle K = \frac{|y''|}{(1 + y'^{\,2})^{3/2}}\)\\
-    \textbf{曲率半径}：\(\displaystyle R = \frac{1}{K} = \frac{(1 + y'^{\,2})^{3/2}}{|y''|}\)\\
-    \textbf{参数方程}：\(\begin{cases} x = x(t) \\ y = y(t) \end{cases}\)，则\\
-    \(\displaystyle K = \frac{|x'(t)y''(t) - x''(t)y'(t)|}{\big([x'(t)]^{2} + [y'(t)]^{2}\big)^{3/2}}\)\\
-    \textbf{曲率圆（密切圆）}：在点\(M\)处与曲线有相同切线、相同曲率的圆，\\
-    圆心在曲线凹向一侧的法线上，半径为曲率半径\(R\)。\\
-    \textbf{曲率中心}：\(\displaystyle \alpha = x - \frac{y'(1+y'^{\,2})}{y''},\quad \beta = y + \frac{1+y'^{\,2}}{y''}\)
-\end{conclusion}
-\begin{conclusion}{空间图形的体积}{volume of solid figure}
-    \textbf{已知平行截面面积}：设垂直于\(x\)轴的截面面积为\(A(x)\)，则\\
-    \(\displaystyle V = \int_{a}^{b} A(x)\mathrm{d}x\)\\
-    \textbf{旋转体体积（绕\(\bm{x}\)轴）}：\(y = f(x) \geqslant 0, x\in[a,b]\)\\
-    \(\displaystyle V = \pi\int_{a}^{b} [f(x)]^{2}\mathrm{d}x\)（\textbf{圆盘法}）\\
-    \textbf{旋转体体积（绕\(\bm{y}\)轴）}：若区域由\(x=0\)、\(x=\varphi(y)\geq0\)、\(y=c\)和\(y=d\)围成，则\\
-    \(\displaystyle V = \pi\int_{c}^{d} [\varphi(y)]^{2}\mathrm{d}y\)（圆盘法）\\
-    \textbf{柱壳法（绕\(\bm{y}\)轴）}：若区域由\(y=f(x)\geq0\)、\(y=0\)、\(x=a\)、\(x=b\)围成且\(0\leq a<b\)，则\(\displaystyle V = 2\pi\int_{a}^{b} x f(x)\mathrm{d}x\)\\
-    \textbf{两曲线间区域旋转}：\(0 \leqslant g(x) \leqslant f(x)\)绕\(x\)轴\\
-    \(\displaystyle V = \pi\int_{a}^{b} \big([f(x)]^{2} - [g(x)]^{2}\big)\mathrm{d}x\)（\textbf{垫圈法}）
-\end{conclusion}
+\nopagebreak[4]\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 蓝线是有理函数，红、绿虚线是它的两个部分分式。在 \(x=1\) 附近，\(\frac{3/2}{x-1}\) 的绝对值很大，主导蓝线的走向；在 \(x=-1\) 附近则轮到 \(-\frac{1/2}{x+1}\)。每个一次极点积分后给出一项对数，所以拆开以后每一项都能积。}}
 
-\begin{conclusion}{旋转面的（侧）面积}{lateral surface area of revolute surface}
-    曲线\(y = f(x) \geqslant 0, x\in[a,b]\)绕\(x\)轴旋转，侧面积\\
-    \(\displaystyle S = 2\pi\int_{a}^{b} y\sqrt{1 + (y')^{2}}\,\mathrm{d}x = 2\pi\int_{a}^{b} f(x)\sqrt{1 + [f'(x)]^{2}}\,\mathrm{d}x\)\\
-    \textbf{参数方程}：\(\begin{cases} x = x(t) \\ y = y(t) \geqslant 0 \end{cases}, t\in[\alpha,\beta]\)，绕\(x\)轴\\
-    \(\displaystyle S = 2\pi\int_{\alpha}^{\beta} y(t)\sqrt{[x'(t)]^{2} + [y'(t)]^{2}}\,\mathrm{d}t\)\\
-    绕\(y\)轴旋转可类似将\(x\)与\(y\)互换。
-\end{conclusion}
+%========================================================
+\subsection{反常积分}
 
-\subsection{一元函数积分学的物理应用}
-\begin{conclusion}{液体的静压力}{static pressure of liquid}
-    在深度\(h\)处，压强\(p = \rho g h\)（\(\rho\)为液体密度，\(g\)为重力加速度）。\\
-    将平板竖直放入液体中，取深度方向为\(x\)轴（向下为正），\\
-    在深度\(x\)处取一窄条，宽为\(\mathrm{d}x\)，该窄条的面积为宽度\(w(x)\)乘以\(\mathrm{d}x\)，则\\
-    \(\displaystyle \mathrm{d}P = \rho g x \cdot w(x)\,\mathrm{d}x\)\\
-    平板一侧所受总压力：\(\displaystyle P = \rho g \int_{a}^{b} x\,w(x)\,\mathrm{d}x\)
-\end{conclusion}
+定积分要求积分区间有限、被积函数有界。把这两个条件放开，就得到反常积分。
 
-\begin{conclusion}{变力做功}{work done by variable force}
-    物体在变力\(F(x)\)作用下沿\(x\)轴从\(a\)移动到\(b\)，\\
-    微元\(\mathrm{d}W = F(x)\mathrm{d}x\)，总功\\
-    \(\displaystyle W = \int_{a}^{b} F(x)\mathrm{d}x\)\\
-    \textbf{抽水做功}：将容器中的水抽出，取竖直方向为\(x\)轴，\\
-    \(\mathrm{d}W = \rho g \cdot (\text{高度差}) \cdot A(x)\,\mathrm{d}x\)，其中\(A(x)\)为截面面积。\\
-    \textbf{弹簧做功}：\(F = kx\)，\(\displaystyle W = \int_{0}^{l} kx\,\mathrm{d}x = \frac{1}{2}kl^{2}\)
-\end{conclusion}
+\noindent\textbf{无穷区间。} 定义
+\[
+  \int_a^{+\infty}f(x)\,\mathrm{d}x=\lim_{b\to+\infty}\int_a^b f(x)\,\mathrm{d}x,
+\]
+\[
+  \int_{-\infty}^{b}f(x)\,\mathrm{d}x=\lim_{a\to-\infty}\int_a^b f(x)\,\mathrm{d}x .
+\]
+若极限存在且有限，称积分收敛；否则称发散。对 \(\int_{-\infty}^{+\infty}f\)，要在任意一点 \(c\) 拆开：
+\[
+  \int_{-\infty}^{+\infty}f=\int_{-\infty}^{c}f+\int_c^{+\infty}f,
+\]
+两个积分都收敛才算收敛。只让上下限同步趋于无穷（柯西主值）不算这里的收敛。
 
-\begin{conclusion}{引力问题}{gravitational problem}
-    质量分别为\(m_{1}, m_{2}\)的两质点相距\(r\)，引力大小为\(F = G\frac{m_{1}m_{2}}{r^{2}}\)（万有引力定律）。\\
-    对于细杆、圆盘等连续质量分布物体对质点的引力，采用微元法：\\
-    在物体上取质量微元\(\mathrm{d}m\)，该微元对质点的引力微元\\
-    \(\displaystyle \mathrm{d}\mathbf{F} = G\frac{m\,\mathrm{d}m}{r^{2}}\cdot \frac{\mathbf{r}}{r}\)（方向沿连线）\\
-    将\(\mathrm{d}\mathbf{F}\)分解为\(x, y\)方向分量，分别积分即得总引力。
-\end{conclusion}
+\noindent\textbf{无界函数（瑕积分）。} 若 \(a\) 是瑕点，即 \(x\to a^+\) 时 \(f(x)\) 无界，则
+\[
+  \int_a^b f(x)\,\mathrm{d}x=\lim_{\varepsilon\to0^+}\int_{a+\varepsilon}^b f(x)\,\mathrm{d}x .
+\]
+瑕点在右端点或区间内部时类似处理。内部有瑕点 \(c\) 时，必须拆成 \(\int_a^c+\int_c^b\)，两边都收敛才收敛。
 
-\begin{conclusion}{质心或形心问题}{centroid or center of mass problem}
-    平面薄片占有区域\(D\)，面密度\(\rho(x,y)\)，则质心坐标\\
-    \(\displaystyle \bar{x} = \frac{\iint_{D} x\rho(x,y)\mathrm{d}A}{\iint_{D} \rho(x,y)\mathrm{d}A},\quad
-    \bar{y} = \frac{\iint_{D} y\rho(x,y)\mathrm{d}A}{\iint_{D} \rho(x,y)\mathrm{d}A}\)\\
-    对\textbf{均匀密度}的平面薄片，质心即为\textbf{形心}：\\
-    \(\displaystyle \bar{x} = \frac{1}{A}\iint_{D} x\,\mathrm{d}A,\quad
-    \bar{y} = \frac{1}{A}\iint_{D} y\,\mathrm{d}A\)，其中\(A\)为区域面积。\\
-    对由\(y=f(x), y=g(x), x=a, x=b\)围成的区域（一元情形）：\\
-    \(\displaystyle \bar{x} = \frac{\int_{a}^{b} x[f(x)-g(x)]\mathrm{d}x}{\int_{a}^{b} [f(x)-g(x)]\mathrm{d}x},\quad
-    \bar{y} = \frac{\frac{1}{2}\int_{a}^{b} [f^{2}(x)-g^{2}(x)]\mathrm{d}x}{\int_{a}^{b} [f(x)-g(x)]\mathrm{d}x}\)
-\end{conclusion}
+计算时先按普通积分算，再取极限。例如
+\[
+  \int_1^{+\infty}\frac{\mathrm{d}x}{x^2}
+  =\lim_{b\to+\infty}\left(1-\frac1b\right)=1,
+\]
+\[
+  \int_0^1\frac{\mathrm{d}x}{\sqrt{x}}
+  =\lim_{\varepsilon\to0^+}2(1-\sqrt{\varepsilon})=2.
+\]
+第一个是无穷区间，第二个是瑕积分，两者都收敛。
 
-\begin{conclusion}{函数在区间上的平均值}{average value of function on interval}
-    函数\(f(x)\)在\([a,b]\)上的\textbf{平均值}：\\
-    \(\displaystyle \bar{f} = \frac{1}{b-a}\int_{a}^{b} f(x)\mathrm{d}x\)\\
-    \boxed{\text{注}} 积分中值定理：若\(f\)在\([a,b]\)上连续，则\(\exists \xi \in [a,b]\)使得\\
-    \(\displaystyle f(\xi) = \frac{1}{b-a}\int_{a}^{b} f(x)\mathrm{d}x = \bar{f}\)\\
-    \textbf{均方根}：\(\displaystyle f_{\text{rms}} = \sqrt{\frac{1}{b-a}\int_{a}^{b} f^{2}(x)\mathrm{d}x}\)
-\end{conclusion}
+\noindent\textbf{\(p\)-积分。} 这两组结论要记牢：
+\[
+  \int_1^{+\infty}\frac{\mathrm{d}x}{x^p}
+  \ \begin{cases}
+    \text{收敛}, & p>1,\\[2pt]
+    \text{发散}, & p\le1;
+  \end{cases}
+  \qquad
+  \int_0^1\frac{\mathrm{d}x}{x^p}
+  \ \begin{cases}
+    \text{收敛}, & p<1,\\[2pt]
+    \text{发散}, & p\ge1.
+  \end{cases}
+\]
+无穷远处要求 \(p>1\)，因为 \(\int_1^b x^{-p}\mathrm{d}x\) 在 \(p\ne1\) 时等于 \(\frac{b^{1-p}-1}{1-p}\)，只有 \(1-p<0\) 才有有限极限。瑕点处方向相反：\(p<1\) 时 \(x^{-p}\) 靠 \(0\) 增长得不够快，面积仍然有限。
 
 \begin{center}
 \begin{tikzpicture}
-\begin{axis}[width=0.8\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-0.05, xmax=2.15, ymin=-0.05, ymax=5.4,
-  xtick={0,0.5,1,1.5,2}, ytick={1,2,3,4,5},
-  domain=0:2, samples=160, font=\footnotesize,
-  legend pos=north west]
-\addplot[fill=blue!12,draw=blue,thick] {x^2+1} \closedcycle;
-\addlegendentry{$y=f(x)=x^2+1$}
-\addplot[red!70!black,thick,dashed] {2.3333};
-\addlegendentry{$y=\bar f=\frac{1}{b-a}\int_a^b f=\frac{7}{3}$}
-\draw[red!70!black,thin] (axis cs:0,0) rectangle (axis cs:2,2.3333);
-\addplot[only marks,mark=*,red] coordinates {(1.1547,2.3333)};
-\node[font=\scriptsize,red!70!black] at (axis cs:1.4,2.5){$\xi$};
+\begin{axis}[width=0.82\linewidth, height=5.5cm,
+  xlabel={\(R\)}, ylabel={\(\displaystyle\int_1^R\frac{\mathrm{d}x}{x^p}\)},
+  xmin=0.8, xmax=9, ymin=0, ymax=4.4,
+  xtick={1,2,4,6,8}, ytick={1,2,3,4},
+  domain=1:9, samples=160, font=\footnotesize,
+  legend pos=north west,
+  legend style={font=\scriptsize, draw=black!40}]
+\addplot[red,thick] {2*(sqrt(x)-1)};
+\addlegendentry{\(p=\frac12\)}
+\addplot[blue,thick] {ln(x)};
+\addlegendentry{\(p=1\)}
+\addplot[green!50!black,thick] {1-1/x};
+\addlegendentry{\(p=2\)}
+\draw[dashed,gray!70] (axis cs:1,1)--(axis cs:9,1);
+\node[font=\scriptsize,gray!70!black,anchor=south east] at (axis cs:8.9,1.02) {\(1\)};
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\centerline{\footnotesize 曲线下方面积等于高为 $\bar f$ 的矩形面积，存在 $\xi\in[a,b]$ 使 $f(\xi)=\bar f$（积分中值定理）。}
-\subsection{其他技巧}
-\noindent\textbf{拓展阅读：}Beta 函数与 Gamma 函数不作为现行考研数学一的独立考点；下列内容仅用于拓宽特殊积分的统一视角，主线备考仍应优先掌握换元法、分部积分法和反常积分判敛。
+\nopagebreak[4]\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 纵轴是“从 \(1\) 积到 \(R\) 已经累积的面积”，不是 \(1/x^p\) 本身。\(p=\frac12\) 的曲线一路往上，\(p=1\) 的曲线增长越来越慢但没有上界，只有 \(p=2\) 的曲线停在 \(1\)。三条曲线起点相同，尾部行为却完全不同。}}
 
-\begin{formula}{Beta函数}{Beta-function}
-    \(\mathrm{B}(p,q) = \displaystyle\int_{0}^{1} x^{p-1}(1-x)^{q-1}\mathrm{d}x \quad (p>0, q>0)\)\\
-    \textbf{基本性质}：
-    \begin{enumerate}
-        \item 对称性：\(\mathrm{B}(p,q) = \mathrm{B}(q,p)\)
-        \item 与Gamma函数的关系：\(\displaystyle \mathrm{B}(p,q) = \frac{\Gamma(p)\Gamma(q)}{\Gamma(p+q)}\)
-        \item 递推公式：\(\mathrm{B}(p,q) = \frac{p-1}{p+q-1}\mathrm{B}(p-1,q) \quad (p>1)\)
-        \item \(\mathrm{B}(p,q) = 2\displaystyle\int_{0}^{\pi/2} \sin^{2p-1}\theta \cos^{2q-1}\theta\,\mathrm{d}\theta\)
-    \end{enumerate}
-\end{formula}
+\noindent\textbf{比较判别法。} 设 \(f,g\) 在 \([a,+\infty)\) 上非负，且 \(0\le f(x)\le g(x)\)。若 \(\int_a^{+\infty}g\) 收敛，则 \(\int_a^{+\infty}f\) 也收敛；若 \(\int_a^{+\infty}f\) 发散，则 \(\int_a^{+\infty}g\) 也发散。直观上，大的收敛，小的必然收敛；小的发散，大的必然发散。
 
-\begin{formula}{Gamma函数}{gamma-function}
-    \(\Gamma(s) = \displaystyle\int_{0}^{+\infty} x^{s-1}e^{-x}\mathrm{d}x \quad (s>0)\)\\
-    \textbf{基本性质}：
-    \begin{enumerate}
-        \item 递推公式：\(\Gamma(s+1) = s\Gamma(s)\)
-        \item \(\Gamma(n+1) = n! \quad (n \in \mathbb{N})\)，故Gamma函数是阶乘的推广
-        \item \(\Gamma(1) = 1,\quad \Gamma\!\left(\frac{1}{2}\right) = \sqrt{\pi}\)
-        \item \(\Gamma(s)\Gamma(1-s) = \dfrac{\pi}{\sin(\pi s)} \quad (0<s<1)\)（余元公式）
-        \item \(\Gamma(s)\Gamma\!\left(s+\frac{1}{2}\right) = \dfrac{\sqrt{\pi}}{2^{2s-1}}\Gamma(2s)\)（倍元公式）
-        \item \(\displaystyle\int_{0}^{+\infty} x^{n}e^{-x^{2}}\mathrm{d}x = \frac{1}{2}\Gamma\!\left(\frac{n+1}{2}\right)\)
-    \end{enumerate}
-\end{formula}
+极限形式更好用。若
+\[
+  \lim_{x\to+\infty}\frac{f(x)}{g(x)}=l,
+\]
+则：
+\begin{itemize}
+  \item \(0<l<+\infty\) 时，两个积分同敛散；
+  \item \(l=0\) 且 \(\int g\) 收敛时，\(\int f\) 收敛；
+  \item \(l=+\infty\) 且 \(\int g\) 发散时，\(\int f\) 发散。
+\end{itemize}
+把 \(g\) 取成 \(1/x^p\)，就得到常用的“抓主部”做法：只看 \(x\to+\infty\) 时 \(f\) 的等价阶。瑕点处把 \(x\to+\infty\) 换成 \(x\to a^+\)，基准换成 \(1/(x-a)^p\)。
+
+\noindent\textbf{两个提醒。}
+\begin{itemize}
+  \item 奇偶性不能直接用在发散的对称积分上。\(\int_{-\infty}^{+\infty}x\,\mathrm{d}x\) 不是 \(0\)，它按定义发散，因为 \(\int_0^{+\infty}x\,\mathrm{d}x\) 发散。
+  \item 若 \(\int_a^{+\infty}|f|\) 收敛，则 \(\int_a^{+\infty}f\) 收敛，这叫绝对收敛；反过来不成立，例如 \(\int_1^{+\infty}\frac{\sin x}{x}\mathrm{d}x\) 收敛，但加上绝对值后发散。
+\end{itemize}
+
+%========================================================
+\subsection{定积分的几何应用}
+
+定积分处理几何量，靠的是“微元法”。在小区间 \([x,x+\mathrm{d}x]\) 上，把变化的量当成不变的，写出微元 \(\mathrm{d}U\)，再积分：
+\[
+  U=\int_a^b \mathrm{d}U .
+\]
+微元必须满足：它与真实增量之差是 \(\mathrm{d}x\) 的高阶无穷小。下面几个公式都是这个思路的具体化。
+
+\noindent\textbf{面积（直角坐标）。} 若在 \([a,b]\) 上 \(f(x)\ge g(x)\)，两条曲线之间的面积为
+\[
+  A=\int_a^b\bigl[f(x)-g(x)\bigr]\mathrm{d}x .
+\]
+若上下位置会互换，就写 \(A=\int_a^b|f(x)-g(x)|\mathrm{d}x\)，或者先求出交点，分段积分。
+
+\noindent\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}[scale=3.5,font=\footnotesize]
+\draw[->] (-0.04,0)--(1.14,0) node[right] {\(x\)};
+\draw[->] (0,-0.04)--(0,1.14) node[above] {\(y\)};
+\fill[orange!25]
+  plot[domain=0:1,smooth,samples=70] (\x,\x)
+  -- plot[domain=1:0,smooth,samples=70] (\x,{\x*\x})
+  -- cycle;
+\draw[thick,blue] plot[domain=0:1,smooth,samples=80] (\x,\x);
+\draw[thick,red] plot[domain=0:1,smooth,samples=80] (\x,{\x*\x});
+\node[blue,above left] at (0.47,0.47) {\(y=x\)};
+\node[red,below right] at (0.82,0.62) {\(y=x^2\)};
+\draw[<->] (0.55,0.3025)--(0.55,0.55);
+\node[below left] at (0,0) {\(O\)};
+\node[above left] at (1,1) {\((1,1)\)};
+\fill (1,1) circle (1.1pt);
+\end{tikzpicture}\\[2pt]
+\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 阴影区域夹在 \(y=x\) 与 \(y=x^2\) 之间。竖着切一刀，宽度是 \(\mathrm{d}x\)，高是上面曲线减下面曲线。两条曲线交于 \((0,0)\) 与 \((1,1)\)，所以积分限是 \(0\) 和 \(1\)。这里 \(A=\int_0^1(x-x^2)\mathrm{d}x=\frac16\)。}
+\end{minipage}
+
+\noindent\textbf{面积（极坐标）。} 曲线 \(r=r(\theta)\) 与两条射线 \(\theta=\alpha,\ \theta=\beta\) 围成的扇形面积为
+\[
+  A=\frac12\int_\alpha^\beta r^2(\theta)\,\mathrm{d}\theta .
+\]
+原因是一个小扇形的面积约为 \(\frac12r^2\Delta\theta\)：半径 \(r\) 的圆面积为 \(\pi r^2\)，占整圆的比例是 \(\Delta\theta/(2\pi)\)。
+
+\begin{center}
+\begin{tikzpicture}[scale=1.7,font=\footnotesize]
+\draw[->] (-0.2,0)--(2.9,0) node[right] {\(x\)};
+\draw[->] (0,-0.2)--(0,2.6) node[above] {\(y\)};
+\fill[orange!22] (0,0)--(20:2.35) arc (20:65:2.35)--cycle;
+\draw[thick,blue] (20:2.35) arc (20:65:2.35);
+\draw[thick,blue] (0,0)--(20:2.35);
+\draw[thick,blue] (0,0)--(65:2.35);
+\draw[<->] (27:0.55) arc (27:58:0.55);
+\node[font=\scriptsize] at (42:0.83) {\(\Delta\theta\)};
+\node[font=\scriptsize,blue!60!black] at (42:1.25) {\(\Delta A\)};
+\node[font=\scriptsize,blue!60!black,fill=white,inner sep=1pt,above right] at (65:1.65) {\(r(\theta)\)};
+\fill (0,0) circle (1pt);
+\end{tikzpicture}
+\end{center}
+\nopagebreak[4]\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 阴影是一个很小的扇形：两条射线夹角 \(\Delta\theta\)，半径近似为常数 \(r(\theta)\)。它的面积约为 \(\frac12r^2\Delta\theta\)。把所有小扇形加起来并令 \(\Delta\theta\to0\)，就得到 \(\frac12\int r^2\mathrm{d}\theta\)。}}
+\vspace{0.45em}
+
+\noindent\textbf{体积。} 若垂直于 \(x\) 轴的截面面积为 \(A(x)\)，则
+\[
+  V=\int_a^b A(x)\,\mathrm{d}x .
+\]
+旋转体有两个常用算法。设 \(f(x)\ge0\)。区域 \(0\le y\le f(x)\)、\(a\le x\le b\) 绕 \(x\) 轴旋转，切片是半径 \(f(x)\) 的圆盘：
+\[
+  V=\pi\int_a^b[f(x)]^2\,\mathrm{d}x .
+\]
+同一区域绕 \(y\) 轴旋转（要求 \(0\le a<b\)），竖条扫出薄柱壳。柱壳半径 \(x\)，高 \(f(x)\)，厚 \(\mathrm{d}x\)，展开后体积约为 \(2\pi x f(x)\mathrm{d}x\)，所以
+\[
+  V=2\pi\int_a^b xf(x)\,\mathrm{d}x .
+\]
+若区域夹在 \(0\le g(x)\le f(x)\) 之间（此时自动有 \(f\ge0\)），绕 \(x\) 轴旋转用垫圈法：
+\[
+  V=\pi\int_a^b\left([f(x)]^2-[g(x)]^2\right)\mathrm{d}x .
+\]
+
+\noindent\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}[scale=0.9,font=\footnotesize]
+% 圆盘法
+\begin{scope}
+  \draw[->] (0,-1.25)--(0,2.0) node[above] {\(y\)};
+  \draw[->] (0,0)--(4.4,0) node[right] {\(x\)};
+  \draw[thick,blue,domain=0:3.9,samples=80] plot (\x,{1.25-0.16*\x});
+  \fill[blue!12] (0,0)--plot[domain=0:3.9,samples=80] (\x,{1.25-0.16*\x})--(3.9,0)--cycle;
+  \def\xd{2.0}
+  \pgfmathsetmacro{\fd}{1.25-0.16*2.0}
+  \fill[orange!30] (\xd,0) rectangle ++(0.2,\fd);
+  \draw[orange!80!black] (\xd,0) rectangle ++(0.2,\fd);
+  \draw[thick,red] (\xd+0.1,0) ellipse [x radius=0.14, y radius=\fd];
+  \draw[dashed,red] (\xd+0.1,-\fd)--(\xd+0.1,\fd);
+  \node[font=\scriptsize,below] at (\xd+0.1,0) {\(\mathrm{d}x\)};
+  \node[font=\scriptsize,red,anchor=west] at (\xd+0.3,1.18) {\(f(x)\)};
+  \node[font=\scriptsize] at (2.0,-1.02) {(a) 圆盘法};
+\end{scope}
+% 柱壳法
+\begin{scope}[xshift=6.6cm]
+  \draw[->] (-2.4,0)--(2.6,0) node[right] {\(x\)};
+  \draw[->] (0,-0.35)--(0,2.4) node[above] {\(y\)};
+  \def\rr{1.2}
+  \def\hh{1.65}
+  \fill[orange!30] (\rr,0) rectangle ++(0.18,\hh);
+  \draw[orange!80!black] (\rr,0) rectangle ++(0.18,\hh);
+  \draw[thick,red] (0,0) ellipse [x radius=\rr, y radius=0.2];
+  \draw[thick,red] (0,\hh) ellipse [x radius=\rr, y radius=0.2];
+  \draw[thick,red] (-\rr,0)--(-\rr,\hh);
+  \draw[thick,red] (\rr,0)--(\rr,\hh);
+  \draw[dashed,red] (0,0)--(\rr,0);
+  \node[font=\scriptsize,above] at (0.55,0.02) {\(x\)};
+  \draw[<->] (\rr+0.35,0)--(\rr+0.35,\hh)
+    node[midway,right,font=\scriptsize] {\(f(x)\)};
+  \node[font=\scriptsize,anchor=west] at (\rr+0.28,\hh+0.18) {厚 \(\mathrm{d}x\)};
+  \node[font=\scriptsize] at (0,-0.95) {(b) 柱壳法};
+\end{scope}
+\end{tikzpicture}\\[2pt]
+\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize (a) 竖条绕 \(x\) 轴转一圈，得到一个薄圆盘，半径是曲线的高 \(f(x)\)，厚度是 \(\mathrm{d}x\)，体积微元 \(\pi f(x)^2\mathrm{d}x\)。(b) 同一竖条绕 \(y\) 轴转一圈，得到圆柱薄壳，半径是 \(x\)，高是 \(f(x)\)，展开后是长 \(2\pi x\)、高 \(f(x)\)、厚 \(\mathrm{d}x\) 的长方体。两种算法算的是同一个体积，选切片容易的那个。}
+\end{minipage}
+
+\noindent\textbf{弧长。} 在曲线 \(y=f(x)\) 上取一小段，横向增量 \(\Delta x\)，纵向增量 \(\Delta y\)。弦长
+\[
+  \Delta s=\sqrt{(\Delta x)^2+(\Delta y)^2}
+  =\sqrt{1+\left(\frac{\Delta y}{\Delta x}\right)^2}\Delta x .
+\]
+令 \(\Delta x\to0\)，得弧微分
+\[
+  \mathrm{d}s=\sqrt{1+[f'(x)]^2}\,\mathrm{d}x,
+\]
+从而
+\[
+  L=\int_a^b\sqrt{1+[f'(x)]^2}\,\mathrm{d}x .
+\]
+参数方程 \(x=x(t),\ y=y(t)\) 下，
+\[
+  L=\int_\alpha^\beta\sqrt{[x'(t)]^2+[y'(t)]^2}\,\mathrm{d}t .
+\]
+极坐标 \(r=r(\theta)\) 下，由 \(x=r\cos\theta,\ y=r\sin\theta\) 可得
+\[
+  L=\int_\alpha^\beta\sqrt{r^2(\theta)+[r'(\theta)]^2}\,\mathrm{d}\theta .
+\]
+
+\begin{center}
+\begin{tikzpicture}[scale=2.8,font=\footnotesize]
+\draw[->] (-0.1,0)--(3.35,0) node[right] {\(x\)};
+\draw[->] (0,-0.1)--(0,2.25) node[above] {\(y\)};
+\draw[thick,blue,domain=0.15:3.05,samples=140]
+  plot (\x,{1.0+0.45*sin(deg(1.25*\x))});
+\draw[red,thick] (0.15,{1.0+0.45*sin(deg(1.25*0.15))})
+  -- (0.75,{1.0+0.45*sin(deg(1.25*0.75))})
+  -- (1.3,{1.0+0.45*sin(deg(1.25*1.3))})
+  -- (1.9,{1.0+0.45*sin(deg(1.25*1.9))})
+  -- (2.45,{1.0+0.45*sin(deg(1.25*2.45))})
+  -- (3.05,{1.0+0.45*sin(deg(1.25*3.05))});
+\foreach \xx in {0.15,0.75,1.3,1.9,2.45,3.05}{
+  \fill[red] (\xx,{1.0+0.45*sin(deg(1.25*\xx))}) circle (1.1pt);
+}
+\pgfmathsetmacro{\yA}{1.0+0.45*sin(deg(1.25*1.3))}
+\pgfmathsetmacro{\yB}{1.0+0.45*sin(deg(1.25*1.9))}
+\draw[dashed,black!55] (1.3,\yA)--(1.9,\yA)--(1.9,\yB);
+\node[above,font=\footnotesize,fill=white,inner sep=1pt] at (1.6,\yA) {\(\Delta x\)};
+\node[right,font=\footnotesize,fill=white,inner sep=1pt] at (1.93,{(\yA+\yB)/2}) {\(\Delta y\)};
+\end{tikzpicture}
+\end{center}
+\nopagebreak[4]\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 红线是用折线逼近曲线：每条弦连接相邻两个采样点。把其中一段放大，横向差是 \(\Delta x\)，纵向差是 \(\Delta y\)，弦长是 \(\Delta s=\sqrt{\Delta x^2+\Delta y^2}\)。折线总长随采样加密趋于曲线长度，这就是弧长公式的来源。}}
+
+例如 \(y=x^{3/2}\) 在 \([0,1]\) 上，\(y'=\frac32\sqrt{x}\)，于是
+\[
+  L=\int_0^1\sqrt{1+\frac94x}\,\mathrm{d}x
+  =\frac{8}{27}\left(1+\frac94x\right)^{3/2}\Bigg|_0^1
+  =\frac{13\sqrt{13}-8}{27}.
+\]
 
 \newpage
-\section{习题}
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（计算题）} 计算下列不定积分：
-\[
-\int \left(x^{3} + \frac{1}{x^{2}} + e^{x} + \cos x\right)\mathrm{d}x.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 利用基本积分公式逐项积分：
-\[
-\begin{aligned}
-\int x^{3}\mathrm{d}x &= \frac{x^{4}}{4} + C_1,\quad
-\int \frac{1}{x^{2}}\mathrm{d}x = \int x^{-2}\mathrm{d}x = -\frac{1}{x} + C_2,\\[4pt]
-\int e^{x}\mathrm{d}x &= e^{x} + C_3,\quad
-\int \cos x\,\mathrm{d}x = \sin x + C_4.
-\end{aligned}
-\]
-故
-\[
-\int \left(x^{3} + \frac{1}{x^{2}} + e^{x} + \cos x\right)\mathrm{d}x = \frac{x^{4}}{4} - \frac{1}{x} + e^{x} + \sin x + C.
-\]
-
-\boxed{\textbf{注}} 不定积分中的任意常数 $C$ 是各分项积分常数合并所得，只需写出一个 $C$ 即可。
-
-\else \answerarea \fi%
-\item \textbf{（计算题，凑微分法）} 求不定积分 $\displaystyle\int \frac{x}{\sqrt{1+x^{2}}}\,\mathrm{d}x$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 令 $u = 1 + x^{2}$，则 $\mathrm{d}u = 2x\,\mathrm{d}x$，即 $x\,\mathrm{d}x = \frac{1}{2}\mathrm{d}u$。于是
-\[
-\int \frac{x}{\sqrt{1+x^{2}}}\,\mathrm{d}x = \int \frac{1}{\sqrt{u}} \cdot \frac{1}{2}\,\mathrm{d}u
-= \frac{1}{2}\int u^{-1/2}\mathrm{d}u
-= \frac{1}{2} \cdot 2u^{1/2} + C
-= \sqrt{1+x^{2}} + C.
-\]
-
-\boxed{\textbf{另解（凑微分法）}} 注意到 $\mathrm{d}(1+x^{2}) = 2x\,\mathrm{d}x$，则
-\[
-\int \frac{x}{\sqrt{1+x^{2}}}\,\mathrm{d}x
-= \frac{1}{2}\int \frac{\mathrm{d}(1+x^{2})}{\sqrt{1+x^{2}}}
-= \frac{1}{2}\int (1+x^{2})^{-1/2}\,\mathrm{d}(1+x^{2})
-= \sqrt{1+x^{2}} + C.
-\]
-
-\else \answerarea \fi%
-\item \textbf{（计算题，分部积分法）} 计算定积分 $\displaystyle\int_{0}^{1} x e^{x}\,\mathrm{d}x$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 用分部积分法，按 LIATE 法则，令 $u = x$，$\mathrm{d}v = e^{x}\mathrm{d}x$，则 $\mathrm{d}u = \mathrm{d}x$，$v = e^{x}$。
-\[
-\begin{aligned}
-\int_{0}^{1} x e^{x}\,\mathrm{d}x
-&= \Bigl.x e^{x}\Bigr|_{0}^{1} - \int_{0}^{1} e^{x}\,\mathrm{d}x \\
-&= (1 \cdot e^{1} - 0 \cdot e^{0}) - \Bigl.e^{x}\Bigr|_{0}^{1} \\
-&= e - (e - 1) = 1.
-\end{aligned}
-\]
-
-\boxed{\textbf{注}} 定积分的分部积分公式为 $\displaystyle\int_{a}^{b} u\,\mathrm{d}v = uv\big|_{a}^{b} - \int_{a}^{b} v\,\mathrm{d}u$，注意上下限同时带入 $uv$ 项。
-
-\else \answerarea \fi%
-\item \textbf{（计算题，定积分换元）} 计算 $\displaystyle\int_{0}^{\pi} \sin^{3}x\,\mathrm{d}x$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 将 $\sin^{3}x = \sin^{2}x \cdot \sin x = (1 - \cos^{2}x)\sin x$，则
-\[
-\int_{0}^{\pi} \sin^{3}x\,\mathrm{d}x = \int_{0}^{\pi} (1 - \cos^{2}x)\sin x\,\mathrm{d}x.
-\]
-令 $t = \cos x$，则 $\mathrm{d}t = -\sin x\,\mathrm{d}x$，积分限变为 $x=0 \Rightarrow t=1$，$x=\pi \Rightarrow t=-1$。
-\[
-\begin{aligned}
-\int_{0}^{\pi} \sin^{3}x\,\mathrm{d}x
-&= \int_{0}^{\pi} (1 - \cos^{2}x)\sin x\,\mathrm{d}x
-= -\int_{1}^{-1} (1 - t^{2})\,\mathrm{d}t \\
-&= \int_{-1}^{1} (1 - t^{2})\,\mathrm{d}t
-= 2\int_{0}^{1} (1 - t^{2})\,\mathrm{d}t \quad (\text{被积函数为偶函数})\\
-&= 2\left[t - \frac{t^{3}}{3}\right]_{0}^{1}
-= 2\left(1 - \frac{1}{3}\right) = \frac{4}{3}.
-\end{aligned}
-\]
-
-\boxed{\textbf{注}} 此处利用了对称区间上偶函数的积分性质简化计算。也可直接换元不化简：$\int_{-1}^{1} (1-t^{2})\mathrm{d}t = [t - t^{3}/3]_{-1}^{1} = (1-1/3) - (-1+1/3) = 4/3$。
-
-\else \answerarea \fi%
-\item \textbf{（计算题）} 求不定积分 $\displaystyle\int x\arctan x\,\mathrm{d}x$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 按 LIATE 法则，反三角函数优先于幂函数，故令
-\[
-u = \arctan x,\quad \mathrm{d}v = x\,\mathrm{d}x,
-\]
-则
-\[
-\mathrm{d}u = \frac{1}{1+x^{2}}\mathrm{d}x,\quad v = \frac{x^{2}}{2}.
-\]
-由分部积分公式 $\int u\,\mathrm{d}v = uv - \int v\,\mathrm{d}u$：
-\[
-\begin{aligned}
-\int x\arctan x\,\mathrm{d}x
-&= \frac{x^{2}}{2}\arctan x - \int \frac{x^{2}}{2} \cdot \frac{1}{1+x^{2}}\,\mathrm{d}x \\
-&= \frac{x^{2}}{2}\arctan x - \frac{1}{2}\int \frac{x^{2}}{1+x^{2}}\,\mathrm{d}x.
-\end{aligned}
-\]
-注意到 $\displaystyle\frac{x^{2}}{1+x^{2}} = 1 - \frac{1}{1+x^{2}}$，故
-\[
-\begin{aligned}
-\int \frac{x^{2}}{1+x^{2}}\,\mathrm{d}x
-&= \int \left(1 - \frac{1}{1+x^{2}}\right)\mathrm{d}x
-= x - \arctan x + C_1.
-\end{aligned}
-\]
-代回：
-\[
-\int x\arctan x\,\mathrm{d}x
-= \frac{x^{2}}{2}\arctan x - \frac{1}{2}(x - \arctan x) + C
-= \frac{x^{2}+1}{2}\arctan x - \frac{x}{2} + C.
-\]
-
-\else \answerarea \fi%
-\item \textbf{（填空题）} 反常积分 $\displaystyle\int_{1}^{+\infty} \frac{1}{x^{p}}\mathrm{d}x$ 当且仅当 $\underline{\qquad}$ 时收敛；反常积分 $\displaystyle\int_{0}^{1} \frac{1}{x^{p}}\mathrm{d}x$ 当且仅当 $\underline{\qquad}$ 时收敛。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 填：$p > 1$；$p < 1$。
-
-这是经典的 $\bm{p}$-积分结论，务必牢记：
-\begin{itemize}
-    \item $\displaystyle\int_{1}^{+\infty} \frac{1}{x^{p}}\mathrm{d}x$：当 $p > 1$ 时收敛，且 $\displaystyle\int_{1}^{+\infty} \frac{1}{x^{p}}\mathrm{d}x = \frac{1}{p-1}$；当 $p \leqslant 1$ 时发散。
-    \item $\displaystyle\int_{0}^{1} \frac{1}{x^{p}}\mathrm{d}x$（瑕积分，$x=0$ 为瑕点）：当 $p < 1$ 时收敛，且 $\displaystyle\int_{0}^{1} \frac{1}{x^{p}}\mathrm{d}x = \frac{1}{1-p}$；当 $p \geqslant 1$ 时发散。
-\end{itemize}
-两者正好"互补"：无穷区间上 $p$ 要大（$>1$），瑕积分处 $p$ 要小（$<1$）。这一对结论是反常积分比较判别法的基准，必须牢牢掌握。
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{综合提高题}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（计算题，有理函数积分）} 求不定积分 $\displaystyle\int \frac{1}{x^{3}+1}\,\mathrm{d}x$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 首先对分母作因式分解：
-\[
-x^{3}+1 = (x+1)(x^{2}-x+1).
-\]
-设部分分式分解为
-\[
-\frac{1}{x^{3}+1} = \frac{A}{x+1} + \frac{Bx+C}{x^{2}-x+1}.
-\]
-通分比较分子：
-\[
-1 = A(x^{2}-x+1) + (Bx+C)(x+1).
-\]
-令 $x = -1$：$1 = A(1+1+1) = 3A$，故 $A = \frac{1}{3}$。
-
-展开比较系数或代入其他值：
-\[
-1 = \frac{1}{3}(x^{2}-x+1) + (Bx+C)(x+1).
-\]
-取 $x = 0$：$1 = \frac{1}{3} \cdot 1 + C \cdot 1 = \frac{1}{3} + C$，故 $C = \frac{2}{3}$。
-
-取 $x = 1$：$1 = \frac{1}{3}(1-1+1) + (B\cdot 1 + \frac{2}{3}) \cdot 2 = \frac{1}{3} + 2B + \frac{4}{3} = 2B + \frac{5}{3}$，
-解得 $2B = 1 - \frac{5}{3} = -\frac{2}{3}$，故 $B = -\frac{1}{3}$。
-
-因此
-\[
-\frac{1}{x^{3}+1} = \frac{1/3}{x+1} + \frac{-\frac{1}{3}x + \frac{2}{3}}{x^{2}-x+1}
-= \frac{1}{3}\cdot\frac{1}{x+1} - \frac{1}{3}\cdot\frac{x-2}{x^{2}-x+1}.
-\]
-
-逐项积分：
-\[
-\int \frac{1}{x+1}\,\mathrm{d}x = \ln|x+1| + C_1.
-\]
-
-对第二项，将分子凑成与分母导数相关的形式。分母 $x^{2}-x+1$ 的导数为 $2x-1$，而 $x-2 = \frac{1}{2}[(2x-1) - 3]$：
-\[
-\begin{aligned}
-\int \frac{x-2}{x^{2}-x+1}\,\mathrm{d}x
-&= \frac{1}{2}\int \frac{2x-1}{x^{2}-x+1}\,\mathrm{d}x - \frac{3}{2}\int \frac{1}{x^{2}-x+1}\,\mathrm{d}x.
-\end{aligned}
-\]
-
-第一项：$\displaystyle\int \frac{2x-1}{x^{2}-x+1}\,\mathrm{d}x = \ln|x^{2}-x+1| + C$（凑微分）。
-
-第二项：配方 $x^{2}-x+1 = \left(x-\frac{1}{2}\right)^{2} + \frac{3}{4} = \left(x-\frac{1}{2}\right)^{2} + \left(\frac{\sqrt{3}}{2}\right)^{2}$，
-\[
-\begin{aligned}
-\int \frac{\mathrm{d}x}{x^{2}-x+1}
-&=\int\frac{\mathrm{d}x}{(x-\frac12)^2+(\frac{\sqrt3}{2})^2}\\
-&=\frac{2}{\sqrt3}\arctan\frac{2x-1}{\sqrt3}+C.
-\end{aligned}
-\]
-
-综上，
-\[
-\begin{aligned}
-\int \frac{\mathrm{d}x}{x^{3}+1}
-&=\frac13\ln|x+1|-\frac16\ln|x^2-x+1|\\
-&\quad+\frac1{\sqrt3}\arctan\frac{2x-1}{\sqrt3}+C.
-\end{aligned}
-\]
-
-\boxed{\textbf{注}} 此题系统展示了有理函数积分的标准流程：因式分解 $\to$ 待定系数法作部分分式 $\to$ 逐项积分。其中二次三项式分母的处理（配方 + $\arctan$ / $\ln$）是考研高频考点。
-
-\else \answerarea \fi%
-\item \textbf{（计算题，三角有理式积分）} 计算 $\displaystyle\int_{0}^{\pi/2} \sin^{4}x\cos^{2}x\,\mathrm{d}x$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 方法一（降幂化为 $\sin^{n}x$ 积分）：利用 $\cos^{2}x = 1 - \sin^{2}x$，
-\[
-\begin{aligned}
-\int_{0}^{\pi/2} \sin^{4}x\cos^{2}x\,\mathrm{d}x
-&= \int_{0}^{\pi/2} \sin^{4}x(1-\sin^{2}x)\,\mathrm{d}x \\
-&= \int_{0}^{\pi/2} (\sin^{4}x - \sin^{6}x)\,\mathrm{d}x.
-\end{aligned}
-\]
-
-由 Wallis 公式，$\displaystyle I_n = \int_{0}^{\pi/2} \sin^{n}x\,\mathrm{d}x$ 有
-\[
-I_n =
-\begin{cases}
-\dfrac{(n-1)!!}{n!!}, & n \text{ 为奇数},\\[10pt]
-\dfrac{(n-1)!!}{n!!}\cdot\dfrac{\pi}{2}, & n \text{ 为偶数}.
-\end{cases}
-\]
-
-其中双阶乘：$(2k)!! = 2 \cdot 4 \cdots (2k)$，$(2k-1)!! = 1 \cdot 3 \cdots (2k-1)$。
-
-计算：
-\[
-I_4 = \frac{3!!}{4!!}\cdot\frac{\pi}{2} = \frac{3\cdot 1}{4\cdot 2}\cdot\frac{\pi}{2} = \frac{3\pi}{16},
-\quad
-I_6 = \frac{5!!}{6!!}\cdot\frac{\pi}{2} = \frac{5\cdot 3\cdot 1}{6\cdot 4\cdot 2}\cdot\frac{\pi}{2} = \frac{5\pi}{32}.
-\]
-
-故
-\[
-\int_{0}^{\pi/2} \sin^{4}x\cos^{2}x\,\mathrm{d}x = I_4 - I_6 = \frac{3\pi}{16} - \frac{5\pi}{32} = \frac{\pi}{32}.
-\]
-
-\boxed{\textbf{另解（直接使用 Wallis 推广公式）}} 对于 $\displaystyle\int_{0}^{\pi/2} \sin^{m}x\cos^{n}x\,\mathrm{d}x$，当 $m,n$ 均为偶数时：
-\[
-\int_{0}^{\pi/2} \sin^{m}x\cos^{n}x\,\mathrm{d}x
-= \frac{(m-1)!!\,(n-1)!!}{(m+n)!!}\cdot\frac{\pi}{2}.
-\]
-代入 $m=4$，$n=2$：
-\[
-\frac{3!! \cdot 1!!}{6!!}\cdot\frac{\pi}{2}
-= \frac{3 \cdot 1}{6\cdot 4\cdot 2}\cdot\frac{\pi}{2}
-= \frac{3}{48}\cdot\frac{\pi}{2} = \frac{\pi}{32}.
-\]
-
-\boxed{\textbf{注}} Wallis 公式（点火公式）是计算 $[0,\pi/2]$ 上 $\sin$、$\cos$ 幂次积分的高效工具，务必熟练掌握其使用条件（$m,n$ 的奇偶性决定是否乘以 $\pi/2$）。
-
-\else \answerarea \fi%
-\item \textbf{（判断题，反常积分收敛性）} 讨论反常积分 $\displaystyle\int_{1}^{+\infty} \frac{\ln x}{x^{p}}\,\mathrm{d}x$ 的收敛性（其中 $p$ 为实常数）。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 以 $\displaystyle\int_{1}^{+\infty} \frac{1}{x^{q}}\mathrm{d}x$ 为比较基准（$p$-积分）。
-
-当 $x \to +\infty$ 时，对任意 $\varepsilon > 0$，有 $\ln x = o(x^{\varepsilon})$。因此
-\[
-\frac{\ln x}{x^{p}} = O\!\left(\frac{1}{x^{p-\varepsilon}}\right) \quad (x \to +\infty).
-\]
-
-\textbf{情形分析：}
-\begin{enumerate}
-    \item 当 $p > 1$ 时，取 $\varepsilon \in (0, p-1)$，则 $p - \varepsilon > 1$，因此 $\displaystyle\int_{1}^{+\infty} \frac{1}{x^{p-\varepsilon}}\mathrm{d}x$ 收敛（$p$-积分）。由比较判别法的极限形式（取 $l=0$），原积分\textbf{收敛}。
-    
-    \item 当 $p = 1$ 时，$\displaystyle\int_{1}^{+\infty} \frac{\ln x}{x}\mathrm{d}x$。直接计算：
-    \[
-    \int_{1}^{b} \frac{\ln x}{x}\mathrm{d}x = \int_{0}^{\ln b} u\,\mathrm{d}u = \frac{(\ln b)^{2}}{2} \to +\infty \quad (b \to +\infty),
-    \]
-    故\textbf{发散}。
-    
-    \item 当 $p < 1$ 时，取 $p < q < 1$，则当 $x$ 充分大时 $\displaystyle\frac{\ln x}{x^{p}} > \frac{1}{x^{q}}$（因为 $\ln x$ 增长比任意幂次慢，但比常数大）。$\displaystyle\int_{1}^{+\infty} \frac{1}{x^{q}}\mathrm{d}x$ 发散（$q < 1$），由比较判别法（取 $l = +\infty$），原积分\textbf{发散}。
-
-\end{enumerate}
-\else \answerarea \fi%
-
-综上：$\displaystyle\int_{1}^{+\infty} \frac{\ln x}{x^{p}}\mathrm{d}x$ 当 $p > 1$ 时收敛，当 $p \leqslant 1$ 时发散。
-
-\boxed{\textbf{注}} 关键结论：$\ln x$ 作为无穷大量的"强度"在任意正幂次 $x^{\varepsilon}$ 面前"微不足道"（$\ln x = o(x^{\varepsilon})$），因此不改变 $p$-积分的收敛阈值 $p=1$。类似地，$\displaystyle\int_{2}^{+\infty} \frac{1}{x\ln^{q}x}\mathrm{d}x$ 在 $q > 1$ 时收敛，$q \leqslant 1$ 时发散——这也是重要的比较基准。
-
-\item \textbf{（计算题，平面图形面积）} 求由曲线 $y = x^{2}$ 与 $y = \sqrt{x}$ 所围成的平面图形的面积。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 两曲线的交点满足 $x^{2} = \sqrt{x}$，即 $x^{4} = x$，$x(x^{3}-1) = 0$，得 $x = 0$ 或 $x = 1$。在 $[0,1]$ 上，$\sqrt{x} \geqslant x^{2}$（例如 $x = \frac{1}{4}$ 时 $\frac{1}{2} > \frac{1}{16}$）。
-
-故所求面积为
-\[
-\begin{aligned}
-A &= \int_{0}^{1} \bigl(\sqrt{x} - x^{2}\bigr)\,\mathrm{d}x
-= \int_{0}^{1} \bigl(x^{1/2} - x^{2}\bigr)\,\mathrm{d}x \\[4pt]
-&= \left[\frac{2}{3}x^{3/2} - \frac{1}{3}x^{3}\right]_{0}^{1}
-= \frac{2}{3} - \frac{1}{3} = \frac{1}{3}.
-\end{aligned}
-\]
-
-\boxed{\textbf{注}} 求两曲线围成面积的一般步骤：(1) 求交点确定积分区间；(2) 判断区间上两曲线的高低以确定被积函数为"上减下"；(3) 代入公式 $A = \int_{a}^{b} |f(x) - g(x)|\,\mathrm{d}x$。若不确定高低关系，可直接用绝对值形式积分或分段处理。
-
-\else \answerarea \fi%
-\item \textbf{（计算题，旋转体体积——柱壳法）} 求由曲线 $y = \ln x$，直线 $x = 1$，$x = e$ 及 $x$ 轴所围成的平面图形绕 $y$ 轴旋转一周所得旋转体的体积。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 采用\textbf{柱壳法}（绕 $y$ 轴旋转）。在 $x$ 处取厚度为 $\mathrm{d}x$ 的窄条，其绕 $y$ 轴旋转形成半径为 $x$、高为 $\ln x$ 的圆柱壳，体积微元为
-\[
-\mathrm{d}V = 2\pi x \cdot \ln x \cdot \mathrm{d}x.
-\]
-故
-\[
-V = 2\pi\int_{1}^{e} x\ln x\,\mathrm{d}x.
-\]
-
-用分部积分法计算 $\displaystyle\int x\ln x\,\mathrm{d}x$：令 $u = \ln x$，$\mathrm{d}v = x\,\mathrm{d}x$，则 $\mathrm{d}u = \frac{1}{x}\mathrm{d}x$，$v = \frac{x^{2}}{2}$。
-\[
-\begin{aligned}
-\int x\ln x\,\mathrm{d}x
-&= \frac{x^{2}}{2}\ln x - \int \frac{x^{2}}{2} \cdot \frac{1}{x}\,\mathrm{d}x \\
-&= \frac{x^{2}}{2}\ln x - \frac{1}{2}\int x\,\mathrm{d}x \\
-&= \frac{x^{2}}{2}\ln x - \frac{x^{2}}{4} + C.
-\end{aligned}
-\]
-
-代入定积分限：
-\[
-\begin{aligned}
-V &= 2\pi\left[\frac{x^{2}}{2}\ln x - \frac{x^{2}}{4}\right]_{1}^{e} \\[4pt]
-&= 2\pi\left[\left(\frac{e^{2}}{2}\ln e - \frac{e^{2}}{4}\right) - \left(\frac{1}{2}\ln 1 - \frac{1}{4}\right)\right] \\[4pt]
-&= 2\pi\left[\frac{e^{2}}{2} - \frac{e^{2}}{4} + \frac{1}{4}\right]
-= 2\pi\left[\frac{e^{2}}{4} + \frac{1}{4}\right]
-= \frac{\pi}{2}(e^{2}+1).
-\end{aligned}
-\]
-
-\boxed{\textbf{注}} 绕 $y$ 轴旋转求体积有两种方法：(1) \textbf{柱壳法}（本题所用）：$\displaystyle V = 2\pi\int_{a}^{b} x f(x)\,\mathrm{d}x$，适用于 $y=f(x)$ 形式且 $x$ 范围明确；(2) \textbf{圆盘/垫圈法}：先解出 $x = \varphi(y)$，再用 $\displaystyle V = \pi\int_{c}^{d} [\varphi(y)]^{2}\,\mathrm{d}y$。本题若用圆盘法需分段（$0 \leqslant y \leqslant 1$ 时 $x$ 从 $e^{y}$ 到 $e$），不如柱壳法便捷。
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（填空题）\boxed{\textbf{真题风格}}} 极限 $\displaystyle\lim_{n \to \infty} \left(\frac{1}{n+1} + \frac{1}{n+2} + \cdots + \frac{1}{n+n}\right) = \underline{\qquad}$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 将和式改写为：
-\[
-\frac{1}{n+1} + \frac{1}{n+2} + \cdots + \frac{1}{n+n}
-= \frac{1}{n}\left[\frac{1}{1+\frac{1}{n}} + \frac{1}{1+\frac{2}{n}} + \cdots + \frac{1}{1+\frac{n}{n}}\right]
-= \frac{1}{n}\sum_{k=1}^{n} \frac{1}{1+\frac{k}{n}}.
-\]
-
-这是函数 $f(x) = \frac{1}{1+x}$ 在 $[0,1]$ 上的积分和式（将 $\frac{k}{n}$ 视为 $x$，$\frac{1}{n}$ 视为 $\mathrm{d}x$）。由定积分定义：
-\[
-\lim_{n \to \infty} \frac{1}{n}\sum_{k=1}^{n} f\!\left(\frac{k}{n}\right) = \int_{0}^{1} f(x)\,\mathrm{d}x.
-\]
-故
-\[
-\lim_{n \to \infty} \frac{1}{n}\sum_{k=1}^{n} \frac{1}{1+\frac{k}{n}}
-= \int_{0}^{1} \frac{1}{1+x}\,\mathrm{d}x
-= \bigl.\ln(1+x)\bigr|_{0}^{1}
-= \ln 2.
-\]
-
-填：$\ln 2$。
-
-\boxed{\textbf{注}} 此类"$n$ 项和的极限"问题，若每一项都含有 $\frac{k}{n}$ 的形式，通常通过提出 $\frac{1}{n}$ 将其转化为函数 $f(x)$ 在 $[0,1]$ 上的积分和式。这是考研高频题型，需熟练掌握。
-
-
-\else \answerarea \fi%
-\item \textbf{（解答题）\boxed{\textbf{真题风格}}} 设 $f(x)$ 连续，$F(x) = \displaystyle\int_{0}^{x} (x-t)f(t)\,\mathrm{d}t$，求 $F'(x)$ 和 $F''(x)$，并指出 $F(x)$ 与 $f(x)$ 的关系。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 首先将 $F(x)$ 变形为便于求导的形式：
-\[
-F(x) = \int_{0}^{x} (x-t)f(t)\,\mathrm{d}t
-= x\int_{0}^{x} f(t)\,\mathrm{d}t - \int_{0}^{x} tf(t)\,\mathrm{d}t.
-\]
-
-利用乘积求导法则和变上限积分的求导公式 $\displaystyle\frac{\mathrm{d}}{\mathrm{d}x}\int_{0}^{x} g(t)\,\mathrm{d}t = g(x)$，得：
-\[
-\begin{aligned}
-F'(x) &= \frac{\mathrm{d}}{\mathrm{d}x}\left[x\int_{0}^{x} f(t)\,\mathrm{d}t\right] - \frac{\mathrm{d}}{\mathrm{d}x}\int_{0}^{x} tf(t)\,\mathrm{d}t \\[4pt]
-&= 1\cdot\int_{0}^{x} f(t)\,\mathrm{d}t + x\cdot f(x) - x f(x) \\[4pt]
-&= \int_{0}^{x} f(t)\,\mathrm{d}t.
-\end{aligned}
-\]
-
-再求导一次：
-\[
-F''(x) = \frac{\mathrm{d}}{\mathrm{d}x}\int_{0}^{x} f(t)\,\mathrm{d}t = f(x).
-\]
-
-因此 $F(x)$ 满足 $F''(x) = f(x)$ 且 $F(0) = F'(0) = 0$（由定义可直接验证）。换言之，$F(x)$ 是 $f(x)$ 的\textbf{两次积分}（满足零初始条件），也可看作二阶微分方程 $y'' = f(x)$，$y(0)=y'(0)=0$ 的解。
-
-\boxed{\textbf{注}} 此题的关键在于先将 $F(x)$ 拆成两项，把含参变量 $x$ 的因子提到积分号外，再求导。这是处理"积分号内含参变量"问题的典型手法。公式：
-\[
-\frac{\mathrm{d}}{\mathrm{d}x}\int_{a(x)}^{b(x)} g(x,t)\,\mathrm{d}t
-= g(x,b(x))\cdot b'(x) - g(x,a(x))\cdot a'(x) + \int_{a(x)}^{b(x)} \frac{\partial g}{\partial x}(x,t)\,\mathrm{d}t.
-\]
-本题中 $a(x)=0$，$b(x)=x$，$g(x,t) = (x-t)f(t)$，$\frac{\partial g}{\partial x} = f(t)$，带入即得相同结果。
-
-
-\else \answerarea \fi%
-\item \textbf{（证明题）\boxed{\textbf{真题风格}}} 设 $\alpha > 0$，证明反常积分
-\[
-I(\alpha) = \int_{0}^{+\infty} \frac{\mathrm{d}x}{(1+x^{2})(1+x^{\alpha})}
-\]
-的值与 $\alpha$ 无关，并求出该值。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}} 作变量代换 $x = \frac{1}{t}$，则 $\mathrm{d}x = -\frac{1}{t^{2}}\mathrm{d}t$。当 $x: 0 \to +\infty$ 时 $t: +\infty \to 0$。
-\[
-\begin{aligned}
-I(\alpha) &= \int_{+\infty}^{0} \frac{1}{\bigl(1+\frac{1}{t^{2}}\bigr)\bigl(1+\frac{1}{t^{\alpha}}\bigr)}\cdot\left(-\frac{1}{t^{2}}\right)\mathrm{d}t \\[4pt]
-&= \int_{0}^{+\infty} \frac{1}{\frac{t^{2}+1}{t^{2}} \cdot \frac{t^{\alpha}+1}{t^{\alpha}}} \cdot \frac{1}{t^{2}}\,\mathrm{d}t \\[4pt]
-&= \int_{0}^{+\infty} \frac{t^{2}}{t^{2}+1} \cdot \frac{t^{\alpha}}{t^{\alpha}+1} \cdot \frac{1}{t^{2}}\,\mathrm{d}t \\[4pt]
-&= \int_{0}^{+\infty} \frac{t^{\alpha}}{(t^{2}+1)(t^{\alpha}+1)}\,\mathrm{d}t.
-\end{aligned}
-\]
-
-注意到 $\displaystyle\frac{t^{\alpha}}{t^{\alpha}+1} = 1 - \frac{1}{t^{\alpha}+1}$，因此
-\[
-\begin{aligned}
-I(\alpha) &= \int_{0}^{+\infty} \frac{1}{t^{2}+1}\left(1 - \frac{1}{t^{\alpha}+1}\right)\mathrm{d}t \\[4pt]
-&= \int_{0}^{+\infty} \frac{1}{t^{2}+1}\,\mathrm{d}t - \int_{0}^{+\infty} \frac{1}{(t^{2}+1)(t^{\alpha}+1)}\,\mathrm{d}t \\[4pt]
-&= \int_{0}^{+\infty} \frac{1}{1+t^{2}}\,\mathrm{d}t - I(\alpha).
-\end{aligned}
-\]
-
-于是 $2I(\alpha) = \displaystyle\int_{0}^{+\infty} \frac{1}{1+t^{2}}\,\mathrm{d}t$，故
-\[
-I(\alpha) = \frac{1}{2}\int_{0}^{+\infty} \frac{1}{1+t^{2}}\,\mathrm{d}t.
-\]
-
-右边与 $\alpha$ 无关，计算得
-\[
-\int_{0}^{+\infty} \frac{1}{1+t^{2}}\,\mathrm{d}t = \lim_{b\to+\infty} \bigl.\arctan t\bigr|_{0}^{b} = \frac{\pi}{2}.
-\]
-因此
-\[
-I(\alpha) = \frac{1}{2} \cdot \frac{\pi}{2} = \frac{\pi}{4}.
-\]
-
-综上，$I(\alpha) = \frac{\pi}{4}$ 对任意 $\alpha > 0$ 成立，与 $\alpha$ 无关。$\square$
-
-\boxed{\textbf{注}} 此题是经典的"倒代换"技巧在反常积分中的应用。核心思路是通过 $x = 1/t$ 的代换，利用 $1/(1+x^{\alpha})$ 与 $x^{\alpha}/(1+x^{\alpha}) = 1 - 1/(1+x^{\alpha})$ 的关系建立关于 $I(\alpha)$ 的方程。类似手法还可处理 $\displaystyle\int_{0}^{+\infty} \frac{\ln x}{(1+x^{2})(1+x^{\alpha})}\,\mathrm{d}x$ 等变体。
-
-\else \answerarea \fi%
-\end{enumerate}
+\input{calculus/exercises/chap3.tex}

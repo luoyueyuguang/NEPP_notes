@@ -1,0 +1,471 @@
+\section{习题}
+
+\subsection{本章速览}
+
+\begin{itemize}
+    \item 样本空间 $\Omega$ 是全部可能结果的集合，事件是 $\Omega$ 的子集。“至少有一个发生”用并，“同时发生”用交，“不发生”用对立事件；复杂事件先拆成互斥情形再合并。
+    \item 古典概型的两条前提是：样本点总数有限、每个样本点等可能。计数时先确认“是否放回、是否计序”，再用排列或组合，最后算有利样本数与总样本数之比。
+    \item 概率满足非负性、归一性与可列可加性，由此得到 $P(\bar A)=1-P(A)$、$P(A\cup B)=P(A)+P(B)-P(AB)$，以及单调性 $A\subset B\Rightarrow P(B-A)=P(B)-P(A)$。
+    \item 条件概率 $P(A\mid B)=\dfrac{P(AB)}{P(B)}$（要求 $P(B)>0$），乘法公式 $P(AB)=P(B)P(A\mid B)$ 是它的直接改写；条件概率中的“条件”会缩小样本空间。
+    \item 全概率公式要求 $B_1,\ldots,B_n$ 构成完备事件组（互斥且并为 $\Omega$），且每个 $P(B_i)>0$；贝叶斯公式由 $P(A)=\sum_i P(B_i)P(A\mid B_i)$ 反解出 $P(B_k\mid A)$。
+    \item 独立性用 $P(AB)=P(A)P(B)$ 定义。两两独立只要求三对事件的乘积公式，相互独立还要求 $P(ABC)=P(A)P(B)P(C)$；正概率下“互斥”与“独立”一般不能同时成立。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 设 $A,B,C$ 为三个随机事件，试用 $A,B,C$ 的运算表示下列事件：
+\begin{enumerate}[label=(\arabic*)]
+    \item 恰有一个事件发生；
+    \item 恰有两个事件发生；
+    \item 至少有一个事件发生；
+    \item 至多有一个事件发生。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} “恰有”表示指定的几个发生、其余都不发生，各种情形互斥，用不交并连接；“至少”用并；“至多一个”等价于“至少两个不发生”。
+
+(1) 恰有一个发生，即 $A$ 发生而 $B,C$ 不发生，或 $B$ 发生而 $A,C$ 不发生，或 $C$ 发生而 $A,B$ 不发生：
+\[
+A\bar B\bar C\cup \bar A B\bar C\cup \bar A\bar B C.
+\]
+
+(2) 恰有两个发生：
+\[
+AB\bar C\cup A\bar B C\cup \bar A BC.
+\]
+
+(3) 至少有一个发生：
+\[
+A\cup B\cup C.
+\]
+
+(4) 至多有一个发生，即不能有两个或三个同时发生，故为
+\[
+\overline{AB\cup AC\cup BC}.
+\]
+它与“至少两个不发生”是同一事件，也可写成
+\[
+\bar A\bar B\cup \bar A\bar C\cup \bar B\bar C.
+\]
+
+\boxed{\text{答案：}}\ (1) $A\bar B\bar C\cup\bar A B\bar C\cup\bar A\bar B C$；(2) $AB\bar C\cup A\bar B C\cup\bar A BC$；(3) $A\cup B\cup C$；(4) $\overline{AB\cup AC\cup BC}$。
+
+\else \answerarea[8] \fi%
+
+\textbf{2.} 袋中有 $3$ 个红球、$2$ 个白球、$1$ 个黑球，除颜色外完全相同。从中不放回地任取 $3$ 个球（不计顺序）。求：
+\begin{enumerate}[label=(\arabic*)]
+    \item 恰有 $2$ 个红球、$1$ 个白球的概率；
+    \item 至少有 $1$ 个红球的概率；
+    \item 三种颜色各取到 $1$ 个的概率。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 不放回且不计顺序，样本空间为从 $6$ 个球中任取 $3$ 个，共 $C_6^3=20$ 个等可能样本点；有利样本数按颜色分类用组合乘法计算。
+
+(1) 恰有 $2$ 红 $1$ 白：先选红球再选白球，
+\[
+P=\frac{C_3^2C_2^1}{C_6^3}=\frac{3\times 2}{20}=\frac{3}{10}.
+\]
+
+(2) “至少一个红球”的对立事件是“没有红球”，即取到的 $3$ 个球全来自另外 $3$ 个球（$2$ 白 $1$ 黑），只有 $C_3^3=1$ 种：
+\[
+P=1-\frac{C_3^3}{C_6^3}=1-\frac{1}{20}=\frac{19}{20}.
+\]
+
+(3) 三种颜色各一个：
+\[
+P=\frac{C_3^1C_2^1C_1^1}{C_6^3}=\frac{3\times 2\times 1}{20}=\frac{3}{10}.
+\]
+
+\boxed{\text{答案：}}\ (1) $\dfrac{3}{10}$；(2) $\dfrac{19}{20}$；(3) $\dfrac{3}{10}$。
+
+\else \answerarea[8] \fi%
+
+\textbf{3.} 设 $P(A)=\dfrac14$，$P(B\mid A)=\dfrac13$，$P(A\mid B)=\dfrac12$。求 $P(B)$、$P(A\cup B)$ 与 $P(\bar A\bar B)$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 先用乘法公式求 $P(AB)$，再由条件概率定义反解 $P(B)$；并事件用加法公式，交事件的对立用德摩根律。
+
+由乘法公式，
+\[
+P(AB)=P(A)P(B\mid A)=\frac14\cdot\frac13=\frac1{12}.
+\]
+由 $P(A\mid B)=\dfrac{P(AB)}{P(B)}$ 得
+\[
+P(B)=\frac{P(AB)}{P(A\mid B)}=\frac{1/12}{1/2}=\frac16.
+\]
+于是
+\[
+P(A\cup B)=P(A)+P(B)-P(AB)
+=\frac14+\frac16-\frac1{12}
+=\frac{3+2-1}{12}=\frac13.
+\]
+又 $\bar A\bar B=\overline{A\cup B}$，故
+\[
+P(\bar A\bar B)=1-P(A\cup B)=1-\frac13=\frac23.
+\]
+
+\boxed{\text{答案：}}\ $P(B)=\dfrac16$，$P(A\cup B)=\dfrac13$，$P(\bar A\bar B)=\dfrac23$。
+
+\else \answerarea[8] \fi%
+
+\textbf{4.} 从 $1,2,\ldots,9$ 中不放回地依次取出三个不同数字，排成一个三位数，每个结果等可能。求所排三位数为偶数的概率。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 三位数是否偶数只由个位数字决定，因此先确定个位，再安排百位与十位，避免重复计数。
+
+所有排法数为
+\[
+9\times 8\times 7=504.
+\]
+个位必须是偶数，可从 $2,4,6,8$ 中选，共 $4$ 种；个位选定后，百位可从剩下 $8$ 个数字中选，十位再从剩下 $7$ 个中选。有利排法数为
+\[
+4\times 8\times 7=224.
+\]
+故所求概率为
+\[
+P=\frac{224}{504}=\frac49.
+\]
+
+\boxed{\text{答案：}}\ $\dfrac49$。
+
+\else \answerarea[8] \fi%
+
+\textbf{5.} 设事件 $A$ 与 $B$ 相互独立，$P(A)=0.5$，$P(A\cup B)=0.8$。求 $P(B)$ 与 $P(\bar A\bar B)$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 独立性把 $P(AB)$ 换成 $P(A)P(B)$，再代入加法公式得到关于 $P(B)$ 的一次方程；两个事件独立可推出它们的对立事件也独立。
+
+由 $A,B$ 独立，$P(AB)=P(A)P(B)=0.5P(B)$。代入加法公式：
+\[
+0.8=P(A\cup B)=0.5+P(B)-0.5P(B)=0.5+0.5P(B).
+\]
+解得
+\[
+P(B)=\frac{0.8-0.5}{0.5}=0.6.
+\]
+又 $\bar A$ 与 $\bar B$ 也相互独立，且 $P(\bar A)=0.5$，$P(\bar B)=0.4$，所以
+\[
+P(\bar A\bar B)=P(\bar A)P(\bar B)=0.5\times 0.4=0.2.
+\]
+
+\boxed{\text{答案：}}\ $P(B)=0.6$，$P(\bar A\bar B)=0.2$。
+
+\else \answerarea[8] \fi%
+
+\subsection{综合提高题}
+
+\textbf{6.} 某厂有三台机床生产同一种零件，产量分别占总产量的 $30\%$、$45\%$、$25\%$，次品率分别为 $2\%$、$3\%$、$4\%$。三台机床的产品混放在一起，现随机抽取一件。
+\begin{enumerate}[label=(\arabic*)]
+    \item 求抽到次品的概率；
+    \item 已知抽到的是次品，求它来自第三台机床的概率；
+    \item 若抽到的是正品，分别求它来自三台机床的概率，并指出哪一台的可能性最大。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 按“产品来源”划分完备事件组 $M_1,M_2,M_3$，先全概率求次品率，再用贝叶斯公式“由果溯因”。第 (3) 问的分母是正品率 $1-P(D)$，三个后验概率之和应为 $1$，可用来校验。
+
+设 $M_i=\{\text{产品来自第 }i\text{ 台机床}\}$，$i=1,2,3$，$D=\{\text{抽到次品}\}$。则
+\[
+P(M_1)=0.30,\quad P(M_2)=0.45,\quad P(M_3)=0.25,
+\]
+\[
+P(D\mid M_1)=0.02,\quad P(D\mid M_2)=0.03,\quad P(D\mid M_3)=0.04.
+\]
+
+(1) 由全概率公式，
+\[
+P(D)=\sum_{i=1}^{3}P(M_i)P(D\mid M_i)
+=0.30\times0.02+0.45\times0.03+0.25\times0.04.
+\]
+逐项计算得
+\[
+P(D)=0.006+0.0135+0.010=0.0295=\frac{59}{2000}.
+\]
+
+(2) 由贝叶斯公式，
+\[
+P(M_3\mid D)=\frac{P(M_3)P(D\mid M_3)}{P(D)}
+=\frac{0.25\times0.04}{0.0295}
+=\frac{0.010}{0.0295}=\frac{20}{59}\approx0.3390.
+\]
+
+(3) 正品率为 $P(\bar D)=1-0.0295=0.9705$，且 $P(\bar D\mid M_i)=1-P(D\mid M_i)$。于是
+\[
+P(M_1\mid\bar D)=\frac{0.30\times0.98}{0.9705}=\frac{0.294}{0.9705}=\frac{196}{647}\approx0.3029,
+\]
+\[
+P(M_2\mid\bar D)=\frac{0.45\times0.97}{0.9705}=\frac{0.4365}{0.9705}=\frac{291}{647}\approx0.4498,
+\]
+\[
+P(M_3\mid\bar D)=\frac{0.25\times0.96}{0.9705}=\frac{0.240}{0.9705}=\frac{160}{647}\approx0.2473.
+\]
+三者之和为 $\dfrac{196+291+160}{647}=1$，校验通过。最大的是 $P(M_2\mid\bar D)$。
+
+\boxed{\text{答案：}}\ (1) $0.0295$；(2) $\dfrac{20}{59}\approx0.339$；(3) 依次为 $\dfrac{196}{647},\dfrac{291}{647},\dfrac{160}{647}$，第二台机床的可能性最大。
+
+\else \answerarea[10] \fi%
+
+\textbf{7.} 某系统由元件 $1$、$2$ 并联组成一个子系统，再与元件 $3$ 串联。设三个元件能否正常工作相互独立，正常工作的概率分别为 $0.9$、$0.8$、$0.7$。
+\begin{enumerate}[label=(\arabic*)]
+    \item 求系统正常工作的概率；
+    \item 已知系统失效，求元件 $3$ 仍正常工作的概率；
+    \item 已知系统正常工作，求元件 $3$ 正常工作的概率。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 并联子系统“正常工作”等价于元件 $1$、$2$ 至少一个正常，其对立情形是二者同时失效；串联要求两部分都正常。第 (2) 问把“系统失效”拆成两个互斥情形，第 (3) 问注意包含关系。
+
+记 $A_i=\{\text{元件 }i\text{ 正常工作}\}$，$i=1,2,3$，$S=\{\text{系统正常工作}\}$。
+
+(1) 并联部分正常的概率为
+\[
+P(A_1\cup A_2)=1-P(\bar A_1\bar A_2)=1-(1-0.9)(1-0.8)=1-0.02=0.98.
+\]
+串联要求并联部分与元件 $3$ 同时正常，且各部分独立，故
+\[
+P(S)=0.98\times0.7=0.686=\frac{343}{500}.
+\]
+
+(2) 系统失效为
+\[
+\bar S=\bar A_3\cup(\bar A_1\bar A_2A_3),
+\]
+其中两个情形互斥。于是
+\[
+P(\bar S)=P(\bar A_3)+P(\bar A_1)P(\bar A_2)P(A_3)
+=0.3+0.1\times0.2\times0.7=0.3+0.014=0.314.
+\]
+“系统失效且元件 $3$ 正常”就是 $\bar A_1\bar A_2A_3$，概率为 $0.014$。故
+\[
+P(A_3\mid\bar S)=\frac{0.014}{0.314}=\frac{14}{314}=\frac{7}{157}\approx0.0446.
+\]
+
+(3) 系统正常要求串联的每一部分都正常，故 $S\subset A_3$，即“系统正常”蕴含“元件 $3$ 正常”。因此
+\[
+P(A_3\mid S)=\frac{P(A_3S)}{P(S)}=\frac{P(S)}{P(S)}=1.
+\]
+也可以直接理解：已知系统已经正常工作，元件 $3$ 必定正常工作。
+
+\boxed{\text{答案：}}\ (1) $\dfrac{343}{500}=0.686$；(2) $\dfrac{7}{157}\approx0.0446$；(3) $1$。
+
+\else \answerarea[10] \fi%
+
+\textbf{8.} 甲、乙两人约定在 $0$ 到 $60$ 分钟之间到达某地，到达时刻分别记为 $X,Y$，二者相互独立且都在 $[0,60]$ 上均匀分布。先到者等待 $15$ 分钟后若对方仍未到便离开。求：
+\begin{enumerate}[label=(\arabic*)]
+    \item 两人能见面的概率；
+    \item 甲比乙早到、且等待时间不超过 $15$ 分钟的概率。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 把 $(X,Y)$ 看作正方形 $\Omega=[0,60]\times[0,60]$ 内均匀分布的点，概率等于有利区域面积与正方形面积之比。见面条件为 $|X-Y|\le 15$。
+
+(1) 样本空间面积为 $60^2=3600$。不满足 $|X-Y|\le15$ 的区域是正方形内两个等腰直角三角形，直角边长均为 $60-15=45$，总面积为
+\[
+2\times\frac12\times45^2=45^2=2025.
+\]
+有利区域面积为
+\[
+3600-2025=1575.
+\]
+故
+\[
+P(|X-Y|\le15)=\frac{1575}{3600}=\frac{7}{16}.
+\]
+
+(2) 事件“甲比乙早到且等待不超过 $15$ 分钟”为
+\[
+0<Y-X\le 15.
+\]
+见面区域 $|X-Y|\le15$ 关于直线 $X=Y$ 对称，而直线 $X=Y$ 的概率为 $0$，所以 $X<Y$ 与 $X>Y$ 各占见面区域的一半。因此所求概率为
+\[
+\frac12\cdot\frac{7}{16}=\frac{7}{32}.
+\]
+也可直接算面积：该区域是夹在 $Y=X$ 与 $Y=X+15$ 之间的带形，在正方形内的面积为
+\[
+45\times15+\frac12\times15^2=675+112.5=\frac{1575}{2},
+\]
+故概率为
+\[
+\frac{1575/2}{3600}=\frac{1575}{7200}=\frac{7}{32}.
+\]
+
+\boxed{\text{答案：}}\ (1) $\dfrac{7}{16}$；(2) $\dfrac{7}{32}$。
+
+\else \answerarea[10] \fi%
+
+\textbf{9.} 设事件 $A,B,C$ 相互独立。
+\begin{enumerate}[label=(\arabic*)]
+    \item 证明：$\bar A$ 与 $B$ 相互独立；
+    \item 证明：$A\cup B$ 与 $C$ 相互独立。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 证明独立性只需验证乘积公式。第 (1) 问把 $\bar A B$ 写成 $B-AB$；第 (2) 问先对 $(A\cup B)\cap C$ 用分配律与容斥，再利用 $A,B,C$ 相互独立把 $P(AC),P(BC),P(ABC)$ 拆开。
+
+(1) 因为 $B=\bar AB\cup AB$，且 $\bar AB$ 与 $AB$ 互斥，所以
+\[
+P(\bar AB)=P(B)-P(AB).
+\]
+由 $A$ 与 $B$ 独立，$P(AB)=P(A)P(B)$，于是
+\[
+P(\bar AB)=P(B)-P(A)P(B)=P(B)\bigl(1-P(A)\bigr)=P(B)P(\bar A).
+\]
+按定义，$\bar A$ 与 $B$ 相互独立。
+
+(2) 由分配律，
+\[
+(A\cup B)\cap C=(AC)\cup(BC).
+\]
+对右端用加法公式：
+\[
+P\bigl((A\cup B)\cap C\bigr)=P(AC)+P(BC)-P(ABC).
+\]
+由 $A,B,C$ 相互独立，
+\[
+P(AC)=P(A)P(C),\quad P(BC)=P(B)P(C),\quad P(ABC)=P(A)P(B)P(C).
+\]
+代入得
+\[
+\begin{aligned}
+P\bigl((A\cup B)\cap C\bigr)
+&=P(A)P(C)+P(B)P(C)-P(A)P(B)P(C)\\
+&=P(C)\bigl[P(A)+P(B)-P(A)P(B)\bigr].
+\end{aligned}
+\]
+又 $P(AB)=P(A)P(B)$，故方括号内为
+\[
+P(A)+P(B)-P(AB)=P(A\cup B).
+\]
+因此
+\[
+P\bigl((A\cup B)\cap C\bigr)=P(A\cup B)P(C),
+\]
+即 $A\cup B$ 与 $C$ 相互独立。
+
+\boxed{\text{答案：}}\ 两问均已由乘积公式证得：$P(\bar AB)=P(\bar A)P(B)$，$P((A\cup B)C)=P(A\cup B)P(C)$。
+
+\else \answerarea[10] \fi%
+
+\subsection{真题风格与综合训练}
+
+\textbf{10.} \boxed{\text{真题风格}}（单项选择题）设 $0<P(A)<1$，$0<P(B)<1$，则下列命题中一定正确的是（\quad）
+\begin{enumerate}[label=(\Alph*)]
+    \item 若 $A$ 与 $B$ 互不相容，则 $A$ 与 $B$ 相互独立
+    \item 若 $A$ 与 $B$ 相互独立，则 $A$ 与 $B$ 互不相容
+    \item 若 $A$ 与 $B$ 相互独立，则 $\bar A$ 与 $\bar B$ 相互独立
+    \item 若 $P(A\mid B)+P(A\mid\bar B)=1$，则 $A$ 与 $B$ 相互独立
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 逐项用定义检验。互斥只说明 $P(AB)=0$，独立要求 $P(AB)=P(A)P(B)$，两者在正概率下互相排斥。
+
+(A) 错误。互不相容给出 $P(AB)=0$，但 $P(A)>0$、$P(B)>0$ 时 $P(A)P(B)>0$，故 $P(AB)\neq P(A)P(B)$，二者不独立。
+
+(B) 错误。独立给出
+\[
+P(AB)=P(A)P(B)>0,
+\]
+所以 $AB\neq\emptyset$，二者实际是相容的。
+
+(C) 正确。由德摩根律与加法公式，
+\[
+P(\bar A\bar B)=1-P(A\cup B)=1-P(A)-P(B)+P(AB).
+\]
+代入 $P(AB)=P(A)P(B)$：
+\[
+P(\bar A\bar B)=1-P(A)-P(B)+P(A)P(B)
+=\bigl(1-P(A)\bigr)\bigl(1-P(B)\bigr)=P(\bar A)P(\bar B).
+\]
+故 $\bar A$ 与 $\bar B$ 相互独立。
+
+(D) 错误。取 $A=B$，$P(B)=\dfrac12$，则
+\[
+P(A\mid B)=1,\qquad P(A\mid\bar B)=\frac{P(A\bar B)}{P(\bar B)}=0,
+\]
+条件之和为 $1$，但
+\[
+P(AB)=P(A)=\frac12\neq \frac14=P(A)P(B),
+\]
+故 $A$ 与 $B$ 并不独立。
+
+\boxed{\text{答案：}}\ (C)
+
+\else \answerarea[8] \fi%
+
+\textbf{11.} \boxed{\text{真题风格}}（填空题）某地区某种疾病的患病率为 $0.5\%$。用某种方法检测：患病者检测呈阳性的概率为 $95\%$，未患病者检测呈阴性的概率为 $90\%$。现随机检测一人，结果呈阳性，则此人确实患病的概率为 \underline{\qquad}（用最简分数表示，并给出百分数近似值）。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 这是典型的“先验 + 检测似然 $\to$ 后验”问题。注意题目给的是 $P(\text{阳性}\mid\text{患病})$，而要求的是反过来的 $P(\text{患病}\mid\text{阳性})$。
+
+设 $D=\{\text{患病}\}$，$+=\{\text{检测呈阳性}\}$。由题意
+\[
+P(D)=0.005,\quad P(+ \mid D)=0.95,\quad P(+\mid\bar D)=1-0.90=0.10.
+\]
+由全概率公式，
+\[
+P(+)=P(D)P(+\mid D)+P(\bar D)P(+\mid\bar D)
+=0.005\times0.95+0.995\times0.10.
+\]
+计算得
+\[
+P(+)=0.00475+0.0995=0.10425=\frac{417}{4000}.
+\]
+由贝叶斯公式，
+\[
+P(D\mid +)=\frac{P(D)P(+\mid D)}{P(+)}
+=\frac{0.00475}{0.10425}
+=\frac{19}{417}\approx0.04556.
+\]
+即阳性者中真正患病的概率约为 $4.56\%$，远低于检测灵敏度 $95\%$。
+
+\boxed{\text{答案：}}\ $\dfrac{19}{417}\approx4.56\%$。
+
+\else \answerarea[8] \fi%
+
+\textbf{12.} \boxed{\text{真题风格}}（解答题）某射手每次射击命中目标的概率为 $0.6$，各次射击相互独立。该射手连续射击 $3$ 次。求：
+\begin{enumerate}[label=(\arabic*)]
+    \item 恰有 $2$ 次命中的概率；
+    \item 至少命中 $1$ 次的概率；
+    \item 已知至少命中 $1$ 次，恰有 $2$ 次命中的概率。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 三次射击是 $3$ 重伯努利试验，命中次数 $X\sim B(3,0.6)$。第 (3) 问是条件概率，且“恰有 $2$ 次命中”包含于“至少 $1$ 次命中”，可直接作商。
+
+设 $X$ 为 $3$ 次射击中的命中次数，则
+\[
+P(X=k)=C_3^k(0.6)^k(0.4)^{3-k},\quad k=0,1,2,3.
+\]
+
+(1)
+\[
+P(X=2)=C_3^2(0.6)^2(0.4)=3\times0.36\times0.4=0.432=\frac{54}{125}.
+\]
+
+(2) 用对立事件，三次全未命中的概率为 $(0.4)^3$：
+\[
+P(X\ge1)=1-P(X=0)=1-(0.4)^3=1-0.064=0.936=\frac{117}{125}.
+\]
+
+(3) 因为 $\{X=2\}\subset\{X\ge1\}$，所以
+\[
+P(X=2\mid X\ge1)=\frac{P(X=2)}{P(X\ge1)}
+=\frac{0.432}{0.936}=\frac{54}{117}=\frac{6}{13}\approx0.4615.
+\]
+
+\boxed{\text{答案：}}\ (1) $\dfrac{54}{125}=0.432$；(2) $\dfrac{117}{125}=0.936$；(3) $\dfrac{6}{13}\approx0.462$。
+
+\else \answerarea[10] \fi%

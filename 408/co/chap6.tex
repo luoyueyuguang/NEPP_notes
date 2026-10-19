@@ -1,669 +1,367 @@
 \section{总线}
 
-\subsection{总线的基本概念与分类}
+CPU 要从主存读一个 32 位字，先得把地址送过去，再发读命令，等主存把数据放回总线。地址、数据、命令不能挤在同一根线上同时传，于是分成三组信号线；这三组线加上仲裁、定时等规则，构成总线。
 
-\begin{mydef}{总线（Bus）}{bus-def}
-\textbf{总线}是连接计算机各功能部件（CPU、存储器、I/O 设备）的一组公共信息传输线，是各部件共享的传输介质。总线采用\textbf{分时共享}的方式：同一时刻只允许一个部件向总线发送信息，但多个部件可以同时从总线接收信息。
+总线是部件之间传送信息的一组信号线。共享总线把多个部件挂在同一组线上，分时使用：同一时刻只能有一个主设备驱动总线，但可以有多个从设备同时接收。点对点总线则让每对部件独占一组线，后面的 PCIe 就是这种。主设备能主动发起事务，CPU、DMA 控制器都是；从设备被动响应，主存、I/O 接口通常是。
 
-总线传输的两种基本方式：
-\begin{enumerate}
-    \item \textbf{串行传输}：数据在一条数据线上逐位传输，适合远距离通信（如 USB、PCIe），抗干扰能力强，成本低。
-    \item \textbf{并行传输}：数据在多条数据线上同时传输多位，近距离传输速率高，但需解决线间串扰和信号偏斜（skew）问题（如传统 PCI）。
-\end{enumerate}
-\end{mydef}
+地址总线单向，从主设备指向从设备。$n$ 根地址线能区分 $2^n$ 个编址单元；按字节编址时，地址空间就是 $2^n$ B。24 根地址线对应 16 MB。数据总线双向，读时从设备送到主设备，写时反过来；宽度决定一次能并行传多少位，常见 32 位、64 位。控制总线里每根线的方向固定，但不同线方向可以不同：读/写命令从主设备发往从设备，WAIT、中断请求则由从设备发回主设备。所以不能笼统地说控制总线是单向还是双向，要按每根线分别看。
 
-\begin{conclusion}{总线的分类}{bus-classification}
-\textbf{一、按连接部件的不同（按所处位置）：}
+按位置分，总线有片内总线、系统总线和通信总线。片内总线在芯片内部连接寄存器和 ALU；系统总线连接 CPU、主存和 I/O 接口；通信总线连接计算机与外设或另一台计算机，USB、PCIe、SATA 都属于这一类。408 主要考系统总线。
 
-\begin{enumerate}
-    \item \textbf{片内总线（Internal Bus / On-Chip Bus）}：CPU 芯片内部各部件（寄存器、ALU、控制器等）之间的连接线，由芯片制造商设计。属于芯片内部实现细节，对外不可见。
-    \item \textbf{系统总线（System Bus）}：连接 CPU、主存和 I/O 接口的总线，是计算机系统主板的核心。按传输信息类型又可分为三类（见下）。
-    \item \textbf{通信总线（Communication Bus）}：用于计算机系统之间或计算机与外部设备之间的数据传输。标准繁多，如 PCIe、USB、SATA、RS-232 等。
-\end{enumerate}
-
-\textbf{二、按传输信息类型——系统总线的三类信号线：}
-
-\begin{enumerate}
-    \item \textbf{地址总线（Address Bus, AB）}：
-    \begin{itemize}
-        \item 传输\textbf{地址信息}，由 CPU（或 DMA 控制器等总线主设备）向存储器或 I/O 端口发出。
-        \item \textbf{单向}传输（从总线主设备到从设备）。
-        \item 地址总线的位数 $n$ 决定了存储器最大可寻址空间 $= 2^{n}$ 个单元（按字节编址时，最多可寻址 $2^{n}$ 字节）。
-    \end{itemize}
-    \item \textbf{数据总线（Data Bus, DB）}：
-    \begin{itemize}
-        \item 传输\textbf{数据信息}，数据可以双向流动（读操作时从存储器/IO 到 CPU；写操作时从 CPU 到存储器/IO）。
-        \item \textbf{双向}传输（三态门实现）。
-        \item 数据总线的位数（宽度）通常与机器字长一致，决定了一次可以传输的二进制位数。
-    \end{itemize}
-    \item \textbf{控制总线（Control Bus, CB）}：
-    \begin{itemize}
-        \item 传输控制信号和时序信号，如读/写信号（MEMREAD、MEMWRITE、IOR、IOW）、中断请求（INTR）、中断响应（INTA）、总线请求（BUSREQ）、总线允许（BUSACK）、时钟（CLK）、复位（RESET）等。
-        \item 每条控制线的方向是\textbf{固定单向}的，但不同控制线的方向可以不同——有的从 CPU 发出到外设，有的从外设发送到 CPU。
-    \end{itemize}
-\end{enumerate}
-\end{conclusion}
+按传输方式还分串行和并行。串行总线在一根数据线上逐位传，线少，适合远距离；并行总线用多根数据线同时传多位，短距离内峰值高，但频率一高就受线间偏斜和串扰限制。后面的 PCI 与 PCIe 正好是这两种思路的代表。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rectangle,fill=SoftGray,minimum width=1.8cm,minimum height=3.0cm,align=center] (cpu) at (-5.0,0){CPU\\\scriptsize 主设备};
-  \node[draw,rectangle,fill=SoftGray,minimum width=2.2cm,minimum height=3.0cm,align=center] (mio) at (5.0,0){主存 / I/O 接口\\\scriptsize 从设备};
-  \draw[Navy!80,very thick,->] (-4.1,1.0) -- (3.9,1.0) node[midway,above,font=\scriptsize]{地址总线（单向：CPU$\to$主存/I/O）};
-  \draw[Teal!80,very thick,<->] (-4.1,0) -- (3.9,0) node[midway,above,font=\scriptsize]{数据总线（双向）};
-  \draw[Burgundy!80,thick,->] (-4.1,-0.9) -- (3.9,-0.9);
-  \draw[Burgundy!80,thick,<-] (-4.1,-1.15) -- (3.9,-1.15);
-  \draw[Burgundy!80,thick,->] (-4.1,-1.4) -- (3.9,-1.4);
-  \node[font=\scriptsize,MutedText] at (-0.1,-0.66){控制总线（各线方向固定但不统一）};
-  \node[font=\scriptsize,MutedText,align=center] at (0,-1.95){读/写命令（CPU$\to$设备）$\cdot$ 中断请求（设备$\to$CPU）$\cdot$ 时钟（CPU$\to$设备）$\cdot$ \ldots};
+\begin{tikzpicture}[>=stealth,font=\scriptsize]
+  % 左右两端的主设备与从设备
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.0cm,minimum height=3.8cm,align=center] (cpu) at (-5.2,0.55){CPU\\[3pt]主设备};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.0cm,minimum height=3.8cm,align=center] (slave) at (5.6,0.55){主存\\[3pt]I/O 接口\\[3pt]从设备};
+  % 四组信号线
+  \draw[very thick,Navy!75,->] (-4.2,2.2) -- (4.6,2.2);
+  \draw[very thick,Teal!80,<-] (-4.2,1.0) -- (4.6,1.0);
+  \draw[very thick,Burgundy!75,->] (-4.2,-0.3) -- (4.6,-0.3);
+  \draw[very thick,Burgundy!75,<-] (-4.2,-1.1) -- (4.6,-1.1);
+  % 信号说明
+  \node[above,align=center] at (0.2,2.28){地址 A：单向，主设备 $\to$ 从设备；$n$ 位决定 $2^n$ 个编址单元};
+  \node[above,align=center] at (0.2,1.08){数据 D：双向；图中箭头为读操作方向};
+  \node[below,align=center] at (0.2,-0.38){读/写命令：主设备 $\to$ 从设备};
+  \node[below,align=center] at (0.2,-1.18){WAIT、中断请求：从设备 $\to$ 主设备};
+  \node[align=center,text=MutedText] at (0.2,-1.95){同一时刻只有一个主设备驱动总线；多个从设备可以同时接收};
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-\textbf{408 常考辨析：}
-\begin{itemize}
-    \item \textbf{地址总线是单向的}（CPU$\to$存储器/IO）；\textbf{数据总线是双向的}；\textbf{控制总线各线方向固定但不统一}——不能说「控制总线是单向的」或「控制总线是双向的」。
-    \item 地址总线的位数决定的是\textbf{可寻址的最大范围}（地址空间大小），而非实际的物理内存容量。
-    \item 「总线宽度」一般指的是\textbf{数据总线的位数}。
-\end{itemize}
-\end{attention}
+看图时先看箭头：地址线只有朝右的箭头，数据线只有朝左的箭头，因为这里画的是读操作；控制线画了两根，一根朝右、一根朝左，说明控制总线里不同信号的方向可以相反。地址线下面那行字是常考的数量关系：地址位数决定能编址多少个单元，数据位数决定一次能搬多少位，两者不要混。
 
-\begin{conclusion}{总线主设备与从设备}{bus-master-slave}
-\textbf{总线主设备（Bus Master）}：可以主动发起总线操作的设备（如 CPU、DMA 控制器）。\\
-\textbf{总线从设备（Bus Slave）}：只能在主设备控制下进行信息传输的设备（如存储器、I/O 接口）。
+\subsection{带宽：宽度、频率与每周期传送次数}
 
-一次总线传输中，主设备首先发出地址和读/写命令，然后与从设备交换数据。仲裁机制决定了在多个主设备竞争总线时由谁获得控制权。
-\end{conclusion}
+总线快不快，不能只看时钟频率。32 位总线在 100 MHz 下每周期传一次，带宽是 $4\ \text{B}\times100\times10^6=400\ \text{MB/s}$；同样 100 MHz，若改成每个时钟的上升沿和下降沿各传一次，带宽就翻到 800 MB/s。宽度、频率、每周期传送次数，三个量缺一不可。
 
-\subsection{总线结构}
-
-总线的物理连接方式决定了系统的整体性能、可扩展性和成本。典型的总线结构有三种。
-
-\begin{conclusion}{单总线结构（Single Bus Architecture）}{single-bus}
-CPU、主存和所有 I/O 设备都连接在\textbf{同一条系统总线}上。
-
-\begin{itemize}
-    \item \textbf{优点：}结构简单，成本低，易于扩展（增加新设备只需连接到总线上）。
-    \item \textbf{缺点：}
-    \begin{itemize}
-        \item 总线成为系统瓶颈——所有部件共享同一带宽，高速设备（如 CPU-主存）与低速设备（如 I/O）竞争总线；
-        \item I/O 操作会阻塞 CPU 与主存的通信（或反之），整体吞吐量受限。
-    \end{itemize}
-    \item \textbf{典型应用：}早期微型计算机（如 Apple II、IBM PC 早期型号）。
-\end{itemize}
-\end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \draw[thick,Navy!70] (-5.4,0) -- (5.4,0);
-  \node[font=\scriptsize,black!70] at (0,0.3){系统总线};
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.7cm,minimum height=0.85cm] (cpu) at (-3.6,1.25){CPU};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.7cm,minimum height=0.85cm] (mem) at (0.0,1.25){主存};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.8cm,minimum height=0.85cm] (io) at (3.6,1.25){I/O 设备};
-  \draw[Navy!70] (cpu.south) -- (-3.6,0);
-  \draw[Navy!70] (mem.south) -- (0.0,0);
-  \draw[Navy!70] (io.south) -- (3.6,0);
-  \node[font=\scriptsize,black!70,align=center] at (0,-0.75){CPU、主存与所有 I/O 设备共享同一总线 $\to$ 总线成为瓶颈，高低速设备竞争};
-\end{tikzpicture}
-\end{center}
-
-\begin{conclusion}{双总线结构（Dual Bus Architecture）}{dual-bus}
-在 CPU 和主存之间增加一条专用的\textbf{存储总线（Memory Bus）}，将 CPU-主存的通信与 I/O 通信分离开来。
-
-\textbf{典型连接方式：}
-\begin{itemize}
-    \item \textbf{存储总线：}连接 CPU 与主存，专门用于指令和数据的高速存取。
-    \item \textbf{I/O 总线：}连接 CPU 与 I/O 设备。I/O 设备与主存之间的数据传输需要通过 CPU 中转（PIO 方式），或者增加 DMA 控制器实现 I/O 与主存的直接传输。
-\end{itemize}
-
-\textbf{优点：}CPU 访问主存时不会受到 I/O 设备的干扰，提高了 CPU-主存的带宽利用率。\\
-\textbf{缺点：}I/O 设备与主存的交互仍需通过 CPU（除非增加 DMA 通道），结构复杂度略增。
-\end{conclusion}
-
-\begin{conclusion}{三总线结构（Triple Bus Architecture）}{triple-bus}
-在双总线基础上进一步分离，使 CPU、主存和 I/O 各自拥有独立通道。
-
-\textbf{典型的三种总线：}
-\begin{enumerate}
-    \item \textbf{局部总线（Local Bus）}：连接 CPU 与 Cache/局部设备，速度最快。
-    \item \textbf{存储总线（Memory Bus）}：连接主存（Cache 与主存之间的通道）。
-    \item \textbf{扩展总线（Expansion Bus / I/O Bus）}：连接各种 I/O 设备，速度相对较慢。
-\end{enumerate}
-
-\textbf{典型实现：}现代 PC 的芯片组架构（North Bridge / South Bridge 或 Platform Controller Hub）。
-
-\textbf{优点：}三级总线分工明确，各自可运行在不同频率和带宽下，避免速度不匹配的瓶颈；高速设备和低速设备在物理上分离。\\
-\textbf{缺点：}结构复杂，成本较高。
-\end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % 局部总线（高速）
-  \draw[thick,Navy!70] (-4.8,2.0) -- (4.8,2.0);
-  \node[font=\scriptsize,black!70] at (4.8,2.24){局部总线（最高频）};
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.7cm,minimum height=0.72cm] (cpu) at (-3.2,2.0){CPU};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.7cm,minimum height=0.72cm] (cache) at (-0.6,2.0){Cache};
-  % 存储总线
-  \draw[thick,Navy!70] (-4.8,0.6) -- (4.8,0.6);
-  \node[font=\scriptsize,black!70] at (4.8,0.84){存储总线};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.9cm,minimum height=0.72cm] (ch2) at (0.4,0.6){主存 \& Cache 通路};
-  % 扩展总线
-  \draw[thick,Navy!70] (-4.8,-0.8) -- (4.8,-0.8);
-  \node[font=\scriptsize,black!70] at (4.8,-0.56){扩展总线（I/O）};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.9cm,minimum height=0.72cm] (io) at (0.4,-0.8){各类 I/O 设备};
-  \draw[dashed,Teal!70] (cache.south) -- (0.4,0.6);
-  \draw[dashed,Burgundy!70] (0.4,0.6) -- (0.4,-0.8);
-  \node[font=\scriptsize,black!70,align=center] at (0,-1.7){三级总线分层，速度由快到慢：局部总线 $\to$ 存储总线 $\to$ 扩展总线};
-\end{tikzpicture}
-\end{center}
-
-\begin{attention}
-\textbf{408 常考点（总线结构对比）：}
-\begin{itemize}
-    \item \textbf{单总线}的核心问题是\textbf{总线竞争}——所有设备抢一条总线。
-    \item \textbf{双总线}的主要改进是将 CPU-主存通路与 I/O 通路分离。
-    \item \textbf{三总线}在双总线基础上进一步将局部设备与主存分离，形成速度分级。
-    \item 考题中常出现「某总线结构下，DMA 传送时 CPU 能否同时访问主存」——这取决于该总线结构中 CPU 和 DMA 是否共享同一总线。
-\end{itemize}
-\end{attention}
-
-\subsection{总线的性能指标}
-
-\begin{formula}{总线的核心性能指标}{bus-perf-metrics}
-衡量总线性能的三个基本参数及其关系：
-
+\begin{formula}{峰值带宽与有效带宽}{co6-bw}
+设数据总线宽度为 $W$ 位，时钟频率为 $f$，每个时钟周期传送 $N$ 次，则峰值带宽
 \[
-\boxed{\text{总线带宽} = \text{总线宽度} \times \text{总线工作频率}}
+B_{\text{peak}} = \frac{W}{8}\,f\,N \quad [\text{B/s}].
 \]
-
-\textbf{各单位说明：}
-\begin{itemize}
-    \item \textbf{总线宽度（Data Bus Width）}：数据总线的位数（位，bit），即总线一次能并行传输的数据量。如 32 位、64 位。
-    \item \textbf{总线工作频率（Bus Frequency）}：总线时钟的频率，单位为 Hz；其倒数即总线周期（总线时钟的周期时间）。
-    \item \textbf{总线带宽（Bus Bandwidth）}：总线在单位时间内可以传输的数据总量，单位为 B/s（字节/秒）或 bps（位/秒）。是衡量总线性能的最终指标。
-\end{itemize}
-
-\textbf{注意区分：}
-\begin{itemize}
-    \item 若每个总线周期传输一次数据：$\text{带宽} = \text{宽度} \times \text{频率}$
-    \item 若一个时钟周期传输多次数据（如 DDR 技术在上升沿和下降沿各传一次）：$\text{带宽} = \text{宽度} \times \text{频率} \times \text{每周期传输次数}$
-    \item 对于串行总线，带宽 = 有效传输速率（需扣除编码开销，如 PCIe 的 8b/10b 或 128b/130b 编码）。
-\end{itemize}
+普通同步总线取 $N=1$；DDR 在上下沿都传，取 $N=2$。若一次传送占 $k$ 个时钟周期，则把 $f$ 换成 $1/(k T_{\text{clk}})$：
+\[
+B = \frac{W}{8\,k\,T_{\text{clk}}}.
+\]
+峰值带宽假设总线一直在传有效数据。实际事务里还有地址、仲裁、等待周期，真正有用的是有效带宽
+\[
+B_{\text{eff}} = \frac{\text{一次事务传送的有效字节数}}{\text{该事务占用的总时间}}.
+\]
+串行总线把“宽度”换成每通道 1 位，把频率换成符号率 $R$，再乘编码效率：
+\[
+B = R\cdot\frac{k}{n}\cdot\frac{1}{8},
+\]
+其中 $k/n$ 是每 $n$ 个传输符号里携带 $k$ 位数据的比例，例如 8b/10b 编码取 $8/10$，128b/130b 编码取 $128/130$。
 \end{formula}
 
-\begin{conclusion}{总线带宽计算实例}{bus-bw-example}
-\boxed{\textbf{例 1}} 某总线宽度为 32 位，工作频率为 66 MHz，每个时钟周期传输一次数据。求总线带宽。
+总线周期是完成一次总线操作所占的时间，它和时钟周期不是一回事。一个总线周期可以包含多个时钟周期，具体由协议规定；题目说“每个总线周期传送一次”时，要先把总线周期频率算出来，再乘每次传送的字节数。公式里的 $k$ 就是起这个作用。
 
-\textbf{解：}$\text{带宽} = 32\ \text{bit} \times 66 \times 10^{6}\ \text{Hz} = 2.112 \times 10^{9}\ \text{bps} = 264\ \text{MB/s}$。
-
-\boxed{\textbf{例 2}} 某 DDR 内存总线宽度为 64 位，工作频率为 200 MHz（实际时钟频率），每个时钟周期在上升沿和下降沿各传输一次数据。求总线带宽。
-
-\textbf{解：}$\text{带宽} = 64\ \text{bit} \times 200 \times 10^{6}\ \text{Hz} \times 2 = 25.6 \times 10^{9}\ \text{bps} = 3.2\ \text{GB/s}$。
-
-\textbf{注意：}DDR（Double Data Rate）的等效数据速率是时钟频率的两倍。上例中常用标注「DDR-400」，即等效频率 400 MHz。
-\end{conclusion}
-
-\begin{conclusion}{其他总线性能指标}{bus-other-metrics}
-除了宽度、频率、带宽三个核心指标，评价总线性能还需关注：
-
-\begin{itemize}
-    \item \textbf{总线复用（Bus Multiplexing）}：地址线和数据线分时共享同一组物理线（如 PCI 总线复用 AD 线）。优点：减少引脚数和 PCB 走线；缺点：增加额外时序开销。
-    \item \textbf{总线猝发传输（Burst Transfer）}：发出一次地址后连续传输多个数据单元（如一个 Cache 块的多个字），适合连续地址访问。
-    \item \textbf{信号线数}：地址线、数据线和控制线的总数。
-    \item \textbf{负载能力}：总线上可以挂接的设备数量上限。
-    \item \textbf{总线标准}：不同标准的电压、时序、协议等规范。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频计算考点——总线带宽计算：}
-\begin{itemize}
-    \item 带宽公式：$\text{带宽} = \text{宽度（Byte）} \times \text{频率（Hz）} = \text{宽度（bit）} \times \text{频率（Hz）} / 8$。
-    \item 注意 \textbf{单位换算：}1 MHz $= 10^{6}$ Hz，1 MB/s = $10^{6}$ B/s（408 中使用十进制换算，除非明确说明）。
-    \item 若题目给出「总线时钟频率」和「总线周期数」，需先求出一个传输操作所需的时间，再反推每秒的传输次数。
-\end{itemize}
-\end{attention}
-
-\subsection{总线仲裁}
-
-当多个总线主设备同时请求使用总线时，需要仲裁机制决定哪个设备获得总线控制权。仲裁方式分为\textbf{集中式仲裁}和\textbf{分布式仲裁}两大类。
-
-\begin{mydef}{集中式仲裁}{centralized-arbitration}
-总线控制逻辑集中在一个仲裁器中，三种典型实现：
-\end{mydef}
-
-\begin{conclusion}{链式查询（Daisy Chain）}{daisy-chain}
-\textbf{信号线：}总线请求 BR（Bus Request），总线忙 BS（Bus Busy），总线允许 BG（Bus Grant）。
-
-\textbf{工作原理：}所有主设备共享一根 BR 线（线或），仲裁器收到请求后通过 BG 线发出允许信号。BG 信号按物理连接顺序\textbf{串行}依次经过每个主设备——距离仲裁器最近的设备具有最高优先级，若该设备没有请求，则将 BG 信号传给下一个设备。
-
-\textbf{优点：}控制线少（只需 3 根信号线），实现简单，可以方便地增加设备。\\
-\textbf{缺点：}
-\begin{itemize}
-    \item 优先级固定（最近的设备优先级最高），可能造成「饥饿」——远端的低优先级设备长期得不到总线。
-    \item BG 信号串行传递，若某段链路断开则后面所有设备都无法获得总线。
-    \item 对电路故障敏感。
-\end{itemize}
-\end{conclusion}
+单位按十进制换算：$1\ \text{MB/s}=10^6\ \text{B/s}$，$1\ \text{GB/s}=10^9\ \text{B/s}$。408 题目没有特别说明时都按这个口径。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.0cm,minimum height=0.8cm] (arb) at (-3.8,1.7){仲裁器};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.7cm] (d0) at (-1.1,1.7){设备 0};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.7cm] (d1) at (1.5,1.7){设备 1};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.7cm] (d2) at (4.1,1.7){设备 2};
-  \draw[->,Burgundy!70] (arb.east) -- node[above,font=\scriptsize]{BG 允许} (d0.west);
-  \draw[->,Burgundy!70] (d0.east) -- (d1.west);
-  \draw[->,Burgundy!70] (d1.east) -- (d2.west);
-  \draw[thick,Navy!70] (-3.8,-0.2) -- (4.1,-0.2);
-  \node[font=\scriptsize,black!70] at (0.1,0.08){总线请求 BR（所有设备线或共享送到仲裁器）};
-  \draw[Navy!70] (arb.south) -- (-3.8,-0.2);
-  \draw[Navy!70] (d0.south) -- (-1.1,-0.2);
-  \draw[Navy!70] (d1.south) -- (1.5,-0.2);
-  \draw[Navy!70] (d2.south) -- (4.1,-0.2);
-  \draw[thick,Navy!70] (-3.8,-1.15) -- (4.1,-1.15);
-  \node[font=\scriptsize,black!70] at (0.1,-0.87){总线忙 BS};
-  \node[font=\scriptsize,black!70,align=center] at (0.1,-1.8){BG 串行传递：离仲裁器最近的设备优先级最高，远端可能饥饿};
-\end{tikzpicture}
-\end{center}
-
-\begin{conclusion}{计数器定时查询（Polling Count）}{counter-polling}
-\textbf{信号线：}总线请求 BR，总线忙 BS（与链式查询相同）。不设 BG 线，改为一组\textbf{设备地址线}（$\lceil\log_2 n\rceil$ 根，$n$ 为主设备数）。
-
-\textbf{工作原理：}当有设备通过 BR 请求总线时，仲裁器中的计数器开始计数，将计数值通过设备地址线发送给各设备。设备将自己的编号与计数值比较：\textbf{匹配}且\textbf{有请求}的设备获得总线使用权，同时 BS 置位以阻止新仲裁。
-
-\textbf{优先级策略灵活：}
-\begin{itemize}
-    \item 计数器每次从 0 计数——固定优先级（编号越小优先级越高）。
-    \item 计数器从上一次获得总线的设备编号开始——循环优先级（各设备机会均等）。
-    \item 计数器可从任意初始值开始——程序可控优先级。
-\end{itemize}
-
-\textbf{优点：}优先级可编程控制，灵活性比链式查询好。\\
-\textbf{缺点：}需要 $\lceil\log_2 n\rceil$ 根设备地址线，设备数多时信号线较多；计数器计数过程增加了仲裁延迟（最坏需数到最大编号）。
-\end{conclusion}
-
-\begin{conclusion}{独立请求方式（Independent Request）}{independent-request}
-\textbf{信号线：}每个主设备拥有自己独立的\textbf{总线请求线 BR}$_i$ 和\textbf{总线允许线 BG}$_i$（共 $2n$ 根信号线）。
-
-\textbf{工作原理：}每个设备可以独立地向仲裁器发出请求。仲裁器内部根据预设的优先级逻辑（可由硬件实现也可由程序设定），在所有发出请求的设备中选择优先级最高的一个，通过对应的 BG$_i$ 线向该设备发送允许信号。
-
-\textbf{优点：}
-\begin{itemize}
-    \item \textbf{响应最快}——仲裁器直接选择，无需串行传递或计数器扫描。
-    \item 优先级可灵活设定（甚至可通过程序动态修改）。
-\end{itemize}
-
-\textbf{缺点：}信号线数量最多（$2n$ 根），设备多时成本高。
-\end{conclusion}
-
-\begin{tablebox}{三种集中式仲裁方式对比}
-\centering
-\small
-\begin{tabularx}{\linewidth}{|c|c|X|c|X|}
-\hline
-特性 & 链式查询 & 计数器定时查询 & 独立请求 \\
-\hline
-控制线数（$n$ 个设备） & $3$ & $2 + \lceil\log_2 n\rceil$ & $2n$ \\
-响应速度 & 慢（串行） & 中等（计数） & 快（并行选择） \\
-优先级灵活性 & 固定（物理位置） & 可编程 & 可编程（最灵活） \\
-电路可靠性 & 差（链断全废） & 较好 & 较好 \\
-可扩展性 & 好（增减容易） & 中等 & 差（增加需增线） \\
-\hline
-\end{tabularx}
-\end{tablebox}
-
-\begin{conclusion}{分布式仲裁}{distributed-arbitration}
-分布式仲裁不需要中央仲裁器，每个主设备都有自己的仲裁逻辑电路，通过设备编号或仲裁号竞争总线。
-
-\textbf{工作原理：}每个主设备都有一个唯一的\textbf{仲裁号（优先级号）}。所有请求总线的设备将自己的仲裁号发到共享的仲裁线上。各设备通过比较逻辑，判断自己是否是当前请求者中优先级最高的——如果是，则获得总线控制权；否则等待。仲裁号较大的或较小的为高优先级（取决于设计约定）。
-
-\textbf{典型实现：}具有线与/线或共享仲裁线的自选择式仲裁电路，可由各主设备同时驱动优先级编码并在共享线上比较，最终由最高优先级设备保留总线请求。传统 PCI 不属于这一类，而是采用中央仲裁器和各主设备独立的 REQ\#/GNT\# 信号。
-
-\textbf{优点：}不需要中央仲裁器，可靠性高（单点故障不影响全局），易于扩展。\\
-\textbf{缺点：}每个设备都需要仲裁电路，实现较集中式复杂。
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 常考点——三种集中式仲裁的对比选择题：}
-\begin{itemize}
-    \item \textbf{「链式查询中，离仲裁器最近的设备优先级最高」}——判断题常考点。
-    \item \textbf{「独立请求方式的信号线数最多」}——$n$ 个设备需要 $2n$ 条线。
-    \item \textbf{「计数器定时查询中，计数器的初始值可以决定优先级策略」}——这是其区别于链式查询的灵活性关键。
-    \item 注意区分：链式查询的 BG 线是\textbf{一根线串行传递}，不是每个设备一根 BG 线。
-\end{itemize}
-\end{attention}
-
-\subsection{总线定时——同步通信与异步通信}
-
-总线定时（Bus Timing）规定了总线上各信号之间的时序关系，确保主设备和从设备之间能够正确地收发数据。主要分为\textbf{同步通信}和\textbf{异步通信}两种方式。
-
-\begin{mydef}{同步通信（Synchronous Communication）}{sync-comm}
-系统采用统一的时钟信号来控制数据传输的节奏。总线上的所有操作都在时钟信号的固定节拍下进行，主设备和从设备按照统一的时钟周期完成发送和接收。
-
-\textbf{特点：}
-\begin{itemize}
-    \item 主设备在时钟的某固定沿（如上升沿）发出地址和控制信号，从设备在随后的若干个固定时钟周期内将数据放到总线上。
-    \item 每个总线周期完成的步骤和时间均固定不变（地址周期、数据周期等由时钟数决定）。
-\end{itemize}
-
-\textbf{优点：}实现简单，控制逻辑清晰，适合速度相近的设备之间通信。\\
-\textbf{缺点：}
-\begin{itemize}
-    \item \textbf{时钟偏斜（Clock Skew）问题}：当总线较长或频率较高时，时钟信号到达不同设备的时刻不一致，可能导致时序错误。
-    \item \textbf{速度匹配困难}：快慢设备必须按统一的最慢设备的时钟频率工作，限制了高速设备的性能。
-\end{itemize}
-\end{mydef}
-
-\begin{mydef}{异步通信（Asynchronous Communication）}{async-comm}
-不使用统一的时钟信号，而是通过\textbf{握手信号（Handshake）}来协调主设备和从设备之间的数据传送。
-
-\textbf{握手信号的基本交互过程}（全互锁/全握手方式）：
-\begin{enumerate}
-    \item 主设备将数据（或地址+命令）放到总线上，然后发出\textbf{数据就绪}（Ready / Data Valid）信号。
-    \item 从设备检测到数据就绪信号后，读取数据，然后发出\textbf{应答}（Acknowledge / Accept）信号。
-    \item 主设备收到应答信号后，撤销数据就绪信号（表示知道数据已被取走）。
-    \item 从设备检测到数据就绪信号撤销后，撤销应答信号（恢复到初始状态，准备下一次传输）。
-\end{enumerate}
-
-\textbf{优缺点：}
-\begin{itemize}
-    \item \textbf{优点：}不同速度的设备可以灵活通信，快慢自适应，不需要统一时钟，总线长度可以更长。
-    \item \textbf{缺点：}控制逻辑复杂（需要额外的握手电路），每次传输的握手开销降低了传输效率（尤其在大批量数据传输时）。
-\end{itemize}
-\end{mydef}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % 时间轴 + 事件网格线
-  \draw[->,thick,Navy] (0,-0.4) -- (9.4,-0.4) node[right,font=\scriptsize]{时间 $t$};
-  \foreach \x in {0.5,1.5,3.0,4.5,6.0,7.5}{
-    \draw[dotted,RuleGray] (\x,-0.3) -- (\x,3.6);
+\begin{tikzpicture}[>=stealth,font=\scriptsize,x=1cm,y=1cm]
+  \draw[->] (0,-0.1) -- (8.6,-0.1) node[right]{$t$};
+  \foreach \x in {0,2,4,6} \draw[dotted,RuleGray] (\x,0) -- (\x,4.6);
+  % 时钟
+  \draw[very thick,Navy] (0,4.2)--(1,4.2)--(1,3.7)--(2,3.7)--(2,4.2)--(3,4.2)--(3,3.7)--(4,3.7)--(4,4.2)--(5,4.2)--(5,3.7)--(6,3.7);
+  \node[anchor=east] at (-0.1,3.95){CLK};
+  % 单沿
+  \foreach \x/\t in {0.1/D0,2.1/D1,4.1/D2}{
+    \draw[fill=SoftTeal,draw=Teal] (\x,2.4) rectangle (\x+1.7,3.1);
+    \node at (\x+0.85,2.75){\t};
   }
-  % 地址/数据（主设备发出）
-  \draw[very thick,Teal!90] (0,2.75) -- (0.5,2.75) -- (0.5,3.25) -- (7.5,3.25) -- (7.5,2.75) -- (9,2.75);
-  \node[anchor=east,font=\scriptsize] at (-0.3,3.0){地址/数据（主）};
-  % 就绪 READY（主设备发出）
-  \draw[very thick,Navy] (0,1.75) -- (1.5,1.75) -- (1.5,2.25) -- (4.5,2.25) -- (4.5,1.75) -- (9,1.75);
-  \node[anchor=east,font=\scriptsize] at (-0.3,2.0){就绪 READY（主）};
-  % 应答 ACK（从设备发出）
-  \draw[very thick,Amber!85!black] (0,0.7) -- (3.0,0.7) -- (3.0,1.3) -- (6.0,1.3) -- (6.0,0.7) -- (9,0.7);
-  \node[anchor=east,font=\scriptsize] at (-0.3,1.0){应答 ACK（从）};
-
-  % 全互锁步骤标注
-  \node[font=\scriptsize\bfseries,text=TealDark] at (1.5,2.55){(1) 数据就绪};
-  \node[font=\scriptsize\bfseries,text=TealDark] at (4.5,2.55){(3) 撤就绪};
-  \node[font=\scriptsize\bfseries,text=Amber!90] at (3.0,1.55){(2) 应答};
-  \node[font=\scriptsize\bfseries,text=Amber!90] at (6.0,1.55){(4) 撤应答};
-  \node[font=\scriptsize,text=Navy] at (6.9,2.55){完成};
-
+  \node[anchor=west] at (6.1,2.75){每周期 1 次};
+  % 双沿
+  \foreach \x/\t in {0.1/D0,1.1/D1,2.1/D2,3.1/D3,4.1/D4,5.1/D5}{
+    \draw[fill=SoftAmber,draw=Amber] (\x,1.25) rectangle (\x+0.8,1.85);
+    \node at (\x+0.4,1.55){\t};
+  }
+  \node[anchor=west] at (6.1,1.55){每周期 2 次（双沿）};
   % 底部说明
-  \node[font=\scriptsize,text=TealDark,align=center] at (4.5,-1.15){主设备放数据并发出就绪 $\to$ 从设备读走并发出应答 $\to$ 主设备撤就绪 $\to$ 从设备撤应答（全互锁，无需统一时钟）};
+  \draw[RuleGray] (0,0.55) -- (6,0.55);
+  \draw[RuleGray] (0,0.45) -- (0,0.65);
+  \draw[RuleGray] (6,0.45) -- (6,0.65);
+  \node[below] at (3,0.45){同样 3 个时钟周期：上半部分 3 个数据，下半部分 6 个数据};
 \end{tikzpicture}
 \end{center}
 
-\begin{conclusion}{同步与异步通信对比}{sync-vs-async}
-\begin{tablebox}{同步通信 vs 异步通信}
-\centering
-\begin{tabular}{|c|c|c|}
-\hline
-特性 & 同步通信 & 异步通信 \\
-\hline
-时钟信号 & 需要统一时钟 & 无需统一时钟 \\
-控制方式 & 固定时序（时钟节拍） & 握手应答 \\
-传输速率 & 固定（由时钟决定） & 可变（由慢方决定） \\
-速度匹配 & 困难（快慢均按最慢） & 灵活（自动适配） \\
-电路复杂度 & 低 & 高 \\
-适用场景 & 部件间/板级高速通信 & 远距离/跨机箱通信 \\
-典型标准 & 处理器-内存总线 & RS-232、早期的 I/O 总线 \\
-\hline
-\end{tabular}
-\end{tablebox}
-\end{conclusion}
+图的上面一行是普通同步总线：一个时钟周期一个数据块。下面一行是双沿传送：上升沿、下降沿各采一次，同样三个周期得到两倍数据。带宽公式里的 $N$ 就是这里“每周期几个块”的倍数，不是时钟频率本身的倍数。
 
-\begin{attention}
-\textbf{408 常考点：}
-\begin{itemize}
-    \item \textbf{同步通信必须有时钟信号}，异步通信通过握手信号取代时钟。
-    \item \textbf{「同步通信比异步通信快」}——未必正确！在设备速度差异性大的场景下，同步通信受制于最慢设备反而效率更低。
-    \item 扩展概念：\textbf{半同步通信}——在同步通信基础上引入「等待信号」（WAIT），允许慢速设备在约定的时钟周期内向主设备发出等待请求以插入等待周期，兼顾简单性和灵活性。
-    \item 扩展概念：\textbf{分离式通信}——将总线传输拆分为「请求」阶段和「为请求提供服务」阶段，两个阶段之间总线可以释放给其他主设备使用，提高总线利用率。
-\end{itemize}
-\end{attention}
+串行总线也能用同一套思路算。PCIe 3.0 每通道 8 GT/s，采用 128b/130b 编码，单向有效带宽为 $8\times10^9\times\frac{128}{130}\times\frac{1}{8}\approx0.985\ \text{GB/s}$。$\times16$ 就是 16 条通道并行，单向约 15.75 GB/s，双向合计约 31.5 GB/s。注意 GT/s 是每秒传输次数，不是每秒字节数，中间要乘编码效率再除以 8。
 
-\subsection{总线标准}
+\subsection{突发传输：一次地址，多个数据}
 
-\begin{mydef}{总线标准的含义}{bus-standard}
-总线标准是指计算机系统中各部件通过总线连接时必须遵循的\textbf{协议规范}，包括机械尺寸（插槽形状、引脚排列）、电气特性（电压、信号电平）、时序关系和通信协议等。标准化使得不同厂商的设备可以兼容。
-\end{mydef}
+Cache 块通常有 64 B。假设总线一次传 16 B，一次读块就要传 4 拍。如果每一拍都重新发地址，总线有一半时间在传地址，数据带宽白白浪费。突发传输就是针对这种情况：主设备只在开头发一次地址，后面连续传 $n$ 个数据，地址由从设备自动递增。
 
-\begin{conclusion}{PCI 总线（Peripheral Component Interconnect）}{pci}
-\textbf{PCI 总线}是一种由 Intel 在 1992 年推出的局部总线标准，曾长期作为 PC 中的标准扩展总线。
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,x=1cm,y=1cm]
+  \draw[->] (0,-0.1) -- (9.3,-0.1) node[right]{总线周期};
+  \foreach \x in {0,...,8} \draw[dotted,RuleGray] (\x,0) -- (\x,5.1);
+  % 非突发
+  \node[anchor=east] at (-0.1,4.35){非突发};
+  \foreach \i/\t in {0/A0,1/D0,2/A1,3/D1,4/A2,5/D2,6/A3,7/D3}{
+    \draw[fill=SoftAmber,draw=Amber] (\i+0.05,4.05) rectangle (\i+0.95,4.65);
+    \node at (\i+0.5,4.35){\t};
+  }
+  \node[anchor=west] at (8.1,4.35){8 个周期};
+  % 突发
+  \node[anchor=east] at (-0.1,2.45){突发};
+  \draw[fill=SoftAmber,draw=Amber] (0.05,2.15) rectangle (0.95,2.75);
+  \node at (0.5,2.45){A0};
+  \foreach \i/\t in {0/D0,1/D1,2/D2,3/D3}{
+    \draw[fill=SoftTeal,draw=Teal] (\i+1.05,2.15) rectangle (\i+1.95,2.75);
+    \node at (\i+1.5,2.45){\t};
+  }
+  \draw[dashed,RuleGray] (5.05,2.15) rectangle (7.95,2.75);
+  \node[text=MutedText] at (6.5,2.45){空闲};
+  \node[text=MutedText] at (6.5,1.55){可服务其他主设备};
+  \node[anchor=west] at (5.05,2.95){共 5 个周期};
+  % 括号
+  \draw[Amber] (0.05,1.95) -- (0.05,1.82) -- (0.95,1.82) -- (0.95,1.95);
+  \node[below] at (0.5,1.80){地址};
+  \draw[Teal] (1.05,1.95) -- (1.05,1.82) -- (4.95,1.82) -- (4.95,1.95);
+  \node[below] at (3.0,1.80){4 个数据节拍};
+  % 说明
+  \node[anchor=west,align=left] at (0,0.75){非突发：每拍都带地址，有效带宽只有峰值的一半；\\
+  突发：地址只占 1 个周期，效率为 $4/5=80\%$。};
+\end{tikzpicture}
+\end{center}
 
-\begin{itemize}
-    \item \textbf{并行总线：}数据宽度 32 位（可扩展为 64 位），地址和数据复用（AD 线分时复用），减少了引脚数。
-    \item \textbf{工作频率与带宽：}33 MHz 时钟下，32 位 PCI 带宽为 133 MB/s；66 MHz 下 64 位 PCI 带宽为 533 MB/s。
-    \item \textbf{支持猝发传输（Burst Transfer）：}一次地址后可连续传输大量数据（不限于单个地址），故实际数据传输带宽比仅按单次地址-数据方式计算要高。
-    \item \textbf{即插即用（Plug and Play）：}支持设备的自动配置——BIOS/OS 在启动时自动分配 I/O 地址、内存空间和中断号。
-    \item \textbf{总线仲裁：}采用集中式独立请求仲裁方式，支持多个主设备。
-    \item \textbf{与 CPU 独立：}PCI 总线独立于处理器类型（不绑定特定 CPU），通过桥接芯片与处理器总线连接。
-\end{itemize}
-\end{conclusion}
+图里同一个事务画了两遍：上面每传一个数据就重新发一次地址，8 个周期才传完 4 个数据；下面只在开头发一次地址，后面 4 个周期连续传数据，第 5 个周期就结束。总线周期固定时，省下来的 3 个周期可以给别的设备用。
 
-\begin{conclusion}{PCI Express（PCIe）总线}{pcie}
-\textbf{PCIe} 是 PCI 的替代标准，采用\textbf{串行点对点}双工连接方式，完全不同于 PCI 的并行共享总线架构。
+设突发长度（数据拍数）为 $n$，地址阶段占 1 个总线周期，每个数据占 1 个周期，则
+\[
+\eta=\frac{n}{n+1},\qquad
+B_{\text{eff}}=\frac{nW/8}{(n+1)T_{\text{clk}}}.
+\]
+若从设备慢，插入了 $w$ 个等待周期，分母再加 $w$；若地址和数据复用同一组线，地址阶段无法与数据重叠，这 1 个周期的开销也躲不掉。突发越长，地址开销摊得越薄，但长度受从设备缓冲区、地址边界和最长占用时间限制；太长会让其他主设备等太久。
 
-\begin{itemize}
-    \item \textbf{串行传输：}使用差分信号对（一对发送 + 一对接收），每个方向一个\textbf{通道（Lane）}，可组合 1、2、4、8、16、32 条通道（PCIe $\times$1、$\times$4、$\times$8、$\times$16）。
-    \item \textbf{全双工：}每个通道可同时进行发送和接收。
-    \item \textbf{数据编码与带宽：}
-    \begin{itemize}
-        \item PCIe 1.x/2.x：8b/10b 编码（每 8 位数据用 10 位传输，20\% 编码开销）。
-        \item PCIe 3.0：128b/130b 编码（编码开销降至约 1.5\%）。
-        \item \textbf{带宽计算示例：} PCIe 3.0 $\times$1 的原始速率 8 GT/s（Giga Transfers per second），考虑 128b/130b 编码后有效带宽 $\approx 8 \times 128/130 \times 1/8 \approx 0.985\ \text{GB/s}$（单向）。PCIe 3.0 $\times$16 双向总带宽约 32 GB/s。
-    \end{itemize}
-    \item \textbf{交换式架构：}不同于 PCI 的共享总线拓扑，PCIe 采用基于\textbf{交换器（Switch）}的点对点拓扑，每个设备独占与交换器的通信通道，不存在总线竞争问题。
-    \item \textbf{分层协议：}事务层（Transaction Layer）、数据链路层（Data Link Layer）、物理层（Physical Layer）。
-    \item \textbf{差分信号与嵌入式时钟：}数据与时钟编码在一起，无需单独的时钟线。
-\end{itemize}
-\end{conclusion}
+举个例子。128 位总线，100 MHz，突发传 8 个数据。地址 1 拍加数据 8 拍，共 9 拍，$T_{\text{clk}}=10$ ns，耗时 90 ns。有效数据 $8\times16=128$ B，有效带宽 $128\ \text{B}/90\ \text{ns}\approx1.42\ \text{GB/s}$；峰值是 $16\ \text{B}\times100\ \text{MHz}=1.6\ \text{GB/s}$，利用率 $8/9\approx88.9\%$。同样 8 个数据若每拍都发地址，需要 16 拍、160 ns，有效带宽只有 0.8 GB/s。
 
-\begin{conclusion}{USB 总线（Universal Serial Bus）}{usb}
-\textbf{USB} 是连接计算机与外部设备的标准串行接口总线，支持热插拔（Hot Plug）。
+地址线和数据线分开的总线还能做流水线突发：当前数据在总线上传时，下一拍地址已经可以送出去。这样地址开销几乎被完全遮住。地址/数据复用的总线做不到这一点，因为同一组线不能同时传地址和数据。这种让地址和数据分时共用一组物理线的做法叫总线复用，它省引脚和走线，代价就是地址阶段无法与数据重叠，突发效率要低一些。
 
-\textbf{拓扑结构：}树形星型拓扑，单一主机（Host）控制所有通信。一个 USB 系统有一个主机控制器，通过集线器（Hub）连接最多 127 个设备（含集线器）。
+\subsection{仲裁：多个主设备怎么排队}
 
-\textbf{传输模式：}USB 支持四种传输类型以适应不同设备需求：
-\begin{enumerate}
-    \item \textbf{控制传输（Control Transfer）}：用于设备的初始配置和命令/状态通信（如设备枚举阶段）。
-    \item \textbf{批量传输（Bulk Transfer）}：用于大批量数据的可靠传输，无带宽保证，利用总线空闲传输（如 U 盘、打印机）。
-    \item \textbf{中断传输（Interrupt Transfer）}：用于小批量、有延迟保证的周期性数据传输（如键盘、鼠标）。
-    \item \textbf{同步传输（Isochronous Transfer）}：用于实时数据流，保证带宽但无纠错重传（如音频、视频设备）。
-\end{enumerate}
+CPU 和 DMA 控制器可能同时想用总线。总线只能给一个，仲裁要回答三件事：谁先得到、多久能得到、得到后能占用多长时间。裁决逻辑集中在一个仲裁器里，叫集中式仲裁；没有仲裁器、各设备自己比较的，叫分布式仲裁。408 重点考集中式的三种：链式查询、计数器定时查询、独立请求。
 
-\textbf{版本演进与速率：}
-\begin{itemize}
-    \item USB 1.1：低速 1.5 Mbps，全速 12 Mbps。
-    \item USB 2.0：高速 480 Mbps。
-    \item USB 3.0：超高速 5 Gbps（增加独立的发送/接收通道，实现全双工）。
-    \item USB 3.1/3.2：10 Gbps / 20 Gbps。
-    \item USB4：最高 40 Gbps（基于 Thunderbolt 3 协议）。
-\end{itemize}
-\end{conclusion}
+链式查询只用三根线：总线请求 BR、总线忙 BS、总线允许 BG。所有设备的 BR 连在一起，形成线或：只要有一个设备拉有效，仲裁器就看到请求。仲裁器发出 BG 后，BG 从离它最近的设备开始，一级一级往下传。
 
-\begin{conclusion}{常见总线标准速查表}{bus-standards-table}
-\begin{tablebox}{常见总线标准对比}
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=1.8cm,minimum height=1.0cm,align=center] (arb) at (-5.4,1.2){仲裁器};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.95cm,align=center] (d0) at (-2.9,1.2){设备 0\\（最高）};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.95cm,align=center] (d1) at (0,1.2){设备 1};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.95cm,align=center] (d2) at (2.9,1.2){设备 2};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.95cm,align=center] (d3) at (5.6,1.2){设备 3\\（最低）};
+  % BG 串行链
+  \draw[->,Burgundy!80,thick] (arb.east) -- (d0.west);
+  \draw[->,Burgundy!80,thick] (d0.east) -- (d1.west);
+  \draw[->,Burgundy!80,thick] (d1.east) -- (d2.west);
+  \draw[->,Burgundy!80,thick] (d2.east) -- (d3.west);
+  \node[above] at (-1.45,1.8){BG 允许，逐级串行传递};
+  % BR 与 BS
+  \draw[thick,Navy!70] (-6.2,-0.6) -- (6.1,-0.6);
+  \draw[thick,Navy!70] (-6.2,-1.35) -- (6.1,-1.35);
+  \node[anchor=west] at (6.15,-0.6){BR（线或）};
+  \node[anchor=west] at (6.15,-1.35){BS};
+  % 仲裁器引出
+  \draw[Navy!70] (-5.55,0.7) -- (-5.55,-0.6);
+  \draw[Navy!70] (-5.25,0.7) -- (-5.25,-1.35);
+  \fill[Navy!70] (-5.55,-0.6) circle (1.3pt);
+  \fill[Navy!70] (-5.25,-1.35) circle (1.3pt);
+  % 各设备引出
+  \foreach \x/\y in {-2.9/1.2,0/1.2,2.9/1.2,5.6/1.2}{
+    \draw[Navy!70] (\x-0.1,\y-0.48) -- (\x-0.1,-0.6);
+    \draw[Navy!70] (\x+0.1,\y-0.48) -- (\x+0.1,-1.35);
+    \fill[Navy!70] (\x-0.1,-0.6) circle (1.3pt);
+    \fill[Navy!70] (\x+0.1,-1.35) circle (1.3pt);
+  }
+  \node[align=center,text=MutedText] at (0,-2.15){设备无请求时把 BG 原样右传；有请求时截获 BG、置 BS，并停止继续传递};
+\end{tikzpicture}
+\end{center}
+
+看图时顺着 BG 箭头走：BG 不是每个设备一根，而是一根线从仲裁器出发，穿过每个设备。设备 0 离得最近，BG 先到它；它不请求，BG 才继续往右。因此优先级由物理位置固定死，设备 0 最高，越远越低。BR 是所有设备共用的一根线，任何设备都能拉有效；BS 表示总线正在被占用，防止别的设备在事务中途插进来。
+
+链式查询的优点是线少，加设备只要把 BG 链续下去。缺点是 BG 每过一级都有门延迟，设备越多，最远端的等待越长；某一级链路断了，后面的设备就再也收不到 BG。优先级也没法改，远端设备在重负载下可能长期轮不到，也就是饥饿。
+
+计数器定时查询把“位置”换成“编号”。仲裁器里有一个计数器，收到 BR 后把计数值送上设备地址线，所有设备同时拿自己的编号去比较；编号相同且有请求的设备获胜，置 BS，计数器随即停止。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=1.8cm,minimum height=1.1cm,align=center] (arb) at (-5.3,1.1){仲裁器\\计数器};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.9cm,align=center] (d0) at (-2.8,0.7){设备 0};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.9cm,align=center] (d1) at (-0.2,0.7){设备 1};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.9cm,align=center] (d2) at (2.4,0.7){设备 2};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.9cm,align=center] (d3) at (5.0,0.7){设备 3};
+  % 设备地址线
+  \draw[Navy!70] (arb.north) -- (-5.3,2.6);
+  \draw[very thick,Navy!70] (-5.3,2.6) -- (5.7,2.6);
+  \foreach \x in {-2.8,-0.2,2.4,5.0} \draw[->,Navy!70] (\x,2.55) -- (\x,1.2);
+  \node[above] at (0.2,2.65){设备地址线 $\lceil\log_2 n\rceil$ 根，所有设备同时比较};
+  % BR / BS
+  \draw[thick,Navy!70] (-6.2,-0.65) -- (5.9,-0.65);
+  \draw[thick,Navy!70] (-6.2,-1.4) -- (5.9,-1.4);
+  \node[anchor=west] at (5.95,-0.65){BR};
+  \node[anchor=west] at (5.95,-1.4){BS};
+  \draw[Navy!70] (-5.45,0.55) -- (-5.45,-0.65);
+  \draw[Navy!70] (-5.15,0.55) -- (-5.15,-1.4);
+  \fill[Navy!70] (-5.45,-0.65) circle (1.3pt);
+  \fill[Navy!70] (-5.15,-1.4) circle (1.3pt);
+  \foreach \x in {-2.8,-0.2,2.4,5.0}{
+    \draw[Navy!70] (\x-0.1,0.25) -- (\x-0.1,-0.65);
+    \draw[Navy!70] (\x+0.1,0.25) -- (\x+0.1,-1.4);
+    \fill[Navy!70] (\x-0.1,-0.65) circle (1.3pt);
+    \fill[Navy!70] (\x+0.1,-1.4) circle (1.3pt);
+  }
+  \node[align=center,text=MutedText] at (0,-2.15){编号与计数值相同且发出请求的设备获胜；它置 BS，计数器停止};
+\end{tikzpicture}
+\end{center}
+
+图里没有 BG 链，取而代之的是一组地址线。计数器从某个初值开始加 1，每个计数值同时送到所有设备；谁的编号等于计数值、并且它的 BR 有效，谁就拿到总线。BS 一旦置位，计数器停止，本轮仲裁结束。
+
+计数器的初值决定优先级策略。每次从 0 开始，编号小的优先，是固定优先级；从上一次获胜者的下一个编号开始，各设备轮转，是循环优先级；初值由程序写入，就是可编程优先级。代价是地址线需要 $\lceil\log_2 n\rceil$ 根，加上 BR、BS 共 $2+\lceil\log_2 n\rceil$ 根；最坏情况下计数器要扫到最后一个编号，响应时间随设备数增长。
+
+独立请求方式更直接：每个设备都有自己的请求线 BR$_i$ 和允许线 BG$_i$，仲裁器内部并行比较所有请求，直接选中优先级最高的那个。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\scriptsize]
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=1.9cm,minimum height=4.2cm,align=center] (arb) at (-5.2,0){优先级\\裁决};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.8cm,minimum height=0.7cm,align=center] (q0) at (0.9,1.8){设备 0};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.8cm,minimum height=0.7cm,align=center] (q1) at (0.9,0.6){设备 1};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.8cm,minimum height=0.7cm,align=center] (q2) at (0.9,-0.6){设备 2};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.8cm,minimum height=0.7cm,align=center] (q3) at (0.9,-1.8){设备 3};
+  \foreach \y/\n in {1.8/0,0.6/1,-0.6/2,-1.8/3}{
+    \draw[->,Burgundy!80] ([yshift=0.1cm]q\n.west) -- (-4.2,{\y+0.1});
+    \draw[->,Teal!80] (-4.2,{\y-0.1}) -- ([yshift=-0.1cm]q\n.west);
+  }
+  \node[above,text=Burgundy] at (-2.2,2.35){BR$_i$：设备请求总线};
+  \node[below,text=TealDark] at (-2.2,-2.35){BG$_i$：仲裁器发出允许};
+  \node[align=center,text=MutedText] at (-2.2,-2.9){每台设备一对线，$n$ 台设备共 $2n$ 根};
+\end{tikzpicture}
+\end{center}
+
+图里每台设备都有两根独立的线，仲裁器一眼能看出谁在请求，不需要逐级传 BG，也不需要计数器扫描。所以独立请求响应最快，优先级也能由内部逻辑或程序灵活设定。代价是线数随设备数线性增长：$n$ 台设备要 $2n$ 根请求/允许线。设备一多，布线和连接器都吃不消，因此它适合主设备数量不多的系统，PCI 就采用这种方式。
+
+\begin{tablebox}{三种集中式仲裁方式的取舍}
 \centering
 \small
-\begin{tabularx}{\linewidth}{|c|c|X|p{0.25\linewidth}|X|}
-\hline
-总线 & 类型 & 传输方式 & 典型带宽 & 适用场景 \\
-\hline
-PCI & 并行 & 共享总线/半双工 & 133 MB/s (32bit@33MHz) & 传统扩展卡 \\
-PCIe 3.0 $\times$16 & 串行 & 点对点/全双工 & $\approx 16$ GB/s & 显卡/SSD \\
-USB 2.0 & 串行 & 共享/半双工 & 480 Mbps & 外设（键鼠/U盘） \\
-USB 3.0 & 串行 & 全双工 & 5 Gbps & 高速外设 \\
-SATA 3.0 & 串行 & 点对点 & 6 Gbps & 硬盘/SSD \\
-\hline
+\begin{tabularx}{\linewidth}{@{}l c c c X@{}}
+\toprule
+方式 & 信号线数 & 优先级 & 响应速度 & 主要问题 \\
+\midrule
+链式查询 & $3$ & 由物理位置固定 & 逐级传递，慢 & 链路故障会切断后续设备 \\
+计数器查询 & $2+\lceil\log_2 n\rceil$ & 可由计数初值设定 & 逐个比较，中等 & 设备多时地址线变宽 \\
+独立请求 & $2n$ & 可编程 & 并行裁决，快 & 线数随设备数线性增长 \\
+\bottomrule
 \end{tabularx}
 \end{tablebox}
-\end{conclusion}
+
+分布式仲裁没有中央仲裁器。每个主设备有唯一的仲裁号，需要总线时把自己的号送到共享仲裁线上；线与之后，线上出现的是所有请求号中的最大值（或最小值，取决于约定），谁发现自己的号等于这个值，谁就获胜。CAN 总线用的就是这种思路：标识符小的帧优先，而且冲突时不会破坏已经在传的数据。
 
 \begin{attention}
-\textbf{408 高频辨析——PCI vs PCIe：}
-\begin{itemize}
-    \item PCI 是\textbf{并行}共享总线，PCIe 是\textbf{串行}点对点连接。这是二者最本质的架构差异。
-    \item PCI 使用地址/数据复用（AD 线），PCIe 使用数据包（Packet）交换。
-    \item PCIe $\times n$ 中的 $n$ 指的是通道（Lane）数，不是总线宽度（bit）。每条通道为全双工差分信号对。
-    \item PCIe 没有传统的「总线仲裁」概念——采用交换式拓扑，各设备独立通道。
-    \item USB 是\textbf{主从式}（Host-Device）——所有通信由主机发起，设备不能主动发送数据。
-\end{itemize}
+链式查询的 BG 只有一根线，按物理顺序串行传递，不是每个设备一根。独立请求的 $2n$ 根线指 $n$ 根 BR$_i$ 加 $n$ 根 BG$_i$，每个设备一对，仲裁器不再需要逐级传递允许信号。优先级高也不等于响应快：链式查询里近端设备优先级最高，但 BG 仍要一级级传过去。
 \end{attention}
 
-% =============================
-% 基础过关题
-% =============================
-\subsection{基础过关题}
+\subsection{定时：按节拍走，还是按握手走}
 
-\begin{enumerate}[leftmargin=*]
+总线上的信号不会瞬间稳定。主设备什么时候放地址、从设备什么时候放数据、主设备在哪个时刻采样，需要一套规则，这就是总线定时。最常见的是同步和异步两种。
 
-\item \textbf{（真题风格·选择题）} 在系统总线的数据线上，不可能传输的是
+同步通信让所有设备共用一根时钟线。地址和命令在某个时钟沿发出，从设备在固定数量的周期内把数据放上线，主设备在约定的沿采样。整个事务占几个周期，协议事先规定死。
 
 \begin{center}
-\begin{tabular}{ll}
-(A) 指令 & (B) 操作数 \\[6pt]
-(C) 握手（应答）信号 & (D) 中断类型号
-\end{tabular}
+\begin{tikzpicture}[>=stealth,font=\scriptsize,x=1cm,y=1cm]
+  \draw[->] (0,0.15) -- (8.6,0.15) node[right]{$t$};
+  \foreach \x in {0,2,4,6,8} \draw[dotted,RuleGray] (\x,0.2) -- (\x,4.65);
+  \node[above] at (1,4.6){T0};
+  \node[above] at (3,4.6){T1};
+  \node[above] at (5,4.6){T2};
+  \node[above] at (7,4.6){T3};
+  % 时钟
+  \draw[very thick,Navy] (0,4.2)--(1,4.2)--(1,3.7)--(2,3.7)--(2,4.2)--(3,4.2)--(3,3.7)--(4,3.7)--(4,4.2)--(5,4.2)--(5,3.7)--(6,3.7)--(6,4.2)--(7,4.2)--(7,3.7)--(8,3.7);
+  \node[anchor=east] at (-0.1,3.95){CLK};
+  % 地址命令
+  \draw[fill=SoftAmber,draw=Amber] (0.05,2.85) rectangle (1.95,3.35);
+  \node at (1,3.1){地址 + 读命令};
+  \node[anchor=east] at (-0.1,3.1){地址/命令};
+  % WAIT
+  \draw[very thick,Amber!85!black] (0,2.25)--(2.05,2.25)--(2.05,1.85)--(5.95,1.85)--(5.95,2.25)--(8,2.25);
+  \node[anchor=east] at (-0.1,2.05){WAIT};
+  \node[above] at (3.0,2.3){从设备拉低，请求等待};
+  % 数据
+  \draw[fill=SoftTeal,draw=Teal] (2.05,0.85) rectangle (6.0,1.35);
+  \node at (4.0,1.1){数据有效};
+  \node[anchor=east] at (-0.1,1.1){数据};
+  % 采样点
+  \draw[dashed,Burgundy] (4,0.45) -- (4,2.75);
+  \node[below] at (3.8,0.45){原定采样点};
+  \draw[->,TealDark,thick] (6,0.45) -- (6,0.80);
+  \node[below] at (6.5,0.45){插入等待后实际采样};
+\end{tikzpicture}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(C)
+图里 T0 发地址和读命令，从设备在 T1 准备数据，正常应在 T2 的上升沿采样。如果从设备来不及，就在 T1 期间把 WAIT 拉低；主设备在 T2 沿看到 WAIT，插入一个等待周期，把采样推到 T3。等待周期里总线不传有效数据，但时间照样过去，所以算有效带宽时必须把它算进分母。
 
-\textbf{解析：} 系统总线有三类信号线，各自传输不同类型的信息。数据线传输各种「数据字」——指令（取指时从内存读回）、操作数（LOAD/STORE 搬运）、中断类型号（中断响应时由设备送回）都经过数据线。握手/应答信号（ACK/READY）是控制信号，用于通信双方协调时序，走的是\textbf{控制线}而非数据线。区别口诀：数据线传「内容」（指令、操作数、向量号），控制线传「状态」（握手、请求、应答）。\else \answerarea \fi
+同步通信的优点是控制逻辑简单，所有设备按同一节拍走。问题是时钟偏斜：频率越高、总线越长，同一个时钟沿到达不同设备的时刻差越大，可能一个设备已经开始采样，另一个还没收到时钟。另外，快慢设备必须迁就同一个时钟，慢设备会拖住整个总线。半同步通信在同步基础上加 WAIT，让慢设备插入等待周期，兼顾简单和灵活；它仍然是同步总线，不是另一种独立的电气方式。
 
-\item \textbf{（真题风格·选择题）} 下列选项中，可提高同步总线数据传输率的是
+异步通信不传时钟，改用两根握手线：主设备发请求，从设备回应答。谁也不用猜对方多久能完成，每一步都等对方的信号。
 
 \begin{center}
-\begin{tabular}{l}
-I.\ \ 增加总线宽度 \qquad II.\ \ 提高总线工作频率 \\[4pt]
-III.\ 支持突发传输 \qquad IV.\ 采用地址/数据线复用
-\end{tabular}
+\begin{tikzpicture}[>=stealth,font=\scriptsize,x=1cm,y=1cm]
+  \draw[->] (0,0) -- (10.6,0) node[right]{$t$};
+  \foreach \x in {1,3.2,5.5,7} \draw[dotted,RuleGray] (\x,0.1) -- (\x,3.35);
+  % 数据
+  \draw[fill=SoftTeal,draw=Teal] (0.6,2.55) rectangle (7.8,3.05);
+  \node at (4.2,2.8){数据有效（主设备放在总线上）};
+  \node[anchor=east] at (-0.1,2.8){数据};
+  % REQ
+  \draw[very thick,Burgundy] (0,1.55)--(1,1.55)--(1,2.05)--(5.5,2.05)--(5.5,1.55)--(10.2,1.55);
+  \node[anchor=east] at (-0.1,1.8){REQ（主）};
+  % ACK
+  \draw[very thick,TealDark] (0,0.55)--(3.2,0.55)--(3.2,1.05)--(7,1.05)--(7,0.55)--(10.2,0.55);
+  \node[anchor=east] at (-0.1,0.8){ACK（从）};
+  % 步骤编号
+  \node[circle,draw,inner sep=1pt,font=\tiny] at (1,2.3){1};
+  \node[circle,draw,inner sep=1pt,font=\tiny] at (3.2,1.35){2};
+  \node[circle,draw,inner sep=1pt,font=\tiny] at (5.5,2.3){3};
+  \node[circle,draw,inner sep=1pt,font=\tiny] at (7,1.35){4};
+  \node[align=center,text=MutedText] at (4.4,-0.45){(1) 数据稳定后发 REQ；(2) 从设备取数后发 ACK；\\ (3) 主设备见 ACK 撤 REQ；(4) 从设备见 REQ 撤销撤 ACK};
+\end{tikzpicture}
 \end{center}
 
-\begin{center}
-\begin{tabular}{ll}
-(A) 仅 I、II & (B) 仅 I、II、III \\[6pt]
-(C) 仅 I、III、IV & (D) I、II、III、IV
-\end{tabular}
-\end{center}
+图里数据先稳定，REQ 才拉高，这保证从设备看到请求时数据已经可用。从设备取走数据后拉高 ACK；主设备看到 ACK 才撤销 REQ；从设备看到 REQ 撤销后才撤销 ACK。四个动作互相等待，叫全互锁握手。它最可靠，也最慢，因为每一拍都要等一个来回。
 
-\ifshowsolutions\par\noindent\textbf{答案：}(B)
+握手方式按“谁等谁”分成三种。不互锁：主设备发完请求，过一段固定时间就认为传输完成，直接撤销；从设备也按固定延迟回应答，双方都不看对方。速度快，但设备一慢就出错。半互锁：主设备等到 ACK 才撤请求，从设备发完 ACK 后经过固定延迟就撤销，不再等请求撤销。全互锁：双方都等对方，就是图上这四条边。
 
-\textbf{解析：} 总线带宽公式 $B = W \times f$（$W$ 为宽度，$f$ 为工作频率）。I 增宽（每周期传更多位）和 II 提频（单位时间更多周期）直接提升传输率。III 突发传输省掉重复发地址的开销，有效数据率显著提升（Cache 行填充、DMA 的典型方式）。IV 地址/数据线复用恰恰\textbf{降低}传输率——同一组线分时传地址和数据，意味着原本一周期能完成的操作现在要拆成两周期。复用的目的是\textbf{减少物理引脚数}而非提速。口诀：「增宽提频突发快，线复用反而慢。」\else \answerarea \fi
+异步通信没有时钟偏斜，快慢设备按各自速度握手，适合距离较远或速度差异大的场合。代价是每次传输多出几次信号跳变和等待，控制逻辑也比同步复杂；大批量连续传输时，握手开销会摊薄有效带宽。
 
-\item \textbf{（真题风格·选择题）} 下列关于总线的叙述中，\textbf{错误}的是
+\begin{tablebox}{四种定时方式的对比}
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}l l X X@{}}
+\toprule
+方式 & 协调方式 & 优点 & 代价 \\
+\midrule
+同步 & 统一时钟 & 逻辑简单，适合速度接近的设备 & 时钟偏斜；慢设备拖累整体 \\
+半同步 & 时钟 + WAIT & 保留同步的简单性，能兼容慢设备 & 等待周期占用总线时间 \\
+异步 & 请求/应答握手 & 快慢自适应，无时钟偏斜 & 握手开销，控制逻辑复杂 \\
+分离式 & 请求阶段与数据阶段分开 & 等待期间总线可服务其他事务 & 需要事务标识和缓冲，读延迟可能变大 \\
+\bottomrule
+\end{tabularx}
+\end{tablebox}
 
-\begin{center}
-\begin{tabular}{l}
-(A) 总线是连接两个或多个部件的信息传输线 \\[4pt]
-(B) 总线的工作频率与总线时钟频率不一定相等 \\[4pt]
-(C) 异步总线一次握手过程完成一位数据的传送 \\[4pt]
-(D) 突发传送方式下，一次总线事务可以传送多个数据
-\end{tabular}
-\end{center}
+分离式通信把一次读事务拆成两段：主设备先发地址和命令，然后立刻释放总线；从设备准备好数据后，再申请总线把数据送回来。两段之间，总线可以去服务别的设备，吞吐率因此提高。代价是要记录这是哪个事务的响应，主设备也要能接受迟到的数据，控制比普通同步或异步都复杂。
 
-\ifshowsolutions\par\noindent\textbf{答案：}(C)
+\subsection{从共享并行到点对点串行}
 
-\textbf{解析：} 异步总线通过握手信号（请求/应答）协调传输，一次完整的握手过程完成的是\textbf{一次完整的数据传输}（通常为一个字/一个总线宽度），而非「一位」。握手粒度是「传输周期」而非「位」——把「一位」套到异步总线是将并行总线与串行通信混淆。(A) 正确——总线定义允许「两个或多个」部件。(B) 正确——DDR 技术使工作频率 $=$ 时钟频率 $\times$ 2，两者不一定相等。(D) 正确——突发传送只需一次起始地址，随后连续传多个数据。\else \answerarea \fi
+总线标准规定机械尺寸、电气特性、时序和通信协议。符合同一标准的设备才能插在一起、按同样的节拍说话。408 常拿 PCI、PCIe、USB 做对比，重点不在背年份，而在传输方式和带宽口径。
 
-\item \textbf{（真题风格·选择题）} 假设某系统总线在一个总线周期中并行传输 4 字节信息，一个总线周期占用 2 个时钟周期，总线时钟频率为 10 MHz，则总线带宽是
+PCI 是并行共享总线，32 位或 64 位数据线，33 MHz 或 66 MHz 时钟，地址和数据复用同一组 AD 线。32 位、33 MHz 时峰值带宽约 133 MB/s。它支持突发传输，一次地址后连续传多个数据；仲裁采用集中式独立请求，每个主设备一对 REQ\#/GNT\# 线。PCI 还支持即插即用，启动时由软件分配地址和中断号。
 
-\begin{center}
-\begin{tabular}{ll}
-(A) 10 MB/s & (B) 20 MB/s \\[6pt]
-(C) 40 MB/s & (D) 80 MB/s
-\end{tabular}
-\end{center}
+PCIe 换了架构：串行、点对点、全双工。每条通道（lane）有一对发送差分线和一对接收差分线，可以组合成 $\times1$、$\times4$、$\times8$、$\times16$。设备通过交换器连接，每条链路独占，不存在多个设备抢同一组线的问题，所以 PCIe 没有传统意义上的总线仲裁。编码上，PCIe 1.x/2.x 用 8b/10b，3.0 起用 128b/130b，计算带宽时要把编码开销扣掉。
 
-\ifshowsolutions\par\noindent\textbf{答案：}(B)
+USB 是主机控制的串行总线，树形拓扑，一个主机控制器最多带 127 个设备（含集线器）。所有通信由主机发起，设备不能主动往总线上发数据。它分控制、批量、中断、同步四种传输，分别照顾配置、大块数据、小延迟和实时流。USB 2.0 高速 480 Mbps；USB 3.0 超高速 5 Gbps，增加独立的发送和接收通道，实现全双工。
 
-\textbf{解析：} 关键是将\textbf{时钟频率}换算为\textbf{总线周期频率}。时钟频率 10 MHz，但一个总线周期占用 2 个时钟周期，故总线周期频率 $=10/2=5$ MHz。每个总线周期传 4 字节，带宽 $=5\times10^{6}\times4=20$ MB/s。常见错误：(A) 漏了每周期 4 字节只按 2 字节算；(C) 直接用 10 MHz $\times$ 4 = 40 MB/s，忘了除以 2；(D) 把「2 个时钟周期」误解为乘 2。口诀：「先把时钟换成总线周期频率，再乘每周期字节数——两步都不能漏。」\else \answerarea \fi
+从并行共享走到串行点对点，原因很直接：时钟频率越高，并行线之间的偏斜和串扰越难控制，等长布线和屏蔽的成本迅速上升；差分串行信号抗干扰好，更容易提频。点对点连接又把共享总线的争用去掉了，靠交换器扩展端口。代价是协议更复杂，链路上传的是数据包，不再是简单的地址、数据、控制三组电平。
 
-\item \textbf{（真题风格·选择题）} 某同步总线采用数据线和地址线复用方式，其中地址/数据线有 32 根，总线时钟频率为 66 MHz，每个时钟周期传送两次数据（上升沿和下降沿各传送一次数据）。假设数据相位进行连续突发传输，并忽略初始地址阶段及其他协议开销，则该总线的数据相位理论峰值带宽是
-
-\begin{center}
-\begin{tabular}{ll}
-(A) 132 MB/s & (B) 264 MB/s \\[6pt]
-(C) 528 MB/s & (D) 1056 MB/s
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(C)
-
-\textbf{解析：} 在连续突发的数据相位中，每次数据传送宽度 $=32\ \text{bit}=4\ \text{B}$。时钟频率 66 MHz，每周期传 2 次（DDR），故每秒传送次数 $=66\times10^{6}\times2=132\times10^{6}$。理论峰值带宽 $=4\times132\times10^{6}=528$ MB/s。(A) 漏了 DDR 加倍因子；(B) 只算了单沿（66 MHz $\times$ 4 B = 264 MB/s）；(D) 多乘了一次 2。实际有效带宽还需扣除地址阶段和协议开销。\else \answerarea \fi
-
-\end{enumerate}
-
-% =============================
-% 真题风格综合训练
-% =============================
-\subsection{真题风格综合训练}
-
-\begin{enumerate}[leftmargin=*,resume]
-
-\item \textbf{（真题风格·选择题）} 某同步总线的时钟频率为 100 MHz，宽度为 32 位，地址/数据线复用，每传输一个地址或数据占用一个时钟周期。若该总线支持突发（猝发）传输方式，则一次「主存写」总线事务传输 128 位数据所需要的时间至少是
-
-\begin{center}
-\begin{tabular}{ll}
-(A) 20 ns & (B) 40 ns \\[6pt]
-(C) 50 ns & (D) 80 ns
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(C)
-
-\textbf{解析：} 时钟周期 $T=1/100\ \text{MHz}=10$ ns。总线宽度 32 位，128 位需分 $128/32=4$ 次传送。突发传输只需\textbf{1 次起始地址 + 4 次连续数据}，共 $1+4=5$ 个时钟周期 $\to 50$ ns。(A) 误把 128 位当一次传完（1 地址 + 1 数据 = 2 周期）；(B) 漏了地址周期，只算了 4 个数据周期 = 40 ns；(D) 误以为每个数据都要单独配地址（$4\times2=8$ 周期），混淆了突发传输与普通传输。\textbf{突发传输的精髓：}一次地址、连续数据——省掉重复寻址开销。\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 下列关于总线设计的叙述中，\textbf{错误}的是
-
-\begin{center}
-\begin{tabular}{l}
-(A) 并行总线传输速率一定高于串行总线 \\[4pt]
-(B) 信号线复用可以减少信号线的数量 \\[4pt]
-(C) 突发（猝发）传输可以提高总线数据传输率 \\[4pt]
-(D) 分离事务通信可以提高总线利用率
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(A)
-
-\textbf{解析：} 这是 408 中最具「反直觉」色彩的考点之一。直觉上「并行 = 多根线同时传 = 更快」，但现代高速总线（PCIe、SATA、USB 3.x）几乎全是\textbf{串行}——因为并行总线在高频下受时钟偏移（skew）和线间串扰限制，频率上不去；串行总线通过差分信号可达到数十 GHz，靠极高频率反超并行。例如：传统并行 PCI（32 位 @ 33 MHz）$\approx$ 133 MB/s，而一条 PCIe 4.0 lane（串行 @ 16 GT/s）$\approx$ 2 GB/s。(B) 正确：信号线复用通过分时共享减少物理线数（代价是速度下降）；(C) 正确：突发传送省掉重复寻址开销；(D) 正确：分离事务释放等待期总线给其他设备使用。\else \answerarea \fi
-
-\item \textbf{（真题风格·综合题）} 某计算机的主存模块通过同步总线与 CPU 连接。总线宽度为 64 位，时钟频率为 200 MHz，每个时钟周期传送一次数据。CPU 需要从主存读取一个 64 字节的 Cache 行。请回答：
-
-\begin{enumerate}
-    \item[(1)] 若该总线\textbf{不支持}突发传输（每次只能传一个数据字，且每个数据字都需要先发地址再传数据），完成一次 Cache 行读取至少需要多少个时钟周期？总时间是多少？
-    \item[(2)] 若该总线\textbf{支持}突发传输（只发一次起始地址，随后连续传数据），完成同一操作至少需要多少个时钟周期？总时间是多少？
-    \item[(3)] 分别计算两种方式下的实际数据传输带宽（以 MB/s 为单位，设 1 MB = $10^{6}$ B），并说明突发传输的优势。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-
-(1) 总线宽度 64 位 = 8 字节。64 字节需 $64/8=8$ 次数据传送。不支持突发时每次需「地址 + 数据」各 1 周期，共 $8\times2=16$ 个时钟周期。时钟周期 $T=1/200\ \text{MHz}=5$ ns，总时间 $=16\times5=80$ ns。
-
-(2) 支持突发时只需 1 次地址 + 8 次数据，共 $1+8=9$ 个时钟周期，总时间 $=9\times5=45$ ns。
-
-(3) 不支持突发：带宽 $=64\ \text{B}/80\ \text{ns}=800$ MB/s。
-
-支持突发：带宽 $=64\ \text{B}/45\ \text{ns}\approx 1422$ MB/s。
-
-突发传输将有效带宽从 800 MB/s 提升到约 1422 MB/s，提升约 $78\%$。优势在于：省掉 7 次重复地址周期（$16\to9$ 周期），在大块连续数据传输（Cache 行填充、DMA 传送）中效果显著。
-\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
-\noindent\textbf{拓展阅读：}
-\begin{itemize}
-    \item \textbf{唐朔飞《计算机组成原理》（第 3 版）}第 4 章「总线」——4.3 总线仲裁、4.4 总线定时、4.5 总线标准。总线仲裁的三种集中式方式对比是 408 经典考点（链式查询/计数器定时查询/独立请求）。
-    \item \textbf{Patterson \& Hennessy《计算机组成与设计》}第 4 章 4.9 节——并行性与高级指令级并行（含总线互连在现代处理器中的角色）；第 6 章 6.4 节涉及 GPU 中的互连总线架构。
-    \item \textbf{CodeBrick 408 真题可视化}（codebrick.tech）——总线基本概念与组成共 18 道真题，配可视化演示，可在线刷题。
-\end{itemize}
+\input{co/exercises/chap6.tex}

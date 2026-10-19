@@ -1,760 +1,478 @@
-\section{I/O管理}
+\section{I/O 管理}
 
-\subsection{I/O设备分类}
+程序调用 \texttt{read(fd, buf, 4096)} 之后，CPU 并不会直接去拨动磁盘的磁头。它把请求交给文件系统，文件系统找到对应的设备，驱动程序再把“读第 $n$ 块”翻译成一组寄存器操作。磁盘控制器收到命令，驱动电机、定位磁道，把数据读进自己的缓冲区，最后向 CPU 发一个中断。整条路径上，软件只负责发请求和收结果，真正的数据搬运由控制器、DMA 或通道完成。
 
-\begin{mydef}{I/O设备的分类}{io-device-classification}
-计算机的I/O设备按传输速率、信息交换单位、设备共享属性等维度可分为多种类型。
+本章沿着这条路径展开：先看设备和控制器长什么样，再看 CPU 用哪几种方式参与 I/O，然后自底向上看 I/O 软件的层次。后半部分讨论两类资源管理问题：内存中的缓冲区怎样安排，磁盘上的 SPOOLing 怎样把独占设备变成共享设备，以及多进程申请设备时怎样分配才不会死锁。
 
-\begin{tablebox}{I/O设备分类}
+\subsection{设备、控制器与总线}
+
+一台设备通常由两部分组成：机械或物理部分，以及插在总线上的控制器。磁盘的盘片、磁头是机械部分；磁盘控制器负责寻道、读写扇区、校验数据并发出中断。打印机也一样，控制器接收字符编码，控制打印头出字。CPU 看到的是控制器上的寄存器，而不是设备的机械结构。
+
+控制器一般有三类寄存器。数据寄存器暂存要传输的数据；状态寄存器给出“忙”“就绪”“出错”等标志；控制寄存器接收 CPU 发出的命令，例如启动读、启动写、复位。CPU 可以用专门的 I/O 指令访问这些寄存器，例如 x86 的 \texttt{in}、\texttt{out}；也可以把寄存器编入物理地址空间，用普通的访存指令访问，后者称为内存映射 I/O。两种方式对上层软件的影响不同，但控制器内部的行为一样。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=3.4cm, minimum height=1.1cm, align=center] (cpu) at (-4.2,4.1) {CPU};
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=3.4cm, minimum height=1.1cm, align=center] (mem) at (0.8,4.1) {主存\\缓冲区、用户区};
+  \draw[very thick, RuleGray!80] (-6.4,2.7) -- (6.4,2.7);
+  \node[fill=white, inner sep=2pt, text=MutedText] at (-1.7,2.7) {系统总线（地址、数据、控制）};
+  \draw[<->] (cpu.south) -- (-4.2,2.7);
+  \draw[<->] (mem.south) -- (0.8,2.7);
+  \node[draw, rounded corners=1.5pt, fill=SoftTeal, minimum width=3.8cm, minimum height=2.1cm, align=center] (dc) at (-3.2,1.0) {磁盘控制器\\[2pt]{\tiny \begin{tabular}{c}数据寄存器 DR\\ 状态寄存器 SR\\ 控制寄存器 CR\end{tabular}}};
+  \node[draw, rounded corners=1.5pt, fill=SoftAmber, minimum width=3.8cm, minimum height=2.1cm, align=center] (pc) at (3.2,1.0) {打印机控制器\\[2pt]{\tiny \begin{tabular}{c}数据寄存器 DR\\ 状态寄存器 SR\\ 控制寄存器 CR\end{tabular}}};
+  \draw[<->] (dc.north) -- (-3.2,2.7);
+  \draw[<->] (pc.north) -- (3.2,2.7);
+  \node[draw, rounded corners=1.5pt, fill=SoftGray, minimum width=3.3cm, minimum height=0.9cm, align=center] (disk) at (-3.2,-1.4) {磁盘（块设备）};
+  \node[draw, rounded corners=1.5pt, fill=SoftGray, minimum width=3.3cm, minimum height=0.9cm, align=center] (prn) at (3.2,-1.4) {打印机（字符设备）};
+  \draw[<->] (dc.south) -- (disk.north);
+  \draw[<->] (pc.south) -- (prn.north);
+  \draw[->, dashed, Burgundy] (pc.east) -- (6.3,1.0) -- (6.3,5.3) -- (-4.2,5.3) -- (cpu.north);
+  \node[text=Burgundy, anchor=west, font=\tiny] at (6.45,5.3) {中断请求};
+\end{tikzpicture}
+\end{center}
+
+图中，CPU 和主存挂在总线上，控制器也挂在总线上。CPU 写控制寄存器发起命令，读状态寄存器判断是否完成，数据则通过数据寄存器或 DMA 通道在主存与设备之间流动。控制器完成一次操作后，通过中断线通知 CPU。
+
+设备可以从几个不同角度分类，这些角度彼此独立。按数据单位分，块设备以固定大小的块传输，可以按块寻址，磁盘和光盘属于这一类；字符设备以字节流传输，通常不支持按块随机寻址，键盘、鼠标、打印机属于这一类。按共享属性分，独占设备一次只能给一个进程使用，打印机是典型例子；共享设备可以被多个进程交替访问，磁盘是典型例子；虚拟设备则是用软件把独占设备改造成逻辑上的共享设备，SPOOLing 就属于这一类。按速度分，还可以分成低速、中速和高速设备。
+
+“块设备”和“独占设备”说的不是同一件事。磁盘是块设备，同时又是共享设备；打印机是字符设备，同时又是独占设备。考试里常把这两个维度混在一起，判断时先问清楚题目在按哪个维度分类。
+
+\subsection{I/O 控制方式}
+
+假设要把磁盘上的一块数据读进内存。CPU 可以用四种方式参与这件事，区别在于 CPU 花多少时间、数据由谁搬运、每传多少数据中断一次。
+
+\subsubsection{程序直接控制}
+
+CPU 向控制器发出读命令，然后反复读取状态寄存器。状态寄存器显示“忙”时，CPU 继续读；显示“就绪”时，CPU 把数据寄存器里的内容搬到内存。搬完一个字，再启动下一个字的传输。
+
+这种方式叫程序直接控制，也叫轮询。它的缺点是 CPU 在等待期间只能空转，不能执行其他进程的有用工作。设备越慢，浪费越大。优点是实现简单，不需要中断硬件；在设备响应很快、或者系统很小的时候，轮询反而没有中断开销。
+
+\subsubsection{中断驱动}
+
+CPU 发出读命令后，把当前进程挂起，切换到其他进程。设备把一个字或一个字节准备好，向 CPU 发中断。CPU 响应中断，保存现场，进入中断处理程序，把数据寄存器里的内容搬到内存。如果还有数据，驱动程序再次启动设备，然后返回被中断的进程。
+
+中断驱动把“等待”从 CPU 的忙等变成了设备的异步通知。CPU 在设备工作期间可以运行别的进程。代价是每传一个字或一个字节就要中断一次。中断要保存现场、识别中断源、执行中断服务程序、恢复现场，开销不小。键盘、鼠标、串口这类低速字符设备适合这种方式；高速磁盘如果每字节都中断，CPU 会把大量时间花在中断处理上。
+
+中断处理程序只做最必要的事：读状态、搬数据、唤醒等待的进程。耗时的工作可以推迟到后半部执行，避免长时间关中断。
+
+\subsubsection{DMA}
+
+DMA 方式在设备和主存之间加一个 DMA 控制器。CPU 不再逐字搬运数据，只负责初始化。以读磁盘为例，CPU 把内存起始地址写入 DMA 的地址寄存器 MAR，把要传的字数写入计数寄存器 DC，把“读”命令和方向写入命令寄存器 CR，然后启动 DMA。DMA 控制器向 CPU 申请总线，获得总线控制权后，控制设备把数据逐字写入主存。每传一个字，MAR 按传送单位递增，DC 减 1。DC 减到 0 时，DMA 控制器向 CPU 发一次中断，表示整块数据传完。
+
+DMA 的关键变化有两个。数据传送不再经过 CPU，CPU 只参与开始和结束；中断频率从“每个字一次”降到“每块一次”。块越大，节省的 CPU 时间越多。
+
+DMA 传送期间要占用总线。如果 CPU 也要访存，两者会争用内存周期。DMA 每传一个字，挪用一次总线周期，传完就把总线还给 CPU，这种方式叫周期挪用。另一种做法是一次占住总线，把整块数据传完再释放，叫成组传送。成组传送对 CPU 的影响更大，但传输效率更高。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=3.4cm, minimum height=0.9cm, align=center] (cpu) at (0,4.2) {CPU};
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=3.4cm, minimum height=0.9cm, align=center] (mem) at (0,-2.0) {主存\\缓冲区};
+  \node[draw, rounded corners=1.5pt, fill=SoftTeal, minimum width=4.6cm, minimum height=2.0cm, align=center] (dma) at (0,0.9) {DMA 控制器\\[2pt]\tiny MAR：内存地址\\ DC：剩余字数\\ DR：数据暂存\\ CR：命令/状态};
+  \node[draw, rounded corners=1.5pt, fill=SoftGray, minimum width=3.1cm, minimum height=1.0cm, align=center] (dev) at (6.2,0.9) {磁盘控制器\\及设备};
+  \draw[->] (cpu.south) -- node[right]{(1) 写 MAR、DC、CR} (dma.north);
+  \draw[<->] (dma.east) -- node[above]{(2) 数据} (dev.west);
+  \draw[<->] (dma.south) -- node[right]{(3) 逐字写入主存} (mem.north);
+  \draw[->, dashed, Burgundy] (dma.west) -- (-4.2,0.9) -- (-4.2,4.2) -- (cpu.west);
+  \node[text=Burgundy, rotate=90] at (-4.55,2.55) {(4) 完成中断};
+\end{tikzpicture}
+\end{center}
+
+图中四条路径对应一次 DMA 读操作。CPU 只做 (1) 和 (4)；(2)(3) 是 DMA 控制器在拿到总线后自己完成的。真实系统里，DMA 描述符可能不止一组，也可以支持分散聚集，把多个不连续的物理页拼成一次传输。
+
+\subsubsection{通道}
+
+通道比 DMA 更进一步。它是一个专门处理 I/O 的处理器，有自己的指令系统，能执行存放在主存里的通道程序。CPU 只要执行一条“启动 I/O”指令，把通道程序的地址告诉通道，通道就会自己取指令、控制多台设备、按程序里的条件跳转和循环，全部完成后才向 CPU 发一次中断。
+
+DMA 只能做“把一块数据从设备搬到内存”这种固定动作，没有分支和循环能力。通道能执行程序，所以可以把“读多个磁道”“从多台设备收集数据”这样的任务写成通道程序，一次交给通道。CPU 的参与程度从“每块一次”降到“每个通道程序一次”。
+
+通道有三种常见类型。字节多路通道按字节轮流为多台低速设备服务，适合终端、打印机这类设备。数组选择通道按块为高速设备服务，一次只服务一台设备，设备独占通道。数组多路通道按块轮流为多台高速设备服务，兼顾了选择通道的效率和多路通道的并行性。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.78cm]
+  \draw[->] (0,0) -- (14.4,0) node[right] {时间};
+  \foreach \x in {0,2,4,6,8,10,12} \draw (\x,0.1) -- (\x,-0.1) node[below] {\x};
+
+  \node[anchor=east, align=right] at (-0.2,8.55) {程序直接控制\\（轮询）};
+  \fill[SoftAmber] (0,8.55) rectangle (7,9.1);
+  \draw[Amber] (0,8.55) rectangle (7,9.1);
+  \node at (3.5,8.82) {反复读状态寄存器（忙等）};
+  \fill[SoftBlue] (7,8.55) rectangle (8,9.1);
+  \draw[Navy] (7,8.55) rectangle (8,9.1);
+  \node[font=\tiny] at (7.5,8.82) {取数};
+  \fill[SoftTeal] (0,7.65) rectangle (7,8.2);
+  \draw[Teal] (0,7.65) rectangle (7,8.2);
+  \node at (3.5,7.92) {设备准备数据};
+  \draw[dashed, RuleGray] (0,7.45) -- (14.4,7.45);
+
+  \node[anchor=east, align=right] at (-0.2,6.55) {中断驱动};
+  \fill[SoftAmber] (0,6.55) rectangle (0.6,7.1);
+  \draw[Amber] (0,6.55) rectangle (0.6,7.1);
+  \fill[SoftBlue] (0.6,6.55) rectangle (10,7.1);
+  \draw[Navy] (0.6,6.55) rectangle (10,7.1);
+  \node[anchor=west, font=\tiny, text=MutedText] at (0.65,7.27) {CPU 运行其他进程，细条为每次中断的服务};
+  \foreach \x in {1.2,2.2,...,9.2} {
+    \fill[SoftAmber] (\x,6.55) rectangle (\x+0.22,7.1);
+    \draw[Amber] (\x,6.55) rectangle (\x+0.22,7.1);
+  }
+  \fill[SoftTeal] (0.6,5.65) rectangle (10,6.2);
+  \draw[Teal] (0.6,5.65) rectangle (10,6.2);
+  \node at (5.3,5.92) {设备逐字节传送，每字节发一次中断};
+  \draw[dashed, RuleGray] (0,5.45) -- (14.4,5.45);
+
+  \node[anchor=east, align=right] at (-0.2,4.55) {DMA};
+  \fill[SoftAmber] (0,4.55) rectangle (0.5,5.1);
+  \draw[Amber] (0,4.55) rectangle (0.5,5.1);
+  \fill[SoftBlue] (0.5,4.55) rectangle (9.5,5.1);
+  \draw[Navy] (0.5,4.55) rectangle (9.5,5.1);
+  \node at (5,4.82) {其他进程};
+  \fill[SoftAmber] (9.5,4.55) rectangle (10.2,5.1);
+  \draw[Amber] (9.5,4.55) rectangle (10.2,5.1);
+  \fill[SoftTeal] (0.5,3.65) rectangle (9.5,4.2);
+  \draw[Teal] (0.5,3.65) rectangle (9.5,4.2);
+  \node at (5,3.92) {DMA 控制器整块搬运（周期挪用）};
+  \draw[dashed, RuleGray] (0,3.45) -- (14.4,3.45);
+
+  \node[anchor=east, align=right] at (-0.2,2.55) {通道};
+  \fill[SoftAmber] (0,2.55) rectangle (0.4,3.1);
+  \draw[Amber] (0,2.55) rectangle (0.4,3.1);
+  \fill[SoftBlue] (0.4,2.55) rectangle (10,3.1);
+  \draw[Navy] (0.4,2.55) rectangle (10,3.1);
+  \node at (5.2,2.82) {其他进程};
+  \fill[SoftAmber] (10,2.55) rectangle (10.4,3.1);
+  \draw[Amber] (10,2.55) rectangle (10.4,3.1);
+  \fill[SoftTeal] (0.4,1.65) rectangle (10,2.2);
+  \draw[Teal] (0.4,1.65) rectangle (10,2.2);
+  \draw[TealDark] (3.6,1.65) -- (3.6,2.2);
+  \draw[TealDark] (6.8,1.65) -- (6.8,2.2);
+  \node[font=\tiny] at (2.0,1.92) {块 1};
+  \node[font=\tiny] at (5.2,1.92) {块 2};
+  \node[font=\tiny] at (8.4,1.92) {块 3};
+  \node[anchor=west, font=\tiny, text=MutedText] at (10.6,1.92) {通道程序};
+
+  \fill[SoftAmber] (2.0,-1.3) rectangle (2.35,-0.95);
+  \node[anchor=west] at (2.4,-1.12) {CPU 参与 I/O};
+  \fill[SoftBlue] (5.4,-1.3) rectangle (5.75,-0.95);
+  \node[anchor=west] at (5.8,-1.12) {CPU 可执行其他工作};
+  \fill[SoftTeal] (9.2,-1.3) rectangle (9.55,-0.95);
+  \node[anchor=west] at (9.6,-1.12) {设备、DMA 或通道工作};
+\end{tikzpicture}
+\end{center}
+
+图中每一行是一条时间线。轮询方式下，CPU 在设备准备期间一直读状态寄存器；中断方式下，CPU 可以运行其他进程，但每传一个字节就被打断一次，细条表示中断服务；DMA 只在开始和整块结束时占用 CPU；通道把一组块交给通道程序，CPU 在整批数据传输期间都可以做别的事。越往下，CPU 被 I/O 打断的次数越少。
+
+\begin{tablebox}{四种 I/O 控制方式}
 \centering
 \small
-\begin{tabularx}{\linewidth}{|p{0.27\linewidth}|p{0.29\linewidth}|X|}
+\begin{tabularx}{\linewidth}{|p{0.18\linewidth}|p{0.15\linewidth}|p{0.20\linewidth}|X|}
 \hline
-分类维度 & 类型 & 典型设备 \\
+方式 & 传送单位 & 中断频率 & CPU 的工作 \\
 \hline
-\multirow{2}{*}{按信息交换单位} & \textbf{块设备（Block Device）} & 磁盘、光盘 \\
-                              & \textbf{字符设备（Character Device）} & 键盘、鼠标、打印机 \\
-\hline
-\multirow{3}{*}{按传输速率} & 低速设备 & 键盘、鼠标等 \\
-                            & 中速设备 & 打印机等 \\
-                            & 高速设备 & 磁盘、网络接口等 \\
-\hline
-\multirow{3}{*}{按共享属性} & \textbf{独占设备} & 打印机（临界资源，需互斥使用）\\
-                            & \textbf{共享设备} & 磁盘（可多个进程同时交叉访问）\\
-                            & \textbf{虚拟设备} & SPOOLing 将独占设备改造为共享设备 \\
+程序直接控制 & 字/字节 & 不中断，靠轮询 & 反复读状态，设备就绪后搬数据 \\
+中断驱动 & 字/字节 & 每个单位一次 & 响应中断，在中断服务程序里搬数据 \\
+DMA & 块 & 每块一次 & 初始化 DMA，处理整块完成中断 \\
+通道 & 一组块 & 每个通道程序一次 & 启动通道，处理通道结束中断 \\
 \hline
 \end{tabularx}
 \end{tablebox}
 
-\textbf{块设备 vs 字符设备的核心区别：}
-\begin{itemize}
-    \item \textbf{块设备}：以数据块为单位传输，支持随机访问（可寻址），有缓冲区缓存机制。如磁盘以扇区（通常512B/4KB）为基本I/O单位。
-    \item \textbf{字符设备}：以字符流为单位顺序传输，不提供按数据块随机寻址；系统仍可为其设置字符缓冲或行缓冲。如键盘输入、串口通信。
-\end{itemize}
-\end{mydef}
+\subsection{I/O 软件层次}
 
-\begin{attention}
-\textbf{408 辨析：} 块设备 $\neq$ 独占设备。磁盘是块设备同时又是共享设备；打印机是字符设备同时又是独占设备。设备分类维度不同，不可混淆。\textbf{块设备的典型特征是可寻址（可以 lseek），字符设备不可寻址。}
-\end{attention}
-
-\subsection{I/O控制方式}
-
-\begin{conclusion}{四种I/O控制方式演进}{io-control-methods}
-I/O控制方式的发展本质上是\textbf{将CPU从I/O任务中逐步解放}的过程——每次演进都减少了CPU参与I/O的程度。
-
-\begin{tablebox}{I/O控制方式对比}
-\centering
-\resizebox{\linewidth}{!}{\begin{tabular}{|l|c|c|c|c|}
-\hline
-控制方式 & CPU干预频率 & 数据传送单位 & 适用场景 & 特点 \\
-\hline
-\textbf{程序直接控制（轮询）} & 每字节/每字都要轮询 & 字/字节 & 简单系统 & CPU 忙等，利用率极低 \\
-\textbf{中断驱动} & 每字节/每字完成后中断 & 字/字节 & 低速字符设备 & CPU 可并行处理其他任务 \\
-\textbf{DMA} & 每块数据传输完成后中断一次 & 块（多字节）& 高速块设备 & CPU 仅参与开始和结束 \\
-\textbf{I/O通道} & 每批I/O任务完成后中断一次 & 一组块 & 大型机 & 通道有自己的指令，可执行通道程序 \\
-\hline
-\end{tabular}}
-\end{tablebox}
-\end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, node distance=0.7cm, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.6cm, align=center] (a) at (0,0) {程序直接控制\\（轮询）};
-\node[draw, rectangle, fill=SoftBlue, minimum width=2.2cm, minimum height=0.6cm, align=center] (b) at (2.7,0) {中断驱动};
-\node[draw, rectangle, fill=SoftTeal, minimum width=2.2cm, minimum height=0.6cm, align=center] (c) at (5.4,0) {DMA};
-\node[draw, rectangle, fill=SoftAmber, minimum width=2.2cm, minimum height=0.6cm, align=center] (d) at (8.1,0) {I/O 通道};
-\draw[->] (a) -- (b); \draw[->] (b) -- (c); \draw[->] (c) -- (d);
-\node[font=\scriptsize, black!60] at (4.05,-1.0) {CPU 参与 I/O 的程度 $\searrow$，每次中断的数据粒度 $\nearrow$};
-\end{tikzpicture}
-\end{center}
-
-\subsubsection{程序直接控制（轮询，Polling）}
-
-\begin{mydef}{程序直接控制}{os-programmed-io}
-CPU 不断循环检测设备状态寄存器（\texttt{busy/wait} 标志位），当设备就绪时执行一次数据传送（读/写数据寄存器），传送完毕后将设备状态置为就绪（\texttt{command-ready}），然后继续轮询。
-
-\textbf{工作流程：}
-\begin{enumerate}
-    \item CPU 向设备控制器发送 I/O 命令（如 Read）。
-    \item CPU 反复读取状态寄存器，检查设备是否就绪（\texttt{busy == 0}）。
-    \item 设备就绪后，CPU 从数据寄存器读取一个字到内存。
-    \item 重复第2--3步直到所有数据传输完成。
-\end{enumerate}
-
-\textbf{致命缺陷：CPU 忙等（Busy-Waiting）}——在设备完成I/O之前，CPU无法执行任何有意义的计算，CPU利用率极低。
-\end{mydef}
-
-\subsubsection{中断驱动方式（Interrupt-Driven I/O）}
-
-\begin{conclusion}{中断驱动I/O}{interrupt-io}
-\textbf{核心思想：}CPU 发出 I/O 命令后继续执行其他进程；当设备完成当前数据传输（一个字/字节）后，向 CPU 发出\textbf{中断信号}；CPU 响应中断，在中断处理程序中执行数据传送，然后恢复原进程。
-
-\textbf{工作流程：}
-\begin{enumerate}
-    \item CPU 向设备控制器发出 Read 命令，然后切换到其他进程运行。
-    \item 设备控制器将数据读入自己的数据寄存器，完成后发出中断信号。
-    \item CPU 检测到中断，保存当前进程上下文，转去执行中断处理程序。
-    \item 中断处理程序将设备数据寄存器中的字/字节传送到内存指定位置。
-    \item 若还有数据未传输，CPU 再次启动设备，然后恢复原进程。
-\end{enumerate}
-
-\textbf{与轮询的对比：}
-\begin{itemize}
-    \item 轮询：CPU 主动等设备，浪费 CPU；但响应快（无中断开销）。
-    \item 中断：CPU 可在设备工作期间执行其他指令，但每次中断有处理与现场切换开销。408 的简化模型常按一次中断传送一个字/字节分析；实际控制器也可能通过 FIFO 在一次服务中搬运多个数据单元。
-\end{itemize}
-
-\textbf{适用场景：}低速字符设备（键盘输入、鼠标、串口通信）。对于高速块设备（磁盘），每次只传一个字且每字都中断，中断过于频繁，开销太大。
-\end{conclusion}
-
-\subsubsection{DMA方式（Direct Memory Access）}
-
-\begin{conclusion}{DMA控制方式}{dma-io}
-DMA 是\textbf{中断驱动的升级版}——引入专门的 DMA 控制器，在设备和内存之间直接传输\textbf{一整块数据}，CPU 仅在传输开始和结束时参与。数据传输单位从字/字节跃升到块。
-
-\textbf{DMA 控制器的四个寄存器：}
-\begin{tablebox}{DMA控制器寄存器}
-\centering
-\begin{tabularx}{\linewidth}{|p{4.0cm}|X|}
-\hline
-寄存器 & 功能 \\
-\hline
-DR（数据寄存器）& 暂存设备与内存之间每次传输的数据 \\
-MAR（内存地址寄存器）& 存放目标内存地址，每传输一个字后自动递增 \\
-DC（数据计数器）& 存放剩余要传输的字节数/字数，递减至0则传输完成 \\
-CR（命令/状态寄存器）& 存放 CPU 发出的命令或设备的状态 \\
-\hline
-\end{tabularx}
-\end{tablebox}
-
-\textbf{DMA 工作流程：}
-\begin{enumerate}
-    \item CPU 设置 DMA 控制器的 MAR、DC 和命令寄存器，然后继续执行其他进程。
-    \item DMA 控制器控制设备将数据块逐字传送到内存：每传一个字，MAR++，DC--。
-    \item 当 DC 减至 0 时，DMA 控制器向 CPU 发出\textbf{一次中断}，通知 CPU 传送完成。
-    \item CPU 响应中断，执行后处理（如唤醒等待该 I/O 的进程）。
-\end{enumerate}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频辨析：DMA 与中断驱动的关键区别。}
-\begin{enumerate}
-    \item \textbf{中断频率：}中断驱动每字/字节中断一次；DMA 每块数据仅中断一次。
-    \item \textbf{数据传送：}中断驱动由 CPU 执行数据传送（从设备寄存器到内存）；DMA 由 DMA 控制器直接完成，CPU \textbf{不参与数据传输}。
-    \item \textbf{总线占用：}DMA 传送期间，DMA 控制器需占用系统总线（周期窃取/周期挪用，Cycle Stealing）。若 CPU 也需要访存，DMA 优先级更高。
-    \item \textbf{内存地址：}DMA 描述符通常使用物理地址或设备可见地址；传统简化模型常要求一段物理连续缓冲区，但现代 DMA 可用 scatter-gather 描述符或 IOMMU 映射非连续物理页。
-\end{enumerate}
-\end{attention}
-
-\begin{formula}{DMA周期窃取时的CPU停顿分析}{dma-cycle-stealing}
-DMA 对 CPU 的影响取决于 DMA 请求频率、每次传送占用的总线周期数以及 CPU 的总线请求频率。仅给出“CPU 每执行 $k$ 条指令访存一次”不足以唯一确定降速比。若额外假设每 $k$ 条指令恰有一次 CPU 访存、每次 DMA 恰挪用一个周期且二者严格交替，才可在该简化模型下计算比例：
-
-\[
-\text{CPU有效时间比例} = \frac{k}{k+1} \quad \text{（上述严格交替模型）}
-\]
-
-当 $k$ 很大（CPU 指令大多访问 Cache）时，DMA 的影响可忽略。这也是现代系统中 Cache 对 DMA 效率的关键意义。
-\end{formula}
-
-\subsubsection{I/O通道方式（Channel I/O）}
-
-\begin{mydef}{I/O通道}{io-channel}
-\textbf{I/O通道}是一种\textbf{专门负责I/O的协处理器}，有自己的指令集（通道指令），可以执行\textbf{通道程序}来控制一组 I/O 设备完成复杂的 I/O 任务。
-
-\textbf{与 DMA 的区别：}
-\begin{itemize}
-    \item \textbf{DMA：}只能执行简单的块传输（从设备到固定内存区间），无分支/条件判断能力。
-    \item \textbf{通道：}可以执行包含分支、循环的通道程序，能够控制多个设备并发 I/O，CPU 仅需发一条 I/O 指令启动通道即可。
-\end{itemize}
-
-\textbf{通道类型：}
-\begin{itemize}
-    \item \textbf{字节多路通道}：以字节为单位交叉为多台低速设备服务（如多个终端）。
-    \item \textbf{数组选择通道}：以块为单位为一台高速设备服务，但通道利用率低（设备独占通道）。
-    \item \textbf{数组多路通道}：结合前两者优点，以块为单位交叉为多台高速设备服务（现代大型机主流方案）。
-\end{itemize}
-\end{mydef}
-
-\begin{attention}
-\textbf{408 辨析：} I/O通道方式属于408考试范围，但只在组成原理中详细考查。OS 视角只需了解其层次位置和与DMA的本质区别（通道有指令，可执行通道程序）。
-\end{attention}
-
-\subsection{I/O软件层次结构}
-
-\begin{conclusion}{I/O软件的四个层次}{io-software-layers}
-I/O 软件采用分层设计，每层对上层屏蔽下层细节，是 OS 分层的典范。
+用户程序调用 \texttt{printf} 时，并不知道数据最终写到磁盘还是屏幕。这个调用会经过库函数、系统调用、设备独立性软件、设备驱动程序，最后变成控制器寄存器上的一次写操作。I/O 软件通常分成四层，每一层只和相邻层打交道。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=9.5cm, minimum height=0.95cm, rounded corners=2pt] (U) at (0,4.5) {\textbf{用户层 I/O 软件}（\texttt{printf, scanf} 等库函数 + SPOOLing 系统）};
-\node[draw, rectangle, fill=SoftBlue, minimum width=9.5cm, minimum height=0.95cm, rounded corners=2pt] (I) at (0,3.1) {\textbf{设备独立性软件}（命名、保护、阻塞、缓冲、分配）};
-\node[draw, rectangle, fill=SoftTeal, minimum width=9.5cm, minimum height=0.95cm, rounded corners=2pt] (D) at (0,1.7) {\textbf{设备驱动程序}（设备寄存器操作，与硬件直接通信）};
-\node[draw, rectangle, fill=SoftAmber, minimum width=9.5cm, minimum height=0.95cm, rounded corners=2pt] (H) at (0,0.3) {\textbf{中断处理程序}（保存现场、处理中断、恢复现场）};
-\node[draw, rectangle, fill=SoftGray, minimum width=9.5cm, minimum height=0.8cm, rounded corners=2pt, very thick] (HW) at (0,-1.2) {硬件（设备控制器 + 设备本身）};
-% 用户态/内核态分界
-\draw[dashed, RuleGray] (-4.75,3.8) -- (4.75,3.8);
-\node[fill=white, font=\scriptsize, text=MutedText, inner sep=1pt, rounded corners=1pt] at (-3.7,3.8) {用户态 $\to$ 内核态};
-\node[font=\scriptsize, text=MutedText] at (-5.4,4.5) {用户态};
-\node[font=\scriptsize, text=MutedText] at (-5.4,1.7) {内核态};
-% 自顶向下的调用/请求流向
-\draw[->] (U.south) -- (I.north);
-\draw[->] (I.south) -- (D.north);
-\draw[->] (D.south) -- (H.north);
-\draw[->] (H.south) -- (HW.north);
+  \node[draw, rounded corners=2pt, fill=SoftGray, minimum width=12.4cm, minimum height=0.95cm, align=center] (u) at (0,4.7) {\textbf{用户层 I/O 软件}：库函数（\texttt{printf}、\texttt{scanf}）、SPOOLing 守护进程};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, minimum width=12.4cm, minimum height=0.95cm, align=center] (i) at (0,3.35) {\textbf{设备独立性软件}：命名、保护、缓冲、分配、差错处理};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, minimum width=12.4cm, minimum height=0.95cm, align=center] (d) at (0,2.0) {\textbf{设备驱动程序}：把通用请求翻译成控制器寄存器操作};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, minimum width=12.4cm, minimum height=0.95cm, align=center] (h) at (0,0.65) {\textbf{中断处理程序}：保存现场、识别设备、唤醒等待进程};
+  \node[draw, rounded corners=2pt, fill=SoftGray, minimum width=12.4cm, minimum height=0.8cm, align=center, very thick] (hw) at (0,-0.85) {硬件：设备控制器与设备};
+  \draw[dashed, RuleGray] (-6.2,4.02) -- (6.2,4.02);
+  \node[fill=white, inner sep=1pt, text=MutedText] at (-4.9,4.02) {用户态 / 内核态};
+  \draw[->, thick, Navy] (-6.9,4.6) -- (-6.9,-0.7);
+  \node[text=Navy, rotate=90, anchor=south] at (-7.25,1.9) {请求向下};
+  \draw[->, thick, TealDark] (6.9,-0.7) -- (6.9,4.6);
+  \node[text=TealDark, rotate=90, anchor=north] at (7.25,1.9) {完成与中断向上};
 \end{tikzpicture}
 \end{center}
 
-\noindent\textbf{各层职责详解：}
-\begin{enumerate}
-    \item \textbf{中断处理程序（Interrupt Handler）——最底层软件}
-    \begin{itemize}
-        \item I/O 完成后，设备控制器发出中断信号。
-        \item CPU 响应中断：硬件保存 PC 和 PSW，然后跳转到中断向量表指定的中断处理程序入口。
-        \item 中断处理程序：保存寄存器上下文 $\to$ 处理中断（读取设备状态，唤醒等待进程）$\to$ 恢复上下文 $\to$ 中断返回。
-        \item \textbf{关键要求：中断处理程序必须尽可能短}，复杂性推迟到下半部（Bottom Half）处理。
-    \end{itemize}
+图中上方是用户态，下方是内核态和硬件。请求从用户层往下传，每一层只处理自己负责的那部分；设备完成操作后，中断从硬件往上走，最终唤醒等待的进程。
 
-    \item \textbf{设备驱动程序（Device Driver）——设备相关}
-    \begin{itemize}
-        \item 每种设备（或每类设备）对应一个驱动程序，由设备制造商提供。
-        \item 负责将 OS 的通用 I/O 请求（如 ``读第 n 块''）翻译为设备控制器的具体命令序列（操作设备寄存器）。
-        \item 向上提供统一接口（open, read, write, ioctl, release），向下操作设备控制器的\textbf{控制寄存器、状态寄存器、数据寄存器}。
-        \item \textbf{驱动程序是内核的一部分}（运行在内核态），但代码量和 bug 占比极高。
-    \end{itemize}
+中断处理程序在最底层。设备发中断后，硬件保存程序计数器和程序状态字，根据中断向量跳到处理程序入口。处理程序先保存寄存器，再读控制器的状态寄存器，判断是哪台设备、出了什么错。如果是中断驱动的读操作，它把数据寄存器里的内容搬到内存；如果是 DMA，它只做完成后的收尾。最后唤醒等待该 I/O 的进程，恢复现场并返回。中断处理程序应该短，耗时的收尾工作可以放到后半部。
 
-    \item \textbf{设备独立性软件（Device-Independent Software）——核心层}
-    \begin{itemize}
-        \item 执行所有设备共用的 I/O 功能，为上层提供\textbf{统一的逻辑设备名}到物理设备的映射。
-        \item \textbf{主要功能：}
-        \begin{itemize}
-            \item \textbf{设备命名与保护}：将逻辑设备名（如 \texttt{/dev/sda}）映射到对应的驱动程序。
-            \item \textbf{设备分配与回收}：管理独占设备（如打印机）的分配，防止死锁。
-            \item \textbf{缓冲管理}：实现单缓冲、双缓冲、缓冲池，平滑 CPU 和 I/O 设备的速度差异。
-            \item \textbf{差错处理}：处理一般的 I/O 错误（如磁盘读错重试）。
-            \item \textbf{提供统一块大小}：向上层屏蔽不同磁盘扇区大小的差异。
-        \end{itemize}
-        \item \textbf{典型实现：}UNIX/Linux 的文件系统层即承担了设备独立性软件的角色。
-    \end{itemize}
+设备驱动程序在中断处理程序之上。它知道某种设备的具体细节：控制器有哪些寄存器、命令字怎么写、状态位怎么解释、出错后怎么重试。上层说“读第 $n$ 块”，驱动程序把它变成“写柱面号、磁头号、扇区号，启动读命令”。驱动程序通常运行在内核态，设备制造商按操作系统的驱动接口编写。不同设备有不同驱动，同一类设备可以共用一个驱动。
 
-    \item \textbf{用户层 I/O 软件（User-Level I/O Software）}
-    \begin{itemize}
-        \item 库函数：\texttt{printf} 调用 \texttt{write} 系统调用，\texttt{scanf} 调用 \texttt{read}。
-        \item SPOOLing 系统：在用户层将独占设备虚拟化为共享设备（详见下一节）。
-        \item 假脱机管理程序（如打印守护进程 \texttt{lpd}）通常以用户进程形式运行。
-    \end{itemize}
-\end{enumerate}
-\end{conclusion}
+设备独立性软件处理所有设备共有的问题。它把逻辑设备名映射到物理设备，提供统一的 \texttt{open}、\texttt{read}、\texttt{write}、\texttt{ioctl} 接口，管理缓冲区，分配设备，处理一般的 I/O 错误，向上层屏蔽不同设备的块大小和扇区大小。逻辑设备表 LUT 就放在这一层：进程用“打印机”这样的逻辑名申请设备，LUT 把它换成物理设备名和驱动程序入口。这样更换设备时，用户程序不用改。
 
-\begin{attention}
-\textbf{408 高频辨析：各层的归属。}
-\begin{itemize}
-    \item 中断处理程序、设备驱动程序 \textbf{运行在内核态}（属于内核）。
-    \item 设备独立性软件 \textbf{运行在内核态}（属于内核）。
-    \item SPOOLing 系统 \textbf{通常在用户层}（以守护进程形式），但也涉及内核态的系统调用。
-\end{itemize}
+用户层 I/O 软件包括库函数，SPOOLing 守护进程通常也以用户进程形式运行。\texttt{printf} 把格式化后的字符串交给 \texttt{write} 系统调用；打印守护进程在后台把输出井里的文件送到打印机。用户层软件运行在用户态，通过系统调用进入内核。
 
-\textbf{关键题眼：} ``向上提供统一接口，向下操作设备寄存器'' $\to$ 这是在描述 \textbf{设备驱动程序}。
-\end{attention}
-
-\subsection{SPOOLing系统（假脱机技术）}
-
-\begin{mydef}{SPOOLing}{spooling-def}
-\textbf{SPOOLing（Simultaneous Peripheral Operations On-Line，假脱机/外部设备联机并行操作）} 是一种将\textbf{独占设备（如打印机）改造为可共享的虚拟设备}的技术。
-
-\textbf{核心思想：}用磁盘（共享设备）作为中转站，截获对独占设备的输出请求，先写入磁盘上的\textbf{SPOOLing 文件}，再由 SPOOLing 守护进程在后台逐个传输到物理设备。用户进程以为自己在独占设备，实际只是写入了磁盘。
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 磁盘井区（输入井 + 输出井）
-\draw[dashed, rounded corners=2pt, thick, draw=RuleGray] (4.95,-2.5) rectangle (7.95,2.5);
-\node[font=\scriptsize, text=TealDark] at (6.45,2.15) {磁盘（SPOOLing 井）};
-\node[draw, rectangle, minimum width=1.8cm, minimum height=0.7cm, fill=SoftBlue] (inw) at (6.45,1.35) {输入井};
-\node[draw, rectangle, minimum width=1.8cm, minimum height=0.7cm, fill=SoftAmber] (outw) at (6.45,-1.35) {输出井};
-% 设备（左）
-\node[draw, rectangle, minimum width=1.8cm, minimum height=0.7cm, fill=SoftGray] (indev) at (0,1.35) {输入设备};
-\node[draw, rectangle, minimum width=1.8cm, minimum height=0.7cm, fill=SoftGray] (outdev) at (0,-1.35) {输出设备};
-% 守护进程（中）
-\node[draw, rectangle, minimum width=2.0cm, minimum height=0.7cm, fill=SoftTeal] (spi) at (3.2,1.35) {输入进程 SAPi};
-\node[draw, rectangle, minimum width=2.0cm, minimum height=0.7cm, fill=SoftTeal] (spo) at (3.2,-1.35) {输出进程 SAPo};
-% 用户进程（右）
-\node[draw, rectangle, minimum width=2.3cm, minimum height=2.0cm, fill=SoftBlue!45, align=center] (proc) at (10.3,0) {用户进程\\P1…Pn};
-% 输入路径（左→右）
-\draw[->] (indev) -- node[above]{预输入} (spi);
-\draw[->] (spi) -- node[above]{写入} (inw);
-\draw[->] (inw.east) -- node[above, pos=0.45]{进程读} (proc.west);
-% 输出路径（右→左）
-\draw[->] (proc.west) -- node[below, pos=0.45]{进程写} (outw.east);
-\draw[->] (outw) -- node[below]{取出} (spo);
-\draw[->] (spo) -- node[below]{缓输出} (outdev);
-\end{tikzpicture}
-\end{center}
-\end{mydef}
-
-\begin{conclusion}{SPOOLing系统的组成}{spooling-components}
-SPOOLing 系统由三部分组成：
-
-\begin{enumerate}
-    \item \textbf{输入井和输出井}：磁盘上开辟的两块区域。
-    \begin{itemize}
-        \item \textbf{输入井（Input Well）}：暂存输入设备（如读卡机）的数据，供进程按需读取。
-        \item \textbf{输出井（Output Well）}：暂存进程的输出数据，等待输出设备空闲时送出。
-    \end{itemize}
-
-    \item \textbf{输入进程和输出进程（SPOOLing守护进程）}：
-    \begin{itemize}
-        \item \textbf{输入进程（预输入程序/SPi）}：将数据从物理输入设备预先读入输入井。
-        \item \textbf{输出进程（缓输出程序/SPo）}：当输出设备空闲时，将输出井中的数据送到物理设备。
-        \item 输出进程通常以后台守护进程形式运行。
-    \end{itemize}
-
-    \item \textbf{井管理程序}：管理输入/输出井中的空间分配和数据调度。
-\end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{SPOOLing的工作原理与效果}{spooling-workflow}
-\textbf{以共享打印机为例的完整流程：}
-
-\begin{enumerate}
-    \item 用户进程调用 \texttt{print()} —— 系统并不直接分配打印机，而是在输出井中创建 SPOOLing 文件，将打印数据写入磁盘。
-    \item 用户进程感觉 ``打印完成''，继续运行（实际上只是写盘完成）。
-    \item 打印守护进程（如 UNIX 的 \texttt{lpd}）轮询输出井，发现有待打印文件，且打印机能接收数据时，将文件内容逐个发送给打印机。
-    \item 多个进程的打印请求在磁盘上排队（Spooling Queue），物理打印机串行服务。
-\end{enumerate}
-
-\textbf{SPOOLing 的效果：}
-\begin{itemize}
-    \item \textbf{将独占设备改造为共享设备}：多个进程可同时 ``使用'' 打印机（实际是同时写磁盘）。
-    \item \textbf{将低速 I/O 操作变为高速 I/O 操作}：对于用户进程，写磁盘比等待打印机快得多。
-    \item \textbf{实现了虚拟设备功能}：每个进程都觉得自己独占了打印机。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 核心考点：SPOOLing 的本质。}
-\begin{enumerate}
-    \item SPOOLing 的``假脱机''中，``假''在\textbf{用户进程以为在与物理 I/O 设备直接交互，实际上是在与磁盘交互}。
-    \item SPOOLing 输入/输出井 \textbf{位于磁盘上}（不是内存中！）。
-    \item SPOOLing 是一种典型的\textbf{虚拟化技术}——与虚拟内存（将磁盘空间当内存用）互为镜像：\textbf{虚拟内存把磁盘当内存用；SPOOLing 把磁盘当设备用。}
-    \item \textbf{SPOOLing 的常见辨析：}其典型用途是把打印机等独占设备改造为可由多个进程并发申请的虚拟共享设备；磁盘本身支持按块交错访问，通常不需要靠 SPOOLing 才能实现共享。
-\end{enumerate}
-\end{attention}
+分层的好处是每一层只依赖下一层的接口。换一块网卡，只需要换驱动，文件系统和用户程序不受影响；换一种文件系统，缓冲区管理和驱动也不用改。代价是请求要穿过几层，函数调用和上下文切换有开销。
 
 \subsection{缓冲区管理}
 
-\begin{mydef}{缓冲的引入动机}{buffer-motivation}
-\textbf{为什么需要缓冲？}
-\begin{enumerate}
-    \item \textbf{缓和 CPU 与 I/O 设备的速度不匹配}：CPU 处理速度远快于 I/O 设备，缓冲让两者可以并行工作。
-    \item \textbf{减少对 CPU 的中断频率}：没有缓冲时，每传一个字节就中断一次；有缓冲后，可等缓冲区满（或半满）再中断。
-    \item \textbf{解决 DMA 和中断的数据粒度不匹配}：DMA 按块传输，但进程可能按字节处理数据，缓冲区桥接了两者。
-    \item \textbf{提高 CPU 和 I/O 设备的并行性}：CPU 处理上一块数据的同时，设备可以将下一块数据送入缓冲区。
-\end{enumerate}
+键盘每秒可能只产生几十个字节，CPU 每秒能执行几十亿条指令。如果 CPU 每读一个字节就等一次键盘，大部分时间都浪费在等待上。缓冲区的作用是在两者之间放一块内存：设备先把数据攒起来，CPU 一次取走一批；或者 CPU 先把输出攒起来，设备慢慢取。这样两边可以并行工作，中断次数也能减少。
 
-\textbf{缓冲实现的位置：}缓冲区通常在内核空间的内存中分配。
-\end{mydef}
+缓冲区通常分配在内核空间，属于操作系统的内存，不是磁盘。这一点要和 SPOOLing 的“井”区分开：井在磁盘上，缓冲区在内存里。
 
-\subsubsection{单缓冲（Single Buffer）}
+\subsubsection{单缓冲与双缓冲}
 
-\begin{conclusion}{单缓冲的工作原理与时间分析}{single-buffer}
-\textbf{结构：}在设备与用户进程之间设置一个缓冲区。设备和进程轮流使用该缓冲区——两者\textbf{不能同时操作同一缓冲区}。
+先看输入方向。设备把一块数据读入缓冲区，耗时记为 $T$；操作系统把缓冲区里的数据搬到用户工作区，耗时记为 $M$；CPU 处理这块数据，耗时记为 $C$。在单缓冲下，设备、缓冲区、用户区只有一条通路，设备和 CPU 不能同时使用同一个缓冲区。
 
-\textbf{设以下参数：}
-\begin{itemize}
-    \item $T$：设备将一块数据输入到缓冲区所需时间（I/O传输时间）
-    \item $M$：OS 将缓冲区的数据传送到用户工作区所需时间（数据搬移时间）
-    \item $C$：CPU/用户进程处理一块数据所需时间
-\end{itemize}
+设备把缓冲区填满后，CPU 开始搬移。搬移完成，缓冲区空出来，设备才能开始读下一块。搬移之后的处理 $C$ 可以和下一块的读入 $T$ 重叠，但搬移 $M$ 本身要占着缓冲区，不能和下一块的 $T$ 重叠。因此，第一块要完整经历 $T+M+C$；此后每增加一块，所需时间是 $\max(C,T)+M$。处理 $N$ 块的总时间为
+\[
+T_{\text{单}}=T+M+C+(N-1)\bigl[\max(C,T)+M\bigr].
+\]
 
-\textbf{单缓冲下的数据处理时序（以输入为例）：}
+双缓冲设置两个缓冲区。设备往缓冲区 0 填数据时，CPU 可以从缓冲区 1 取数据；缓冲区 0 填满后，设备转去填缓冲区 1，CPU 同时处理缓冲区 0。这样设备路径每块花 $T$，CPU 路径每块花 $M+C$，两条路径并行，稳态下每块的时间是两者中较慢的那个：
+\[
+\max(T,\,M+C).
+\]
+第一块仍然要经历 $T+M+C$，所以 $N$ 块的总时间为
+\[
+T_{\text{双}}=T+M+C+(N-1)\max(T,\,M+C).
+\]
 
 \begin{center}
-\begin{tikzpicture}[>=stealth]
-\draw[->] (0,0) -- (12,0) node[right] {$t$};
-% Block 1
-\draw[fill=blue!20] (0,0.5) rectangle (2,1.2) node[midway] {\small $T$ (读块1)};
-\draw[fill=green!20] (2,0.5) rectangle (2.8,1.2) node[midway] {\tiny $M$};
-\draw[fill=yellow!20] (2.8,0.5) rectangle (5.2,1.2) node[midway] {\small $C$ (处理块1)};
-% Block 2
-\draw[fill=blue!20] (5.2,-0.5) rectangle (7.2,0.2) node[midway] {\small $T$ (读块2)};
-\draw[fill=green!20] (7.2,-0.5) rectangle (8,0.2) node[midway] {\tiny $M$};
-\draw[fill=yellow!20] (8,-0.5) rectangle (10.4,0.2) node[midway] {\small $C$ (处理块2)};
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.82cm]
+  \node[anchor=west, font=\small, text=Navy] at (-0.2,8.6) {单缓冲};
+  \fill[SoftBlue] (0,7.3) rectangle (3,7.8); \draw[Navy] (0,7.3) rectangle (3,7.8); \node at (1.5,7.55) {$T$};
+  \fill[SoftBlue] (4,7.3) rectangle (7,7.8); \draw[Navy] (4,7.3) rectangle (7,7.8); \node at (5.5,7.55) {$T$};
+  \fill[SoftBlue] (8,7.3) rectangle (11,7.8); \draw[Navy] (8,7.3) rectangle (11,7.8); \node at (9.5,7.55) {$T$};
+  \fill[SoftGray] (3,7.3) rectangle (4,7.8); \draw[RuleGray, dashed] (3,7.3) rectangle (4,7.8); \node[font=\tiny] at (3.5,7.55) {等};
+  \fill[SoftGray] (7,7.3) rectangle (8,7.8); \draw[RuleGray, dashed] (7,7.3) rectangle (8,7.8); \node[font=\tiny] at (7.5,7.55) {等};
+  \fill[SoftGray] (11,7.3) rectangle (12,7.8); \draw[RuleGray, dashed] (11,7.3) rectangle (12,7.8); \node[font=\tiny] at (11.5,7.55) {等};
+  \node[anchor=east, text=MutedText] at (-0.1,7.55) {设备};
+  \fill[SoftGray] (3,6.1) rectangle (4,6.6); \draw[RuleGray] (3,6.1) rectangle (4,6.6); \node at (3.5,6.35) {$M$};
+  \fill[SoftAmber] (4,6.1) rectangle (5.5,6.6); \draw[Amber] (4,6.1) rectangle (5.5,6.6); \node at (4.75,6.35) {$C$};
+  \fill[SoftGray] (7,6.1) rectangle (8,6.6); \draw[RuleGray] (7,6.1) rectangle (8,6.6); \node at (7.5,6.35) {$M$};
+  \fill[SoftAmber] (8,6.1) rectangle (9.5,6.6); \draw[Amber] (8,6.1) rectangle (9.5,6.6); \node at (8.75,6.35) {$C$};
+  \fill[SoftGray] (11,6.1) rectangle (12,6.6); \draw[RuleGray] (11,6.1) rectangle (12,6.6); \node at (11.5,6.35) {$M$};
+  \fill[SoftAmber] (12,6.1) rectangle (13.5,6.6); \draw[Amber] (12,6.1) rectangle (13.5,6.6); \node at (12.75,6.35) {$C$};
+  \node[anchor=east, text=MutedText] at (-0.1,6.35) {CPU};
+  \draw[<->, thick, MutedText] (0,5.6) -- (4,5.6) node[midway, below] {每块 $T+M$};
+
+  \node[anchor=west, font=\small, text=Navy] at (-0.2,4.7) {双缓冲};
+  \fill[SoftBlue] (0,3.6) rectangle (3,4.1); \draw[Navy] (0,3.6) rectangle (3,4.1); \node at (1.5,3.85) {$T$};
+  \fill[SoftBlue] (6,3.6) rectangle (9,4.1); \draw[Navy] (6,3.6) rectangle (9,4.1); \node at (7.5,3.85) {$T$};
+  \node[anchor=east, text=MutedText] at (-0.1,3.85) {B0};
+  \fill[SoftBlue] (3,2.6) rectangle (6,3.1); \draw[Navy] (3,2.6) rectangle (6,3.1); \node at (4.5,2.85) {$T$};
+  \fill[SoftBlue] (9,2.6) rectangle (12,3.1); \draw[Navy] (9,2.6) rectangle (12,3.1); \node at (10.5,2.85) {$T$};
+  \node[anchor=east, text=MutedText] at (-0.1,2.85) {B1};
+  \fill[SoftGray] (3,1.4) rectangle (4,1.9); \draw[RuleGray] (3,1.4) rectangle (4,1.9); \node at (3.5,1.65) {$M$};
+  \fill[SoftAmber] (4,1.4) rectangle (5.5,1.9); \draw[Amber] (4,1.4) rectangle (5.5,1.9); \node at (4.75,1.65) {$C$};
+  \fill[SoftGray] (6,1.4) rectangle (7,1.9); \draw[RuleGray] (6,1.4) rectangle (7,1.9); \node at (6.5,1.65) {$M$};
+  \fill[SoftAmber] (7,1.4) rectangle (8.5,1.9); \draw[Amber] (7,1.4) rectangle (8.5,1.9); \node at (7.75,1.65) {$C$};
+  \fill[SoftGray] (9,1.4) rectangle (10,1.9); \draw[RuleGray] (9,1.4) rectangle (10,1.9); \node at (9.5,1.65) {$M$};
+  \fill[SoftAmber] (10,1.4) rectangle (11.5,1.9); \draw[Amber] (10,1.4) rectangle (11.5,1.9); \node at (10.75,1.65) {$C$};
+  \node[anchor=east, text=MutedText] at (-0.1,1.65) {CPU};
+  \draw[<->, thick, MutedText] (0,0.85) -- (3,0.85) node[midway, below] {每块 $T$};
+
+  \draw[->] (0,0.3) -- (14.2,0.3) node[right] {时间};
+  \foreach \x in {0,3,6,9,12} \draw (\x,0.4) -- (\x,0.2) node[below] {\x};
+
+  \fill[SoftBlue] (2.0,-0.9) rectangle (2.35,-0.55); \node[anchor=west] at (2.4,-0.72) {$T$：设备读入};
+  \fill[SoftGray] (5.5,-0.9) rectangle (5.85,-0.55); \node[anchor=west] at (5.9,-0.72) {$M$：搬到用户区};
+  \fill[SoftAmber] (9.3,-0.9) rectangle (9.65,-0.55); \node[anchor=west] at (9.7,-0.72) {$C$：CPU 处理};
 \end{tikzpicture}
 \end{center}
 
-\text{相邻两块完成处理的间隔（稳态）}：
-\[
-\text{每块时间} = \max(C, T) + M
-\]
+上半图是单缓冲。设备读完一块后，要等 CPU 把数据搬走（$M$），才能读下一块，所以设备在 $M$ 期间空闲。下半图是双缓冲。设备填 B0 时，CPU 可以处理 B1；设备填 B1 时，CPU 处理 B0。设备几乎一直在工作，稳态每块只花 $T$。这张图画的是 $T>M+C$ 的情形，此时设备是瓶颈；如果 $M+C>T$，瓶颈变成 CPU 路径，每块花 $M+C$。
 
-\textbf{原因分析：}
-\begin{itemize}
-    \item 把当前块从系统缓冲区搬到用户区需 $M$，搬完后缓冲区才可供设备输入下一块。
-    \item 下一块的输入 $T$ 可与当前块的处理 $C$ 重叠，二者的较大值决定等待时间。
-    \item 搬移阶段 $M$ 使用唯一的系统缓冲区，不能与设备向该缓冲区输入下一块重叠。
-\end{itemize}
+输出方向的分析完全对称。CPU 先把结果写进用户区，再搬到系统缓冲区（$M$），设备从缓冲区取走输出（$T$）。单缓冲下，设备取走之前缓冲区不能重用，所以每块仍是 $\max(C,T)+M$；双缓冲下，CPU 准备下一块和设备输出上一块可以并行，每块仍是 $\max(T,M+C)$。公式里的 $T$ 换成输出时间，$M$ 换成“用户区到系统缓冲区”的搬移时间即可。
 
-\textbf{处理 $N$ 块数据的总时间：}
-\[
-T_{\text{single}} = T + M + C +(N-1)[\max(C,T)+M]
-\]
-第一块先经历 $T+M+C$；之后每增加一块，完成时刻增加 $\max(C,T)+M$。
-\end{conclusion}
+有一个常见的错误：双缓冲的并行路径写成 $\max(T,C)$，漏掉 $M$。只有题目明确说 $M$ 可以忽略，或者 $M$ 已经包含在 $C$ 里，才能把 $M$ 当成 0。否则 CPU 路径是“搬移加处理”，即 $M+C$。
 
-\subsubsection{双缓冲（Double Buffer）}
+\subsubsection{循环缓冲与缓冲池}
 
-\begin{conclusion}{双缓冲的工作原理与时间分析}{double-buffer}
-\textbf{结构：}设置两个缓冲区：Buffer0 和 Buffer1（又称\textbf{缓冲对换}，Buffer Swapping）。设备向一个缓冲区填数据时，CPU 可从另一个缓冲区取数据并处理。
-
-\textbf{双缓冲下的数据处理时序：}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 时间轴
-\draw[->] (0,0) -- (10.5,0) node[right] {$t$};
-\foreach \x in {0,2.5,5.0,7.5} \draw ({\x},-0.12) -- ({\x},0.12) node[below=3pt]{\scriptsize \x};
-% Buffer0（上带）
-\node[text=TealDark, anchor=east] at (-0.15,3.6) {Buffer0};
-\draw[fill=SoftBlue, draw=Navy] (0,3.15) rectangle (2.5,4.05) node[midway]{$T$};
-\draw[fill=SoftGray, draw=RuleGray] (2.5,3.15) rectangle (3.5,4.05) node[midway]{$M$};
-\draw[fill=SoftAmber, draw=Amber] (3.5,3.15) rectangle (6.0,4.05) node[midway]{$C$};
-% Buffer1（下带）
-\node[text=TealDark, anchor=east] at (-0.15,1.0) {Buffer1};
-\draw[fill=SoftBlue, draw=Navy] (2.5,0.55) rectangle (5.0,1.45) node[midway]{$T$};
-\draw[fill=SoftGray, draw=RuleGray] (5.0,0.55) rectangle (6.0,1.45) node[midway]{$M$};
-\draw[fill=SoftAmber, draw=Amber] (6.0,0.55) rectangle (8.5,1.45) node[midway]{$C$};
-% 并行标注
-\draw[<->, MutedText, thick] (3.5,2.4) -- (5.0,2.4);
-\node[fill=white, font=\scriptsize, text=MutedText, inner sep=1pt, rounded corners=1pt] at (4.25,2.4) {B0 的 $C$ 与 B1 的 $T$ 并行};
-% 图例
-\node[text=Amber, font=\scriptsize] at (4.25,-1.0) {$T$：设备填入；$M$：搬移；$C$：CPU 处理};
-\end{tikzpicture}
-\end{center}
-
-\text{相邻两块完成处理的间隔（稳态）}：
-\[
-\text{每块时间} = \max(T, M+C)
-\]
-
-\textbf{原因分析：}
-\begin{itemize}
-    \item 设备可以向一个缓冲区输入（耗时 $T$），同时系统从另一个缓冲区搬移并由进程处理上一块（串行耗时 $M+C$）。
-    \item 两条并行流水路径中较慢的一条决定稳态吞吐率，因此比较的是 $T$ 与 $M+C$，而不是只比较 $T$ 与 $C$。
-\end{itemize}
-
-\textbf{处理 $N$ 块数据的总时间：}
-\[
-T_{\text{double}} = T + M + C +(N-1)\max(T,M+C)
-\]
-第一块仍需完整的 $T+M+C$；从第二块起，设备输入和“搬移+处理”两条路径重叠。
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 计算题关键区分——单缓冲 vs 双缓冲：}
-
-\noindent\fcolorbox{red}{white}{\begin{minipage}{0.9\linewidth}
-\textbf{真题场景：} 文件占 $N$ 个磁盘块，每块大小等于缓冲区大小。分别计算单缓冲和双缓冲下读入并处理整个文件的时间。
-
-\textbf{单缓冲：} $T_{\text{single}}=T+M+C+(N-1)[\max(C,T)+M]$
-
-\textbf{双缓冲：} $T_{\text{double}}=T+M+C+(N-1)\max(T,M+C)$
-
-\textbf{陷阱：}双缓冲的 CPU 路径是 $M+C$，两者通常不能彼此重叠；不能把公式误写为 $\max(T,M,C)$。若题目未给 $M$，应按题干明确的假设取 $M=0$ 或认为它已包含在其他时间中。
-\end{minipage}}
-\end{attention}
-
-\subsubsection{循环缓冲（Circular Buffer）}
-
-\begin{mydef}{循环缓冲}{circular-buffer}
-\textbf{结构：}在双缓冲的基础上，将多个缓冲区组织成一个环形队列。每个缓冲区有一个状态标记：空（Empty）、满（Full）、正在使用（In-Use）。
+双缓冲只有两个缓冲区，遇到设备忽快忽慢、进程处理一阵停一阵的情况，两个缓冲区不够用。循环缓冲把多个缓冲区组织成一个环，每个缓冲区有一个状态：空、满、正在使用。设备按 \texttt{NextIn} 指针找下一个空缓冲区填入，CPU 按 \texttt{NextOut} 指针找下一个满缓冲区取出。填满后 \texttt{NextIn} 后移，取空后 \texttt{NextOut} 后移。环上的缓冲区首尾相接，指针走到末尾就回到开头。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 环形缓冲区
-\foreach \i in {0,...,7} {
-  \node[draw, circle, minimum size=0.85cm, fill=SoftBlue] (B\i) at ({45*\i+22.5}:2.5cm) {\scriptsize B\i};
-}
-% 环形链（顺时针方向）
-\foreach \i in {0,...,7} {
-  \pgfmathtruncatemacro{\j}{mod(\i+1,8)}
-  \draw[->] (B\i) -- (B\j);
-}
-% 中心指针
-\node[circle, fill=RuleGray, minimum size=0.32cm, inner sep=0pt] at (0,0) {};
-\draw[->, very thick, Amber] (0,0) -- (B2);
-\node[text=Amber, font=\scriptsize] at (-1.1,3.0) {NextIn};
-\draw[->, very thick, TealDark] (0,0) -- (B6);
-\node[text=TealDark, font=\scriptsize] at (1.2,-3.0) {NextOut};
-\node[font=\scriptsize, MutedText] at (0,-3.6) {NextIn：设备下一个填入的空缓冲区；NextOut：CPU 下一个取出的满缓冲区};
+  \foreach \i/\c in {0/SoftGray,1/Teal!20,2/Amber!30,3/SoftGray,4/SoftGray,5/Teal!20,6/SoftGray,7/Teal!20} {
+    \pgfmathsetmacro{\a}{22.5+45*\i}
+    \node[draw, circle, minimum size=0.8cm, fill=\c] (B\i) at (\a:2.5cm) {\scriptsize B\i};
+  }
+  \foreach \i in {0,...,7} {
+    \pgfmathtruncatemacro{\j}{mod(\i+1,8)}
+    \draw[->, thick, MutedText!85] (B\i) -- (B\j);
+  }
+  \fill[RuleGray] (0,0) circle (0.1cm);
+  \draw[->, very thick, TealDark] (0,0) -- (B0);
+  \draw[->, very thick, Amber] (0,0) -- (B2);
+  \draw[->, very thick, Navy] (0,0) -- (B5);
+  \node[text=TealDark, anchor=west] at (2.7,1.45) {\texttt{NextIn}};
+  \node[text=Amber, anchor=east] at (-1.5,2.65) {Current};
+  \node[text=Navy, anchor=east] at (-2.2,-2.35) {\texttt{NextOut}};
+  \fill[SoftGray] (-5.2,-3.7) rectangle (-4.8,-3.3); \node[anchor=west, font=\scriptsize] at (-4.7,-3.5) {空};
+  \fill[Teal!20] (-2.8,-3.7) rectangle (-2.4,-3.3); \node[anchor=west, font=\scriptsize] at (-2.3,-3.5) {满};
+  \fill[Amber!30] (-0.4,-3.7) rectangle (0.0,-3.3); \node[anchor=west, font=\scriptsize] at (0.1,-3.5) {正在使用};
 \end{tikzpicture}
 \end{center}
 
-\textbf{关键指针：}
-\begin{itemize}
-    \item \textbf{NextIn（输入指针）}：指向设备下一个要填入数据的空缓冲区。
-    \item \textbf{NextOut（输出指针）}：指向 CPU 下一个要取数据的满缓冲区。
-    \item \textbf{Current}：指向当前正在被 CPU 处理的缓冲区（已从 NextOut 取出）。
-\end{itemize}
+图中浅灰表示空，浅青表示满，浅黄表示正在使用。\texttt{NextIn} 指向下一个空缓冲区，设备往这里填；\texttt{NextOut} 指向下一个满缓冲区，CPU 从这里取；Current 是 CPU 正在处理的缓冲区。环上的箭头表示缓冲区按固定顺序轮转。设备是生产者，CPU 是消费者，缓冲区的状态就是生产者与消费者之间的同步信息。环满时设备等待，环空时 CPU 等待。
 
-\textbf{与生产者-消费者的关系：}循环缓冲本质上是生产者-消费者问题在 I/O 缓冲中的具体应用。设备是生产者（填满缓冲区），CPU 是消费者（取空缓冲区）。管理和同步由 OS 的缓冲区管理程序负责。
-\end{mydef}
+循环缓冲能吸收突发：设备一次送来好几块，CPU 可以慢慢处理；CPU 一阵忙不过来，设备也有地方存。稳态吞吐率仍由较慢的一边决定，缓冲区数量不会让慢的一边变快，它只是把“等”的位置从设备或 CPU 挪到了队列上。
 
-\subsubsection{缓冲池（Buffer Pool）}
+缓冲池是系统级的一组缓冲区，不再固定分给某台设备。池中的缓冲区按状态挂在三个队列上：空缓冲队列 \texttt{emq}、输入队列 \texttt{inq}、输出队列 \texttt{outq}。设备输入时，缓冲管理程序从 \texttt{emq} 取一个空缓冲区，设备把数据填进去，填满后挂到 \texttt{inq}；进程从 \texttt{inq} 取走数据，缓冲区变空，挂回 \texttt{emq}。输出方向对称：进程从 \texttt{emq} 取空缓冲区，填入输出数据后挂到 \texttt{outq}；设备从 \texttt{outq} 取走数据，输出完成后把空缓冲区挂回 \texttt{emq}。
 
-\begin{conclusion}{缓冲池}{buffer-pool}
-\textbf{缓冲池}是系统级的大型缓冲区集合，可以被多种设备和进程共享使用，而不是专属于某个特定设备。
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, rounded corners=1.5pt, fill=SoftTeal, minimum width=3.4cm, minimum height=1.0cm, align=center] (emq) at (-4.6,0) {空缓冲队列\\ \texttt{emq}};
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=3.4cm, minimum height=1.0cm, align=center] (inq) at (0,2.7) {输入队列\\ \texttt{inq}};
+  \node[draw, rounded corners=1.5pt, fill=SoftAmber, minimum width=3.4cm, minimum height=1.0cm, align=center] (outq) at (0,-2.7) {输出队列\\ \texttt{outq}};
+  \node[draw, rounded corners=1.5pt, fill=SoftGray, minimum width=3.0cm, minimum height=0.9cm, align=center] (user) at (4.8,2.7) {进程取走数据};
+  \node[draw, rounded corners=1.5pt, fill=SoftGray, minimum width=3.0cm, minimum height=0.9cm, align=center] (dev) at (4.8,-2.7) {设备输出数据};
 
-\textbf{缓冲池中的三种缓冲区队列：}
-\begin{tablebox}{缓冲池的三种队列}
+  \draw[->] (emq.north) to[bend left=15] node[above, pos=0.55]{收容输入（设备填入）} (inq.west);
+  \draw[->] (inq.east) -- node[above]{提取输入} (user.west);
+  \draw[->, dashed] (user.north) -- (4.8,4.1) -- (-6.2,4.1) -- (-6.2,0.5) -- (emq.west);
+  \node[text=MutedText, fill=white, inner sep=1pt] at (-1.4,4.1) {用完后回收};
+
+  \draw[->] (emq.south) to[bend right=15] node[below, pos=0.55]{收容输出（进程填入）} (outq.west);
+  \draw[->] (outq.east) -- node[below]{提取输出} (dev.west);
+  \draw[->, dashed] (dev.south) -- (4.8,-4.1) -- (-6.2,-4.1) -- (-6.2,-0.5) -- (emq.west);
+  \node[text=MutedText, fill=white, inner sep=1pt] at (-1.4,-4.1) {输出后回收};
+\end{tikzpicture}
+\end{center}
+
+图中，缓冲区在三个队列之间流动。收容输入和收容输出都要先从 \texttt{emq} 取空缓冲区；提取输入和提取输出把用过的缓冲区还给 \texttt{emq}。队列操作本身是临界区，多个进程或设备同时申请缓冲区时，必须互斥地修改队首指针和缓冲区状态。
+
+\begin{tablebox}{四种缓冲方式}
 \centering
-\begin{tabularx}{\linewidth}{|p{0.25\linewidth}|p{0.22\linewidth}|X|}
+\small
+\begin{tabularx}{\linewidth}{|p{0.14\linewidth}|p{0.09\linewidth}|p{0.24\linewidth}|X|}
 \hline
-队列类型 & 状态 & 用途 \\
+方式 & 数量 & 稳态每块时间 & 适用场景 \\
 \hline
-空缓冲队列（emq）& 空闲，可分配 & 设备和进程均可从此获取空缓冲区 \\
-输入队列（inq）& 装满输入数据 & 设备将数据填入后挂入此队列；CPU从此取出数据 \\
-输出队列（outq）& 装满输出数据 & 进程将输出数据填入后挂入此队列；设备从此取出并输出 \\
+单缓冲 & 1 & $\max(C,T)+M$ & 实现简单，设备与 CPU 串行使用缓冲区 \\
+双缓冲 & 2 & $\max(T,M+C)$ & 连续 I/O，设备与 CPU 可并行 \\
+循环缓冲 & 多个 & 由较慢的一边决定 & 吸收输入突发，需要同步 \\
+缓冲池 & 共享 & 由分配策略决定 & 多设备共享，利用率高 \\
 \hline
 \end{tabularx}
 \end{tablebox}
 
-\textbf{缓冲池的操作原语：}
-\begin{itemize}
-    \item \textbf{收容输入（GetBuf\_Input）}：从 emq 取一个空缓冲区 $\to$ 挂入 inq。
-    \item \textbf{提取输入（ReleaseBuf\_Input）}：从 inq 取一个满缓冲区 $\to$ 供进程使用 $\to$ 回收后挂入 emq。
-    \item \textbf{收容输出（GetBuf\_Output）}：从 emq 取一个空缓冲区 $\to$ 挂入 outq。
-    \item \textbf{提取输出（ReleaseBuf\_Output）}：从 outq 取一个满缓冲区 $\to$ 供设备输出 $\to$ 回收后挂入 emq。
-\end{itemize}
+\subsection{SPOOLing}
 
-\textbf{与专用缓冲的对比：}
-\begin{itemize}
-    \item \textbf{专用缓冲（单/双/循环缓冲）}：为特定设备静态分配，利用率可能不足（设备空闲时缓冲区浪费）或不足（高峰期不够用）。
-    \item \textbf{缓冲池}：所有设备共享，动态分配，利用率高，但管理开销更大。
-\end{itemize}
-\end{conclusion}
+三个用户几乎同时提交打印任务，而办公室只有一台打印机。没有 SPOOLing 时，第一个进程独占打印机，第二个和第三个只能等。有了 SPOOLing，三个进程都把要打印的数据写到磁盘上的输出井，写完就返回；后台的打印守护进程按顺序把文件送到打印机。三个进程都觉得自己有一台打印机，实际上它们只是在共享磁盘上的队列。
+
+SPOOLing 是 Simultaneous Peripheral Operations On-Line 的缩写，中文叫假脱机。它由三部分组成。输入井和输出井是在磁盘上开辟的两块存储区域，输入井暂存从输入设备预先读入的数据，输出井暂存进程要输出的数据。输入进程和输出进程是后台进程，输入进程把物理输入设备的数据读进输入井，输出进程把输出井的数据送到物理设备。井管理程序负责分配和回收井中的空间，维护队列。
+
+输出方向的流程如下。进程打开逻辑打印机，系统在输出井中为它建立一个 SPOOLing 文件。进程调用写操作，数据被追加到这个文件里；写完最后一块，进程返回，继续做别的事。此时数据还在磁盘上，没有送到打印机。输出进程按队列顺序取出文件，把内容逐块送到打印机。打印机打完一个文件，输出进程回收井空间，再处理下一个。
+
+输入方向对称。输入进程提前把读卡器、终端等设备的数据读入输入井。进程要读数据时，从输入井取，不必直接和慢速输入设备打交道。输入井里没有数据时，进程阻塞，等输入进程读入后再唤醒。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.9cm, align=center] (min) at (-6.8,3.0) {设备\\（输入）};
-\node[draw, rectangle, fill=SoftAmber, minimum width=3.6cm, minimum height=1.0cm, align=center] (inq) at (0,3.0) {输入队列\\ inq};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.9cm, align=center] (prd) at (6.8,3.0) {进程\\（读取）};
-\node[draw, rectangle, fill=SoftTeal, minimum width=3.6cm, minimum height=1.0cm, align=center] (emq) at (0,0.0) {空缓冲队列\\ emq};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.9cm, align=center] (pwr) at (-6.8,-3.0) {进程\\（写入）};
-\node[draw, rectangle, fill=SoftBlue, minimum width=3.6cm, minimum height=1.0cm, align=center] (outq) at (0,-3.0) {输出队列\\ outq};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.9cm, align=center] (mout) at (6.8,-3.0) {设备\\（输出）};
-% 输入/输出主路径
-\draw[->] (min.east) -- node[above,font=\scriptsize]{填入输入} (inq.west);
-\draw[->] (inq.east) -- node[above,font=\scriptsize]{进程取用} (prd.west);
-\draw[->] (pwr.east) -- node[above,font=\scriptsize]{填入输出} (outq.west);
-\draw[->] (outq.east) -- node[above,font=\scriptsize]{设备输出} (mout.west);
-% emq 与 inq / outq 的收容与提取
-\draw[<->] (emq.north) -- (inq.south);
-\draw[<->] (emq.south) -- (outq.north);
-\node[font=\scriptsize, text=MutedText, fill=white, inner sep=1pt, rounded corners=1pt] at (2.1,1.5) {收容/提取输入};
-\node[font=\scriptsize, text=MutedText, fill=white, inner sep=1pt, rounded corners=1pt] at (2.1,-1.5) {收容/提取输出};
-\node[font=\scriptsize, text=MutedText] at (0,-4.1) {缓冲池：全体设备共享，动态分配};
+  \draw[dashed, rounded corners=2pt, thick, RuleGray] (1.2,-3.2) rectangle (5.6,3.2);
+  \node[text=TealDark, anchor=west] at (1.35,2.95) {磁盘（共享设备）};
+  \draw[rounded corners=1.5pt, fill=SoftBlue] (1.5,1.2) rectangle (5.3,2.4);
+  \node[font=\tiny, anchor=north west] at (1.6,2.35) {输入井};
+  \foreach \x in {2.0,2.9,3.8} \draw[RuleGray] (\x,1.35) rectangle (\x+0.75,2.05);
+  \draw[rounded corners=1.5pt, fill=SoftAmber] (1.5,-2.4) rectangle (5.3,-1.2);
+  \node[font=\tiny, anchor=south west] at (1.6,-2.35) {输出井（SPOOLing 文件队列）};
+  \foreach \x in {2.0,2.9,3.8} \draw[RuleGray] (\x,-2.1) rectangle (\x+0.75,-1.4);
+
+  \node[draw, rounded corners=1.5pt, fill=SoftGray, minimum width=2.2cm, minimum height=0.9cm, align=center] (indev) at (-5.8,2.0) {输入设备};
+  \node[draw, rounded corners=1.5pt, fill=SoftTeal, minimum width=2.4cm, minimum height=0.9cm, align=center] (inp) at (-2.4,2.0) {输入进程\\（预输入）};
+  \node[draw, rounded corners=1.5pt, fill=SoftTeal, minimum width=2.4cm, minimum height=0.9cm, align=center] (outp) at (-2.4,-2.0) {输出进程\\（缓输出）};
+  \node[draw, rounded corners=1.5pt, fill=SoftGray, minimum width=2.2cm, minimum height=0.9cm, align=center] (outdev) at (-5.8,-2.0) {输出设备\\（打印机）};
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=2.4cm, minimum height=2.2cm, align=center] (user) at (7.9,0) {用户进程\\ $P_1,\ldots,P_n$};
+
+  \draw[->] (indev) -- node[above]{读入} (inp);
+  \draw[->] (inp) -- node[above]{写入输入井} (1.5,2.0);
+  \draw[->] (5.3,1.8) -- node[above]{按需读} (user.west |- 0,1.8);
+  \draw[->] (user.west |- 0,-1.8) -- node[below]{写盘即返回} (5.3,-1.8);
+  \draw[->] (1.5,-1.8) -- node[below]{缓输出} (outp);
+  \draw[->] (outp) -- node[below]{逐个打印} (outdev);
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-\textbf{408 辨析：四个缓冲区概念的区别。}
-\begin{itemize}
-    \item \textbf{单缓冲}：稳态间隔为 $\max(C,T)+M$。
-    \item \textbf{双缓冲}：稳态间隔为 $\max(T,M+C)$，适合连续 I/O（如磁盘顺序读）。
-    \item \textbf{循环缓冲}：多个缓冲区环形组织，适合生产者-消费者速率不稳定的场景。
-    \item \textbf{缓冲池}：系统全局共享的缓冲区集合，通过收容/提取操作管理。
-\end{itemize}
-\textbf{408 经常考察：} 给定 $C$ 和 $T$ 的值，判断单缓冲和双缓冲的总处理时间差异。当 $C$ 和 $T$ 接近时，双缓冲的优势最大（并行度最高）。
-\end{attention}
+图中上半部分走输入，下半部分走输出。用户进程只和磁盘上的井打交道：读数据时从输入井取，写数据时往输出井放。打印机由输出进程串行驱动，多个进程的打印请求在输出井里排队。输入井和输出井都在磁盘上，这点常被误记成内存。
 
-\subsection{408 高频考点速查}
+SPOOLing 把独占设备改造成了共享设备。从进程的角度看，它独占了一台打印机；从系统的角度看，多台逻辑打印机对应同一台物理打印机，请求在队列里排队。它还把慢速设备的操作变成了磁盘操作：用户进程写磁盘比等打印机快得多，写完就能继续运行。这就是“虚拟设备”的含义。
 
-\begin{conclusion}{I/O管理 — 408常考点}{os5-keypoints}
-\begin{enumerate}
-    \item \textbf{四种 I/O 控制方式}：轮询$\to$中断$\to$DMA$\to$通道，每次演进减少了 CPU 参与 I/O 的程度和中断频率。DMA 与中断的最关键区别：\textbf{DMA 的数据传输不由 CPU 完成，且每块只中断一次}。
+SPOOLing 不会让打印机本身的吞吐率变高。打印机每秒能打多少页是固定的，队列再长也不能改变这一点。它改善的是进程的等待时间和设备利用率：进程不必同步等待慢速设备，打印机也不必在两次任务之间空闲。要实现 SPOOLing，系统需要磁盘存放井，还需要多道程序支持，让输出进程能在用户进程运行的同时工作。
 
-    \item \textbf{I/O 软件层次}：四层自底向上依次是中断处理程序$\to$设备驱动程序$\to$设备独立性软件$\to$用户层 I/O 软件。SPOOLing 属于用户层（守护进程形式）。
+\subsection{设备分配}
 
-    \item \textbf{SPOOLing 系统}：独占设备$\to$共享设备的虚拟化技术。输入/输出井\textbf{在磁盘上}。原理：截获输出请求写入磁盘井，后台守护进程逐个送往物理设备。
+设备是资源，多个进程可能同时申请。独占设备一次只能给一个进程，分配不当会让进程互相等待，甚至死锁。共享设备不需要独占，但要多进程的请求排队，按某种策略调度。虚拟设备则是用 SPOOLing 在逻辑上造出多台设备。
 
-    \item \textbf{缓冲区处理时间计算}：
-    \begin{itemize}
-        \item 单缓冲：$T+M+C+(N-1)[\max(C,T)+M]$
-        \item 双缓冲：$T+M+C+(N-1)\max(T,M+C)$
-    \end{itemize}
+为了管理设备，系统维护一组表。系统设备表 SDT 是全局的，每台设备占一个表项，记录设备类型、设备号、指向设备控制表的指针和驱动程序入口。设备控制表 DCT 描述一台设备的状态：设备号、状态（忙或闲）、等待队列队首、指向控制器控制表的指针。控制器控制表 COCT 描述一个控制器：状态、等待队列、指向通道控制表的指针。通道控制表 CHCT 描述一个通道：状态和等待队列。
 
-    \item \textbf{块设备 vs 字符设备}：块设备可寻址（支持 lseek），以块为单位；字符设备不可寻址，以字符流为单位。
-
-    \item \textbf{DMA 周期窃取}：DMA 传送期间需占用总线，与 CPU 争用内存周期，但每块只窃取少量周期，总体影响不大。
-\end{enumerate}
+逻辑设备表 LUT 负责名字映射。进程申请设备时用的是逻辑名，例如“打印机”或 \texttt{/dev/lp0}；LUT 的表项记录逻辑名、物理设备名和驱动程序入口。LUT 可以整个系统一张，也可以每个进程一张。系统一张时，逻辑名必须全局唯一；每个进程一张时，不同进程可以用相同的逻辑名指不同的物理设备。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[font=\scriptsize, text=Navy, font=\bfseries] at (0,3.5) {I/O 管理常考点速查};
-\node[draw, rectangle, fill=SoftBlue, minimum width=7.2cm, minimum height=2.0cm, align=center, rounded corners=2pt] (A) at (-4.1,1.4) {\textbf{四种 I/O 控制方式}\\ 轮询 $\to$ 中断 $\to$ DMA $\to$ 通道\\ {\scriptsize CPU 参与度、中断频率递减}};
-\node[draw, rectangle, fill=SoftTeal, minimum width=7.2cm, minimum height=2.0cm, align=center, rounded corners=2pt] (B) at (4.1,1.4) {\textbf{I/O 软件四层}\\ 用户层 $\to$ 设备独立 $\to$ 驱动 $\to$ 中断\\ {\scriptsize SPOOLing 在用户层；驱动与硬件通信}};
-\node[draw, rectangle, fill=SoftAmber, minimum width=7.2cm, minimum height=2.0cm, align=center, rounded corners=2pt] (C) at (-4.1,-1.6) {\textbf{缓冲区处理时间}\\ 单缓冲 $\max(C,T)+M$；双缓冲 $\max(T,M+C)$\\ {\scriptsize 缓冲池：全体设备共享}};
-\node[draw, rectangle, fill=SoftGray, minimum width=7.2cm, minimum height=2.0cm, align=center, rounded corners=2pt] (D) at (4.1,-1.6) {\textbf{块设备 vs 字符设备}\\ 块设备可寻址（按块）；字符设备不可寻址\\ {\scriptsize 磁盘为块设备，打印机为字符设备}};
+  \node[draw, rounded corners=1.5pt, fill=SoftTeal, minimum width=3.4cm, minimum height=1.2cm, align=center] (lut) at (-5.4,2.8) {逻辑设备表 LUT\\ {\tiny 逻辑名 $\to$ 物理名、驱动入口}};
+  \node[draw, rounded corners=1.5pt, fill=SoftTeal, minimum width=3.4cm, minimum height=1.2cm, align=center] (sdt) at (-5.4,0.2) {系统设备表 SDT\\ {\tiny 设备类型、设备号、DCT 指针}};
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=4.2cm, minimum height=1.4cm, align=center] (dct) at (0,2.8) {设备控制表 DCT\\ \tiny 设备状态（忙/闲）\\ 等待队列队首\\ COCT 指针};
+  \node[draw, rounded corners=1.5pt, fill=SoftAmber, minimum width=4.2cm, minimum height=1.4cm, align=center] (coct) at (0,0.4) {控制器控制表 COCT\\ \tiny 控制器状态\\ 等待队列\\ CHCT 指针};
+  \node[draw, rounded corners=1.5pt, fill=SoftGray, minimum width=4.2cm, minimum height=1.2cm, align=center] (chct) at (0,-2.0) {通道控制表 CHCT\\ \tiny 通道状态\\ 等待队列};
+
+  \draw[->] (lut.east) -- node[above, font=\tiny]{按逻辑名查找} (dct.west);
+  \draw[->, dashed] (sdt.east) -- (dct.south west);
+  \node[anchor=east, font=\tiny, text=MutedText] at (-3.9,1.3) {SDT 汇总全部设备};
+  \draw[->] (dct.south) -- node[right, font=\tiny]{(1) 分配设备} (coct.north);
+  \draw[->] (coct.south) -- node[right, font=\tiny]{(2) 分配控制器} (chct.north);
+  \node[anchor=west, font=\tiny, text=MutedText] at (2.2,-2.0) {(3) 分配通道后即可启动 I/O};
 \end{tikzpicture}
 \end{center}
-\end{conclusion}
+
+图中，LUT 把逻辑名变成物理设备，再找到 DCT；SDT 是全局目录，指向所有设备的 DCT。DCT、COCT、CHCT 串成一条链，对应“设备—控制器—通道”的层次。分配时先查设备，再查控制器，最后查通道；任何一层忙，请求都不能立即满足。
+
+一次独占设备的分配通常按下面的顺序进行。进程给出逻辑设备名，系统查 LUT 得到物理设备名和驱动程序入口，再通过 SDT 找到该设备的 DCT，看 DCT 中的状态是否空闲。设备忙，就把进程挂到 DCT 的等待队列；设备空闲，就把设备分给它。接着查 COCT，看控制器能否接受；控制器忙，可以释放设备后再等，也可以带着设备排队，后者要小心死锁。再查 CHCT，看通道是否空闲。三层都分配成功，驱动程序才把请求变成寄存器操作，启动 I/O。I/O 完成后，中断处理程序唤醒等待的进程，系统逐层释放通道、控制器和设备，并唤醒相应队列的队首。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=4.4cm, minimum height=0.55cm, align=center] (req) at (0,5.2) {进程请求逻辑设备};
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=4.4cm, minimum height=0.55cm, align=center] (lut) at (0,4.0) {查 LUT，得到物理设备名};
+  \node[draw, rounded corners=1.5pt, fill=SoftTeal, minimum width=4.4cm, minimum height=0.55cm, align=center] (dct) at (0,2.8) {查 DCT：设备空闲？};
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=4.4cm, minimum height=0.55cm, align=center] (adev) at (0,1.6) {分配设备};
+  \node[draw, rounded corners=1.5pt, fill=SoftTeal, minimum width=4.4cm, minimum height=0.55cm, align=center] (coct) at (0,0.4) {查 COCT：控制器空闲？};
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=4.4cm, minimum height=0.55cm, align=center] (actl) at (0,-0.8) {分配控制器};
+  \node[draw, rounded corners=1.5pt, fill=SoftTeal, minimum width=4.4cm, minimum height=0.55cm, align=center] (chct) at (0,-2.0) {查 CHCT：通道空闲？};
+  \node[draw, rounded corners=1.5pt, fill=SoftBlue, minimum width=4.4cm, minimum height=0.55cm, align=center] (ach) at (0,-3.2) {分配通道，启动 I/O};
+
+  \node[draw, rounded corners=1.5pt, fill=SoftAmber, minimum width=3.4cm, minimum height=0.55cm, align=center] (wd) at (5.4,2.8) {加入 DCT 等待队列};
+  \node[draw, rounded corners=1.5pt, fill=SoftAmber, minimum width=3.4cm, minimum height=0.55cm, align=center] (wc) at (5.4,0.4) {释放设备，等待};
+  \node[draw, rounded corners=1.5pt, fill=SoftAmber, minimum width=3.4cm, minimum height=0.55cm, align=center] (wh) at (5.4,-2.0) {释放设备与控制器，等待};
+
+  \draw[->] (req) -- (lut);
+  \draw[->] (lut) -- (dct);
+  \draw[->] (dct) -- node[right]{是} (adev);
+  \draw[->] (adev) -- (coct);
+  \draw[->] (coct) -- node[right]{是} (actl);
+  \draw[->] (actl) -- (chct);
+  \draw[->] (chct) -- node[right]{是} (ach);
+
+  \draw[->] (dct) -- node[above]{否} (wd);
+  \draw[->] (coct) -- node[above]{否} (wc);
+  \draw[->] (chct) -- node[above]{否} (wh);
+  \draw[->, dashed] (wd.south) -- (wc.north);
+  \draw[->, dashed] (wc.south) -- (wh.north);
+  \node[text=MutedText, font=\tiny, anchor=west] at (5.4,-3.0) {阻塞，资源释放后重试};
+\end{tikzpicture}
+\end{center}
+
+图中是一条分配路径。设备、控制器、通道三层依次检查，任何一层返回“否”，进程都不能启动 I/O。后面的检查失败时，前面已经分配的资源要释放，否则别的进程可能被永久挡住。实际系统里也可以让进程带着已分配的设备在控制器队列里等，但这样会增加死锁风险，需要额外的安全策略。
+
+共享设备不采用这种独占分配。磁盘可以被多个进程同时打开，系统只把读写请求排成队列，按电梯算法之类的策略调度。虚拟设备用 SPOOLing 实现，进程申请的是输出井中的一个逻辑设备，物理打印机仍然由输出进程串行使用。
+
+设备分配有两种时机。静态分配在进程运行前一次性分配它需要的全部设备，运行期间不再申请。这样做不会因为设备竞争而死锁，但设备利用率低，进程可能占着设备却长时间不用。动态分配在进程运行中按需申请，利用率高，但可能出现死锁。多类独占设备同时被多个进程申请时，系统可以用银行家算法做安全性检查：每次分配前先模拟分配，看是否存在安全序列；若分配后进入不安全状态，就拒绝本次分配，让进程等待。
+
+\subsection{几组容易混淆的概念}
+
+中断驱动和 DMA 的分界在“谁搬数据”。中断驱动由 CPU 在中断服务程序里把数据从设备寄存器搬到内存；DMA 由 DMA 控制器直接在主存和设备之间搬，CPU 只初始化和收尾。中断频率也不同：前者每字或每字节一次，后者每块一次。
+
+块设备和独占设备是两个维度。磁盘是块设备，也是共享设备；打印机是字符设备，也是独占设备。判断时先看题目问的是数据单位还是共享属性。
+
+缓冲和 SPOOLing 解决的不是同一个问题。缓冲区在内存里，用来缓和 CPU 与设备的速度差，减少中断次数；SPOOLing 的井在磁盘上，用来把独占设备改造成共享设备，让多个进程的请求排队。缓冲区通常属于某台设备或某个进程，缓冲池才是系统共享的；SPOOLing 的井从一开始就是共享的。
+
+单缓冲和双缓冲的公式只差一个 $M$，但不能把 $M$ 随手丢掉。单缓冲的稳态间隔是 $\max(C,T)+M$，双缓冲是 $\max(T,M+C)$。双缓冲的 CPU 路径是“搬移加处理”，不是单独的处理时间。
+
+通道和 DMA 的区别在“有没有指令”。DMA 只能按预先设置好的地址和长度搬一块数据，不能分支、不能循环；通道有自己的指令系统，能执行通道程序，控制多台设备，完成后才中断一次。
+
+LUT 和 SDT 都出现在设备分配的题目里，但职责不同。LUT 负责逻辑名到物理名的映射，按进程或按系统建立；SDT 是系统全部设备的清单，记录每台设备的类型、编号和 DCT 指针。题目问“按逻辑设备名找物理设备”时，答案是 LUT；问“系统中有哪些设备、到哪里找它们的控制表”时，答案是 SDT。
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（真题风格·选择题）} 系统将数据从磁盘读到内存的过程包括以下操作：
-\begin{center}
-\begin{tabular}{l}
-（1） DMA 控制器发出中断请求 \\
-（2） 初始化 DMA 控制器并启动磁盘 \\
-（3） 从磁盘传输一块数据到内存缓冲区 \\
-（4） 执行「DMA 结束」中断服务程序
-\end{tabular}
-\end{center}
-正确的执行顺序是
-\begin{center}
-\begin{tabular}{ll}
-(A) （3）$\to$（1）$\to$（2）$\to$（4） & (B) （2）$\to$（3）$\to$（1）$\to$（4） \\[6pt]
-(C) （2）$\to$（1）$\to$（3）$\to$（4） & (D) （1）$\to$（2）$\to$（4）$\to$（3）
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} CPU/驱动先初始化 DMA 控制器并启动设备；DMA 控制器完成磁盘到主存的数据传送；完成后发出中断请求，CPU 再执行 DMA 完成中断服务程序。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 在系统内存中设置磁盘缓冲区的主要目的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 减少磁盘 I/O 次数 & (B) 减少平均寻道时间 \\[6pt]
-(C) 提高磁盘数据可靠性 & (D) 实现设备无关性
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 内存中的磁盘缓冲/缓存可暂存近期数据、合并或延后部分访问，从而减少实际设备 I/O，并缓和设备与 CPU 的速度差异。它不能直接缩短磁头的一次物理寻道。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 下列关于驱动程序的叙述中，\textbf{不正确}的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 驱动程序与 I/O 控制方式无关 \\[4pt]
-(B) 初始化设备是由驱动程序控制的 \\[4pt]
-(C) 驱动程序执行 I/O 操作时，进程可能会阻塞 \\[4pt]
-(D) 对磁盘的读/写操作最终转换为驱动程序中的读/写函数
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 驱动程序必须了解控制器寄存器和程序查询、中断、DMA 等具体 I/O 控制方式，不能说与控制方式无关。其余叙述符合驱动负责设备初始化和提交具体 I/O 命令的职责。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（填空题）} I/O 软件的四个层次自底向上依次为：\underline{\qquad}、\underline{\qquad}、\underline{\qquad} 和 \underline{\qquad}。其中，SPOOLing 系统属于 \underline{\qquad} 层；设备独立性软件负责将 \underline{\qquad} 设备名映射到物理设备；向上提供统一接口、向下操作设备寄存器的是 \underline{\qquad}。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 中断处理程序、设备驱动程序、设备独立性软件、用户层 I/O 软件；用户层 I/O 软件；逻辑；设备驱动程序。驱动向设备独立层接受规范化请求，再把它转换为控制器能够执行的设备特定命令。\else \answerarea \fi
-
-\item \textbf{（简答题）} 简述 DMA 控制方式与中断驱动方式的核心区别（至少三点），并说明为什么 DMA 方式更适合高速块设备。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 中断驱动方式通常由 CPU 在每个字/小批数据就绪时进入中断处理并搬运或协调传送；DMA 由 CPU 一次设置主存地址、传送方向和计数后，由 DMA 控制器在设备与主存之间完成整块传送。DMA 占用总线/存储周期但不让数据逐字经过 CPU 通用寄存器，通常每块完成后才中断一次；因此 CPU 中断和指令开销更少、可与设备工作更充分重叠，适合磁盘等高速块设备。实际控制器也可能使用 FIFO 或突发传送，不能把中断方式绝对化为任何硬件都一次只传一个字节。\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·选择题）} 下列关于 SPOOLing 技术的叙述中，\textbf{错误}的是
-\begin{center}
-\begin{tabular}{ll}
-(A) SPOOLing 技术需要外存的支持 \\[4pt]
-(B) SPOOLing 技术需要多道程序技术的支持 \\[4pt]
-(C) SPOOLing 技术可以使多个作业共享一台独占设备 \\[4pt]
-(D) SPOOLing 技术由用户作业控制设备与输入/输出井之间的数据传送
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} SPOOLing 使用磁盘输入/输出井和系统进程模拟共享独占设备；井与实际设备间的传送由系统控制，而不是由普通用户作业直接控制。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 用户程序发出磁盘 I/O 请求后，系统的正确处理流程是
-\begin{center}
-\begin{tabular}{ll}
-(A) 用户程序$\to$系统调用处理程序$\to$设备驱动程序$\to$中断处理程序 \\[4pt]
-(B) 用户程序$\to$系统调用处理程序$\to$中断处理程序$\to$设备驱动程序 \\[4pt]
-(C) 用户程序$\to$设备驱动程序$\to$系统调用处理程序$\to$中断处理程序 \\[4pt]
-(D) 用户程序$\to$设备驱动程序$\to$中断处理程序$\to$系统调用处理程序
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 用户通过系统调用进入内核，设备独立层/系统调用处理再调用驱动提交设备命令；设备完成后才异步进入中断处理程序。四个选项中 (A) 表示这一主流程。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 设系统缓冲区和用户工作区均采用单缓冲，从外设读入 1 个数据块到系统缓冲区的时间为 100，从系统缓冲区读入 1 个数据块到用户工作区的时间为 5，对用户工作区中的 1 个数据块进行分析的时间为 90。进程从外设读入并分析 2 个数据块的最短时间是
-\begin{center}
-\begin{tabular}{ll}
-(A) 200 & (B) 295 \\[6pt]
-(C) 300 & (D) 390
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 单缓冲总时间为
-\[
-T+M+C+(N-1)[\max(T,C)+M]
-=100+5+90+(2-1)(100+5)=300.
-\]
-\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 某文件占 10 个磁盘块，现要把该文件磁盘块逐个读入主存缓冲区，并送用户区进行分析。假设一个缓冲区与一个磁盘块大小相同，把一个磁盘块读入缓冲区的时间为 100 $\mu\text{s}$，将缓冲区的数据传送到用户区的时间是 50 $\mu\text{s}$，CPU 对一块数据进行分析的时间为 50 $\mu\text{s}$。在单缓冲区和双缓冲区结构下，读入并分析完该文件的时间分别是
-\begin{center}
-\begin{tabular}{ll}
-(A) 1500 $\mu\text{s}$、1000 $\mu\text{s}$ & (B) 1550 $\mu\text{s}$、1100 $\mu\text{s}$ \\[6pt]
-(C) 1550 $\mu\text{s}$、1550 $\mu\text{s}$ & (D) 2000 $\mu\text{s}$、2000 $\mu\text{s}$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-\[
-T_{\rm single}=100+50+50+9[\max(100,50)+50]=1550\ \mu\text{s},
-\]
-\[
-T_{\rm double}=100+50+50+9\max(100,50+50)=1100\ \mu\text{s}.
-\]
-\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 某文件占 200 个磁盘块，磁盘每块大小为 1 KB，缓冲区大小等于磁盘块大小。已知：磁盘将一块数据读入缓冲区的时间 $T = 0.2$ ms，系统将缓冲区数据传送到用户区的时间 $M = 0.01$ ms，CPU 处理一块数据的时间 $C = 0.3$ ms。
-
-\begin{enumerate}
-    \item[(1)] 分别计算使用单缓冲和双缓冲时，读入并处理完整个文件需要的总时间。
-    \item[(2)] 若每个缓冲区扩大为 2 KB（每批容纳 2 个磁盘块），在双缓冲下，读入并处理完整个文件需要多长时间？假定各阶段耗时均与本批包含的块数成正比，因此每批 $T'=0.4$ ms、$M'=0.02$ ms、$C'=0.6$ ms，共100批。
-    \item[(3)] 在上述“各阶段时间严格按数据量线性增长、没有固定启动开销”的模型下，比较两种缓冲大小的稳态吞吐率，并解释完整文件总时间的细微差别。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) 单缓冲：
-\[
-0.2+0.01+0.3+199[\max(0.2,0.3)+0.01]=62.20\text{ ms}.
-\]
-双缓冲：
-\[
-0.2+0.01+0.3+199\max(0.2,0.01+0.3)=62.20\text{ ms}.
-\]
-本组参数中 CPU 处理加内存搬移的 $0.31$ ms 正好成为两种流水线的瓶颈，因此结果相同。
-
-(2) 每批2块、共100批：
-\[
-0.4+0.02+0.6+99\max(0.4,0.02+0.6)=62.40\text{ ms}.
-\]
-
-(3) 1 KB 情况稳态每块需要 $0.31$ ms；2 KB 情况每批需要 $0.62$ ms，即折合每块仍为 $0.31$ ms，所以稳态吞吐率相同。2 KB 配置的完整文件时间略长0.20 ms，只来自流水线启动/排空边界，不能据此声称大缓冲在这个纯线性模型下提高了稳态吞吐率。若要体现大块 I/O 减少固定寻道、命令或中断开销，题目还必须给出非零的每批固定开销。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
-\noindent\textbf{解题提示：}
-\begin{itemize}
-    \item 选择题中的单/双缓冲计算使用：单缓冲 $T+M+C+(N-1)[\max(C,T)+M]$；双缓冲 $T+M+C+(N-1)\max(T,M+C)$。
-    \item 随后的综合题中，1 KB 单缓冲的稳态项为 $\max(C,T)+M=0.31$ ms，双缓冲为 $\max(T,M+C)=0.31$ ms，所以两者恰好同为 62.20 ms；2 KB 批量的稳态项为 $\max(0.4,0.62)=0.62$ ms/批。
-\end{itemize}
-
-\vspace{8pt}
-\noindent\textbf{拓展阅读：}
-\begin{itemize}
-    \item OSTEP 第 36--37 章「I/O设备」和「磁盘驱动器」——从设备控制器、驱动程序到 RAID 的完整故事。
-    \item 陈海波《现代操作系统：原理与实现》第 8 章「设备管理」——Linux 设备驱动模型和中断下半部机制。
-    \item Brooks《人月神话》第 2 章（名著阅读）——经典的设备独立性思想来源。
-\end{itemize}
+\input{os/exercises/chap5.tex}

@@ -1,0 +1,393 @@
+\section{习题}
+
+\subsection{本章速览}
+
+\begin{itemize}
+\item \textbf{等价无穷小只对乘除因子成立。}若 $u\sim v$，则乘积、商中的因子可以整体替换；但加减结构中的项不能单独替换——被丢掉的低阶项可能正是主导项。遇到加减，改用泰勒展开，展开到“首个不被抵消的阶”。
+\item \textbf{常用展开至少背到三阶。}$\sin x=x-\frac{x^{3}}{6}+o(x^{3})$，$\tan x=x+\frac{x^{3}}{3}+o(x^{3})$，$\ln(1+x)=x-\frac{x^{2}}{2}+\frac{x^{3}}{3}+o(x^{3})$，$e^{x}=1+x+\frac{x^{2}}{2}+o(x^{2})$，$(1+x)^{\alpha}=1+\alpha x+o(x)$。阶数不够就多展一项。
+\item \textbf{$1^{\infty}$ 型先取对数。}$\lim f^{g}=\exp\bigl\{\lim g\ln f\bigr\}$，再用 $\ln(1+u)\sim u$；也可直接用 $\lim\limits_{u\to0}(1+u)^{1/u}=e$。
+\item \textbf{定积分的三种变形。}换元（含 $x=\tan t$、$x=\sin t$ 等三角代换）；区间再现 $\int_{a}^{b}f(x)\,\mathrm{d}x=\int_{a}^{b}f(a+b-x)\,\mathrm{d}x$，常与原积分配对解出自身；对称区间上奇函数积分为零、偶函数积分加倍。
+\item \textbf{级数先看通项结构。}分式可裂项成望远镜；幂级数在收敛区间内可逐项求导、逐项积分且半径不变，但端点必须单独判断；含参级数先用泰勒展开定出通项的阶，再用比较判别法。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.}（概念辨析·等价无穷小）判断下列变形是否正确；若不正确，给出正确结果。
+（1）由 $\sin x\sim x$ 得 $\displaystyle\lim_{x\to0}\frac{\tan x-\sin x}{x^{3}}=\lim_{x\to0}\frac{x-x}{x^{3}}=0$；
+（2）由 $\ln(1+x)\sim x$ 得 $\displaystyle\lim_{x\to0}\frac{\ln(1+x)-x}{x^{2}}=\lim_{x\to0}\frac{x-x}{x^{2}}=0$；
+（3）$\displaystyle\lim_{x\to0}\frac{e^{x^{2}}-1}{\cos x-1}=\lim_{x\to0}\frac{x^{2}}{-\frac{1}{2}x^{2}}=-2$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}能否替换，要看被替换的对象是不是分子或分母的\textbf{整体乘除因子}。处于加减中时，若两项同阶且相减抵消了低阶部分，只保留最低阶会把真正的首项也减掉，结果必错；此时用泰勒展开，看抵消后剩下哪一阶。
+
+（1）错。$\tan x-\sin x=\sin x\Bigl(\dfrac{1}{\cos x}-1\Bigr)=\sin x\cdot\dfrac{1-\cos x}{\cos x}$，而 $\sin x\sim x$，$1-\cos x\sim\dfrac{x^{2}}{2}$，$\cos x\to1$，故
+\[
+\tan x-\sin x\sim x\cdot\frac{x^{2}}{2}=\frac{x^{3}}{2},\qquad
+\lim_{x\to0}\frac{\tan x-\sin x}{x^{3}}=\frac{1}{2}.
+\]
+（2）错。由 $\ln(1+x)=x-\dfrac{x^{2}}{2}+o(x^{2})$ 得 $\ln(1+x)-x=-\dfrac{x^{2}}{2}+o(x^{2})$，故原极限为 $-\dfrac{1}{2}$。
+（3）对。分子 $e^{x^{2}}-1\sim x^{2}$、分母 $\cos x-1\sim-\dfrac{x^{2}}{2}$ 都是整体的乘除因子，商可以替换，极限为 $-2$。
+
+\boxed{\text{答案：(1) 错，}\frac{1}{2}\text{；(2) 错，}-\frac{1}{2}\text{；(3) 对，}-2}
+
+\else \answerarea[8] \fi%
+\textbf{2.}（基本计算·通分）求 $\displaystyle\lim_{x\to0}\left(\frac{1}{x^{2}}-\frac{1}{x\tan x}\right)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}两个无穷大之差，先通分化为 $\dfrac{0}{0}$ 型。分母中的 $\tan x$ 是乘除因子，可换成 $x$；但分子是加减结构，必须展开到 $x^{3}$ 才不丢失首项。
+
+通分得
+\[
+\frac{1}{x^{2}}-\frac{1}{x\tan x}=\frac{\tan x-x}{x^{2}\tan x}.
+\]
+由 $\tan x=x+\dfrac{x^{3}}{3}+o(x^{3})$ 知 $\tan x-x=\dfrac{x^{3}}{3}+o(x^{3})$；又 $x^{2}\tan x\sim x^{3}$。于是
+\[
+\lim_{x\to0}\frac{\tan x-x}{x^{2}\tan x}
+=\lim_{x\to0}\frac{\frac{x^{3}}{3}+o(x^{3})}{x^{3}}=\frac{1}{3}.
+\]
+
+\boxed{\text{答案：}\frac{1}{3}}
+
+\else \answerarea[8] \fi%
+\textbf{3.}（基本计算·幂指函数）求 $\displaystyle\lim_{x\to0}\left(\frac{\sin x}{x}\right)^{1/x^{2}}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}这是 $1^{\infty}$ 型。幂指函数先取对数，把指数上的倒数化为分母，再用 $\ln(1+u)\sim u$；关键在于把 $\dfrac{\sin x}{x}-1$ 展到 $x^{2}$ 阶。
+
+设 $L$ 为所求极限，则
+\[
+\ln L=\lim_{x\to0}\frac{1}{x^{2}}\ln\frac{\sin x}{x}.
+\]
+由 $\sin x=x-\dfrac{x^{3}}{6}+o(x^{3})$ 得
+\[
+\frac{\sin x}{x}=1-\frac{x^{2}}{6}+o(x^{2}),\qquad
+u:=\frac{\sin x}{x}-1=-\frac{x^{2}}{6}+o(x^{2}).
+\]
+当 $x\to0$ 时 $u\to0$，故 $\ln(1+u)=u+o(u)$，从而
+\[
+\ln L=\lim_{x\to0}\frac{-\frac{x^{2}}{6}+o(x^{2})}{x^{2}}=-\frac{1}{6}.
+\]
+所以 $L=e^{-1/6}$。
+
+\boxed{\text{答案：}e^{-1/6}}
+
+\else \answerarea[8] \fi%
+\textbf{4.}（积分换元）计算 $\displaystyle\int_{0}^{1}\frac{\ln(1+x)}{1+x^{2}}\,\mathrm{d}x$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}分母 $1+x^{2}$ 提示作三角代换 $x=\tan t$，把积分区间换成 $[0,\frac{\pi}{4}]$；被积函数出现 $\ln(1+\tan t)$，把它拆成 $\frac{1}{2}\ln2+\ln\cos(\frac{\pi}{4}-t)-\ln\cos t$，其中含 $\frac{\pi}{4}-t$ 的一项用区间再现化为 $\int_{0}^{\pi/4}\ln\cos u\,\mathrm{d}u$，与原式中的 $-\ln\cos t$ 抵消。
+
+令 $x=\tan t$，$t$ 从 $0$ 到 $\dfrac{\pi}{4}$，$\mathrm{d}x=\sec^{2}t\,\mathrm{d}t$，$1+x^{2}=\sec^{2}t$，则
+\[
+I=\int_{0}^{\pi/4}\ln(1+\tan t)\,\mathrm{d}t.
+\]
+又
+\[
+1+\tan t=\frac{\cos t+\sin t}{\cos t}
+=\frac{\sqrt{2}\cos\bigl(t-\frac{\pi}{4}\bigr)}{\cos t},
+\]
+故
+\[
+\ln(1+\tan t)=\frac{1}{2}\ln2+\ln\cos\Bigl(\frac{\pi}{4}-t\Bigr)-\ln\cos t.
+\]
+对第二项作代换 $u=\dfrac{\pi}{4}-t$，得
+\[
+\int_{0}^{\pi/4}\ln\cos\Bigl(\frac{\pi}{4}-t\Bigr)\mathrm{d}t
+=\int_{0}^{\pi/4}\ln\cos u\,\mathrm{d}u
+=\int_{0}^{\pi/4}\ln\cos t\,\mathrm{d}t,
+\]
+与第三项恰好抵消。因此
+\[
+I=\frac{1}{2}\ln2\cdot\frac{\pi}{4}=\frac{\pi\ln2}{8}.
+\]
+
+\boxed{\text{答案：}\frac{\pi\ln 2}{8}}
+
+\else \answerarea[8] \fi%
+\textbf{5.}（级数求和·裂项）求 $\displaystyle\sum_{n=1}^{\infty}\frac{1}{n(n+1)(n+2)}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}通项是三个连续整数的乘积之倒数，用部分分式把它写成相邻两项之差，部分和便逐项相消（望远镜）。
+
+设
+\[
+\frac{1}{n(n+1)(n+2)}=\frac{A}{n}+\frac{B}{n+1}+\frac{C}{n+2},
+\]
+通分比较分子：$A(n+1)(n+2)+Bn(n+2)+Cn(n+1)=1$。令 $n=0$ 得 $A=\dfrac{1}{2}$，$n=-1$ 得 $B=-1$，$n=-2$ 得 $C=\dfrac{1}{2}$。也可直接验证
+\[
+\frac{1}{n(n+1)(n+2)}
+=\frac{1}{2}\left[\frac{1}{n(n+1)}-\frac{1}{(n+1)(n+2)}\right].
+\]
+于是部分和
+\[
+S_{N}=\frac{1}{2}\left[\frac{1}{1\cdot2}-\frac{1}{(N+1)(N+2)}\right]
+\longrightarrow \frac{1}{4}\quad(N\to\infty).
+\]
+
+\boxed{\text{答案：}\frac{1}{4}}
+
+\else \answerarea[8] \fi%
+\subsection{综合提高题}
+
+\textbf{6.}（夹逼）求 $\displaystyle\lim_{n\to\infty}\sum_{k=1}^{n}\frac{k}{n^{2}+k}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}分母中的 $k$ 随求和指标变化，整个和式不是标准 Riemann 和。先把分母放缩成只含 $n$ 的量，使和式变成可求和的 $\sum k$，再用夹逼。
+
+当 $1\le k\le n$ 时，$n^{2}<n^{2}+k\le n^{2}+n$，故
+\[
+\frac{k}{n^{2}+n}\le\frac{k}{n^{2}+k}<\frac{k}{n^{2}}.
+\]
+对 $k=1,\dots,n$ 求和，利用 $\sum\limits_{k=1}^{n}k=\dfrac{n(n+1)}{2}$：
+\[
+\frac{n(n+1)}{2(n^{2}+n)}\le S_{n}<\frac{n(n+1)}{2n^{2}},
+\]
+即
+\[
+\frac{1}{2}\le S_{n}<\frac{n+1}{2n}.
+\]
+左右两端当 $n\to\infty$ 时都趋于 $\dfrac{1}{2}$，由夹逼准则，
+\[
+\lim_{n\to\infty}S_{n}=\frac{1}{2}.
+\]
+（左端恒等于 $\frac12$，说明下界已是最优。）
+
+\boxed{\text{答案：}\frac{1}{2}}
+
+\else \answerarea[8] \fi%
+\textbf{7.}（区间再现）设 $f$ 在 $[0,1]$ 上连续。
+（1）证明：$\displaystyle\int_{0}^{\pi}x f(\sin x)\,\mathrm{d}x=\frac{\pi}{2}\int_{0}^{\pi}f(\sin x)\,\mathrm{d}x$；
+（2）计算 $\displaystyle\int_{0}^{\pi}\frac{x\sin^{3}x}{1+\cos^{2}x}\,\mathrm{d}x$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}（1）是“区间再现”的标准用法：作代换 $x=\pi-t$ 后，原积分 $I$ 会以 $\pi\int_{0}^{\pi}f(\sin t)\,\mathrm{d}t-I$ 的形式重新出现，移项即可解出 $I$。（2）中 $\sin x\ge0$，故 $f(u)=\dfrac{u^{3}}{2-u^{2}}$（因 $1+\cos^{2}x=2-\sin^{2}x$），再用（1）把因子 $x$ 换成常数 $\frac{\pi}{2}$，最后令 $u=\cos x$。
+
+（1）令 $x=\pi-t$，则 $\mathrm{d}x=-\mathrm{d}t$，且 $\sin(\pi-t)=\sin t$，于是
+\[
+I:=\int_{0}^{\pi}x f(\sin x)\,\mathrm{d}x
+=\int_{\pi}^{0}(\pi-t)f(\sin t)\,(-\mathrm{d}t)
+=\pi\int_{0}^{\pi}f(\sin t)\,\mathrm{d}t-I.
+\]
+移项得 $2I=\pi\displaystyle\int_{0}^{\pi}f(\sin t)\,\mathrm{d}t$，即所证等式。
+
+（2）取 $f(u)=\dfrac{u^{3}}{2-u^{2}}$，它在 $[0,1]$ 上连续。由（1），
+\[
+I=\frac{\pi}{2}\int_{0}^{\pi}\frac{\sin^{3}x}{1+\cos^{2}x}\,\mathrm{d}x.
+\]
+令 $u=\cos x$，则 $\mathrm{d}u=-\sin x\,\mathrm{d}x$，且
+\[
+\sin^{3}x\,\mathrm{d}x=\sin^{2}x\cdot\sin x\,\mathrm{d}x=(1-u^{2})(-\mathrm{d}u),
+\]
+$x:0\to\pi$ 对应 $u:1\to-1$。故
+\[
+\int_{0}^{\pi}\frac{\sin^{3}x}{1+\cos^{2}x}\,\mathrm{d}x
+=\int_{-1}^{1}\frac{1-u^{2}}{1+u^{2}}\,\mathrm{d}u
+=\int_{-1}^{1}\left(-1+\frac{2}{1+u^{2}}\right)\mathrm{d}u.
+\]
+计算得
+\[
+-2+2\bigl[\arctan u\bigr]_{-1}^{1}
+=-2+2\cdot\frac{\pi}{2}=\pi-2.
+\]
+所以 $I=\dfrac{\pi}{2}(\pi-2)$。
+
+\boxed{\text{答案：}\frac{\pi}{2}(\pi-2)}
+
+\else \answerarea[8] \fi%
+\textbf{8.}（幂级数）求幂级数 $\displaystyle\sum_{n=1}^{\infty}\frac{x^{n}}{n(n+1)}$ 的收敛域与和函数，并求 $\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n}}{n(n+1)}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}先由系数比值求收敛半径，再单独判断两个端点（这是最容易漏的一步）。求和函数时把 $\dfrac{1}{n(n+1)}=\dfrac{1}{n}-\dfrac{1}{n+1}$ 拆开，分别用 $\sum\frac{x^{n}}{n}=-\ln(1-x)$ 与一次逐项积分。
+
+记 $a_{n}=\dfrac{1}{n(n+1)}$，则
+\[
+\lim_{n\to\infty}\left|\frac{a_{n+1}}{a_{n}}\right|
+=\lim_{n\to\infty}\frac{n(n+1)}{(n+1)(n+2)}=1,
+\]
+故收敛半径 $R=1$，收敛区间为 $(-1,1)$。
+
+端点：$x=1$ 时 $\sum\dfrac{1}{n(n+1)}$ 收敛（通项 $\sim n^{-2}$）；$x=-1$ 时 $\sum\dfrac{(-1)^{n}}{n(n+1)}$ 绝对收敛。故收敛域为 $[-1,1]$。
+
+当 $|x|<1$ 时，由
+\[
+\sum_{n=1}^{\infty}\frac{x^{n}}{n}=-\ln(1-x)
+\]
+及逐项积分，
+\[
+\sum_{n=1}^{\infty}\frac{x^{n}}{n+1}
+=\frac{1}{x}\sum_{n=1}^{\infty}\frac{x^{n+1}}{n+1}
+=\frac{1}{x}\sum_{m=2}^{\infty}\frac{x^{m}}{m}
+=\frac{1}{x}\bigl[-\ln(1-x)-x\bigr].
+\]
+两式相减得
+\[
+S(x)=-\ln(1-x)-\frac{-\ln(1-x)-x}{x}
+=1+\frac{(1-x)\ln(1-x)}{x}\qquad(x\ne0,\ |x|<1).
+\]
+级数在 $x=0$ 处各项为 $0$，故 $S(0)=0$；而右端当 $x\to0$ 时的极限也是 $0$（因 $\ln(1-x)\sim-x$），所以右端在 $x=0$ 处连续延拓后与 $S(0)$ 一致。
+
+取 $x=-1$（端点绝对收敛，和函数在端点连续）：
+\[
+S(-1)=1+\frac{2\ln2}{-1}=1-2\ln2.
+\]
+
+\boxed{\text{答案：收敛域 }[-1,1]\text{；}S(x)=1+\frac{(1-x)\ln(1-x)}{x}\ (x\ne0),\ S(0)=0;\ \sum_{n=1}^{\infty}\frac{(-1)^{n}}{n(n+1)}=S(-1)=1-2\ln2}
+
+\else \answerarea[10] \fi%
+\textbf{9.}（含参级数）设 $a_{n}=\dfrac{1}{n}-\ln\Bigl(1+\dfrac{1}{n}\Bigr)$，$n=1,2,\dots$。讨论级数 $\displaystyle\sum_{n=1}^{\infty}a_{n}^{p}$ 的收敛性（$p$ 为实参数）。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}通项本身是“$t-\ln(1+t)$”在 $t=\frac1n$ 处的值，先用泰勒展开定出它的阶（$a_{n}\sim\frac{1}{2n^{2}}$），再用比较判别法；$p\le0$ 时通项不趋于零，须单独处理。
+
+先说明 $a_{n}>0$：令 $g(t)=t-\ln(1+t)$，$t>0$，则 $g'(t)=1-\dfrac{1}{1+t}=\dfrac{t}{1+t}>0$，$g(0)=0$，故 $t>0$ 时 $g(t)>0$。取 $t=\dfrac{1}{n}$ 得 $a_{n}>0$。
+
+当 $t\to0$ 时，
+\[
+\ln(1+t)=t-\frac{t^{2}}{2}+\frac{t^{3}}{3}+o(t^{3}),
+\]
+故
+\[
+g(t)=\frac{t^{2}}{2}-\frac{t^{3}}{3}+o(t^{3})
+=\frac{t^{2}}{2}\bigl(1+o(1)\bigr).
+\]
+取 $t=\dfrac1n$ 得
+\[
+a_{n}=\frac{1}{2n^{2}}\bigl(1+o(1)\bigr),\qquad
+n^{2}a_{n}\to\frac{1}{2}.
+\]
+
+\textbf{当 $p>0$ 时}，$a_{n}^{p}\sim\left(\dfrac{1}{2n^{2}}\right)^{p}=2^{-p}n^{-2p}$。由极限比较判别法，$\sum a_{n}^{p}$ 与 $\sum n^{-2p}$ 同敛散，而后者当且仅当 $2p>1$ 即 $p>\dfrac{1}{2}$ 时收敛。
+
+\textbf{当 $p\le0$ 时}，因 $g$ 在 $(0,+\infty)$ 上单调递增，而 $\frac1n$ 随 $n$ 递减，故 $a_{n}$ 递减；又 $a_{1}=1-\ln2\in(0,1)$，所以 $0<a_{n}\le1-\ln2<1$。于是 $p<0$ 时 $a_{n}^{p}\ge1$，$p=0$ 时 $a_{n}^{0}=1$，通项均不趋于 $0$，级数发散。
+
+综上，原级数当且仅当 $p>\dfrac{1}{2}$ 时收敛。
+
+\boxed{\text{答案：}p>\frac{1}{2}\text{ 时收敛，}p\le\frac{1}{2}\text{ 时发散}}
+
+\else \answerarea[10] \fi%
+\subsection{真题风格与综合训练}
+
+\textbf{10.}（选择题）设 $\displaystyle f(x)=\sum_{n=1}^{\infty}\frac{x^{n}}{n}$，则下列命题中正确的是（\quad）
+
+\begin{enumerate}[label=(\Alph*)]
+\item 该级数的收敛域为 $[-1,1]$；
+\item 当 $|x|<1$ 时，$f'(x)=\dfrac{1}{1-x}$；
+\item 该级数在 $x=1$ 处收敛；
+\item $\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}$ 发散。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}逐项求导只在收敛区间内部成立，端点的敛散必须单独用数项级数判别法判断；选项 (D) 考的是 $x=-1$ 处的具体值，可由 $\ln(1+x)$ 的展开或 Leibniz 判别法确认。
+
+记 $a_{n}=\dfrac{1}{n}$，则 $\lim\left|\dfrac{a_{n+1}}{a_{n}}\right|=1$，故 $R=1$。端点：$x=1$ 时为调和级数 $\sum\dfrac1n$，发散；$x=-1$ 时为交错级数 $\sum\dfrac{(-1)^{n-1}}{n}$，通项单调递减趋于 $0$，由 Leibniz 判别法收敛。故收敛域为 $[-1,1)$，(A) 错、(C) 错。
+
+在 $|x|<1$ 内幂级数可逐项求导，且半径不变：
+\[
+f'(x)=\sum_{n=1}^{\infty}\frac{n x^{n-1}}{n}=\sum_{n=1}^{\infty}x^{n-1}
+=\frac{1}{1-x},
+\]
+故 (B) 正确。
+
+(D) 错：$\sum\limits_{n=1}^{\infty}\dfrac{(-1)^{n-1}}{n}=\ln2$，是收敛的（它正是 $f(-1)$）。
+
+\boxed{\text{答案：}(B)}
+
+\else \answerarea[8] \fi%
+\textbf{11.}（填空题）$\displaystyle\lim_{n\to\infty}n\int_{0}^{1}x^{n}\ln(1+x)\,\mathrm{d}x=\underline{\hspace{3cm}}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}$x^{n}\ln(1+x)$ 没有初等原函数，直接算积分不可行。把 $x^{n}\,\mathrm{d}x$ 凑成 $\mathrm{d}\bigl(\frac{x^{n+1}}{n+1}\bigr)$ 作分部积分，让对数函数求导、幂次升高；剩下的积分被 $\int_{0}^{1}x^{n+1}\mathrm{d}x$ 夹住，趋于 $0$，主项自然浮现。
+
+记 $I_{n}=\displaystyle\int_{0}^{1}x^{n}\ln(1+x)\,\mathrm{d}x$。取 $u=\ln(1+x)$，$\mathrm{d}v=x^{n}\mathrm{d}x$，则
+\[
+I_{n}=\left[\frac{x^{n+1}}{n+1}\ln(1+x)\right]_{0}^{1}
+-\frac{1}{n+1}\int_{0}^{1}\frac{x^{n+1}}{1+x}\,\mathrm{d}x
+=\frac{\ln2}{n+1}-\frac{J_{n}}{n+1},
+\]
+其中 $J_{n}=\displaystyle\int_{0}^{1}\frac{x^{n+1}}{1+x}\,\mathrm{d}x$ 满足
+\[
+0\le J_{n}\le\int_{0}^{1}x^{n+1}\,\mathrm{d}x=\frac{1}{n+2}.
+\]
+于是
+\[
+nI_{n}=\frac{n\ln2}{n+1}-\frac{n}{n+1}J_{n},
+\]
+第一项趋于 $\ln2$，第二项被 $\dfrac{n}{n+1}\cdot\dfrac{1}{n+2}\to0$ 夹住，故极限为 $\ln2$。
+
+\boxed{\text{答案：}\ln 2}
+
+\else \answerarea[8] \fi%
+\textbf{12.}（解答题）设 $\displaystyle I_{n}=\int_{0}^{1}\frac{x^{n}}{1+x}\,\mathrm{d}x$，$n=0,1,2,\dots$。
+（1）证明：$I_{n}+I_{n-1}=\dfrac{1}{n}$（$n\ge1$）；
+（2）求 $\displaystyle\lim_{n\to\infty}nI_{n}$；
+（3）求 $\displaystyle\sum_{n=1}^{\infty}(-1)^{n-1}I_{n}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}（1）把两个积分相加，分子恰能提出 $1+x$，约分后只剩幂函数。（2）用（1）的递推式配合单调性（$x^{n}\le x^{n-1}$）夹逼，无需算出 $I_n$。（3）先写有限部分和，把求和搬进积分，用等比求和公式算完再让 $N\to\infty$；余项要估计，不能直接声称可逐项积分。
+
+（1）当 $n\ge1$ 时，
+\[
+I_{n}+I_{n-1}=\int_{0}^{1}\frac{x^{n}+x^{n-1}}{1+x}\,\mathrm{d}x
+=\int_{0}^{1}\frac{x^{n-1}(1+x)}{1+x}\,\mathrm{d}x
+=\int_{0}^{1}x^{n-1}\,\mathrm{d}x=\frac{1}{n}.
+\]
+
+（2）当 $0<x\le1$ 时 $x^{n}\le x^{n-1}$，故 $I_{n}\le I_{n-1}$。由（1）：
+\[
+\frac{1}{n}=I_{n}+I_{n-1}\ge 2I_{n}
+\ \Longrightarrow\ nI_{n}\le\frac{1}{2};
+\]
+另一方面，对 $n+1$ 用（1）并再次使用单调性：
+\[
+\frac{1}{n+1}=I_{n+1}+I_{n}\le 2I_{n}
+\ \Longrightarrow\ nI_{n}\ge\frac{n}{2(n+1)}.
+\]
+两端分别满足 $\dfrac{n}{2(n+1)}\le nI_{n}\le\dfrac12$，且 $\dfrac{n}{2(n+1)}\to\dfrac12$，故
+\[
+\lim_{n\to\infty}nI_{n}=\frac{1}{2}.
+\]
+
+（3）先写部分和，把有限和搬进积分（有限和总可以交换）：
+\[
+S_{N}:=\sum_{n=1}^{N}(-1)^{n-1}I_{n}
+=\int_{0}^{1}\frac{1}{1+x}\left[\sum_{n=1}^{N}(-1)^{n-1}x^{n}\right]\mathrm{d}x.
+\]
+由等比求和，
+\[
+\sum_{n=1}^{N}(-1)^{n-1}x^{n}=x\cdot\frac{1-(-x)^{N}}{1+x},
+\]
+故
+\[
+S_{N}=\int_{0}^{1}\frac{x}{(1+x)^{2}}\,\mathrm{d}x
+-\int_{0}^{1}\frac{x(-x)^{N}}{(1+x)^{2}}\,\mathrm{d}x.
+\]
+余项的绝对值满足
+\[
+\left|\int_{0}^{1}\frac{x(-x)^{N}}{(1+x)^{2}}\,\mathrm{d}x\right|
+\le\int_{0}^{1}x^{N+1}\,\mathrm{d}x=\frac{1}{N+2}\longrightarrow0.
+\]
+又
+\[
+\int_{0}^{1}\frac{x}{(1+x)^{2}}\,\mathrm{d}x
+=\left[\ln(1+x)+\frac{1}{1+x}\right]_{0}^{1}
+=\ln2-\frac{1}{2}.
+\]
+令 $N\to\infty$ 得
+\[
+\sum_{n=1}^{\infty}(-1)^{n-1}I_{n}=\ln2-\frac{1}{2}.
+\]
+\boxed{\text{答案：}\lim\limits_{n\to\infty}nI_{n}=\frac{1}{2}\text{；}\sum\limits_{n=1}^{\infty}(-1)^{n-1}I_{n}=\ln 2-\frac{1}{2}}
+
+\else \answerarea[10] \fi%

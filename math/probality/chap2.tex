@@ -1,757 +1,657 @@
 \section{一维随机变量及其分布}
-\subsection{随机变量与分布函数的概念}
-\begin{mydef}{随机变量}{random variable}
-随机变量是定义在样本空间上的实值可测函数。设随机试验的样本空间为 $\Omega$，对任意实数 $x$，事件
+\setcounter{table}{0}
+
+\subsection{从试验结果到实数：分布函数}
+
+掷两次硬币，用 $X$ 表示正面出现的次数。两次投掷有四个等可能结果 $HH,HT,TH,TT$，$X$ 取什么值由结果决定：
 \[
-\{X\leq x\}=\{\omega\in\Omega:X(\omega)\leq x\}
+X(HH)=2,\qquad X(HT)=X(TH)=1,\qquad X(TT)=0.
 \]
-属于事件域，则称 $X$ 为随机变量。
-\end{mydef}
+把结果换成数，是为了能用不等式、区间和求和号。$X$ 就是样本空间上的一个实值函数
+\[
+X:\Omega\to\mathbb R,\qquad \omega\mapsto X(\omega).
+\]
+严格地说，还要求每个 $\{\omega:X(\omega)\le x\}$ 都是事件，也就是 $X$ 可测。初等模型里这条自动成立，不必逐个验证。
 
-\begin{mydef}{分布函数}{distribution function}
-$X$ 是随机变量，$x$ 是任意实数，$F_X(x)=P(X\leq x)$ 称为 $X$ 的分布函数。
-\end{mydef}
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\footnotesize]
+  \draw[thick,rounded corners=4pt] (-5.6,-2.4) rectangle (-2.4,2.4);
+  \node[above] at (-4.0,2.4) {$\Omega$};
+  \node[circle,draw,fill=gray!25,inner sep=2.2pt] (w1) at (-4.0,1.5) {$HH$};
+  \node[circle,draw,fill=blue!25,inner sep=2.2pt] (w2) at (-4.0,0.5) {$HT$};
+  \node[circle,draw,fill=blue!25,inner sep=2.2pt] (w3) at (-4.0,-0.5) {$TH$};
+  \node[circle,draw,fill=blue!25,inner sep=2.2pt] (w4) at (-4.0,-1.5) {$TT$};
+  \draw[->,thick] (-1.6,0) -- (4.9,0) node[right] {$\mathbb R$};
+  \foreach \v/\x in {0/0.4,1/2.2,2/4.0} {
+    \fill (\x,0) circle (1.7pt);
+    \node[below=1pt] at (\x,0) {$\v$};
+  }
+  \fill[blue!12] (-1.55,-0.14) rectangle (2.95,0.14);
+  \draw[dashed,blue!60!black] (2.95,0) -- (2.95,1.0);
+  \node[above,blue!60!black] at (2.95,1.0) {$x$};
+  \node[above,blue!60!black] at (0.95,0.2) {\scriptsize $(-\infty,x]$};
+  \draw[->,gray!65!black] (w1.east) to[out=15,in=170] (4.0,0.04);
+  \draw[->,gray!65!black] (w2.east) to[out=10,in=175] (2.2,0.12);
+  \draw[->,gray!65!black] (w3.east) to[out=-5,in=185] (2.2,-0.12);
+  \draw[->,gray!65!black] (w4.east) to[out=-10,in=190] (0.4,0.04);
+  \draw[blue!60!black,dashed,thick] (-4.0,-0.5) ellipse (0.75 and 1.45);
+\end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 四个样本点被送到数轴上的三个值。阈值 $x$ 左边的半直线是 $(-\infty,x]$，它的原像是 $\Omega$ 中被虚线圈出的三个点，也就是事件 $\{X\le x\}$。}
+\end{center}
 
-\begin{conclusion}{分布函数的性质}{distribution function properties}
-\begin{enumerate}
-    \item 分布函数是单调不减函数。
-    \item $0 \leq F_X(x) \leq 1$，且 $\lim_{x\to-\infty}F_X(x)=0$，$\lim_{x\to+\infty}F_X(x)=1$。
-    \item $F(x)$是右连续函数。$x_{0} \in R$时，$F(x_{0})$存在，且有
-    $$
-    \lim_{x \to {x_{0}^{+}}} F(x) = F(x_{0} + 0) = F(x_{0})
-    $$
-    \item 对任意 $x_1<x_2$，
-    \[
-    \begin{aligned}
-    P(x_1<X\leq x_2)&=F_X(x_2)-F_X(x_1),\\
-    P(x_1\leq X\leq x_2)&=F_X(x_2)-F_X(x_1-),
-    \end{aligned}
-    \]
-    其中 $F_X(x_1-)=\lim_{t\uparrow x_1}F_X(t)$。
-    \item 对任意 $x_0\in\mathbb R$，$P(X=x_0)=F_X(x_0)-F_X(x_0-)$。
-    \item 若 $F_X$ 在 $x_1$ 处连续，则 $P(x_1\leq X\leq x_2)=F_X(x_2)-F_X(x_1)$。
-\end{enumerate}
-\end{conclusion}
+要描述 $X$，只需知道它落在每个左闭区间 $(-\infty,x]$ 里的概率：
+\[
+F_X(x)=P(X\le x),\qquad x\in\mathbb R .
+\]
+这就是分布函数。分布函数相同的两个随机变量，落在任何区间的概率都一样，统计上不再区分。右端的 ``$\le$'' 决定了 $P(X=x)$ 被算进 $F(x)$，而左极限 $F(x-)=P(X<x)$ 不算。
+
+从事件的关系可以直接读出 $F$ 的性质。若 $x_1<x_2$，则 $\{X\le x_1\}\subset\{X\le x_2\}$，所以 $F(x_1)\le F(x_2)$。当 $x\to-\infty$ 时 $\{X\le x\}$ 递减到空集，当 $x\to+\infty$ 时递增到 $\Omega$，于是
+\[
+\lim_{x\to-\infty}F_X(x)=0,\qquad \lim_{x\to+\infty}F_X(x)=1 .
+\]
+$F$ 还是右连续的：取 $x_n\downarrow x$，事件 $\{X\le x_n\}$ 递减到 $\{X\le x\}$，由概率的连续性得 $F(x+0)=F(x)$。左极限则不一定等于 $F(x)$，差出来的正是点概率：
+\[
+P(X=x_0)=F(x_0)-F(x_0-).
+\]
+对 $a<b$，把区间拆开可得
+\[
+P(a<X\le b)=F(b)-F(a),\qquad
+P(a\le X\le b)=F(b)-F(a-).
+\]
+如果 $F$ 在 $a$ 处连续，那么 $a$ 点的概率为 $0$，开、闭端点就没有区别。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=5.2cm,
+  width=0.82\linewidth, height=4.8cm,
+  xmin=-1.2, xmax=5.2, ymin=-0.06, ymax=1.08,
+  xtick={0.8,2.2,3.6}, xticklabels={$x_1$,$x_2$,$x_3$},
+  ytick={0,0.2,0.55,1}, yticklabels={$0$,$p_1$,$p_1+p_2$,$1$},
   xlabel={$x$}, ylabel={$F_X(x)$},
-  xmin=-3, xmax=3.4, ymin=-0.05, ymax=1.14,
-  xtick={-1,0,1,2}, ytick={0,0.2,0.5,0.8,1},
-  font=\footnotesize, axis lines=left,
-  legend pos=north west,
+  font=\footnotesize, axis lines=left, clip=false,
 ]
-\addplot[blue,thick,const plot]
-  coordinates {(-3,0)(-1,0.2)(0,0.5)(1,0.8)(2,1)(3.4,1)};
-\addlegendentry{$F_X(x)$}
+\draw[dashed,gray!65] (axis cs:1.6,0) -- (axis cs:1.6,0.2);
+\draw[dashed,gray!65] (axis cs:1.6,0.2) -- (axis cs:3.0,0.2);
+\draw[dashed,gray!65] (axis cs:3.0,0) -- (axis cs:3.0,0.2);
+\addplot[const plot,blue,thick]
+  coordinates {(-1.2,0)(0.8,0.2)(2.2,0.55)(3.6,1)(5.2,1)};
 \addplot[only marks,mark=*,mark size=1.6pt,blue]
-  coordinates {(-1,0.2)(0,0.5)(1,0.8)(2,1)};
-\draw[dashed,gray!55] (-1,0) -- (-1,0.2);
-\draw[dashed,gray!55] (0,0) -- (0,0.5);
-\draw[dashed,gray!55] (1,0) -- (1,0.8);
-\draw[dashed,gray!55] (2,0) -- (2,1);
-\node[font=\tiny,blue!60!black] at (axis cs:-0.82,0.09){$0.2$};
-\node[font=\tiny,blue!60!black] at (axis cs:0.16,0.34){$0.3$};
-\node[font=\tiny,blue!60!black] at (axis cs:1.16,0.64){$0.3$};
-\node[font=\tiny,blue!60!black] at (axis cs:2.16,0.90){$0.2$};
+  coordinates {(0.8,0.2)(2.2,0.55)(3.6,1)};
+\draw[<->,red!70,thick] (axis cs:3.0,0.2) -- (axis cs:3.0,0.55);
+\node[right,font=\scriptsize,red!70] at (axis cs:3.06,0.375) {$F(b)-F(a)$};
+\draw[<->,blue!70] (axis cs:2.45,0.2) -- (axis cs:2.45,0.55)
+  node[midway,right,font=\scriptsize] {$p_2$};
+\draw[dashed,blue!70] (axis cs:2.2,0.2) -- (axis cs:2.45,0.2);
+\draw[dashed,blue!70] (axis cs:2.2,0.55) -- (axis cs:2.45,0.55);
+\node[below=7pt,font=\scriptsize,red!70] at (axis cs:1.6,0) {$a$};
+\node[below=7pt,font=\scriptsize,red!70] at (axis cs:3.0,0) {$b$};
 \end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 离散型随机变量的分布函数是阶梯。跳跃的位置是可能取值，跳跃的高度是该点的概率 $p_i$；$F(b)-F(a)$ 只数 $a$ 到 $b$ 之间净升高了多少。}
 \end{center}
 
-\subsection{离散型随机变量及连续型随机变量}
-\begin{mydef}{离散型随机变量}{discrete random variable}
-    如果随机变量 $X$ 只可能取有限个或可列无限个离散值，则称为离散型随机变量。
-    $X$的概率分布(或分布律，分布列)可表示为
-    $$
-    P(X=x_i)=p_i,\quad i=1,2,\ldots,
-    \qquad p_i\geq0,\quad \sum_i p_i=1,
-    $$
-    或表格形式
-    $$
-    \begin{tabular}{c|c}
-% \toprule
-\hline
-$X$ & $x_{1} \quad x_{2} \quad x_{3} \quad \ldots \quad x_{n}$ \\
-% \midrule
-\hline
-$P$ & $p_{1} \quad p_{2} \quad p_{3} \quad \ldots \quad p_{n}$ \\
-% \bottomrule
-\hline
-    \end{tabular}
-    $$
-    或
-    $$
-    \begin{aligned}
-        X \sim
-        %大圆括号
-        \left(
-            \begin{array}{llll}
-                x_{1} & x_{2} & \ldots & x_{n} \\
-                p_{1} & p_{2} & \ldots & p_{n} \\
-            \end{array}
-        \right)
-    \end{aligned}
-    $$
-\end{mydef}
+\subsection{离散型随机变量}
 
-\begin{mydef}{连续型随机变量}{continuous random variable}
-    若随机变量$X$的分布函数$F(x)$，存在非负可积函数$f(x)$，使得
-    $$
-    F(x) = P(X \leq x) = \int_{-\infty}^{x} f(t) dt
-    $$
-    则称$X$为连续型随机变量，$f(x)$为$X$的概率密度函数。\\
-    \\
-    \boxed{\textbf{注}} 连续型随机变量在任一点的概率均为 $0$。$F_X(x)$ 给出区间事件的概率，$f_X(x)$ 是概率密度值而不是点概率。
+掷三次硬币，正面次数只可能是 $0,1,2,3$；从一批产品里抽检 $10$ 件，次品数也不超过 $10$。这类量只取孤立的几个值，把每个值的概率逐点列出来，分布就说清楚了。若 $X$ 只取有限个或可列个值 $x_1,x_2,\dots$，就称它为离散型随机变量。此时分布函数是阶梯，阶梯的全部信息可以收进分布律
+\[
+p_i=P(X=x_i),\quad i=1,2,\dots,\qquad p_i\ge0,\qquad \sum_i p_i=1 .
+\]
+反过来，
+\[
+F_X(x)=\sum_{x_i\le x}p_i
+\]
+就是把不超过 $x$ 的那些点的概率加起来。
 
+几个常见模型来自不同的试验方式。做一次试验，成功概率为 $p$，成功的次数服从 $0$-$1$ 分布。把这次试验独立重复 $n$ 次，成功次数 $X$ 服从二项分布
+\[
+P(X=k)=\binom{n}{k}p^k(1-p)^{n-k},\qquad k=0,1,\dots,n,
+\]
+其中 $\binom{n}{k}$ 是选出哪 $k$ 次成功。这里 ``独立'' 和 ``$p$ 不变'' 两个条件缺一不可。
 
-\end{mydef}
+如果数的是单位时间内的到达次数（电话呼入、粒子衰变、网站访问），常用泊松分布
+\[
+P(X=k)=\frac{\lambda^k}{k!}\mathrm{e}^{-\lambda},\qquad k=0,1,2,\dots,
+\]
+$\lambda$ 是单位时间内的平均到达数。$n$ 很大、$p$ 很小而 $np$ 适中时，二项分布 $B(n,p)$ 与参数 $\lambda=np$ 的泊松分布很接近，这叫泊松定理。它解释了这个分布为什么总出现在 ``次数多、单次概率小'' 的场合。
 
-\subsection{离散型随机变量及其分布}
-\begin{mydef}{离散型随机变量的分布函数}{distribution function of discrete random variable}
-    设$X$是离散型随机变量，$x_{1},x_{2},...,x_{n}$是$X$的可能取值，
-    $P(X = x_{i})$是$X$取$x_{i}$的概率，$F(x)$是$X$的分布函数，
-    则有
-    $$
-    F_X(x)=P(X\leq x)=\sum_{x_i\leq x}P(X=x_i)=\sum_{x_i\leq x}p_i.
-    $$
-\end{mydef}
+等到第一次成功所需的试验次数 $X$ 服从几何分布：
+\[
+P(X=k)=(1-p)^{k-1}p,\qquad k=1,2,\dots
+\]
+前 $k-1$ 次都失败、第 $k$ 次成功。它的尾部概率很简洁：$P(X>m)=(1-p)^m$。
 
-\begin{tablebox}{常见离散型随机变量分布}
-    \centering
-    \resizebox{\textwidth}{!}{
-    \begin{tabular}{|c|c|c|}
-        \hline
-        \text{名字} & 符号 & 概率分布 \\
-        \hline
-        0-1分布 & $B(1,p)$ & $P(X=0)=1-p,\ P(X=1)=p,\ 0\leq p\leq1$ \\
-        \hline
-        二项分布 & $B(n,p)$ & $P(X=k)=C_n^kp^k(1-p)^{n-k},\ k=0,\ldots,n$ \\
-        \hline
-        泊松分布 & $P(\lambda)$ & $P(X=k)=\frac{\lambda^ke^{-\lambda}}{k!},\ k=0,1,\ldots,\ \lambda>0$ \\
-        \hline
-        几何分布 & $G(p)$ & $P(X=k)=p(1-p)^{k-1},\ k=1,2,\ldots,\ 0<p\leq1$ \\
-        \hline
-        超几何分布 & $H(N,M,n)$ & $P(X=k)=\frac{C_M^kC_{N-M}^{n-k}}{C_N^n},\ \max(0,n-N+M)\leq k\leq\min(n,M)$ \\
-        \hline
-    \end{tabular}
-    }
-    \label{tab:discrete_random_variable}
+从 $N$ 件产品（其中 $M$ 件次品）中不放回地抽 $n$ 件，次品数 $X$ 服从超几何分布
+\[
+P(X=k)=\frac{\binom{M}{k}\binom{N-M}{n-k}}{\binom{N}{n}} .
+\]
+与二项分布的区别只在 ``不放回''：抽走一件后，剩余产品的次品率变了。
+
+\refstepcounter{table}
+\begin{tablebox}{常用离散分布}
+\centering
+\small
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{@{}p{3.3cm}p{5.5cm}p{5.3cm}@{}}
+\toprule
+分布 & 分布律 & 背景与参数 \\
+\midrule
+$0$-$1$ & $P(X=1)=p,\ P(X=0)=1-p$ & 一次试验的成功次数，$0\le p\le1$ \\
+二项 $B(n,p)$ & $P(X=k)=\binom{n}{k}p^k(1-p)^{n-k}$ & $n$ 次独立重复试验的成功次数 \\
+泊松 $P(\lambda)$ & $P(X=k)=\dfrac{\lambda^k}{k!}\mathrm{e}^{-\lambda}$ & 单位时间内的到达数，$\lambda>0$ \\
+几何 $G(p)$ & $P(X=k)=(1-p)^{k-1}p$ & 首次成功所需的试验次数 \\
+超几何 $H(N,M,n)$ & $P(X=k)=\dfrac{\binom{M}{k}\binom{N-M}{n-k}}{\binom{N}{n}}$ & $N$ 件中 $M$ 件次品，不放回抽 $n$ 件的次品数 \\
+\bottomrule
+\end{tabular}
 \end{tablebox}
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=5.2cm,
+  anchor=south west, at={(0,0)},
+  width=0.46\linewidth, height=4.7cm,
+  xmin=-0.5, xmax=10.5, ymin=0, ymax=0.31,
+  xtick={0,2,4,6,8,10}, ytick={0,0.1,0.2,0.3},
   xlabel={$k$}, ylabel={$P(X=k)$},
-  xmin=0.4, xmax=9.6, ymin=0, ymax=0.27,
-  xtick={0,1,2,3,4,5,6,7,8,9,10}, ytick={0,0.05,0.1,0.15,0.2,0.25},
-  font=\footnotesize,
-  ybar, bar width=9pt,
+  title={$B(10,0.3)$}, title style={font=\footnotesize},
+  font=\footnotesize, axis lines=left,
 ]
-\addplot[fill=blue!40,draw=blue!60!black]
-  coordinates {(0,0.0282)(1,0.1211)(2,0.2335)(3,0.2668)(4,0.2001)(5,0.1029)(6,0.0368)(7,0.0090)(8,0.0014)(9,0.0001)(10,0.000006)};
-\addlegendentry{$B(10,0.3)$}
+\addplot+[ybar, bar width=7pt, fill=blue!45, draw=blue!60!black, mark=none]
+  coordinates {(0,0.0282)(1,0.1211)(2,0.2335)(3,0.2668)(4,0.2001)
+    (5,0.1029)(6,0.0368)(7,0.0090)(8,0.0014)(9,0.0001)(10,0.0000)};
+\end{axis}
+\begin{axis}[
+  anchor=south west, at={(0.52\linewidth,0)},
+  width=0.46\linewidth, height=4.7cm,
+  xmin=-0.5, xmax=10.5, ymin=0, ymax=0.31,
+  xtick={0,2,4,6,8,10}, ytick={0,0.1,0.2,0.3},
+  xlabel={$k$}, ylabel={$P(X=k)$},
+  title={$P(3)$}, title style={font=\footnotesize},
+  font=\footnotesize, axis lines=left,
+]
+\addplot+[ycomb, blue, thick, mark=*]
+  coordinates {(0,0.0498)(1,0.1494)(2,0.2240)(3,0.2240)(4,0.1680)
+    (5,0.1008)(6,0.0504)(7,0.0216)(8,0.0081)(9,0.0027)(10,0.0008)};
 \end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 左：$B(10,0.3)$ 的分布律；右：$P(3)$ 的分布律。两者的均值都等于 $3$。$n$ 大、$p$ 小时，二项分布的形状与泊松分布接近，但泊松分布的尾部略厚。}
 \end{center}
 
-\subsection{连续型随机变量及其分布}
-\begin{mydef}{连续型随机变量的分布函数}{distribution function of continuous random variable}
-    设$X$是连续型随机变量，$f(x)$是$X$的概率密度函数，$F(x)$是$X$的分布函数，
-    则有
-    $$
-    F(x) = P(X \leq x) = \int_{-\infty}^{x} f(t) dt
-    $$
-\end{mydef}
+\subsection{连续型随机变量}
 
-\begin{tablebox}{常见连续型随机变量分布}
-    %对齐左边
-    % \raggedleft
-    \centering
-    \scalebox{0.92}{
-    \begin{tabular}{|p{1.2cm}|c|c|c|}
-        \hline
-        \text{名字} & 符号 & 分布函数 & 概率密度函数 \\
-        \hline
-        均匀分布 & 
-        $
-        U(a,b)$ & $F(x) = \begin{cases}
-            0, & x < a \\
-            \frac{x - a}{b - a}, & a \leq x \leq b \\
-            1, & x > b \\
-        \end{cases}
-        $ 
-        & 
-        $
-        f(x) = \begin{cases}
-            \frac{1}{b - a}, & a < x < b \\
-            0, & \text{其他}
-        \end{cases}
-        $ \\
-        \hline
-        指数分布 & 
-        $
-        \begin{aligned}
-            & ~~ E(\lambda)  \\
-            &(\lambda > 0) \\
-        \end{aligned}
-        $
-        & $F(x) = \begin{cases}
+等下一班公交车，到站时刻可以落在任何一个时间点；测量一根轴的直径，读数也可以取任意实数。这类量的取值铺满一个区间，称为连续型随机变量。它在每一点的概率都是 $0$，逐点列举没有意义，改用密度函数描述：若存在非负函数 $f_X$，使
+\[
+F_X(x)=\int_{-\infty}^{x}f_X(t)\,\mathrm dt,\qquad x\in\mathbb R,
+\]
+就称 $X$ 为连续型随机变量，$f_X$ 为它的概率密度。两个条件必须满足：
+\[
+f_X(x)\ge0,\qquad \int_{-\infty}^{+\infty}f_X(t)\,\mathrm dt=1 .
+\]
+概率是密度曲线下的面积：
+\[
+P(a<X\le b)=\int_a^b f_X(t)\,\mathrm dt=F_X(b)-F_X(a).
+\]
+因为单点概率为 $0$，端点开闭不影响结果。
 
-            1 - \mathrm{e}^{-\lambda x},& x \geq 0 \\
-            0, & x < 0 \\
-        \end{cases}$ & $f(x) = \begin{cases}
-            \lambda \mathrm{e}^{-\lambda x}, & x > 0 \\
-            0, & \text{其他}
-        \end{cases}$ \\
-        \hline
-        正态分布 & $N(\mu,\sigma^2)$ & 
-         $\Phi\!\left(\dfrac{x-\mu}{\sigma}\right)$
-        & 
-        $
-        \begin{aligned}
-            f_X(x)&=\frac{1}{\sigma \sqrt{2\pi}} \mathrm{e}^{-\frac{(x - \mu)^{2}}{2 \sigma^{2}}} \\
-            &\quad (-\infty < x < \infty)
-        \end{aligned}
-        $ \\
-        \hline
+$f_X(x)$ 本身不是概率，可以大于 $1$。例如 $X\sim U(0,0.5)$ 的密度在 $(0,0.5)$ 上恒为 $2$，但任何区间的概率都不超过 $1$。只有积分才有概率的含义。
 
-    \end{tabular}
-    }
-    \label{tab:continuous_random_variable}
-\end{tablebox}
+在 $f_X$ 的连续点上有 $F_X'(x)=f_X(x)$；在个别点改动密度不影响积分，所以密度不唯一。分布函数则唯一。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=5.2cm,
-  xlabel={$x$}, ylabel={$f(x)$},
-  xmin=0, xmax=6, ymin=0, ymax=2.1,
-  xtick={0,1,2,3,4,5,6}, ytick={0,0.5,1,1.5,2},
-  domain=0:6, samples=200,
-  legend pos=north east, font=\footnotesize,
-  axis lines=left,
+  anchor=south west, at={(0,0)},
+  width=0.46\linewidth, height=4.2cm,
+  xmin=-0.2, xmax=4.2, ymin=0, ymax=0.58,
+  xtick={0,1,2,3,4}, ytick={0,0.25,0.5},
+  xlabel={$x$}, ylabel={$f_X(x)$},
+  title={密度}, title style={font=\footnotesize},
+  font=\footnotesize, axis lines=left,
 ]
-\addplot[blue,thick] {0.5*exp(-0.5*x)};
+\addplot[fill=blue!25,draw=none,domain=1:3,samples=80]{x/8}\closedcycle;
+\addplot[blue,thick,domain=0:4,samples=80]{x/8};
+\draw[dashed,gray!65] (axis cs:1,0) -- (axis cs:1,0.125);
+\draw[dashed,gray!65] (axis cs:3,0) -- (axis cs:3,0.375);
+\node[font=\scriptsize] at (axis cs:1.7,0.46) {面积 $=$ 概率};
+\draw[->,font=\scriptsize] (axis cs:1.7,0.43) -- (axis cs:1.85,0.24);
+\end{axis}
+\begin{axis}[
+  anchor=south west, at={(0.52\linewidth,0)},
+  width=0.46\linewidth, height=4.2cm,
+  xmin=-0.2, xmax=4.2, ymin=0, ymax=1.08,
+  xtick={0,1,2,3,4}, ytick={0,0.25,0.5,0.75,1},
+  xlabel={$x$}, ylabel={$F_X(x)$},
+  title={分布函数}, title style={font=\footnotesize},
+  font=\footnotesize, axis lines=left,
+]
+\addplot[blue,thick,domain=0:4,samples=80]{x^2/16};
+\addplot[only marks,mark=*,mark size=1.6pt,blue]
+  coordinates {(1,0.0625)(3,0.5625)};
+\draw[dashed,gray!65] (axis cs:1,0) -- (axis cs:1,0.0625);
+\draw[dashed,gray!65] (axis cs:3,0) -- (axis cs:3,0.5625);
+\draw[dashed,gray!65] (axis cs:1,0.0625) -- (axis cs:3.35,0.0625);
+\draw[dashed,gray!65] (axis cs:3,0.5625) -- (axis cs:3.35,0.5625);
+\draw[<->,red!70] (axis cs:3.35,0.0625) -- (axis cs:3.35,0.5625)
+  node[midway,right,font=\scriptsize] {$0.5$};
+\end{axis}
+\end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 左：密度 $f_X(x)=x/8\ (0<x<4)$，阴影面积就是 $P(1<X\le3)$。右：同一分布的 $F_X(x)=x^2/16$，区间概率表现为两点的纵向差。密度高只说明该处附近的概率更集中，并不表示这一点的概率大。}
+\end{center}
+
+\paragraph{均匀分布} 若 $X$ 在 $(a,b)$ 上等可能地取值，密度为常数
+\[
+f_X(x)=\frac{1}{b-a}\quad(a<x<b),
+\]
+其余位置为 $0$。分布函数在 $[a,b]$ 上从 $0$ 线性升到 $1$：
+\[
+F_X(x)=0\ (x<a),\qquad F_X(x)=\frac{x-a}{b-a}\ (a\le x\le b),\qquad F_X(x)=1\ (x>b).
+\]
+长度相同的子区间概率相同，这是 ``均匀'' 的全部含义。
+
+\paragraph{指数分布} 取非负值的等待时间常用指数分布。参数 $\lambda>0$ 是到达率，密度与分布函数为
+\[
+f_X(x)=\lambda\mathrm{e}^{-\lambda x}\ (x>0),\qquad
+F_X(x)=1-\mathrm{e}^{-\lambda x}\ (x\ge0).
+\]
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=4.9cm,
+  xmin=0, xmax=7, ymin=0, ymax=2.15,
+  xtick={0,1,2,3,4,5,6,7}, ytick={0,0.5,1,1.5,2},
+  xlabel={$x$}, ylabel={$f_X(x)$},
+  font=\footnotesize, axis lines=left,
+  legend pos=north east, legend style={font=\scriptsize,draw=none,fill=none},
+]
+\addplot[fill=blue!50,draw=none,forget plot,domain=2:7,samples=120]{0.5*exp(-0.5*x)}\closedcycle;
+\addplot[blue,thick,domain=0:7,samples=160]{0.5*exp(-0.5*x)};
+\draw[dashed,blue!70] (axis cs:2,0) -- (axis cs:2,0.184);
 \addlegendentry{$\lambda=0.5$}
-\addplot[red,thick] {exp(-x)};
+\addplot[red!75,thick,domain=0:7,samples=160]{exp(-x)};
 \addlegendentry{$\lambda=1$}
-\addplot[green!55!black,thick] {2*exp(-2*x)};
+\addplot[green!55!black,thick,domain=0:7,samples=160]{2*exp(-2*x)};
 \addlegendentry{$\lambda=2$}
+\node[font=\scriptsize,blue!70!black] (tail) at (axis cs:4.9,0.38) {$P(X>2)$};
+\draw[->,blue!70!black] (tail) -- (axis cs:4.1,0.08);
 \end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 三条指数密度曲线，$\lambda$ 越大下降越快。对 $\lambda=0.5$ 的曲线，$x>2$ 这一段的面积是 $\mathrm{e}^{-1}\approx0.368$；无记忆性说的是，从 $x=2$ 往右看，曲线形状与从 $0$ 开始完全一样，只是整体缩小了一个比例。}
 \end{center}
 
-\begin{conclusion}{标准正态分布}{standard normal distribution}
-    标准正态分布是正态分布的标准化，即$N(0,1)$，概率密度函数为
-    $$
-    \phi(x) = \frac{1}{\sqrt{2\pi}} \mathrm{e}^{-\frac{x^{2}}{2}}
-    $$
-    其分布函数为
-    $$
-    \Phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{x}\mathrm{e}^{-\frac{t^2}{2}}\,\mathrm{d}t
-    $$
-    $\phi(x)$为偶函数，则$\Phi(0) = 0.5$, $\Phi(-x) = 1 - \Phi(x)$
-    当$a > 0$时，
-    $$
-    \begin{aligned}
-        P(a < Z < b) &= \Phi(b) - \Phi(a) \\
-        P(|Z| \le a) &= 2\Phi(a) -1
-    \end{aligned}
-    $$
-\end{conclusion}
+生存函数是 $P(X>x)=\mathrm{e}^{-\lambda x}$。对 $s,t\ge0$，
+\[
+P(X>s+t\mid X>s)=\frac{\mathrm{e}^{-\lambda(s+t)}}{\mathrm{e}^{-\lambda s}}=\mathrm{e}^{-\lambda t}=P(X>t),
+\]
+这就是无记忆性：已经等了 $s$ 小时，不影响还要再等多久的分布。平均等待时间是 $1/\lambda$，$\lambda$ 越大等得越短。
+
+离散的几何分布有对应的性质：对非负整数 $m,n$，
+\[
+P(X>m+n\mid X>m)=\frac{(1-p)^{m+n}}{(1-p)^m}=(1-p)^n=P(X>n).
+\]
+连续情形用指数分布，离散情形用几何分布，这是两者的对应关系。
+
+\paragraph{正态分布} 若 $X$ 的密度为
+\[
+f_X(x)=\frac{1}{\sigma\sqrt{2\pi}}\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right),\qquad -\infty<x<+\infty,
+\]
+其中 $\mu\in\mathbb R$，$\sigma>0$，就记 $X\sim N(\mu,\sigma^2)$。$\mu$ 决定曲线的中心，$\sigma$ 决定宽窄：$\sigma$ 越大，曲线越矮越宽，但总面积始终是 $1$。前面的常数 $1/(\sigma\sqrt{2\pi})$ 来自泊松积分 $\int_{-\infty}^{+\infty}\mathrm{e}^{-t^2/2}\,\mathrm dt=\sqrt{2\pi}$，它的作用只是把面积归一。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.84\linewidth, height=5.6cm,
-  xlabel={$x$}, ylabel={概率密度},
-  xmin=-5, xmax=5, ymin=0, ymax=0.85,
+  anchor=south west, at={(0,0)},
+  width=0.46\linewidth, height=4.6cm,
+  xmin=-5, xmax=5, ymin=0, ymax=0.88,
   xtick={-4,-2,0,2,4}, ytick={0,0.2,0.4,0.6,0.8},
-  legend pos=north east, font=\footnotesize,
-  domain=-5:5, samples=240,
+  xlabel={$x$}, ylabel={密度},
+  font=\footnotesize, axis lines=left,
+  legend pos=north east, legend style={font=\scriptsize,draw=none,fill=none},
 ]
-\addplot[blue,thick] {0.7979*exp(-2*x^2)};
+\addplot[blue,thick,domain=-5:5,samples=200]{0.7979*exp(-2*x^2)};
 \addlegendentry{$\sigma=0.5$}
-\addplot[red,thick] {0.3989*exp(-x^2/2)};
-\addlegendentry{$\sigma=1$ ($N(0,1)$)}
-\addplot[green!55!black,thick] {0.1995*exp(-x^2/8)};
+\addplot[red!75,thick,domain=-5:5,samples=200]{0.3989*exp(-x^2/2)};
+\addlegendentry{$\sigma=1$}
+\addplot[green!55!black,thick,domain=-5:5,samples=200]{0.1995*exp(-x^2/8)};
 \addlegendentry{$\sigma=2$}
 \end{axis}
+\begin{axis}[
+  anchor=south west, at={(0.52\linewidth,0)},
+  width=0.46\linewidth, height=4.6cm,
+  xmin=-3.6, xmax=3.6, ymin=0, ymax=0.46,
+  xtick={-3,-2,-1,0,1,2,3},
+  xticklabels={$-3\sigma$,$-2\sigma$,$-\sigma$,$0$,$\sigma$,$2\sigma$,$3\sigma$},
+  xticklabel style={font=\tiny},
+  ytick={0,0.2,0.4}, xlabel={$z$}, ylabel={$\varphi(z)$},
+  font=\footnotesize, axis lines=left,
+]
+\addplot[fill=blue!14,draw=none,domain=-3:3,samples=160]{0.39894*exp(-x^2/2)}\closedcycle;
+\addplot[fill=blue!28,draw=none,domain=-2:2,samples=160]{0.39894*exp(-x^2/2)}\closedcycle;
+\addplot[fill=blue!48,draw=none,domain=-1:1,samples=160]{0.39894*exp(-x^2/2)}\closedcycle;
+\addplot[blue,thick,domain=-3.6:3.6,samples=200]{0.39894*exp(-x^2/2)};
+\draw[dashed,gray!65] (axis cs:-3,0) -- (axis cs:-3,0.012);
+\draw[dashed,gray!65] (axis cs:-2,0) -- (axis cs:-2,0.054);
+\draw[dashed,gray!65] (axis cs:-1,0) -- (axis cs:-1,0.242);
+\draw[dashed,gray!65] (axis cs:1,0) -- (axis cs:1,0.242);
+\draw[dashed,gray!65] (axis cs:2,0) -- (axis cs:2,0.054);
+\draw[dashed,gray!65] (axis cs:3,0) -- (axis cs:3,0.012);
+\end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 左：均值都是 $0$、$\sigma$ 不同的三条正态密度，$\sigma$ 越小越集中，三条曲线下的面积都为 $1$。右：标准正态的 $3\sigma$ 区间，$\pm\sigma,\pm2\sigma,\pm3\sigma$ 内的概率约为 $68.3\%,95.4\%,99.7\%$。}
 \end{center}
+
+正态分布的计算靠标准化。令
+\[
+Z=\frac{X-\mu}{\sigma},
+\]
+则 $Z\sim N(0,1)$，其分布函数记为 $\Phi$。于是
+\[
+F_X(x)=P\left(\frac{X-\mu}{\sigma}\le\frac{x-\mu}{\sigma}\right)=\Phi\left(\frac{x-\mu}{\sigma}\right),
+\]
+\[
+P(a<X\le b)=\Phi\left(\frac{b-\mu}{\sigma}\right)-\Phi\left(\frac{a-\mu}{\sigma}\right).
+\]
+标准正态密度是偶函数，所以 $\Phi(-x)=1-\Phi(x)$，且 $\Phi(0)=0.5$。这条对称性经常能把负的自变量化成正的。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.84\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={概率密度},
-  xmin=-3.6, xmax=3.6, ymin=0, ymax=0.45,
-  xtick={-3,-2,-1,0,1,2,3}, ytick={0,0.1,0.2,0.3,0.4},
-  domain=-3.6:3.6, samples=240,
+  anchor=south west, at={(0,0)},
+  width=0.46\linewidth, height=4.2cm,
+  xmin=-2, xmax=8, ymin=0, ymax=0.46,
+  xtick={1,3,5}, ytick={0,0.2,0.4},
+  xlabel={$x$}, ylabel={$f_X(x)$},
+  title={$N(3,2^2)$}, title style={font=\footnotesize},
+  font=\footnotesize, axis lines=left,
 ]
-\addplot[blue!70,thick] {0.3989*exp(-x^2/2)};
-\draw[dashed,gray!60] (-1,0) -- (-1,0.41);
-\draw[dashed,gray!60] (1,0) -- (1,0.41);
-\draw[dashed,orange!70] (-2,0) -- (-2,0.41);
-\draw[dashed,orange!70] (2,0) -- (2,0.41);
-\draw[dashed,red!70] (-3,0) -- (-3,0.41);
-\draw[dashed,red!70] (3,0) -- (3,0.41);
-\node[font=\scriptsize,gray!70] at (axis cs:0,0.43){$\pm1\sigma:68.3\%$};
-\node[font=\scriptsize,orange!70] at (axis cs:2.55,0.43){$\pm2\sigma:95.4\%$};
-\node[font=\scriptsize,red!70] at (axis cs:-2.55,0.43){$\pm3\sigma:99.7\%$};
+\addplot[fill=blue!25,draw=none,domain=1:5,samples=120]{0.19947*exp(-(x-3)^2/8)}\closedcycle;
+\addplot[blue,thick,domain=-2:8,samples=160]{0.19947*exp(-(x-3)^2/8)};
+\draw[dashed,gray!65] (axis cs:1,0) -- (axis cs:1,0.121);
+\draw[dashed,gray!65] (axis cs:5,0) -- (axis cs:5,0.121);
+\node[font=\scriptsize] at (axis cs:3,0.03) {$0.6826$};
+\end{axis}
+\begin{axis}[
+  anchor=south west, at={(0.52\linewidth,0)},
+  width=0.46\linewidth, height=4.2cm,
+  xmin=-3.6, xmax=3.6, ymin=0, ymax=0.46,
+  xtick={-3,-1,0,1,3}, ytick={0,0.2,0.4},
+  xlabel={$z$}, ylabel={$\varphi(z)$},
+  title={$N(0,1)$}, title style={font=\footnotesize},
+  font=\footnotesize, axis lines=left,
+]
+\addplot[fill=blue!25,draw=none,domain=-1:1,samples=120]{0.39894*exp(-x^2/2)}\closedcycle;
+\addplot[blue,thick,domain=-3.6:3.6,samples=160]{0.39894*exp(-x^2/2)};
+\draw[dashed,gray!65] (axis cs:-1,0) -- (axis cs:-1,0.242);
+\draw[dashed,gray!65] (axis cs:1,0) -- (axis cs:1,0.242);
+\node[font=\scriptsize] at (axis cs:0,0.03) {$0.6826$};
 \end{axis}
 \end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 标准化把 $N(3,2^2)$ 平移、压缩成 $N(0,1)$。两个阴影区间表示同一事件，面积都是 $0.6826$。}
 \end{center}
 
-\begin{conclusion}{正态分布的标准化}{standardize normal distribution}
-    设$X$为正态分布，$X \sim N(\mu, \sigma^{2})$，其中$\sigma>0$。令$Y = \frac{X - \mu}{\sigma}$，则$Y$为标准正态分布。\\
-    $$
-    % \begin{aligned}
-        P(a < X < b) = P(\frac{a - \mu}{\sigma} < Y < \frac{b - \mu}{\sigma})
-        =\Phi(\frac{b - \mu}{\sigma}) - \Phi(\frac{a - \mu}{\sigma})
-    % \end{aligned}
-    $$
-\end{conclusion}
 
-\noindent\textbf{拓展（高斯与CLT/噪声）:} 为何正态分布无处不在？中心极限定理指出：大量相互独立、方差有限的微小随机扰动之和，经标准化后都趋于 $N(0,1)$。于是测量误差、神经网络的权重初始化（如 He/Kaiming 初始化取 $\sigma=\sqrt{2/\text{fan\_in}}$）与梯度噪声都自带高斯性——噪声是“很多小作用叠加”的统计结果，而非偶然。高维统计与机器学习的渐近理论（检验统计量、置信区间）也几乎都以高斯分布为极限。
 
-\subsection{一维随机变量函数的分布}
-\begin{mydef}{随机变量的函数}{function of random variable}
-    设 $X$ 为随机变量，$Y=g(X)$ 为其可测函数。则 $Y$ 也是随机变量，且其分布函数为
-    $$
-    F_Y(y)=P(Y\leq y)=P\bigl(g(X)\leq y\bigr).
-    $$
-    只有在 $g$ 单调且可逆时，才能进一步把事件写成关于 $g^{-1}(y)$ 的单边不等式。
-\end{mydef}
+\refstepcounter{table}
+\begin{tablebox}{常用连续分布}
+\centering
+\small
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{@{}p{2.4cm}p{5.6cm}p{6.1cm}@{}}
+\toprule
+分布 & 密度 $f_X(x)$ & 分布函数 $F_X(x)$ \\
+\midrule
+$U(a,b)$ & $\dfrac{1}{b-a},\ a<x<b$ &
+$\begin{cases}0,&x<a\\ \frac{x-a}{b-a},&a\le x\le b\\ 1,&x>b\end{cases}$ \\
+$E(\lambda)$ & $\lambda\mathrm{e}^{-\lambda x},\ x>0$ & $1-\mathrm{e}^{-\lambda x}\ (x\ge0)$；$0\ (x<0)$ \\
+$N(\mu,\sigma^2)$ & $\dfrac{1}{\sigma\sqrt{2\pi}}\exp\left(-\dfrac{(x-\mu)^2}{2\sigma^2}\right)$ & $\Phi\left(\dfrac{x-\mu}{\sigma}\right)$ \\
+\bottomrule
+\end{tabular}
+\end{tablebox}
 
-\begin{conclusion}{离散型随机变量函数的分布}{distribution of discrete random variable function}
-    设$X$为离散型随机变量，$Y = f(X)$为$X$的函数，$Y$也为离散型随机变量，
-    求 $Y$ 的分布律的步骤为
-    \begin{enumerate}
-        \item 求$Y=g(X)$的所有可能的取值$a_{1}, a_{2}, \cdots, a_{n}$ 
-        \item 计算$P(Y = a_{i})$，若$a_{i}$相同，合并其概率值
-    \end{enumerate}
-\end{conclusion}
+\subsection{随机变量函数的分布}
 
-\begin{conclusion}{连续型随机变量函数的分布}{distribution of continuous random variable function}
-    设 $X$ 为连续型随机变量，$Y=g(X)$。函数变换后的 $Y$ 不一定仍为连续型；在 $Y$ 确有密度的情形，可用下列方法求其分布：
-    \begin{enumerate}
-        \item 定义法(分布函数法)\\
-        设 $Y=g(X)$，先由定义求其分布函数
-        $$
-        \begin{aligned}
-        F_Y(y) &= P(Y \leq y) \\
-        &=P\bigl(g(X)\leq y\bigr)
-        =\int_{\{x:g(x)\leq y\}} f_X(x)\,\mathrm{d}x.
-        \end{aligned}
-        $$
-        $Y = f(X)$的概率密度函数$f(y)$为
-        $$
-        f(y) = \frac{\mathrm{d}F_{Y}(y)}{\mathrm{d}y}
-        $$
-        \item 若 $g$ 在支撑区间上严格单调、可导且 $g'(x)\neq0$，设反函数为 $x=h(y)$，则
-        $$
-        \begin{aligned}
-        f_Y(y)&=f_X\bigl(h(y)\bigr)\left|h'(y)\right|.
-        \end{aligned}
-        $$
-        $$
-        f_{Y}(y) = 
-        \begin{cases}
-            f_{X}(h(y))|h^{'}(y)|, & \alpha < y < \beta \\
-            0, & \text{其他}
-        \end{cases}
-        $$
-        其中 $y$ 的取值范围由 $g$ 在 $X$ 的支撑上的值域决定。若 $g$ 非单调但只有有限个可逆分支，则应对所有逆像求和：
-        \[
-        f_Y(y)=\sum_{x:g(x)=y}\frac{f_X(x)}{|g'(x)|}.
-        \]
-
-    \end{enumerate}
-
-\end{conclusion}
-
-\subsection{一些其他技巧}
-\begin{conclusion}{泊松积分}{poisson integral}
-$$
-    \int_{-\infty}^{\infty} \mathrm{e}^{-t^2}\,\mathrm{d}t = \sqrt{\pi}
-$$
-\end{conclusion}
-
-\begin{conclusion}{泊松分布的稀疏化（拓展）}{poisson-thinning}
-    设$X \sim P(\lambda)$。在给定$X$后，将这$X$个对象各自独立地以概率 $\alpha$ 保留，并记保留数为$Y$，即
-    $Y\mid X\sim B(X,\alpha)$，则
-    \[
-    Y\sim P(\alpha\lambda),\qquad
-    P(Y=k)=\frac{(\alpha\lambda)^k e^{-\alpha\lambda}}{k!}.
-    \]
-    该稀疏化结论属于拓展内容，不作为现行考研数学一主线要求。
-\end{conclusion}
-
-\begin{conclusion}{标准柯西分布}{standard cauchy distribution}
-\(X \sim \mathrm{Cauchy}(0, 1)\)\\
-\(F(x) = \frac{1}{\pi} \arctan x + \frac{1}{2}\)
-\(f(x) = \frac{1}{\pi (1 + x^2)}\)
-标准柯西分布即是自由度为1的t分布,\(X \sim t(1)\),其\(EX,DX\)均不存在
-\end{conclusion}
-
-\begin{conclusion}{几何分布与指数分布的无记忆性}{geometric distribution and exponential distribution without memory}
-几何分布（取值为 $1,2,\ldots$）与指数分布分别满足无记忆性：过去的等待不改变未来的条件分布。统一写作
+已知 $X$ 的分布，$Y=g(X)$ 也是随机变量。求 $Y$ 的分布仍然从定义出发：
 \[
-P(X>m+n\mid X>m)=P(X>n),
+F_Y(y)=P(Y\le y)=P\bigl(g(X)\le y\bigr).
 \]
-其中离散情形 $m,n$ 为非负整数，连续情形 $m,n\geq0$。
-\end{conclusion}
+具体做法是解不等式 $g(x)\le y$，把解集写成关于 $x$ 的区间（可能不止一段），再用 $X$ 的分布算概率。$g$ 的形状决定后面怎么算。
 
-\begin{conclusion}{两个变换}{two transform}
-\begin{enumerate}
-    \item 若 $F_X$ 连续，则概率积分变换给出 $F_X(X)\sim U(0,1)$。
-    \item 若 $F_X$ 连续，则 $Y=-\ln\bigl[1-F_X(X)\bigr]\sim E(1)$；严格单调性不是必要条件。
-\end{enumerate}
-\end{conclusion}
+若 $X$ 离散，$Y$ 也只取可列个值。先把 $g(x_i)$ 全部算出来，函数值相同的点把概率合并：
+\[
+P(Y=y)=\sum_{i:\,g(x_i)=y}p_i .
+\]
+例如掷一枚均匀骰子，取 $Y=|X-3|$。$X=1,5$ 都给出 $Y=2$，这两个结果的概率要相加，所以 $P(Y=2)=1/6+1/6=1/3$。
 
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\footnotesize]
+  % 左列：X 的取值，按函数值分组着色
+  \fill[gray!25] (-3.6,0) rectangle (-2.2,0.6);
+  \draw[thick] (-3.6,0) rectangle (-2.2,0.6);
+  \node at (-2.9,0.3) {$x=3$};
+  \fill[blue!30] (-3.6,0.72) rectangle (-2.2,1.32);
+  \draw[thick] (-3.6,0.72) rectangle (-2.2,1.32);
+  \node at (-2.9,1.02) {$x=2$};
+  \fill[blue!30] (-3.6,1.32) rectangle (-2.2,1.92);
+  \draw[thick] (-3.6,1.32) rectangle (-2.2,1.92);
+  \node at (-2.9,1.62) {$x=4$};
+  \fill[orange!30] (-3.6,2.04) rectangle (-2.2,2.64);
+  \draw[thick] (-3.6,2.04) rectangle (-2.2,2.64);
+  \node at (-2.9,2.34) {$x=1$};
+  \fill[orange!30] (-3.6,2.64) rectangle (-2.2,3.24);
+  \draw[thick] (-3.6,2.64) rectangle (-2.2,3.24);
+  \node at (-2.9,2.94) {$x=5$};
+  \fill[green!25] (-3.6,3.36) rectangle (-2.2,3.96);
+  \draw[thick] (-3.6,3.36) rectangle (-2.2,3.96);
+  \node at (-2.9,3.66) {$x=6$};
+  % 右列：Y 的取值，高度与概率成比例
+  \fill[gray!25] (2.0,0) rectangle (3.4,0.6);
+  \draw[thick] (2.0,0) rectangle (3.4,0.6);
+  \node at (2.7,0.3) {$0$};
+  \node[right,font=\scriptsize] at (3.5,0.3) {$\frac16$};
+  \fill[blue!30] (2.0,0.72) rectangle (3.4,1.92);
+  \draw[thick] (2.0,0.72) rectangle (3.4,1.92);
+  \node at (2.7,1.32) {$1$};
+  \node[right,font=\scriptsize] at (3.5,1.32) {$\frac13$};
+  \fill[orange!30] (2.0,2.04) rectangle (3.4,3.24);
+  \draw[thick] (2.0,2.04) rectangle (3.4,3.24);
+  \node at (2.7,2.64) {$2$};
+  \node[right,font=\scriptsize] at (3.5,2.64) {$\frac13$};
+  \fill[green!25] (2.0,3.36) rectangle (3.4,3.96);
+  \draw[thick] (2.0,3.36) rectangle (3.4,3.96);
+  \node at (2.7,3.66) {$3$};
+  \node[right,font=\scriptsize] at (3.5,3.66) {$\frac16$};
+  % 同色的格连到同一个 Y 值
+  \draw[->,gray!70] (-2.2,0.3) -- (2.0,0.3);
+  \draw[->,blue!70] (-2.2,1.02) -- (2.0,1.14);
+  \draw[->,blue!70] (-2.2,1.62) -- (2.0,1.50);
+  \draw[->,orange!85] (-2.2,2.34) -- (2.0,2.50);
+  \draw[->,orange!85] (-2.2,2.94) -- (2.0,2.78);
+  \draw[->,green!60!black] (-2.2,3.66) -- (2.0,3.66);
+  \node[above,font=\small] at (-2.9,4.1) {$X$ 的取值};
+  \node[above,font=\small] at (2.7,4.1) {$Y$ 的取值与概率};
+\end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 离散情形是一次 ``搬家''：每个 $x_i$ 带着概率 $1/6$ 搬到 $g(x_i)$ 处。左列按函数值分了组，同色的几格落到右边同一格，概率相加；右边格子的高度与概率成比例。}
+\end{center}
+
+若 $X$ 连续，且 $g$ 在 $X$ 的支撑上严格单调、可导、$g'(x)\neq0$，设反函数为 $x=h(y)$。$g$ 递增时
+\[
+F_Y(y)=P\bigl(X\le h(y)\bigr)=F_X\bigl(h(y)\bigr),
+\]
+两边对 $y$ 求导得 $f_Y(y)=f_X(h(y))h'(y)$。$g$ 递减时 $\{g(X)\le y\}=\{X\ge h(y)\}$，$F_Y(y)=1-F_X(h(y))$，求导得 $-f_X(h(y))h'(y)$。两种情形合写为
+\[
+f_Y(y)=f_X\bigl(h(y)\bigr)\bigl|h'(y)\bigr|,\qquad y\in g(\text{$X$ 的支撑}),
+\]
+其余位置取 $0$。$|h'(y)|$ 是长度比例：$y$ 附近长为 $dy$ 的小区间被拉回成 $x$ 附近长为 $|h'(y)|dy$ 的小区间，两边的概率 $f_Y(y)dy$ 与 $f_X(x)dx$ 必须相等。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\footnotesize]
+  \draw[->] (-5.8,0) -- (-1.2,0) node[right] {$x$};
+  \draw[->] (1.2,0) -- (5.8,0) node[right] {$y$};
+  \fill[blue!25] (-4.6,0) rectangle (-3.0,1.0);
+  \draw[thick,blue!60!black] (-4.6,0) rectangle (-3.0,1.0);
+  \fill[blue!25] (2.6,0) rectangle (3.24,2.5);
+  \draw[thick,blue!60!black] (2.6,0) rectangle (3.24,2.5);
+  \draw[<->] (-4.6,-0.18) -- (-3.0,-0.18) node[midway,below,font=\scriptsize] {$dx$};
+  \draw[<->] (2.6,-0.18) -- (3.24,-0.18) node[midway,below,font=\scriptsize] {$dy$};
+  \node[left,font=\scriptsize] at (-4.65,0.55) {$f_X(x)$};
+  \node[right,font=\scriptsize] at (3.3,1.3) {$f_Y(y)$};
+  \draw[->,gray!65!black] (-2.95,0.25) to[out=15,in=165] (2.55,0.25);
+  \draw[->,gray!65!black] (-2.95,0.78) to[out=-15,in=195] (2.55,0.78);
+  \node[font=\scriptsize,gray!55!black] at (0.15,0.95) {同一份概率};
+  \fill (-4.6,0) circle (1.6pt); \fill (-3.0,0) circle (1.6pt);
+  \fill (2.6,0) circle (1.6pt); \fill (3.24,0) circle (1.6pt);
+  \node[font=\scriptsize] at (0.15,-0.55) {$f_X(x)\,dx=f_Y(y)\,dy$};
+\end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 单调变换把 $x$ 轴上宽 $dx$ 的小区间压成 $y$ 轴上宽 $dy$ 的小区间。区间变窄，密度就必须变高，才能保持那块面积不变：图中宽度比是 $2.5$，高度比也是 $2.5$。}
+\end{center}
+
+若 $g$ 不单调，一个 $y$ 可能有多个原像 $x_1,\dots,x_k$。各分支各自贡献一份密度，直接相加：
+\[
+f_Y(y)=\sum_{i=1}^{k}\frac{f_X(x_i)}{\bigl|g'(x_i)\bigr|},
+\qquad g(x_i)=y,\quad g'(x_i)\neq0 .
+\]
+典型例子是 $Y=X^2$：当 $y>0$ 时有两个原像 $x_1=-\sqrt y$ 与 $x_2=\sqrt y$，两边都要算进去。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\footnotesize]
+  \draw[->] (-2.9,0) -- (2.9,0) node[right] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.9) node[above] {$y$};
+  \draw[blue,thick,domain=-2.15:2.15,samples=80] plot (\x,{\x*\x});
+  \draw[dashed,gray!65] (-2.65,2) -- (2.65,2);
+  \fill[red!75] (-1.414,2) circle (2pt);
+  \fill[red!75] (1.414,2) circle (2pt);
+  \node[below left,font=\scriptsize] at (-1.414,2) {$x_1$};
+  \node[below right,font=\scriptsize] at (1.414,2) {$x_2$};
+  \node[right,font=\scriptsize] at (2.62,2.16) {$y$};
+\end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 不单调时，水平线 $y=\text{常数}$ 与曲线有几个交点，$y$ 处就有几份密度。$Y=X^2$ 在 $y>0$ 有两个原像，$f_Y(y)$ 是两支贡献之和，不能只算正的那一支。}
+\end{center}
+
+还要注意一种情况：$g$ 若有平台，即一段有正概率的 $x$ 都映到同一个 $y$，那么 $Y$ 在这个值上有正概率，不再是连续型，也就没有密度可言。这时只能回到 $F_Y(y)=P(g(X)\le y)$ 用分布函数描述。所以拿到 $Y=g(X)$ 先看 $g$ 的形状：单调、多分支，还是有平台。
+
+如果 $F_X$ 连续且严格递增，令 $U=F_X(X)$，则
+\[
+P(U\le u)=P\bigl(X\le F_X^{-1}(u)\bigr)=u,\qquad 0<u<1,
+\]
+即 $U\sim U(0,1)$。反过来，若 $U\sim U(0,1)$，取 $X=F_X^{-1}(U)$ 就得到分布为 $F_X$ 的随机变量。这条变换把任意连续分布与均匀分布连起来，是计算机抽样的基础；例如 $-\ln U\sim E(1)$，用均匀随机数就能生成指数随机数。
+
+\subsection{期望与方差}
+
+分布函数和密度包含全部信息，但比较不同随机变量时，通常先看两个数字：中心在哪里，分散到什么程度。
+
+\paragraph{数学期望} 离散型定义为加权平均
+\[
+E(X)=\sum_i x_ip_i,
+\]
+连续型把求和换成积分：
+\[
+E(X)=\int_{-\infty}^{+\infty}x f_X(x)\,\mathrm dx .
+\]
+两个定义都要求绝对收敛，即 $\sum_i|x_i|p_i<+\infty$ 或 $\int|x|f_X(x)\,\mathrm dx<+\infty$。若绝对收敛不成立，就称期望不存在。标准柯西分布（密度 $f(x)=1/[\pi(1+x^2)]$）就是这样的例子：$\int|x|f(x)\,\mathrm dx$ 发散，正负两侧的积分不能相消。
+
+期望可以看成概率质量的重心。把每个取值 $x_i$ 放上重量 $p_i$，支点放在 $E(X)$ 处，整个分布就平衡了。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\footnotesize]
+  \draw[->] (-3.4,0) -- (4.2,0) node[right] {$x$};
+  \fill[blue!30] (-2.25,0) rectangle (-1.75,0.8);
+  \fill[blue!30] (-0.25,0) rectangle (0.25,2.0);
+  \fill[blue!30] (2.75,0) rectangle (3.25,1.2);
+  \draw[blue!60!black] (-2.25,0) rectangle (-1.75,0.8);
+  \draw[blue!60!black] (-0.25,0) rectangle (0.25,2.0);
+  \draw[blue!60!black] (2.75,0) rectangle (3.25,1.2);
+  \node[above,font=\scriptsize] at (-2,0.8) {$p=0.2$};
+  \node[above,font=\scriptsize] at (0,2.0) {$p=0.5$};
+  \node[above,font=\scriptsize] at (3,1.2) {$p=0.3$};
+  \draw[dashed,red!75,thick] (0.5,0) -- (0.5,2.35);
+  \node[above,red!75,font=\scriptsize] at (0.5,2.35) {$E(X)=0.5$};
+  \fill[gray!65] (0.5,0) -- (0.2,-0.45) -- (0.8,-0.45) -- cycle;
+  \node[below,font=\scriptsize,gray!55!black] at (0.5,-0.5) {支点};
+\end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 期望是加权平均：取值 $-2,0,3$ 的概率分别为 $0.2,0.5,0.3$，重心在 $0.5$。概率大的位置把支点拉过去，距离远的取值要用更大的重量才能平衡。}
+\end{center}
+
+求 $g(X)$ 的期望时，不必先求 $Y$ 的分布：
+\[
+E\bigl(g(X)\bigr)=\sum_i g(x_i)p_i
+\quad\text{或}\quad
+E\bigl(g(X)\bigr)=\int_{-\infty}^{+\infty}g(x)f_X(x)\,\mathrm dx .
+\]
+这条公式把 $X$ 的分布直接搬到 $g$ 上，计算 $E(X^2)$ 时尤其省事。适用条件仍是右边的绝对收敛；若不收敛，不能通过换序或拆项硬算。
+
+\paragraph{方差} 期望只描述位置，不描述分散程度。方差定义为
+\[
+D(X)=E\left[\bigl(X-E(X)\bigr)^2\right].
+\]
+把平方展开：
+\[
+E\left[\bigl(X-\mu\bigr)^2\right]=E(X^2)-2\mu E(X)+\mu^2=E(X^2)-\mu^2,
+\]
+其中 $\mu=E(X)$，就得到常用的计算式
+\[
+D(X)=E(X^2)-\bigl[E(X)\bigr]^2 .
+\]
+标准差 $\sigma_X=\sqrt{D(X)}$ 与 $X$ 同量纲，报告波动大小时更常用。
+
+方差有几条直接的性质。对常数 $a,b$，
+\[
+E(aX+b)=aE(X)+b,\qquad D(aX+b)=a^2D(X).
+\]
+平移不改变分散程度；乘以 $a$ 会把偏差放大 $|a|$ 倍，平方后就是 $a^2$。另外 $D(X)\ge0$，且 $D(X)=0$ 当且仅当 $X$ 几乎必然等于常数。期望的线性性 $E(X+Y)=E(X)+E(Y)$ 不需要独立性；方差相加则要另加协方差项，独立时协方差为 $0$。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.80\linewidth, height=4.9cm,
+  xmin=-4, xmax=4, ymin=0, ymax=0.72,
+  xtick={-3,-2,-1,0,1,2,3}, ytick={0,0.2,0.4,0.6},
+  xlabel={$x$}, ylabel={密度},
+  font=\footnotesize, axis lines=left,
+  legend pos=north east, legend style={font=\scriptsize,draw=none,fill=none},
+]
+\addplot[blue,thick,domain=-4:4,samples=180]{0.6646*exp(-x^2/(2*0.36))};
+\addlegendentry{$\sigma=0.6$}
+\addplot[red!75,thick,domain=-4:4,samples=180]{0.2660*exp(-x^2/(2*2.25))};
+\addlegendentry{$\sigma=1.5$}
+
+\end{axis}
+\end{tikzpicture}
+\par\vspace{3pt}
+{\footnotesize\itshape 两个密度的均值都是 $0$，但蓝线集中、红线分散。方差衡量的是这种 ``离中心有多远'' 的平均平方，$\sigma$ 越大曲线越宽。}
+\end{center}
+
+\refstepcounter{table}
+\begin{tablebox}{常用分布的期望与方差}
+\centering
+\small
+\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+分布 & $E(X)$ & $D(X)$ \\
+\midrule
+$0$-$1$ & $p$ & $p(1-p)$ \\
+二项 $B(n,p)$ & $np$ & $np(1-p)$ \\
+泊松 $P(\lambda)$ & $\lambda$ & $\lambda$ \\
+几何 $G(p)$ & $\dfrac{1}{p}$ & $\dfrac{1-p}{p^2}$ \\
+超几何 $H(N,M,n)$ & $\dfrac{nM}{N}$ & $\dfrac{nM(N-M)(N-n)}{N^2(N-1)}$ \\
+均匀 $U(a,b)$ & $\dfrac{a+b}{2}$ & $\dfrac{(b-a)^2}{12}$ \\
+指数 $E(\lambda)$ & $\dfrac{1}{\lambda}$ & $\dfrac{1}{\lambda^2}$ \\
+正态 $N(\mu,\sigma^2)$ & $\mu$ & $\sigma^2$ \\
+\bottomrule
+\end{tabular}
+\end{tablebox}
+
+表中几何分布按 $k=1,2,\dots$ 计；若按 $k=0,1,\dots$ 计，期望变为 $(1-p)/p$，方差不变。泊松分布的期望与方差相等，都是 $\lambda$，这是识别它的一个标志。
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（填空题）} 设离散型随机变量 $X$ 的分布律为
-\[
-\begin{array}{c|cccc}
-X & -1 & 0 & 1 & 2 \\
-\hline
-P & 0.2 & 0.3 & 0.3 & 0.2
-\end{array}
-\]
-求：(1) $X$ 的分布函数 $F(x)$；(2) $P(0 < X \leq 1.5)$；(3) $P(0 \leq X < 1.5)$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 
-(1) 由分布函数定义 $F(x)=P(X \leq x)$，分段写出：
-\[
-F(x)=\begin{cases}
-0, & x < -1, \\
-0.2, & -1 \leq x < 0, \\
-0.5, & 0 \leq x < 1, \\
-0.8, & 1 \leq x < 2, \\
-1, & x \geq 2.
-\end{cases}
-\]
-(2) $P(0 < X \leq 1.5) = F(1.5) - F(0) = 0.8 - 0.5 = 0.3$（即 $P(X=1)$）。
-
-(3) $P(0 \leq X < 1.5) = F(1.5-0) - F(0-0) = 0.8 - 0.2 = 0.6$（即 $P(X=0)+P(X=1)$）。
-
-\boxed{\textbf{注}} 离散型随机变量分布函数为阶梯函数，在取值点处右连续，跳跃高度即为该点的概率值。计算区间概率时务必注意端点开闭，区分 $F(x_0)$ 与 $F(x_0-0)$。
-
-\else \answerarea \fi%
-\item \textbf{（选择题）} 设 $X \sim N(3, 4)$，则 $P(1 < X < 5) = $ \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item $\Phi(1) - \Phi(0)$
-    \item $2\Phi(1) - 1$
-    \item $\Phi(2) - \Phi(0)$
-    \item $2\Phi(2) - 1$
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 (B)。
-
-$X \sim N(3,4)$，$\mu = 3$，$\sigma = 2$。标准化：
-\[
-P(1 < X < 5) = P\!\left(\frac{1-3}{2} < \frac{X-3}{2} < \frac{5-3}{2}\right) = P(-1 < Z < 1)
-\]
-由标准正态分布对称性 $\Phi(-x) = 1 - \Phi(x)$：
-\[
-P(-1 < Z < 1) = \Phi(1) - \Phi(-1) = \Phi(1) - [1 - \Phi(1)] = 2\Phi(1) - 1.
-\]
-故只有 (B) 正确。注意 $P(|Z|<a) = 2\Phi(a)-1$ 是常用结论。
-
-\else \answerarea \fi%
-\item \textbf{（填空题）} 设 $X \sim B(200, 0.01)$，利用泊松定理近似计算 $P(X = 2) \approx$ \underline{\qquad}。（已知 $\mathrm{e}^{-2} \approx 0.1353$）
-
-\ifshowsolutions%
-\boxed{\textbf{解}} $n = 200$ 较大，$p = 0.01$ 较小，$\lambda = np = 2$。由泊松定理：
-\[
-P(X = 2) \approx \frac{\lambda^2}{2!}\mathrm{e}^{-\lambda} = \frac{4}{2} \times 0.1353 = 2 \times 0.1353 = 0.2706.
-\]
-
-\boxed{\textbf{注}} 泊松近似适用于$n$较大、$p$较小的稀有事件计数，近似质量还取决于$np$的规模；$n\geq20$、$p\leq0.05$只能作为经验参考，不能当作严格分界。考研中常考查近似计算和条件判断。
-
-\else \answerarea \fi%
-\item \textbf{（计算题）} 设某电子元件的寿命 $X$（单位：千小时）服从参数 $\lambda = 0.5$ 的指数分布。求：
-\begin{enumerate}[label=(\arabic*)]
-    \item 该元件寿命超过 $2$ 千小时的概率；
-    \item 已知该元件已正常工作了 $2$ 千小时，还能再使用至少 $3$ 千小时的概率。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} $X \sim E(0.5)$，$f(x) = 0.5\mathrm{e}^{-0.5x}\ (x > 0)$，$F(x) = 1 - \mathrm{e}^{-0.5x}\ (x \geq 0)$。
-
-(1) $P(X > 2) = 1 - F(2) = \mathrm{e}^{-0.5 \times 2} = \mathrm{e}^{-1} \approx 0.3679$。
-
-(2) 由条件概率：
-\[
-P(X > 5 \mid X > 2) = \frac{P(X > 5)}{P(X > 2)} = \frac{\mathrm{e}^{-0.5 \times 5}}{\mathrm{e}^{-0.5 \times 2}} = \frac{\mathrm{e}^{-2.5}}{\mathrm{e}^{-1}} = \mathrm{e}^{-1.5} \approx 0.2231.
-\]
-或直接由指数分布的\textbf{无记忆性}：$P(X > s + t \mid X > s) = P(X > t)$，故
-$P(X > 5 \mid X > 2) = P(X > 3) = \mathrm{e}^{-1.5}$。
-
-\else \answerarea \fi%
-\item \textbf{（计算题）} 设连续型随机变量 $X$ 的分布函数为
-\[
-F(x) = \begin{cases}
-0, & x < 0, \\
-kx^2, & 0 \leq x < 1, \\
-1, & x \geq 1.
-\end{cases}
-\]
-(1) 求常数 $k$；(2) 求概率密度 $f(x)$；(3) 求 $P(0.3 < X < 0.7)$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 由分布函数的连续性（在 $x = 1$ 处）：$\lim\limits_{x \to 1^-} F(x) = k \cdot 1^2 = k = F(1) = 1$，故 $k = 1$。
-
-(2) $f(x) = F'(x)$，在可导点处求导：
-\[
-f(x) = \begin{cases}
-2x, & 0 < x < 1, \\
-0, & \text{其他}.
-\end{cases}
-\]
-
-(3) $P(0.3 < X < 0.7) = F(0.7) - F(0.3) = 0.7^2 - 0.3^2 = 0.49 - 0.09 = 0.40$。
-或由密度积分：$\int_{0.3}^{0.7} 2x\,\mathrm{d}x = [x^2]_{0.3}^{0.7} = 0.49 - 0.09 = 0.40$。
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{综合提高题}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（计算题，变换法）} 设 $X \sim U(0, 1)$，求 $Y = -\ln(1 - X)$ 的概率密度。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} \textbf{分布函数法。}
-
-$X \sim U(0,1)$，$f_X(x) = 1\ (0 < x < 1)$。
-
-$Y = -\ln(1-X)$：当 $x \to 0^+$ 时 $y \to 0^+$；当 $x \to 1^-$ 时 $y \to +\infty$。故 $y > 0$。
-\[
-\begin{aligned}
-F_Y(y) &= P(Y \leq y) = P(-\ln(1-X) \leq y) \\
-&= P(\ln(1-X) \geq -y) = P(1-X \geq \mathrm{e}^{-y}) \\
-&= P(X \leq 1 - \mathrm{e}^{-y}), \quad y > 0.
-\end{aligned}
-\]
-当 $y > 0$ 时，$0 < 1 - \mathrm{e}^{-y} < 1$，故
-\[
-F_Y(y) = \int_0^{1 - \mathrm{e}^{-y}} 1\,\mathrm{d}x = 1 - \mathrm{e}^{-y}.
-\]
-求导得 $f_Y(y) = F_Y'(y) = \mathrm{e}^{-y}\ (y > 0)$；$f_Y(y) = 0\ (y \leq 0)$。
-
-故 $Y \sim E(1)$。这验证了重要结论：若 $X \sim U(0,1)$，则 $-\ln(1-X) \sim E(1)$（也可用 $-\ln X \sim E(1)$）。
-
-\boxed{\textbf{注}} 分布函数法是求随机变量函数分布的通法，核心步骤：(1) 由 $X$ 的范围确定 $Y$ 的值域；(2) 写出 $F_Y(y) = P(g(X) \leq y)$；(3) 反解出 $X$ 的范围并利用 $f_X$ 积分；(4) 求导得 $f_Y$。特别注意 $g$ 非单调时需分段讨论。
-
-\else \answerarea \fi%
-\item \textbf{（计算题，平方变换）} 设 $X \sim N(0, 1)$，求 $Y = X^2$ 的概率密度。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} $Y = X^2 \geq 0$，值域 $y \geq 0$。
-
-当 $y \leq 0$ 时，$F_Y(y) = 0$。
-
-当 $y > 0$ 时，
-\[
-\begin{aligned}
-F_Y(y) &= P(X^2 \leq y) = P(-\sqrt{y} \leq X \leq \sqrt{y}) \\
-&= \Phi(\sqrt{y}) - \Phi(-\sqrt{y}) = 2\Phi(\sqrt{y}) - 1.
-\end{aligned}
-\]
-\[
-\begin{aligned}
-f_Y(y) = F_Y'(y) &= 2\varphi(\sqrt{y}) \cdot \frac{1}{2\sqrt{y}} = \frac{\varphi(\sqrt{y})}{\sqrt{y}} \\
-&= \frac{1}{\sqrt{2\pi}} \cdot \frac{\mathrm{e}^{-y/2}}{\sqrt{y}} = \frac{1}{\sqrt{2\pi}}\, y^{-\frac{1}{2}}\,\mathrm{e}^{-\frac{y}{2}}, \quad y > 0.
-\end{aligned}
-\]
-$f_Y(y) = 0\ (y \leq 0)$。
-
-\boxed{\textbf{注}} 这是自由度为 $1$ 的卡方分布 $\chi^2(1)$ 的密度函数。$Y = X^2$ 的变换中 $g(x) = x^2$ 在整个 $\mathbb{R}$ 上不单调，不能直接套用单调公式，必须用分布函数法分段处理。
-
-\else \answerarea \fi%
-\item \textbf{（计算题，拉普拉斯分布）} 设随机变量 $X$ 的概率密度为 $f(x) = \frac{1}{2}\mathrm{e}^{-|x|}$，$-\infty < x < +\infty$（拉普拉斯分布）。求：
-\begin{enumerate}[label=(\arabic*)]
-    \item $X$ 的分布函数 $F(x)$；
-    \item $P(|X| < 1)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $F(x) = \int_{-\infty}^{x} \frac{1}{2}\mathrm{e}^{-|t|}\,\mathrm{d}t$。
-
-当 $x < 0$ 时：
-\[
-F(x) = \int_{-\infty}^{x} \frac{1}{2}\mathrm{e}^{t}\,\mathrm{d}t = \frac{1}{2}\mathrm{e}^{x}.
-\]
-
-当 $x \geq 0$ 时：
-\[
-\begin{aligned}
-F(x) &= \int_{-\infty}^{0} \frac{1}{2}\mathrm{e}^{t}\,\mathrm{d}t + \int_{0}^{x} \frac{1}{2}\mathrm{e}^{-t}\,\mathrm{d}t \\
-&= \frac{1}{2} + \frac{1}{2}(1 - \mathrm{e}^{-x}) = 1 - \frac{1}{2}\mathrm{e}^{-x}.
-\end{aligned}
-\]
-故
-\[
-F(x) = \begin{cases}
-\dfrac{1}{2}\mathrm{e}^{x}, & x < 0, \\[6pt]
-1 - \dfrac{1}{2}\mathrm{e}^{-x}, & x \geq 0.
-\end{cases}
-\]
-
-(2) $P(|X| < 1) = F(1) - F(-1) = \left(1 - \frac{1}{2}\mathrm{e}^{-1}\right) - \frac{1}{2}\mathrm{e}^{-1} = 1 - \mathrm{e}^{-1} \approx 0.6321$。
-
-\boxed{\textbf{注}} 拉普拉斯分布又称双指数分布，是双边指数衰减的对称分布，在绝对值损失函数和鲁棒统计中有重要应用。其分布函数在 $x = 0$ 处连续但密度不光滑。
-
-\else \answerarea \fi%
-\item \textbf{（计算题，线性变换）} 设 $X \sim N(\mu, \sigma^2)$，$a \neq 0$，$Y = aX + b$。证明 $Y \sim N(a\mu + b,\, a^2\sigma^2)$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} \textbf{分布函数法。}
-
-当 $a > 0$ 时：
-\[
-F_Y(y) = P(aX + b \leq y) = P\!\left(X \leq \frac{y-b}{a}\right) = F_X\!\left(\frac{y-b}{a}\right)
-\]
-\[
-f_Y(y) = F_Y'(y) = f_X\!\left(\frac{y-b}{a}\right) \cdot \frac{1}{a}.
-\]
-
-当 $a < 0$ 时：
-\[
-F_Y(y) = P(aX + b \leq y) = P\!\left(X \geq \frac{y-b}{a}\right) = 1 - F_X\!\left(\frac{y-b}{a}\right)
-\]
-\[
-f_Y(y) = F_Y'(y) = -f_X\!\left(\frac{y-b}{a}\right) \cdot \frac{1}{a} = f_X\!\left(\frac{y-b}{a}\right) \cdot \frac{1}{|a|}.
-\]
-
-综合（$a \neq 0$）：
-\[
-\begin{aligned}
-f_Y(y) &= \frac{1}{|a|}\, f_X\!\left(\frac{y-b}{a}\right) \\
-&= \frac{1}{|a|\sigma\sqrt{2\pi}} \exp\!\left\{-\frac{\left(\frac{y-b}{a}-\mu\right)^2}{2\sigma^2}\right\} \\
-&= \frac{1}{|a|\sigma\sqrt{2\pi}} \exp\!\left\{-\frac{\bigl(y - (a\mu + b)\bigr)^2}{2a^2\sigma^2}\right\}.
-\end{aligned}
-\]
-这正是 $N(a\mu + b,\, a^2\sigma^2)$ 的密度函数，故 $Y \sim N(a\mu + b,\, a^2\sigma^2)$。
-
-\boxed{\textbf{注}} 正态分布的线性变换仍为正态分布，此性质称为正态分布的\textbf{线性不变性}。特别地，取 $a = 1/\sigma$，$b = -\mu/\sigma$ 即得标准化变换 $Z = (X-\mu)/\sigma \sim N(0,1)$。
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（\boxed{\textbf{真题风格}}，综合题，分段密度）} 设随机变量 $X$ 的概率密度为
-\[
-f(x) = \begin{cases}
-Ax + \dfrac{1}{2}, & 0 \leq x < 1, \\[6pt]
-0, & \text{其他}.
-\end{cases}
-\]
-(1) 求常数 $A$；(2) 求 $X$ 的分布函数 $F(x)$；(3) 求 $Y = 1/X$ 的概率密度。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 由规范性 $\int_{-\infty}^{+\infty} f(x)\,\mathrm{d}x = 1$：
-\[
-\int_0^1 \left(Ax + \frac{1}{2}\right)\mathrm{d}x = \left[\frac{A}{2}x^2 + \frac{x}{2}\right]_0^1 = \frac{A}{2} + \frac{1}{2} = 1 \;\Longrightarrow\; A = 1.
-\]
-故 $f(x) = x + \frac{1}{2}$，$0 \leq x < 1$。
-
-(2) $F(x) = \int_{-\infty}^{x} f(t)\,\mathrm{d}t$，分段：
-\[
-F(x) = \begin{cases}
-0, & x < 0, \\[4pt]
-\displaystyle\int_0^x \!\left(t + \frac{1}{2}\right)\mathrm{d}t = \frac{x^2}{2} + \frac{x}{2}, & 0 \leq x < 1, \\[8pt]
-1, & x \geq 1.
-\end{cases}
-\]
-
-(3) $Y = 1/X$，$X \in (0,1)$，$Y \in (1, +\infty)$。$y = g(x) = 1/x$ 在 $(0,1)$ 上严格单调递减。
-
-反函数 $x = h(y) = 1/y$，$h'(y) = -1/y^2$，$|h'(y)| = 1/y^2$。
-
-由公式 $f_Y(y) = f_X(h(y))\,|h'(y)|$：
-\[
-f_Y(y) = \left(\frac{1}{y} + \frac{1}{2}\right) \cdot \frac{1}{y^2} = \frac{1}{y^3} + \frac{1}{2y^2}, \quad y > 1;
-\]
-$f_Y(y) = 0$，$y \leq 1$。
-
-\boxed{\textbf{注}} 本题综合考查了密度规范性、分布函数分段求法以及单调函数的变换公式；这类“求 $A$—求 $F(x)$—求 $Y=g(X)$ 分布”的三段式问题是常见综合题型。
-
-\else \answerarea \fi%
-\item \textbf{（\boxed{\textbf{真题风格}}，对数正态）} 设 $X \sim N(0, 1)$，求 $Y = \mathrm{e}^X$ 的概率密度（对数正态分布）。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} $Y = \mathrm{e}^X$，值域 $y > 0$。
-
-$y = g(x) = \mathrm{e}^x$ 在 $\mathbb{R}$ 上严格单调递增。反函数 $x = h(y) = \ln y$，$h'(y) = 1/y$。
-
-\textbf{方法一（单调公式）}：
-\[
-f_Y(y) = f_X(\ln y) \cdot |h'(y)| = \frac{1}{\sqrt{2\pi}}\,\mathrm{e}^{-\frac{(\ln y)^2}{2}} \cdot \frac{1}{y}, \quad y > 0;
-\]
-$f_Y(y) = 0$，$y \leq 0$。
-
-\textbf{方法二（分布函数法）}：
-\[
-F_Y(y) = P(\mathrm{e}^X \leq y) = P(X \leq \ln y) = \Phi(\ln y), \quad y > 0.
-\]
-\[
-f_Y(y) = F_Y'(y) = \varphi(\ln y) \cdot \frac{1}{y} = \frac{1}{y\sqrt{2\pi}}\,\mathrm{e}^{-\frac{(\ln y)^2}{2}}, \quad y > 0.
-\]
-
-\boxed{\textbf{注}} 对数正态分布 $\mathrm{LN}(0,1)$ 在金融数学（Black-Scholes 模型中股票价格）、可靠性工程中有广泛应用。期望 $E(Y) = \mathrm{e}^{1/2}$，方差 $D(Y) = \mathrm{e}^2 - \mathrm{e}^1$。一般地，若 $X \sim N(\mu,\sigma^2)$，则 $Y = \mathrm{e}^X \sim \mathrm{LN}(\mu,\sigma^2)$，密度为 $f_Y(y) = \frac{1}{y\sigma\sqrt{2\pi}}\exp\{-\frac{(\ln y - \mu)^2}{2\sigma^2}\}$。
-
-\else \answerarea \fi%
-\item \textbf{（\boxed{\textbf{真题风格}}，综合题，立方变换）} 设随机变量 $X$ 的概率密度为
-\[
-f_X(x) = \begin{cases}
-2x, & 0 < x < 1, \\
-0, & \text{其他}.
-\end{cases}
-\]
-求 $Y = X^3$ 的概率密度。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} $y = x^3$ 在 $(0, 1)$ 上严格单调递增，值域 $y \in (0, 1)$。
-
-反函数 $x = h(y) = y^{1/3}$，$h'(y) = \frac{1}{3}y^{-2/3} > 0$（单调递增，绝对值即本身）。
-
-由单调变换公式：
-\[
-\begin{aligned}
-f_Y(y) &= f_X(h(y)) \cdot |h'(y)| = 2y^{1/3} \cdot \frac{1}{3}y^{-2/3} \\
-&= \frac{2}{3}y^{-1/3}, \quad 0 < y < 1;
-\end{aligned}
-\]
-$f_Y(y) = 0$，其他。
-
-\textbf{验证规范性：}
-\[
-\int_0^1 \frac{2}{3}y^{-1/3}\,\mathrm{d}y = \frac{2}{3} \cdot \frac{3}{2}\Bigl[y^{2/3}\Bigr]_0^1 = 1.
-\]
-
-\boxed{\textbf{拓展注}} 若 $X$ 的密度为 $f_X(x) = ax^{a-1}$（$0 < x < 1$，可识别为 $\mathrm{Beta}(a,1)$），则 $Y = X^k$ 的密度为 $f_Y(y) = \frac{a}{k}\,y^{a/k - 1}$（$0 < y < 1$）。Beta 分布名称不作为本题主线要求；本题只需掌握单调变换公式。
-
-\else \answerarea \fi%
-\end{enumerate}
+\input{probality/exercises/chap2.tex}

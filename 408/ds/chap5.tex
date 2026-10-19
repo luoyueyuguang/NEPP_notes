@@ -1,309 +1,374 @@
 \section{图}
 
+课程之间的先修关系、城市之间的公路网、网络中数据包的转发路径，都可以抽象成同一类对象：用点表示事物，用线表示事物之间的联系。点之间的线有没有方向、带不带权值，决定了后续该用哪种算法。本章从这种抽象出发，先说明图怎么存，再讨论怎么遍历，最后处理最小生成树、最短路径、拓扑排序和关键路径这几类典型问题。
+
 \subsection{图的基本概念}
 
-\begin{mydef}{图的定义}{graph-def}
-图 $G=(V,E)$ 由顶点集 $V$ 和边集 $E$ 组成。$|V|=n$ 为顶点数（阶），$|E|=e$ 为边数。
-\begin{itemize}
-    \item \textbf{有向图}：边为有向边（弧）$\langle u,v\rangle$，$u$ 为弧尾，$v$ 为弧头。
-    \item \textbf{无向图}：边为无向边 $(u,v)$。
-    \item \textbf{简单图}：无自环（顶点到自身的边），无重边。
-    \item \textbf{完全图}：无向完全图 $K_n$ 有 $\frac{n(n-1)}{2}$ 条边；有向完全图有 $n(n-1)$ 条弧。
-    \item \textbf{连通}：无向图中若 $u$ 到 $v$ 有路径，称 $u,v$ 连通。若任意两顶点连通，称图为连通图。
-    \item \textbf{强连通}：有向图中任意两顶点互达，称为强连通图。
-\end{itemize}
-\end{mydef}
+一个图记作 $G=(V,E)$。$V$ 是顶点集，$E$ 是边集。$|V|=n$ 称为图的阶，$|E|=e$ 是边数。边没有方向时写作 $(u,v)$，称为无向边；边有方向时写作 $\langle u,v\rangle$，称为弧，$u$ 是弧尾，$v$ 是弧头。既没有自环、也没有重边的图称为简单图；本章默认讨论简单图。
 
-\begin{conclusion}{图的基本术语速查}{graph-terms}
-\begin{tablebox}{图论术语}
-\centering
-\begin{tabularx}{\linewidth}{|p{3.6cm}|X|}
-\hline
-术语 & 含义 \\
-\hline
-度 $\deg(v)$ & 无向图中与 $v$ 关联的边数；$\sum\deg(v)=2e$ \\
-入度 $\mathrm{id}(v)$、出度 $\mathrm{od}(v)$ & 有向图中以 $v$ 为弧头/弧尾的弧数；$\sum\mathrm{id}=\sum\mathrm{od}=e$ \\
-路径 & 顶点序列，相邻顶点间有边 \\
-简单路径 & 顶点不重复的路径 \\
-回路（环）& 起点=终点的路径，长度 $\geq 1$ \\
-连通分量 & 无向图的极大连通子图 \\
-强连通分量 & 有向图的极大强连通子图 \\
-生成树 & 连通图的极小连通子图，含全部 $n$ 个顶点和 $n-1$ 条边 \\
-生成森林 & 非连通图中各连通分量的生成树的并 \\
-\hline
-\end{tabularx}
-\end{tablebox}
-\end{conclusion}
-
-\subsection{图的存储结构}
-
-\begin{formula}{邻接矩阵}{adj-matrix}
-用 $n\times n$ 矩阵 $A$ 表示图：
+若任意两个顶点之间都有边，称为完全图。无向完全图 $K_n$ 的边数是
 \[
-A[i][j]=\begin{cases}
-1 & (v_i,v_j)\text{ 或 }\langle v_i,v_j\rangle\in E\\
-0 & \text{否则}
+\binom{n}{2}=\frac{n(n-1)}{2},
+\]
+有向完全图每对顶点之间有两个方向的弧，弧数为 $n(n-1)$。这两个数给出了简单图边数的上界。
+
+\subsubsection{度、路径与连通}
+
+无向图中，与顶点 $v$ 关联的边数称为 $v$ 的度，记作 $\deg(v)$。有向图把度拆成入度和出度：以 $v$ 为弧头的弧数是入度 $\operatorname{id}(v)$，以 $v$ 为弧尾的弧数是出度 $\operatorname{od}(v)$。每条无向边有两个端点，每条弧有一个弧尾和一个弧头，因此
+\[
+\sum_{v\in V}\deg(v)=2e,
+\qquad
+\sum_{v\in V}\operatorname{id}(v)
+=\sum_{v\in V}\operatorname{od}(v)=e.
+\]
+第一条式子常称为握手定理。它有一个直接推论：度数为奇数的顶点个数一定是偶数。
+
+顶点序列 $v_0,v_1,\ldots,v_k$ 中，若相邻两项之间都有边，则称它为一条路径，路径上边的数目 $k$ 是路径长度。顶点不重复的路径称为简单路径。起点和终点相同的路径称为回路；除起点终点外顶点不重复的回路称为简单回路。
+
+无向图中，若 $u$ 到 $v$ 存在路径，称 $u$ 与 $v$ 连通。任意两个顶点都连通的图称为连通图。连通图的极大连通子图就是它本身；非连通图可以分成若干个连通分量。这里的“极大”指不能再加入顶点或边而保持连通。有向图对应的概念是强连通：任意两个顶点互相可达。强连通图的极大强连通子图称为强连通分量。
+
+连通图的生成树，是包含全部 $n$ 个顶点、恰好 $n-1$ 条边的连通子图。它连通且没有回路，去掉任意一条边都会变成非连通图，因此是“极小连通子图”。非连通图有 $k$ 个连通分量时，每个分量各取一棵生成树，合起来称为生成森林，共 $n-k$ 条边。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={circle, draw, minimum size=0.62cm, inner sep=1pt}]
+  \begin{scope}
+    \node[fill=SoftBlue] (a1) at (90:1.75) {1};
+    \node[fill=SoftBlue] (a2) at (18:1.75) {2};
+    \node[fill=SoftBlue] (a3) at (-54:1.75) {3};
+    \node[fill=SoftBlue] (a4) at (-126:1.75) {4};
+    \node[fill=SoftBlue] (a5) at (162:1.75) {5};
+    \foreach \i/\j in {1/2,2/3,3/4,4/5,5/1,2/4}
+      \draw[gray!75, thick] (a\i) -- (a\j);
+    \node[draw=none, font=\small\bfseries, text=Navy] at (0,-2.55) {原图 $G$};
+  \end{scope}
+  \begin{scope}[xshift=5.6cm]
+    \node[fill=SoftTeal] (b1) at (90:1.75) {1};
+    \node[fill=SoftTeal] (b2) at (18:1.75) {2};
+    \node[fill=SoftTeal] (b3) at (-54:1.75) {3};
+    \node[fill=SoftTeal] (b4) at (-126:1.75) {4};
+    \node[fill=SoftTeal] (b5) at (162:1.75) {5};
+    \foreach \i/\j in {1/2,2/3,3/4,4/5}
+      \draw[Teal, very thick] (b\i) -- (b\j);
+    \node[draw=none, font=\small\bfseries, text=Navy] at (0,-2.55) {生成树 $T$};
+  \end{scope}
+\end{tikzpicture}
+
+\noindent{\small\color{MutedText}左图有 6 条边；右图保留 4 条边仍然连通，再删一条就会断开。右图是左图的一棵生成树，边数正好是 $n-1=4$。}
+\end{center}
+
+\subsection{图的存储}
+
+图有两种最常用的存法。邻接矩阵关心“任意两点之间有没有边”，邻接表关心“每个点连出去哪些边”。选用哪一种，取决于图是稠密还是稀疏，以及算法需要频繁做哪类查询。
+
+\subsubsection{邻接矩阵}
+
+设顶点编号为 $v_0,v_1,\ldots,v_{n-1}$。邻接矩阵 $A$ 是 $n\times n$ 的矩阵。无权图中
+\[
+A[i][j]=
+\begin{cases}
+1, & (v_i,v_j)\in E \text{ 或 } \langle v_i,v_j\rangle\in E,\\
+0, & \text{否则}.
 \end{cases}
 \]
-带权图可将 $1$ 替换为权值 $w_{ij}$，无边的位置填 $0$ 或 $\infty$。
-
-\begin{lstlisting}[language=C]
-#define MaxV 100
-typedef char VType;               // 顶点类型
-typedef int  EType;               // 边上权值类型
-typedef struct {
-    EType edges[MaxV][MaxV];      // 邻接矩阵
-    VType vexs[MaxV];             // 顶点信息
-    int n, e;                     // 顶点数、边数
-} MGraph;
-\end{lstlisting}
-
-\textbf{特点：}
-\begin{itemize}
-    \item 无向图的邻接矩阵对称；有向图不一定。
-    \item 空间复杂度 $O(n^2)$，适合稠密图（$e\approx n^2$）。
-    \item 判断 $(v_i,v_j)$ 是否有边仅需 $O(1)$。
-    \item 求顶点的度：无向图需扫描整行 $O(n)$；有向图出度扫描行、入度扫描列。
-\end{itemize}
-\end{formula}
-
-\begin{formula}{邻接表}{adj-list}
-为每个顶点建立一条单链表，链接其所有邻接点。
-
-\begin{lstlisting}[language=C]
-typedef struct ArcNode {
-    int adjvex;                   // 邻接点下标
-    EType weight;                 // 边权值（可选）
-    struct ArcNode *next;         // 下一条边
-} ArcNode;
-
-typedef struct {
-    VType data;                   // 顶点信息
-    ArcNode *first;               // 第一条边
-} VNode;
-
-typedef struct {
-    VNode adjlist[MaxV];
-    int n, e;
-} ALGraph;
-\end{lstlisting}
-
-\textbf{特点：}
-\begin{itemize}
-    \item 空间复杂度 $O(n+e)$，适合稀疏图。
-    \item 无向图每条边存两次（在两个顶点的链表中各出现一次）。
-    \item 求有向图出度：遍历该顶点的链表；求入度：需遍历全表或另建逆邻接表。
-    \item 判断 $(v_i,v_j)$ 是否有边：需遍历 $v_i$ 的链表 $O(\deg(v_i))$。
-\end{itemize}
-\end{formula}
+带权图把 $1$ 换成边权 $w_{ij}$；没有边时填 $\infty$，而不是 $0$。这一点在最短路径里很关键：$0$ 是合法的边权，用它表示“没有边”会让松弛过程把不存在的边当成权值为 $0$ 的边。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 顶点表头数组
-\node[draw, rectangle, minimum width=0.8cm, minimum height=0.55cm, fill=SoftBlue, draw=Navy, text=NavyDark, font=\scriptsize\bfseries] (h0) at (0,1.8) {0};
-\node[draw, rectangle, minimum width=0.8cm, minimum height=0.55cm, fill=SoftBlue, draw=Navy, text=NavyDark, font=\scriptsize\bfseries] (h1) at (0,0.6) {1};
-\node[draw, rectangle, minimum width=0.8cm, minimum height=0.55cm, fill=SoftBlue, draw=Navy, text=NavyDark, font=\scriptsize\bfseries] (h2) at (0,-0.6) {2};
-\node[draw, rectangle, minimum width=0.8cm, minimum height=0.55cm, fill=SoftBlue, draw=Navy, text=NavyDark, font=\scriptsize\bfseries] (h3) at (0,-1.8) {3};
-% 弧结点链：0 -> 1 -> 2 -> NULL
-\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (a01) at (1.4,1.8) {1};
-\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (a02) at (2.8,1.8) {2};
-\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (n0) at (4.2,1.8) {$\wedge$};
-\draw[->] (h0) -- (a01);
-\draw[->] (a01) -- (a02);
-\draw[->] (a02) -- (n0);
-% 弧结点链：1 -> 2 -> NULL
-\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (a12) at (1.4,0.6) {2};
-\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (n1) at (2.8,0.6) {$\wedge$};
-\draw[->] (h1) -- (a12);
-\draw[->] (a12) -- (n1);
-% 弧结点链：2 -> 3 -> NULL
-\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (a23) at (1.4,-0.6) {3};
-\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (n2) at (2.8,-0.6) {$\wedge$};
-\draw[->] (h2) -- (a23);
-\draw[->] (a23) -- (n2);
-% 弧结点链：3 -> NULL
-\node[draw, rectangle, minimum width=0.6cm, minimum height=0.55cm, fill=SoftGray] (n3) at (1.4,-1.8) {$\wedge$};
-\draw[->] (h3) -- (n3);
-\node[align=center,font=\scriptsize,black!70] at (2.1,-3.2){有向图 $G$：$\langle0,1\rangle,\langle0,2\rangle,\langle1,2\rangle,\langle2,3\rangle$ 的\textbf{邻接表}\\每个顶点的出边链成单链表，表尾 $\wedge$ 表示 NULL 空指针};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (v0) at (0,2.0) {$v_0$};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (v1) at (2.1,2.0) {$v_1$};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (v2) at (0,0) {$v_2$};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (v3) at (2.1,0) {$v_3$};
+  \draw (v0) -- node[above] {2} (v1);
+  \draw (v0) -- node[left] {5} (v2);
+  \draw (v1) -- node[above right] {1} (v2);
+  \draw (v1) -- node[right] {4} (v3);
+  \draw (v2) -- node[below] {3} (v3);
+
+  % 邻接矩阵
+  \foreach \i in {0,...,3} {
+    \node[font=\scriptsize, text=MutedText] at (5.2+0.78*\i, 2.48) {$v_{\i}$};
+    \node[font=\scriptsize, text=MutedText] at (4.62, 2.0-0.56*\i) {$v_{\i}$};
+  }
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m00) at (5.2,2.0) {0};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m01) at (5.98,2.0) {2};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m02) at (6.76,2.0) {5};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m03) at (7.54,2.0) {$\infty$};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftAmber] (m10) at (5.2,1.44) {2};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m11) at (5.98,1.44) {0};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftAmber] (m12) at (6.76,1.44) {1};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m13) at (7.54,1.44) {4};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m20) at (5.2,0.88) {5};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftAmber] (m21) at (5.98,0.88) {1};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m22) at (6.76,0.88) {0};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m23) at (7.54,0.88) {3};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m30) at (5.2,0.32) {$\infty$};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m31) at (5.98,0.32) {4};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m32) at (6.76,0.32) {3};
+  \node[draw, minimum width=0.76cm, minimum height=0.5cm, fill=SoftGray] (m33) at (7.54,0.32) {0};
 \end{tikzpicture}
+
+\noindent{\small\color{MutedText}左：带权无向图。右：它的邻接矩阵。无向图的矩阵沿主对角线对称，例如 $A[1][2]=A[2][1]=1$；对角线为 $0$，没有边的地方是 $\infty$。}
 \end{center}
 
-\begin{conclusion}{邻接矩阵 vs 邻接表（408 常考）}{adj-compare}
-\begin{tablebox}{存储方式对比}
-\centering
-\begin{tabular}{|l|c|c|}
-\hline
-操作 & 邻接矩阵 & 邻接表 \\
-\hline
+邻接矩阵的优缺点很直接。空间是 $O(n^2)$，适合边数接近 $n^2$ 的稠密图。判断 $(v_i,v_j)$ 是否有边只需读一个单元，时间 $O(1)$。无权图中，无向图顶点 $v_i$ 的度就是第 $i$ 行非零元的个数；有向图的出度是行和，入度是列和。带权图不能直接对行求和来求度，要先数不等于 $\infty$ 的元素。代价是，遍历一个顶点的所有邻边要扫描整行，时间是 $O(n)$，与它实际连了多少条边无关。
+
+对无权图，邻接矩阵还有一个性质：$A^k[i][j]$ 等于从 $v_i$ 到 $v_j$、长度为 $k$ 的走法数。这里的走法允许重复经过顶点和边，不能把它当成简单路径的条数。
+
+\subsubsection{邻接表}
+
+邻接表为每个顶点挂一条单链表，链表结点存邻接点下标和边权。无向图的每条边存两次，所以 $e$ 条边需要 $2e$ 个边结点；有向图每条弧存一次，需要 $e$ 个边结点。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[font=\scriptsize, text=Navy] at (2.6,3.05) {边结点（\texttt{adjvex}\,|\,weight）};
+  \node[draw, minimum width=0.62cm, minimum height=0.45cm, fill=SoftBlue] (h0) at (0,2.4) {0};
+  \node[draw, minimum width=0.62cm, minimum height=0.45cm, fill=SoftBlue] (h1) at (0,1.2) {1};
+  \node[draw, minimum width=0.62cm, minimum height=0.45cm, fill=SoftBlue] (h2) at (0,0) {2};
+  \node[draw, minimum width=0.62cm, minimum height=0.45cm, fill=SoftBlue] (h3) at (0,-1.2) {3};
+  \node[font=\scriptsize, text=MutedText] at (0,-2.0) {顶点表};
+
+  \node[draw, minimum width=0.94cm, minimum height=0.45cm, fill=SoftGray] (n01) at (1.25,2.4) {1\,|\,2};
+  \node[draw, minimum width=0.94cm, minimum height=0.45cm, fill=SoftGray] (n02) at (2.38,2.4) {2\,|\,5};
+  \node[draw, minimum width=0.55cm, minimum height=0.45cm, fill=SoftGray] (n0e) at (3.40,2.4) {$\wedge$};
+  \draw[->] (h0) -- (n01); \draw[->] (n01) -- (n02); \draw[->] (n02) -- (n0e);
+
+  \node[draw, minimum width=0.94cm, minimum height=0.45cm, fill=SoftGray] (n11) at (1.25,1.2) {0\,|\,2};
+  \node[draw, minimum width=0.94cm, minimum height=0.45cm, fill=SoftGray] (n12) at (2.38,1.2) {2\,|\,1};
+  \node[draw, minimum width=0.94cm, minimum height=0.45cm, fill=SoftGray] (n13) at (3.51,1.2) {3\,|\,4};
+  \node[draw, minimum width=0.55cm, minimum height=0.45cm, fill=SoftGray] (n1e) at (4.62,1.2) {$\wedge$};
+  \draw[->] (h1) -- (n11); \draw[->] (n11) -- (n12); \draw[->] (n12) -- (n13); \draw[->] (n13) -- (n1e);
+
+  \node[draw, minimum width=0.94cm, minimum height=0.45cm, fill=SoftGray] (n21) at (1.25,0) {0\,|\,5};
+  \node[draw, minimum width=0.94cm, minimum height=0.45cm, fill=SoftGray] (n22) at (2.38,0) {1\,|\,1};
+  \node[draw, minimum width=0.94cm, minimum height=0.45cm, fill=SoftGray] (n23) at (3.51,0) {3\,|\,3};
+  \node[draw, minimum width=0.55cm, minimum height=0.45cm, fill=SoftGray] (n2e) at (4.62,0) {$\wedge$};
+  \draw[->] (h2) -- (n21); \draw[->] (n21) -- (n22); \draw[->] (n22) -- (n23); \draw[->] (n23) -- (n2e);
+
+  \node[draw, minimum width=0.94cm, minimum height=0.45cm, fill=SoftGray] (n31) at (1.25,-1.2) {1\,|\,4};
+  \node[draw, minimum width=0.94cm, minimum height=0.45cm, fill=SoftGray] (n32) at (2.38,-1.2) {2\,|\,3};
+  \node[draw, minimum width=0.55cm, minimum height=0.45cm, fill=SoftGray] (n3e) at (3.40,-1.2) {$\wedge$};
+  \draw[->] (h3) -- (n31); \draw[->] (n31) -- (n32); \draw[->] (n32) -- (n3e);
+\end{tikzpicture}
+
+\noindent{\small\color{MutedText}同一个无向图的邻接表。每个边结点存“邻接点下标 $|$ 权值”。无向图每条边存两次，共 $2e=10$ 个边结点；表尾用 $\wedge$ 表示空指针。}
+\end{center}
+
+邻接表的空间是 $O(n+e)$，适合稀疏图。求无向图中顶点 $v$ 的度，只需数它链表的结点个数，时间是 $O(\deg(v))$。求有向图的出度同样方便；求入度则要扫描全部链表，或者另外建一张逆邻接表。判断 $(u,v)$ 是否存在也要沿着 $u$ 的链表找，时间是 $O(\deg(u))$。邻接表不唯一：同一条链表里，结点的先后顺序可以不同，所以同一张图可以写出多种邻接表。
+
+两种存法的对比如下。
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+ & 邻接矩阵 & 邻接表 \\
+\midrule
 空间 & $O(n^2)$ & $O(n+e)$ \\
 判断 $(u,v)$ 是否有边 & $O(1)$ & $O(\deg(u))$ \\
-遍历某顶点的所有邻接边 & $O(n)$ & $O(\deg(u))$ \\
-适合场景 & 稠密图 & 稀疏图 \\
-唯一性 & 唯一 & 不唯一（链表插入顺序可变）\\
-\hline
+遍历 $u$ 的全部邻边 & $O(n)$ & $O(\deg(u))$ \\
+适合 & 稠密图 & 稀疏图 \\
+存储是否唯一 & 唯一 & 不唯一 \\
+\bottomrule
 \end{tabular}
-\end{tablebox}
-\end{conclusion}
+\end{center}
+
+后文的 \texttt{MGraph} 指邻接矩阵，\texttt{ALGraph} 指邻接表，\texttt{ArcNode} 是邻接表中的边结点。
+
+此外还有两种改进结构。十字链表用于有向图：顶点结点存 \texttt{data}、\texttt{firstin}、\texttt{firstout}，弧结点存 \texttt{tailvex}、\texttt{headvex}、\texttt{weight}、\texttt{hlink}、\texttt{tlink}。一条弧同时挂进“同弧尾”和“同弧头”两条链，因此出度和入度都能顺着链求。邻接多重表用于无向图：每条边只建一个结点，存 \texttt{ivex}、\texttt{jvex}、\texttt{ilink}、\texttt{jlink}，两个端点各自把这条边挂进自己的链。它避免了邻接表中一条无向边存两次的问题，删除边也更方便。
 
 \subsection{图的遍历}
 
-\begin{conclusion}{深度优先搜索（DFS）}{dfs}
-从顶点 $v$ 出发，沿一条路径走到尽头，回溯后再走其他分支。本质是递归/栈的过程。
+遍历图是从某个顶点出发，沿边走到所有能到达的顶点，并且每个顶点只访问一次。和树的遍历不同，图里可能有回路，所以必须用一个 \texttt{visited} 数组记录已经访问过的顶点，否则会在回路里打转。
+
+\subsubsection{广度优先搜索}
+
+广度优先搜索（BFS）按“离起点的边数”分层访问。先访问起点，再访问所有与起点直接相邻的顶点，然后访问距离为 2 的顶点，依此类推。实现时用一个队列保存“已经发现、但还没有扩展其邻边”的顶点。
+
+\begin{lstlisting}[language=C]
+void BFS(ALGraph *G, int s) {
+    bool visited[MaxV] = {false};
+    int queue[MaxV], front = 0, rear = 0;
+    visited[s] = true;
+    queue[rear++] = s;
+    while (front < rear) {
+        int u = queue[front++];
+        visit(u);
+        for (ArcNode *p = G->adjlist[u].first; p; p = p->next) {
+            int v = p->adjvex;
+            if (!visited[v]) {
+                visited[v] = true;      // 入队时就标记，避免重复入队
+                queue[rear++] = v;
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+入队时立刻置 \texttt{visited[v]=true}，而不是等出队时再标记。否则同一个顶点可能被多个前驱重复放入队列。
+
+BFS 有一个重要性质：在无权图中，BFS 首次访问顶点 $v$ 时经过的边数，就是起点到 $v$ 的最短路径长度。因为 BFS 严格按层扩展，距离为 $k$ 的顶点全部处理完，才会处理距离为 $k+1$ 的顶点。把 BFS 过程中“首次发现顶点”的边留下来，就得到 BFS 生成树；非连通图从每个未访问顶点各做一次 BFS，得到 BFS 生成森林。
+
+\subsubsection{深度优先搜索}
+
+深度优先搜索（DFS）沿一条路一直走，走到不能再走时回溯，换一个分支继续。递归写法最自然。
 
 \begin{lstlisting}[language=C]
 bool visited[MaxV];
 void DFS(ALGraph *G, int v) {
     visited[v] = true;
-    // visit(G->adjlist[v]);    // 访问顶点 v
+    visit(v);
     for (ArcNode *p = G->adjlist[v].first; p; p = p->next)
         if (!visited[p->adjvex])
             DFS(G, p->adjvex);
 }
 \end{lstlisting}
 
-邻接表表示时，DFS 时间复杂度 $O(n+e)$；邻接矩阵表示时 $O(n^2)$。
-
-\textbf{DFS 生成树/森林：}递归过程中经过的边构成生成树（连通时）或生成森林（不连通时）。回边（back edge）是 DFS 树中指向祖先的边。
-\end{conclusion}
+DFS 的递归深度最多为 $n$，栈空间是 $O(n)$。和 BFS 一样，DFS 过程中首次到达某个顶点所用的边构成 DFS 生成树。指向祖先的非树边称为回边；在无向图中，非树边一定是回边；在有向图中还可能出现指向已完成顶点的前向边或横叉边。无向图中遇到回边说明存在回路；有向图中回边指向当前递归栈里的祖先，同样说明存在有向回路。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v1) at (0,3) {1};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v2) at (-2.4,1.2) {2};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v3) at (2.4,1.2) {3};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v4) at (-3.6,-1.2) {4};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v5) at (-1.6,-1.2) {5};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v6) at (2.4,-1.2) {6};
-% 非树边（灰色）
-\draw[gray,thick] (v1) -- (v3);
-\draw[gray,thick] (v2) -- (v5);
-% DFS 树边（青色箭头：自顶向下沿遍历方向）
-\draw[->,Teal,thick] (v1) -- (v2);
-\draw[->,Teal,thick] (v2) -- (v4);
-\draw[->,Teal,thick] (v4) -- (v5);
-\draw[->,Teal,thick] (v5) -- (v6);
-\draw[->,Teal,thick] (v6) -- (v3);
-\node[align=center,font=\scriptsize,black!70] at (0,-2.5){DFS 从顶点 1 出发，访问序列 $1\to2\to4\to5\to6\to3$\\青色箭头构成 DFS 生成树；灰色边为回边，说明图中存在回路};
-\end{tikzpicture}
+\begin{tabular}{lcc}
+\toprule
+ & BFS & DFS \\
+\midrule
+辅助结构 & 队列 & 栈（或递归） \\
+访问顺序 & 按层扩展 & 沿路径深入，走不通再回溯 \\
+生成树 & 根到顶点的路径边数最少 & 不保证边数最少 \\
+典型用途 & 无权最短路、分层 & 连通性、回路、拓扑排序 \\
+时间复杂度 & $O(n+e)$ 或 $O(n^2)$ & $O(n+e)$ 或 $O(n^2)$ \\
+\bottomrule
+\end{tabular}
 \end{center}
 
-\begin{conclusion}{广度优先搜索（BFS）}{bfs}
-从顶点 $v$ 出发，逐层访问。需要辅助队列。
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={circle, draw, minimum size=0.58cm, inner sep=1pt}]
+  \begin{scope}
+    \node[fill=SoftTeal, label={[font=\tiny,text=Burgundy]below:1}] (d1) at (0,2.4) {1};
+    \node[fill=SoftTeal, label={[font=\tiny,text=Burgundy]below:2}] (d2) at (-1.7,1.2) {2};
+    \node[fill=SoftTeal, label={[font=\tiny,text=Burgundy]below:6}] (d3) at (1.7,1.2) {3};
+    \node[fill=SoftTeal, label={[font=\tiny,text=Burgundy]below:3}] (d4) at (-2.7,-0.4) {4};
+    \node[fill=SoftTeal, label={[font=\tiny,text=Burgundy]below:4}] (d5) at (-0.7,-0.4) {5};
+    \node[fill=SoftTeal, label={[font=\tiny,text=Burgundy]below:5}] (d6) at (1.7,-0.4) {6};
+    \draw[gray, dashed, thick] (d1) -- (d3);
+    \draw[gray, dashed, thick] (d2) -- (d5);
+    \draw[->, Teal, very thick] (d1) -- (d2);
+    \draw[->, Teal, very thick] (d2) -- (d4);
+    \draw[->, Teal, very thick] (d4) -- (d5);
+    \draw[->, Teal, very thick] (d5) -- (d6);
+    \draw[->, Teal, very thick] (d6) -- (d3);
+    \node[draw=none, font=\small\bfseries, text=Navy] at (0,3.15) {DFS 生成树};
+  \end{scope}
+
+  \begin{scope}[xshift=6.0cm]
+    \node[fill=SoftBlue, label={[font=\tiny,text=Burgundy]below:1}] (b1) at (0,2.4) {1};
+    \node[fill=SoftBlue, label={[font=\tiny,text=Burgundy]below:2}] (b2) at (-1.7,1.2) {2};
+    \node[fill=SoftBlue, label={[font=\tiny,text=Burgundy]below:3}] (b3) at (1.7,1.2) {3};
+    \node[fill=SoftBlue, label={[font=\tiny,text=Burgundy]below:4}] (b4) at (-2.7,-0.4) {4};
+    \node[fill=SoftBlue, label={[font=\tiny,text=Burgundy]below:5}] (b5) at (-0.7,-0.4) {5};
+    \node[fill=SoftBlue, label={[font=\tiny,text=Burgundy]below:6}] (b6) at (1.7,-0.4) {6};
+    \draw[gray, dashed, thick] (b4) -- (b5);
+    \draw[gray, dashed, thick] (b5) -- (b6);
+    \draw[->, Teal, very thick] (b1) -- (b2);
+    \draw[->, Teal, very thick] (b1) -- (b3);
+    \draw[->, Teal, very thick] (b2) -- (b4);
+    \draw[->, Teal, very thick] (b2) -- (b5);
+    \draw[->, Teal, very thick] (b3) -- (b6);
+    \node[draw=none, font=\small\bfseries, text=Navy] at (0,3.15) {BFS 生成树};
+  \end{scope}
+\end{tikzpicture}
+
+\noindent{\small\color{MutedText}同一张图，从顶点 1 出发。实线箭头是生成树边，灰色虚线是非树边；顶点下方的小号数字是访问次序。DFS 序列为 $1,2,4,5,6,3$，BFS 序列为 $1,2,3,4,5,6$。}
+\end{center}
+
+两种遍历的时间复杂度相同。邻接表存储时，每个顶点访问一次，每条边扫描一次（无向图两次），总计 $O(n+e)$。邻接矩阵存储时，每访问一个顶点都要扫描它的一整行，总计 $O(n^2)$。
+
+遍历序列是否唯一，取决于题目有没有规定起点和邻接点的扫描顺序。即使用邻接矩阵，若从不同顶点出发，序列也会不同；用邻接表时，链表里结点的顺序还会影响序列。考试中若要比较两个序列，先看清题目给出的起点和“按编号递增”之类的规则。
+
+\begin{attention}
+BFS 能求无权图的最短路径，DFS 不能。DFS 找到的路径只保证是一条可行路径，不保证边数最少。反过来，DFS 更适合判断回路、求强连通分量、做拓扑排序；BFS 更适合分层和求最少边数。
+\end{attention}
+
+\subsection{最小生成树}
+
+在一个连通带权无向图中，生成树有很多棵。边权之和最小的那棵称为最小生成树（Minimum Spanning Tree，MST）。例如要在 $n$ 个城市之间铺光缆，要求任意两城连通且总长度最短，就是在求 MST。
+
+MST 可能不唯一。比如一个三角形的三条边权都是 1，任意去掉一条边都能得到一棵 MST。但所有 MST 的总权值相同。若图中所有边权互不相同，MST 唯一。
+
+求 MST 的两种经典算法都基于同一个事实：对图的任意一个割（把顶点分成两个非空集合），横跨这个割的最小权边一定属于某棵 MST。这条性质称为割性质。Prim 算法每次选一个割，Kruskal 算法则从全局最小的边开始，用并查集判断会不会成环。
+
+\subsubsection{Prim 算法}
+
+Prim 算法维护一个已经加入树的顶点集合 $S$。初始时 $S$ 只含起点。每一轮，在“一个端点在 $S$ 内、另一个端点在 $S$ 外”的边中选权值最小的一条，把外面的顶点加入 $S$。重复 $n-1$ 轮，就得到一棵生成树。
 
 \begin{lstlisting}[language=C]
-void BFS(ALGraph *G, int v) {
-    int queue[MaxV], front = 0, rear = 0;
-    visited[v] = true;
-    queue[rear++] = v;
-    while (front < rear) {
-        int u = queue[front++];
-        // visit(G->adjlist[u]);
-        for (ArcNode *p = G->adjlist[u].first; p; p = p->next)
-            if (!visited[p->adjvex]) {
-                visited[p->adjvex] = true;
-                queue[rear++] = p->adjvex;
+void Prim(MGraph G, int s) {
+    int lowcost[MaxV], closest[MaxV];
+    bool inTree[MaxV] = {false};
+    for (int i = 0; i < G.n; i++) {
+        lowcost[i] = G.edges[s][i];   // i 到当前树的最小边权
+        closest[i] = s;               // 该边在树内的端点
+    }
+    inTree[s] = true;
+    lowcost[s] = 0;
+    for (int k = 1; k < G.n; k++) {
+        int u = -1, min = INF;
+        for (int i = 0; i < G.n; i++)
+            if (!inTree[i] && lowcost[i] < min) {
+                min = lowcost[i]; u = i;
+            }
+        if (u == -1) return;          // 图不连通
+        inTree[u] = true;
+        for (int i = 0; i < G.n; i++)
+            if (!inTree[i] && G.edges[u][i] < lowcost[i]) {
+                lowcost[i] = G.edges[u][i];
+                closest[i] = u;
             }
     }
 }
 \end{lstlisting}
 
-邻接表 $O(n+e)$，邻接矩阵 $O(n^2)$。
+\texttt{lowcost[i]} 始终表示顶点 $i$ 到当前树 $S$ 的最小边权，\texttt{closest[i]} 记录这条最小边在树内的端点。选中最小的 \texttt{lowcost[u]} 后，把 $u$ 加入树，再用 $u$ 的出边更新其他顶点的 \texttt{lowcost}。
 
-\textbf{BFS 生成树：}BFS 过程中首次发现某顶点所用的边构成生成树。BFS 生成树中从根到任意顶点的路径即最短路径（边数最少）。
-\end{conclusion}
+用邻接矩阵实现时，每轮找最小值和更新各需 $O(n)$，共 $n-1$ 轮，时间复杂度 $O(n^2)$。这个复杂度只和顶点数有关，和边数无关，所以 Prim 适合稠密图。用邻接表和堆优化可以做到 $O(e\log n)$，但 408 更常考 $O(n^2)$ 的数组版本。
 
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v1) at (0,3) {1};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v2) at (-2.4,1.2) {2};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v3) at (2.4,1.2) {3};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v4) at (-3.6,-1.2) {4};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v5) at (-1.6,-1.2) {5};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!20] (v6) at (2.4,-1.2) {6};
-% 非树边（灰色）
-\draw[gray,thick] (v4) -- (v5);
-\draw[gray,thick] (v5) -- (v6);
-% BFS 树边（青色箭头：逐层扩展）
-\draw[->,Teal,thick] (v1) -- (v2);
-\draw[->,Teal,thick] (v1) -- (v3);
-\draw[->,Teal,thick] (v2) -- (v4);
-\draw[->,Teal,thick] (v2) -- (v5);
-\draw[->,Teal,thick] (v3) -- (v6);
-\node[align=center,font=\scriptsize,black!70] at (0,-2.5){BFS 从顶点 1 出发，访问序列 $1,2,3,4,5,6$\\青色箭头构成 BFS 生成树（逐层扩展）；灰色为各层间非生成树边};
-\end{tikzpicture}
-\end{center}
+\subsubsection{Kruskal 算法}
 
-\begin{attention}
-\textbf{408 常考：DFS/BFS 遍历序列的唯一性。}在\textbf{起始顶点和按顶点编号递增扫描邻接点的规则均已确定}时，邻接矩阵对应的访问次序确定；邻接表的访问次序还取决于各邻接链表中的结点顺序。若题目没有规定起点或邻接点选择顺序，则不能仅凭“邻接矩阵”断言遍历序列绝对唯一。
-\end{attention}
+Kruskal 算法把所有边按权值从小到大排序，依次检查。若当前边的两个端点属于不同的连通分量，就加入这条边；否则加入会成环，直接舍弃。选够 $n-1$ 条边时停止。
 
-\subsection{最小生成树（MST）}
-
-\begin{mydef}{最小生成树}{mst}
-连通带权无向图的生成树中，边权值和最小者称为最小生成树（Minimum Spanning Tree）。MST 可能不唯一，但边权和唯一。
-\end{mydef}
-
-\begin{conclusion}{Prim 算法}{prim}
-从某一顶点开始，每次选一条连接「已在树中顶点」和「不在树中顶点」的最小权边，将对应顶点加入树。重复 $n-1$ 次。
-
-\begin{lstlisting}[language=C]
-// Prim — O(n^2) 实现（邻接矩阵，适合稠密图）
-void Prim(MGraph G, int start) {
-    int lowcost[MaxV];      // lowcost[i]: i到当前MST的最小边权
-    int closest[MaxV];      // closest[i]: MST中与i最近的顶点
-    bool inTree[MaxV] = {false};
-    inTree[start] = true;
-    for (int i = 0; i < G.n; i++) {
-        lowcost[i] = G.edges[start][i];
-        closest[i] = start;
-    }
-    for (int k = 1; k < G.n; k++) {
-        int min = INF, u = -1;
-        for (int i = 0; i < G.n; i++)
-            if (!inTree[i] && lowcost[i] < min)
-                { min = lowcost[i]; u = i; }
-        inTree[u] = true;
-        // 输出边 (closest[u], u) 权 min
-        for (int i = 0; i < G.n; i++)
-            if (!inTree[i] && G.edges[u][i] < lowcost[i])
-                { lowcost[i] = G.edges[u][i]; closest[i] = u; }
-    }
-}
-\end{lstlisting}
-时间复杂度 $O(n^2)$，与边数无关——适合稠密图。用堆优化可达 $O(e\log n)$。
-\end{conclusion}
+判断两个端点是否属于同一分量，用并查集。初始时每个顶点各自成一个集合，加入一条边就合并两个集合。排序是主要开销，时间复杂度 $O(e\log e)$；并查集的操作近似常数。Kruskal 的时间主要花在边数上，适合稀疏图。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (A) at (0,2.2) {A};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (B) at (2.2,0) {B};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (C) at (0,-2.2) {C};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (D) at (-2.2,0) {D};
-% 非 MST 边（灰色）
-\draw[gray,thick] (A) -- node[above,font=\scriptsize] {4} (B);
-\draw[gray,thick] (D) -- node[left,font=\scriptsize] {6} (A);
-% MST 边（青色）
-\draw[Teal,thick] (A) -- node[left,font=\scriptsize,text=TealDark] {\textbf{1}} (C);
-\draw[Teal,thick] (B) -- node[font=\scriptsize,text=TealDark] {\textbf{3}} (C);
-\draw[Teal,thick] (C) -- node[below,font=\scriptsize,text=TealDark] {\textbf{5}} (D);
-\node[align=center,font=\scriptsize,black!70] at (0,-3.1){Prim 从 A 出发：依次加入 $(A,C)$、$(B,C)$、$(C,D)$（青色）\\$\mathrm{MST}$ 总权 $=1+3+5=9$，灰色边不在最小生成树中};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (A) at (0,2.2) {A};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (B) at (2.4,1.2) {B};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (C) at (0,0) {C};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (D) at (2.4,-1.2) {D};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (E) at (0,-2.4) {E};
+
+  % 非 MST 边
+  \draw[gray, dashed, thick] (A) -- node[left] {3} (C);
+  \draw[gray, dashed, thick] (C) -- node[below right] {5} (D);
+  \draw[gray, dashed, thick] (C) -- node[left] {6} (E);
+
+  % MST 边
+  \draw[Teal, very thick] (A) -- node[above] {2} (B);
+  \draw[Teal, very thick] (B) -- node[below right] {1} (C);
+  \draw[Teal, very thick] (B) -- node[right] {4} (D);
+  \draw[Teal, very thick] (D) -- node[below] {2} (E);
 \end{tikzpicture}
+
+\noindent{\small\color{MutedText}粗线是 Kruskal 依次选出的边：$BC(1)$、$AB(2)$、$DE(2)$、$BD(4)$，总权 $9$。虚线边 $AC(3)$、$CD(5)$、$CE(6)$ 加入后会成环，因此舍弃。若从 A 出发运行 Prim，选边次序是 $AB,BC,BD,DE$，得到的树相同。}
 \end{center}
-
-\begin{conclusion}{Kruskal 算法}{kruskal}
-按边权从小到大依次选边，若该边连接两个不同连通分量则加入 MST，否则丢弃。直到选出 $n-1$ 条边。
-
-时间复杂度 $O(e\log e)$（排序主导），适合稀疏图。需用并查集维护连通分量。
-\end{conclusion}
-
-\begin{attention}
-408 选择题常考：给定一个图，手动执行 Prim（指定起点）或 Kruskal 得到 MST。注意当有多条等权边时 MST 可能不唯一，但权值和唯一。
-\end{attention}
 
 \subsection{最短路径}
 
-\begin{conclusion}{Dijkstra 算法}{dijkstra}
-求\textbf{单源最短路径}（非负权值）。类似 Prim，贪心思想：
+最短路径问题分两种：单源最短路径求一个起点到其余各点的最短路径；全源最短路径求任意两点之间的最短路径。边权可以为负，但本章默认不含负权回路；有负权回路时，绕回路可以无限减小路径长度，最短路径不存在。
+
+\subsubsection{无权图：BFS}
+
+无权图可以把每条边看成权值为 1。此时 BFS 按层扩展，首次到达某顶点经过的边数就是最短路径长度。BFS 生成树上从起点到顶点的路径就是一条最短路径。这个方法时间是 $O(n+e)$，比直接套用带权算法更简单。
+
+\subsubsection{Dijkstra 算法}
+
+Dijkstra 算法处理非负边权的单源最短路径。它维护一个已经确定最短距离的顶点集合 $S$，以及数组 $d[i]$，表示目前找到的从源点到 $i$ 的最短距离。每轮从未确定的顶点中选 $d$ 最小的那个，把它加入 $S$，再用它的出边松弛其他顶点。
 
 \begin{lstlisting}[language=C]
 void Dijkstra(MGraph G, int s, int dist[], int path[]) {
@@ -312,26 +377,75 @@ void Dijkstra(MGraph G, int s, int dist[], int path[]) {
         dist[i] = G.edges[s][i];
         path[i] = (dist[i] < INF) ? s : -1;
     }
-    final[s] = true; dist[s] = 0;
+    dist[s] = 0; final[s] = true; path[s] = -1;
     for (int k = 1; k < G.n; k++) {
-        int min = INF, u = -1;
+        int u = -1, min = INF;
         for (int i = 0; i < G.n; i++)
-            if (!final[i] && dist[i] < min)
-                { min = dist[i]; u = i; }
+            if (!final[i] && dist[i] < min) {
+                min = dist[i]; u = i;
+            }
+        if (u == -1) break;           // 剩余顶点不可达
         final[u] = true;
         for (int i = 0; i < G.n; i++)
-            if (!final[i] && dist[u] + G.edges[u][i] < dist[i])
-                { dist[i] = dist[u] + G.edges[u][i]; path[i] = u; }
+            if (!final[i] && dist[u] + G.edges[u][i] < dist[i]) {
+                dist[i] = dist[u] + G.edges[u][i];
+                path[i] = u;
+            }
     }
 }
 \end{lstlisting}
-时间复杂度 $O(n^2)$（邻接矩阵），堆优化可达 $O(e\log n)$。
 
-\textbf{与 Prim 的关键区别：}Prim 的 \texttt{lowcost[i]} 是顶点 $i$ 到当前 MST 集合的\textbf{最小边权}；Dijkstra 的 \texttt{dist[i]} 是源点到顶点 $i$ 的\textbf{累计路径长度}。两者代码结构相似，更新条件不同。
-\end{conclusion}
+\texttt{path[i]} 记录最短路径上 $i$ 的前驱。求完整路径时从终点沿 \texttt{path} 往回走，直到源点，再反过来输出。
 
-\begin{conclusion}{Floyd 算法}{floyd}
-求\textbf{所有顶点对}间的最短路径。DP 思想：依次考虑以每个顶点为中间点时能否缩短路径。
+Dijkstra 与 Prim 的代码结构很像，区别在数组含义。Prim 的 \texttt{lowcost[i]} 是 $i$ 到当前树的一条边权；Dijkstra 的 \texttt{dist[i]} 是源点到 $i$ 的整条路径长度。更新时，Prim 用 $w(u,i)$ 直接比较，Dijkstra 用 \texttt{dist[u]}+$w(u,i)$ 比较。
+
+邻接矩阵实现的时间复杂度是 $O(n^2)$，适合稠密图。用邻接表加优先队列可以做到 $O((n+e)\log n)$。408 选择题常要求手算每一轮的 $d$ 数组，下面用一个具体例子走一遍。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (v0) at (0,0) {$v_0$};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (v1) at (1.7,1.4) {$v_1$};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (v4) at (1.7,-1.4) {$v_4$};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (v2) at (3.5,0.3) {$v_2$};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.62cm] (v3) at (5.1,-0.7) {$v_3$};
+  \draw[->] (v0) -- node[above left] {10} (v1);
+  \draw[->] (v0) -- node[below left] {5} (v4);
+  \draw[->] (v1) -- node[above] {1} (v2);
+  \draw[->] (v1) to[bend left=18] node[right] {2} (v4);
+  \draw[->] (v4) to[bend left=18] node[left] {3} (v1);
+  \draw[->] (v2) -- node[right] {4} (v3);
+  \draw[->] (v4) -- node[below] {9} (v2);
+  \draw[->] (v4) -- node[below] {2} (v3);
+\end{tikzpicture}
+\hspace{0.7cm}
+\begin{tabular}{ccccccc}
+\toprule
+轮次 & 选出 & $d_0$ & $d_1$ & $d_2$ & $d_3$ & $d_4$ \\
+\midrule
+初始 & -- & 0 & 10 & $\infty$ & $\infty$ & 5 \\
+1 & $v_4$ & 0 & 8 & 14 & 7 & \textbf{5} \\
+2 & $v_3$ & 0 & 8 & 14 & \textbf{7} & 5 \\
+3 & $v_1$ & 0 & \textbf{8} & 9 & 7 & 5 \\
+4 & $v_2$ & 0 & 8 & \textbf{9} & 7 & 5 \\
+\bottomrule
+\end{tabular}
+
+\noindent{\small\color{MutedText}源点为 $v_0$。表中是每轮松弛后的 $d$ 值，粗体是本轮选中的顶点。最终最短路为 $v_0\to v_4\to v_1\to v_2$，长度 $5+3+1=9$。}
+\end{center}
+
+为什么 Dijkstra 要求边权非负？看一个反例：$s\to a$ 的权是 2，$s\to b$ 的权是 5，$b\to a$ 的权是 $-4$。Dijkstra 第一轮会选中 $a$，把 $d[a]=2$ 定死；但实际最短路径是 $s\to b\to a$，长度为 $5-4=1$。负权边让“当前最小的 $d$”不再保证是最终答案，贪心选择失效。
+
+\subsubsection{Floyd 算法}
+
+Floyd 算法求任意两点之间的最短路径。它用动态规划，把“允许经过哪些顶点作为中转”作为阶段。定义 $D^{(k)}[i][j]$ 为：从 $v_i$ 到 $v_j$，只允许把 $v_0,v_1,\ldots,v_k$ 当作中转点时的最短路径长度。这里的“中转点”不包含起点和终点本身。
+
+初始时 $D^{(0)}$ 就是邻接矩阵：要么是直达边的权值，要么是 $\infty$。加入第 $k$ 个中转点后，从 $i$ 到 $j$ 的路径只有两种可能：不经过 $v_k$，长度是 $D^{(k-1)}[i][j]$；经过 $v_k$，长度是 $D^{(k-1)}[i][k]+D^{(k-1)}[k][j]$。取较小者：
+\[
+D^{(k)}[i][j]
+=\min\left(D^{(k-1)}[i][j],\;
+D^{(k-1)}[i][k]+D^{(k-1)}[k][j]\right).
+\]
+$k$ 从 $0$ 到 $n-1$ 循环，最后的 $D^{(n)}$ 就是全源最短路径长度矩阵。
 
 \begin{lstlisting}[language=C]
 void Floyd(MGraph G, int D[][MaxV], int path[][MaxV]) {
@@ -349,455 +463,244 @@ void Floyd(MGraph G, int D[][MaxV], int path[][MaxV]) {
                 }
 }
 \end{lstlisting}
-时间复杂度 $O(n^3)$。允许负权边，但不能有负权回路。
-\end{conclusion}
 
-\begin{attention}
-\textbf{408 高频考点：}Dijkstra 算法中若存在负权边则失效（已确定最短的顶点可能在后续被更新）。Floyd 允许负权边但要求无负权回路。
-\end{attention}
+三个循环的顺序不能随意交换。$k$ 必须在最外层：每一轮只允许加入一个新的中转点，三轮循环分别固定“阶段、起点、终点”。如果把 $k$ 放到最内层，某些需要多个中转点的路径会在错误的阶段被更新，结果可能偏大。$D$ 可以在原地更新，因为第 $k$ 轮中 $D[i][k]$ 和 $D[k][j]$ 都不会改变：它们对应的路径不允许把 $v_k$ 当中转点，加入 $v_k$ 不会让它们更短（前提是没有负权回路）。
 
-\begin{conclusion}{Floyd 算法示例（D$^{(k)}$ 矩阵演化）}{floyd-example}
-4 个顶点 $v_0$--$v_3$，边权为：$v_0\to v_1=4$、$v_0\to v_2=11$、$v_1\to v_0=6$、$v_1\to v_2=2$、$v_2\to v_0=3$、$v_2\to v_3=4$、$v_3\to v_1=7$、$v_3\to v_2=5$。D$^{(k)}$ 表示\textbf{只允许经过前 $k$ 个顶点作中转}时的最短路径长度矩阵（初始 D$^{(0)}$ 为直接边）：
+时间复杂度 $O(n^3)$，空间 $O(n^2)$。Floyd 允许负权边，但不能有负权回路。运行结束后若某个 $D[i][i]<0$，说明存在从 $i$ 出发又回到 $i$ 的负权回路，最短路径无意义。
 
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.22]
+  \node[circle,draw,fill=SoftBlue,minimum size=0.7cm] (i) at (0,1.6) {$i$};
+  \node[circle,draw,fill=SoftTeal,minimum size=0.7cm] (k) at (2.1,0) {$k$};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.7cm] (j) at (0,-1.6) {$j$};
+  \draw[->] (i) -- node[above] {3} (k);
+  \draw[->] (k) -- node[below] {4} (j);
+  \draw[->] (i) to[bend left=30] node[left] {10} (j);
+
+  \node[draw, minimum width=0.82cm, minimum height=0.62cm, fill=SoftGray] (m11) at (5.2,1.25) {$d_{ii}$};
+  \node[draw, minimum width=0.82cm, minimum height=0.62cm, fill=SoftAmber] (m12) at (6.1,1.25) {$d_{ik}$};
+  \node[draw, minimum width=0.82cm, minimum height=0.62cm, fill=SoftTeal] (m13) at (7.0,1.25) {$d_{ij}$};
+  \node[draw, minimum width=0.82cm, minimum height=0.62cm, fill=SoftAmber] (m21) at (5.2,0.6) {$d_{ki}$};
+  \node[draw, minimum width=0.82cm, minimum height=0.62cm, fill=SoftAmber] (m22) at (6.1,0.6) {$d_{kk}$};
+  \node[draw, minimum width=0.82cm, minimum height=0.62cm, fill=SoftAmber] (m23) at (7.0,0.6) {$d_{kj}$};
+  \node[draw, minimum width=0.82cm, minimum height=0.62cm, fill=SoftGray] (m31) at (5.2,-0.05) {$d_{ji}$};
+  \node[draw, minimum width=0.82cm, minimum height=0.62cm, fill=SoftAmber] (m32) at (6.1,-0.05) {$d_{jk}$};
+  \node[draw, minimum width=0.82cm, minimum height=0.62cm, fill=SoftGray] (m33) at (7.0,-0.05) {$d_{jj}$};
+  \node[font=\scriptsize, text=MutedText] at (6.1,1.72) {列 $k$};
+  \node[font=\scriptsize, text=MutedText] at (4.55,0.6) {行 $k$};
+\end{tikzpicture}
+
+\noindent{\small\color{MutedText}第 $k$ 轮把 $v_k$ 作为中转点：比较直达的 $d_{ij}=10$ 和绕行的 $d_{ik}+d_{kj}=3+4=7$，更新为 7。行 $k$ 与列 $k$ 的旧值在本轮保持不变，它们提供 $d_{ik}$ 和 $d_{kj}$ 两个加数。}
+\end{center}
+
+例如，四个顶点的有向图，边权如下：
 \[
-D^{(0)}=\begin{pmatrix}0&4&11&\infty\\6&0&2&\infty\\3&\infty&0&4\\\infty&7&5&0\end{pmatrix}
-\quad\Longrightarrow\quad
-D^{(4)}=\begin{pmatrix}0&4&6&10\\5&0&2&6\\3&7&0&4\\8&7&5&0\end{pmatrix}
+D^{(0)}=
+\begin{pmatrix}
+0 & 4 & 11 & \infty\\
+6 & 0 & 2 & \infty\\
+3 & \infty & 0 & 4\\
+\infty & 7 & 5 & 0
+\end{pmatrix},
+\qquad
+D^{(4)}=
+\begin{pmatrix}
+0 & 4 & 6 & 10\\
+5 & 0 & 2 & 6\\
+3 & 7 & 0 & 4\\
+8 & 7 & 5 & 0
+\end{pmatrix}.
 \]
+计算时按 $k=0,1,2,3$ 逐轮更新。$k=0$ 时，$D[2][1]$ 由 $\infty$ 变为 $3+4=7$；$k=1$ 时，$D[0][2]$ 由 $11$ 变为 $4+2=6$；$k=2$ 时，$D[0][3]$ 由 $\infty$ 变为 $6+4=10$，$D[1][0]$ 由 $6$ 变为 $2+3=5$，$D[3][0]$ 由 $\infty$ 变为 $5+3=8$；$k=3$ 时没有更短的组合。最终矩阵中 $D[0][3]=10$ 对应路径 $0\to1\to2\to3$，长度 $4+2+4=10$。
 
-\textbf{关键更新}（逐轮以 $v_k$ 为中转，$D[i][j]=\min(D[i][j],\,D[i][k]+D[k][j])$）：
-\begin{itemize}
-    \item $k=0$（经 $v_0$）：$D[2][1]=\min(\infty,\,3+4)=7$；
-    \item $k=1$（经 $v_1$）：$D[0][2]=\min(11,\,4+2)=6$；$D[3][0]=\min(\infty,\,7+6)=13$；
-    \item $k=2$（经 $v_2$）：$D[0][3]=6+4=10$；$D[1][0]=2+3=5$；$D[1][3]=2+4=6$；$D[3][0]=5+3=8$；
-    \item $k=3$（经 $v_3$）：无更新，收敛到 D$^{(4)}$。
-\end{itemize}
-\textbf{结论：}各顶点对最短路径长度即 D$^{(4)}$（$k=3$ 时无更新，故 D$^{(4)}=$D$^{(3)}$）；若要还原路径，需同步维护 \texttt{path} 矩阵。Floyd 优于分别运行 $n$ 次 Dijkstra 之处在于它一次算出全部点对，且能处理\textbf{负权边}（但不允许负权回路）。
-\end{conclusion}
+\subsection{拓扑排序}
 
-\subsection{有向无环图（DAG）与拓扑排序}
+有向无环图（DAG）常用于表示“谁必须在谁之前完成”。例如课程 $A$ 是课程 $B$ 的先修课，就从 $A$ 向 $B$ 连一条弧。把这种图的所有顶点排成一个线性序列，使得每条弧的弧尾都排在弧头之前，这个序列称为拓扑序列，求序列的过程称为拓扑排序。
 
-\begin{mydef}{拓扑排序}{topo-sort}
-将有向无环图（DAG）的所有顶点排成一个线性序列，使得对每条弧 $\langle u,v\rangle$，$u$ 在序列中出现在 $v$ 之前。拓扑序列不唯一。
-\end{mydef}
+拓扑序列不唯一：算法在某一步可能同时有多个入度为 0 的顶点，先输出哪一个都可以。两个没有路径关系的顶点，在不同拓扑序列中的先后可以不同；但在同一个序列里任意交换两个不相邻的顶点，可能会破坏别的约束。一个 DAG 的拓扑序列唯一，当且仅当它在每一步都只有一个入度为 0 的顶点；等价地说，图中存在一条经过所有顶点的有向路径。
 
-\begin{conclusion}{拓扑排序算法}{topo-algo}
-基于入度：每次选一个入度为 $0$ 的顶点输出并将其所有出边的终点入度减 $1$。重复直到所有顶点输出（成功）或不存在入度 $0$ 的顶点（有回路）。
+\subsubsection{基于入度的 Kahn 算法}
+
+Kahn 算法反复做两件事：输出一个入度为 0 的顶点；删除它的所有出边，并把终点的入度减 1。删边后可能出现新的入度为 0 的顶点，把它加入队列。若最终输出的顶点数小于 $n$，说明剩下的顶点都有入边，图中存在有向回路。
 
 \begin{lstlisting}[language=C]
 bool TopoSort(ALGraph *G, int topo[]) {
-    int indegree[MaxV] = {0}, cnt = 0;
-    int stack[MaxV], top = -1;
-    for (int i = 0; i < G->n; i++)          // 计算入度
-        for (ArcNode *p = G->adjlist[i].first; p; p = p->next)
-            indegree[p->adjvex]++;
-    for (int i = 0; i < G->n; i++)          // 入度为0入栈
-        if (indegree[i] == 0) stack[++top] = i;
-    while (top != -1) {
-        int u = stack[top--];
+    int indeg[MaxV] = {0}, cnt = 0;
+    for (int u = 0; u < G->n; u++)
+        for (ArcNode *p = G->adjlist[u].first; p; p = p->next)
+            indeg[p->adjvex]++;
+    int queue[MaxV], front = 0, rear = 0;
+    for (int i = 0; i < G->n; i++)
+        if (indeg[i] == 0) queue[rear++] = i;
+    while (front < rear) {
+        int u = queue[front++];
         topo[cnt++] = u;
-        for (ArcNode *p = G->adjlist[u].first; p; p = p->next) {
-            int v = p->adjvex;
-            if (--indegree[v] == 0) stack[++top] = v;
-        }
+        for (ArcNode *p = G->adjlist[u].first; p; p = p->next)
+            if (--indeg[p->adjvex] == 0)
+                queue[rear++] = p->adjvex;
     }
-    return cnt == G->n;                     // cnt<n 则有回路
+    return cnt == G->n;       // false 表示有回路
 }
 \end{lstlisting}
-时间复杂度 $O(n+e)$。用栈或队列均可——用栈得到逆拓扑序更自然（DFS 的逆后序即拓扑序）。
-\end{conclusion}
+
+用邻接表时，计算入度要扫描所有边，之后每个顶点入队、出队一次，每条边被处理一次，总时间 $O(n+e)$。用栈代替队列也能得到拓扑序列，只是输出次序不同。下一小节的 DFS 方法从另一个角度得到拓扑序：先递归到最深处，回溯时把顶点压栈，最后从栈顶依次弹出。
+
+\subsubsection{基于 DFS 的方法}
+
+对 DAG 做 DFS，记录每个顶点“完成”的次序。一个顶点完成时，它的所有后继都已经完成，所以按完成时间从晚到早排列，就得到拓扑序列。实现时把顶点在回溯阶段压入栈，最后依次弹出即可。
+
+DFS 还能同时判断回路：如果从 $u$ 出发的 DFS 遇到一个仍在递归栈中的顶点 $v$，说明存在树边路径 $v\to\cdots\to u$，再加上回边 $u\to v$，构成有向回路。用一个颜色数组区分“未访问、在栈中、已完成”三种状态即可。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.12]
+  \node[circle,draw,fill=SoftBlue,minimum size=0.6cm] (v0) at (0,2.0) {0};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.6cm] (v1) at (1.9,2.9) {1};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.6cm] (v2) at (1.9,1.1) {2};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.6cm] (v3) at (3.8,2.0) {3};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.6cm] (v4) at (3.8,0.3) {4};
+  \node[circle,draw,fill=SoftBlue,minimum size=0.6cm] (v5) at (5.7,1.15) {5};
+  \draw[->] (v0) -- (v1);
+  \draw[->] (v0) -- (v2);
+  \draw[->] (v1) -- (v3);
+  \draw[->] (v2) -- (v3);
+  \draw[->] (v2) -- (v4);
+  \draw[->] (v3) -- (v5);
+  \draw[->] (v4) -- (v5);
+
+  \foreach \i/\x in {0/0,1/1.2,2/2.4,3/3.6,4/4.8,5/6.0} {
+    \node[draw, minimum width=0.55cm, minimum height=0.42cm, fill=SoftTeal] (t\i) at (\x,-1.45) {\i};
+  }
+  \foreach \i/\j in {0/1,1/2,2/3,3/4,4/5}
+    \draw[->, Teal, thick] (t\i) -- (t\j);
+\end{tikzpicture}
+
+\noindent{\small\color{MutedText}图中下方一行是其中一个拓扑序列。各顶点入度：$v_0:0$，$v_1:1$，$v_2:1$，$v_3:2$，$v_4:1$，$v_5:2$。按“编号小的先出队”的规则，得到 $0,1,2,3,4,5$。若某一步同时有两个入度为 0 的顶点，交换它们的次序可以得到另一个合法序列。}
+\end{center}
+
+在图中的 DAG 上再加一条弧 $v_5\to v_1$，就出现回路 $v_1\to v_3\to v_5\to v_1$。此时 Kahn 算法输出 $v_0,v_2,v_4$ 后，剩余顶点的入度都不为 0，输出个数小于 $n$，从而检测到回路。
 
 \subsection{AOE 网与关键路径}
 
-\begin{mydef}{AOV 网与 AOE 网}{aov-aoe}
-\begin{itemize}
-    \item \textbf{AOV 网}（Activity On Vertex）：顶点表示活动，边表示活动间的优先关系。
-    \item \textbf{AOE 网}（Activity On Edge）：边表示活动，边权表示活动持续时间；顶点表示事件（某些活动完成的时刻）。
-\end{itemize}
-\end{mydef}
+AOV 网（Activity On Vertex）用顶点表示活动，用弧表示活动之间的先后关系，拓扑排序解决的是“活动按什么顺序做”。AOE 网（Activity On Edge）换一种表示：弧表示活动，弧上的权表示活动持续时间，顶点表示事件，即某些活动完成或开始的时刻。AOE 网通常只有一个源点（开始事件）和一个汇点（结束事件），源点入度为 0，汇点出度为 0。
 
-\begin{conclusion}{关键路径}{critical-path}
-AOE 网中：
-\begin{itemize}
-    \item \textbf{事件 $v_k$ 的最早发生时间 $ve(k)$}：从源点到 $v_k$ 的最长路径长度。按拓扑序计算：$ve(k)=\max\{ve(j)+\mathrm{weight}(\langle v_j,v_k\rangle)\}$。
-    \item \textbf{事件 $v_k$ 的最迟发生时间 $vl(k)$}：不推迟工期的前提下事件最迟发生时间。按逆拓扑序计算：$vl(k)=\min\{vl(j)-\mathrm{weight}(\langle v_k,v_j\rangle)\}$，汇点 $vl=ve$。
-    \item \textbf{活动 $a_i=\langle v_j,v_k\rangle$ 的最早开始 $e(i)=ve(j)$}，\textbf{最迟开始 $l(i)=vl(k)-\mathrm{weight}$}。
-    \item \textbf{关键活动}：$e(i)=l(i)$ 的活动。\textbf{关键路径}：由关键活动构成的从源点到汇点的路径。
-\end{itemize}
+关键路径是 AOE 网中从源点到汇点的最长路径，它的长度就是整个工程的最短工期。路径越长，说明这条链上的活动越不能拖延。要找出关键路径，需要计算每个事件的最早发生时间和最迟发生时间。
 
-\textbf{408 常考：}给定 AOE 网，计算各事件的 $ve$ 和 $vl$，找出关键活动和关键路径。关键路径可能不唯一——缩短某条关键路径上的非公共关键活动不一定会缩短总工期。
-\end{conclusion}
+\subsubsection{事件的最早、最迟发生时间}
 
-\subsection{408 高频考点速查}
-
-\begin{conclusion}{图 — 408 选择题常考点}{graph-408-keypoints}
-\begin{enumerate}
-    \item \textbf{连通图边数范围}：$n-1\leqslant e \leqslant C_n^2$（最少 $n-1$ 即生成树）。
-    \item \textbf{DFS/BFS 遍历序列}：先确认起点与邻接点扫描顺序；邻接表还受链表存储次序影响。
-    \item \textbf{Prim vs Kruskal}：稠密图用 Prim $O(n^2)$，稀疏图用 Kruskal $O(e\log e)$。
-    \item \textbf{Dijkstra 适用条件}：非负权值；与 Prim 代码对比。
-    \item \textbf{拓扑排序}：DAG 才有拓扑序列；不唯一的条件（有多个人度同时为 0 的顶点）。
-    \item \textbf{关键路径}：$ve$ 和 $vl$ 的计算；关键活动 $e=l$；缩短非关键活动不缩短工期。
-    \item \textbf{不同存储结构的遍历复杂度}：邻接表 $O(n+e)$ vs 邻接矩阵 $O(n^2)$。
-\end{enumerate}
-\end{conclusion}
-
-\newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（真题风格·选择题）} 下列关于无向连通图特性的叙述中，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 所有顶点的度之和为偶数 \\[4pt]
-(B) 边数大于顶点个数减 1 \\[4pt]
-(C) 至少有一个顶点的度为 1 \\[4pt]
-(D) 以上均正确
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 无向图中每条边连接两个顶点，在计算度之和时每条边被计算两次（每个端点各贡献 1 度），故所有顶点的度之和 $= 2e$（$e$ 为边数），必为偶数，(A) 正确。$n$ 个顶点的无向连通图最少有 $n-1$ 条边（生成树），但边数可以等于 $n-1$，(B) "大于"有误。连通图可以没有度为 1 的顶点（如完全图 $K_n$ 中每个顶点的度均为 $n-1$），(C) 错误。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 对 $n$ 个顶点、$e$ 条边的有向图采用邻接表存储，则拓扑排序算法的时间复杂度是
-\begin{center}
-\begin{tabular}{ll}
-(A) $O(n)$ & (B) $O(n+e)$ \\[6pt]
-(C) $O(n^2)$ & (D) $O(ne)$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 拓扑排序算法（基于入度）：（1） 初始化：遍历所有边计算各顶点入度，耗时 $O(e)$；（2） 每次取入度为 0 的顶点输出，并删除其所有出边（将邻接顶点的入度减 1），每条边恰好被处理一次，每个顶点至多被访问一次。总计 $O(n+e)$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 下列关于图的叙述中，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 回路是简单路径 \\[4pt]
-(B) 存储稀疏图，用邻接矩阵比邻接表更省空间 \\[4pt]
-(C) 若有向图中存在拓扑序列，则该图不存在回路 \\[4pt]
-(D) 有向图的邻接矩阵一定是对称矩阵
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误——回路（环）的起点和终点相同，不是简单路径（简单路径要求所有顶点不重复）。(B) 错误——邻接矩阵空间 $O(n^2)$，邻接表空间 $O(n+e)$，稀疏图中 $e\ll n^2$，邻接表更省。(C) 正确——拓扑排序仅存在于 DAG（有向无环图）中，有回路则不存在拓扑序列。(D) 错误——有向图的邻接矩阵一般不对称。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 对有 $n$ 个顶点、$e$ 条边且使用邻接表存储的有向图进行广度优先遍历，其算法时间复杂度是
-\begin{center}
-\begin{tabular}{ll}
-(A) $O(n)$ & (B) $O(e)$ \\[6pt]
-(C) $O(n+e)$ & (D) $O(n\times e)$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} BFS 遍历图中每个顶点恰好入队一次、出队一次，每条边恰好被扫描一次（从邻接表中取出），故时间复杂度 $O(n+e)$。同理 DFS 的时间复杂度也是 $O(n+e)$（邻接表）或 $O(n^2)$（邻接矩阵）。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 对如下有向图进行拓扑排序，得到的拓扑序列可能是\\
-\begin{center}
-\begin{tikzpicture}[>=stealth, node distance=1.8cm, auto]
-\node[draw, circle] (3) {3};
-\node[draw, circle, below left of=3, yshift=0.5cm] (1) {1};
-\node[draw, circle, below right of=3, yshift=0.5cm] (4) {4};
-\node[draw, circle, below left of=1] (2) {2};
-\node[draw, circle, below right of=4] (5) {5};
-\node[draw, circle, below right of=1, xshift=0.5cm] (6) {6};
-\draw[->] (3) -- (1);
-\draw[->] (3) -- (4);
-\draw[->] (1) -- (2);
-\draw[->] (1) -- (6);
-\draw[->] (4) -- (2);
-\draw[->] (4) -- (5);
-\draw[->] (4) -- (6);
-\draw[->] (2) -- (6);
-\draw[->] (5) -- (6);
-\end{tikzpicture}
-\end{center}
-\begin{center}
-\begin{tabular}{ll}
-(A) 3,1,4,2,5,6 & (B) 3,1,4,2,6,5 \\[6pt]
-(C) 3,1,5,4,2,6 & (D) 3,1,2,4,5,6
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 拓扑序列必须满足图中每条弧的起点先于终点。(A) 满足全部先后约束。(B) 中顶点 6 出现在其前驱 5 之前；(C) 中顶点 5 出现在其前驱 4 之前；(D) 中顶点 2 出现在其前驱 4 之前，三者均非法。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 已知含有 5 个顶点的有向图 $G$ 如下图所示，则下列结论正确的是\\
-\begin{center}
-\begin{tikzpicture}[>=stealth, node distance=2cm, auto]
-\node[draw, circle] (A) {A};
-\node[draw, circle, right of=A] (B) {B};
-\node[draw, circle, below of=A] (C) {C};
-\node[draw, circle, below of=B] (D) {D};
-\node[draw, circle, below of=C, xshift=1cm] (E) {E};
-\draw[->] (A) -- (B);
-\draw[->] (A) -- (D);
-\draw[->] (B) -- (C);
-\draw[->] (C) -- (A);
-\draw[->] (C) -- (E);
-\draw[->] (D) -- (C);
-\draw[->] (D) -- (E);
-\draw[->] (E) -- (D);
-\end{tikzpicture}
-\end{center}
-\begin{center}
-\begin{tabular}{ll}
-(A) $G$ 是强连通图 \\[4pt]
-(B) 用邻接表存储 $G$ 所需空间一定为 $O(n^2)$ \\[4pt]
-(C) 顶点 C 的入度小于出度 \\[4pt]
-(D) $G$ 的邻接矩阵一定是对称矩阵
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 图中 $A\to B\to C\to A$ 构成一个环，且该环与 $D,E$ 之间存在双向可达路径，因此任意顶点都能到达其余顶点，$G$ 是强连通图。(B) 错，邻接表的空间复杂度为 $O(n+e)$；(C) 错，C 的入边为 $B\to C,D\to C$，出边为 $C\to A,C\to E$，入度和出度均为 2；(D) 错，有向图的邻接矩阵不必对称。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 设无向图的邻接表按顶点编号递增排列，从顶点 1 开始进行 BFS，并始终按邻接表顺序扫描邻接点。若各顶点的邻接表为
+设 $ve(k)$ 是事件 $v_k$ 的最早发生时间。源点的 $ve$ 为 0。其他事件必须等所有前驱活动完成才能发生，所以
 \[
-1:2,3;\quad 2:1,4,5;\quad 3:1,6;\quad 4:2;\quad 5:2,6;\quad 6:3,5,
+ve(k)=\max_{\langle v_j,v_k\rangle\in E}\left\{ve(j)+w(j,k)\right\}.
 \]
-则得到的 BFS 访问序列是
-\begin{center}
-\begin{tabular}{ll}
-(A) $1,2,3,4,5,6$ & (B) $1,2,3,6,5,4$ \\[6pt]
-(C) $1,3,2,6,5,4$ & (D) $1,2,4,5,3,6$
-\end{tabular}
-\end{center}
+按拓扑序从左往右算，计算 $v_k$ 时它的所有前驱都已经算好。
 
-\ifshowsolutions\par\noindent\textbf{解析：} 从 1 出发，先访问并入队 2、3；处理 2 时依次发现 4、5；处理 3 时发现 6；随后按队列顺序访问 4、5、6，故序列为 $1,2,3,4,5,6$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 已知如下有向图，该图的拓扑排序序列的个数是\\
-\begin{center}
-\begin{tikzpicture}[>=stealth, node distance=1.8cm, auto]
-\node[draw, circle] (A) {A};
-\node[draw, circle, below of=A] (B) {B};
-\node[draw, circle, right of=B] (C) {C};
-\node[draw, circle, right of=A] (D) {D};
-\node[draw, circle, below of=C] (E) {E};
-\node[draw, circle, right of=D] (F) {F};
-\draw[->] (A) -- (B);
-\draw[->] (A) -- (C);
-\draw[->] (B) -- (E);
-\draw[->] (C) -- (E);
-\draw[->] (C) -- (F);
-\draw[->] (D) -- (C);
-\draw[->] (D) -- (F);
-\draw[->] (E) -- (F);
-\end{tikzpicture}
-\end{center}
-\begin{center}
-\begin{tabular}{ll}
-(A) 1 & (B) 2 \\[6pt]
-(C) 3 & (D) 5
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 由弧可得约束 $A<B$，$A<C$，$D<C$，$B<E$，$C<E$，且 $C,D,E$ 均在 F 之前。每一步从当前入度为 0 的顶点中选择，可枚举出
+设 $vl(k)$ 是事件 $v_k$ 的最迟发生时间，即在不推迟整个工期的前提下，事件最迟可以在什么时刻发生。汇点的 $vl$ 等于它的 $ve$，也就是总工期。其他事件必须给所有后继活动留出足够时间，所以
 \[
-\texttt{ABDCEF},\quad \texttt{ADBCEF},\quad \texttt{ADCBEF},\quad
-\texttt{DABCEF},\quad \texttt{DACBEF}.
+vl(k)=\min_{\langle v_k,v_j\rangle\in E}\left\{vl(j)-w(k,j)\right\}.
 \]
-共 5 个拓扑序列。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
+按逆拓扑序从右往左算，计算 $v_k$ 时它的所有后继都已经算好。
 
-\end{enumerate}
+\subsubsection{活动的最早、最迟开始时间}
 
-\subsection{真题风格与综合训练}
+对活动 $a=\langle v_i,v_j\rangle$，它的最早开始时间等于弧尾事件的最早发生时间：
+\[
+e(a)=ve(i).
+\]
+它的最迟开始时间等于弧头事件的最迟发生时间减去活动持续时间：
+\[
+l(a)=vl(j)-w(i,j).
+\]
+两者之差 $l(a)-e(a)$ 是活动的时间余量，也叫松弛时间。若 $l(a)=e(a)$，说明这个活动没有任何余量，推迟一天就会推迟整个工程，称为关键活动。由关键活动首尾相接、从源点通到汇点的路径就是关键路径。
 
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·选择题）} 下列关于生成树的说法中，错误的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 连通图的生成树包含图的所有顶点 \\[4pt]
-(B) 生成树中任意两顶点之间的路径是唯一的 \\[4pt]
-(C) 生成树是连通图的极小连通子图 \\[4pt]
-(D) 非连通图也可以有生成树
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 生成树的定义：连通图的生成树是包含图中所有 $n$ 个顶点的极小连通子图，有且仅有 $n-1$ 条边。(A) 正确——生成树包含全部顶点。(B) 正确——树中任意两点间有唯一简单路径。(C) 正确——生成树正是极小的连通子图（再删任意一条边就不再连通）。(D) 错误——非连通图只能有生成森林（各连通分量各有一棵生成树），不存在包含全部顶点的生成树。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 用 Dijkstra 算法求下图中顶点 1 到其余各点的最短路径。算法依次确定最短路径的顶点次序是\\
-\begin{center}
-\begin{tikzpicture}[>=stealth, node distance=2cm, auto]
-\node[draw, circle] (1) {1};
-\node[draw, circle, right of=1] (2) {2};
-\node[draw, circle, below of=1] (3) {3};
-\node[draw, circle, below of=2] (4) {4};
-\node[draw, circle, below of=3] (5) {5};
-\draw[->] (1) -- node[above] {5} (2);
-\draw[->] (1) -- node[left]  {3} (3);
-\draw[->] (2) -- node[right] {2} (4);
-\draw[->] (3) -- node[above] {1} (4);
-\draw[->] (3) -- node[left] {6} (5);
-\draw[->] (4) -- node[right] {4} (5);
-\draw[->] (2) -- node[above] {1} (3);
-\end{tikzpicture}
-\end{center}
-\begin{center}
-\begin{tabular}{ll}
-(A) 3,2,4,5 & (B) 2,3,4,5 \\[6pt]
-(C) 3,4,5,2 & (D) 3,4,2,5
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} Dijkstra 算法过程（源点 1）：
-\begin{center}
-\begin{tabular}{|c|c|c|c|c|c|}
-步骤 & S 集合 & dist[2] & dist[3] & dist[4] & dist[5] \\
-\hline
-初始 & \{1\} & 5 & 3 & $\infty$ & $\infty$ \\
-选 3 & \{1,3\} & 5 & \textbf{3} & $3+1=4$ & $3+6=9$ \\
-选 4 & \{1,3,4\} & 5 & — & \textbf{4} & $\min(9,4+4)=\textbf{8}$ \\
-选 2 & \{1,3,4,2\} & \textbf{5} & — & — & 8（无直达 5 的边） \\
-选 5 & \{1,3,4,2,5\} & — & — & — & \textbf{8} \\
-\hline
-\end{tabular}
-\end{center}
-因此除源点外的顶点确定次序为 3, 4, 2, 5。顶点 2 的距离从初始的 5 起未被更新；顶点 5 经 $1\to3\to4\to5$ 的距离为 8。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 已知一个无向图的邻接矩阵如下，用 Prim 算法从顶点 A 开始构造最小生成树，则依次加入生成树的边是\\
-\begin{center}
-$
-\begin{pmatrix}
-0 & 6 & 1 & 5 & \infty & \infty \\
-6 & 0 & 5 & \infty & 3 & \infty \\
-1 & 5 & 0 & 5 & 6 & 4 \\
-5 & \infty & 5 & 0 & \infty & 2 \\
-\infty & 3 & 6 & \infty & 0 & 6 \\
-\infty & \infty & 4 & 2 & 6 & 0
-\end{pmatrix}
-$\\
-\small（顶点顺序：A, B, C, D, E, F）
-\end{center}
-\begin{center}
-\begin{tabular}{ll}
-(A) (A,C)(C,F)(F,D)(C,B)(B,E) \\[4pt]
-(B) (A,C)(C,F)(C,B)(F,D)(B,E) \\[4pt]
-(C) (A,C)(C,D)(F,D)(C,B)(B,E) \\[4pt]
-(D) (A,C)(C,D)(C,F)(F,B)(B,E)
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 执行 Prim 算法（起点 A）：\\
-初始 lowcost：A 邻接 B(6), C(1), D(5)。选最小权边 (A,C) 权 1，将 C 加入 MST。\\
-更新 lowcost：B 经 C 的距离为 5 < 6，更新为 5；D 为 $\min(5,5)=5$；E 为 6；F 为 4。\\
-选最小 (C,F) 权 4，F 加入。更新：D 经 F 为 2 < 5，更新为 2；B 不变(5)；E 经 F 为 6，不变。\\
-选最小 (F,D) 权 2，D 加入。更新：B 不变(5)；E 不变(6)。\\
-选最小 (C,B) 权 5，B 加入。更新：E 经 B 为 3 < 6，更新为 3。\\
-选最小 (B,E) 权 3，E 加入。MST 完成。\\
-边加入顺序：(A,C), (C,F), (F,D), (C,B), (B,E)。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 下列关于关键路径的叙述中，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 缩短任意一个关键活动的持续时间，必能缩短整个工程的工期 \\[4pt]
-(B) 关键路径是 AOE 网中从源点到汇点的最短路径 \\[4pt]
-(C) 一个 AOE 网中，关键路径可能有多条 \\[4pt]
-(D) 非关键活动提前完成可以缩短工期
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误——若缩短的关键活动不在所有关键路径的公共部分上，则总工期不变（其他关键路径仍制约工期）。(B) 错误——关键路径是从源点到汇点的\textbf{最长}路径，其长度等于工程总工期。(C) \textbf{正确}——AOE 网的关键路径可以不唯一。(D) 错误——非关键活动有一定的时间余量（松弛时间），提前完成不会缩短总工期。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 已知无向图 $G$ 有 16 条边，其中度为 4 的顶点有 3 个，度为 3 的顶点有 4 个，其余顶点的度均小于 3。则 $G$ 至少有多少个顶点？
-\begin{center}
-\begin{tabular}{ll}
-(A) 10 & (B) 11 \\[6pt]
-(C) 12 & (D) 13
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 设总顶点数为 $n$，其余顶点的数量为 $n-7$。由握手定理：$\sum\deg(v)=2e=32$。已知 $3\times4 + 4\times3 + \sum_{\text{其余}} \deg(v) = 32$，即 $12+12+\sum_{\text{其余}}\deg(v)=32$，$\sum_{\text{其余}}\deg(v)=8$。要使 $n$ 最小，其余顶点的度应尽可能大。但已知其余顶点的度均 "<3"，最大可取 2。设其余顶点均为度 2，则 $2(n-7)=8$，$n-7=4$，$n=11$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 下列 AOE 网表示一项包含 8 个活动的工程，边上括号内为活动持续时间。下列选项中，两项活动均为关键活动的是\\
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, circle] (1) at (0,0) {1};
-\node[draw, circle] (2) at (3.2,0) {2};
-\node[draw, circle] (3) at (0,-2.8) {3};
-\node[draw, circle] (4) at (3.2,-2.8) {4};
-\node[draw, circle] (5) at (6.4,-1.4) {5};
-\node[draw, circle] (6) at (9.6,-1.4) {6};
-\draw[->] (1) -- node[above] {$a(4)$} (2);
-\draw[->] (1) -- node[left] {$b(3)$} (3);
-\draw[->] (2) -- node[left] {$c(2)$} (5);
-\draw[->] (3) -- node[above] {$e(4)$} (4);
-\draw[->] (3) -- node[below] {$f(2)$} (5);
-\draw[->] (4) -- node[below] {$g(3)$} (6);
-\draw[->] (5) -- node[above] {$h(5)$} (6);
-\draw[->] (2) -- node[below] {$d(1)$} (4);
+  \node[draw, rounded corners, fill=SoftBlue, align=center, minimum width=1.15cm, minimum height=0.72cm] (v0) at (0,0) {$v_0$\\$0/0$};
+  \node[draw, rounded corners, fill=SoftBlue, align=center, minimum width=1.15cm, minimum height=0.72cm] (v1) at (2.3,2.0) {$v_1$\\$6/6$};
+  \node[draw, rounded corners, fill=SoftBlue, align=center, minimum width=1.15cm, minimum height=0.72cm] (v2) at (2.3,0) {$v_2$\\$4/6$};
+  \node[draw, rounded corners, fill=SoftBlue, align=center, minimum width=1.15cm, minimum height=0.72cm] (v3) at (2.3,-2.0) {$v_3$\\$5/12$};
+  \node[draw, rounded corners, fill=SoftBlue, align=center, minimum width=1.15cm, minimum height=0.72cm] (v4) at (4.6,2.0) {$v_4$\\$7/7$};
+  \node[draw, rounded corners, fill=SoftBlue, align=center, minimum width=1.15cm, minimum height=0.72cm] (v5) at (6.9,0) {$v_5$\\$14/14$};
+
+  \draw[->, Burgundy, very thick] (v0) -- node[above left] {6} (v1);
+  \draw[->, gray, thick] (v0) -- node[above] {4} (v2);
+  \draw[->, gray, thick] (v0) -- node[below left] {5} (v3);
+  \draw[->, Burgundy, very thick] (v1) -- node[above] {1} (v4);
+  \draw[->, gray, thick] (v2) -- node[pos=0.4, above left] {1} (v4);
+  \draw[->, gray, thick] (v3) -- node[below right] {2} (v5);
+  \draw[->, Burgundy, very thick] (v4) -- node[above right] {7} (v5);
 \end{tikzpicture}
+
+\noindent{\small\color{MutedText}事件框内为 $ve/vl$；粗线是关键活动，关键路径 $v_0\to v_1\to v_4\to v_5$，工期 $6+1+7=14$。}
 \end{center}
+
+把各活动的 $e$、$l$ 列成表，能更清楚地看出谁有余量。
+
 \begin{center}
-\begin{tabular}{ll}
-(A) $c$ 和 $h$ & (B) $d$ 和 $e$ \\[6pt]
-(C) $f$ 和 $d$ & (D) $f$ 和 $h$
+\small
+\renewcommand{\arraystretch}{1.0}
+\begin{tabular}{cccccc}
+\toprule
+活动 & 弧 & 持续时间 & $e$ & $l$ & $l-e$ \\
+\midrule
+$a_1$ & $v_0\to v_1$ & 6 & 0 & 0 & 0 \\
+$a_2$ & $v_0\to v_2$ & 4 & 0 & 2 & 2 \\
+$a_3$ & $v_0\to v_3$ & 5 & 0 & 7 & 7 \\
+$a_4$ & $v_1\to v_4$ & 1 & 6 & 6 & 0 \\
+$a_5$ & $v_2\to v_4$ & 1 & 4 & 6 & 2 \\
+$a_6$ & $v_3\to v_5$ & 2 & 5 & 12 & 7 \\
+$a_7$ & $v_4\to v_5$ & 7 & 7 & 7 & 0 \\
+\bottomrule
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 计算各事件的最早/最迟发生时间（设源点为 1，汇点为 6）：
+表中 $l-e=0$ 的活动 $a_1,a_4,a_7$ 都是关键活动，它们首尾相接，构成关键路径。$a_2$ 和 $a_5$ 各有 2 个时间单位的余量；$a_3$ 和 $a_6$ 的余量是 7。
+
+关于关键路径，有几个结论经常出现在选择题里。
+
 \begin{itemize}
-    \item $ve$：按拓扑序——$ve(1)=0$；$ve(2)=ve(1)+4=4$；$ve(3)=ve(1)+3=3$；$ve(4)=\max\{ve(2)+1=5, ve(3)+4=7\}=7$；$ve(5)=\max\{ve(2)+2=6, ve(3)+2=5\}=6$；$ve(6)=\max\{ve(4)+3=10, ve(5)+5=11\}=11$。
-    \item $vl$：按逆拓扑序——$vl(6)=11$；$vl(5)=vl(6)-5=6$；$vl(4)=vl(6)-3=8$；$vl(3)=\min\{vl(4)-4=4, vl(5)-2=4\}=4$；$vl(2)=\min\{vl(4)-1=7, vl(5)-2=4\}=4$；$vl(1)=\min\{vl(2)-4=0, vl(3)-3=1\}=0$。
-    \item 活动时间裕量（$l-e$）：$a(1\to2)=vl(2)-ve(1)-4=4-4=0$（关键）；$b(1\to3)=vl(3)-ve(1)-3=4-3=1$；$c(2\to5)=vl(5)-ve(2)-2=6-4-2=0$（关键）；$d(2\to4)=vl(4)-ve(2)-1=8-4-1=3$；$e(3\to4)=vl(4)-ve(3)-4=8-3-4=1$；$f(3\to5)=vl(5)-ve(3)-2=6-3-2=1$；$g(4\to6)=vl(6)-ve(4)-3=11-7-3=1$；$h(5\to6)=vl(6)-ve(5)-5=11-6-5=0$（关键）。
+  \item 关键路径是源点到汇点的最长路径，长度等于最短工期。
+  \item 关键路径可能不唯一。只缩短其中一条路径上的非公共活动，另一条关键路径的长度不变，总工期也不变。
+  \item 要缩短总工期，必须缩短所有关键路径的公共关键活动；若几条关键路径没有公共活动，就要同时缩短每条关键路径上的活动。
+  \item 缩短非关键活动一般不能缩短工期；一旦缩短量超过它的时间余量，它自己也会变成关键活动，需要重新判断关键路径。
 \end{itemize}
-零时间余量的关键活动为 $a,c,h$，关键路径为 $1\to2\to5\to6$。四组中只有 (A) 的两项活动均为关键活动。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
 
-\item \textbf{（综合题）} 已知带权有向图 $G=(V,E)$ 的邻接矩阵如下，顶点编号为 1$\sim$6。
-\[
-A = \begin{pmatrix}
-0 & \infty & 10 & \infty & 30 & 100 \\
-\infty & 0 & 5 & \infty & \infty & \infty \\
-\infty & \infty & 0 & 50 & \infty & \infty \\
-\infty & \infty & \infty & 0 & \infty & 10 \\
-\infty & \infty & \infty & 20 & 0 & 60 \\
-\infty & \infty & \infty & \infty & \infty & 0
-\end{pmatrix}
-\]
-\begin{enumerate}
-    \item[(1)] 画出该有向图；
-    \item[(2)] 写出 $G$ 的全部拓扑序列；
-    \item[(3)] 用 Dijkstra 算法求顶点 1 到其余各顶点的最短路径，写出过程中 dist 数组的变化；
-    \item[(4)] 求顶点 1 到顶点 6 的最短路径及其长度。
-\end{enumerate}
+\subsection{本章算法对照}
 
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) 图中有向边：$1\to3(10)$, $1\to5(30)$, $1\to6(100)$, $2\to3(5)$, $3\to4(50)$, $4\to6(10)$, $5\to4(20)$, $5\to6(60)$。
+把本章的算法放在一起比较，考试时更容易选对方法。
 
-(2) 先后约束为 $1<3$、$1<5$、$1<6$、$2<3$、$3<4$、$5<4$、$4<6$、$5<6$。全部拓扑序列共 5 个：
-\[
-1,2,3,5,4,6;\quad 1,2,5,3,4,6;\quad 1,5,2,3,4,6;\quad
-2,1,3,5,4,6;\quad 2,1,5,3,4,6.
-\]
-
-(3) Dijkstra 过程（源点 1）：
 \begin{center}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{|c|c|c|c|c|c|c|}
-\hline
-步骤 & S & dist[2] & dist[3] & dist[4] & dist[5] & dist[6] \\
-\hline
-初始 & \{1\} & $\infty$ & 10 & $\infty$ & 30 & 100 \\
-选 3 & \{1,3\} & $\infty$ & \textbf{10} & $10+50=60$ & 30 & $\min(100,10+\infty)=100$ \\
-选 5 & \{1,3,5\} & $\infty$ & — & $\min(60,30+20)=\textbf{50}$ & \textbf{30} & $\min(100,30+60)=90$ \\
-选 4 & \{1,3,5,4\} & $\infty$ & — & \textbf{50} & — & $\min(90,50+10)=\textbf{60}$ \\
-选 6 & \{1,3,5,4,6\} & $\infty$ & — & — & — & \textbf{60} \\
-选 2 & \{1,3,5,4,6,2\} & \textbf{$\infty$} & — & — & — & — \\
-\hline
+\small
+\begin{tabular}{llll}
+\toprule
+算法 & 解决的问题 & 适用条件 & 时间复杂度 \\
+\midrule
+BFS & 无权图单源最短路、分层遍历 & 边权相同 & $O(n+e)$（邻接表） \\
+DFS & 连通性、回路判定、拓扑排序 & 无特殊限制 & $O(n+e)$（邻接表） \\
+Prim & 最小生成树 & 连通无向带权图 & $O(n^2)$，适合稠密图 \\
+Kruskal & 最小生成树 & 连通无向带权图 & $O(e\log e)$，适合稀疏图 \\
+Dijkstra & 单源最短路 & 边权非负 & $O(n^2)$ 或 $O((n+e)\log n)$ \\
+Floyd & 全源最短路 & 允许负权，无负权回路 & $O(n^3)$ \\
+Kahn & 拓扑排序 & 有向图，可判回路 & $O(n+e)$ \\
+关键路径 & 工程最短工期 & AOE 网，DAG & $O(n+e)$ \\
+\bottomrule
 \end{tabular}
-}
 \end{center}
 
-(4) 顶点 1 到顶点 6 的最短路径为 $1\to5\to4\to6$，长度 $=30+20+10=60$。
+还有几个容易混淆的计数结论：
 
-\boxed{\textbf{答案见解析}}\else \answerarea \fi
+\begin{itemize}
+  \item 连通无向图至少有 $n-1$ 条边；$n$ 个顶点的树恰好有 $n-1$ 条边。
+  \item 强连通有向图（$n\geqslant 2$）至少有 $n$ 条弧，因为每个顶点至少要有一条出弧和一条入弧。
+  \item 无向图中所有顶点度数之和为 $2e$，奇度顶点有偶数个。
+  \item 邻接表存无向图有 $2e$ 个边结点，存有向图有 $e$ 个边结点。
+  \item 拓扑序列一般不唯一；当且仅当每一步只有一个入度为 0 的顶点时，序列唯一。
+\end{itemize}
 
-\end{enumerate}
-
-\vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item 邓俊辉《数据结构（C++语言版）》第 6 章「图」——完整的图 ADT 实现，包括 BFS/DFS、Prim/Kruskal/Dijkstra 的 C++ 代码和复杂度分析，以及强连通分量的 Tarjan 算法。
-    \item Sedgewick《算法》（第 4 版）第 4 章「图」——无向图/有向图的 DFS/BFS 经典讨论，第 4.3 节最小生成树（含 Prim 即时版本与延时版本的对比），第 4.4 节最短路径（Dijkstra 与 Bellman-Ford）。
-    \item CLRS《算法导论》第 22--25 章——图的算法严格理论分析，包括单源最短路径的最优子结构证明、所有结点对最短路径的矩阵乘法方法、最大流等。
+    \item 邓俊辉《数据结构（C++语言版）》第 6 章「图」——图的 ADT、BFS/DFS、Prim/Kruskal/Dijkstra 的完整实现，以及强连通分量的 Tarjan 算法。
+    \item Sedgewick《算法》第 4 章「图」——无向图与有向图的遍历框架，最小生成树的 Prim 延时版本与即时版本，最短路径的 Dijkstra 与 Bellman-Ford。
+    \item CLRS《算法导论》第 22--25 章——图的表示、广度优先搜索、拓扑排序、最小生成树和单源最短路径的严格分析。
 \end{itemize}
+
+\newpage
+\input{ds/exercises/chap5.tex}

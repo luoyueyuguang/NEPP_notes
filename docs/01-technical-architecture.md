@@ -37,7 +37,7 @@ flowchart LR
 | 编译次数 | 2 次（CI 与 README 一致） | 2 次（本地验证） |
 | CI 覆盖 | ✅ build.yml 全量门禁 | ❌ 未纳入 CI |
 | 输出跟踪 | `math/out/main.pdf` 强制跟踪 | `408/main.pdf` 未跟踪（.gitignore） |
-| 页数（完整版） | 471 | 378 |
+| 页数（完整版） | 523 | 470 |
 
 ## 2. 文档组装链（content pipeline）
 
@@ -103,23 +103,40 @@ flowchart TB
 
 ### 2.3 章节文件结构（统一模式）
 
-每个章节文件遵循同一骨架：
+每个章节文件现在是“理论文件 + 独立习题文件”的两段式：
 
 ```mermaid
 flowchart LR
-    A[\section 章标题] --> B[\subsection 知识小节]
-    B --> C[mydef / formula / conclusion 知识框]
-    B --> D[attention 考点警示 / examplebox 例题 / lstlisting 代码]
-    B --> E[tikz 插图]
-    A --> F[\newpage]
-    F --> G[\section 习题]
-    G --> H[基础过关题]
-    G --> I[真题风格与综合训练 / 综合提高题]
+    A[chapN.tex 理论] --> B[\section 章标题]
+    B --> C[\subsection 知识小节]
+    C --> D[自然语言解释 + 每个知识点一张 TikZ 图]
+    C --> E[mydef / formula / conclusion 知识框]
+    A --> F[\input{.../exercises/chapN.tex}]
+    F --> G[exercises/chapN.tex]
+    G --> H[\section 习题 + 本章速览]
+    H --> I[基础过关题 / 综合提高题 / 真题风格]
 ```
 
-- 知识部分：定义→公式→结论递进，408 更强调 `attention` 标注"408 常考陷阱"；
-- 习题部分：`\section{习题}` 下按题型分 `\subsection`；数学侧为"基础过关题/综合提高题"，408 侧为"基础过关题/真题风格与综合训练"（OS 综合专题章只有后者）；
-- 每道题的解析块由 `\ifshowsolutions...\fi` 包裹（机制详见 deep-dives/01）。
+- 理论部分：先给例子/几何直观，再给定义、条件与公式；每章按内容自然分节，不套固定“直觉/定义/为什么/常见错误”模板。每个主要知识点至少配一张承担解释功能的 TikZ/pgfplots 图。
+- 习题部分统一放在同目录的 `exercises/chapN.tex`，由理论文件末尾 `\input` 引入。数学侧每章 12 题（基础 5 / 综合 4 / 真题风格 3），408 侧每章 10 题（基础 6 / 综合 4）。
+- 每道题的解析块由 `\ifshowsolutions...\fi` 包裹（机制详见 deep-dives/01）；纯题目版只保留题干与 `\answerarea` 书写留白。
+- 综合复习同样独立成文件：`calculus/review.tex`、`algebra/alg_review.tex`、`probality/prob-review.tex`。
+
+### 2.4 习题文件拆分
+
+2026-10-20 起，所有章节习题从理论文件中拆出，放入各科 `exercises/` 目录：
+
+| 目录 | 文件 |
+|---|---|
+| `math/calculus/exercises/` | `chap1.tex`–`chap9.tex`、`chapt.tex` |
+| `math/algebra/exercises/` | `chap1.tex`–`chap7.tex` |
+| `math/probality/exercises/` | `chap1.tex`–`chap7.tex` |
+| `408/ds/exercises/` | `chap1.tex`–`chap8.tex` |
+| `408/co/exercises/` | `chap1.tex`–`chap7.tex` |
+| `408/os/exercises/` | `chap1.tex`–`chap6.tex` |
+| `408/cn/exercises/` | `chap1.tex`–`chap6.tex` |
+
+这样理论重写与习题重写可以独立进行，也避免“解析块漏包 `\ifshowsolutions`”时整段解答留在纯题目版。
 
 ## 3. 运行时流程（编译视角）
 

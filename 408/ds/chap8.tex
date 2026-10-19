@@ -1,1095 +1,720 @@
 \section{算法设计专题}
 
-本章是数据结构课程的综合篇，将前面各章（线性表、树、图、查找、排序）中的算法思想提炼为可复用的设计模式。数据结构综合应用题常以算法阅读、补全或设计为载体，考查的不是死记硬背，而是将基本数据结构和算法思想灵活组合的能力。
+排课表、找零钱、走迷宫，这三件事在 408 的算法设计题里经常换一副面孔出现：给一堆区间问最多能选几个，给几种面额问最少凑多少枚，给一张图问有没有一条满足条件的路径。它们难的地方不在语法，而在于“从哪下手”。本章把常用的下手方式归纳成四条路线：分治、贪心、动态规划、回溯，最后统一讨论怎么给这些算法算时间与空间。
 
-\subsection{双指针与快慢指针}
+这四条路线不是互斥的标签。同一个最大子段和，可以分治，也可以动态规划；同一个 0-1 背包，可以动态规划，也可以回溯枚举。选哪条，取决于问题的结构：子问题能不能独立切开、局部最优能不能推出全局最优、子问题会不会重复、解空间能不能系统地枚举。下面的顺序也大致按这四个问题展开。
 
-\begin{mydef}{双指针技术}{two-pointers}
-双指针（Two Pointers）指使用两个游标（指针、下标）协同遍历同一数据结构的设计模式。常见分类：
-\begin{itemize}
-    \item \textbf{快慢指针：}两指针以不同速度移动（如 $\times1$ 和 $\times2$），用于判环、找中点；
-    \item \textbf{前后指针：}两指针起点不同或移动节奏不同，用于保持固定间距（倒数第 $k$ 个）；
-    \item \textbf{左右指针/碰撞指针：}两指针分别从序列两端向中间移动，用于有序数组中的查找；
-    \item \textbf{滑动窗口：}两指针界定可变长度的区间，常用于子数组/子串问题。
-\end{itemize}
-\end{mydef}
+\subsection{分治：把问题对半切开}
 
+先在有序数组里找一个数。从中间取一个元素比较，比它小就到左半边找，比它大到右半边找，每次丢掉一半。再看归并排序：把数组从中间切成两段，分别排好，再把两个有序段并成一个。两件事的动作不同，骨架相同：把原问题分成若干规模更小的同类子问题，分别求解，再把结果合起来。这个骨架叫分治。
 
-\subsubsection{快慢指针判环}
+分治能成立，需要三个条件凑齐。子问题必须与原问题同型，否则递归无法复用同一套逻辑；子问题的规模必须严格变小，否则递归不终止；子问题之间必须相互独立，否则分别求解后还得处理它们之间的耦合，合并会变得非常复杂。归并排序的两个半段互不影响，合并时只需比较大小；如果子问题共享数据（后面的动态规划就是这种情况），硬套分治就会重复计算。
 
-\begin{conclusion}{快慢指针判环（Floyd 判圈算法）}{floyd-cycle}
-\textbf{问题：}给定一个单链表，判断其中是否存在环。若存在环，找出环的入口结点。
+二分查找每次只进入一个子问题，严格说属于“减治”（decrease-and-conquer），但它的分析方法和分治一样：写出规模缩小的递推式。
 
-\textbf{算法思路：}
+\begin{lstlisting}[language=C]
+int BinarySearch(int A[], int n, int key) {
+    int lo = 0, hi = n - 1;
+    while (lo <= hi) {                 /* 区间为空时 lo > hi */
+        int mid = lo + (hi - lo) / 2;  /* 防止 lo + hi 溢出 */
+        if (A[mid] == key) return mid;
+        if (A[mid] < key) lo = mid + 1;
+        else              hi = mid - 1;
+    }
+    return -1;
+}
+\end{lstlisting}
+
+循环的区间是闭区间 $[lo,hi]$，所以条件写成 \texttt{lo <= hi}；如果在 \texttt{lo == hi} 时退出，就会漏掉最后一个元素。每次比较后区间长度至少减半，$T(n)=T(n/2)+\Theta(1)$，解得 $\Theta(\log n)$。迭代版本只用了几个变量，辅助空间 $O(1)$。
+
+归并排序把“切”和“并”都写全了：
+
+\begin{lstlisting}[language=C]
+void Merge(int A[], int lo, int mid, int hi, int tmp[]) {
+    int i = lo, j = mid + 1, k = lo;
+    while (i <= mid && j <= hi) {
+        if (A[i] <= A[j]) tmp[k++] = A[i++];
+        else              tmp[k++] = A[j++];
+    }
+    while (i <= mid) tmp[k++] = A[i++];
+    while (j <= hi)  tmp[k++] = A[j++];
+    for (k = lo; k <= hi; k++) A[k] = tmp[k];
+}
+
+void MergeSort(int A[], int lo, int hi, int tmp[]) {
+    if (lo >= hi) return;                 /* 0 或 1 个元素，天然有序 */
+    int mid = lo + (hi - lo) / 2;
+    MergeSort(A, lo, mid, tmp);
+    MergeSort(A, mid + 1, hi, tmp);
+    Merge(A, lo, mid, hi, tmp);
+}
+\end{lstlisting}
+
+合并时用 \texttt{<=} 而不是 \texttt{<}，是为了让左段的相等元素先落位，这样归并排序是稳定的。时间花在两个递归调用和一次合并上：合并要扫描两个有序段，代价与区间长度成正比，记作 $cn$，于是
+\[
+T(n)=2T\!\left(\frac n2\right)+cn,\qquad T(1)=\Theta(1).
+\]
+把这个递推式展开成一棵树，就是图 15-1 的样子。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \tikzset{tnode/.style={draw, circle, minimum size=0.5cm, inner sep=1pt, fill=SoftBlue}}
+  \node[tnode] (r) at (0,0) {8};
+  \node[tnode] (a) at (-2.4,-1.1) {4};
+  \node[tnode] (b) at (2.4,-1.1) {4};
+  \node[tnode] (c) at (-3.6,-2.2) {2};
+  \node[tnode] (d) at (-1.2,-2.2) {2};
+  \node[tnode] (e) at (1.2,-2.2) {2};
+  \node[tnode] (f) at (3.6,-2.2) {2};
+  \foreach \x/\p/\k in {-4.2/c/1,-3.0/c/2,-1.8/d/3,-0.6/d/4,0.6/e/5,1.8/e/6,3.0/f/7,4.2/f/8}
+    \node[tnode, fill=SoftTeal] (l\k) at (\x,-3.3) {1};
+  \draw[black!45] (r) -- (a);  \draw[black!45] (r) -- (b);
+  \draw[black!45] (a) -- (c);  \draw[black!45] (a) -- (d);
+  \draw[black!45] (b) -- (e);  \draw[black!45] (b) -- (f);
+  \draw[black!45] (c) -- (l1); \draw[black!45] (c) -- (l2);
+  \draw[black!45] (d) -- (l3); \draw[black!45] (d) -- (l4);
+  \draw[black!45] (e) -- (l5); \draw[black!45] (e) -- (l6);
+  \draw[black!45] (f) -- (l7); \draw[black!45] (f) -- (l8);
+  % 每层代价
+  \node[anchor=west] at (5.3,0)    {$cn$};
+  \node[anchor=west] at (5.3,-1.1) {$cn$};
+  \node[anchor=west] at (5.3,-2.2) {$cn$};
+  \node[anchor=west] at (5.3,-3.3) {$cn$};
+  \node[draw, rounded corners, fill=SoftAmber, align=center, anchor=west]
+       at (6.3,-1.65) {每层合并总代价 $cn$\\共 $\log_2 n+1$ 层};
+  \node[font=\tiny, black!60, anchor=east] at (-4.9,0) {第 0 层};
+  \node[font=\tiny, black!60, anchor=east] at (-4.9,-1.1) {第 1 层};
+  \node[font=\tiny, black!60, anchor=east] at (-4.9,-2.2) {第 2 层};
+  \node[font=\tiny, black!60, anchor=east] at (-4.9,-3.3) {第 3 层};
+  \node[align=center, black!70] at (0,-4.25)
+    {结点里的数字是子数组长度；总代价 $=cn(\log_2 n+1)=\Theta(n\log n)$};
+\end{tikzpicture}
+\par\smallskip
+{\small\color{MutedText} 图 15-1\quad 归并排序的递归树（$n=8$）}
+\end{center}
+
+图里每一层把所有元素各搬一遍，所以每层都是 $cn$；树高是 $\log_2 n$，加上根所在的最上面一层，共 $\log_2 n+1$ 层。把每层加起来，得到 $cn(\log_2 n+1)$，即 $\Theta(n\log n)$。注意不要只数结点：第 $j$ 层有 $2^j$ 个结点，但每个结点处理的区间只有 $n/2^j$ 长，乘起来仍是 $cn$。
+
+不是每个递推式都能靠画树一眼看出解。把递归树每层的代价写成 $a^j f(n/b^j)$，再与叶层规模 $n^{\log_b a}$ 比较，就得到主定理。
+
+\begin{formula}{主定理}{master-theorem}
+设 $a\ge 1$，$b>1$，$f(n)>0$，递归式
+\[
+T(n)=aT(n/b)+f(n)
+\]
+（$n/b$ 理解为 $\lfloor n/b\rfloor$ 或 $\lceil n/b\rceil$ 不影响渐近阶）。令 $n^{\log_b a}$ 为叶层规模，则：
 \begin{enumerate}
-    \item 设置快指针 \texttt{fast}（每次走两步）和慢指针 \texttt{slow}（每次走一步），同时从头结点出发。
-    \item 若 \texttt{fast} 与 \texttt{slow} 相遇，则链表有环；若 \texttt{fast} 到达 \texttt{NULL}，则无环。
-    \item 找环入口：相遇后，将一个指针重置到头结点，两指针各走一步，再次相遇处即为环入口。
+  \item 若 $f(n)=O\!\left(n^{\log_b a-\varepsilon}\right)$（存在某个 $\varepsilon>0$），叶层主导，
+        $T(n)=\Theta\!\left(n^{\log_b a}\right)$；
+  \item 若 $f(n)=\Theta\!\left(n^{\log_b a}\right)$，每层代价同阶，
+        $T(n)=\Theta\!\left(n^{\log_b a}\log n\right)$；
+  \item 若 $f(n)=\Omega\!\left(n^{\log_b a+\varepsilon}\right)$（存在某个 $\varepsilon>0$），
+        且存在常数 $c<1$，使所有足够大的 $n$ 满足 $a f(n/b)\le c f(n)$，根层主导，$T(n)=\Theta(f(n))$。
 \end{enumerate}
-
-\begin{lstlisting}[language=C]
-// 判断链表是否有环，若有则返回环入口结点
-LNode *DetectCycle(LinkList L) {
-    LNode *slow = L->next, *fast = L->next;  // 跳过不存储数据的头结点
-    while (fast && fast->next) {
-        slow = slow->next;
-        fast = fast->next->next;
-        if (slow == fast) {           // 相遇$\to$有环
-            LNode *p = L->next;       // p 从头开始
-            while (p != slow) {       // 各走一步，再次相遇为入口
-                p = p->next;
-                slow = slow->next;
-            }
-            return p;                 // 环入口
-        }
-    }
-    return NULL;                      // 无环
-}
-\end{lstlisting}
-
-\textbf{正确性分析：}设头到环入口距离为 $a$，环入口到相遇点距离为 $b$，环长为 $L$。相遇时慢指针走了 $a+b$ 步，快指针走了 $2(a+b)=a+b+kL$ 步（$k$ 为快指针多绕圈数），故 $a+b=kL$，即 $a=kL-b$。从相遇点再走 $a$ 步恰好到达环入口，且从头走 $a$ 步也到环入口——两者同时出发各走一步，必相遇于入口。
-
-\textbf{复杂度：}时间 $O(n)$，空间 $O(1)$。
-\end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.55cm,fill=SoftGray] (hd) at (0,0) {head};
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm] (a) at (1.5,0) {1};
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm] (b) at (2.7,0) {2};
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm,fill=Amber!20] (c) at (3.9,0) {3};
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm] (d) at (5.1,0) {4};
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm,fill=Teal!20] (e) at (6.3,0) {5};
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.55cm] (f) at (7.5,0) {6};
-\draw[->] (hd) -- (a);
-\draw[->] (a) -- (b);
-\draw[->] (b) -- (c);
-\draw[->] (c) -- (d);
-\draw[->] (d) -- (e);
-\draw[->] (e) -- (f);
-% 环：6 -> 3
-\draw[->,Burgundy,thick] (f.north) .. controls (8.2,1.6) and (4.6,1.6) .. (c.north);
-% 标注
-\node[align=center,font=\scriptsize,black!70] at (3.9,-1.0){(环入口)};
-\node[align=center,font=\scriptsize,black!70] at (6.3,-1.0){(slow=fast\\相遇处)};
-\node[align=center,font=\scriptsize,black!70] at (3.9,-2.3){快慢指针从 1 同时出发：\texttt{fast} 每步走 2、\texttt{slow} 每步走 1，二者在 5 处相遇\\再将一指针重置回 1，两指针各走 1 步，再次相遇于 3（环入口）};
-\end{tikzpicture}
-\end{center}
-
-\begin{attention}
-快慢指针是 408 风格算法题的常见背景。Floyd 判环通常令快指针每次走两步、慢指针每次走一步；若存在环，两者在模环长意义下的相对位置每轮前进 1，因而必会相遇。若任意改变步长，必须重新证明相对步长与环长的关系，不能仅凭「快一些」断言一定相遇。
-\end{attention}
-
-\subsubsection{查找倒数第 $k$ 个结点}
-
-\begin{conclusion}{倒数第 $k$ 个结点}{kth-from-end}
-\textbf{问题：}在不计算链表长度的前提下，找到单链表中倒数第 $k$ 个数据结点。
-
-\textbf{算法思路：}「前后指针」——先让 \texttt{front} 指针向前走 $k$ 步，然后 \texttt{back} 与 \texttt{front} 同步前进。当 \texttt{front} 到达末尾时，\texttt{back} 恰好指向倒数第 $k$ 个结点。
-
-\begin{lstlisting}[language=C]
-LNode *FindKthFromEnd(LinkList L, int k) {
-    LNode *front = L->next, *back = L->next;  // 从首元结点开始
-    for (int i = 0; i < k; i++) {
-        if (!front) return NULL;     // k 超过表长
-        front = front->next;
-    }
-    while (front) {                  // front 走到末尾
-        front = front->next;
-        back = back->next;
-    }
-    return back;                     // back 即为倒数第 k 个
-}
-\end{lstlisting}
-
-\textbf{复杂度：}时间 $O(n)$，空间 $O(1)$。
-
-\textbf{变体：}
-\begin{itemize}
-    \item 删除倒数第 $k$ 个结点——需同时维护 \texttt{back} 的前驱，或让 \texttt{back} 从第 $0$ 个结点（头结点）开始。
-    \item 求链表中间结点——令 \texttt{front} 每次走两步，\texttt{back} 每次走一步（即快慢指针的另一应用）。
-\end{itemize}
-\end{conclusion}
-
-\subsubsection{链表中间结点}
-
-\begin{conclusion}{求链表中间结点}{find-middle}
-\textbf{快慢指针的一次遍历实现：}
-
-\begin{lstlisting}[language=C]
-LNode *FindMiddle(LinkList L) {
-    LNode *slow = L->next, *fast = L->next;
-    while (fast && fast->next) {
-        slow = slow->next;
-        fast = fast->next->next;
-    }
-    return slow;   // 表长为奇数时指向正中间，偶数时指向后半段第一个
-}
-\end{lstlisting}
-
-若偶数长度时希望指向前半段最后一个，则将 \texttt{fast} 初始条件设为 \texttt{fast->next \&\& fast->next->next}。
-
-\textbf{复杂度：}时间 $O(n)$，空间 $O(1)$。
-\end{conclusion}
-
-\subsection{链表逆置}
-
-链表逆置是 408 算法设计题的「元操作」——许多复杂操作（如部分逆置、回文判断、两数相加）都需要逆置作为子步骤。
-
-\subsubsection{就地逆置（全链表）}
-
-\begin{conclusion}{单链表就地逆置}{reverse-list}
-\textbf{算法思路：}遍历原链表，逐个摘下结点并以「头插法」插入到新表头之后。也可用三指针法（pre, cur, next）逐个翻转指针方向。
-
-\textbf{方法一：头插法（带头结点）}
-\begin{lstlisting}[language=C]
-void ReverseList(LinkList L) {
-    LNode *p = L->next;              // p 指向首元结点
-    L->next = NULL;                  // 断开，L 成为新表头
-    while (p) {
-        LNode *q = p->next;          // 先保存后继
-        p->next = L->next;           // 头插
-        L->next = p;
-        p = q;                       // 继续下一结点
-    }
-}
-\end{lstlisting}
-
-\textbf{方法二：三指针反向链接（更直观）}
-\begin{lstlisting}[language=C]
-LNode *ReverseListNoHead(LNode *head) {
-    LNode *prev = NULL, *cur = head, *next;
-    while (cur) {
-        next = cur->next;            // 保存后继
-        cur->next = prev;            // 反向
-        prev = cur;
-        cur = next;
-    }
-    return prev;                     // 新表头
-}
-\end{lstlisting}
-
-\textbf{复杂度：}时间 $O(n)$，空间 $O(1)$。
-\end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 逆置前
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.55cm,fill=SoftGray] (h1) at (0,0) {head};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (x1) at (1.5,0) {1};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (x2) at (2.7,0) {2};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (x3) at (3.9,0) {3};
-\node[draw,rectangle,minimum width=0.4cm,minimum height=0.55cm,fill=SoftGray] (nl) at (5.1,0) {$\wedge$};
-\draw[->] (h1) -- (x1);
-\draw[->] (x1) -- (x2);
-\draw[->] (x2) -- (x3);
-\draw[->] (x3) -- (nl);
-\node[align=center] at (2.5,-0.9){逆置前：\texttt{head} $\to$ $1\to2\to3\to\wedge$};
-% 逆置后
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.55cm,fill=SoftGray] (h2) at (0,-2.2) {head};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (y3) at (1.5,-2.2) {3};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (y2) at (2.7,-2.2) {2};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.55cm] (y1) at (3.9,-2.2) {1};
-\node[draw,rectangle,minimum width=0.4cm,minimum height=0.55cm,fill=SoftGray] (nl2) at (5.1,-2.2) {$\wedge$};
-\draw[->] (h2) -- (y3);
-\draw[->] (y3) -- (y2);
-\draw[->] (y2) -- (y1);
-\draw[->] (y1) -- (nl2);
-\node[align=center] at (2.5,-3.1){逆置后：\texttt{head} $\to$ $3\to2\to1\to\wedge$};
-\end{tikzpicture}
-\end{center}
-
-\subsubsection{部分逆置}
-
-\begin{conclusion}{链表的区间逆置}{reverse-interval}
-\textbf{问题：}将链表中从第 $m$ 到第 $n$ 个结点之间的部分逆置（$1\leqslant m < n \leqslant$ 表长）。
-
-\textbf{算法思路：}定位到第 $m-1$ 个结点，然后对区间内结点逐个「平移」到区间头部（即固定 \texttt{pre}，每次将当前结点的后继提到 \texttt{pre} 之后）。
-
-\begin{lstlisting}[language=C]
-void ReverseBetween(LinkList L, int m, int n) {
-    LNode *pre = L;
-    for (int i = 0; i < m - 1; i++)  pre = pre->next;  // 定位到 m-1
-    LNode *cur = pre->next;                              // cur 指向第 m 个
-    for (int i = 0; i < n - m; i++) {
-        LNode *t = cur->next;        // 要前移的结点
-        cur->next = t->next;         // cur 跳过 t
-        t->next = pre->next;         // t 插入到 pre 之后
-        pre->next = t;
-    }
-}
-\end{lstlisting}
-
-\textbf{关键技巧：}该算法相当于在区间内部反复执行「将当前结点的后继结点移到区间最前面」。
-
-\textbf{复杂度：}时间 $O(n-m)=O(n)$，空间 $O(1)$。
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 逆置题常见变体：}
-\begin{itemize}
-    \item 不带头结点的链表逆置（需注意首结点变化）；
-    \item 给定头尾指针的部分逆置（定位点不同）；
-    \item 双链表逆置（需同时修改 \texttt{prior} 和 \texttt{next} 两个指针）；
-    \item 每 $k$ 个结点一组逆置（分段处理，余下不足 $k$ 个时是否逆置由题设决定）。
-\end{itemize}
-\end{attention}
-
-\subsection{二叉树递归算法设计}
-
-二叉树的递归算法是 408 综合题的另一大重点。掌握以下典型的递归设计，几乎可以覆盖所有二叉树类算法题。
-
-\subsubsection{二叉树的存储结构与遍历框架}
-
-\begin{formula}{二叉链表存储结构}{bintree-struct}
-\begin{lstlisting}[language=C]
-typedef struct BiTNode {
-    ElemType data;
-    struct BiTNode *lchild, *rchild;
-} BiTNode, *BiTree;
-\end{lstlisting}
-以下算法均基于此结构，采用递归遍历框架：
-\begin{lstlisting}[language=C]
-void Traverse(BiTree T) {
-    if (!T) return;                 // 递归基：空树
-    // visit(T);                    // 先序位置
-    Traverse(T->lchild);
-    // visit(T);                    // 中序位置
-    Traverse(T->rchild);
-    // visit(T);                    // 后序位置
-}
-\end{lstlisting}
-在「先序/中序/后序位置」添加逻辑是实现所有二叉树递归算法的基本范式。
 \end{formula}
 
-\subsubsection{求二叉树深度}
-
-\begin{conclusion}{二叉树深度}{tree-depth}
-\begin{lstlisting}[language=C]
-int Depth(BiTree T) {
-    if (!T) return 0;                  // 空树深度为 0
-    int ld = Depth(T->lchild);         // 左子树深度
-    int rd = Depth(T->rchild);         // 右子树深度
-    return (ld > rd ? ld : rd) + 1;    // 取较大者加 1
-}
-\end{lstlisting}
-\textbf{扩展：}求二叉树的最小深度——对左右孩子任一为空的情况特殊处理，取非空一侧的深度 $+1$。
-\end{conclusion}
+三种情形对应递归树的三种形状：叶子那一层最贵、每层差不多贵、根那一层最贵。图 15-2 把每层的总代价画成横条，层 0 在最上面。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (r) at (0,0) {8};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (l) at (-2.0,-1.6) {3};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (rt) at (2.0,-1.6) {10};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (ll) at (-3.0,-3.2) {1};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (lr) at (-1.0,-3.2) {6};
-\draw (r) -- (l);
-\draw (r) -- (rt);
-\draw (l) -- (ll);
-\draw (l) -- (lr);
-% 各子树高度（右上角标注）
-\node[font=\scriptsize,black!60] at (0.55,0.35) {h=3};
-\node[font=\scriptsize,black!60] at (-1.45,-1.25) {h=2};
-\node[font=\scriptsize,black!60] at (2.55,-1.25) {h=1};
-\node[font=\scriptsize,black!60] at (-2.45,-2.85) {h=1};
-\node[font=\scriptsize,black!60] at (-0.45,-2.85) {h=1};
-\node[align=center,font=\scriptsize,black!70] at (0,-4.3){后序递归求高度：$\mathrm{depth}(T)=\max(\mathrm{depth}(L),\mathrm{depth}(R))+1$，空树返回 0\\先求左、右子树高度，再返回二者较大值 $+1$（如根 8 的高度 $=\max(2,1)+1=3$）};
+\begin{tikzpicture}[font=\scriptsize, >=stealth]
+  \def\bars#1{\foreach \w/\k in {#1}%
+    \fill[Teal!22, draw=Teal!55] (0,-\k*0.42) rectangle (\w,-\k*0.42-0.28);}
+  % (a)
+  \node[font=\bfseries] at (1.4,0.38) {(a) 叶层主导};
+  \bars{0.9/0,1.35/1,2.0/2,3.0/3}
+  \foreach \k in {0,1,2,3} \node[font=\tiny, anchor=east] at (-0.08,-\k*0.42-0.14) {层 \k};
+  \node[align=center, anchor=north] at (1.5,-1.95) {$\Theta\!\left(n^{\log_b a}\right)$\\叶层占主导};
+  % (b)
+  \begin{scope}[xshift=5.3cm]
+    \node[font=\bfseries] at (1.4,0.38) {(b) 每层同阶};
+    \bars{1.5/0,1.5/1,1.5/2,1.5/3}
+    \foreach \k in {0,1,2,3} \node[font=\tiny, anchor=east] at (-0.08,-\k*0.42-0.14) {层 \k};
+    \node[align=center, anchor=north] at (1.5,-1.95) {$\Theta\!\left(n^{\log_b a}\log n\right)$\\每层一样贵};
+  \end{scope}
+  % (c)
+  \begin{scope}[xshift=10.6cm]
+    \node[font=\bfseries] at (1.4,0.38) {(c) 根层主导};
+    \bars{3.0/0,1.5/1,0.75/2,0.375/3}
+    \foreach \k in {0,1,2,3} \node[font=\tiny, anchor=east] at (-0.08,-\k*0.42-0.14) {层 \k};
+    \node[align=center, anchor=north] at (1.5,-1.95) {$\Theta(f(n))$\\根部占主导};
+  \end{scope}
 \end{tikzpicture}
+\par\smallskip
+{\small\color{MutedText} 图 15-2\quad 主定理三种情形下每层代价的变化}
 \end{center}
 
-\subsubsection{求二叉树宽度}
+横条长度只表示该层总代价的相对大小，不表示具体数值。情形 (a) 的层代价按几何级数增长，总和由最后一行决定；情形 (b) 每层相同，总和是“每层代价 $\times$ 层数”；情形 (c) 每层按几何级数衰减，总和由第一行决定。
 
-\begin{conclusion}{二叉树宽度}{tree-width}
-\textbf{宽度}定义为各层结点数的最大值。需借助队列进行层序遍历。
+套几个例子：
 
-\begin{lstlisting}[language=C]
-int Width(BiTree T) {
-    if (!T) return 0;
-    BiTNode *queue[MaxSize];
-    int front = 0, rear = 1;
-    queue[0] = T;
-    int maxWidth = 0;
-    while (front < rear) {
-        int curLen = rear - front;          // 当前层的结点数
-        if (curLen > maxWidth) maxWidth = curLen;
-        for (int i = 0; i < curLen; i++) {  // 处理当前层所有结点
-            BiTNode *p = queue[front++];
-            if (p->lchild) queue[rear++] = p->lchild;
-            if (p->rchild) queue[rear++] = p->rchild;
-        }
-    }
-    return maxWidth;
-}
-\end{lstlisting}
-
-\textbf{复杂度：}时间、空间均为 $O(n)$。
-\end{conclusion}
-
-\subsubsection{统计结点数 / 叶子数}
-
-\begin{conclusion}{二叉树的结点统计}{tree-count}
-\begin{lstlisting}[language=C]
-// 总结点数
-int CountNodes(BiTree T) {
-    if (!T) return 0;
-    return CountNodes(T->lchild) + CountNodes(T->rchild) + 1;
-}
-
-// 叶子结点数（无左孩子也无右孩子）
-int CountLeaves(BiTree T) {
-    if (!T) return 0;
-    if (!T->lchild && !T->rchild) return 1;  // 叶子
-    return CountLeaves(T->lchild) + CountLeaves(T->rchild);
-}
-
-// 单分支结点数（只有左孩子或只有右孩子）
-int CountSingleChild(BiTree T) {
-    if (!T) return 0;
-    int isSingle = (!T->lchild ^ !T->rchild) ? 1 : 0;  // XOR 异或
-    return CountSingleChild(T->lchild) + CountSingleChild(T->rchild) + isSingle;
-}
-
-// 第 k 层的结点数
-int CountKthLevel(BiTree T, int k) {
-    if (!T) return 0;
-    if (k == 1) return 1;
-    return CountKthLevel(T->lchild, k - 1) + CountKthLevel(T->rchild, k - 1);
-}
-\end{lstlisting}
-\end{conclusion}
-
-\subsubsection{判断完全二叉树}
-
-\begin{conclusion}{完全二叉树的判定}{is-complete-tree}
-\textbf{算法思路：}层序遍历。遇到第一个没有左孩子或没有右孩子的结点后，后续访问的所有结点都必须是叶子结点（无孩子）。
-
-\begin{lstlisting}[language=C]
-bool IsCompleteTree(BiTree T) {
-    if (!T) return true;
-    BiTNode *queue[MaxSize];
-    int front = 0, rear = 1;
-    queue[0] = T;
-    bool leafPhase = false;          // 是否已进入"后面的结点必须是叶子"阶段
-    while (front < rear) {
-        BiTNode *p = queue[front++];
-        if (leafPhase && (p->lchild || p->rchild))
-            return false;            // 必须为叶子但出现了孩子
-        if (p->lchild && p->rchild) {
-            queue[rear++] = p->lchild;
-            queue[rear++] = p->rchild;
-        } else if (!p->lchild && p->rchild) {
-            return false;            // 有右无左 $\to$ 非完全二叉树
-        } else {                     // 有左无右 或 无孩子
-            leafPhase = true;        // 进入必须为叶子阶段
-            if (p->lchild) queue[rear++] = p->lchild;
-        }
-    }
-    return true;
-}
-\end{lstlisting}
-
-\textbf{时间复杂度：}$O(n)$。\textbf{关键判断条件：}
 \begin{itemize}
-    \item 若某结点有右孩子无左孩子 $\to$ 非完全二叉树；
-    \item 若某结点只有左孩子（或无孩子），之后的所有结点都不能有孩子。
+  \item $T(n)=2T(n/2)+n$：$a=2$，$b=2$，$n^{\log_2 2}=n$，$f(n)=\Theta(n)$，属于情形 2，得 $\Theta(n\log n)$。这就是归并排序。
+  \item $T(n)=3T(n/2)+n$：$n^{\log_2 3}\approx n^{1.585}$，$f(n)=n=O(n^{1.585-\varepsilon})$，属于情形 1，得 $\Theta(n^{\log_2 3})$。
+  \item $T(n)=2T(n/2)+n^2$：$f(n)=n^2=\Omega(n^{1+\varepsilon})$，且 $2(n/2)^2=n^2/2\le cn^2$（取 $c=1/2$），属于情形 3，得 $\Theta(n^2)$。
+  \item $T(n)=T(n/2)+1$：$a=1$，$n^{\log_2 1}=1$，$f(n)=\Theta(1)$，属于情形 2，得 $\Theta(\log n)$。这就是二分查找。
 \end{itemize}
-\end{conclusion}
 
-\subsubsection{判断平衡二叉树}
+主定理只适用于 $a$、$b$ 为常数、$f$ 为正的递归式。$T(n)=2T(n/2)+n/\log n$ 落在情形 1 和情形 2 之间，主定理不适用，需要换别的方法；$T(n)=2T(n/2)+n\log n$ 的 $f$ 比 $n$ 大，但不是多项式级别的大，三种情形也都不覆盖。考试里给出标准形式时直接套；形式稍有变形时，先判断 $f$ 与 $n^{\log_b a}$ 的阶关系，再决定能不能用。
 
-\begin{conclusion}{平衡二叉树的判定}{is-avl}
-\textbf{判定条件：}每个结点的左、右子树高度差绝对值不超过 1，且左右子树也都是平衡的。
+\subsubsection{跨中点合并：最大子段和}
 
-\textbf{朴素方法（先求高度再判平衡，$O(n^2)$）：}
-\begin{lstlisting}[language=C]
-int Depth(BiTree T) {
-    if (!T) return 0;
-    int l = Depth(T->lchild), r = Depth(T->rchild);
-    return (l > r ? l : r) + 1;
-}
-bool IsBalanced(BiTree T) {
-    if (!T) return true;
-    int diff = Depth(T->lchild) - Depth(T->rchild);
-    if (diff > 1 || diff < -1) return false;
-    return IsBalanced(T->lchild) && IsBalanced(T->rchild);
-}
-\end{lstlisting}
+再看一个不能直接套二分的例子。给定数组 $A[0\ldots n-1]$，元素可正可负，求和最大的连续子段。取中点 $mid$，最优子段只有三种可能：完全在左半、完全在右半、跨过中点。前两种递归求解，第三种单独算。
 
-\textbf{优化方法（后序遍历，同时求高度和判断，$O(n)$）：}
-\begin{lstlisting}[language=C]
-// 若平衡则返回树高，否则返回 -1
-int CheckBalance(BiTree T) {
-    if (!T) return 0;
-    int lh = CheckBalance(T->lchild);
-    if (lh == -1) return -1;        // 左子树已失衡
-    int rh = CheckBalance(T->rchild);
-    if (rh == -1) return -1;        // 右子树已失衡
-    if (lh - rh > 1 || rh - lh > 1) return -1;
-    return (lh > rh ? lh : rh) + 1;
-}
-bool IsBalanced(BiTree T) {
-    return CheckBalance(T) != -1;
-}
-\end{lstlisting}
+以 $A=[2,-5,3,1,-1,4,-2]$ 为例，$mid=3$。左半最大是 $3+1=4$，右半最大是 $4$，跨中点的最大子段是 $3+1-1+4=7$，取三者最大，答案是 $7$。跨中点的那一段由两截拼成：以 $mid$ 结尾的一段，和以 $mid+1$ 开头的一段。两截的选择互不影响，所以分别取最大后缀和最大前缀，再相加。
 
-\textbf{复杂度：}优化方法时间为 $O(n)$，辅助空间为 $O(h)$（递归栈深度，$h$ 为树高）；平衡树时 $h=O(\log n)$，最坏退化树时为 $O(n)$。
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth]
+  \def\cw{0.82}
+  \foreach \v/\i/\f in {2/0/SoftBlue,-5/1/SoftBlue,3/2/SoftBlue,1/3/SoftBlue,-1/4/SoftAmber,4/5/SoftAmber,-2/6/SoftAmber}
+    \node[draw, minimum width=\cw cm, minimum height=0.52cm, fill=\f] (a\i) at (\i*\cw,0) {$\v$};
+  \foreach \i in {0,...,6} \node[font=\tiny, black!60] at (\i*\cw,-0.42) {\i};
+  \draw[dashed, Burgundy] (3.5*\cw,-0.55) -- (3.5*\cw,0.55);
+  \node[Burgundy, font=\tiny, anchor=south] at (3.5*\cw,0.6) {$mid$};
+  \draw[Teal, very thick, rounded corners=2pt]
+       (2*\cw-0.45,-0.31) rectangle (5*\cw+0.45,0.31);
+  \node[align=center] at (1.23,-1.25) {左半最大 $4$\\$A[2..3]$};
+  \node[align=center] at (4.51,-1.25) {右半最大 $4$\\$A[5]$};
+  \node[align=center, Teal] at (2.87,-2.15) {跨中点最大 $3+4=7$\\$A[2..3]$ 接 $A[4..5]$};
+  \node[font=\tiny, black!60, anchor=west] at (5.9,-1.25) {三种候选 $4,\,4,\,7$};
+\end{tikzpicture}
+\par\smallskip
+{\small\color{MutedText} 图 15-3\quad 最大子段和的三种位置：左半、右半、跨中点}
+\end{center}
 
-\textbf{设计要点：}用返回值同时承载「是否平衡」和「高度」两个信息，避免各自重复计算。这是后序遍历的经典应用——先获得子树信息，再综合判断。
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 二叉树递归题的通解：}
-\begin{enumerate}
-    \item \textbf{明确递归基：}即空树返回什么？
-    \item \textbf{确定遍历顺序：}先序（自顶向下传递）、后序（自底向上汇总）、还是需中序（BST 特性）？
-    \item \textbf{定义返回值语义：}不仅仅返回「结果」，可以返回包含多个信息的结构体或特殊值。
-    \item \textbf{常见的二叉树算法训练：}求深度/宽度、判断完全二叉树、判断平衡二叉树、求双分支结点数、交换左右子树。
-\end{enumerate}
-\end{attention}
-
-\subsection{二叉树非递归遍历的应用}
-
-当递归的栈深度可能导致栈溢出，或者需要中途暂停遍历时，需要使用非递归（显式栈/队列）方法。
-
-\subsubsection{非递归中序遍历}
-
-\begin{conclusion}{非递归中序遍历}{inorder-nonrec}
-\textbf{「沿左链走到尽头再回溯」策略：}
+图里的青色框标出跨中点的最优段：从 $mid$ 向左累加，$1,\,4,\,-1,\,1$ 中最大是 $4$；从 $mid+1$ 向右累加，$-1,\,3,\,1$ 中最大是 $3$。两段在中点处拼接，得到 $7$。
 
 \begin{lstlisting}[language=C]
-void InOrderNonRec(BiTree T) {
-    BiTNode *stack[MaxSize];
-    int top = -1;
-    BiTNode *p = T;
-    while (p || top != -1) {
-        if (p) {                     // 沿左链一直走，入栈
-            stack[++top] = p;
-            p = p->lchild;
-        } else {                     // 无左孩子，出栈访问，转向右子树
-            p = stack[top--];
-            visit(p);
-            p = p->rchild;
-        }
-    }
-}
-\end{lstlisting}
-
-\textbf{复杂度：}时间 $O(n)$，辅助栈空间为 $O(h)$，其中 $h$ 为树高；退化为链时最坏 $O(n)$，树高为 $O(\log n)$ 时为 $O(\log n)$。
-\end{conclusion}
-
-\subsubsection{非递归先序遍历}
-
-\begin{conclusion}{非递归先序遍历}{preorder-nonrec}
-\begin{lstlisting}[language=C]
-void PreOrderNonRec(BiTree T) {
-    BiTNode *stack[MaxSize];
-    int top = -1;
-    if (T) stack[++top] = T;
-    while (top != -1) {
-        BiTNode *p = stack[top--];
-        visit(p);
-        if (p->rchild) stack[++top] = p->rchild;   // 右孩子先进栈
-        if (p->lchild) stack[++top] = p->lchild;   // 左孩子后进栈（先出栈）
-    }
-}
-\end{lstlisting}
-\end{conclusion}
-
-\subsubsection{非递归后序遍历}
-
-\begin{conclusion}{非递归后序遍历}{postorder-nonrec}
-\textbf{双栈法（最简单的实现思路）：}先用「根$\to$右$\to$左」的顺序入栈，再反转输出即得「左$\to$右$\to$根」的后序。
-或者用单栈 + 标记法：
-
-\begin{lstlisting}[language=C]
-void PostOrderNonRec(BiTree T) {
-    BiTNode *stack[MaxSize];
-    int tag[MaxSize];               // 0: 未访问右子树, 1: 已访问
-    int top = -1;
-    BiTNode *p = T;
-    do {
-        while (p) {                 // 沿左链走到底
-            stack[++top] = p;
-            tag[top] = 0;
-            p = p->lchild;
-        }
-        while (top != -1 && tag[top] == 1) {  // 右子树已访问，访问根
-            visit(stack[top--]);
-        }
-        if (top != -1) {            // 转向右子树
-            tag[top] = 1;
-            p = stack[top]->rchild;
-        }
-    } while (top != -1 || p);
-}
-\end{lstlisting}
-\end{conclusion}
-
-\subsubsection{非递归遍历的经典应用}
-
-\begin{conclusion}{通过遍历序列构建表达式}{traversal-applications}
-非递归遍历（尤其是栈操作）在以下场景中非常有用：
-\begin{itemize}
-    \item \textbf{寻找两结点的最近公共祖先（LCA）：}分别记录从根到两个结点的路径（用非递归后序遍历实现），然后比较两条路径找到最后一个相同结点。时间复杂度 $O(n)$。
-    \item \textbf{求从根到每个叶子结点的路径：}先序遍历 + 栈维护当前路径，遇到叶子时输出栈中内容。
-    \item \textbf{表达式树求值：}后序遍历（递归/非递归均可）求值，叶子为操作数，内部结点为运算符。
-    \item \textbf{二叉树线索化：}中序遍历时记录前驱结点，修改其 \texttt{rchild} 为线索指向当前结点。
-\end{itemize}
-\end{conclusion}
-
-\subsection{图的遍历应用}
-
-图的 DFS 和 BFS 不仅是遍历手段，更是解决图论问题的算法框架。
-
-\subsubsection{连通分量计数}
-
-\begin{conclusion}{无向图连通分量计数}{connected-components}
-\textbf{算法思路：}对每个未访问顶点启动一次 DFS（或 BFS），启动次数即连通分量个数。
-
-\begin{lstlisting}[language=C]
-int CountConnectedComponents(ALGraph *G) {
-    bool visited[MaxV] = {false};
-    int count = 0;
-    for (int v = 0; v < G->n; v++) {
-        if (!visited[v]) {
-            count++;                 // 新连通分量
-            DFS(G, v, visited);      // 遍历该连通分量内的所有顶点
-        }
-    }
-    return count;
-}
-\end{lstlisting}
-
-\textbf{复杂度：}邻接表 $O(n+e)$，邻接矩阵 $O(n^2)$。
-
-\textbf{变体：}
-\begin{itemize}
-    \item 判断无向图是否连通——即连通分量计数是否为 $1$。
-    \item 输出各连通分量的顶点集合——在 DFS 中将顶点加入当前分量的结果数组。
-    \item 有向图的强连通分量——需要 Kosaraju 或 Tarjan 算法（408 仅要求了解概念）。
-\end{itemize}
-\end{conclusion}
-
-\subsubsection{判断图中是否存在环}
-
-\begin{conclusion}{无向图判环}{undirected-cycle-detect}
-\textbf{DFS 方法：}遍历过程中，若遇到已访问顶点且该顶点不是当前结点的直接父结点，则存在环。
-
-\begin{lstlisting}[language=C]
-bool DFSCycle(ALGraph *G, int v, int parent, bool visited[]);
-
-bool HasCycleUndirected(ALGraph *G) {
-    bool visited[MaxV] = {false};
-    for (int v = 0; v < G->n; v++)
-        if (!visited[v])
-            if (DFSCycle(G, v, -1, visited))  // -1 表示无父结点
-                return true;
-    return false;
-}
-bool DFSCycle(ALGraph *G, int v, int parent, bool visited[]) {
-    visited[v] = true;
-    for (ArcNode *p = G->adjlist[v].first; p; p = p->next) {
-        int w = p->adjvex;
-        if (!visited[w]) {
-            if (DFSCycle(G, w, v, visited)) return true;
-        } else if (w != parent) {    // 已访问且不是父结点 $\to$ 回边 $\to$ 有环
-            return true;
-        }
-    }
-    return false;
-}
-\end{lstlisting}
-\end{conclusion}
-
-\begin{conclusion}{有向图判环}{directed-cycle-detect}
-有向图判环不能简单地判断「已访问 + 不是父结点」，因为存在指向已经被其他路径访问的顶点的情况（非环）。需用三色标记法或用拓扑排序（能否排序 $n$ 个顶点）。
-
-\textbf{方法一：三色 DFS}
-\begin{lstlisting}[language=C]
-enum { WHITE, GRAY, BLACK };
-int color[MaxV];
-bool HasCycleDirected(ALGraph *G) {
-    for (int i = 0; i < G->n; i++) color[i] = WHITE;
-    for (int v = 0; v < G->n; v++)
-        if (color[v] == WHITE)
-            if (DFSCycleD(G, v)) return true;
-    return false;
-}
-bool DFSCycleD(ALGraph *G, int v) {
-    color[v] = GRAY;                // 正在访问
-    for (ArcNode *p = G->adjlist[v].first; p; p = p->next) {
-        int w = p->adjvex;
-        if (color[w] == GRAY) return true;   // 回到当前路径上 $\to$ 环
-        if (color[w] == WHITE && DFSCycleD(G, w))
-            return true;
-    }
-    color[v] = BLACK;               // 访问完毕
-    return false;
-}
-\end{lstlisting}
-
-\textbf{方法二：拓扑排序法。}运行拓扑排序，若最终输出的顶点数少于 $n$，则存在环。时间复杂度 $O(n+e)$。
-
-\textbf{复杂度：}均为 $O(n+e)$（邻接表）。
-\end{conclusion}
-
-\subsection{分治思想}
-
-
-\begin{mydef}{分治策略}{divide-and-conquer}
-分治（Divide-and-Conquer）将原问题递归地分解为若干个规模较小的同类子问题，分别求解后合并得到原问题的解。标准步骤：
-\begin{enumerate}
-    \item \textbf{分解（Divide）：}将原问题划分为 $k$ 个规模更小的子问题（通常 $k=2$）；
-    \item \textbf{求解（Conquer）：}递归求解各子问题；当子问题足够小时直接求解；
-    \item \textbf{合并（Combine）：}将子问题的解合并为原问题的解。
-\end{enumerate}
-分治算法的复杂度通常由递推式 $T(n)=a\cdot T(n/b)+f(n)$ 描述，可用主定理求解。
-\end{mydef}
-
-\subsubsection{数组主元素}
-
-\begin{conclusion}{寻找主元素（Boyer-Moore 多数投票算法）}{majority-element}
-\textbf{问题：}长度为 $n$ 的数组中，主元素指出现次数 $>\lfloor n/2\rfloor$ 的元素。找出主元素或判定不存在。
-
-\textbf{算法思路（$O(n)$ 时间，$O(1)$ 空间）：}
-\begin{enumerate}
-    \item 设置候选 \texttt{candidate} 和计数器 \texttt{count=0}。
-    \item 遍历数组：若 \texttt{count=0}，将当前元素设为 \texttt{candidate}；若当前元素 $=$ \texttt{candidate}，\texttt{count++}；否则 \texttt{count--}。
-    \item 再次遍历，验证 \texttt{candidate} 的出现次数是否 $> n/2$。若否，则不存在主元素。
-\end{enumerate}
-
-\begin{lstlisting}[language=C]
-// 通过返回值表示是否存在主元素，*result 输出主元素
-bool MajorityElement(int A[], int n, int *result) {
-    int candidate = 0, count = 0;
-    for (int i = 0; i < n; i++) {
-        if (count == 0) candidate = A[i];   // 重置候选
-        count += (A[i] == candidate) ? 1 : -1;
-    }
-    count = 0;
-    for (int i = 0; i < n; i++)             // 验证阶段
-        if (A[i] == candidate) count++;
-    if (count <= n / 2) return false;
-    *result = candidate;
-    return true;
-}
-\end{lstlisting}
-
-\textbf{正确性直觉：}每次 \texttt{count} 归零，说明遍历过的前缀中候选元素和其他元素恰好两两抵消。由于主元素个数大于总数的一半，最终 \texttt{candidate} 必然是主元素。
-
-\textbf{复杂度：}时间 $O(n)$，空间 $O(1)$。
-\end{conclusion}
-
-\begin{attention}
-这是一类典型的 408 风格算法设计题：既要写出候选值的计数抵消过程，也要进行第二遍计数验证。算法不依赖复杂数据结构，但能体现「计数抵消」和正确性验证的思维。
-\end{attention}
-
-\subsubsection{逆序对计数}
-
-\begin{conclusion}{求数组逆序对个数}{inversion-count}
-\textbf{问题：}数组中若 $i<j$ 且 $A[i] > A[j]$，称 $(A[i], A[j])$ 为一个逆序对。求数组中的逆序对总数。
-
-\textbf{算法思路：}在归并排序（Merge Sort）的归并过程中统计。当左侧子数组元素 $A[i]$ 大于右侧子数组元素 $B[j]$ 时，左侧剩余的所有元素（$A[i\ldots\text{mid}]$）都与 $B[j]$ 构成逆序对。
-
-\begin{lstlisting}[language=C]
-long long MergeCount(int A[], int left, int mid, int right) {
-    int temp[right - left + 1];
-    int i = left, j = mid + 1, k = 0;
-    long long inv = 0;
-    while (i <= mid && j <= right) {
-        if (A[i] <= A[j]) {
-            temp[k++] = A[i++];
-        } else {
-            temp[k++] = A[j++];
-            inv += (mid - i + 1);          // A[i..mid] 均与 A[j] 构成逆序对
-        }
-    }
-    while (i <= mid) temp[k++] = A[i++];
-    while (j <= right) temp[k++] = A[j++];
-    for (i = 0; i < k; i++) A[left + i] = temp[i];
-    return inv;
-}
-
-long long CountInversions(int A[], int left, int right) {
-    if (left >= right) return 0;
-    int mid = left + (right - left) / 2;
-    long long leftInv = CountInversions(A, left, mid);
-    long long rightInv = CountInversions(A, mid + 1, right);
-    long long crossInv = MergeCount(A, left, mid, right);
-    return leftInv + rightInv + crossInv;
-}
-\end{lstlisting}
-
-\textbf{复杂度：}时间 $O(n\log n)$，空间 $O(n)$（归并辅助数组）。
-
-\textbf{变体：}
-\begin{itemize}
-    \item 求「顺序对」个数——将比较条件改为 $A[i] < A[j]$。
-    \item 求「重要翻转对」——$A[i] > 2 \times A[j]$，需在归并前独立扫描一次。
-\end{itemize}
-\end{conclusion}
-
-\subsubsection{最大子段和}
-
-\begin{conclusion}{最大子段和}{max-subarray}
-\textbf{问题：}给定含 $n$ 个元素的数组，求连续子数组的最大和。
-
-\textbf{方法一：分治（$O(n\log n)$）。}将数组分为左右两半，最大子段要么全在左半、要么全在右半、要么跨越中点。跨越中点时，从中点向左右分别扫描求最大和。
-
-\textbf{方法二：DP/贪心（$O(n)$，更常用）。}
-\begin{lstlisting}[language=C]
-int MaxSubArray(int A[], int n) {
-    int curSum = 0, maxSum = A[0];       // 或 INT_MIN
-    for (int i = 0; i < n; i++) {
-        curSum = (curSum > 0 ? curSum : 0) + A[i];  // 若前缀和<0则舍弃
-        if (curSum > maxSum) maxSum = curSum;
-    }
-    return maxSum;
-}
-\end{lstlisting}
-
-\textbf{分治版本：}
-\begin{lstlisting}[language=C]
-int MaxCrossing(int A[], int left, int mid, int right) {
-    int leftSum = A[mid], sum = 0;
-    for (int i = mid; i >= left; i--) {
+int MaxCrossing(int A[], int lo, int mid, int hi) {
+    int sum = 0, bestLeft = A[mid];
+    for (int i = mid; i >= lo; i--) {      /* 以 mid 结尾的最大后缀 */
         sum += A[i];
-        if (sum > leftSum) leftSum = sum;
+        if (sum > bestLeft) bestLeft = sum;
     }
-    int rightSum = A[mid + 1]; sum = 0;
-    for (int i = mid + 1; i <= right; i++) {
-        sum += A[i];
-        if (sum > rightSum) rightSum = sum;
+    sum = 0;
+    int bestRight = A[mid + 1];
+    for (int j = mid + 1; j <= hi; j++) {  /* 以 mid+1 开头的最大前缀 */
+        sum += A[j];
+        if (sum > bestRight) bestRight = sum;
     }
-    return leftSum + rightSum;
+    return bestLeft + bestRight;
 }
-int MaxSubArrayDC(int A[], int left, int right) {
-    if (left == right) return A[left];
-    int mid = left + (right - left) / 2;
-    int lMax = MaxSubArrayDC(A, left, mid);
-    int rMax = MaxSubArrayDC(A, mid + 1, right);
-    int cMax = MaxCrossing(A, left, mid, right);
-    int max = lMax;
-    if (rMax > max) max = rMax;
-    if (cMax > max) max = cMax;
-    return max;
+
+int MaxSubArray(int A[], int lo, int hi) {
+    if (lo == hi) return A[lo];            /* 基例：单个元素 */
+    int mid = lo + (hi - lo) / 2;
+    int lmax = MaxSubArray(A, lo, mid);
+    int rmax = MaxSubArray(A, mid + 1, hi);
+    int cmax = MaxCrossing(A, lo, mid, hi);
+    int best = (lmax > rmax) ? lmax : rmax;
+    return (cmax > best) ? cmax : best;
 }
 \end{lstlisting}
 
-\textbf{复杂度：}分治 $T(n)=2T(n/2)+O(n)\to O(n\log n)$；贪心/DP 为 $O(n)$。
-\end{conclusion}
+基例返回单个元素，而不是 $0$，这样全负数时答案是最小的那个负数，不会把“空段的和 $0$”误当成合法答案。跨中点扫描两遍，每遍 $\Theta(n)$，加上两次递归：
+\[
+T(n)=2T\!\left(\frac n2\right)+\Theta(n)\;\Longrightarrow\;\Theta(n\log n).
+\]
+递归深度 $\Theta(\log n)$，除输入数组外只用常数个变量。这道题有 $\Theta(n)$ 的 Kadane 算法（扫描一遍，前缀和为负就丢掉），分治版本的价值在于练习“切开后处理跨界情形”这个套路，而不是追求最快。
 
-\subsection{算法设计题训练覆盖}
+\subsection{贪心：只保留一个候选}
+
+有 6 个活动要用同一间教室，每个活动有开始、结束时间（左闭右开），问最多能安排几个：
+
+\begin{center}
+\begin{tabular}{c|cccccc}
+\hline
+活动 & $a_1$ & $a_2$ & $a_3$ & $a_4$ & $a_5$ & $a_6$\\
+\hline
+时间段 & $[1,3)$ & $[2,5)$ & $[4,6)$ & $[6,8)$ & $[5,9)$ & $[8,10)$\\
+\hline
+\end{tabular}
+\end{center}
+
+一个直接的贪心规则：按结束时间从早到晚排序，依次检查，只要开始时间不早于上一个选中活动的结束时间就选。排序后是 $a_1(3),a_2(5),a_3(6),a_4(8),a_5(9),a_6(10)$，括号内为结束时间。$a_1$ 选；$a_2$ 开始于 $2<3$，跳过；$a_3$ 开始于 $4\ge 3$，选；$a_4$ 开始于 $6\ge 6$，选；$a_5$ 开始于 $5<8$，跳过；$a_6$ 开始于 $8\ge 8$，选。共 4 个。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth, x=0.62cm]
+  \draw[->] (0,-3.62) -- (12.3,-3.62);
+  \foreach \t in {0,...,12} {
+    \draw (\t,-3.62) -- (\t,-3.75);
+    \node[font=\tiny, black!60] at (\t,-3.92) {\t};
+  }
+  \foreach \y/\lab/\s/\e/\sel in {0/a_1/1/3/1, -0.62/a_2/2/5/0, -1.24/a_3/4/6/1,
+                                 -1.86/a_4/6/8/1, -2.48/a_5/5/9/0, -3.10/a_6/8/10/1} {
+    \node[anchor=east] at (-0.15,\y) {$\lab$};
+    \ifnum\sel=1
+      \fill[SoftTeal, draw=Teal, thick] (\s,\y-0.17) rectangle (\e,\y+0.17);
+    \else
+      \fill[SoftGray, draw=MutedText, dashed] (\s,\y-0.17) rectangle (\e,\y+0.17);
+    \fi
+  }
+  \node[anchor=west, font=\tiny, black!65] at (0,-4.3) {青色：选中；灰色虚线：跳过；数字为时间};
+\end{tikzpicture}
+\par\smallskip
+{\small\color{MutedText} 图 15-4\quad 按结束时间最早的贪心选择（选出 $a_1,a_3,a_4,a_6$）}
+\end{center}
+
+从图上看，$a_2$ 开始得比 $a_1$ 晚、结束得比 $a_1$ 晚，选了 $a_2$ 就会把 $a_3$ 挡掉；$a_5$ 横跨了 $a_4$ 的整个区间，选了它反而少一个。结束时间最早的活动留给后面的时间最多，这是它胜出的原因。
+
+这个直觉可以写成交换论证。把最优解记作 $O$，按结束时间排好。设 $O$ 的第一个活动是 $o$，贪心选的第一个活动是 $g$。$g$ 是所有活动里结束最早的，所以 $f(g)\le f(o)$。把 $O$ 中的 $o$ 换成 $g$：$O$ 里剩下的活动都在 $o$ 结束后才开始，而 $g$ 结束得更早，所以它们仍然与 $g$ 相容。换完之后活动数不变，仍是最优解。于是“选 $g$”不会错过最优解，这就是贪心选择性质。对 $g$ 结束之后的时段重复同样的论证，整个贪心序列就都是安全的。
+
+换成“开始时间最早”或“持续时间最短”就不成立。开始最早的活动可能一直占到很晚，挡住后面三个；持续最短的活动可能卡在中间，把两边都切断。贪心规则看起来越自然，越要用交换论证检查一遍。
+
+\subsubsection{贪心什么时候失效}
+
+先看找零。面额 $1,3,4$，凑 $6$。按“先拿面额最大”的贪心，$4+1+1$ 三枚；最优是 $3+3$ 两枚。人民币的 $1,2,5,10$ 这套面额满足贪心最优的性质（可以用归纳证明），换成 $1,3,4$ 就不成立。面额体系本身决定了贪心能不能用，不能只看“面额大”。
+
+再看背包。分数背包允许把物品切碎，按单位价值从高到低装，最后一件装不下就切一部分。0-1 背包每件要么整件拿、要么不拿，同样的贪心会失败。取容量 $W=10$，三件物品：
+
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+物品 & 重量 & 价值 & 单位价值\\
+\hline
+$A$ & 6 & 31 & $31/6\approx 5.17$\\
+$B$ & 5 & 25 & $5$\\
+$C$ & 5 & 25 & $5$\\
+\hline
+\end{tabular}
+\end{center}
+
+按单位价值贪心先拿 $A$，剩 4 的容量，$B$、$C$ 都放不下，总价值 $31$；最优是 $B+C=50$。如果允许切分，拿 $A$ 之后再装 $B$ 的 $4/5$，总价值 $31+20=51$，贪心又对了。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth]
+  \def\cellw{0.5}
+  % (a) 0-1 贪心
+  \node[anchor=east] at (-0.15,0.21) {(a) 0-1 贪心};
+  \foreach \k in {0,...,9} \draw[RuleGray] (\k*\cellw,0) rectangle ++(\cellw,0.42);
+  \fill[SoftTeal, draw=Teal] (0,0) rectangle (6*\cellw,0.42);
+  \node at (3*\cellw,0.21) {$A$};
+  \node[anchor=west] at (10*\cellw+0.15,0.21) {价值 $31$，空 $4$};
+  % (b) 0-1 最优
+  \node[anchor=east] at (-0.15,-0.79) {(b) 0-1 最优};
+  \foreach \k in {0,...,9} \draw[RuleGray] (\k*\cellw,-1.0) rectangle ++(\cellw,0.42);
+  \fill[SoftAmber, draw=Amber] (0,-1.0) rectangle (5*\cellw,-0.58);
+  \node at (2.5*\cellw,-0.79) {$B$};
+  \fill[SoftTeal, draw=Teal] (5*\cellw,-1.0) rectangle (10*\cellw,-0.58);
+  \node at (7.5*\cellw,-0.79) {$C$};
+  \node[anchor=west] at (10*\cellw+0.15,-0.79) {价值 $50$};
+  % (c) 分数背包
+  \node[anchor=east] at (-0.15,-1.79) {(c) 分数背包};
+  \foreach \k in {0,...,9} \draw[RuleGray] (\k*\cellw,-2.0) rectangle ++(\cellw,0.42);
+  \fill[SoftTeal, draw=Teal] (0,-2.0) rectangle (6*\cellw,-1.58);
+  \node at (3*\cellw,-1.79) {$A$};
+  \fill[SoftAmber, draw=Amber] (6*\cellw,-2.0) rectangle (10*\cellw,-1.58);
+  \node[font=\tiny] at (8*\cellw,-1.79) {$B$ 的 $4/5$};
+  \node[anchor=west] at (10*\cellw+0.15,-1.79) {价值 $51$};
+  \node[font=\tiny, black!60, anchor=west] at (0,-2.5) {每格为 1 单位容量，总容量 $W=10$；虚线格为空闲};
+\end{tikzpicture}
+\par\smallskip
+{\small\color{MutedText} 图 15-5\quad 0-1 背包与分数背包：同一组物品，贪心的结果不同}
+\end{center}
+
+图中三行是同一组物品的三种装法：第一行按单位价值先拿 $A$，剩下 4 格空着；第二行是 0-1 背包的最优解 $B+C$；第三行允许把 $B$ 切开，装它的 $4/5$。每格代表 1 单位容量，总容量为 10。
+
+分数背包的交换论证很直接：如果最优解没有优先装最高单位价值的物品，就用它替换等重量的低价值物品，总价值不会下降；最后一件装不下就切一部分。0-1 背包不允许切分，替换后重量对不上，这个论证就断了。
+
+贪心法要证明两件事：贪心选择性质（存在一个最优解包含当前贪心选择）和最优子结构（做出该选择后，剩下的子问题的最优解与原问题的最优解拼得起来）。缺一不可。考试里如果只写“每次选最大的”而不说明为什么，通常拿不到证明分。
 
 \begin{attention}
-原按年份、题号和分值排列的索引尚未逐题对照权威原卷，本版不把它作为正式内容发布。下列内容只用于说明算法训练覆盖，不声明某一题对应具体考试年份。
+贪心题最常见的失分点不是代码，而是把“看起来合理”当成“已经证明”。0-1 背包按单位价值贪心、活动安排按开始时间贪心、找零按面额从大到小贪心，都是经典的失效例子。判断一个贪心策略是否成立，先试着构造反例；构造不出来，再用交换论证证明。
 \end{attention}
 
-\begin{conclusion}{训练规律总结}{exam-patterns}
-数据结构算法设计题应重点覆盖以下能力：
-\begin{enumerate}
-    \item \textbf{线性表（数组/链表）：}原地修改、双指针、循环移动、去重、拆分与归并；
-    \item \textbf{链表题集中在三种核心操作：}逆置、双指针、归并/拆分；
-    \item \textbf{二叉树题集中在：}递归遍历应用（WPL、深度判定、表达式树）、层序遍历；
-    \item \textbf{分治、贪心与空间换时间：}中位数、主元素、未出现的最小正整数、逆序对等典型问题；
-    \item \textbf{图算法：}基于 DFS/BFS 的可达性、路径约束、连通性与环检测；
-    \item \textbf{作答要求：}必须给出核心伪代码，说明边界条件，并分别分析时间复杂度和辅助空间复杂度。
-\end{enumerate}
-\end{conclusion}
+Huffman 编码每次合并权值最小的两棵树；Prim 每次选连接当前树与树外顶点的最便宜边，Kruskal 每次选全图最便宜的边；\mbox{Dijkstra} 每次取出距离最小的未确定顶点。它们都是贪心。这些算法在第 4、5、6 章已经出现过，证明思路同样是交换论证或割性质，可以对照看。贪心算法的时间通常花在排序上：活动安排 $O(n\log n)$，Huffman 用堆也是 $O(n\log n)$，其余是一次线性扫描。
+
+\subsection{动态规划：把子问题的答案存起来}
+
+计算 Fibonacci 数列的第 $n$ 项。直接按定义递归，$F(n)=F(n-1)+F(n-2)$，会反复计算同一个 $F(k)$：$F(5)$ 要算 $F(4)$ 和 $F(3)$，$F(4)$ 又要算 $F(3)$ 和 $F(2)$，$F(3)$ 被算了两次。$n$ 稍大，调用次数就接近指数。把算过的 $F(k)$ 记下来，每个 $k$ 只算一次，复杂度立刻降到 $O(n)$。
+
+这里出现了分治没有处理的情况：子问题重叠。分治要求子问题独立，各算各的；动态规划承认子问题会重复，于是用一张表保存答案，用空间换时间。能用动态规划的问题通常有三个特征：最优子结构（原问题的最优解由子问题的最优解拼成）、重叠子问题（递归过程中同一个子问题反复出现）、无后效性（状态确定后，后续决策只依赖状态，与怎么到达这个状态无关）。
+
+把“走到某一步时还剩什么问题”压缩成一组参数，这组参数叫状态。状态必须包含决定后续决策的全部信息；如果漏了信息，不同历史会被误认为同一种状态，转移就不对。动态规划的设计可以按五件事检查：状态的含义、转移方程、边界、计算顺序、最终答案。顺序要保证算一个状态时，它依赖的状态已经算好。
+
+\subsubsection{最长公共子序列}
+
+给定两个串 $X[1\ldots m]$、$Y[1\ldots n]$，求它们的最长公共子序列（LCS）长度。子序列不要求连续，但字符的先后次序不能变。设 $dp[i][j]$ 为 $X$ 的前 $i$ 个字符与 $Y$ 的前 $j$ 个字符的 LCS 长度。看两个前缀的最后一个字符：
+
+\begin{itemize}
+  \item 若 $X[i]=Y[j]$，这个字符可以放进公共子序列的末尾，$dp[i][j]=dp[i-1][j-1]+1$；
+  \item 若 $X[i]\ne Y[j]$，LCS 不可能同时用上这两个字符，至少舍弃一个，$dp[i][j]=\max\{dp[i-1][j],\,dp[i][j-1]\}$。
+\end{itemize}
+
+边界是 $i=0$ 或 $j=0$ 时 $dp=0$，因为空串与任何串的 LCS 都是空串。第一行成立需要一点说明：两个末字符相等时，一定存在一个最优解以这个字符结尾。如果某个最优解的末尾不是它，可以把匹配挪到最后，长度不变，所以加 1 不会错过更优解。
+
+取 $X=\texttt{ABCBDAB}$，$Y=\texttt{BDCABA}$，按行填表，得到图 15-6。单元格里的数字是 $dp[i][j]$，青色格子是回溯时字符相等的格子。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth]
+  \def\cw{0.66}
+  \def\ch{0.46}
+  \tikzset{cell/.style={draw=RuleGray, minimum width=0.63cm, minimum height=0.43cm,
+                        inner sep=0pt, font=\tiny}}
+  \foreach \j/\lab in {0/\varepsilon,1/B,2/D,3/C,4/A,5/B,6/A}
+    \node[font=\tiny] at (\j*\cw,0.5) {$\lab$};
+  \foreach \i/\lab in {0/\varepsilon,1/A,2/B,3/C,4/B,5/D,6/A,7/B}
+    \node[font=\tiny, anchor=east] at (-0.37,-\i*\ch) {$\lab$};
+  \node[font=\tiny, black!60] at (-0.55,0.5) {$X_i\backslash Y_j$};
+  \foreach \j/\v in {0/0,1/0,2/0,3/0,4/0,5/0,6/0}
+    \node[cell] (c-0-\j) at (\j*\cw,0) {$\v$};
+  \foreach \j/\v in {0/0,1/0,2/0,3/0,4/1,5/1,6/1}
+    \node[cell] (c-1-\j) at (\j*\cw,-\ch) {$\v$};
+  \foreach \j/\v/\f in {0/0/white,1/1/SoftTeal,2/1/white,3/1/white,4/1/white,5/2/white,6/2/white}
+    \node[cell, fill=\f] (c-2-\j) at (\j*\cw,-2*\ch) {$\v$};
+  \foreach \j/\v/\f in {0/0/white,1/1/white,2/1/white,3/2/SoftTeal,4/2/white,5/2/white,6/2/white}
+    \node[cell, fill=\f] (c-3-\j) at (\j*\cw,-3*\ch) {$\v$};
+  \foreach \j/\v/\f in {0/0/white,1/1/white,2/1/white,3/2/white,4/2/white,5/3/SoftTeal,6/3/white}
+    \node[cell, fill=\f] (c-4-\j) at (\j*\cw,-4*\ch) {$\v$};
+  \foreach \j/\v in {0/0,1/1,2/2,3/2,4/2,5/3,6/3}
+    \node[cell] (c-5-\j) at (\j*\cw,-5*\ch) {$\v$};
+  \foreach \j/\v/\f in {0/0/white,1/1/white,2/2/white,3/2/white,4/3/white,5/3/white,6/4/SoftTeal}
+    \node[cell, fill=\f] (c-6-\j) at (\j*\cw,-6*\ch) {$\v$};
+  \foreach \j/\v in {0/0,1/1,2/2,3/2,4/3,5/4,6/4}
+    \node[cell] (c-7-\j) at (\j*\cw,-7*\ch) {$\v$};
+  \draw[Burgundy, very thick] (c-7-6.north west) rectangle (c-7-6.south east);
+  \node[anchor=west, align=left, font=\tiny] at (4.9,-1.2)
+    {青色：$X[i]=Y[j]$ 的匹配格\\右下角 $dp[7][6]=4$ 即答案};
+  \node[anchor=west, align=left, font=\tiny] at (4.9,-4.2)
+    {回溯：相等走左上，\\否则走向值较大的一侧};
+\end{tikzpicture}
+\par\smallskip
+{\small\color{MutedText} 图 15-6\quad $X=\texttt{ABCBDAB}$ 与 $Y=\texttt{BDCABA}$ 的 LCS 表}
+\end{center}
+
+图里最大的数是右下角的 $4$。从右下角往回走：$X[7]=\texttt{B}$ 与 $Y[6]=\texttt{A}$ 不等，上方和左方都是 $4$，任选一个；走到 $(6,6)$ 时 $\texttt{A}=\texttt{A}$，走左上；如此反复，经过的青色格子对应字符 $\texttt{B},\texttt{C},\texttt{B},\texttt{A}$，是一个 LCS。$\texttt{BCBA}$ 和 $\texttt{BDAB}$ 都合法，长度都是 $4$，表只记录长度，不唯一确定是哪一个。
+
+\begin{lstlisting}[language=C]
+/* dp[MAXM][MAXN] 为全局表，这里只写填表过程 */
+int LCSLength(char X[], int m, char Y[], int n) {
+    for (int i = 0; i <= m; i++) dp[i][0] = 0;
+    for (int j = 0; j <= n; j++) dp[0][j] = 0;
+    for (int i = 1; i <= m; i++)
+        for (int j = 1; j <= n; j++)
+            if (X[i-1] == Y[j-1])          /* 代码下标从 0 开始 */
+                dp[i][j] = dp[i-1][j-1] + 1;
+            else
+                dp[i][j] = (dp[i-1][j] > dp[i][j-1])
+                           ? dp[i-1][j] : dp[i][j-1];
+    return dp[m][n];
+}
+\end{lstlisting}
+
+表有 $mn$ 个状态，每个状态 $O(1)$ 转移，时间 $O(mn)$，空间 $O(mn)$。如果只要长度，可以把二维表压成两行（或一行加一个临时变量），空间降到 $O(\min\{m,n\})$；如果要输出具体的子序列，回溯需要整张表，除非用分治式的 Hirschberg 算法。
+
+\subsubsection{0-1 背包与滚动数组}
+
+$n$ 件物品，第 $i$ 件重 $w_i$、价值 $v_i$，背包容量 $W$，每件最多选一次，求最大总价值。设 $f[i][j]$ 为“只考虑前 $i$ 件、容量不超过 $j$”的最大价值。对第 $i$ 件，只有两种选择：
+\[
+f[i][j]=
+\begin{cases}
+f[i-1][j], & j<w_i,\\
+\max\{f[i-1][j],\;f[i-1][j-w_i]+v_i\}, & j\ge w_i.
+\end{cases}
+\]
+边界 $f[0][j]=0$，答案是 $f[n][W]$。选第 $i$ 件时，剩下的容量 $j-w_i$ 只能从前 $i-1$ 件里选，所以用 $f[i-1][\cdot]$，不能写成 $f[i][\cdot]$，否则同一件物品会被重复考虑。
+
+把 $i$ 这一维压掉，转移变成
+\[
+f[j]=\max\{f[j],\;f[j-w_i]+v_i\}.
+\]
+一维写法能成立，靠的是内层循环的顺序：$j$ 必须从 $W$ 倒着走到 $w_i$。原因是 $f[j-w_i]$ 必须还是“前 $i-1$ 件”的旧值；倒序时 $j-w_i<j$，这个位置还没有被本轮更新。正序会先更新 $f[j-w_i]$，再拿它算 $f[j]$，同一件物品就被放了两次。
+
+\begin{lstlisting}[language=C]
+int Knapsack01(int w[], int v[], int n, int W) {
+    int f[W + 1];
+    for (int j = 0; j <= W; j++) f[j] = 0;
+    for (int i = 1; i <= n; i++)           /* 物品下标 1..n */
+        for (int j = W; j >= w[i]; j--) {  /* 必须倒序 */
+            int t = f[j - w[i]] + v[i];
+            if (t > f[j]) f[j] = t;
+        }
+    return f[W];
+}
+\end{lstlisting}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth]
+  \def\cw{0.5}
+  \def\hh{0.42}
+  \tikzset{arr/.style={draw=RuleGray, minimum width=0.46cm, minimum height=0.38cm,
+                       inner sep=0pt, font=\tiny}}
+  % (a) 旧值
+  \node[anchor=east, font=\tiny] at (-0.12,0.19) {(a) 旧值};
+  \foreach \j in {0,...,10}
+    \node[arr] (o\j) at (\j*\cw,0) {$0$};
+  \draw[->, Burgundy, thick] (o10.north) to[out=75,in=105] (o6.north);
+  \node[Burgundy, font=\tiny, align=center] at (4*\cw,0.72) {$j=10$ 用 $f[6]$};
+  % (b) 倒序结果
+  \node[anchor=east, font=\tiny] at (-0.12,-0.98) {(b) 倒序};
+  \foreach \j/\v in {0/0,1/0,2/0,3/0,4/5,5/5,6/5,7/5,8/5,9/5,10/5}
+    \node[arr] (b\j) at (\j*\cw,-1.17) {$\v$};
+  \node[font=\tiny, black!60, anchor=west] at (5.35,-1.17) {正确：每件最多一次};
+  % (c) 正序结果
+  \node[anchor=east, font=\tiny] at (-0.12,-2.1) {(c) 正序};
+  \foreach \j/\v in {0/0,1/0,2/0,3/0,4/5,5/5,6/5,7/5,8/10,9/10,10/10}
+    \node[arr] (c\j) at (\j*\cw,-2.29) {$\v$};
+  \node[font=\tiny, Burgundy, anchor=west] at (5.35,-2.29) {$f[8]=10$：物品被装了两次};
+  \node[font=\tiny, black!60] at (5*\cw,-2.75) {$w_i=4$，$v_i=5$，其余容量初值为 $0$};
+\end{tikzpicture}
+\par\smallskip
+{\small\color{MutedText} 图 15-7\quad 0-1 背包一维数组的更新方向}
+\end{center}
+
+图 15-7(a) 是更新前的一行，全是 $0$。倒序先算 $j=10$，用到的 $f[6]$ 还没被本轮改过，仍是 $0$，得到 $5$；再算 $j=9,8,\ldots$，每次用到的 $f[j-4]$ 都在更左边，也还没更新。正序先算 $j=4$，把 $f[4]$ 改成 $5$；算到 $j=8$ 时用 $f[4]$，拿到的是刚写进去的 $5$，于是 $f[8]=10$，相当于把同一件物品放了两次。
+
+完全背包允许每件物品选任意多次，内层改成 $j$ 从 $w_i$ 正着走到 $W$。正序用新值正是想要的：$f[j-w_i]$ 已经包含了“再选一件第 $i$ 件”的可能。
+
+0-1 背包的时间是 $O(nW)$，空间 $O(W)$。这里的 $W$ 是容量的数值，不是输入的二进制定长；$W$ 很大时 $O(nW)$ 可能比 $O(2^n)$ 还慢。所以这个算法叫伪多项式算法，不能因为写出了 $nW$ 就认为它是多项式时间。
+
+动态规划的复杂度有一套固定的算法：状态数乘每个状态的转移代价。LCS 有 $mn$ 个状态，每个 $O(1)$，所以 $O(mn)$；0-1 背包有 $nW$ 个状态，每个 $O(1)$，所以 $O(nW)$。空间是表的大小，能滚动就滚动。动态规划与贪心的区别也在这里：动态规划保留所有可能的状态，最后从表里取最优；贪心每一步只保留一个候选，赌它属于某个最优解。贪心更快，但需要证明；动态规划更稳，但表可能很大。
+
+\subsection{回溯：在解空间树上走到底再回头}
+
+4 皇后问题：在 $4\times4$ 棋盘上放 4 个皇后，任意两个不同行、不同列、不同对角线。按行放：第 1 行有 4 个位置可选；选定后，第 2 行只能放在不与第 1 行冲突的列；再选第 3 行……如果某一行没有任何位置可放，就退回上一行，换一个列再试。这个“走不通就退回”的过程叫回溯。
+
+把每一步的选择画成一棵树：根是空棋盘，第 $i$ 层结点表示前 $i$ 行已经放好，边表示第 $i$ 行放在哪一列，叶子是一个完整布局或死路。这棵树叫解空间树，也叫决策树。回溯就是在这棵树上做深度优先搜索：发现当前结点不可能导出可行解（或更优解）时，剪掉它下面的整棵子树，返回上一层。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth]
+  \tikzset{qnode/.style={draw, circle, minimum size=0.46cm, inner sep=1pt, fill=SoftBlue}}
+  \node[qnode] (r) at (0,0) {};
+  \node[font=\tiny, anchor=south] at (0,0.28) {空棋盘};
+  \foreach \c/\x in {1/-3.6,2/-1.2,3/1.2,4/3.6} {
+    \node[qnode] (q\c) at (\x,-0.9) {\c};
+    \draw[black!45] (r) -- (q\c);
+  }
+  % 第 1 列的分支
+  \node[qnode, draw=Burgundy] (d2) at (-4.4,-1.8) {2};
+  \node[qnode, draw=Burgundy] (d3) at (-3.6,-1.8) {3};
+  \node[qnode, draw=Burgundy] (d4) at (-2.8,-1.8) {4};
+  \draw[black!45] (q1) -- (d2); \draw[black!45] (q1) -- (d3); \draw[black!45] (q1) -- (d4);
+  \node[Burgundy, font=\tiny] at (-4.2,-1.6) {$\times$};
+  \node[Burgundy, font=\tiny] at (-3.4,-1.6) {$\times$};
+  \node[Burgundy, font=\tiny] at (-2.6,-1.6) {$\times$};
+  \node[font=\tiny, black!60, align=left, anchor=north west] at (-4.9,-2.1)
+    {第 2 行放 2：对角冲突\\放 3：第 3 行无解\\放 4：第 4 行无解};
+  % 第 2 列的分支：2,4,1,3
+  \node[qnode] (s2) at (-1.2,-1.8) {4};
+  \node[qnode] (s3) at (-1.2,-2.7) {1};
+  \node[qnode] (s4) at (-1.2,-3.6) {3};
+  \draw[black!45] (q2) -- (s2); \draw[black!45] (s2) -- (s3); \draw[black!45] (s3) -- (s4);
+  \node[Teal, font=\tiny, anchor=west] at (-0.95,-3.6) {$\checkmark$};
+  \node[Teal, font=\tiny, align=left, anchor=west] at (-0.72,-3.6) {解 $(2,4,1,3)$};
+  % 其余分支
+  \draw[black!45, dashed] (q3) -- (1.2,-1.8);
+  \node[font=\tiny] at (1.2,-1.8) {$\cdots$};
+  \node[font=\tiny, align=center] at (1.2,-2.35) {另一解\\$(3,1,4,2)$};
+  \draw[black!45, dashed] (q4) -- (3.6,-1.8);
+  \node[font=\tiny] at (3.6,-1.8) {$\cdots$};
+  \node[font=\tiny, align=center] at (3.6,-2.35) {与第 1 列对称\\无解};
+  \node[font=\tiny, black!55, anchor=east] at (-5.15,-0.9) {行 1};
+  \node[font=\tiny, black!55, anchor=east] at (-5.15,-1.8) {行 2};
+  \node[font=\tiny, black!55, anchor=east] at (-5.15,-2.7) {行 3};
+  \node[font=\tiny, black!55, anchor=east] at (-5.15,-3.6) {行 4};
+\end{tikzpicture}
+\par\smallskip
+{\small\color{MutedText} 图 15-8\quad 4 皇后的解空间树（只展开前两列的分支）}
+\end{center}
+
+第 1 行放第 1 列后，第 2 行放第 2 列会与它同对角线；放第 3 列虽然暂时不冲突，但第 3 行没有任何列可放；放第 4 列则第 4 行无路可走。整棵子树被剪掉，回到根结点换第 2 列，得到 $(2,4,1,3)$。第 3 列是第 2 列的镜像，有解 $(3,1,4,2)$；第 4 列与第 1 列对称，无解。图中只画了必要的分支，未展开的用“$\cdots$”表示。
+
+\begin{lstlisting}[language=C]
+#define N 20                                /* 最大棋盘规模 */
+int col[N], d1[2 * N], d2[2 * N], sol[N], cnt;
+
+void Queen(int r, int n) {                  /* 正在放第 r 行，行号从 0 开始 */
+    if (r == n) { cnt++; return; }          /* 得到一个完整布局 */
+    for (int c = 0; c < n; c++) {
+        if (col[c] || d1[r + c] || d2[r - c + n - 1]) continue;
+        col[c] = d1[r + c] = d2[r - c + n - 1] = 1;
+        sol[r] = c;
+        Queen(r + 1, n);
+        col[c] = d1[r + c] = d2[r - c + n - 1] = 0;   /* 回溯：撤销选择 */
+    }
+}
+\end{lstlisting}
+
+\texttt{col[c]} 记录第 $c$ 列是否被占，\texttt{d1[r+c]} 记录主对角线，\texttt{d2[r-c+n-1]} 记录副对角线；放置时置 1，递归返回后置 0，这就是回溯。两条对角线的编号分别用 $r+c$ 和 $r-c+n-1$，后者加 $n-1$ 是为了避免负下标。
+
+最坏情况下，第 1 行 $n$ 种、第 2 行最多 $n-1$ 种……总搜索量 $O(n!)$。实际剪枝后远小于这个上界，但复杂度分析仍写最坏界。空间是递归深度 $O(n)$ 加上三个标记数组和路径数组，仍是 $O(n)$。
+
+\subsubsection{子集树与排列树}
+
+子集和问题：$n$ 个正整数，问是否存在一个子集，其和恰好为 $S$。每个元素只有选、不选两种决策，解空间树是一棵满二叉树，叫子集树：第 $i$ 层决定第 $i$ 个元素，左分支选、右分支不选，深度为 $n$。叶子有 $2^n$ 个，整棵树（含根）有
+\[
+1+2+4+\cdots+2^n=2^{n+1}-1
+\]
+个结点。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth]
+  \tikzset{sn/.style={draw, circle, minimum size=0.48cm, inner sep=1pt, fill=SoftBlue}}
+  \node[sn] (r) at (0,0) {$0$};
+  \node[sn] (a) at (-3,-0.9) {$3$};
+  \node[sn] (b) at (3,-0.9) {$0$};
+  \draw[black!45] (r) -- (a);
+  \draw[black!45] (r) -- (b);
+  \node[sn] (a1) at (-4.5,-1.8) {$7$};
+  \node[sn] (a2) at (-1.5,-1.8) {$3$};
+  \node[sn] (b1) at (1.5,-1.8) {$4$};
+  \node[sn] (b2) at (4.5,-1.8) {$0$};
+  \draw[black!45] (a) -- (a1); \draw[black!45] (a) -- (a2);
+  \draw[black!45] (b) -- (b1); \draw[black!45] (b) -- (b2);
+  \node[Teal, font=\tiny, anchor=west] at (-4.15,-1.8) {$\checkmark$};
+  % 第 3 层
+  \node[sn, draw=Burgundy] (t1) at (-2.1,-2.7) {$8$};
+  \node[sn, draw=Burgundy] (t2) at (-0.9,-2.7) {$3$};
+  \node[sn, draw=Burgundy] (t3) at (0.9,-2.7) {$9$};
+  \node[sn, draw=Burgundy] (t4) at (2.1,-2.7) {$4$};
+  \node[sn, draw=Burgundy] (t5) at (3.9,-2.7) {$5$};
+  \node[sn, draw=Burgundy] (t6) at (5.1,-2.7) {$0$};
+  \node[Burgundy, font=\tiny] at (-1.9,-2.52) {$\times$};
+  \node[Burgundy, font=\tiny] at (-0.7,-2.52) {$\times$};
+  \node[Burgundy, font=\tiny] at (1.1,-2.52) {$\times$};
+  \node[Burgundy, font=\tiny] at (2.3,-2.52) {$\times$};
+  \node[Burgundy, font=\tiny] at (4.1,-2.52) {$\times$};
+  \node[Burgundy, font=\tiny] at (5.3,-2.52) {$\times$};
+  \draw[black!45] (a2) -- (t1); \draw[black!45] (a2) -- (t2);
+  \draw[black!45] (b1) -- (t3); \draw[black!45] (b1) -- (t4);
+  \draw[black!45] (b2) -- (t5); \draw[black!45] (b2) -- (t6);
+  \node[font=\tiny, black!60, align=center] at (0.2,-3.35)
+    {$\times$：和已超过 $S$，或把剩余元素全选上也达不到 $S$\\
+     同一层左分支选、右分支不选；$S=7$，元素为 $3,4,5$};
+\end{tikzpicture}
+\par\smallskip
+{\small\color{MutedText} 图 15-9\quad 子集和问题的子集树与剪枝}
+\end{center}
+
+图里只有一个成功结点 $7$（$3+4$）。其余分支被两类条件剪掉：当前和已经大于 $S$（元素都是正数，再加只会更大），或者当前和加上剩余所有元素仍小于 $S$（全选都不够）。这两个条件都只会剪掉不可能有解的子树，不会误伤可行解。
+
+如果问题要求列出所有解，找到一个解后不能停，要继续回溯；如果只要求一个解，找到就可以一路返回。搜索顺序会影响找到解的快慢：把大的数放在前面，选入分支能更早触发“超过 $S$”的剪枝，不选分支的剩余和也会更小，往往更早被“全选也不够”截断。具体效果取决于数据分布，但正确性不受影响。
+
+排列问题的解空间树是排列树：第 1 层 $n$ 个分支，第 2 层 $n-1$ 个……叶子有 $n!$ 个。全排列、旅行商暴力搜索都属于这一类；$n$ 皇后按行放时每行有 $n$ 个列可选，但列不能重复，结构接近排列树。分析复杂度时先认清是哪一种：子集树 $O(2^n)$，排列树 $O(n!)$。
+
+回溯与蛮力的区别只在剪枝。不剪枝时它就是系统枚举，最坏复杂度不变；剪枝改变的是平均情况和常数，不能把最坏界写成更小。如果要求最优解而不是任意解，剪枝条件还要加上“当前代价已经不可能优于已知最优解”，这类方法常叫分支限界（branch and bound）。408 以回溯为主，知道两者的区别即可。
+
+\subsection{复杂度：把账算清楚}
+
+算法写完之后，最后一步是回答“它有多快、占多少内存”。408 的算法设计题几乎都会单独留一问给复杂度，这一问写错，前面的代码再漂亮也会扣分。
+
+\subsubsection{渐近记号与增长阶}
+
+$O$ 是上界：存在常数 $c>0$ 和 $n_0$，当 $n\ge n_0$ 时 $0\le T(n)\le c f(n)$。$\Omega$ 是下界，$\Theta$ 是上下界同阶。说归并排序 $O(n^2)$ 没有错，只是浪费了一个更紧的结论；考试问“时间复杂度”时，通常期望给紧界，写 $\Theta$ 或 $O$ 都可以，但不要把最坏情况的 $O$ 当成平均情况。对数底数不影响阶：$\log_2 n$ 与 $\ln n$ 只差常数倍，写成 $O(\log n)$ 即可。
+
+\begin{tablebox}{常见增长阶与典型场景}
+\centering
+\begin{tabular}{lll}
+\toprule
+阶 & 典型场景 & 例子 \\
+\midrule
+$O(1)$ & 与规模无关 & 顺序表按位取、散列查找（平均）\\
+$O(\log n)$ & 每步规模折半 & 二分查找、平衡树查找\\
+$O(n)$ & 扫描常数遍 & 顺序查找、Kadane、计数排序（值域 $O(n)$）\\
+$O(n\log n)$ & 分治合并或用堆 & 归并排序、堆排序、活动安排排序\\
+$O(n^2)$ & 双重枚举 & 冒泡/插入排序、LCS（$n=m$ 时）\\
+$O(n^3)$ & 三重枚举 & Floyd、朴素矩阵乘法\\
+$O(2^n)$ & 子集枚举 & 子集和、0-1 背包的枚举解法\\
+$O(n!)$ & 排列枚举 & 旅行商暴力、$n$ 皇后最坏\\
+\bottomrule
+\end{tabular}
+\end{tablebox}
+
+这张表只给数量级。$n=10$ 时 $2^{10}=1024$，$10!\approx3.6\times10^6$，差了三个数量级；把 $O(2^n)$ 和 $O(n!)$ 混为一谈，在 $n$ 稍大时就会得出完全错误的结论。
+
+\subsubsection{循环与递归的计数}
+
+循环的计数先看层数：相互独立的嵌套循环相乘；内层上界依赖外层变量时，写成求和。比如
+\begin{lstlisting}[language=C]
+for (int i = 1; i <= n; i++)
+    for (int j = 1; j <= n; j += i)
+        s++;
+\end{lstlisting}
+内层执行 $n/i$ 次，总次数是
+\[
+n\left(1+\frac12+\frac13+\cdots+\frac1n\right)=nH_n=\Theta(n\log n),
+\]
+其中 $H_n$ 是调和数，$\ln n<H_n<1+\ln n$。
+
+再看等比型：
+\begin{lstlisting}[language=C]
+for (int i = 1; i <= n; i *= 3)
+    for (int j = 1; j <= i; j++)
+        s++;
+\end{lstlisting}
+$i$ 取 $1,3,9,\ldots,3^k$，总次数
+\[
+1+3+9+\cdots+3^k=\frac{3^{k+1}-1}{2}.
+\]
+由 $3^k\le n<3^{k+1}$ 得总次数为 $\Theta(n)$。等比数列看末项，不是看项数：循环执行了 $\Theta(\log n)$ 次，但每次的工作量按几何级数增长，总工作量由最后一次决定。
+
+递归先写 $T(n)$，再解。三种常用方法：递归树（展开看每层）、主定理（标准形式直接套）、代入展开（猜答案再归纳）。常见的递推式和解可以背下来，但要知道每个解是怎么来的：
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+递推式 & 解 \\
+\midrule
+$T(n)=T(n/2)+1$ & $\Theta(\log n)$ \\
+$T(n)=T(n-1)+1$ & $\Theta(n)$ \\
+$T(n)=2T(n/2)+n$ & $\Theta(n\log n)$ \\
+$T(n)=2T(n/2)+1$ & $\Theta(n)$ \\
+$T(n)=2T(n-1)+1$ & $\Theta(2^n)$ \\
+$T(n)=T(n-1)+n$ & $\Theta(n^2)$ \\
+$T(n)=3T(n/2)+n$ & $\Theta(n^{\log_2 3})$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+画递归树时注意：结点数按 $a^j$ 增长，每个结点的代价是 $f(n/b^j)$，两者相乘才是该层总代价；不要只数结点。归并排序每层都是 $cn$，不是因为结点数不变，而是因为结点数翻倍、每个结点的区间减半，两者抵消。
+
+\subsubsection{空间与下界}
+
+空间复杂度只算辅助空间，不算输入和输出（题目另有约定除外）。递归栈要算：深度乘每帧的局部变量。归并排序的 \texttt{tmp} 是 $O(n)$，栈是 $O(\log n)$，合起来 $O(n)$；快速排序原地划分，但最坏递归深度 $O(n)$，栈就是 $O(n)$。如果递归是尾递归，编译器可能优化掉栈，但答题时按未优化算，除非题目说明。
+
+有些问题的复杂度下界不来自某个算法，而来自问题本身。比较排序可以看成一棵决策树：每个内部结点是一次比较，叶子是一种排列。$n$ 个元素有 $n!$ 种排列，所以叶子至少 $n!$ 个；高度为 $h$ 的二叉树最多 $2^h$ 个叶子，故
+\[
+h\ge \log_2(n!)=\Theta(n\log n).
+\]
+任何比较排序都逃不出这个下界，归并排序和堆排序已经达到，所以它们是最优的比较排序。这个论证和回溯里的解空间树不是一回事：前者对所有算法成立，后者只描述某一种搜索过程。
+
+\begin{attention}
+复杂度这一问最常见的失分点：
+\begin{itemize}
+  \item 把 $O(2^n)$ 和 $O(n!)$ 混为一谈，或把 $O(nW)$ 当成多项式时间（$W$ 是数值，不是输入长度）。
+  \item 递归栈漏算：归并排序的空间是 $O(n)$ 而不是 $O(1)$，快排最坏是 $O(n)$。
+  \item 循环次数看错：\texttt{i *= 2} 的循环执行 $\log n$ 次，不是 $n$ 次。
+  \item 只给最坏情况却标成“平均”，或者反过来。
+  \item 用 $O$ 给松上界（如把 $O(n\log n)$ 写成 $O(n^2)$），虽不算错，但不够准确。
+\end{itemize}
+\end{attention}
 
 \newpage
-\section{习题}
+\subsection{四条路线怎么选}
 
-\subsection{基础过关题}
+把前面的内容压成一张表：
 
-\begin{enumerate}
-
-\item \textbf{（单项选择题）} 在单链表中，用快慢指针法查找中间结点。慢、快指针均从首结点出发，并执行 \texttt{while (fast \&\& fast->next)}：慢指针每次走一步，快指针每次走两步。当链表长度为偶数时，循环结束后慢指针指向的是
 \begin{center}
-\begin{tabular}{ll}
-(A) 前半段的最后一个结点 & (B) 后半段的第一个结点 \\[4pt]
-(C) 链表的最后一个结点 & (D) 仅由链表长度的奇偶性无法确定
+\begin{tabular}{p{0.30\linewidth}p{0.16\linewidth}p{0.44\linewidth}}
+\toprule
+问题特征 & 优先尝试 & 典型问题 \\
+\midrule
+子问题独立、可合并 & 分治 & 归并排序、二分查找、最大子段和 \\
+每步有局部最优、可交换论证 & 贪心 & 活动安排、分数背包、Huffman \\
+子问题重叠、最优子结构 & 动态规划 & LCS、0-1 背包、编辑距离 \\
+需要枚举可行解、可剪枝 & 回溯 & $n$ 皇后、子集和、全排列 \\
+\bottomrule
 \end{tabular}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 长度为 $2k$ 时，快指针走完 $2k$ 个结点后变为 \texttt{NULL}，慢指针恰好前进 $k$ 步，指向第 $k+1$ 个结点，即后半段的第一个结点。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+这张表只是起点。实际题目常常混用：先用贪心排序，再用动态规划；先用分治缩小范围，再用回溯枚举；图上的算法题可能同时用到 DFS 和 DP。判断标准始终是问题结构，而不是题目的外观。线性表、二叉树、图这些结构在第 1 至 5 章已经讲过，本章的路线要套在它们上面用。
 
-\item \textbf{（单项选择题）} 以下关于 Floyd 快慢指针判环算法的说法中，错误的是
-\begin{center}
-\begin{tabularx}{0.96\linewidth}{@{}X@{}}
-(A) 快指针每次走两步可以保证在有环时一定与慢指针相遇 \\[4pt]
-(B) 快指针每次走三步也可以保证在有环时一定与慢指针相遇 \\[4pt]
-(C) 若检测阶段采用快指针每次走三步，找到相遇点后仍可直接用经典“头指针+相遇点各走一步”定位环入口 \\[4pt]
-(D) 算法的时间复杂度为 $O(n)$，空间复杂度为 $O(1)$
-\end{tabularx}
-\end{center}
+答题时，不管用哪条路线，最后都要落到三件事：核心代码（或伪代码）、边界条件、时间与空间复杂度。缺一项，算法设计题就很难拿满分。
 
-\ifshowsolutions\par\noindent\textbf{解析：} 经典 Floyd 算法的步长为慢指针1、快指针2，环内相对步长为1，故必能相遇。即使快指针改为每次3步，环内相对步长为2：设入环前的路径长度为 $a$，慢指针进入环时快指针已多走 $3a-a=2a$ 步，即初始相位差 $d\equiv 2a\pmod\lambda$，相遇条件 $2t\equiv -d\pmod\lambda$ 等价于 $2(t+a)\equiv0\pmod\lambda$，对任意环长 $\lambda$ 恒有解（$\lambda$ 为奇数时取 $t\equiv-a\pmod\lambda$，为偶数时取 $t\equiv-a\pmod{\lambda/2}$），因此检测阶段必相遇。不过，经典入口定位依赖相遇点满足 $a=k\lambda-b$ 的 1:2 关系；改成1:3后，直接重置并各走一步不一定落在入口。因此错误的是 (C)。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（单项选择题）} 判断有向图是否存在环的常用方法不包括
-\begin{center}
-\begin{tabular}{ll}
-(A) 三色 DFS 标记法 & (B) 拓扑排序 \\[4pt]
-(C) 并查集 & (D) 检查 DFS 过程中是否遇到 GRAY 结点
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 三色 DFS 中遇到指向 GRAY 结点的边说明存在回边；拓扑排序无法处理完全部顶点也说明有环。普通并查集适合无向图判环，不能直接判断一般有向图中的环。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（填空题）} 在归并排序的归并过程中统计逆序对，当取出右侧子数组元素时，左侧子数组中剩余的元素个数即为当前元素产生的 \underline{\qquad\qquad} 数。该算法的时间复杂度为 \underline{\qquad\qquad}。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 逆序对；$O(n\log n)$。左右两段已经有序，右段当前元素一旦小于左段当前元素，就同时小于左段全部剩余元素。\else \answerarea \fi
-
-\item \textbf{（填空题）} 判断一棵二叉树是否为完全二叉树时，若层序遍历中遇到了一个 \underline{\qquad\qquad} 的结点，则其后访问的结点必须均为叶子结点。若某结点仅有右孩子而无左孩子，可直接判定为 \underline{\qquad\qquad}。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 无右孩子；非完全二叉树。若结点只有左孩子，它必须位于最后一个非叶位置；若它连左孩子也没有，则它本身已是叶结点。两种情况下后续层序结点都必须是叶结点。\else \answerarea \fi
-
-\item \textbf{（简答题）} 简述用非递归中序遍历寻找二叉排序树中第 $k$ 小元素的基本思路，并说明时间复杂度。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 使用栈模拟中序遍历：沿左链依次入栈，弹出一个结点时将计数加1；计数首次等于 $k$ 时，该结点就是第 $k$ 小元素，然后转向其右子树继续同样过程。若在访问完 $k$ 个结点前栈已空，则 $k$ 越界。时间复杂度为 $O(h+k)$，最坏为 $O(n)$；辅助空间为 $O(h)$，其中 $h$ 为树高。\else \answerarea \fi
-
-\item \textbf{（简答题）} 说明为什么 Boyer-Moore 多数投票算法需要「验证阶段」（即第二次遍历确认候选元素的出现次数）。如果不验证，是否会出错？请给出反例。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 抵消过程只保证“若主元素存在，最终候选一定是它”，并不保证任意输入都存在主元素。例如数组 $[1,2,3]$ 最终可能留下候选3，但任何元素的出现次数都没有超过 $3/2$。因此必须第二次遍历统计候选出现次数，只有大于 $\lfloor n/2\rfloor$ 才能返回。\else \answerarea \fi
-
-\item \textbf{（算法设计）} 编写算法，将带头结点的单链表 $L$ 中数据域为奇数的结点移到数据域为偶数的结点之前，且保持奇数和偶数各自内部的相对顺序不变。时间复杂度要求 $O(n)$，空间复杂度 $O(1)$。
-
-\ifshowsolutions\par\noindent\textbf{解析：} 将原链表拆成奇数链和偶数链，每次只摘下并尾插原结点，最后连接两条链。
-\begin{lstlisting}[language=C]
-void OddBeforeEven(LinkList L) {
-    LNode oddHead, evenHead;
-    LNode *ot = &oddHead, *et = &evenHead;
-    oddHead.next = evenHead.next = NULL;
-    for (LNode *p = L->next, *next; p; p = next) {
-        next = p->next;
-        p->next = NULL;
-        if (p->data % 2 != 0) { ot->next = p; ot = p; }
-        else                  { et->next = p; et = p; }
-    }
-    ot->next = evenHead.next;
-    L->next = oddHead.next ? oddHead.next : evenHead.next;
-}
-\end{lstlisting}
-每个结点只处理一次，时间复杂度 $O(n)$；只使用常数个指针，辅助空间 $O(1)$。尾插保证奇、偶两组内部均稳定。\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格，单项选择题）} 已知一棵完全二叉树共有 2024 个结点，则其叶子结点数为
-\begin{center}
-\begin{tabular}{ll}
-(A) 1011 & (B) 1012 \\[6pt]
-(C) 1013 & (D) 1024
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 完全二叉树有 $n_0=\lceil n/2\rceil$ 个叶结点，故 $n_0=2024/2=1012$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（真题风格，单项选择题）} 对 $n$ 个互异整数进行逆序对计数，在最坏情况下逆序对的数量是
-\begin{center}
-\begin{tabular}{ll}
-(A) $n$ & (B) $n\log_2 n$ \\[6pt]
-(C) $\displaystyle\frac{n(n-1)}{2}$ & (D) $2^n$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 序列严格递减时，每一对下标 $i<j$ 都构成逆序对，共有 $\binom n2=n(n-1)/2$ 对。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 设一棵关键字互异的二叉树以二叉链表存储，结点结构为 \texttt{(lchild, data, rchild)}。按“左子树关键字严格小于根、右子树关键字严格大于根”的定义，设计算法判断该树是否为二叉排序树（BST）。要求：
-\begin{enumerate}
-    \item[(1)] 描述算法基本思想；
-    \item[(2)] 用 C 语言实现算法；
-    \item[(3)] 分析时间复杂度和空间复杂度。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：} BST 的中序遍历结果必须严格递增。用 \texttt{prev} 记录中序序列中上一个已访问结点，一旦出现 \texttt{prev->data >= T->data} 即可判假。
-\begin{lstlisting}[language=C]
-bool CheckBST(BiTree T, BiTree *prev) {
-    if (!T) return true;
-    if (!CheckBST(T->lchild, prev)) return false;
-    if (*prev && (*prev)->data >= T->data) return false;
-    *prev = T;
-    return CheckBST(T->rchild, prev);
-}
-
-bool IsBST(BiTree T) {
-    BiTree prev = NULL;
-    return CheckBST(T, &prev);
-}
-\end{lstlisting}
-每个结点访问一次，时间复杂度 $O(n)$；递归栈为 $O(h)$，其中 $h$ 为树高。\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 一个长度为 $n$（$n>1$）且元素互异的严格递增整数数组经过非零次循环右移后得到数组 $A$。等价地，存在某个下标 $p$（$0\leqslant p < n-1$），使 $A[0\ldots p]$、$A[p+1\ldots n-1]$ 各自严格递增，且后一段的所有元素均小于前一段的所有元素。设计 $O(\log n)$ 时间复杂度的算法找出最小值。要求：
-\begin{enumerate}
-    \item[(1)] 描述算法思想；
-    \item[(2)] 用 C 语言实现算法；
-    \item[(3)] 说明为什么时间复杂度为 $O(\log n)$。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 将中点元素与当前区间末元素比较。若 $A[mid]>A[high]$，最小值一定在 $mid$ 右侧；否则最小值位于 $[low,mid]$，且不能排除 $mid$ 本身。
-\begin{lstlisting}[language=C]
-int FindMin(int A[], int n) {
-    int low = 0, high = n - 1;
-    while (low < high) {
-        int mid = low + (high - low) / 2;
-        if (A[mid] > A[high]) low = mid + 1;
-        else                  high = mid;
-    }
-    return A[low];
-}
-\end{lstlisting}
-每轮至少排除当前区间的一半，故时间复杂度为 $O(\log n)$，辅助空间为 $O(1)$。题干要求元素互异且确为严格递增数组的旋转，正是上述二分判据成立的条件。\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 设非空有向图 $G=(V,E)$ 以邻接表存储。设计算法，判断 $G$ 是否为一棵以某个顶点为根、边由父结点指向孩子结点的有向根树（out-arborescence）。也就是说，应恰有一个入度为0的根，其余顶点入度均为1，并且从根可到达所有顶点。要求：
-\begin{enumerate}
-    \item[(1)] 描述算法思想；
-    \item[(2)] 用 C 语言实现算法；
-    \item[(3)] 分析算法时空复杂度。
-\end{enumerate}
-\textbf{提示：}满足上述入度条件并且从根可达所有顶点时，边数自动为 $n-1$，且不可能存在有向环。
-
-\ifshowsolutions\par\noindent\textbf{解析：} 扫描邻接表统计每个顶点的入度和边数：必须恰有一个入度为0的根，其余顶点入度均为1，因而边数为 $n-1$。再从根做一次 DFS/BFS，若能访问全部顶点，则图为有向根树。
-\begin{lstlisting}[language=C]
-static int DFSCount(const ALGraph *G, int v, bool visited[]) {
-    int count = 1;
-    visited[v] = true;
-    for (ArcNode *p = G->adjlist[v].first; p; p = p->next) {
-        if (!visited[p->adjvex])
-            count += DFSCount(G, p->adjvex, visited);
-    }
-    return count;
-}
-
-bool IsArborescence(const ALGraph *G) {
-    int indeg[MaxV] = {0}, edges = 0;
-    for (int u = 0; u < G->n; ++u)
-        for (ArcNode *p = G->adjlist[u].first; p; p = p->next) {
-            if (++indeg[p->adjvex] > 1) return false;
-            ++edges;
-        }
-
-    int root = -1, roots = 0;
-    for (int v = 0; v < G->n; ++v) {
-        if (indeg[v] == 0) { root = v; ++roots; }
-        else if (indeg[v] != 1) return false;
-    }
-    if (roots != 1 || edges != G->n - 1) return false;
-
-    bool visited[MaxV] = {false};
-    int count = DFSCount(G, root, visited); // 只计首次访问的顶点
-    return count == G->n;
-}
-\end{lstlisting}
-扫描边和遍历图的总时间为 $O(|V|+|E|)$；入度、访问标记和递归栈/队列占 $O(|V|)$ 辅助空间。\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 设一棵二叉树中各结点值互不相同，其先序遍历序列和中序遍历序列分别存入一维数组 \texttt{pre[]} 和 \texttt{in[]} 中。设计算法，用这两个序列重建该二叉树的二叉链表存储结构。要求：
-\begin{enumerate}
-    \item[(1)] 描述算法思想；
-    \item[(2)] 用 C 语言实现算法；
-    \item[(3)] 分析时间复杂度和空间复杂度。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 先序区间首元素是根；在中序区间中找到根后，中序序列被分为左右子树，据左子树长度切分先序区间，再递归构造。
-\begin{lstlisting}[language=C]
-BiTree Build(int pre[], int pl, int pr,
-             int in[],  int il, int ir) {
-    if (pl > pr) return NULL;
-    int k = il;
-    while (k <= ir && in[k] != pre[pl]) ++k;
-    if (k > ir) return NULL;           // 输入序列不一致
-
-    BiTree root = malloc(sizeof(*root));
-    root->data = pre[pl];
-    int left = k - il;
-    root->lchild = Build(pre, pl+1, pl+left, in, il, k-1);
-    root->rchild = Build(pre, pl+left+1, pr, in, k+1, ir);
-    return root;
-}
-\end{lstlisting}
-直接在线性中序区间内找根，最坏时间复杂度为 $O(n^2)$；递归栈为 $O(h)$，另需 $O(n)$ 新结点空间。若预先用散列表建立“关键字$\to$中序下标”的映射，构造时间可降为平均 $O(n)$，额外映射空间为 $O(n)$。\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 给定长度为 $n$ 的整数数组 $A$，设计一个尽可能高效的算法，找出数组中第 $k$ 小的元素（$1\leqslant k \leqslant n$），并使算法在平均情况下达到 $O(n)$ 时间复杂度。要求：
-\begin{enumerate}
-    \item[(1)] 描述算法的基本设计思想；
-    \item[(2)] 用 C 语言实现算法（允许调用自定义函数）；
-    \item[(3)] 说明算法在平均情况下时间复杂度为 $O(n)$ 的理由，并分析最坏情况的时间复杂度。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 使用快速选择。一次划分把枢轴放到最终位置 $p$；若 $p=k-1$ 即返回，否则只在包含第 $k$ 小元素的一侧继续划分。
-\begin{lstlisting}[language=C]
-static void SwapInt(int *a, int *b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-int Partition(int A[], int low, int high) {
-    int pivot = A[high], i = low;
-    for (int j = low; j < high; ++j)
-        if (A[j] < pivot) SwapInt(&A[i++], &A[j]);
-    SwapInt(&A[i], &A[high]);
-    return i;
-}
-
-int QuickSelect(int A[], int n, int k) {
-    int low = 0, high = n - 1, target = k - 1;
-    while (low <= high) {
-        int p = Partition(A, low, high);
-        if (p == target) return A[p];
-        if (p < target) low = p + 1;
-        else            high = p - 1;
-    }
-    return 0; // 题设保证 k 合法
-}
-\end{lstlisting}
-随机输入或随机选择枢轴时，期望工作量满足 $n+n/2+n/4+\cdots=O(n)$；若每次枢轴都极端不平衡，最坏为 $O(n^2)$。迭代实现的辅助空间为 $O(1)$，但会原地改变数组元素次序。\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 假定采用带头结点的单链表保存单词，每个结点存储一个字母。设计一个在时间上尽可能高效的算法，判断该单词是否为回文（正读与反读相同）。要求：
-\begin{enumerate}
-    \item[(1)] 给出算法的基本设计思想；
-    \item[(2)] 用 C 语言实现算法；
-    \item[(3)] 说明算法的时间复杂度和空间复杂度。
-\end{enumerate}
-\textbf{提示：}可综合利用本章中的「找中间结点」+「链表逆置」+「双指针比较」技术。
-
-\ifshowsolutions\par\noindent\textbf{解析：} 先用快慢指针找到前半段末结点，原地逆置后半段并与前半段逐结点比较；比较后再逆置一次以恢复原链表。
-\begin{lstlisting}[language=C]
-LNode *Reverse(LNode *p) {
-    LNode *pre = NULL;
-    while (p) {
-        LNode *next = p->next;
-        p->next = pre; pre = p; p = next;
-    }
-    return pre;
-}
-
-bool IsPalindrome(LinkList L) {
-    if (!L->next || !L->next->next) return true;
-    LNode *slow = L->next, *fast = L->next;
-    while (fast->next && fast->next->next) {
-        slow = slow->next;
-        fast = fast->next->next;
-    }
-    LNode *second = Reverse(slow->next);
-    bool ok = true;
-    for (LNode *p = L->next, *q = second; q; p = p->next, q = q->next)
-        if (p->data != q->data) { ok = false; break; }
-    slow->next = Reverse(second);       // 恢复原链表
-    return ok;
-}
-\end{lstlisting}
-找中点、逆置、比较和恢复均为线性过程，总时间 $O(n)$，辅助空间 $O(1)$。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
+\newpage
+\input{ds/exercises/chap8.tex}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item 邓俊辉《数据结构（C++语言版）》第 2 章「向量」——有序向量查找、排序、归并各节的算法设计习题；第 3 章「列表」——列表的逆置、排序、查找算法设计习题；第 5 章「二叉树」——5.2 节「编码树」、5.3 节「遍历」的习题（涵盖非递归遍历、线索化、重构等）；第 6 章「图」——6.5 节「图遍历算法」的习题（欧拉路径、二部图判定、双连通分量等）。
-    \item Sedgewick《算法》第 4 版第 1.4 节「算法分析」——介绍 TwoSum、ThreeSum 等问题的逐步优化，有助于理解算法设计的迭代过程；第 3.2 节「二叉查找树」——BST 的各种有序性操作；第 4.1 节「无向图」——连通分量、判环的具体代码与分析。
-    \item Cormen, Leiserson, Rivest, Stein《算法导论》第 2.3 节「设计算法」——分治法的一般性讨论，包括最大子数组和归并排序中的逆序对。第 7 章「快速排序」——快速选择算法（期望线性时间选择第 $k$ 小）。
-    \item 《C 程序设计语言》（K\&R）——若对 C 指针操作（链表、二叉树）不够熟练，建议通读第 5--6 章关于指针和结构体的内容。
+    \item Cormen, Leiserson, Rivest, Stein《算法导论》第 4 章「分治策略」——递归树、主定理的完整证明与替换法；第 15 章「动态规划」——LCS、背包、最优二叉搜索树的推导；第 16 章「贪心算法」——活动选择与 Huffman 编码的交换论证。
+    \item 邓俊辉《数据结构（C++语言版）》第 2 章「向量」与第 5 章「二叉树」——归并排序、二分查找、递归遍历的代码实现；第 6 章「图」——DFS/BFS 框架上的回溯与连通性算法。
+    \item Sedgewick《算法》第 1.4 节「算法分析」——增长阶、倍率实验与内存模型；第 4.3 节「最小生成树」、第 4.4 节「最短路径」——贪心算法在图上的两个完整案例。
 \end{itemize}

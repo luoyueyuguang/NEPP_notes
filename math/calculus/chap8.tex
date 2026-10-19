@@ -1,1449 +1,940 @@
 \section{多元函数微分学}
-\subsection{多元函数的概念、极限与连续性}
-\begin{mydef}{二元函数}{two-variable function}
-    设\(D\)是平面上的一个点集，如果对每个点\(P(x, y) \in D\)，都有一个唯一的数\(z = f(x, y)\)，则称\(f(x, y)\)是\(D\)上的一个二元函数。
-    \(D\)为该函数的定义域，所有函数值组成的集合\(f(D)=\{f(x,y):(x,y)\in D\}\)为值域。
-\end{mydef}
-\begin{conclusion}{二元函数的几何意义}{two-variable function geometry}
-    空间点集\(\{(x,y,z):(x,y)\in D,\ z=f(x,y)\}\)为二元函数\(z=f(x,y)\)的图形。通常它是一张曲面。
-    曲面\(z = f(x, y)\)与平面\(z = c\)的交线为\(z = f(x, y) = c\)，这是一个曲线。
-    曲线\(z = f(x, y) = c\)在\(Oxy\)平面上的投影曲线:\(f(x, y) = C\)称为\(z = f(x, y)\)的\textbf{等高线}
-\end{conclusion}
-\begin{conclusion}{一元函数与二元函数的联系与区别}{one-variable function and two-variable function}
-    \begin{enumerate}
-        \item 一元函数是二元函数的特殊情形：让一自变量动，另一自变量固定，或让\((x, y)\)沿某曲线变动，二元函数就转换为一元函数
-        \item 一元函数中，自变量\(x\)代表直线上的点，只有两个变动方向，而二元函数中，自变量\(x, y\)代表平面上的点，有无数个变动方向。
-        \item 一元函数\(z = f(x)(a < x <b)\)也可看成二元函数，其定义域为\(
-            a<x<b,\ -\infty<y<+\infty
-        \)
-    \end{enumerate}
-\end{conclusion}
-\begin{mydef}{二元函数极限}{two-variable function limit}
-    设函数\(f(x, y)\)在开区域或闭区域\(D\)内有定义，\(M_0(x_0, y_0)\)是\(D\)的内点或边界点
-    则\\
-    \(
-        \lim\limits_{\substack{x \to x_0 \\ y \to y_0}} f(x,y)= 
-        \lim\limits_{(x, y) \to (x_0, y_0)}
-            f(x, y) = A  \Leftrightarrow
-        \forall \varepsilon > 0, \exists \delta > 0,
-        \text{当}(x,y) \in D, \text{且}0 < \sqrt{(x - x_0)^2 + (y - y_0)^2} < \delta
-        \text{时，有}\left| f(x, y) - A \right| < \varepsilon
-    \)\\
-    这里的极限过程是点\(x, y\)在\(D\)内沿任何路径以任何方式趋于点\((x_0, y_0)\)
-\end{mydef}
-\begin{conclusion}{二元函数极限与一元函数极限比较}{two-variable function limit and one-variable function limit}
-    \begin{enumerate}
-        \item 二元函数与一元函数有相同的极限运算法则与极限性质
-        \\
-        求二元函数极限的常用方法有
-        \begin{enumerate}
-            \item 用极限的运算法则
-            \item 放大缩小法，变量变换法转为求简单的极限或一元函数的极限
-        \end{enumerate}
-        \item 二元函数\(z=f(x, y)\)与一元函数之极限存在性问题的区别
-        \\
-        与一元函数极限中"函数在某一点的极限当且仅当它在该点的左右极限存在且相等"相对应。\\
-        在二元函数的极限中，极限 \(\lim\limits_{(x, y) \to (x_0, y_0)}
-            f(x,y)=A\)的含义是：对定义域内任意趋于\((x_0,y_0)\)的点列（不取极限点本身），相应函数值都趋于\(A\)。只检查直线或少数几类路径只能用于否定极限，通常不能据此证明极限存在。\\
-            \\
-            若在定义域内沿两条不同路径\((\text{如},\text{直线}y - kx, \text{抛物线}y = x^2)\),极限\(
-                \lim\limits_{(x, y) \to (x_0, y_0)} f(x, y)
-            \)的值不相等或沿某一路径极限\(\lim\limits_{(x,y) \to (x_0, y_0)} f(x, y)\)不存在，则\(
-                \lim\limits_{(x, y) \to (x_0, y_0)} f(x, y)
-            \)不存在。这是证明二元函数极限不存在的一个有效方法
-    \end{enumerate}
-\end{conclusion}
-\begin{mydef}{二元函数连续性}{two-variable function continuity}
-    设\(z = f(x, y)\)定义在区域\(D\)上，\(P_0(x_0, y_0)\)是\(D\)的内点或边界点，若\(
-        \lim\limits_{(x, y) \to (x_0, y_0)} f(x, y) = f(x_0, y_0)
-    \)，则称\(f(x,y)\)在\(P_0(x_0,y_0)\)处连续。若对每个\((x_0,y_0)\in D\)上述条件都成立（边界点按定义域内趋近），则称\(f\)在\(D\)上连续。
-\end{mydef}
-\begin{conclusion}{二元连续函数的性质}{two-variable function continuity property}
-    由自变量\(x\)的初等函数及自变量\(y\)的初等函数经过有限次四则运算和复合运算得到的二元函数
-        \(z = f(x, y)\)称为二元初等函数，类似地可定义多元初等函数。\textbf{多元初等函数在其定义区域上是连续的} \\
-        判断二元函数连续性有和一元函数相同的方法 \\
-        二元连续函数具有以下相应性质
-        \begin{enumerate}
-            \item 设\(z = f(x,y )\)在\(M(x_0, y_0)\)连续，\(f(x_0, y_0) > 0(< 0)\),则
-            \(\exists \delta > 0, \text{当}0 < \sqrt{(x - x_0)^2 + (y - y_0)^2} < \delta
-            \text{且} (x, y) \in D \)时，\(f(x, y) > 0(< 0)\)
-            \item 最大值最小值定理 \\
-            设\(z = f(x, y)\)在有界闭区域\(D\)上连续，则它在\(D\)上一定有最大值和最小值，
-            即\(\exists M_1,M_2 \in D,\)使得\(\forall M \in D\),有
-            \[
-                f(M_2) \leq f(M) \leq f(M_1)
-            \]
-            其中\(f(M_2)\)为最小值，\(f(M_1)\)为最大值
-            \item 中间值定理 \\
-            设\(z = f(x, y)\)在连通的区域\(D\)上连续，\(\forall M_1, M_2 \in D\) ，
-            \(
-                f(M_1) < f(M_2)
-            \)，则对任意实数\(\mu\)满足\(f(M_1)<\mu<f(M_2)\)，
-            则存在一点\(P(x, y)\)，使得\(f(P) = \mu\)
-        \end{enumerate}
-\end{conclusion}
-\subsection{多元函数的偏导数与全微分}
-\begin{mydef}{偏导数}{partial derivative}
-    设二元函数\(z=f(x,y)\)在点\((x_0,y_0)\)的某邻域内有定义。固定其中一个变量后，若相应的一元函数导数存在，则称其为\(f\)在\((x_0,y_0)\)处关于另一个变量的偏导数，记为\\
-    \(
-        \frac{\partial f(x_0, y_0)}{\partial x}, \frac{\partial z}{\partial x} |_{(x_0, y_0)},
-        \frac{\partial f}{\partial x} |_{(x_0, y_0)},z^{'}_{x} |_{(x_0, y_0)},\text{或}f^{'}_{x} |_{(x_0, y_0)}
-    \)\\
-    \(
-        \left(
-            \frac{\partial f(x_0, y_0)}{\partial y}, \frac{\partial z}{\partial y} |_{(x_0, y_0)},
-        \frac{\partial f}{\partial y} |_{(x_0, y_0)},z^{'}_{y} |_{(x_0, y_0)},\text{或}f^{'}_{y} |_{(x_0, y_0)} 
-        \right)\)
-    按定义有
+
+一元函数描述一条曲线，二元函数描述一张曲面。很多实际量由两个独立因素共同决定：矩形的面积 \(S=xy\)，平面上一点到原点的距离 \(r=\sqrt{x^2+y^2}\)，山坡上某点的海拔 \(h=h(x,y)\)。固定其中一个变量，二元函数就退回一元函数；让两个变量同时动，方向就不再只有左右两个，而是无穷多个。多元微分学的新现象，大多来自“方向变多了”这一点。
+
+\subsection{二元函数、极限与连续}
+
+先看一个具体的函数
+\[
+    z=f(x,y)=2-\frac12(x^2+y^2).
+\]
+它的定义域可以取整个平面，图形是一张开口向下的旋转抛物面。令 \(z=c\)，得到
+\[
+    x^2+y^2=2(2-c),
+\]
+这是平面 \(z=c\) 截曲面所得的圆。把这些圆投影到 \(xy\) 平面上，就得到一组同心圆；同一条圆上的点，函数值都相同。这样的曲线叫\textbf{等高线}。地理上的等高线图就是把这种方法搬到了地图上：线越密，坡度越陡。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=9.6cm, height=8.8cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-1.6, xmax=1.6, ymin=-1.6, ymax=1.6,
+  axis lines=center, axis equal image, clip=false,
+  xtick={-1,0,1}, ytick={-1,0,1},
+  font=\footnotesize]
+% 等高线 f=2-(x^2+y^2)/2，半径由外到内依次减小
+\addplot[blue!20, very thick, domain=0:360, samples=120] ({1.40*cos(x)},{1.40*sin(x)});
+\addplot[blue!40, very thick, domain=0:360, samples=120] ({1.20*cos(x)},{1.20*sin(x)});
+\addplot[blue!60, very thick, domain=0:360, samples=120] ({1.00*cos(x)},{1.00*sin(x)});
+\addplot[blue!80, very thick, domain=0:360, samples=120] ({0.70*cos(x)},{0.70*sin(x)});
+\node[font=\scriptsize, blue!80!black, fill=white, inner sep=1pt, anchor=west] at (axis cs:0.05,0.72) {$f=1.755$};
+\node[font=\scriptsize, blue!25!black, fill=white, inner sep=1pt, anchor=west] at (axis cs:0.05,1.36) {$f=1.02$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 这是 $z=2-\tfrac12(x^2+y^2)$ 的等高线图（俯视图）。每条圆上函数值相同；从外到内，$f$ 依次为 $1.02,1.28,1.5,1.755$。等高线越密，函数值变化越快。}}
+
+\begin{mydef}{二元函数与等高线}{two-variable-function}
+    设 \(D\) 是平面上的点集。若对每个 \((x,y)\in D\)，按某个对应法则都有唯一的实数 \(z\) 与之对应，则称 \(z=f(x,y)\) 是定义在 \(D\) 上的二元函数，\(D\) 为定义域，\(\{f(x,y):(x,y)\in D\}\) 为值域。点集
     \[
-        \begin{aligned}
-            \frac{\partial f}{\partial x}(x_0,y_0)=\lim\limits_{\Delta x\to0}\frac{f(x_0+\Delta x,y_0)-f(x_0,y_0)}{\Delta x},\\
-            \frac{\partial f}{\partial y}(x_0,y_0)=\lim\limits_{\Delta y\to0}\frac{f(x_0,y_0+\Delta y)-f(x_0,y_0)}{\Delta y}.
-        \end{aligned}
+        \{(x,y,z):(x,y)\in D,\ z=f(x,y)\}
     \]
-    若\(z = f(x, y)\)在区域\(D\)的每一点都有偏导数，一般地说，它们仍是\(x, y\)的函数，称为对\(f(x, y)\)的\textbf{偏导函数}，简称\textbf{偏导数},
-    记为\(
-        \frac{\partial z}{\partial x}, \frac{\partial f}{\partial x},f^{'}_{x}(x, y);
-        \frac{\partial z}{\partial y}, \frac{\partial f}{\partial y},f^{'}_{y}(x, y);
-    \)
-    偏导数本质上是一元函数的导数，在计算时可以代入已知值，减少计算量
+    称为函数的图形，通常是一张曲面。平面 \(z=c\) 与曲面的交线投影到 \(xy\) 平面上，得到
+    \[
+        f(x,y)=c,
+    \]
+    称为函数在高度 \(c\) 处的等高线。
 \end{mydef}
 
 
-\begin{conclusion}{偏导数的几何意义}{partial derivative geometric meaning}
-    \(f_x(x_0,y_0)\)是曲面\(z=f(x,y)\)与平面\(y=y_0\)的交线在\(M_0(x_0,y_0,f(x_0,y_0))\)处沿\(x\)方向的切线斜率；
-    \(f_y(x_0,y_0)\)是曲面与平面\(x=x_0\)的交线在该点沿\(y\)方向的切线斜率。
-\end{conclusion}
+
+有了图形，接下来要问：当 \((x,y)\) 趋近 \((x_0,y_0)\) 时，\(f(x,y)\) 是否趋近某个确定的数？一元函数只有左右两个方向，二元函数却可以从四面八方、沿任意曲线靠近。这就是二元极限与一元极限最本质的区别。
+
+\begin{mydef}{二元函数的极限}{limit-two-variable}
+    设 \(f\) 在点 \(P_0(x_0,y_0)\) 的某去心邻域内有定义（若 \(P_0\) 是边界点，只考虑定义域内的点）。若存在常数 \(A\)，使得对任意 \(\varepsilon>0\)，都存在 \(\delta>0\)，只要
+    \[
+        0<\sqrt{(x-x_0)^2+(y-y_0)^2}<\delta,\qquad (x,y)\in D,
+    \]
+    就有 \(\lvert f(x,y)-A\rvert<\varepsilon\)，则称当 \((x,y)\to(x_0,y_0)\) 时 \(f\) 的极限为 \(A\)，记作
+    \[
+        \lim_{(x,y)\to(x_0,y_0)}f(x,y)=A
+        \quad\text{或}\quad
+        \lim_{\substack{x\to x_0\\ y\to y_0}}f(x,y)=A.
+    \]
+\end{mydef}
+
+定义中的 \(\sqrt{(x-x_0)^2+(y-y_0)^2}\) 就是点到 \(P_0\) 的距离，常记作 \(\rho\)。关键在“所有满足条件的点”：不只是沿某条直线，也不只是沿某族曲线，而是定义域内一切以 \(P_0\) 为极限的点列。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\footnotesize, x=1.45cm, y=1.45cm]
+  \draw[->] (-2.0,0) -- (2.0,0) node[right] {$x$};
+  \draw[->] (0,-1.65) -- (0,1.8) node[above] {$y$};
+  \fill (0,0) circle (2.2pt);
+  \node[below right] at (0,0) {$P_0$};
+  % 路径一：直线
+  \draw[->, thick, blue!70!black] (1.7,1.3) -- (0.05,0.04);
+  \node[blue!70!black, font=\small\bfseries, anchor=west] at (1.05,1.45) {1};
+  % 路径二：抛物线 y=x^2
+  \draw[->, thick, red!70!black, domain=-1.30:0, samples=60] plot (\x,{\x*\x});
+  \node[red!70!black, font=\small\bfseries, anchor=west] at (-1.42,1.55) {2};
+  % 路径三：绕行
+  \draw[->, thick, green!45!black] (0.95,-1.25) .. controls (1.30,0.20) and (-0.70,-0.85) .. (-0.04,-0.04);
+  \node[green!45!black, font=\small\bfseries, anchor=west] at (0.72,-1.46) {3};
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 三条路径（1 直线、2 抛物线、3 绕行）都从不同方向进入 $P_0$。二元极限存在，要求沿定义域内每一条这样的路径都得到同一个数。}}
+
+找反例时，只要两条路径给出不同的极限，就能断定极限不存在。例如
+\[
+    f(x,y)=\frac{x^2-y^2}{x^2+y^2}\qquad((x,y)\neq(0,0)).
+\]
+沿 \(x\) 轴（\(y=0\)）有 \(f(x,0)=1\)，沿 \(y\) 轴（\(x=0\)）有 \(f(0,y)=-1\)。两个结果不同，所以 \((x,y)\to(0,0)\) 时极限不存在。反过来，检查了几条路径、甚至一整族直线都得到同一个值，仍然不能证明极限存在——路径有无穷多条，漏掉一条就可能出错。
+
+证明极限存在，通常要把 \(f(x,y)-A\) 的绝对值放大成一个只与 \(\rho\) 有关的量。常用手段是四则运算、夹逼，以及极坐标代换 \(x=x_0+r\cos\theta,\ y=y_0+r\sin\theta\)。若能把
+\[
+    \lvert f(x_0+r\cos\theta,y_0+r\sin\theta)-A\rvert
+\]
+放大成某个与 \(\theta\) 无关、且当 \(r\to0\) 时趋于零的 \(g(r)\)，极限就是 \(A\)。如果放大后的界还依赖 \(\theta\)，只能说明这种放缩不够精细，不能直接下结论。
+
+例如
+\[
+    \lim_{(x,y)\to(0,0)}\frac{x^2y}{x^2+y^2}=0,
+\]
+因为
+\[
+    \left\lvert\frac{x^2y}{x^2+y^2}\right\rvert
+    \le \lvert y\rvert \to 0 .
+\]
+这里用了 \(0\le \frac{x^2}{x^2+y^2}\le1\)，与 \(\theta\) 无关。
+
+\begin{mydef}{二元函数的连续性}{continuity-two-variable}
+    设 \(f\) 在点 \(P_0(x_0,y_0)\) 的某邻域内有定义。若
+    \[
+        \lim_{(x,y)\to(x_0,y_0)}f(x,y)=f(x_0,y_0),
+    \]
+    则称 \(f\) 在 \(P_0\) 处连续。若 \(f\) 在区域 \(D\) 的每一点都连续，则称 \(f\) 在 \(D\) 上连续。
+\end{mydef}
+
+由初等一元函数经过有限次四则运算和复合得到的二元函数，称为二元初等函数。和一元情形一样，初等函数在其定义区域内连续。因此判断连续性问题，先看函数是不是初等函数、分母是否为零、分段点在哪里；分段点处则回到极限定义。
+
+有界闭区域上的二元连续函数保留了一元连续函数的几条重要性质：局部保号性；最大值最小值定理（一定取到最大值和最小值）；介值定理（连通区域上能取到两个函数值之间的一切值）。这些性质在讨论最值时经常用到。
+
+\subsection{偏导数}
+
+固定 \(y=y_0\)，曲面 \(z=f(x,y)\) 与平面 \(y=y_0\) 的交线是一条平面曲线。这条曲线在 \(x=x_0\) 处的切线斜率，就是 \(f\) 对 \(x\) 的偏导数；固定 \(x=x_0\) 同理。换句话说，偏导数就是把二元函数切下一刀，只看其中一个方向的变化率。
+
+例如 \(f(x,y)=x^2y+3y\)。把 \(y\) 看成常数，对 \(x\) 求导得 \(f_x=2xy\)；把 \(x\) 看成常数，对 \(y\) 求导得 \(f_y=x^2+3\)。在 \((1,2)\) 处，\(f_x=4\)，\(f_y=4\)。
+
+\begin{mydef}{偏导数}{partial-derivative}
+    设 \(z=f(x,y)\) 在点 \((x_0,y_0)\) 的某邻域内有定义。若极限
+    \[
+        \lim_{\Delta x\to0}
+        \frac{f(x_0+\Delta x,y_0)-f(x_0,y_0)}{\Delta x}
+    \]
+    存在，则称其为 \(f\) 在 \((x_0,y_0)\) 处对 \(x\) 的偏导数，记作
+    \[
+        f_x(x_0,y_0),\quad
+        \frac{\partial f}{\partial x}(x_0,y_0),\quad
+        \frac{\partial z}{\partial x}\Big|_{(x_0,y_0)},\quad
+        z_x(x_0,y_0).
+    \]
+    类似地，若
+    \[
+        \lim_{\Delta y\to0}
+        \frac{f(x_0,y_0+\Delta y)-f(x_0,y_0)}{\Delta y}
+    \]
+    存在，则称其为 \(f\) 在 \((x_0,y_0)\) 处对 \(y\) 的偏导数，记作 \(f_y(x_0,y_0)\) 或 \(\dfrac{\partial z}{\partial y}\big|_{(x_0,y_0)}\)。若 \(f\) 在区域 \(D\) 内每一点都有偏导数，则这些偏导数仍是 \(x,y\) 的函数，称为偏导函数。
+\end{mydef}
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
   axis lines=center,
   xlabel=$x$, ylabel=$y$, zlabel=$z$,
-  xmin=-1.5, xmax=1.5, ymin=-1.5, ymax=1.5, zmin=-0.5, zmax=2.4,
-  view={58}{26}, width=11cm, height=7.8cm,
+  xmin=-1.5, xmax=1.5, ymin=-1.5, ymax=1.5, zmin=0.4, zmax=2.1,
+  view={60}{30}, width=10.8cm, height=7.5cm,
   domain=-1.4:1.4, y domain=-1.4:1.4, samples=24, samples y=24,
   z buffer=sort,
   colormap={surfblue}{rgb(0cm)=(0.72,0.86,1.0); rgb(1cm)=(0.40,0.60,0.90)},
   font=\footnotesize]
-\addplot3[surf, shader=interp, opacity=0.6] {2-0.5*(x^2+y^2)};
-\addplot3[fill=red!5, draw=red!40, thick, opacity=0.22] coordinates {(-1.4,1,-0.5) (1.4,1,-0.5) (1.4,1,2.4) (-1.4,1,2.4)};
-\addplot3[fill=blue!5, draw=blue!40, thick, opacity=0.22] coordinates {(1,-1.4,-0.5) (1,1.4,-0.5) (1,1.4,2.4) (1,-1.4,2.4)};
+\addplot3[surf, shader=interp] {2-0.5*(x^2+y^2)};
 \addplot3[red,ultra thick,domain=-1.3:1.3,samples=90] ({x},1,{1.5-0.5*x^2});
 \addplot3[blue!60!black,ultra thick,domain=-1.3:1.3,samples=90] ({1},{x},{1.5-0.5*x^2});
-\addplot3[red,dashed,very thick,domain=-0.72:0.72,samples=2] ({1+x},1,{1-x});
-\addplot3[blue!60!black,dashed,very thick,domain=-0.72:0.72,samples=2] ({1},{1+x},{1-x});
+\addplot3[red,dashed,very thick,domain=-0.55:0.55,samples=2] ({1+x},1,{1-x});
+\addplot3[blue!60!black,dashed,very thick,domain=-0.55:0.55,samples=2] ({1},{1+x},{1-x});
 \fill[red] (axis cs:1,1,1) circle (3pt);
-\node[font=\footnotesize,red!70!black,anchor=east,inner sep=2pt] at (axis cs:0.80,0.85,0.92){$M_0$};
-\node[font=\scriptsize,red!70!black,anchor=north east] at (axis cs:-0.05,1.0,2.22){平面 $y=1$};
-\node[font=\scriptsize,blue!60!black,anchor=south east] at (axis cs:1.0,-0.42,2.05){平面 $x=1$};
-\node[font=\scriptsize,red!70!black,anchor=west] at (axis cs:0.66,1.0,1.60){$y=1$ 截线};
-\node[font=\scriptsize,blue!60!black,anchor=north east] at (axis cs:1.0,-0.82,1.30){$x=1$ 截线};
-\node[font=\scriptsize,red!70!black,anchor=west] at (axis cs:1.32,1.0,0.34){$f_x$ 切线};
-\node[font=\scriptsize,blue!60!black,anchor=east] at (axis cs:1.0,1.48,0.12){$f_y$ 切线};
+\node[font=\footnotesize,red!70!black,anchor=north east,inner sep=2pt] at (axis cs:0.90,0.92,1.02){$M_0$};
+% 截线与切线由颜色区分，说明见正文
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 曲面 $z=2-\tfrac12(x^2+y^2)$ 与平面 $y=1$（红）、$x=1$（蓝）的交线都过 $M_0(1,1,1)$；交线在 $M_0$ 处沿 $x$、$y$ 方向的切线（虚线）斜率分别为 $f'_x(1,1)=-1$、$f'_y(1,1)=-1$。}}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 曲面 $z=2-\tfrac12(x^2+y^2)$ 与平面 $y=1$（红）、$x=1$（蓝）的交线都过 $M_0(1,1,1)$；交线在 $M_0$ 处沿 $x$、$y$ 方向的切线（虚线）斜率分别为 $f_x(1,1)=-1$、$f_y(1,1)=-1$。}}
 
-\begin{conclusion}{偏导数的计算}{partial derivative calculation}
-    求偏导数，归结为求一元函数的导数
-    求\(f(x, y) = \begin{cases}
-            g(x,y), (x, y) \neq (x_0, y_0) \\
-            A, (x, y) = (x_0, y_0)
-        \end{cases}\)
-        在\((x_0, y_0)\)处偏导数的方法
-    \begin{enumerate}
-    \item  按定义
-    \[
-    \begin{aligned}
-        \frac{\partial f(x_0, y_0)}{\partial x} = 
-    \lim\limits_{\varDelta x \to 0} \frac{f(x_0 + \varDelta x, y_0) - f(x_0, y_0)}{\varDelta x} \\
-    = \lim\limits_{\varDelta x \to 0} \frac{g(x_0 + \varDelta x, y_0) - A}{\varDelta x}
-    \end{aligned}
-    \]
-    类似可求偏导数\(\frac{\partial f(x_0, y_0)}{\partial y}\)
-    \item 利用一元函数的导数极限定理
-    若一元函数\(x\mapsto f(x,y_0)\)在\(x_0\)处连续、在\(x_0\)的去心邻域内可导，且
-    \[
-      \lim_{x\to x_0}f_x(x,y_0)=B,
-    \]
-    则由拉格朗日中值定理可得\(f_x(x_0,y_0)=B\)。关于\(y\)的偏导数同理。注意应取邻域内偏导数的极限，而不是函数值\(g(x,y_0)\)的极限。
-    \end{enumerate}
-\end{conclusion}
-\begin{mydef}{可微性与全微分}{differentiability and total differential}
-    设二元函数\(z = f(x, y)\)在点\((x_0, y_0)\)的某邻域内有定义，如果该函数在点\(M_0(x_0, y_0)\)处的全增量\(
-    \varDelta z = f(x_0 + \varDelta x, y_0 + \varDelta y) - f(x_0, y_0)\),可表示为\[
-        \varDelta z = A \varDelta x + B \varDelta y + o(\sqrt{\varDelta x^2 + \varDelta y^2})
-    \]
-    可以将\(\sqrt{\varDelta x^2 + \varDelta y^2}\)记为\(\rho(\rho \to 0)\)，其中\(A,B\)不依赖于\(
-        \varDelta x \varDelta y,
-    \)而仅与点\((x_0, y_0)\)有关，则称\(z = f(x, y)\)在点\((x_0, y_0)\)处可微,而\(A\varDelta x + B \varDelta y\)称为\(z = f(x, y)\)在点\((x_0, y_0)\)处的全微分，记为\[
-        \mathrm{d}z |_{(x_0, y_0)} = A \varDelta x + B \varDelta y
-    \]
-\end{mydef}
-\begin{conclusion}{$z = f(x, y)$在点$(x_0, y_0)$可微分的必要与充分条件}{all derivative requirement}
-    \begin{enumerate}
-        \item 可微的必要条件 \\
-            若\(f(x, y)\)在点\((x_0, y_0)\)可微，则\(z = f(x, y)\)在点\((x_0, y_0)\)处连续，两个偏导数\(
-                f'_{x}(x_0, y_0), f'_{y}(x_0, y_0)
-            \)都存在,且\(A = f'_{x}(x_0, y_0), B = f'_{y}(x_0, y_0)\)即有
-            \[
-                \mathrm{d}z |_{(x_0, y_0)} = f'_{x}(x_0, y_0) \mathrm{d} x + f'_{y}(x_0, y_0) \mathrm{d} y
-            \]
-            其中\(\mathrm{d}x = \varDelta x, \mathrm{d} y = \varDelta y\)
-        \item 可微的充分条件 \\
-        若\(z = f(x, y)\)在点\((x_0, y_0)\)的某邻域内存在偏导数\(f'_{x}(x, y), f'_{y}(x, y)\)，且这两个偏导数在点\((x_0, y_0)\)处连续，则\(z = f(x, y)\)在点\((x_0, y_0)\)处可微
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{偏导数的连续性，函数可微性，可偏导性与函数连续性的关系}{inter relationship}
-    若\(z = f(x, y)\)在点\((x_0, y_0)\)处存在\(f'_{x}(x_0, y_0), f'_{y}(x_0, y_0)\)则称\(f(x, y)\)在点\((x_0, y_0)\)处可偏导。
-    两个偏导数连续，可微，可偏导于二元函数连续的关系为 \\
-    \begin{center}
-    \small
-    \begin{tikzpicture}[>=stealth, every node/.style={font=\footnotesize}]
-      \node[draw, rounded corners, fill=blue!6, align=center, text width=3.9cm, inner sep=4pt] (c) at (0,3.3)
-        {偏导连续\\[1pt] $f'_x,\;f'_y$ 在 $(x_0,y_0)$ 连续};
-      \node[draw, rounded corners, fill=blue!6, align=center, text width=3.9cm, inner sep=4pt] (d) at (0,1.7)
-        {可微\\[1pt] $\mathrm{d}z=A\,\mathrm{d}x+B\,\mathrm{d}y$};
-      \node[draw, rounded corners, fill=blue!6, align=center, text width=2.9cm, inner sep=4pt] (f) at (-2.6,0.15)
-        {$f(x,y)$ 连续};
-      \node[draw, rounded corners, fill=blue!6, align=center, text width=2.9cm, inner sep=4pt] (p) at (2.6,0.15)
-        {可偏导\\[1pt] $f'_x,f'_y$ 存在};
-      % 蕴含（实线）
-      \draw[->, very thick, blue!50!black] (c) -- (d);
-      \draw[->, very thick, blue!50!black] (d.south west) -- (f.north);
-      \draw[->, very thick, blue!50!black] (d.south east) -- (p.north);
-      % 不能推出（虚线 + \nRightarrow）
-      \draw[->, dashed, gray!55, bend right=16] (f.north) -- node[pos=0.55,sloped,above,font=\scriptsize]{$\nRightarrow$} (d.south);
-      \draw[->, dashed, gray!55, bend left=16] (p.north) -- node[pos=0.55,sloped,above,font=\scriptsize]{$\nRightarrow$} (d.south);
-      \draw[->, dashed, gray!55] (p.west) -- node[pos=0.5,above,font=\scriptsize]{$\nRightarrow$} (f.east);
-    \end{tikzpicture}
-    \end{center}
-    \centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 实线箭头表示蕴含：偏导连续 $\Rightarrow$ 可微 $\Rightarrow$ 连续，且可微 $\Rightarrow$ 可偏导；虚线箭头（$\nRightarrow$）表示推不出：可偏导、连续都推不出可微，可偏导也推不出连续。}}
-    在一元函数中，可导和可微是等价的，且都强于连续。\\
-    对于多元函数，情况变得复杂：可微最强，它同时蕴含连续和所有方向的可偏导；但即便所有方向都可偏导，也推不出可微，甚至推不出连续。
-\end{conclusion}
-
-\begin{mydef}{高阶偏导数、混合偏导数}{higher order partial derivative and mixed partial derivative}
-    若函数\(z = f(x, y)\)的一阶偏导数\(\frac{\partial z}{\partial x} = f'_{x}, \frac{\partial z}{\partial y} = f'_{y}\)关于\(x,y\)的偏导数仍然存在。
-    则称一阶偏导数的偏导数是\(z = f(x, y)\)的二阶偏导。根据求导顺序的不同有以下四个二阶偏导数
-    \[
-        \begin{aligned}
-            \frac{\partial^2 z}{\partial x^2} = \frac{\partial}{\partial x}\left(\frac{\partial z}{\partial x}\right)  = f''_{xx}(x, y);\quad
-            \frac{\partial^2 z}{\partial x \partial y} = \frac{\partial}{\partial y}\left(\frac{\partial z}{\partial x}\right)  = f''_{xy}(x, y) \\
-             \frac{\partial^2 z}{\partial y^2} = \frac{\partial}{\partial y}\left(\frac{\partial z}{\partial y}\right)  = f''_{yy}(x, y);\quad
-            \frac{\partial^2 z}{\partial y \partial x} = \frac{\partial}{\partial x}\left(\frac{\partial z}{\partial y}\right)  = f''_{yx}(x, y) \\
-        \end{aligned}
-    \]
-    \(f_{xy}\)与\(f_{yx}\)称为混合偏导数；二者在没有附加条件时未必相等。
-    同理可得更高阶的偏导数。
-\end{mydef}
-
-\begin{conclusion}{高阶偏导数、混合偏导数次序无关}{order irrelevant}
-    若二元函数\(z = f(x, y)\)的两个二阶混合偏导数\(
-         \frac{\partial^2 z}{\partial y \partial x},
-         \frac{\partial^2 z}{\partial x \partial y}
-    \)都在区域\(D\)上连续，则在区域\(D\)内\(
-        \frac{\partial^2 z}{\partial y \partial x} =
-        \frac{\partial^2 z}{\partial x \partial y}
-    \),即二阶混合偏导数与求偏导的先后次序无关。
-\end{conclusion}
-
-
-\begin{conclusion}{多元函数为常数的条件}{constant function}
-    \begin{enumerate}
-        \item 设\(D\)是连通区域，\(f(x,y)\)在\(D\)上可微且满足\(\frac{\partial f}{\partial x}=0,\frac{\partial f}{\partial y}=0(
-            \forall (x, y) \in D
-        )\),则在区域\(D\)内，\(f(x, y)\)为常数。\\又在区域\(D\)上\(df(x,y) = 0 \Leftrightarrow\)在区域\(D\)上\(
-            \frac{\partial f}{\partial x} = \frac{\partial f}{\partial y} = 0,
-        \)因此也有\\
-        设\(f(x,y)\)在区域\(D\)上满足\(\mathrm{d}f(x, y) = 0\),则\(f(x, y)\)在区域\(D\)为常数
-        \item 设\(z = f(x, y)\)定义在全平面上，若\(\frac{\partial f}{\partial x} = 0\),则\(
-            f(x, y) = \varphi(y);
-        \)同理，若\(\frac{\partial f}{\partial y} = 0\),则\(f(x, y) = \psi(x)\)。\\
-        其中\(\psi(x)\)是\(x\)的函数，\(\varphi(y)\)是\(y\)的函数。二者都是一元函数。
-    \end{enumerate}
-\end{conclusion}
-
-\subsection{多元函数的微分法与复合函数求导法则}
-\begin{formula}{全微分四则运算法则}{total differential formula}
-    若\(u = u(x, y), v = v(x, y)\)在点\((x, y)\)处可微，则
-    \[
-        \begin{aligned}
-            &\mathrm{d}(u \pm v) = \mathrm{d}u \pm \mathrm{d}v;\quad 
-            \mathrm{d}(cu) = c\,\mathrm{d}u\quad(c\text{为常数})\\[1em]
-            &\mathrm{d}(u \cdot v) = u \mathrm{d}v + v \mathrm{d}u; \quad
-            \mathrm{d}\left(\frac{u}{v}\right) = \frac{v\mathrm{d}u  - u \mathrm{d}v}{v^2};
-        \end{aligned}
-    \]
-\end{formula}
-\begin{conclusion}{多元复合函数的微分法则}{multi-variable function derivative rule}
-    \begin{enumerate}
-    \item 多元函数与一元函数复合 \\
-    设\(x = x(t), y = y(t), z = z(t)\)在\(t\)可导, \(u = f(x, y, z)\)在对应点\((x, y, z) = 
-    (x(t), y(t), z(t))\)可微，则\(u = f(x(t), y(t), z(t))\)在点\(t\)可导，且
-    \[
-        \frac{\mathrm{d}u}{\mathrm{d}t} = \frac{\partial u}{\partial x}\frac{\mathrm{d}x}{\mathrm{d}t} + 
-        \frac{\partial u}{\partial y}\frac{\mathrm{d}y}{\mathrm{d}t} + 
-        \frac{\partial u}{\partial z}\frac{\mathrm{d}z}{\mathrm{d}t};
-    \]
-    在这里, \(\frac{\mathrm{d}u}{\mathrm{d}t}\)也被称为全导数
-    \item 多元函数与多元函数的复合 \\
-    \begin{enumerate}
-        \item 链式法则 \\
-        设\(u=u(x,y),v=v(x,y)\)在点\((x,y)\)可微，\(z=f(u,v)\)在对应点可微，则复合函数\(z=f(u(x,y),v(x,y))\)满足
-        \[
-            \frac{\partial z}{\partial x} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial x} + 
-            \frac{\partial f}{\partial v}\frac{\partial v}{\partial x};\quad 
-            \frac{\partial z}{\partial y} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial y} + 
-            \frac{\partial f}{\partial v}\frac{\partial v}{\partial y};
-        \]
-        类似地，设\(u=u(x,y),v=v(x,y),w=w(x,y)\)在点\((x,y)\)可微，且\(z=f(u,v,w)\)在对应点可微，则
-        \[
-            \frac{\partial z}{\partial x} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial x} + 
-            \frac{\partial f}{\partial v}\frac{\partial v}{\partial x} + 
-            \frac{\partial f}{\partial w}\frac{\partial w}{\partial x};\quad 
-            \frac{\partial z}{\partial y} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial y} + 
-            \frac{\partial f}{\partial v}\frac{\partial v}{\partial y} + 
-            \frac{\partial f}{\partial w}\frac{\partial w}{\partial y};
-        \]
-        \\
-        为了方便，我们常用\(f'_{1}\)表示对第一个变量求偏导数,
-        类似地有\(
-           f'_{2} = \frac{\partial f}{\partial v}\)表示对第二个变量求偏导数，\(f'_{3} = \frac{\partial f}{\partial w}\)表示对第三个变量求偏导数。
-           \\
-           同理，\(f'_{11}\)表示对第一个变量求二阶偏导数，\(f'_{22}\)表示对第二个变量求二阶偏导数，\(f'_{33}\)表示对第三个变量求二阶偏导数。\\
-           \\
-           \(f'_(12)\)表示对第一个变量求偏导数，再对第二个变量求偏导数
-        \item 一阶全微分不变性 \\
-        设函数\(z = f(u, v), u = \phi(x, y), v = \psi(x, y)\)在点\((x, y)\)处可微，则
-        可得函数\(z= f(u, v) = f(\phi(x, y), \psi(x, y))\)的全微分为
-        \[
-            \begin{aligned}
-            \mathrm{d}z &= \frac{\partial z}{\partial x} \mathrm{d}x + \frac{\partial z}{\partial y} \mathrm{d}y \\
-            & = \frac{\partial f}{\partial u} \left(
-                \frac{\partial u}{\partial x} \mathrm{d}x + \frac{\partial u}{\partial y} \mathrm{d}y
-            \right)
-            + 
-            \frac{\partial f}{\partial v} \left(
-                \frac{\partial v}{\partial x} \mathrm{d}x + \frac{\partial v}{\partial y} \mathrm{d}y
-                \right)\\
-            &=  
-            \frac{\partial f}{\partial u} \mathrm{d}u + 
-            \frac{\partial f}{\partial v} \mathrm{d}v;
-            \end{aligned}
-        \]
-        这表明当\(f, u, v\)都是可微函数时，尽管\(u, v\)不是自变量,但函数\(
-            z = f(u, v) 
-        \)的一阶全微分也具有与\(u, v\)是自变量时的一阶全微分的相同形式，这种性质称为\textbf{一阶全微分的不变性}。 \\
-        在计算中，可以先求出\(u, v\)的全微分，再代入\(z = f(u, v)\)对\(u,v\)中计算全微分。
-        \\
-    \end{enumerate}
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{复合函数求导法则的注意事项}{compound function derivative rule notice}
-    \begin{enumerate}
-        \item 弄清复合函数的结构，分清中间变量与自变量
-        \item 偏导数公式的构成，复合函数对指定自变量的偏导数，求中间变量时不要漏项
-        \item 在复合函数求导公式中，函数对中间变量的偏导数仍是中间变量的函数。如设\(
-            z = f(u, v), u = \phi(x, y), v = \psi(x, y)\)均具有计算所需的连续偏导数，则
-            \(
-                \frac{\partial z}{\partial x} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial x} +
-                \frac{\partial f}{\partial v}\frac{\partial v}{\partial x}.
-            \)
-            这里\(\frac{\partial f}{\partial u}\)和\(\frac{\partial f}{\partial v}\)复合后也是\(x,y\)的函数；对\(\frac{\partial z}{\partial x}\)继续求导时，仍要使用链式法则：
-            \[
-            \frac{\partial}{\partial x}\left(\frac{\partial f}{\partial u}\right)
-                 = \frac{\partial^2 f}{\partial u^2}\frac{\partial \phi}{\partial x}
-                 + \frac{\partial^2 f}{\partial v\partial u}\frac{\partial \psi}{\partial x}
-            \]
-            \newline
-            \[
-                \frac{\partial}{\partial x}\left(\frac{\partial f}{\partial v}\right)
-                = \frac{\partial^2 f}{\partial u\partial v}\frac{\partial \phi}{\partial x}
-                + \frac{\partial^2 f}{\partial v^2}\frac{\partial \psi}{\partial x}
-            \]
-            \newline
-            \[
-                \frac{\partial^2 z}{\partial x^2} = \frac{\partial}{\partial x}\left(
-                    \frac{\partial f}{\partial u}
-                    \right)\frac{\partial \phi}{\partial x} +
-                \frac{\partial f}{\partial u}\frac{\partial^2 \phi}{\partial x^2}
-                + \frac{\partial}{\partial x}\left(
-                    \frac{\partial f}{\partial v}
-                    \right)\frac{\partial \psi}{\partial x} +
-                    \frac{\partial f}{\partial v}\frac{\partial^2 \psi}{\partial x^2}
-            \]\\
-            将\(
-            \frac{\partial}{\partial x}\left(\frac{\partial f}{\partial v}\right)\)
-            与
-            \(
-            \frac{\partial}{\partial x}\left(\frac{\partial f}{\partial u}\right)
-            \)代入上式，可得最后结果
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{由一个方程式确定的一元隐函数求导法(隐函数存在定理)}{implicit-function-one-variable}
-    如果二元方程\(F(x, y) = 0\)满足如下三个条件
-    \begin{enumerate}
-        \item 函数\(F(x, y)\)在点\((x_0, y_0)\)某邻域有连续的偏导数
-        \item \(F(x_0, y_0) = 0\)
-        \item \(F'_{y}(x_0, y_0) \neq 0\)，则在点\((x_0, y_0)\)附近，方程\(F(x, y) = 0\)有唯一解\(y=y(x)\)。且
-        \[
-            y' = \frac{\mathrm{d}y}{\mathrm{d}x} = - \frac{F'_x}{F'_y} 
-        \]
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{由一个方程式确定的二元隐函数求导法}{implicit-function-two-variable}
-    二元隐函数的隐函数存在定理为:
-    如果三元方程\(F(x, y, z) = 0\)满足如下三个条件
-    \begin{enumerate}
-        \item 函数\(F(x, y, z)\)在点\((x_0, y_0, z_0)\)某邻域有连续的偏导数
-        \item \(F(x_0, y_0, z_0) = 0\)
-        \item \(F'_{z}(x_0, y_0, z_0) \neq 0\)，则在点\((x_0, y_0, z_0)\)附近，方程\(F(x, y, z) = 0\)有唯一解，满足
-        \(z_0 = z(x_0, y_0)\)并有连续的偏导数，且有
-        \(
-            \frac{\partial z}{\partial x} = - \frac{F'_x}{F'_z};
-            \frac{\partial z}{\partial y} = - \frac{F'_y}{F'_z},
-        \)
-    \end{enumerate}
-    求二元隐函数的偏导数的方法有
-    \begin{enumerate}
-        \item 求由方程\(F(x, y, z) = 0\)确定的隐函数\(z = z(x, y)\)的一阶偏导数求导方法 \\
-        \begin{enumerate}
-            \item 法一 \\
-            由\(
-                F(x, y, z(x, y)) = 0
-            \)
-            分别对\(x,y\)求偏导数，利用复合函数求导法得
-            \[
-                F'_x + F'_z\frac{\partial z}{\partial x}=0,\qquad
-                F'_y + F'_z\frac{\partial z}{\partial y}=0.
-            \]
-            分别解出\(\frac{\partial z}{\partial x}, \frac{\partial z}{\partial y}\)
-            \item 法二 \\
-            利用一阶全微分不变性，对方程\(F(x, y, z) = 0\)两边同时对全微分得到\(
-                \mathrm{d}F(x, y, z) = 0,
-                F'_x\mathrm{d}x + F'_y\mathrm{d}y + F'_z\mathrm{d}z = 0
-            \)
-            从而当\(F'_z \neq 0\)时有\(
-                \mathrm{d}z = - \left(\frac{F'_x}{F'_z}\mathrm{d}x
-                + \frac{F'_y}{F'_z}\mathrm{d}y\right)
-                \)
-            于是有\(
-                \frac{\partial z}{\partial x} = - \frac{F'_x}{F'_z};
-                \frac{\partial z}{\partial y} = - \frac{F'_y}{F'_z},
-            \)
-            \item 法三 \\
-            公式法求出\(
-                \frac{\partial z}{\partial x} = - \frac{F'_x}{F'_z};
-                \frac{\partial z}{\partial y} = - \frac{F'_y}{F'_z},
-            \)
-        \end{enumerate}
-        \item 求由方程\(F(x, y, z) = 0\)确定的隐函数\(z = z(x, y)\)二阶偏导数求导方法 \\
-        若函数\(F(x, y, z)\)具有二阶偏导数，则隐函数\(z = z(x, y)\)的二阶偏导数存在,可求\(z=z(x, y)\)的二阶偏导数，
-        此时\(
-            F'_x, F'_y, F'_z\)仍然是\(x, y, z\)的函数,同时也是\(x, y\)的函数。
-            此处,使用\(F'_1, F'_2, F'_3\)代替\(F'_x, F'_y, F'_z\)。
-        \begin{enumerate}
-            \item 法一 \\
-            将\(F'_x + F'_z\frac{\partial z}{\partial x}\)两边同时对x求偏导数，可得
-            \[
-                \frac{\partial}{\partial x}(F'_1) + \frac{\partial}{\partial x}(F'_3)\frac{\partial z}{\partial x} +
-                F'_3\frac{\partial^2 z}{\partial x^2} = 0
-            \]
-            得
-            \[
-                \frac{\partial^2 z}{\partial x^2} = - \left[
-                    F''_{11} + 2F''_{13}\frac{\partial z}{\partial x} + F''_{33}\left(\frac{\partial z}{\partial x}\right)^2
-                \right] / F'_3
-            \]
-            整理得
-            \[
-                \frac{\partial^2 z}{\partial x^2} = - \left[
-                    F''_{11}{F'_{3}}^2 -
-                    2F''_{13}F'_{1}F'_{3} +
-                    F''_{33}{F'_{1}}^2
-                    \right] / {F'_{3}}^3
-            \]
-            \item 法二 \\
-            对\(
-                \frac{\partial z}{\partial x} = - \frac{F'_x}{F'_z};
-            \)继续求偏导数，可得
-            \[
-                \frac{\partial^2 z}{\partial x^2} = -\left[
-                    \left(F''_{11} + F''_{13}\frac{\partial z}{\partial x}\right)F'_{3} -F'_1 \left(F''_{31} + F''_{33}\frac{\partial z}{\partial x}
-                    \right)\right] / {(F'_{3})}^{2}
-            \]
-            将\(
-            \frac{\partial z}{\partial x} = - \frac{F'_1}{F'_3};
-            \)代入，也可以得到法一的结果
-        \end{enumerate}
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{由方程组确定的一元隐函数求导法}{implicit-system-one-variable}
-    \(
-    \begin{cases}
-        F(x, u, v) = 0 \\
-        G(x, u, v) = 0 \
-    \end{cases}
-    \)其中\(F, G\)有连续偏导数，若在区间\(I\)上存在函数组\(
-        u = u(x), v = v(x)
-    \)满足方程组
-    应用复合函数求导法则，可得
-    \[
-        \begin{cases}
-            F'_{1} + F'_{2}\frac{\partial u}{\partial x} + F'_{3}\frac{\partial v}{\partial x} = 0 \\
-
-            G'_{1} + G'_{2}\frac{\partial u}{\partial x} + G'_{3}\frac{\partial v}{\partial x} = 0 \
-        \end{cases}
-    \]
-    将其看成是以\(\frac{\mathrm{d}u}{\mathrm{d}x}, \frac{\mathrm{d}v}{\mathrm{d}x}\)为未知数的二元一次方程组，利用克莱姆法则可解
-\end{conclusion}
-\begin{conclusion}{由方程组确定的二元隐函数求导法}{implicit-system-two-variable}
-    设有\(4\)个变量和\(2\)个方程构成的方程组\(
-        \begin{cases}
-            F(x, y, u, v) = 0 \\
-            G(x, y, u, v) = 0 
-        \end{cases}
-    \)，设\(F,G\)有连续偏导数，且
-    \[
-        \frac{\partial(F,G)}{\partial(u,v)}
-        =\begin{vmatrix}F_u&F_v\\G_u&G_v\end{vmatrix}\ne0.
-    \]
-    则该方程组在相应点附近确定可微隐函数\(u=u(x,y),v=v(x,y)\)。分别对\(x,y\)求偏导，得
-    \[
-        \begin{cases}
-            F_x + F_u\frac{\partial u}{\partial x} + F_v\frac{\partial v}{\partial x} = 0 \\
-            G_x + G_u\frac{\partial u}{\partial x} + G_v\frac{\partial v}{\partial x} = 0
-        \end{cases}
-        \text{或}
-        \begin{cases}
-            F_y + F_u\frac{\partial u}{\partial y} + F_v\frac{\partial v}{\partial y} = 0 \\
-            G_y + G_u\frac{\partial u}{\partial y} + G_v\frac{\partial v}{\partial y} = 0
-        \end{cases}
-    \]
-    把它们分别看成关于\(u_x,v_x\)或\(u_y,v_y\)的二元一次方程组，由克莱姆法则
-    \[
-    \begin{aligned}
-        u_x&=-\frac{\partial(F,G)/\partial(x,v)}{\partial(F,G)/\partial(u,v)},&
-        v_x&= \frac{\partial(F,G)/\partial(x,u)}{\partial(F,G)/\partial(u,v)},\\
-        u_y&=-\frac{\partial(F,G)/\partial(y,v)}{\partial(F,G)/\partial(u,v)},&
-        v_y&= \frac{\partial(F,G)/\partial(y,u)}{\partial(F,G)/\partial(u,v)}.
-    \end{aligned}
-    \]
-\end{conclusion}
-\begin{conclusion}{复合函数求导法则的其他应用}{compound function derivative rule other application}
-    做变量替换时，求函数在新变量下得偏导数，有时通过变量替换可将某些偏微分方程化简
-\end{conclusion}
-\begin{conclusion}{极坐标变换下得拉普拉斯方程}{laplace equation under polar coordinate transformation}
-    在极坐标变换下，拉普拉斯方程
-    \[
-        \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} = 0
-    \]
-    为
-    \[
-        \frac{\partial^2 u}{\partial r^2} + \frac{1}{r}\cdot\frac{\partial u}{\partial r} + \frac{1}{r^2}\cdot\frac{\partial^2 u}{\partial \theta^2} = 0
-    \]
-    其中\(u\)是二元函数。
-\end{conclusion}
-\begin{conclusion}{多元函数问题转化为一元函数问题}{multi-variable function problem to one-variable function}
-    在求二元函数\(z = f(x,y)\)在\((x_0,y_0)\)处的二阶泰勒公式时，把二元函数的增量\(
-        f(x_0 + \Delta x, y_0 + \Delta y) - f(x_0, y_0)
-    \)看成一元函数\(\Phi(t) = f(x_0 + t\Delta x, y_0+t\Delta y)\)从\(t=0\)到\(t=1\)的增量\(
-        \Phi(1) - \Phi(0)
-    \)\\
-    由一元函数的二阶泰勒公式，存在\(\theta\in(0,1)\)使
-    \[
-        \Phi(1) = \Phi(0) + \Phi'(0) + \frac{1}{2}\Phi''(0)
-        + \frac{1}{3!}\Phi'''(\theta).
-    \]
-\end{conclusion}
-
-\begin{formula}{二元函数的泰勒公式}{two-variable function taylor formula}
-    设二元函数\(z = f(x, y)\)在点\(M_0(x_0, y_0)\)处的某邻域\(U(M_0)\)内具有三阶连续偏导数，\(
-        (x_0 + \varDelta x, y_0 + \varDelta y) \in  U(M_0)
-    \),则有二阶泰勒公式为
-    \[
-        \begin{aligned}
-                   & f(x_0 + \varDelta x, y_0 + \varDelta y)  \\
-                   &= f(x_0, y_0) + \left(\varDelta x\frac{\partial}{\partial x} + \varDelta y\frac{\partial}{\partial y}\right)f(x_0, y_0) \\
-                    &+ \frac{1}{2!}\left(
-                        \varDelta x\frac{\partial}{\partial x} + \varDelta y\frac{\partial}{\partial y}
-                        \right)^2 f(x_0, y_0) + R_2 \\
-                    &= f(x_0, y_0) + \frac{\partial f(x_0, y_0)}{\partial x} \varDelta x + \frac{\partial f(x_0, y_0)}{\partial y} \varDelta y \\
-                    &+ \frac{1}{2}\left[
-                        \frac{\partial^2 f(x_0, y_0)}{\partial x^2} \varDelta x^2 
-                        + 2\frac{\partial^2 f(x_0, y_0)}{\partial x \partial y} \varDelta x \varDelta y
-                        + \frac{\partial^2 f(x_0, y_0)}{\partial y^2} \varDelta y^2
-                        \right] + R_2
-        \end{aligned}
-    \]
-    这里\(R_2 = \frac{1}{3!}\left(
-            \varDelta x\frac{\partial}{\partial x} + \varDelta y\frac{\partial}{\partial y}
-        \right)^3 f(x_0 + \theta \varDelta x, y_0 + \theta \varDelta y) \ (0 < \theta < 1)
-\)是拉格朗日余项。
-若\(R_2 = o(\rho^2)\ (\rho = \sqrt{\varDelta x^2 + \varDelta y^2} \to 0)\),称为皮亚诺余项。\\
-一般地，记\(D_{\Delta}=\varDelta x\,\partial_x+\varDelta y\,\partial_y\)。若\(f\)具有\(n+1\)阶连续偏导数，则存在\(\theta\in(0,1)\)使
+偏导数本质上是一元函数的导数，所以一元求导的公式、四则运算和复合法则全部照用，只是求 \(f_x\) 时把 \(y\) 当作常数，求 \(f_y\) 时把 \(x\) 当作常数。遇到分段函数在分界点处的偏导数，必须回到定义。例如要判断 \(f_x(x_0,y_0)\)，就固定 \(y=y_0\)，考察一元函数
 \[
-f(x_0+\varDelta x,y_0+\varDelta y)
-=\sum_{m=0}^{n}\frac{1}{m!}D_{\Delta}^{m}f(x_0,y_0)
-+\frac{1}{(n+1)!}D_{\Delta}^{n+1}
-f(x_0+\theta\varDelta x,y_0+\theta\varDelta y),
+    g(x)=f(x,y_0)
 \]
-其中
+在 \(x_0\) 处的导数：
 \[
-D_{\Delta}^{m}f
-=\sum_{k=0}^{m}\binom{m}{k}
-\frac{\partial^{m}f}{\partial x^k\partial y^{m-k}}
-\varDelta x^k\varDelta y^{m-k}.
+    f_x(x_0,y_0)=g'(x_0)
+    =\lim_{\Delta x\to0}\frac{f(x_0+\Delta x,y_0)-f(x_0,y_0)}{\Delta x}.
 \]
-\end{formula}
-\subsection{多元函数的极值与最值问题}
-\begin{mydef}{多元函数极值与驻点}{multi-variable function extremum and stationary point}
-    若\(\exists M_0 (x_0, y_0)\)的某邻域\(U(M_0, \delta)\)使得
+不能先对 \(x\neq x_0\) 的表达式求导、再令 \(x\to x_0\)，除非已经知道偏导函数在该点连续。
+
+对偏导数再求偏导数，得到二阶偏导数。记号
+\[
+    f_{xx}=\frac{\partial^2 f}{\partial x^2},\qquad
+    f_{xy}=\frac{\partial^2 f}{\partial y\,\partial x},\qquad
+    f_{yx}=\frac{\partial^2 f}{\partial x\,\partial y},\qquad
+    f_{yy}=\frac{\partial^2 f}{\partial y^2}
+\]
+中，\(f_{xy}\) 表示先对 \(x\) 求偏导，再对 \(y\) 求偏导，即
+\[
+    f_{xy}=\frac{\partial}{\partial y}\left(\frac{\partial f}{\partial x}\right).
+\]
+不同教材可能采用相反的书写顺序，做题时以定义为准。\(f_{xy}\) 与 \(f_{yx}\) 称为混合偏导数。
+
+\begin{conclusion}{混合偏导数相等的条件}{mixed-partial-equality}
+    若 \(f_{xy}\) 与 \(f_{yx}\) 在区域 \(D\) 内连续，则在 \(D\) 内
     \[
-        f(x, y) \leq f(x_0, y_0) \qquad  (f(x, y) \geq f(x_0, y_0)), \forall (x, y) \in U(M_0, \delta)
+        f_{xy}=f_{yx}.
     \]
-    则称\(
-    f(x, y)\)在\(M_0\)有极大值(极小值)\(f(x_0, y_0)\)。极大值与极小值点统称为极值
-    \(M_0\)称为极值点。\\
-    凡是能使\(f'_{x}(x, y) = 0, f'_{y}(x, y) = 0\)同时成立的点\(x, y\)称为\(
-    z = f(x, y)\)的驻点
-\end{mydef}
-\begin{conclusion}{多元函数取得极值的必要条件与充分条件}{multi-variable function extremum necessary and sufficient condition}
-    \begin{enumerate}
-        \item 必要条件\\
-        设\(f(x, y)\)在点\((x_0, y_0)\)处具有偏导数，且在点\((x_0, y_0)\)处取得极值，则
-        它在该点的偏导数必然为零，即\(
-            f'_{x}(x_0, y_0) = 0, f'_{y}(x_0, y_0) = 0
-        \) \\
-        \boxed{\text{注}} 具有偏导数的极值点必然是驻点，但驻点不一定是极值点。\\
-        \item 充分条件 \\
-        设\(z = f(x, y)\)在点\((x_0, y_0)\)的某邻域内连续且有一阶及二阶连续偏导数，又
-        \(
-        f'_{x}(x_0, y_0) = 0, f'_{y}(x_0, y_0) = 0
-        \),令\(
-            f''_{xx}(x_0,y_0)=A,\qquad f''_{xy}(x_0,y_0)=B,\qquad f''_{yy}(x_0,y_0)=C
-        \),则
-        \begin{enumerate}
-            \item 若\(AC - B^2 > 0\),则\((x_0, y_0)\)是\(f(x, y)\)的极值点，且
-            当\(A > 0\)时取得极小值，当\(A < 0\)时取得极大值。
-            \item 若\(AC - B^2 < 0\),则\((x_0, y_0)\)不是\(f(x, y)\)的极值点
-            \item 若\(AC - B^2 = 0\),\(f(x, y)\)在\((x_0, y_0)\)处可能取极值，也可能不取极值，还需
-            另作讨论(一般转到极值定义法)
-        \end{enumerate}
-    \end{enumerate}
+    也就是说，只要二阶混合偏导数连续，求导次序可以交换。仅仅“两个混合偏导数都存在”不足以保证相等。
 \end{conclusion}
 
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  axis lines=center,
-  xlabel=$x$, ylabel=$y$, zlabel=$z$,
-  xmin=-2, xmax=2, ymin=-2, ymax=2, zmin=-4, zmax=4,
-  view={70}{22}, width=9cm, height=7.5cm,
-  domain=-2:2, y domain=-2:2, samples=28, samples y=28,
-  z buffer=sort,
-]
-\addplot3[surf, opacity=0.75, shader=interp] {x^2-y^2};
-\node[circle,fill=red,inner sep=2pt,label={[font=\footnotesize]left:$O$}] at (axis cs:0,0,0) {};
-\end{axis}
-\end{tikzpicture}
-\end{center}
+这个定理在计算中非常实用：算 \(f_{xy}\) 还是 \(f_{yx}\)，可以挑计算量小的那个。但它有前提，遇到可能不连续的点（尤其是分段点）不能默认交换。
 
-\begin{conclusion}{求二元函数极值点的步骤}{two-variable function extremum point}
-    若\(z = f(x, y)\)有连续的二阶偏导数，求极值点的步骤如下：
-    \begin{enumerate}
-        \item 求驻点，即解方程组\(
-            \begin{cases}
-                f'_{x}(x, y) = 0 \\
-                f'_{y}(x, y) = 0
-            \end{cases}
-        \)
-        \item 对每个驻点求出二阶导函数的值\(
-            f''_{xx}(x_0, y_0) = A, 
-            f''_{xy}(x_0, y_0) = B,
-            f''_{yy}(x_0, y_0) = C
-        \)
-        \item 判断极值点，即根据\(AC - B^2\)的值来判断是否为极值点，若有，
-        根据\(A\)来判断是极大值还是极小值。
-    \end{enumerate}
-\end{conclusion}
-\begin{conclusion}{条件极值点的必要条件}{condition extremum point necessary condition}
-    设\(f(x, y), \varphi(x, y)\)在点\((x_0, y_0)\)的某邻域内具有一阶连续偏导数，且
-    \(\nabla\varphi(x_0,y_0)\neq\mathbf0\), 若\(
-        P_0(x_0, y_0)\)是二元函数\(z = f(x, y)\)在条件\(\varphi(x, y) = 0\)下的极值点，则
-    \[
-        \begin{cases}
-            \begin{vmatrix}
-                f'_{x}(P_0) & f'_{y}(P_0) \\
-                \varphi'_{x}(P_0) & \varphi'_{y}(P_0)
-            \end{vmatrix} = 0 \\
-            \varphi(P_0) = 0
-        \end{cases}
-        \Leftrightarrow \quad
-        \begin{cases}
-            f'_{x}(P_0) + \lambda \varphi'_{x}(P_0) = 0 \\
-            f'_{y}(P_0) + \lambda \varphi'_{y}(P_0) = 0 \\
-            \varphi(P_0) = 0
-        \end{cases}
-    \]
-\end{conclusion}
+\subsection{全微分}
 
-\begin{conclusion}{极值最值问题的提法}{extremum and extremum point}
-    \begin{enumerate}
-        \item 简单极值(最值)问题\\
-        求二元函数\(z = f(x, y)\)在\(
-        Oxy\)平面上某区域\(D\)上的最大值或最小值 \\
-        求三元函数\(u = f(x, y, z)\)在\(
-        Oxyz\)空间中某区域\(\Omega\)上的最大值或最小值
-        \item 条件极值(最值)问题\\
-        求二元函数\(z = f(x, y)\)在条件\(\varphi(x, y) = 0\)下的最大值或最小值 \\
-        求三元函数\(u = f(x, y, z)\)在条件\(\varphi(x, y, z) = 0\)或条件\(
-            \phi(x, y, z) = 0, \psi(x, y, z) = 0
-        \)下的最大值或最小值问题。
-    \end{enumerate}
-\end{conclusion}
+一元函数在一点可微，指的是函数值的增量可以写成线性主部加高阶无穷小：
+\[
+    \Delta y=f'(x_0)\Delta x+o(\Delta x).
+\]
+对二元函数，自变量有两个，增量 \(\Delta z=f(x_0+\Delta x,y_0+\Delta y)-f(x_0,y_0)\) 自然想用 \(\Delta x,\Delta y\) 的线性式去近似。问题是这样做的误差是不是比 \(\rho=\sqrt{\Delta x^2+\Delta y^2}\) 更高阶。
 
-\begin{conclusion}{求二元函数与三元函数的简单极值问题}{simple extremum problem}
-    \begin{enumerate}
-        \item 设\(z = f(x, y)\)在平面有界闭区域\(D\)上连续，且\(f(x, y)\)在\(D\)上存在最大值\(M\)与最小值\(m\)，它们
-        或在\(D\)内满足\(
-        \frac{\partial f}{\partial x} = 0, \frac{\partial f}{\partial y} = 0
-        \)的点(即\(f(x, y)\)的驻点)取得，或在\(D\)的边界上取得，或在偏导数不存在的点上取得。
-        或在\(D\)的边界上达到，因此求连续函数\(f(x, y)\)在有界闭区域\(D\)上的最值的步骤为
-        \begin{enumerate}
-            \item 求出\(f(x, y)\)在\(D\)内可能取得极值点(驻点和偏导数不存在的点)的函数值
-            \item 求出\(f(x, y)\)在\(D\)的边界上的最大值与最小值
-            \item 比较上述三个值，其中最大者为\(f(x, y)\)在\(D\)上的最大值，最小者 为\(f(x, y)\)在\(D\)上的最小值。
-        \end{enumerate}
-        \item 设\(z = f(x, y)\)在开区域\(D\)内可偏导,且根据实际问题可知它在\(D\)内有最大值或最小值，只需在满足\(
-            \frac{\partial f}{\partial x} = 0, \frac{\partial f}{\partial y} = 0
-        \)点中找到\(f(x, y)\)的最大值点或最小值点。
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{求二元函数与三元函数的条件极值问题}{condition extremum problem}
-    \begin{enumerate}
-        \item 求函数\(z = f(x, y)\)在条件\(\varphi(x, y) = 0\)下的最大值或最小值
-        \begin{enumerate}
-            \item 化为无条件极值(最值),若从条件\(\varphi(x, y) = 0\)处可解出\(y = y(x)\)或\(x = x(y)\),则可将\(z = f(x, y)\)化为一元函数
-            的最值问题
-            \item 转化为拉格朗日函数，首先构造辅助函数(称为拉格朗日函数)\(
-                F(x,y,\lambda)=f(x,y)+\lambda\varphi(x,y)
-            \)然后求方程组\[\begin{cases}
-                \frac{\partial F}{\partial x} = \frac{\partial f}{\partial x} + \lambda \frac{\partial \varphi}{\partial x} = 0 \\
-                \frac{\partial F}{\partial y} = \frac{\partial f}{\partial y} + \lambda \frac{\partial \varphi}{\partial y} = 0 \\
-                \frac{\partial F}{\partial \lambda} = \varphi(x, y) = 0
-            \end{cases}\]的解，解\((x, y, \lambda)\)中的\((x, y)\)是在条件\(\varphi(x, y) = 0\)下的可能的极值点，最后比较这些可能极值点(若曲线\(\varphi(x, y)\)含端点，则还需再靠考察端点)的函数值，得到最大值点和最小值点。
-       \end{enumerate}
-        \item 求三元函数\(u = f(x, y, z)\)在条件\(\varphi(x, y, z) = 0, \psi(x, y, z) = 0\)下的最大值或最小值 \\
-        构造拉格朗日函数\(F(x, y, z, \lambda, \mu) = f(x, y, z) + \lambda \varphi(x, y, z) + \mu \psi(x, y, z)\),然后求方程组\[\begin{cases}
-            \frac{\partial F}{\partial x} = \frac{\partial f}{\partial x} + \lambda \frac{\partial \varphi}{\partial x} + \mu \frac{\partial \psi}{\partial x} = 0 \\
-            \frac{\partial F}{\partial y} = \frac{\partial f}{\partial y} + \lambda \frac{\partial \varphi}{\partial y} + \mu \frac{\partial \psi}{\partial y} = 0 \\
-            \frac{\partial F}{\partial z} = \frac{\partial f}{\partial z} + \lambda \frac{\partial \varphi}{\partial z} + \mu \frac{\partial \psi}{\partial z} = 0 \\
-            \frac{\partial F}{\partial \lambda} = \varphi(x, y, z) = 0 \\
-            \frac{\partial F}{\partial \mu} = \psi(x, y, z) = 0
-            \end{cases}\]的解，解中的\((x, y, z)\)是在条件\(\varphi(x, y, z) = 0, \psi(x, y, z) = 0\)下的可能的极值点，最后比较这些可能
-            极值点(若曲线\(\phi(x, y, z)\)或\(\psi(x, y, z)\)含端点，则还需再考察端点)的函数值，得到最大值点和最小值点。
-    \end{enumerate}
-\end{conclusion}
-\subsection{梯度与方向导数}
-\begin{mydef}{方向导数}{directional derivative}
-    平面上过点\(M_0(x_0,y_0)\)以单位向量\(\mathbf l=(\cos\alpha,\cos\beta)\)为方向（其中\(\cos^2\alpha+\cos^2\beta=1\)）的直线参数方程为
+\begin{mydef}{可微与全微分}{differentiability}
+    设 \(z=f(x,y)\) 在点 \(P_0(x_0,y_0)\) 的某邻域内有定义。若存在只与 \(P_0\) 有关、与 \(\Delta x,\Delta y\) 无关的常数 \(A,B\)，使得
     \[
-        x = x_0 + t \cos \alpha, \quad y = y_0 + t \cos \beta
+        \Delta z
+        =A\,\Delta x+B\,\Delta y+o(\rho),
+        \qquad
+        \rho=\sqrt{\Delta x^2+\Delta y^2}\to0,
     \]
-    \(z =f(x, y)\)限制在直线\(L\)上时,就变化为一元函数
+    则称 \(f\) 在 \(P_0\) 处可微，并称线性主部
     \[
-        \varphi(t) = f(x_0 + t \cos \alpha, y_0 + t \cos \beta)
+        \mathrm{d}z\big|_{P_0}=A\,\Delta x+B\,\Delta y
     \]
-    若存在极限
+    为 \(f\) 在 \(P_0\) 处的全微分。习惯上把 \(\Delta x,\Delta y\) 写成 \(\mathrm{d}x,\mathrm{d}y\)，于是
     \[
-        \varphi'(0) = \lim_{t \to 0} \frac{
-            f(x_0 + t \cos \alpha, y_0 + t \cos \beta) - f(x_0, y_0)
-        }{t}
-    \]
-    则称此极限为函数\(z = f(x, y)\)在点\(M_0(x_0, y_0)\)沿方向向量\(l\)的方向导数，记作\[
-        \frac{\partial f(x_0, y_0)}{\partial l}  = 
-        \left. \frac{\partial f}{\partial l} \right|_{(x_0, y_0)}
+        \mathrm{d}z=A\,\mathrm{d}x+B\,\mathrm{d}y.
     \]
 \end{mydef}
-\begin{conclusion}{方向导数的存在性与计算公式}{directional derivative existence and formula}
-    设\(f(x, y)\)在\(M(x_0, y_0)\)处可微，则\(f(x, y)\)在\(M_0\)点中找到任意方向向量\(l = (\cos \alpha, \cos \beta)\)的方向导数存在，且计算公式为\[
-        \left. \frac{\partial f}{\partial l} \right|_{(x_0, y_0)} = 
-        \frac{\partial f(x_0, y_0)}{\partial x} \cos \alpha + 
-        \frac{\partial f(x_0, y_0)}{\partial y} \cos \beta
-    \]
-    若\(\alpha\)和\(\beta\)用极角表示，则有\[
-        \left. \frac{\partial f(x_0, y_0)}{\partial l} \right|_{(x_0, y_0)} = 
-        \frac{\partial f(x_0, y_0)}{\partial x} \cos \theta        + \frac{\partial f}{\partial y} \sin \theta
-    \]
-    对于三元函数的情形，设三元函数\(u = f(x, y, z)\)在点\(M_0(x_0, y_0, z_0)\)处可微，则三元函数\(u = f(x, y, z)\)在点\(M_0\)沿方向向量\(
-    l = (\cos \alpha, \cos \beta, \cos \gamma)\)的方向导数存在，且计算公式为\[
-        \left. \frac{\partial f}{\partial l} \right|_{(x_0, y_0, z_0)} = 
-        \frac{\partial f(x_0, y_0, z_0)}{\partial x} \cos \alpha + 
-        \frac{\partial f(x_0, y_0, z_0)}{\partial y} \cos \beta + 
-        \frac{\partial f(x_0, y_0, z_0)}{\partial z} \cos \gamma
+
+若这样的 \(A,B\) 存在，它们其实被 \(f\) 唯一决定。分别令 \(\Delta y=0\)、\(\Delta x\to0\)，得
+\[
+    f(x_0+\Delta x,y_0)-f(x_0,y_0)
+    =A\,\Delta x+o(\lvert\Delta x\rvert),
+\]
+两边除以 \(\Delta x\) 并令 \(\Delta x\to0\)，得到 \(A=f_x(x_0,y_0)\)。同理 \(B=f_y(x_0,y_0)\)。所以可微时全微分必定是
+\[
+    \mathrm{d}z=f_x(x_0,y_0)\,\mathrm{d}x+f_y(x_0,y_0)\,\mathrm{d}y.
+\]
+这也说明：可微比“两个偏导数存在”强，因为它还要求线性近似的误差确实是 \(o(\rho)\)。
+
+\begin{conclusion}{可微的必要条件与充分条件}{differentiability-conditions}
+    \begin{enumerate}
+        \item 必要条件：若 \(f\) 在 \(P_0\) 处可微，则 \(f\) 在 \(P_0\) 处连续，且 \(f_x(P_0),f_y(P_0)\) 都存在，
+        \[
+            \mathrm{d}z\big|_{P_0}
+            =f_x(P_0)\,\mathrm{d}x+f_y(P_0)\,\mathrm{d}y.
         \]
-\end{conclusion}
-\begin{conclusion}{梯度(向量)与方向导数的最大值}{gradient and directional derivative maximum}
-    函数\(z = f(x, y)\)在点\(M_0\)的方向导数计算公式可改写为\[
-    \begin{aligned}
-        \left. \frac{\partial f(x_0, y_0)}{\partial l} \right|_{(x_0, y_0)} = 
-        \left(
-            \frac{\partial f(x_0, y_0)}{\partial x}, \frac{\partial f(x_0, y_0)}{\partial y}
-        \right)
-        \cdot (\cos \alpha, \cos \beta) \\
-        = \mathbf{grad} f(x_0, y_0) \cdot \mathbf{l}
-        = \left| \mathbf{grad} f(x_0, y_0) \right| \cos <\mathbf{grad} f(x_0, y_0), \mathbf{l}>
-    \end{aligned}
-        \]
-    这里向量\(\mathbf{grad} f(x_0, y_0)\)是函数\(f\)在点\(M_0\)的梯度向量
-    \(\frac{\partial f(x_0, y_0)}{\partial l}\)随\(\mathbf{l}\)的变化而变化，但当
-    \(\mathbf{l} = \dfrac{\mathbf{grad} f(x_0, y_0)}{\left|
-        \mathbf{grad} f(x_0, y_0)
-    \right|} \)（梯度非零），即沿梯度方向时，方向导数达到最大值
-    \(\left|
-        \mathbf{grad} f(x_0, y_0)
-    \right|\)
-    因此梯度的方向是函数增长最快的方向，其模是最大方向导数；若梯度为零，则所有方向导数均为零，不存在唯一的最速增长方向。
+        \item 充分条件：若 \(f_x,f_y\) 在 \(P_0\) 的某邻域内存在，且都在 \(P_0\) 处连续，则 \(f\) 在 \(P_0\) 处可微。
+    \end{enumerate}
 \end{conclusion}
 
+充分条件的证明值得看一眼。把全增量拆成两步：
+\[
+\begin{aligned}
+    \Delta z
+    &=\bigl[f(x_0+\Delta x,y_0+\Delta y)-f(x_0,y_0+\Delta y)\bigr]\\
+    &\quad+\bigl[f(x_0,y_0+\Delta y)-f(x_0,y_0)\bigr].
+\end{aligned}
+\]
+第一个方括号固定 \(y=y_0+\Delta y\)，对 \(x\) 用拉格朗日中值定理：
+\[
+    f(x_0+\Delta x,y_0+\Delta y)-f(x_0,y_0+\Delta y)
+    =f_x(\xi,y_0+\Delta y)\,\Delta x,
+\]
+其中 \(\xi\) 在 \(x_0\) 与 \(x_0+\Delta x\) 之间。第二个方括号固定 \(x=x_0\)，对 \(y\) 用中值定理：
+\[
+    f(x_0,y_0+\Delta y)-f(x_0,y_0)
+    =f_y(x_0,\eta)\,\Delta y,
+\]
+其中 \(\eta\) 在 \(y_0\) 与 \(y_0+\Delta y\) 之间。于是
+\[
+    \Delta z=f_x(P_0)\Delta x+f_y(P_0)\Delta y
+    +\bigl[f_x(\xi,y_0+\Delta y)-f_x(P_0)\bigr]\Delta x
+    +\bigl[f_y(x_0,\eta)-f_y(P_0)\bigr]\Delta y.
+\]
+当 \(\rho\to0\) 时，\(\xi\to x_0\)，\(\eta\to y_0\)；由 \(f_x,f_y\) 在 \(P_0\) 连续，两个方括号都趋于零。又 \(\lvert\Delta x\rvert\le\rho,\ \lvert\Delta y\rvert\le\rho\)，所以后两项之和是 \(o(\rho)\)。证毕。
+
+要记住的是：偏导数连续只是可微的充分条件，不是必要条件；可微也不要求偏导数在附近连续。反过来，两个偏导数存在既推不出连续，也推不出可微。
+
 \begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-3, xmax=3, ymin=-3, ymax=3,
-  xtick={-2,-1,0,1,2}, ytick={-2,-1,0,1,2},
-  legend pos=north east, font=\footnotesize,
-]
-\addplot[gray!60,thick,domain=0:360] ({cos(x)},{sin(x)});
-\addlegendentry{$f=1$}
-\addplot[gray!60,thick,domain=0:360] ({sqrt(2)*cos(x)},{sqrt(2)*sin(x)});
-\addlegendentry{$f=2$}
-\addplot[gray!60,thick,domain=0:360] ({sqrt(3)*cos(x)},{sqrt(3)*sin(x)});
-\addlegendentry{$f=3$}
-\draw[->,red,very thick] (axis cs:1,1) -- (axis cs:1.75,1.75);
-\draw[->,red,very thick] (axis cs:1.5,-1.5) -- (axis cs:2.6,-2.6);
-\node[font=\scriptsize,red] at (axis cs:1.55,1.15) {$\mathbf{grad}\,f$};
-\end{axis}
+\begin{tikzpicture}[>=stealth, every node/.style={font=\footnotesize}]
+  \node[draw, rounded corners, fill=blue!6, align=center, text width=3.9cm, inner sep=4pt] (c) at (0,3.3)
+    {偏导连续\\[1pt] $f_x,\;f_y$ 在 $P_0$ 连续};
+  \node[draw, rounded corners, fill=blue!6, align=center, text width=3.9cm, inner sep=4pt] (d) at (0,1.7)
+    {可微\\[1pt] $\Delta z=A\Delta x+B\Delta y+o(\rho)$};
+  \node[draw, rounded corners, fill=blue!6, align=center, text width=2.9cm, inner sep=4pt] (f) at (-2.6,0.15)
+    {$f$ 在 $P_0$ 连续};
+  \node[draw, rounded corners, fill=blue!6, align=center, text width=2.9cm, inner sep=4pt] (p) at (2.6,0.15)
+    {可偏导\\[1pt] $f_x,f_y$ 存在};
+  \draw[->, very thick, blue!50!black] (c) -- (d);
+  \draw[->, very thick, blue!50!black] (d.south west) -- (f.north);
+  \draw[->, very thick, blue!50!black] (d.south east) -- (p.north);
+  \draw[->, dashed, gray!55, bend right=16] (f.north) -- node[pos=0.55,sloped,above,font=\scriptsize]{$\nRightarrow$} (d.south);
+  \draw[->, dashed, gray!55, bend left=16] (p.north) -- node[pos=0.55,sloped,above,font=\scriptsize]{$\nRightarrow$} (d.south);
+  \draw[->, dashed, gray!55] (p.west) -- node[pos=0.5,above,font=\scriptsize]{$\nRightarrow$} (f.east);
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 实线箭头表示蕴含：偏导连续 $\Rightarrow$ 可微 $\Rightarrow$ 连续，且可微 $\Rightarrow$ 可偏导。虚线箭头表示推不出：可偏导、连续都推不出可微，可偏导也推不出连续。}}
 
-\subsection{多元函数的几何应用}
-\begin{conclusion}{用隐式方程表示的曲面}{implicit equation surface}
-    若空间曲面\(S\)的方程为\(F(x, y, z) = 0\)，\(M_0(x_0, y_0, z_0)\)是\(S\)上的一点，则\(S\)在\(M_0\)点处的切平面方程为
-    \[
-        \frac{\partial F(M_0)}{\partial x} (x - x_0) + 
-        \frac{\partial F(M_0)}{\partial y} (y - y_0) + 
-        \frac{\partial F(M_0)}{\partial z} (z - z_0) = 0
-    \]
-    同理，曲面\(S\)在点\(M_0(x_0, y_0, z_0)\)处的法线向量\(\mathbf{grad} F(M_0)\)
-    是
-    \[
-        \left(
-            \frac{\partial F(M_0)}{\partial x}, 
-            \frac{\partial F(M_0)}{\partial y}, 
-            \frac{\partial F(M_0)}{\partial z}
-            \right)
-    \]
-    法线方程为
-    \[
-        \frac{x - x_0}{\frac{\partial F(M_0)}{\partial x}} = 
-        \frac{y - y_0}{\frac{\partial F(M_0)}{\partial y}} = 
-        \frac{z - z_0}{\frac{\partial F(M_0)}{\partial z}}
-    \] 
-    其中\(F(x, y ,z)\)在\((x_0, y_0, z_0)\)处有连续偏导数且
-    \[
-        \left[\frac{\partial F(M_0)}{\partial x}\right]^{2} + 
-        \left[\frac{\partial F(M_0)}{\partial y}\right]^{2} + 
-        \left[\frac{\partial F(M_0)}{\partial z}\right]^{2} \neq 0
-    \]
-\end{conclusion}
-\begin{conclusion}{用显式方程表示的曲面}{explicit equation surface}
-    若空间曲面\(S\)的方程为\(z=f(x,y)\)，且\(M_0(x_0,y_0,z_0)\)在曲面上，即\(z_0=f(x_0,y_0)\)，则曲面在点\(M_0\)处的切平面方程为
-    \[
-        z - z_0  = z - f(x_0, y_0)= \frac{\partial f}{\partial x}(x_0, y_0)(x - x_0) + 
-        \frac{\partial f}{\partial y}(x_0, y_0)(y - y_0)
-    \]
-    法线方程为
-    \[
-        \frac{x - x_0}{\frac{\partial f(M_0)}{\partial x}} = 
-        \frac{y - y_0}{\frac{\partial f(M_0)}{\partial y}} = 
-        \frac{z - z_0}{-1}
-    \]
-    其中\(z = f(x, y)\)在\((x_0, y_0)\)处有连续偏导数.这里\(S\)在\(M_0\)的法向量为\(
-        \pm (-f'_{x}(x_0, y_0), -f'_{y}(x_0, y_0), 1)
-    \),
-    单位法向量为\[
-        \mathbf{n} = \dfrac{
-            \pm(-f'_{x}(x_0, y_0), -f'_{y}(x_0, y_0), 1)
-        }{
-            \sqrt{
-                \left[f'_{x}(x_0, y_0)\right]^{2} + 
-                \left[f'_{y}(x_0, y_0)\right]^{2} + 1
-            }
-        } = (
-            \cos \alpha, \cos \beta, \cos \gamma
-        )\]
-        这里\(\alpha, \beta, \gamma\)是所选单位法向量\(\mathbf n\)与\(x,y,z\)轴正向的方向角；它们不是切平面与坐标轴的夹角。\(\mathbf{n}\)的表达式中正负号的选取取决于\(\gamma\)是锐角还是钝角。
-        即法向量是朝上还是朝下。朝上取正，朝下取负。
-\end{conclusion}
+可微的几何意义是用切平面代替曲面。设 \(P_0(x_0,y_0,z_0)\) 在曲面 \(z=f(x,y)\) 上，则曲面在 \(P_0\) 处的切平面为
+\[
+    z-z_0=f_x(P_0)(x-x_0)+f_y(P_0)(y-y_0).
+\]
+当 \((x,y)\) 从 \((x_0,y_0)\) 变到 \((x_0+\Delta x,y_0+\Delta y)\) 时，切平面高度的增量正好是全微分
+\[
+    \mathrm{d}z=f_x(P_0)\Delta x+f_y(P_0)\Delta y,
+\]
+而真实曲面高度与切平面高度之差就是 \(o(\rho)\)。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  axis lines=center,
-  xlabel=$x$, ylabel=$y$, zlabel=$z$,
-  xmin=-1.5, xmax=1.9, ymin=-1.5, ymax=1.9, zmin=-0.9, zmax=2.4,
-  view={48}{38}, width=11cm, height=8.0cm,
-  domain=-1.3:1.3, y domain=-1.3:1.3, samples=20, samples y=20,
-  z buffer=sort,
-  colormap={surfgreen}{rgb(0cm)=(0.62,0.87,0.66); rgb(1cm)=(0.62,0.87,0.66)},
+  width=10.2cm, height=6.8cm,
+  xlabel={$x$}, ylabel={$z$},
+  xmin=0.5, xmax=1.85, ymin=1.5, ymax=2.8,
+  axis lines=left,
+  xtick={1,1.6}, xticklabels={$x_0$,$x_0+\Delta x$},
+  ytick={2}, yticklabels={$z_0$},
   font=\footnotesize]
-\addplot3[surf, shader=interp, opacity=0.35] {2-0.5*(x^2+y^2)};
-\draw[fill=orange!45, draw=orange!85!black, thick, opacity=0.6, fill opacity=0.55]
-   (axis cs:0.4,0.4,2.2) -- (axis cs:1.6,0.4,1.0) -- (axis cs:1.6,1.6,-0.2) -- (axis cs:0.4,1.6,1.0) -- cycle;
-\draw[->,red,very thick] (axis cs:1,1,1) -- (axis cs:1.58,1.58,1.58);
-\fill[red] (axis cs:1,1,1) circle (3pt);
-\node[font=\footnotesize,red!70!black,anchor=east,inner sep=2pt] at (axis cs:0.98,0.98,1.05){$M_0$};
-\node[font=\scriptsize,green!45!black,anchor=south] at (axis cs:-0.90,-1.35,1.85){$z=f(x,y)$};
-\node[font=\scriptsize,orange!85!black,anchor=south] at (axis cs:0.80,0.35,2.35){切平面 $z=3-x-y$};
-\node[font=\scriptsize,red!70!black,anchor=south,inner sep=1pt] at (axis cs:1.58,1.58,1.58){$\mathbf n$};
+\addplot[blue!70!black, very thick, domain=0.6:1.68, samples=80]
+  {2+0.9*(x-1)-0.5*(x-1)^2};
+\addplot[red!70!black, thick, dashed, domain=0.55:1.75, samples=2]
+  {2+0.9*(x-1)};
+\draw[dashed, gray!60] (axis cs:1,1.5) -- (axis cs:1,2);
+\draw[dashed, gray!60] (axis cs:1.6,1.5) -- (axis cs:1.6,2.54);
+\draw[dashed, gray!60] (axis cs:0.5,2) -- (axis cs:1.66,2);
+\fill[black] (axis cs:1,2) circle (2.2pt);
+\fill[blue!70!black] (axis cs:1.6,2.36) circle (2.2pt);
+\fill[red!70!black] (axis cs:1.6,2.54) circle (2.2pt);
+\draw[<->, red!70!black, thick] (axis cs:1.64,2.36) -- (axis cs:1.64,2.54);
+\node[font=\scriptsize, red!70!black, anchor=west] at (axis cs:1.66,2.45) {误差};
+\node[font=\scriptsize, blue!70!black, anchor=north west] at (axis cs:0.63,1.60) {曲线 $z=f(x,y_0)$};
+\node[font=\scriptsize, red!70!black, anchor=west] at (axis cs:1.18,2.50) {切线};
 \end{axis}
 \end{tikzpicture}
 \end{center}
-\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 曲面 $z=2-\tfrac12(x^2+y^2)$（绿）在 $M_0(1,1,1)$ 处与切平面（橙）$z=3-x-y$ 相切；红线为其法向量 $\mathbf n=(-f'_x,-f'_y,1)=(1,1,1)$，垂直于切平面。}}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 把 $y=y_0$ 固定，曲面被切出一条曲线 $z=f(x,y_0)$。切线给出的一阶增量是 $\mathrm{d}z$，真实增量是 $\Delta z$，两者在 $x_0+\Delta x$ 处的高度差就是 $o(\Delta x)$。两个坐标方向合起来，切线就变成切平面。}}
 
-\begin{conclusion}{用参数方程表示的空间曲线}{parameter equation space curve}
-    若空间曲线\(\Gamma\)的参数方程为\(
-        x = x(t), y = y(t), z = z(t) \quad (\alpha \leq t \leq \beta)
-    \)又\(
-        M_0(x_0, y_0, z_0) = (x(t_0), y(t_0), z(t_0)) \in \Gamma
-    \)是\(\Gamma\)上的一点，则\(\Gamma\)在点\(M_0\)的切线方程为
+全微分最直接的用途是近似计算。看 \(z=x^2y\) 在 \((2,1)\) 附近。这里 \(z(2,1)=4\)，
+\[
+    \mathrm{d}z=2xy\,\mathrm{d}x+x^2\,\mathrm{d}y.
+\]
+取 \(\mathrm{d}x=0.01,\ \mathrm{d}y=-0.02\)，则
+\[
+    \mathrm{d}z\big|_{(2,1)}=4(0.01)+4(-0.02)=-0.04.
+\]
+所以
+\[
+    z(2.01,0.98)\approx4-0.04=3.96.
+\]
+真值是 \(2.01^2\times0.98=3.959298\)，误差约 \(7\times10^{-4}\)，比 \(\rho\approx0.022\) 小一个量级，符合一阶近似的精度。
+
+全微分也满足和导数类似的运算法则。若 \(u,v\) 都可微，则
+\[
+    \mathrm{d}(u\pm v)=\mathrm{d}u\pm\mathrm{d}v,\qquad
+    \mathrm{d}(uv)=u\,\mathrm{d}v+v\,\mathrm{d}u,\qquad
+    \mathrm{d}\!\left(\frac uv\right)=\frac{v\,\mathrm{d}u-u\,\mathrm{d}v}{v^2}.
+\]
+这些公式在下一节处理复合函数和隐函数时反复出现。
+
+\subsection{复合函数求导}
+
+设 \(z=f(u,v)\)，而 \(u=u(x,y),\ v=v(x,y)\)。想求 \(\partial z/\partial x\)，先要看清变量之间谁依赖谁：\(x\) 可以通过 \(u\) 影响 \(z\)，也可以通过 \(v\) 影响 \(z\)。把每条路径上的偏导数相乘，再把各条路径的结果相加，就是链式法则。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\footnotesize, x=1.5cm, y=1.5cm,
+  box/.style={draw, rounded corners, fill=blue!5, inner sep=4pt, align=center},
+  hot/.style={->, very thick, red!70!black},
+  cold/.style={->, thick, gray!55}]
+  \node[box, text width=1.7cm] (z) at (0,3.2) {$z=f(u,v)$};
+  \node[box, text width=1.9cm] (u) at (-2.4,1.8) {$u=u(x,y)$};
+  \node[box, text width=1.9cm] (v) at (2.4,1.8) {$v=v(x,y)$};
+  \node (x1) at (-3.5,0.3) {$x$};
+  \node (y1) at (-1.3,0.3) {$y$};
+  \node (x2) at (1.3,0.3) {$x$};
+  \node (y2) at (3.5,0.3) {$y$};
+  \draw[hot] (u) -- node[above left,font=\scriptsize]{$f_u$} (z);
+  \draw[hot] (v) -- node[above right,font=\scriptsize]{$f_v$} (z);
+  \draw[hot] (x1) -- node[left,font=\scriptsize]{$u_x$} (u);
+  \draw[cold] (y1) -- node[right,font=\scriptsize]{$u_y$} (u);
+  \draw[hot] (x2) -- node[right,font=\scriptsize]{$v_x$} (v);
+  \draw[cold] (y2) -- node[right,font=\scriptsize]{$v_y$} (v);
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 求 $\partial z/\partial x$ 时，沿 $x$ 到 $z$ 的每条路径把边上的偏导数相乘，再把各路径相加；求 $\partial z/\partial y$ 时换成从 $y$ 出发的两条路径。}}
+
+\begin{formula}{链式法则}{chain-rule}
+    设 \(u=u(x,y),\ v=v(x,y)\) 在点 \((x,y)\) 处可微，\(z=f(u,v)\) 在对应点 \((u,v)\) 处可微，则
     \[
-        \frac{x - x_0}{x'(t_0)} = \frac{y - y_0}{y'(t_0)} = \frac{z - z_0}{z'(t_0)}
+        \frac{\partial z}{\partial x}
+        =f_u\frac{\partial u}{\partial x}+f_v\frac{\partial v}{\partial x},
+        \qquad
+        \frac{\partial z}{\partial y}
+        =f_u\frac{\partial u}{\partial y}+f_v\frac{\partial v}{\partial y}.
     \]
-    法平面方程为
+    若中间变量有三个，例如 \(z=f(u,v,w)\)，则每一项都要加一条路径：
     \[
-        x'(t_0)(x-x_0)+y'(t_0)(y-y_0)+z'(t_0)(z-z_0)=0.
+        \frac{\partial z}{\partial x}
+        =f_u u_x+f_v v_x+f_w w_x,
+        \qquad
+        \frac{\partial z}{\partial y}
+        =f_u u_y+f_v v_y+f_w w_y.
     \]
-    其中\(x(t), y(t), z(t)\)在\(t_0\)处有连续导数。
-    且
-    \(
-        \left[x'(t_0)\right]^{2} + \left[y'(t_0)\right]^{2} + 
-        \left[z'(t_0)\right]^{2} \neq 0
-    \)
-    其中
-    \(
-        x'(t_0), y'(t_0), z'(t_0)
-    \)是曲线\(\Gamma\)在点\(M_0\)处的切向量.
+\end{formula}
+
+公式里的 \(f_u,f_v\) 仍在 \((u,v)\) 处取值，复合以后它们也是 \(x,y\) 的函数。这一点在求二阶偏导时最容易出错：对 \(z_x=f_u u_x+f_v v_x\) 再关于 \(x\) 求导，\(f_u\) 和 \(f_v\) 都要再次使用链式法则，不能把它们当常数。
+
+例如 \(z=f(x+y,xy)\)。令 \(u=x+y,\ v=xy\)，则
+\[
+    z_x=f_u\cdot1+f_v\cdot y=f_u+y f_v,\qquad
+    z_y=f_u\cdot1+f_v\cdot x=f_u+x f_v.
+\]
+再对 \(x\) 求导：
+\[
+\begin{aligned}
+    z_{xx}
+    &=\frac{\partial}{\partial x}(f_u)+y\frac{\partial}{\partial x}(f_v)\\
+    &=(f_{uu}\cdot1+f_{uv}\cdot y)+y(f_{vu}\cdot1+f_{vv}\cdot y)\\
+    &=f_{uu}+2y f_{uv}+y^2 f_{vv},
+\end{aligned}
+\]
+最后一步用了 \(f_{uv}=f_{vu}\)（在二阶偏导连续的条件下）。如果漏掉 \(f_u,f_v\) 对 \(x\) 的依赖，就会只得到 \(f_{uu}+y f_{vu}\)，少掉一大块。
+
+如果中间变量只依赖一个自变量，例如 \(z=f(x,y)\)，而 \(x=x(t),\ y=y(t)\)，复合后就是一元函数 \(z=f(x(t),y(t))\)。这时
+\[
+    \frac{\mathrm{d}z}{\mathrm{d}t}
+    =f_x\frac{\mathrm{d}x}{\mathrm{d}t}+f_y\frac{\mathrm{d}y}{\mathrm{d}t}
+\]
+称为全导数。它与偏导数的区别在于：全导数把 \(x,y\) 都看成 \(t\) 的函数，沿着一条曲线看 \(z\) 的变化；偏导数则只让一个变量动。
+
+链式法则还有一阶全微分形式不变性。设 \(z=f(u,v)\)，无论 \(u,v\) 是自变量还是中间变量，只要 \(f,u,v\) 可微，就有
+\[
+    \mathrm{d}z=f_u\,\mathrm{d}u+f_v\,\mathrm{d}v.
+\]
+因为把 \(\mathrm{d}u=u_x\mathrm{d}x+u_y\mathrm{d}y\)、\(\mathrm{d}v=v_x\mathrm{d}x+v_y\mathrm{d}y\) 代进去，恰好得到
+\[
+    \mathrm{d}z=(f_u u_x+f_v v_x)\mathrm{d}x+(f_u u_y+f_v v_y)\mathrm{d}y
+    =z_x\,\mathrm{d}x+z_y\,\mathrm{d}y.
+\]
+这个性质让全微分可以“整体代换”，不必每次区分谁是自变量。
+
+一个典型应用是极坐标下的拉普拉斯方程。令 \(x=r\cos\theta,\ y=r\sin\theta\)，把 \(u=u(x,y)\) 看成 \(r,\theta\) 的函数，连续使用链式法则可得
+\[
+    u_{xx}+u_{yy}
+    =u_{rr}+\frac1r u_r+\frac1{r^2}u_{\theta\theta}.
+\]
+推导只需要先算
+\[
+    u_r=u_x\cos\theta+u_y\sin\theta,\qquad
+    u_\theta=-u_x r\sin\theta+u_y r\cos\theta,
+\]
+再对 \(r,\theta\) 求一次并整理。这个结果在解圆域上的偏微分方程时很常用。
+
+\subsection{隐函数求导}
+
+很多曲面或曲线不是以 \(z=f(x,y)\) 或 \(y=f(x)\) 的形式给出，而是以一个方程给出，例如
+\[
+    x^2+2y^2=1.
+\]
+在椭圆上一点附近，只要切线不竖直，就可以把 \(y\) 解成 \(x\) 的函数 \(y=y(x)\)，而不必真的解出根式。隐函数求导就是直接从方程计算 \(y'\)。
+
+\begin{conclusion}{一个方程确定的隐函数}{implicit-function}
+    设 \(F(x,y)\) 在点 \(P_0(x_0,y_0)\) 的某邻域内有连续偏导数，且
+    \[
+        F(x_0,y_0)=0,\qquad F_y(x_0,y_0)\neq0.
+    \]
+    则在 \(P_0\) 附近，方程 \(F(x,y)=0\) 唯一确定一个连续可导的函数 \(y=y(x)\)，满足 \(y(x_0)=y_0\)，且
+    \[
+        \frac{\mathrm{d}y}{\mathrm{d}x}
+        =-\frac{F_x(x,y)}{F_y(x,y)}.
+    \]
+    若 \(F_z(x_0,y_0,z_0)\neq0\)，方程 \(F(x,y,z)=0\) 在 \(P_0(x_0,y_0,z_0)\) 附近唯一确定 \(z=z(x,y)\)，且
+    \[
+        \frac{\partial z}{\partial x}=-\frac{F_x}{F_z},\qquad
+        \frac{\partial z}{\partial y}=-\frac{F_y}{F_z}.
+    \]
 \end{conclusion}
-\begin{conclusion}{作为两曲面交线的空间曲线}{intersection of two curves}
-    若空间曲线\(\Gamma\)的一般方程为\(
-        \begin{cases}
-            F(x, y, z) = 0 \\
-            G(x, y, z) = 0
-        \end{cases}
-    \)是\(\Gamma\)上的一点，则\(\Gamma\)在点\(M_0\)处的切线方程为
-    \[
-        \begin{cases}
-            \frac{\partial F(M_0)}{\partial x}(x - x_0) + 
-            \frac{\partial F(M_0)}{\partial y}(y - y_0) + 
-            \frac{\partial F(M_0)}{\partial z}(z - z_0) = 0 \\
-            \frac{\partial G(M_0)}{\partial y}(y - y_0) + 
-            \frac{\partial G(M_0)}{\partial x}(x - x_0) + 
-            \frac{\partial G(M_0)}{\partial z}(z - z_0) = 0
-        \end{cases}
-    \]
-    或
-    \[
-        \frac{x - x_0}{
-            \left.
-                \frac{\partial(F, G)}
-                {\partial(y, z)}
-            \right|_{M_0}
-        }
-        = \frac{y - y_0}{
-            \left.
-                \frac{\partial(F, G)}
-                {\partial(z, x)}
-            \right|_{M_0}
-        }
-        = \frac{z - z_0}{
-            \left.
-                \frac{\partial(F, G)}
-                {\partial(x, y)}
-            \right|_{M_0}
-        }
-    \]
-    这里\(
-        \frac{\partial(F, G)}
-                {\partial(u, v)}
-    \)表示
-    \(
-        \begin{vmatrix}
-            \frac{\partial F}{\partial u} & \frac{\partial F}{\partial v} \\
-            \frac{\partial G}{\partial u} & \frac{\partial G}{\partial v} 
-        \end{vmatrix}
-    \)
-    法平面方程为
-    \[
-        \left.\frac{\partial(F, G)}{\partial(y, z)}\right|_{M_0} \cdot (x - x_0) + 
-        \left.\frac{\partial(F, G)}{\partial(z, x)}\right|_{M_0} \cdot (y - y_0) + 
-        \left.\frac{\partial(F, G)}{\partial(x, y)}\right|_{M_0} \cdot (z - z_0) = 0
-    \]
-    其中\(F(x, y ,z)\)和\(G(x, y ,z)\)在\((x_0, y_0, z_0)\)处有连续偏导数且
-    \(
-        \mathbf{grad}F(M_0) \times \mathbf{grad}G(M_0) \neq \mathbf{0}
-    \)
-    这里\(\Gamma\)在\(M_0\)的切向量是
-    \[
-        \begin{aligned}
-             \mathbf{grad}F(M_0) \times \mathbf{grad}G(M_0)
-        = \begin{vmatrix}
-            \mathbf{i} & \mathbf{j} & \mathbf{k} \\
 
-              \frac{\partial F}{\partial x} 
-            & \frac{\partial F}{\partial y} 
-            & \frac{\partial F}{\partial z} \\
-            \frac{\partial G}{\partial x} 
-            & \frac{\partial G}{\partial y} 
-            & \frac{\partial G}{\partial z} \\
+公式的来源很简单。把 \(y=y(x)\) 代回方程，得到恒等式
+\[
+    F(x,y(x))=0.
+\]
+两边对 \(x\) 求导，用链式法则：
+\[
+    F_x+F_y\,y'=0.
+\]
+只要 \(F_y\neq0\)，就能解出 \(y'=-F_x/F_y\)。对 \(F(x,y,z(x,y))=0\) 分别关于 \(x,y\) 求偏导，同理得到 \(z_x,z_y\)。
 
-            \end{vmatrix} = \\
-             \left(
-                \left.\frac{\partial(F, G)}{\partial(y, z)}\right|_{M_0}, 
-                \left.\frac{\partial(F, G)}{\partial(z, x)}\right|_{M_0}, 
-                \left.\frac{\partial(F, G)}{\partial(x, y)}\right|_{M_0}
-             \right)
-        \end{aligned}
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\footnotesize, x=2.4cm, y=2.4cm]
+  \draw[->] (-1.4,0) -- (1.45,0) node[right] {$x$};
+  \draw[->] (0,-1.05) -- (0,1.12) node[above] {$y$};
+  \draw[thick, blue!65!black, domain=0:360, samples=120]
+    plot ({cos(\x)},{0.7071*sin(\x)});
+  \node[blue!65!black, anchor=east] at (-0.78,0.42) {$F(x,y)=0$};
+  % 点 P 与切线
+  \fill[red] (0.5,0.6124) circle (2.5pt);
+  \node[red!70!black, anchor=north east] at (0.47,0.57) {$P$};
+  \draw[red, thick, domain=0.08:0.92, samples=2]
+    plot (\x,{0.6124-0.4082*(\x-0.5)});
+  \node[red!70!black, anchor=east] at (0.16,0.82) {切线};
+  % 梯度（法向）
+  \draw[->, very thick, orange!85!black] (0.5,0.6124) -- (0.68,1.053);
+  \node[orange!85!black, anchor=west] at (0.69,1.03) {$\nabla F$};
+  % 右侧竖直切线
+  \fill[green!45!black] (1,0) circle (2.2pt);
+  \draw[green!45!black, dashed, thick] (1,-0.45) -- (1,0.45);
+  \node[green!45!black, anchor=north west, align=left] at (1.02,0.42) {$F_y=0$，\\切线竖直};
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 在 $P$ 附近，曲线可写成 $y=y(x)$，切线斜率 $y'=-F_x/F_y$；梯度 $\nabla F=(F_x,F_y)$ 是曲线的法向量。右侧 $F_y=0$ 处切线竖直，不能把 $y$ 写成 $x$ 的函数。}}
+
+看椭圆 \(F(x,y)=x^2+2y^2-1=0\)。在 \(P\bigl(\tfrac12,\tfrac{\sqrt6}{4}\bigr)\) 处，
+\[
+    F_x=2x=1,\qquad F_y=4y=\sqrt6\neq0,
+\]
+所以附近可以解出 \(y=y(x)\)，且
+\[
+    y'=-\frac{F_x}{F_y}
+    =-\frac{x}{2y}
+    =-\frac{1}{\sqrt6}.
+\]
+这与直接对 \(x^2+2y^2=1\) 两边求导得到的结果一致。若在右端点 \((1,0)\)，\(F_y=0\)，公式失效；那里切线竖直，\(y\) 不能写成 \(x\) 的单值函数，但反过来可以把 \(x\) 写成 \(y\) 的函数。
+
+再看三元方程 \(F(x,y,z)=xyz-1=0\) 在 \((1,1,1)\) 附近。这里
+\[
+    F_x=yz=1,\quad F_y=xz=1,\quad F_z=xy=1,
+\]
+所以
+\[
+    z_x=-\frac{F_x}{F_z}=-1,\qquad
+    z_y=-\frac{F_y}{F_z}=-1.
+\]
+几何上，这给出曲面 \(xyz=1\) 在 \((1,1,1)\) 处切平面的斜率：沿 \(x\) 方向增加一点，\(z\) 要减少同样的量，才能保持乘积为 \(1\)。
+
+求二阶隐函数导数时，把 \(z_x=-F_x/F_z\) 中的 \(F_x,F_z\) 仍看成 \(x,y,z\) 的函数，而 \(z\) 又是 \(x,y\) 的函数。对 \(x\) 再求一次：
+\[
+    z_{xx}
+    =-\frac{(F_{xx}+F_{xz}z_x)F_z-F_x(F_{zx}+F_{zz}z_x)}{F_z^2}.
+\]
+最后把 \(z_x=-F_x/F_z\) 代入，就得到只含 \(x,y,z\) 的表达式。实际计算时不必背这个公式，按“先对恒等式求一次，再对结果求一次”的顺序做更稳妥。
+
+有时隐函数由方程组给出。设
+\[
+    \begin{cases}
+        F(x,y,u,v)=0,\\
+        G(x,y,u,v)=0,
+    \end{cases}
+\]
+其中 \(F,G\) 有连续偏导数。若在点 \(P_0\) 处
+\[
+    \frac{\partial(F,G)}{\partial(u,v)}
+    =\begin{vmatrix}
+        F_u & F_v\\
+        G_u & G_v
+    \end{vmatrix}\neq0,
+\]
+则方程组在 \(P_0\) 附近唯一确定可微函数 \(u=u(x,y),\ v=v(x,y)\)。把两个方程分别对 \(x\) 求偏导：
+\[
+    \begin{cases}
+        F_u u_x+F_v v_x=-F_x,\\
+        G_u u_x+G_v v_x=-G_x.
+    \end{cases}
+\]
+这是以 \(u_x,v_x\) 为未知数的二元一次方程组。系数行列式正是 \(\partial(F,G)/\partial(u,v)\)，它不为零，所以由克莱姆法则可以唯一解出 \(u_x,v_x\)。对 \(y\) 求偏导得到完全类似的方程组，只需把右端的 \(F_x,G_x\) 换成 \(F_y,G_y\)。
+
+\subsection{方向导数与梯度}
+
+偏导数只回答了两个问题：沿 \(x\) 方向增加时函数怎么变，沿 \(y\) 方向增加时怎么变。站在山坡上，人想知道的往往是“朝东北走，坡度是多少”。这就要把方向从坐标轴推广到任意方向。
+
+设 \(\mathbf e=(\cos\alpha,\sin\alpha)\) 是平面上的单位向量，从点 \(P_0(x_0,y_0)\) 出发沿 \(\mathbf e\) 作射线
+\[
+    x=x_0+t\cos\alpha,\qquad y=y_0+t\sin\alpha\qquad(t\ge0).
+\]
+把 \(f\) 限制在这条射线上，得到一元函数
+\[
+    \varphi(t)=f(x_0+t\cos\alpha,\ y_0+t\sin\alpha).
+\]
+\(\varphi'(0)\) 就是 \(f\) 在 \(P_0\) 处沿 \(\mathbf e\) 方向的变化率。
+
+\begin{mydef}{方向导数}{directional-derivative}
+    设 \(f\) 在 \(P_0(x_0,y_0)\) 的某邻域内有定义，\(\mathbf e=(\cos\alpha,\sin\alpha)\) 是单位向量。若极限
+    \[
+        \lim_{t\to0^+}
+        \frac{f(x_0+t\cos\alpha,y_0+t\sin\alpha)-f(x_0,y_0)}{t}
+    \]
+    存在，则称其为 \(f\) 在 \(P_0\) 处沿方向 \(\mathbf e\) 的方向导数，记作
+    \[
+        \frac{\partial f}{\partial \mathbf e}\Big|_{P_0}
+        \quad\text{或}\quad
+        D_{\mathbf e}f(P_0).
+    \]
+\end{mydef}
+
+这里的 \(\mathbf e\) 必须是单位向量。如果题目给出的是一个普通向量 \(\mathbf l\)，要先把它除以自己的模，化成 \(\mathbf e=\mathbf l/\lvert\mathbf l\rvert\)，否则算出来的是方向导数乘以 \(\lvert\mathbf l\rvert\)，数值不对。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\footnotesize]
+\begin{axis}[
+  width=10.4cm, height=7.2cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-1.55, xmax=1.85, ymin=-1.0, ymax=1.75,
+  xtick={-1,0,1}, ytick={-1,0,1},
+  axis lines=left, font=\footnotesize]
+% 等高线 f=x^2+2y^2=c
+\addplot[gray!55, thick, domain=0:360, samples=100] ({0.7071*cos(x)},{0.5*sin(x)});
+\addplot[gray!55, thick, domain=0:360, samples=100] ({cos(x)},{0.7071*sin(x)});
+\addplot[gray!55, thick, domain=0:360, samples=100] ({1.2247*cos(x)},{0.8660*sin(x)});
+\addplot[gray!55, thick, domain=0:360, samples=100] ({1.4142*cos(x)},{sin(x)});
+\node[font=\scriptsize, black!65, anchor=north west] at (axis cs:0.08,-0.52) {$f=0.5$};
+\node[font=\scriptsize, black!65, anchor=east] at (axis cs:-1.05,0.05) {$f=1$};
+\node[font=\scriptsize, black!65, anchor=south] at (axis cs:0.0,0.90) {$f=1.5$};
+% 点 P
+\fill[red] (axis cs:1,0.5) circle (2.5pt);
+\node[red!70!black, anchor=north west] at (axis cs:1.02,0.42) {$P$};
+% 梯度
+\draw[->, very thick, red!80!black] (axis cs:1,0.5) -- (axis cs:1.5,1.0);
+\node[red!80!black, anchor=west] at (axis cs:1.52,0.98) {$\nabla f$};
+% 方向 e（90°）
+\draw[->, very thick, blue!70!black] (axis cs:1,0.5) -- (axis cs:1,1.70);
+\node[blue!70!black, anchor=west] at (axis cs:1.03,1.66) {$\mathbf e$};
+% 投影
+\draw[dashed, thick, orange!85!black] (axis cs:1.5,1.0) -- (axis cs:1.0,1.0);
+\fill[orange!85!black] (axis cs:1.0,1.0) circle (2pt);
+\node[orange!85!black, anchor=south] at (axis cs:1.18,1.04) {投影};
+% 等高线切线
+\draw[green!45!black, thick, dashed] (axis cs:1.283,0.217) -- (axis cs:0.717,0.783);
+\node[green!45!black, anchor=west] at (axis cs:1.29,0.18) {切线};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 图中曲线是 $f(x,y)=x^2+2y^2$ 的等高线。梯度 $\nabla f(P)=(2,2)$ 垂直于过 $P$ 的等高线；沿切线方向移动，函数值不变。蓝色方向 $\mathbf e$ 竖直向上，与梯度夹角 $45^\circ$，方向导数等于梯度在 $\mathbf e$ 上的投影（橙色虚线），此时投影为正。}}
+
+\begin{conclusion}{方向导数的计算公式}{directional-derivative-formula}
+    若 \(f\) 在 \(P_0(x_0,y_0)\) 处可微，则 \(f\) 在 \(P_0\) 处沿任意单位方向 \(\mathbf e=(\cos\alpha,\sin\alpha)\) 的方向导数都存在，且
+    \[
+        \frac{\partial f}{\partial\mathbf e}\Big|_{P_0}
+        =f_x(P_0)\cos\alpha+f_y(P_0)\sin\alpha.
+    \]
+    对三元函数 \(u=f(x,y,z)\)，若 \(\mathbf e=(\cos\alpha,\cos\beta,\cos\gamma)\) 是单位向量，则
+    \[
+        \frac{\partial f}{\partial\mathbf e}\Big|_{P_0}
+        =f_x(P_0)\cos\alpha+f_y(P_0)\cos\beta+f_z(P_0)\cos\gamma.
     \]
 \end{conclusion}
-\subsection{普适方法与技巧}
-\begin{conclusion}{讨论二元函数$z = f(x,y)$可微的常用方法}{common method of differentiability}
+
+公式的推导只用一次链式法则：令 \(\varphi(t)=f(x_0+t\cos\alpha,y_0+t\sin\alpha)\)，则
+\[
+    \varphi'(0)=f_x(P_0)\cos\alpha+f_y(P_0)\sin\alpha.
+\]
+注意这里用了 \(f\) 在 \(P_0\) 可微。若 \(f\) 不可微，方向导数仍可能按定义存在，但不能套这个公式；这时只能回到 \(\varphi'(0)\) 的极限去算。
+
+把两个偏导数排成一个向量，就得到梯度
+\[
+    \nabla f(P_0)=\bigl(f_x(P_0),f_y(P_0)\bigr).
+\]
+于是方向导数可以写成内积
+\[
+    \frac{\partial f}{\partial\mathbf e}\Big|_{P_0}
+    =\nabla f(P_0)\cdot\mathbf e
+    =\lvert\nabla f(P_0)\rvert\cos\theta,
+\]
+其中 \(\theta\) 是梯度与 \(\mathbf e\) 的夹角。
+
+\begin{conclusion}{梯度的几何意义}{gradient-meaning}
+    设 \(f\) 在 \(P_0\) 处可微且 \(\nabla f(P_0)\neq\mathbf 0\)。则
     \begin{enumerate}
-        \item 利用可微的定义，步骤为
-        \begin{enumerate}
-            \item 考察\(f'_{x}(x_0, y_0)\)和\(f'_{y}(x_0, y_0)\)是否存在，若不存在则\(f(x, y)\)在点\((x_0, y_0)\)处不可微。
-            \item 若\(f'_{x}(x_0, y_0)\)和\(f'_{y}(x_0, y_0)\)存在，则考察
-            \(
-                \lim\limits_{\substack{
-                    \varDelta x \to 0\\ \varDelta y \to 0}
-                } \dfrac{
-                    \varDelta z -
-                    \left[f'_{x}(x_0, y_0)\varDelta x + f'_{y}(x_0, y_0)\varDelta y\right]
-                }{\rho} = 0
-            \)是否成立，其中\(\rho\)为\(\sqrt{\varDelta x^2 + \varDelta y^2}\)。\\
-            若该极限等于\(0\)，则\(f(x, y)\)在点\((x_0, y_0)\)处可微；若极限不存在或不等于\(0\)，则不可微。
-        \end{enumerate}
-        \item 利用可微的必要条件证明\(f(x, y)\)是点\(x_0, y_0\)处不可微的，若能证明
-        \(f(x, y)\)在点\((x_0, y_0)\)处不连续或不偏导,则\(f(x, y)\)在点\((x_0, y_0)\)处不可微。
-        \item 利用可微的充分条件：证明\(f_x,f_y\)在该点的某邻域内存在，且在点\((x_0,y_0)\)处连续，即可推出\(f\)在该点可微。仅有函数连续不能推出可微。
+        \item 沿梯度方向 \(\mathbf e=\dfrac{\nabla f(P_0)}{\lvert\nabla f(P_0)\rvert}\)，方向导数最大，最大值为 \(\lvert\nabla f(P_0)\rvert\)；
+        \item 沿与梯度相反的方向，方向导数最小，最小值为 \(-\lvert\nabla f(P_0)\rvert\)；
+        \item 沿与梯度垂直的方向，方向导数为零；
+        \item 梯度垂直于过 \(P_0\) 的等高线（或等值面）。
     \end{enumerate}
 \end{conclusion}
 
-\begin{conclusion}{$k$次齐次函数}{homogeneous function}
-    \(k\)次齐次函数是指形如
+前三条直接来自 \(\nabla f\cdot\mathbf e=\lvert\nabla f\rvert\cos\theta\)：\(\cos\theta\) 在 \(\theta=0\) 时取最大值 \(1\)，在 \(\theta=\pi\) 时取最小值 \(-1\)，在 \(\theta=\pi/2\) 时为零。因此梯度方向是函数增长最快的方向，梯度的模就是最大变化率。最后一条可以用链式法则证明：设 \(P(t)\) 是等高线 \(f(P)=C\) 上的曲线，则
+\[
+    \frac{\mathrm{d}}{\mathrm{d}t}f(P(t))
+    =\nabla f(P(t))\cdot P'(t)=0,
+\]
+所以梯度与等高线的切向垂直。等高线越密，梯度越大，这也解释了地图上密集的等高线对应陡坡。
+
+例如 \(f(x,y)=x^2+y^2\) 在 \((1,1)\) 处，\(\nabla f=(2,2)\)。沿 \((1,0)\) 方向的方向导数是 \(2\)；沿 \((1,1)/\sqrt2\) 方向是
+\[
+    (2,2)\cdot\frac{(1,1)}{\sqrt2}=2\sqrt2,
+\]
+这是最大方向导数；沿 \((-1,-1)/\sqrt2\) 方向则是 \(-2\sqrt2\)。沿 \((-1,1)/\sqrt2\) 方向，方向导数为零，这个方向正是过 \((1,1)\) 的等高线 \(x^2+y^2=2\) 的切线方向。
+
+三元情形完全平行：\(\nabla f=(f_x,f_y,f_z)\)，方向导数等于 \(\nabla f\cdot\mathbf e\)，梯度垂直于等值面 \(f(x,y,z)=C\)。全微分也可以写成
+\[
+    \mathrm{d}f=\nabla f\cdot(\mathrm{d}x,\mathrm{d}y,\mathrm{d}z),
+\]
+所以梯度是使 \(\mathrm{d}f\) 增长最快的方向。
+
+\subsection{极值与最值}
+
+极值是“在一点附近比较大小”。设 \(f\) 在 \(P_0\) 的某邻域内有定义，若对该邻域内所有点都有
+\[
+    f(x,y)\le f(x_0,y_0),
+\]
+则称 \(f\) 在 \(P_0\) 取得极大值；把不等号反向，就是极小值。极大值点与极小值点统称极值点。注意极值是局部概念，只和 \(P_0\) 附近的值比较，不涉及整个定义域。
+
+\begin{conclusion}{极值的必要条件}{extremum-necessary}
+    若 \(f\) 在 \(P_0(x_0,y_0)\) 处取得极值，且 \(f_x(P_0),f_y(P_0)\) 都存在，则
     \[
-        f(ax_1, ax_2, \dots , ax_n) = a^k f(x_1, x_2, \dots , x_n)
-    \]
-    的函数，其中\(a\)为常数。
-    \(k\)次齐次函数在点\((x_1, x_2, \dots , x_n)\)处的偏导数存在，则有
-    \[
-        \sum_{i = 1}^{n} x_i\frac{\partial f}{\partial x_i}(x_1, x_2, \dots , x_n)
-        = kf(x_1, x_2, \dots , x_n)
+        f_x(P_0)=0,\qquad f_y(P_0)=0.
     \]
 \end{conclusion}
 
+理由和一元的费马引理一样：固定 \(y=y_0\)，一元函数 \(g(x)=f(x,y_0)\) 在 \(x_0\) 处取极值，所以 \(g'(x_0)=f_x(P_0)=0\)；固定 \(x=x_0\) 同理。满足 \(f_x=f_y=0\) 的点称为驻点。驻点不一定是极值点，极值点也不一定是驻点：极值可能出现在偏导数不存在的点，也可能出现在区域边界上。
 
-\subsection{基础过关题}
+\begin{conclusion}{极值的充分条件}{extremum-sufficient}
+    设 \(f\) 在 \(P_0(x_0,y_0)\) 的某邻域内有二阶连续偏导数，且 \(f_x(P_0)=f_y(P_0)=0\)。记
+    \[
+        A=f_{xx}(P_0),\qquad B=f_{xy}(P_0),\qquad C=f_{yy}(P_0).
+    \]
+    则
+    \begin{enumerate}
+        \item 若 \(AC-B^2>0\)，则 \(P_0\) 是极值点：\(A>0\) 时为极小值，\(A<0\) 时为极大值；
+        \item 若 \(AC-B^2<0\)，则 \(P_0\) 不是极值点，称为鞍点；
+        \item 若 \(AC-B^2=0\)，判别法失效，需要回到定义或考察更高阶项。
+    \end{enumerate}
+\end{conclusion}
 
-\textbf{1.} \textbf{（极限存在性判断）} 判断下列二重极限是否存在，若存在，求其值：
+这三个条件来自二阶泰勒展开。在驻点处一阶项为零，函数增量近似为
 \[
-\lim_{(x,y)\to(0,0)} \frac{xy^{2}}{x^{2}+y^{4}}.
+    \Delta f\approx\frac12
+    \bigl(A\Delta x^2+2B\Delta x\Delta y+C\Delta y^2\bigr).
+\]
+括号里是一个二次型，它的正负由矩阵
+\[
+    H=\begin{pmatrix}A&B\\ B&C\end{pmatrix}
+\]
+决定。\(AC-B^2>0\) 说明二次型正定或负定，函数在 \(P_0\) 附近沿所有方向同时上升或同时下降，所以是极值；\(AC-B^2<0\) 说明二次型不定，有的方向上升、有的方向下降，所以不是极值；\(AC-B^2=0\) 时二次型退化，二阶信息不够。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=9.2cm, height=7.0cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-1.6, xmax=1.6, ymin=-1.4, ymax=1.4,
+  axis lines=center, axis equal image, clip=false,
+  xtick={-1,0,1}, ytick={-1,0,1},
+  font=\footnotesize]
+% c=0.5: x^2-y^2=0.5
+\addplot[blue!60!black, thick, domain=-1.25:1.25, samples=80] ({0.7071*cosh(x)},{0.7071*sinh(x)});
+\addplot[blue!60!black, thick, domain=-1.25:1.25, samples=80] ({-0.7071*cosh(x)},{0.7071*sinh(x)});
+% c=-0.5: x^2-y^2=-0.5
+\addplot[blue!60!black, thick, domain=-1.25:1.25, samples=80] ({0.7071*sinh(x)},{0.7071*cosh(x)});
+\addplot[blue!60!black, thick, domain=-1.25:1.25, samples=80] ({0.7071*sinh(x)},{-0.7071*cosh(x)});
+\fill[black] (axis cs:0,0) circle (2.8pt);
+\node[font=\footnotesize, anchor=north east] at (axis cs:-0.06,-0.06) {$O$};
+\node[font=\scriptsize, blue!60!black, anchor=west] at (axis cs:1.15,0.55) {$f=0.5$};
+\node[font=\scriptsize, blue!60!black, anchor=west] at (axis cs:0.95,1.10) {$f=-0.5$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 驻点附近，等高线 $x^2-y^2=c$ 是双曲线：沿 $x$ 轴函数上升，沿 $y$ 轴函数下降，所以原点不是极值点，而是鞍点；这正是 $AC-B^2<0$ 的几何含义。若等高线是闭合椭圆，函数沿所有方向同升同降，才是极值。}}
+
+求极值的步骤很固定：先解方程组 \(f_x=f_y=0\) 找驻点；再在每个驻点算出 \(A,B,C\)，用 \(AC-B^2\) 和 \(A\) 的符号判别；最后把极值点的函数值算出来。若 \(AC-B^2=0\)，可以尝试沿不同路径比较函数值，或直接配方观察。
+
+例如 \(f(x,y)=x^2+y^2+xy\)。由
+\[
+    f_x=2x+y,\qquad f_y=2y+x
+\]
+解得唯一驻点 \((0,0)\)。在这一点
+\[
+    A=2,\quad B=1,\quad C=2,\quad AC-B^2=3>0,
+\]
+且 \(A>0\)，所以是极小值点，极小值为 \(f(0,0)=0\)。配方也能看出：
+\[
+    f=x^2+xy+y^2=\frac12(x^2+y^2)+\frac12(x+y)^2\ge0.
 \]
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-沿直线 $y=kx$：$\displaystyle\lim_{x\to 0}\frac{x(kx)^{2}}{x^{2}+(kx)^{4}} = \lim_{x\to 0}\frac{k^{2}x^{3}}{x^{2}+k^{4}x^{4}} = \lim_{x\to 0}\frac{k^{2}x}{1+k^{4}x^{2}} = 0$。
+有界闭区域上的最值和极值不是一回事。连续函数在有界闭区域 \(D\) 上一定取到最大值和最小值，但最值可能出现在三个地方：区域内部的驻点、内部偏导数不存在的点、边界上的点。因此求最值的步骤是：
+\begin{enumerate}
+    \item 求出 \(D\) 内所有驻点和偏导数不存在的点，算出函数值；
+    \item 求出 \(f\) 在 \(D\) 的边界上的最大值和最小值（把边界分段参数化，化为一元函数；或用下一段的拉格朗日乘数法）；
+    \item 把所有候选值放在一起比较，最大者为最大值，最小者为最小值。
+\end{enumerate}
+如果区域是开区域或无界区域，最值不一定存在；这时要结合函数的单调性、无穷远处的行为或实际问题的背景来判断。
 
-沿抛物线 $x=y^{2}$：$\displaystyle\lim_{y\to 0}\frac{y^{2}\cdot y^{2}}{(y^{2})^{2}+y^{4}} = \lim_{y\to 0}\frac{y^{4}}{2y^{4}} = \frac{1}{2}$。
-
-沿不同路径得到不同极限值，故该二重极限\textbf{不存在}。
-
-\vspace{6pt}
-
-\else \answerarea \fi%
-\textbf{2.} \textbf{（分段函数偏导数与可微性）} 设
+条件极值处理的是另一种情形：自变量还要满足一个约束方程
 \[
-f(x,y)=\begin{cases}
-\dfrac{xy}{\sqrt{x^{2}+y^{2}}}, & (x,y)\neq(0,0),\\[10pt]
-0, & (x,y)=(0,0).
-\end{cases}
+    g(x,y)=0.
 \]
-(1) 求 $f_{x}(0,0)$ 和 $f_{y}(0,0)$；\quad
-(2) 讨论 $f(x,y)$ 在 $(0,0)$ 处的连续性与可微性。
+这时不能直接令 \(f_x=f_y=0\)，因为最优点可能根本不在 \(f\) 的驻点上。几何上，沿约束曲线移动时，\(f\) 的变化率是 \(\nabla f\cdot\mathbf t\)，其中 \(\mathbf t\) 是曲线的切向。极值处沿曲线的一阶变化为零，所以 \(\nabla f\perp\mathbf t\)。而 \(\nabla g\) 也垂直于约束曲线，因此 \(\nabla f\) 与 \(\nabla g\) 共线。
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 由偏导数定义：
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\footnotesize]
+\begin{axis}[
+  width=9.6cm, height=7.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-1.30, xmax=2.65, ymin=-0.85, ymax=2.65,
+  xtick={0,1,2}, ytick={0,1,2},
+  axis lines=left, font=\footnotesize]
+% 约束直线 x+y=2
+\addplot[blue!70!black, very thick, domain=-0.2:2.2, samples=2] {2-x};
+\node[blue!70!black, anchor=west] at (axis cs:2.05,0.08) {$g=0$};
+% 等高线 f=x^2+y^2
+\addplot[gray!60, thick, domain=0:360, samples=100] ({0.7*cos(x)},{0.7*sin(x)});
+\addplot[gray!60, thick, domain=0:360, samples=100] ({1.0*cos(x)},{1.0*sin(x)});
+\addplot[gray!60, thick, domain=0:360, samples=100] ({1.4142*cos(x)},{1.4142*sin(x)});
+\addplot[gray!60, thick, domain=0:360, samples=100] ({1.8*cos(x)},{1.8*sin(x)});
+\node[font=\scriptsize, black!65, anchor=east] at (axis cs:-0.72,0.35) {$f=1$};
+\node[font=\scriptsize, black!65, anchor=east] at (axis cs:-1.05,0.58) {$f=2$};
+% 切点与梯度
+\fill[red] (axis cs:1,1) circle (2.8pt);
+\node[red!70!black, anchor=north west] at (axis cs:1.02,0.98) {$P$};
+\draw[->, very thick, red!80!black] (axis cs:1,1) -- (axis cs:1.68,1.68);
+\node[red!80!black, anchor=south west] at (axis cs:1.62,1.66) {$\nabla f$};
+\draw[->, very thick, green!45!black] (axis cs:1,1) -- (axis cs:1.28,1.28);
+\node[green!45!black, anchor=east] at (axis cs:1.23,1.29) {$\nabla g$};
+\node[red!70!black, anchor=west, align=left] at (axis cs:1.55,0.55) {相切};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 约束曲线 $g=0$ 上，等高线与它相交时，沿曲线移动 $f$ 仍在变化；等高线与约束曲线相切时，沿约束曲线的一阶变化为零，此时 $\nabla f$ 与 $\nabla g$ 共线。图中 $f=x^2+y^2$，$g=x+y-2$，切点为 $(1,1)$。}}
+
+\begin{conclusion}{拉格朗日乘数法}{lagrange-multiplier}
+    求 \(f(x,y)\) 在约束 \(g(x,y)=0\) 下的可能极值点，构造拉格朗日函数
+    \[
+        L(x,y,\lambda)=f(x,y)+\lambda g(x,y),
+    \]
+    解方程组
+    \[
+        \begin{cases}
+            L_x=f_x+\lambda g_x=0,\\
+            L_y=f_y+\lambda g_y=0,\\
+            L_\lambda=g(x,y)=0.
+        \end{cases}
+    \]
+    解出的 \((x,y)\) 就是约束下的可能极值点。若有两个约束 \(g=0,\ h=0\)，则构造
+    \[
+        L=f+\lambda g+\mu h,
+    \]
+    分别对 \(x,y,z,\lambda,\mu\) 求偏导并令其为零。
+\end{conclusion}
+
+这个方程组的来源就是前面的共线条件。设 \(g_y\neq0\)，由 \(g(x,y)=0\) 解出 \(y=y(x)\)，则 \(y'=-g_x/g_y\)。代入 \(h(x)=f(x,y(x))\)，极值处
 \[
-f_{x}(0,0)=\lim_{\varDelta x\to 0}\frac{f(\varDelta x,0)-f(0,0)}{\varDelta x}
-=\lim_{\varDelta x\to 0}\frac{0-0}{\varDelta x}=0.
+    h'=f_x+f_y y'
+    =f_x-f_y\frac{g_x}{g_y}=0,
 \]
-同理 $f_{y}(0,0)=0$。
+即 \(f_x g_y-f_y g_x=0\)，也就是 \(\nabla f\) 与 \(\nabla g\) 平行。只要取合适的 \(\lambda\)，就能把共线条件写成 \(f_x+\lambda g_x=0,\ f_y+\lambda g_y=0\)。
 
-(2) \textbf{连续性：} 由不等式 $|xy|\leqslant\frac12(x^{2}+y^{2})$，得
+例如求 \(f(x,y)=xy\) 在 \(x+y=2\) 上的最大值。令 \(g=x+y-2\)，则
 \[
-|f(x,y)-0|=\frac{|xy|}{\sqrt{x^{2}+y^{2}}}\leqslant
-\frac{\frac12(x^{2}+y^{2})}{\sqrt{x^{2}+y^{2}}}
-=\frac12\sqrt{x^{2}+y^{2}}\to 0\quad((x,y)\to(0,0)).
+    L=xy+\lambda(x+y-2).
 \]
-故 $\displaystyle\lim_{(x,y)\to(0,0)}f(x,y)=0=f(0,0)$，$f$ 在 $(0,0)$ 处\textbf{连续}。
-
-\textbf{可微性：} 考察
+由
 \[
-\frac{\varDelta z-[f_{x}(0,0)\varDelta x+f_{y}(0,0)\varDelta y]}{\rho}
-=\frac{\frac{\varDelta x\,\varDelta y}{\sqrt{\varDelta x^{2}+\varDelta y^{2}}}}{\sqrt{\varDelta x^{2}+\varDelta y^{2}}}
-=\frac{\varDelta x\,\varDelta y}{\varDelta x^{2}+\varDelta y^{2}},
+    L_x=y+\lambda=0,\qquad L_y=x+\lambda=0
 \]
-其中 $\rho=\sqrt{\varDelta x^{2}+\varDelta y^{2}}$。取 $\varDelta y=\varDelta x$，上式 $=\dfrac12\not\to 0$（$\rho\to 0$）。故 $f$ 在 $(0,0)$ 处\textbf{不可微}。
-
-\boxed{\textbf{注}} 此例说明：偏导数存在且函数连续，仍不能保证可微。二元函数的可微性比可偏导性强得多。
-
-\vspace{6pt}
-
-\else \answerarea \fi%
-\textbf{3.} \textbf{（全微分与近似计算）} 设 $z=\arctan\dfrac{y}{x}\;(x>0)$。
-(1) 求 $\mathrm{d}z\big|_{(1,1)}$；
-(2) 利用全微分（一阶近似）计算 $\arctan\dfrac{1.02}{0.97}$ 的近似值。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1)
+得 \(x=y=-\lambda\)。代入约束 \(x+y=2\)，得 \(x=y=1\)，此时 \(f=1\)。又由
 \[
-\frac{\partial z}{\partial x}=\frac{1}{1+(y/x)^{2}}\cdot\left(-\frac{y}{x^{2}}\right)=-\frac{y}{x^{2}+y^{2}},
-\qquad
-\frac{\partial z}{\partial y}=\frac{1}{1+(y/x)^{2}}\cdot\frac{1}{x}=\frac{x}{x^{2}+y^{2}}.
+    xy\le\left(\frac{x+y}{2}\right)^2=1,
 \]
-在 $(1,1)$ 处：$z_{x}(1,1)=-\dfrac12$，$z_{y}(1,1)=\dfrac12$，故
+等号仅在 \(x=y=1\) 时成立，所以 \(1\) 确实是最大值。注意这条直线上 \(xy\) 可以趋于 \(-\infty\)，因此没有最小值；拉格朗日法只负责找“可能点”，是否存在最值还要结合约束集是否有界、函数在无穷远处的行为来判断。
+
+\subsection{几何应用与泰勒公式}
+
+全微分已经给出了曲面 \(z=f(x,y)\) 的切平面。设 \(P_0(x_0,y_0,z_0)\) 在曲面上，\(f\) 在 \(P_0\) 处可微，则切平面为
 \[
-\mathrm{d}z\big|_{(1,1)} = -\frac12\,\mathrm{d}x + \frac12\,\mathrm{d}y.
+    z-z_0=f_x(P_0)(x-x_0)+f_y(P_0)(y-y_0),
 \]
-
-(2) 要近似计算 $\arctan\dfrac{1.02}{0.97}$，应取 $x_0=1$、$y_0=1$，并令 $x=0.97$、$y=1.02$，故 $\varDelta x=-0.03$、$\varDelta y=0.02$。于是
+法向量可取
 \[
-z(1,1)=\arctan 1 = \frac{\pi}{4}\approx 0.7854.
+    \mathbf n=\bigl(-f_x(P_0),-f_y(P_0),1\bigr),
 \]
-由全微分近似 $\varDelta z\approx\mathrm{d}z$：
+法线方程为
 \[
-\varDelta z \approx -\frac12\times(-0.03) + \frac12\times0.02 = 0.015+0.01 = 0.025.
+    \frac{x-x_0}{-f_x(P_0)}
+    =\frac{y-y_0}{-f_y(P_0)}
+    =\frac{z-z_0}{1}.
 \]
-故
+若曲面由隐式方程 \(F(x,y,z)=0\) 给出，且 \(\nabla F(P_0)\neq\mathbf 0\)，则 \(\nabla F(P_0)\) 就是法向量，切平面为
 \[
-\arctan\frac{1.02}{0.97} \approx \frac{\pi}{4} + 0.025 \approx 0.7854 + 0.025 = 0.8104 \approx 0.810.
+    F_x(P_0)(x-x_0)+F_y(P_0)(y-y_0)+F_z(P_0)(z-z_0)=0.
 \]
-（注：这是一阶全微分近似，误差为二阶量约 $\frac12\bigl(f_{xx}\varDelta x^2+f_{yy}\varDelta y^2\bigr)\approx 0.0001$；真值 $\arctan(1.02/0.97)\approx 0.81052$，四舍五入到三位小数为 $0.811$。）
+这与显式情形一致：把 \(F(x,y,z)=f(x,y)-z\) 代入即可。
 
-\vspace{10pt}
-
-\else \answerarea \fi%
-\subsection{综合提高题}
-
-\textbf{4.} \textbf{（链式法则·二阶偏导数）} 设 $z=f(u,v)$ 具有二阶连续偏导数，其中 $u=x^{2}+y^{2}$，$v=xy$。试用 $f$ 关于 $u,v$ 的偏导数表示 $\displaystyle\frac{\partial^{2}z}{\partial x\partial y}$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-一阶偏导数：
+空间曲线由参数方程
 \[
-\frac{\partial z}{\partial x}=f_{1}'\cdot\frac{\partial u}{\partial x}+f_{2}'\cdot\frac{\partial v}{\partial x}
-=2x f_{1}' + y f_{2}'.
+    x=x(t),\qquad y=y(t),\qquad z=z(t)
 \]
-对 $y$ 再求偏导：
-\begin{align*}
-\frac{\partial^{2}z}{\partial x\partial y}
-&= \frac{\partial}{\partial y}\bigl(2x f_{1}' + y f_{2}'\bigr) \\
-&= 2x\cdot\frac{\partial f_{1}'}{\partial y} + f_{2}' + y\cdot\frac{\partial f_{2}'}{\partial y}.
-\end{align*}
-由于 $f_{1}'$, $f_{2}'$ 仍通过 $u,v$ 依赖于 $x,y$，再次使用链式法则：
-\begin{align*}
-\frac{\partial f_{1}'}{\partial y} &= f_{11}''\cdot\frac{\partial u}{\partial y} + f_{12}''\cdot\frac{\partial v}{\partial y}
-= 2y f_{11}'' + x f_{12}'', \\
-\frac{\partial f_{2}'}{\partial y} &= f_{21}''\cdot\frac{\partial u}{\partial y} + f_{22}''\cdot\frac{\partial v}{\partial y}
-= 2y f_{21}'' + x f_{22}''.
-\end{align*}
-由混合偏导数连续性知 $f_{12}'' = f_{21}''$，代入得
-\begin{align*}
-\frac{\partial^{2}z}{\partial x\partial y}
-&= 2x(2y f_{11}'' + x f_{12}'') + f_{2}' + y(2y f_{21}'' + x f_{22}'') \\
-&= 4xy f_{11}'' + 2(x^{2}+y^{2}) f_{12}'' + xy f_{22}'' + f_{2}'.
-\end{align*}
-
-\boxed{\textbf{注}} 对于含抽象函数的高阶链式求导，关键是明确每次求导作用于哪个中间变量；画出变量依赖关系可避免遗漏交叉项。$f_{1}'$ 和 $f_{2}'$ 仍以 $(u,v)$ 为变量，求导时必须再次展开。
-
-\vspace{6pt}
-
-\else \answerarea \fi%
-\textbf{5.} \textbf{（隐函数求导·二阶）} 设方程 $x^{2}+y^{2}+z^{2}-3xyz=0$ 确定了隐函数 $z=z(x,y)$，且 $z(1,1)=1$。求 $\displaystyle\frac{\partial z}{\partial x}\bigg|_{(1,1)}$ 和 $\displaystyle\frac{\partial^{2}z}{\partial x^{2}}\bigg|_{(1,1)}$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{法一（隐函数求导公式）：} 令 $F(x,y,z)=x^{2}+y^{2}+z^{2}-3xyz$，则
+给出时，曲线在 \(t=t_0\) 处的切向量是
 \[
-\frac{\partial z}{\partial x} = -\frac{F_{x}}{F_{z}}
-= -\frac{2x-3yz}{2z-3xy}.
+    \mathbf T=\bigl(x'(t_0),y'(t_0),z'(t_0)\bigr).
 \]
-在 $(1,1,1)$ 处：$\displaystyle\frac{\partial z}{\partial x}\bigg|_{(1,1)}
-= -\frac{2-3}{2-3} = -1$。
-
-\textbf{法二（方程两边直接求导，更推荐）：} 将 $x^{2}+y^{2}+z^{2}-3xyz=0$ 两边对 $x$ 求偏导（$y$ 视为常数）：
+切线方程为
 \[
-2x + 2z z_{x} - 3y(z + x z_{x}) = 0,
+    \frac{x-x_0}{x'(t_0)}
+    =\frac{y-y_0}{y'(t_0)}
+    =\frac{z-z_0}{z'(t_0)},
 \]
-即 $(2z-3xy)z_{x} + 2x - 3yz = 0$。代入 $(1,1,1)$：$(2-3)z_{x}+2-3=0$，得 $z_{x}=-1$。
-
-对 $x$ 再次求偏导：
+法平面（过 \(P_0\) 且与切线垂直的平面）为
 \[
-2 + 2(z_{x})^{2} + 2z z_{xx} - 3y(z_{x}+z_{x}+x z_{xx}) = 0,
+    x'(t_0)(x-x_0)+y'(t_0)(y-y_0)+z'(t_0)(z-z_0)=0.
 \]
-即 $2 + 2(z_{x})^{2} + 2z z_{xx} - 6y z_{x} - 3xy z_{xx} = 0$。
-代入 $(1,1,1)$ 及 $z_{x}=-1$：
+若曲线由两张曲面的交线 \(F(x,y,z)=0,\ G(x,y,z)=0\) 给出，则切向量可取 \(\nabla F\times\nabla G\)，前提是这两个梯度不平行。
+
+最后看二阶泰勒公式。它把“用切平面近似曲面”再往前推一步：切平面是一阶近似，二阶泰勒公式则多保留一个二次项。设 \(f\) 在 \(P_0(x_0,y_0)\) 的某邻域内有连续二阶偏导数，则
 \[
-2 + 2(1) + 2\cdot 1\cdot z_{xx} - 6\cdot 1\cdot(-1) - 3\cdot 1\cdot 1\cdot z_{xx} = 0,
+\begin{aligned}
+    f(x_0+\Delta x,y_0+\Delta y)
+    ={}&f(P_0)+f_x(P_0)\Delta x+f_y(P_0)\Delta y\\
+    &+\frac12\Bigl[
+        f_{xx}(P_0)\Delta x^2
+        +2f_{xy}(P_0)\Delta x\Delta y
+        +f_{yy}(P_0)\Delta y^2
+    \Bigr]+o(\rho^2).
+\end{aligned}
 \]
+写成矩阵形式就是
 \[
-2 + 2 + 2z_{xx} + 6 - 3z_{xx} = 0 \;\Longrightarrow\; 10 - z_{xx} = 0,
+    f(P_0+\Delta\mathbf x)
+    =f(P_0)+\nabla f(P_0)^T\Delta\mathbf x
+    +\frac12\Delta\mathbf x^T H(P_0)\Delta\mathbf x
+    +o(\lvert\Delta\mathbf x\rvert^2),
 \]
-故 $\displaystyle\frac{\partial^{2}z}{\partial x^{2}}\bigg|_{(1,1)} = 10$。
+其中 \(H\) 是 Hessian 矩阵。极值充分条件中的 \(AC-B^2\) 正是这个二次型的判别式：二次项主导了 \(\Delta f\) 的符号，所以它决定了驻点附近是“碗”、是“帽”，还是“马鞍”。
 
-\boxed{\textbf{注}} 法二直接对恒等式 $F(x,y,z(x,y))=0$ 求导，在含参讨论和二阶导计算中通常更便于核对各项。
-
-\vspace{6pt}
-
-\else \answerarea \fi%
-\textbf{6.} \textbf{（无条件极值）} 求函数 $f(x,y)=x^{3}+y^{3}-3x^{2}-3y^{2}-9x$ 的所有极值点，并判定极值类型。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-求驻点：
+如果需要更高阶的近似，可以把 \(f(x_0+\Delta x,y_0+\Delta y)\) 看成一元函数
 \[
-\begin{cases}
-f_{x}=3x^{2}-6x-9=3(x^{2}-2x-3)=3(x-3)(x+1)=0,\\[4pt]
-f_{y}=3y^{2}-6y=3y(y-2)=0.
-\end{cases}
+    \Phi(t)=f(x_0+t\Delta x,\ y_0+t\Delta y)
 \]
-解得 $x=-1$ 或 $x=3$；$y=0$ 或 $y=2$。故四个驻点：
+在 \(t=0\) 到 \(t=1\) 上的增量，再套一元泰勒公式。这样得到的多元泰勒公式在形式上就是
 \[
-P_{1}(-1,0),\quad P_{2}(-1,2),\quad P_{3}(3,0),\quad P_{4}(3,2).
+    f(x_0+\Delta x,y_0+\Delta y)
+    =\sum_{m=0}^{n}\frac1{m!}
+    \Bigl(\Delta x\frac{\partial}{\partial x}
+    +\Delta y\frac{\partial}{\partial y}\Bigr)^m f(P_0)+R_n,
 \]
+其中 \(R_n\) 是余项。考试中主要用到 \(n=1\)（全微分近似）和 \(n=2\)（极值判别）两种情形。
 
-二阶偏导：$f_{xx}=6x-6$，$f_{yy}=6y-6$，$f_{xy}=0$。
-判别式 $\varDelta = f_{xx}f_{yy}-(f_{xy})^{2} = (6x-6)(6y-6)$。
-
-\begin{itemize}
-    \item $P_{1}(-1,0)$：$f_{xx}=-12<0$，$\varDelta=(-12)(-6)=72>0$ $\Rightarrow$ \textbf{极大值}，
-    $f(-1,0)=-1+0-3-0+9=5$。
-    \item $P_{2}(-1,2)$：$\varDelta=(-12)(6)=-72<0$ $\Rightarrow$ \textbf{非极值点}（鞍点）。
-    \item $P_{3}(3,0)$：$\varDelta=(12)(-6)=-72<0$ $\Rightarrow$ \textbf{非极值点}（鞍点）。
-    \item $P_{4}(3,2)$：$f_{xx}=12>0$，$\varDelta=(12)(6)=72>0$ $\Rightarrow$ \textbf{极小值}，
-    $f(3,2)=27+8-27-12-27=-31$。
-\end{itemize}
-
-\boxed{\textbf{注}} 此题的巧妙之处在于 $f_{xy}=0$ 使判别式简化为两个单变量因子的乘积，每个驻点的类型由 $x$ 和 $y$ 分量的曲率方向独立决定——这是可分离变量的极值问题的典型特征。
-
-\vspace{6pt}
-
-\else \answerarea \fi%
-\textbf{7.} \textbf{（拉格朗日乘数法）} 求函数 $f(x,y)=x^{2}+y^{2}$ 在椭圆 $x^{2}+xy+y^{2}=3$ 上的最大值和最小值。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-约束曲线为有界闭集，$f$ 连续，故最值存在。构造拉格朗日函数：
-\[
-L(x,y,\lambda)=x^{2}+y^{2}+\lambda(x^{2}+xy+y^{2}-3).
-\]
-令
-\[
-\begin{cases}
-L_{x}=2x+\lambda(2x+y)=0,\\[4pt]
-L_{y}=2y+\lambda(x+2y)=0,\\[4pt]
-L_{\lambda}=x^{2}+xy+y^{2}-3=0.
-\end{cases}
-\]
-由前两式得线性方程组：
-\[
-\begin{pmatrix}
-2(1+\lambda) & \lambda \\[2pt]
-\lambda & 2(1+\lambda)
-\end{pmatrix}
-\begin{pmatrix} x \\ y \end{pmatrix}
-= \begin{pmatrix} 0 \\ 0 \end{pmatrix}.
-\]
-存在非零解 $(x,y)\neq(0,0)$（否则 $x=y=0$ 不满足约束），故系数矩阵行列式为零：
-\[
-4(1+\lambda)^{2}-\lambda^{2}=0 \;\Longrightarrow\; (2+2\lambda-\lambda)(2+2\lambda+\lambda)=0,
-\]
-即 $(\lambda+2)(3\lambda+2)=0$，得 $\lambda=-2$ 或 $\lambda=-\dfrac{2}{3}$。
-
-\begin{itemize}
-    \item 当 $\lambda=-2$ 时，第一式给出 $2x-2(2x+y)=0\Rightarrow x+y=0\Rightarrow y=-x$。
-    代入约束：$x^{2}-x^{2}+x^{2}=x^{2}=3\Rightarrow x=\pm\sqrt{3}$。
-    得 $(\sqrt{3},-\sqrt{3})$ 和 $(-\sqrt{3},\sqrt{3})$。$f=3+3=6$。
-
-    \item 当 $\lambda=-\dfrac{2}{3}$ 时，第一式给出 $2x-\dfrac{2}{3}(2x+y)=0\Rightarrow \dfrac{2}{3}x-\dfrac{2}{3}y=0\Rightarrow x=y$。
-    代入约束：$3x^{2}=3\Rightarrow x=\pm1$。
-    得 $(1,1)$ 和 $(-1,-1)$。$f=1+1=2$。
-\end{itemize}
-比较四个候选点的函数值：最大值为 $6$，最小值为 $2$。
-
-\boxed{\textbf{注}} 此题等价于求椭圆 $x^{2}+xy+y^{2}=3$ 上点到原点距离平方的极值。注意到约束可配方为 $\dfrac{1}{2}[(x+y)^{2}+3(x-y)^{2}]=3$，正定二次型保证了约束为有界闭曲线，连续函数在此上必有最值。
-
-\vspace{10pt}
-
-\else \answerarea \fi%
-\subsection{真题风格与综合训练}
-
-\textbf{8.}（\boxed{\textbf{真题风格}}）\textbf{（链式变换与偏微分方程）} 设 $u=f(x,y)$ 具有二阶连续偏导数。作自变量变换 $\xi=x+ay$，$\eta=x-ay$（$a\neq0$ 为常数）。试用 $u$ 关于 $\xi,\eta$ 的二阶偏导数表示 $\displaystyle\frac{\partial^{2}u}{\partial x^{2}}-\frac{1}{a^{2}}\frac{\partial^{2}u}{\partial y^{2}}$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-由链式法则：
-\[
-\frac{\partial u}{\partial x}
-= \frac{\partial u}{\partial\xi}\cdot\frac{\partial\xi}{\partial x}
-  +\frac{\partial u}{\partial\eta}\cdot\frac{\partial\eta}{\partial x}
-= u_{\xi}+u_{\eta}.
-\]
-\[
-\frac{\partial u}{\partial y}
-= \frac{\partial u}{\partial\xi}\cdot\frac{\partial\xi}{\partial y}
-  +\frac{\partial u}{\partial\eta}\cdot\frac{\partial\eta}{\partial y}
-= a u_{\xi} - a u_{\eta} = a(u_{\xi}-u_{\eta}).
-\]
-
-二阶偏导（注意 $u_{\xi},u_{\eta}$ 仍以 $(\xi,\eta)$ 为变量）：
-\begin{align*}
-\frac{\partial^{2}u}{\partial x^{2}}
-&= \frac{\partial}{\partial x}(u_{\xi}+u_{\eta})
- = (u_{\xi\xi}+u_{\xi\eta}) + (u_{\eta\xi}+u_{\eta\eta}) \\
-&= u_{\xi\xi} + 2u_{\xi\eta} + u_{\eta\eta}.
-\end{align*}
-\begin{align*}
-\frac{\partial^{2}u}{\partial y^{2}}
-&= \frac{\partial}{\partial y}\bigl[a(u_{\xi}-u_{\eta})\bigr]
- = a\bigl[(u_{\xi\xi}\cdot a + u_{\xi\eta}\cdot(-a)) - (u_{\eta\xi}\cdot a + u_{\eta\eta}\cdot(-a))\bigr] \\
-&= a\bigl[a u_{\xi\xi} - a u_{\xi\eta} - a u_{\eta\xi} + a u_{\eta\eta}\bigr] \\
-&= a^{2}(u_{\xi\xi} - 2u_{\xi\eta} + u_{\eta\eta}).
-\end{align*}
-
-代入目标表达式：
-\begin{align*}
-\frac{\partial^{2}u}{\partial x^{2}}-\frac{1}{a^{2}}\frac{\partial^{2}u}{\partial y^{2}}
-&= (u_{\xi\xi}+2u_{\xi\eta}+u_{\eta\eta}) - \frac{1}{a^{2}}\cdot a^{2}(u_{\xi\xi}-2u_{\xi\eta}+u_{\eta\eta}) \\
-&= u_{\xi\xi}+2u_{\xi\eta}+u_{\eta\eta} - u_{\xi\xi}+2u_{\xi\eta}-u_{\eta\eta} \\
-&= 4u_{\xi\eta}.
-\end{align*}
-
-\boxed{\textbf{注}} 这是波动方程 $u_{xx}-a^{-2}u_{yy}=0$（将 $y$ 视为时间变量）的标准化简。变换后方程为 $u_{\xi\eta}=0$，其通解为 $u=\varphi(\xi)+\psi(\eta)=\varphi(x+ay)+\psi(x-ay)$，即经典的 d'Alembert 公式。此类变量替换是考研高频考点。
-
-\vspace{6pt}
-
-\else \answerarea \fi%
-\textbf{9.}（\boxed{\textbf{真题风格}}）\textbf{（隐函数组与空间曲线）} 设方程组
-\[
-\begin{cases}
-x^{2}+y^{2}+z^{2}=2,\\
-x+y+z=0
-\end{cases}
-\]
-在点 $(1,-1,0)$ 附近确定了隐函数 $y=y(x)$, $z=z(x)$。求
-(1) $\displaystyle\frac{\mathrm{d}y}{\mathrm{d}x}$, $\displaystyle\frac{\mathrm{d}z}{\mathrm{d}x}$ 在 $x=1$ 处的值；
-(2) 曲线在点 $(1,-1,0)$ 处的切线方程。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 对方程组两边对 $x$ 求导（$y,z$ 是 $x$ 的函数）：
-\[
-\begin{cases}
-2x + 2y y' + 2z z' = 0,\\
-1 + y' + z' = 0.
-\end{cases}
-\]
-代入 $(x,y,z)=(1,-1,0)$：
-\[
-\begin{cases}
-2 + 2(-1)y' + 2\cdot 0\cdot z' = 0,\\
-1 + y' + z' = 0.
-\end{cases}
-\;\Longrightarrow\;
-\begin{cases}
-2 - 2y' = 0,\\
-1 + y' + z' = 0.
-\end{cases}
-\]
-由第一式得 $y'=1$，代入第二式得 $1+1+z'=0\Rightarrow z'=-2$。
-故 $\displaystyle\frac{\mathrm{d}y}{\mathrm{d}x}\Big|_{x=1}=1$，$\displaystyle\frac{\mathrm{d}z}{\mathrm{d}x}\Big|_{x=1}=-2$。
-
-(2) 空间曲线的切向量为 $(1, y', z')|_{(1,-1,0)} = (1, 1, -2)$。
-切线方程（参数式）：
-\[
-\frac{x-1}{1} = \frac{y+1}{1} = \frac{z-0}{-2}.
-\]
-即
-\[
-x-1 = y+1 = -\frac{z}{2}.
-\]
-
-\boxed{\textbf{注}} 本题的方程组 $F(x,y,z)=0$, $G(x,y,z)=0$ 确定了空间曲线（球面与平面的交线——一个圆）。对 $x$ 求导时，$y$ 和 $z$ 均视为 $x$ 的函数，得到关于 $y',z'$ 的线性方程组。这与雅可比行列式公式 $\dfrac{\mathrm{d}y}{\mathrm{d}x}=-\dfrac{\partial(F,G)/\partial(x,z)}{\partial(F,G)/\partial(y,z)}$ 等价，但直接求导在数值代入时更简便。
-
-\vspace{6pt}
-
-\else \answerarea \fi%
-\textbf{10.}（\boxed{\textbf{真题风格}}）\textbf{（条件极值·几何应用）} 设 $a,b,c>0$，求内接于椭球面 $\dfrac{x^{2}}{a^{2}}+\dfrac{y^{2}}{b^{2}}+\dfrac{z^{2}}{c^{2}}=1$ 且各面平行于坐标面的长方体（第一卦限部分顶点坐标 $(x,y,z)$ 均为正）的最大体积。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-由对称性，设长方体在第一卦限的顶点为 $(x,y,z)$（$x,y,z>0$），则长方体边长分别为 $2x$, $2y$, $2z$，体积 $V=8xyz$。
-约束条件：$\dfrac{x^{2}}{a^{2}}+\dfrac{y^{2}}{b^{2}}+\dfrac{z^{2}}{c^{2}}=1$。
-
-取对数简化计算：最大化 $V$ 等价于最大化 $\ln V=\ln 8+\ln x+\ln y+\ln z$。
-构造拉格朗日函数：
-\[
-L(x,y,z,\lambda)=\ln x+\ln y+\ln z+\lambda\!\left(\frac{x^{2}}{a^{2}}+\frac{y^{2}}{b^{2}}+\frac{z^{2}}{c^{2}}-1\right).
-\]
-令
-\[
-\begin{cases}
-L_{x}=\dfrac{1}{x}+2\lambda\dfrac{x}{a^{2}}=0,\\[8pt]
-L_{y}=\dfrac{1}{y}+2\lambda\dfrac{y}{b^{2}}=0,\\[8pt]
-L_{z}=\dfrac{1}{z}+2\lambda\dfrac{z}{c^{2}}=0,\\[8pt]
-L_{\lambda}=\dfrac{x^{2}}{a^{2}}+\dfrac{y^{2}}{b^{2}}+\dfrac{z^{2}}{c^{2}}-1=0.
-\end{cases}
-\]
-由前三式分别乘以 $x,y,z$，可得
-\[
-\frac{x^2}{a^2}=\frac{y^2}{b^2}=\frac{z^2}{c^2}=-\frac{1}{2\lambda}.
-\]
-代入约束：
-\[
-3\cdot\frac{x^{2}}{a^{2}}=1 \;\Longrightarrow\; \frac{x^{2}}{a^{2}}=\frac{1}{3},
-\]
-得 $x=\dfrac{a}{\sqrt{3}}$，$y=\dfrac{b}{\sqrt{3}}$，$z=\dfrac{c}{\sqrt{3}}$。
-
-（由问题的实际意义，最大值存在且唯一驻点必为最大值点，无需验证二阶条件。）
-
-最大体积：
-\[
-V_{\max}=8xyz=8\cdot\frac{a}{\sqrt{3}}\cdot\frac{b}{\sqrt{3}}\cdot\frac{c}{\sqrt{3}}=\frac{8abc}{3\sqrt{3}}.
-\]
-
-\boxed{\textbf{注}} 椭球内接最大长方体的体积为 $\dfrac{8abc}{3\sqrt{3}}$。对连乘积取对数后再使用 Lagrange 乘数法，可以把一阶条件迅速化为 $\dfrac{x^{2}}{a^{2}}=\dfrac{y^{2}}{b^{2}}=\dfrac{z^{2}}{c^{2}}$。
-
-\else \answerarea \fi%
+\input{calculus/exercises/chap8.tex}

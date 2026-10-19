@@ -1,0 +1,229 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} HDLC 采用零比特填充法组帧，帧定界符为 \texttt{01111110}。待发送的数据比特串为 \texttt{011111101111110}。发送方进行零比特填充后，实际发送的比特串是
+\begin{center}
+\begin{tabular}{ll}
+(A) \texttt{01111101011111010} & (B) \texttt{0111110101111101} \\[4pt]
+(C) \texttt{011111101111110} & (D) \texttt{011111010111110010}
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 零比特填充的规则是：发送方每遇到 5 个连续 1，就在其后插入一个 0；接收方每收到 5 个连续 1，就删除其后的一个 0，从而还原数据。
+
+按此规则扫描原串 \texttt{011111101111110}：第一个 0 之后有 6 个连续 1，在第 5 个 1 后插入 0，得到 \texttt{011111010}；插入的 0 使连续 1 的计数重新开始，原第 6 个 1 之后是 0。继续扫描，后面又有 6 个连续 1，同样在第 5 个 1 后插入 0。最终结果为 \texttt{01111101011111010}，长度为 $15+2=17$ bit。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 下列关于组帧方法的说法中，正确的是
+\begin{center}\small
+\begin{tabular}{@{}ll@{}}
+(A) 计数字段出错只影响本帧 & (B) 数据中的定界字节须转义 \\[4pt]
+(C) 零比特填充用于字符链路 & (D) 违规编码法需增加校验位
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 字符计数法在帧首部给出帧内字符数，一旦计数字段出错，接收方会按错误长度切分，导致后续所有帧失去边界，故 (A) 错。
+
+字节填充法用特殊字节（如帧定界符）标记帧边界；当数据中恰好出现与定界字节或转义字节相同的字节时，必须在其前插入转义字节（如 ESC），接收方再删除转义字节，故 (B) 对。
+
+零比特填充法面向比特流，典型用于 HDLC，不要求链路是面向字符的，故 (C) 错。
+
+违规编码法利用物理层编码中不允许出现的码型（如曼彻斯特编码中不合法的跳变）表示帧边界，并不增加校验位，故 (D) 错。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 数据比特串 $M=1101011011$，生成多项式 $G(x)=x^4+x+1$。按 CRC 计算规则得到的 4 位校验码是
+\begin{center}
+\begin{tabular}{ll}
+(A) 1110 & (B) 0111 \\[4pt]
+(C) 1011 & (D) 1101
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $G(x)=x^4+x+1$ 对应的比特串为 \texttt{10011}，最高次为 4，故校验码取 4 位。
+
+第一步，在 $M$ 后补 4 个 0，得 \texttt{11010110110000}。
+
+第二步，用 \texttt{10011} 对其做模 2 除法（每一位只做异或，不借位）。从最高位开始，当前首位为 1 就与 \texttt{10011} 异或，为 0 则只移位；逐位进行后，商为 \texttt{1100001010}，余数为 \texttt{1110}。
+
+第三步，把余数拼在 $M$ 之后，发送码字为 \texttt{11010110111110}。验证：用 \texttt{10011} 除该码字，余数为 \texttt{0000}，说明校验码正确。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 下列关于差错控制的说法中，正确的是
+\begin{center}\small
+\begin{tabular}{@{}ll@{}}
+(A) CRC 能纠正所有单比特错 & (B) 奇偶校验能检出偶数位错 \\[4pt]
+(C) 海明距离 $d$ 可检出 $d-1$ 位错 & (D) 以太网用链路层确认重传
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} CRC 是检错码，接收方只能判断余数是否为零；要纠正错误还需额外的定位与纠错机制，故 (A) 错。
+
+奇偶校验只能保证检出奇数个比特出错：偶数个比特同时翻转时，1 的个数奇偶性不变，校验结果仍正确，故 (B) 错。
+
+一种编码的最小海明距离为 $d$ 时，可检出至多 $d-1$ 位错误；若用于纠错，则最多纠正 $\lfloor (d-1)/2\rfloor$ 位错误，故 (C) 对。
+
+以太网收到 CRC 错误的帧直接丢弃，不进行链路层确认和重传，可靠传输由上层（如 TCP）负责，故 (D) 错。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某采用 CSMA/CD 的以太网，数据率为 100 Mb/s，最大端到端距离为 2 km，信号传播速率为 $2\times10^{8}$ m/s，忽略中继器时延。为保证发送方能在发送期间检测到最坏情况下的冲突，最短帧长为 \underline{\hspace{2.5cm}} bit，即 \underline{\hspace{2cm}} B。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 单程传播时延
+\[
+\tau=\frac{2\times10^{3}\ \text{m}}{2\times10^{8}\ \text{m/s}}=10\ \mu\text{s}.
+\]
+最坏情况下，发送方发出帧后，冲突信号需要经过 $2\tau$ 才能返回发送方，因此争用期为
+\[
+2\tau=20\ \mu\text{s}.
+\]
+发送方必须在整个争用期内仍在发送，才能检测到冲突，故最短发送时间应不小于 $2\tau$。最短帧长为
+\[
+L_{\min}=R\cdot 2\tau=100\times10^{6}\times20\times10^{-6}=2000\ \text{bit}.
+\]
+换算为字节：$2000/8=250$ B。\boxed{\text{\textbf{答案：}2000 bit，250 B}}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} PPP 工作在异步链路上，帧定界符为 \texttt{0x7E}，转义字节为 \texttt{0x7D}。转义规则为：\texttt{0x7E} 转义为 \texttt{0x7D 0x5E}，\texttt{0x7D} 转义为 \texttt{0x7D 0x5D}，小于 \texttt{0x20} 的字节转义为 \texttt{0x7D} 后跟“原字节异或 \texttt{0x20}”。若待发送的数据字节依次为 \texttt{7D 7E 03}，则填充后实际发送的字节序列是
+\begin{center}
+\begin{tabular}{ll}
+(A) \texttt{7D 5D 7D 5E 7D 23} & (B) \texttt{7D 5E 7D 5D 7D 23} \\[4pt]
+(C) \texttt{7D 7E 03} & (D) \texttt{7D 5D 7E 03}
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 逐字节处理：
+
+\texttt{0x7D} 是转义字节本身，必须转义为 \texttt{0x7D 0x5D}（因为 \texttt{0x7D} 异或 \texttt{0x20} 等于 \texttt{0x5D}）。
+
+\texttt{0x7E} 是帧定界符，必须转义为 \texttt{0x7D 0x5E}（\texttt{0x7E} 异或 \texttt{0x20} 等于 \texttt{0x5E}）。
+
+\texttt{0x03} 小于 \texttt{0x20}，同样转义为 \texttt{0x7D 0x23}（\texttt{0x03} 异或 \texttt{0x20} 等于 \texttt{0x23}）。
+
+拼接后为 \texttt{7D 5D 7D 5E 7D 23}，共 6 字节。接收方遇到 \texttt{0x7D} 就把下一字节异或 \texttt{0x20} 还原，因此可以无歧义地恢复原数据。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 某以太网采用二进制指数退避算法，争用期 $2\tau=51.2\ \mu\text{s}$。某站发送一帧时连续发生冲突，则第 5 次重传时随机数 $r$ 的取值范围和最大退避时间分别是
+\begin{center}
+\begin{tabular}{ll}
+(A) $[0,15]$，$768.0\ \mu\text{s}$ & (B) $[0,31]$，$1587.2\ \mu\text{s}$ \\[4pt]
+(C) $[0,31]$，$1638.4\ \mu\text{s}$ & (D) $[0,63]$，$3225.6\ \mu\text{s}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 二进制指数退避规定：第 $k$ 次重传（$1\leqslant k\leqslant10$）时，从 $\{0,1,\dots,2^{k}-1\}$ 中随机取整数 $r$，等待 $r\times2\tau$ 后再次发送。
+
+第 5 次重传时 $k=5$，故
+\[
+r\in\{0,1,\dots,2^{5}-1\}=\{0,1,\dots,31\}.
+\]
+最大等待时间为
+\[
+r_{\max}\times2\tau=31\times51.2\ \mu\text{s}=1587.2\ \mu\text{s}.
+\]
+选项 (A) 对应 $k=4$，(D) 对应 $k=6$；(C) 虽然范围正确，但把最大等待时间算成了 $32\times2\tau$，多算了一个争用期。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 某 100 Mb/s 以太网交换机采用直通交换方式，输出端口无排队。一个以太网帧长 1000 B（从目的 MAC 地址到 FCS，不含前导码和帧开始定界符）。直通交换在收到目的 MAC 地址（6 B）后立即开始转发；若改用存储转发方式，则收完整帧后才开始转发。存储转发比直通交换多引入的转发时延是
+\begin{center}
+\begin{tabular}{ll}
+(A) $0.48\ \mu\text{s}$ & (B) $79.52\ \mu\text{s}$ \\[4pt]
+(C) $80.00\ \mu\text{s}$ & (D) $121.44\ \mu\text{s}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 两种方式的差别在于：直通交换收到 6 B 目的地址后就可以开始转发，而存储转发必须等剩余 $1000-6=994$ B 全部到达。多出的时延就是接收这 994 B 的时间：
+\[
+\Delta t=\frac{(1000-6)\times8\ \text{bit}}{100\times10^{6}\ \text{bit/s}}
+=\frac{7952}{10^{8}}\ \text{s}=79.52\ \mu\text{s}.
+\]
+作为对照，接收 6 B 的时间为 $6\times8/10^{8}=0.48\ \mu\text{s}$，整个 1000 B 的发送时延为 $80.00\ \mu\text{s}$；$121.44\ \mu\text{s}$ 是 1518 B 最大帧的发送时延。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（真题风格·综合题）} 某采用 CSMA/CD 的以太网，数据率 $R=100$ Mb/s，任意两站间的最大距离为 2 km，信号传播速率为 $v=2\times10^{8}$ m/s，忽略中继器和处理时延。
+
+\begin{enumerate}
+\item[(1)] 求单程传播时延 $\tau$ 和争用期 $2\tau$。
+\item[(2)] 求保证冲突检测的最短帧长，分别用 bit 和 B 表示。
+\item[(3)] 若某帧的长度只有 800 bit，判断它能否在该网络上保证冲突检测；若不能，给出两种可行的修改方案，并分别算出对应的临界值。
+\item[(4)] 若该帧连续发生 3 次冲突，求第 3 次重传时随机数 $r$ 的取值范围及最大退避时间。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+
+\textbf{(1)} 单程传播时延为
+\[
+\tau=\frac{d}{v}=\frac{2\times10^{3}}{2\times10^{8}}=10^{-5}\ \text{s}=10\ \mu\text{s},
+\]
+争用期为 $2\tau=20\ \mu\text{s}$。
+
+\textbf{(2)} 最坏情况下，A 发送的帧到达 B 之前，B 也开始发送，冲突发生在 B 附近；冲突信号再传回 A，总共需要 $2\tau$。A 必须仍在发送才能检测到冲突，因此发送时间 $T_f=L/R$ 必须满足 $T_f\geqslant2\tau$，即
+\[
+L_{\min}=R\cdot2\tau=100\times10^{6}\times20\times10^{-6}=2000\ \text{bit}.
+\]
+换算为 $2000/8=250$ B。
+
+\textbf{(3)} 800 bit 的帧发送时间为
+\[
+T_f=\frac{800}{100\times10^{6}}=8\ \mu\text{s}<2\tau=20\ \mu\text{s}.
+\]
+最坏情况下冲突信号返回时该帧早已发送完毕，发送方无法在发送期间检测到冲突，因此不能保证 CSMA/CD 正常工作。
+
+可行的修改方案：
+
+方案一：缩短最大距离。要求 $2d/v\leqslant T_f$，即
+\[
+d\leqslant\frac{vT_f}{2}=\frac{2\times10^{8}\times8\times10^{-6}}{2}=800\ \text{m}.
+\]
+最大距离不超过 800 m 时，800 bit 的帧可以保证冲突检测。
+
+方案二：降低数据率。要求 $L/R\geqslant2\tau$，即
+\[
+R\leqslant\frac{L}{2\tau}=\frac{800}{20\times10^{-6}}=40\ \text{Mb/s}.
+\]
+数据率降到 40 Mb/s 及以下时，800 bit 的帧可以保证冲突检测。
+
+（也可以把帧填充到不少于 2000 bit，即 250 B，这是以太网用填充字段保证最短帧长的思路。）
+
+\textbf{(4)} 第 3 次重传对应 $k=3$，随机数
+\[
+r\in\{0,1,\dots,2^{3}-1\}=\{0,1,\dots,7\}.
+\]
+最大等待时间为 $7\times2\tau=7\times20\ \mu\text{s}=140\ \mu\text{s}$。
+
+\begin{center}
+\fbox{\parbox{0.94\linewidth}{\textbf{答案：}(1) $\tau=10\ \mu\text{s}$，争用期 $20\ \mu\text{s}$；(2) $2000$ bit，即 250 B；(3) 不能，需把最大距离缩到 800 m 以内，或把数据率降到 40 Mb/s 以下（也可填充到 250 B）；(4) $r\in[0,7]$，最大等待 $140\ \mu\text{s}$。}}
+\end{center}\else \answerarea[10] \fi
+
+\item \textbf{（真题风格·综合题）} 某 8 端口以太网交换机 S 的端口 1～4 分别连接主机 A、B、C、D，端口 5 连接路由器 R，端口 6～8 空闲。初始时交换表为空，忽略表项老化。
+
+\begin{enumerate}
+\item[(1)] 在未划分 VLAN 时，依次发生下列发送：1) A 向 B 发送单播帧；2) B 向 A 发送单播帧；3) C 向 D 发送单播帧；4) D 向 A 发送单播帧。写出每一步交换机新学到的表项，以及该帧被转发到的端口集合（不含输入端口）。
+\item[(2)] 现将端口 1、2 划入 VLAN 10，端口 3、4 划入 VLAN 20，端口 5 配置为 Trunk 端口。判断 A 能否直接与 C 进行二层通信；若 A 直接把 C 的 MAC 地址作为目的地址发送帧，说明交换机的处理过程，以及二者通信必须经过什么设备。
+\item[(3)] 在 (2) 的 VLAN 划分下，连接主机的 4 个端口共形成几个冲突域、几个广播域？
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+
+\textbf{(1)} 交换机通过帧的\textbf{源 MAC 地址}和接收端口学习表项；若目的 MAC 地址在表中，则只向对应端口转发；若不在表中（或为广播地址），则向除输入端口外的所有端口泛洪。
+
+1) A$\to$B：学习 A 在端口 1；B 的位置未知，泛洪到除端口 1 外的所有端口（2～8）。
+
+2) B$\to$A：学习 B 在端口 2；表中已有 A 在端口 1，只转发到端口 1。
+
+3) C$\to$D：学习 C 在端口 3；D 未知，泛洪到除端口 3 外的所有端口。
+
+4) D$\to$A：学习 D 在端口 4；A 已知在端口 1，只转发到端口 1。
+
+四步之后交换表为：A—端口 1，B—端口 2，C—端口 3，D—端口 4。
+
+\textbf{(2)} 不能直接进行二层通信。VLAN 在二层隔离广播域：A 发出的帧只在 VLAN 10 内转发。即使 A 知道 C 的 MAC 地址并直接以其为目的地址，该地址也不在 VLAN 10 的交换表中，交换机会在 VLAN 10 内泛洪，即只转发到端口 2 和 Trunk 端口 5（并打上 VLAN 10 标签），不会转发到属于 VLAN 20 的端口 3。
+
+若 A 要与 C 通信，A 必须先把帧发给默认网关，即路由器 R 在 VLAN 10 上的接口 MAC 地址（A 通过 ARP 获得该地址，ARP 请求同样只在 VLAN 10 内广播）；R 收到后查路由表，再把帧转发到 VLAN 20，此时目的 MAC 地址才是 C 的 MAC 地址。因此跨 VLAN 通信必须经过路由器或三层交换机等三层设备。
+
+\textbf{(3)} 交换机的每个端口是一个独立的冲突域，连接主机的 4 个端口对应 4 个冲突域。VLAN 10 和 VLAN 20 是两个独立的广播域，故共有 2 个广播域。
+
+\begin{center}
+\fbox{\parbox{0.94\linewidth}{\textbf{答案：}(1) 表项依次为 A-1、B-2、C-3、D-4；1) 泛洪到 2～8，2) 只转发到 1，3) 泛洪到除 3 外所有端口，4) 只转发到 1；(2) 不能直接通信，A 的帧只在 VLAN 10 内泛洪，跨 VLAN 必须经路由器/三层交换机；(3) 4 个冲突域，2 个广播域。}}
+\end{center}\else \answerarea[10] \fi
+
+\end{enumerate}

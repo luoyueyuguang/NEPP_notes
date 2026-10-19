@@ -1,0 +1,248 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 在一棵树中，有 5 个度为 5 的结点、4 个度为 4 的结点、3 个度为 3 的结点、2 个度为 2 的结点，其余结点都是叶结点。则该树的叶结点个数为
+\begin{center}
+\begin{tabular}{ll}
+(A) 39 & (B) 40 \\[4pt]
+(C) 41 & (D) 45
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 树中边数等于各结点度数之和。已知结点的度数之和为
+\[
+5\times5+4\times4+3\times3+2\times2=25+16+9+4=54,
+\]
+所以边数为 54，结点总数为 $54+1=55$。其中非叶结点共 $5+4+3+2=14$ 个，故叶结点数为 $55-14=41$。
+也可直接验证：每个度为 $k$ 的非叶结点在“结点数比孩子数多 1”的意义上贡献 $k-1$ 个叶结点，叶子数 $=1+(5\times4+4\times3+3\times2+2\times1)=41$。
+\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 一棵有 1000 个结点的完全二叉树，其叶结点个数为 \underline{\qquad}，高度为 \underline{\qquad}（约定根的层次为 1）。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 完全二叉树中度为 1 的结点数 $n_1$ 只能是 0 或 1。结点总数为偶数 1000，若 $n_1=0$，由 $n=2n_0+n_1-1$ 得 $2n_0=1001$，不是整数，故 $n_1=1$，从而 $n_0=1000/2=500$，$n_2=499$，满足 $n_0=n_2+1$。
+高度由 $2^{h-1}-1<n\leqslant 2^{h}-1$ 确定：$2^9-1=511<1000\leqslant 1023=2^{10}-1$，故 $h=10$。
+\boxed{\text{答案：}500\text{；}10}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 已知一棵二叉树的先序遍历序列为 \texttt{ABDFCEG}，中序遍历序列为 \texttt{DBFAECG}，则其后序遍历序列为
+\begin{center}
+\begin{tabular}{ll}
+(A) \texttt{DFBEGCA} & (B) \texttt{DFBECGA} \\[4pt]
+(C) \texttt{FDBEGCA} & (D) \texttt{DFBEGAC}
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 先序首元 \texttt{A} 是根；中序中 \texttt{A} 左侧 \texttt{DBF} 是左子树，右侧 \texttt{ECG} 是右子树。
+左子树先序为 \texttt{BDF}、中序为 \texttt{DBF}，故 \texttt{B} 为根，\texttt{D} 为左孩子、\texttt{F} 为右孩子，其后序为 \texttt{DFB}。
+右子树先序为 \texttt{CEG}、中序为 \texttt{ECG}，故 \texttt{C} 为根，\texttt{E} 为左孩子、\texttt{G} 为右孩子，其后序为 \texttt{EGC}。
+整棵树后序为“左、右、根”，即 \texttt{DFB}+\texttt{EGC}+\texttt{A}=\texttt{DFBEGCA}。
+\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 下列关于线索二叉树的叙述中，正确的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X@{}}
+(A) 先序线索二叉树中，任一结点都可在不访问双亲的情况下直接找到其先序前驱 \\[4pt]
+(B) 后序线索二叉树中，任一结点都可在不访问双亲的情况下直接找到其后序后继 \\[4pt]
+(C) 中序线索二叉树中，任一结点都可在不访问双亲的情况下直接找到其中序前驱和中序后继 \\[4pt]
+(D) 三种线索二叉树中，任一结点都可在不访问双亲的情况下直接找到其遍历后继
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 判断某个相邻结点能否“就地”找到，关键看它是否落在当前结点的子树内。
+先序遍历中，结点 $p$ 是所在子树里第一个被访问的，所以 $p$ 的先序前驱一定在 $p$ 的子树之外，只能靠线索或双亲得到。当 \texttt{ltag=0}（有左孩子）时没有线索可用，必须先知道双亲，故 (A) 错。
+后序的情形相反：$p$ 是所在子树里最后一个被访问的，$p$ 的后序后继一定在 $p$ 的子树之外。当 \texttt{rtag=0}（有右孩子）时同样没有线索可用，必须借助双亲，故 (B) 错；(D) 也因后序这一项而不成立。
+中序的两侧都能就地确定：若 \texttt{ltag=1}，前驱就是左线索；若 \texttt{ltag=0}，前驱是左子树中最后一个被访问的结点，即“最右下”结点（沿右指针走到 \texttt{rtag=1} 为止），它在子树内且只需孩子指针。后继对称：\texttt{rtag=1} 时取右线索，\texttt{rtag=0} 时取右子树中“最左下”的结点。故 (C) 正确。
+\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 对权值集合 $\{3,6,8,12,15\}$ 构造 Huffman 树，其带权路径长度 WPL 为
+\begin{center}
+\begin{tabular}{ll}
+(A) 95 & (B) 96 \\[4pt]
+(C) 97 & (D) 100
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 每次取两个最小权值合并：
+$3+6=9$，森林变为 $\{8,9,12,15\}$；
+$8+9=17$，森林变为 $\{12,15,17\}$；
+$12+15=27$，森林变为 $\{17,27\}$；
+$17+27=44$，构造结束。
+WPL 等于所有内部结点权值之和，即
+\[
+\mathrm{WPL}=9+17+27+44=97.
+\]
+逐个叶子核对：$3,6$ 的路径长为 3，$8$ 为 2，$12,15$ 为 2，于是 $3\times3+6\times3+8\times2+12\times2+15\times2=9+18+16+24+30=97$，一致。
+\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 从空树开始，依次插入关键字 $30,20,10,25,28$ 构造 AVL 树，最终根结点与其右孩子的关键字分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) 20 和 25 & (B) 20 和 28 \\[4pt]
+(C) 28 和 30 & (D) 30 和 25
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 插入 $30,20,10$ 后，结点 30 的平衡因子为 $+2$，属于 LL 型，对 30 右旋，得到以 20 为根、10 和 30 为左右孩子的树。
+插入 25 时，25 成为 30 的左孩子，各结点平衡因子为 $0,+1,-1$，仍平衡。
+插入 28 时，28 成为 25 的右孩子。此时 25 的平衡因子为 $-1$，30 的左子树高 2、右子树高 0，平衡因子为 $+2$；新结点插在 30 的左孩子的右子树上，属于 LR 型，需先对 25 右旋、再对 30 左旋，结果为 28 取代 30 的位置，25、30 分别成为 28 的左、右孩子。
+最后根 20 的左子树高 1、右子树高 2，平衡因子为 $-1$，无需再调整。故根为 20，其右孩子为 28。
+\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格·单项选择题）} 在下列关键字序列中，不可能是同一棵二叉排序树中某次查找所经过的结点序列的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X@{}}
+(A) 50,\ 30,\ 70,\ 60,\ 55,\ 58 \\[4pt]
+(B) 50,\ 70,\ 60,\ 65,\ 62 \\[4pt]
+(C) 50,\ 30,\ 70,\ 60,\ 55,\ 65 \\[4pt]
+(D) 50,\ 30,\ 70,\ 65,\ 62
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 查找路径上每走一步都会把可行关键字限制在一个开区间内：往左走把上界改为当前关键字，往右走把下界改为当前关键字。后出现的元素必须落在当前区间内，否则该序列不可能出现。
+(A) 区间依次为 $(-\infty,50)\to(50,\infty)\to(50,70)\to(50,60)\to(55,60)$，而 $58\in(55,60)$，可行。
+(B) 区间依次为 $(50,\infty)\to(50,70)\to(60,70)\to(60,65)$，而 $62\in(60,65)$，可行。
+(C) 走到 55 时区间为 $(50,60)$，查找 65 需从 55 往右走，要求关键字小于 60，但 $65>60$，矛盾，不可行。
+(D) 区间依次为 $(-\infty,50)\to(50,\infty)\to(50,70)\to(50,65)$，而 $62\in(50,65)$，可行。
+\boxed{\textbf{答案：}(C)}\else \answerarea[6] \fi
+
+\item \textbf{（真题风格·单项选择题）} 设森林 $F$ 按“左孩子右兄弟”规则转换为二叉树 $B$。已知 $B$ 的先序遍历序列为 \texttt{ABCDEF}，中序遍历序列为 \texttt{CBDAEF}，则 $F$ 中树的棵数与第一棵树的结点数分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) 3，4 & (B) 4，4 \\[4pt]
+(C) 3，3 & (D) 2，4
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 先由两个序列还原 $B$：先序首元 \texttt{A} 为根，中序中 \texttt{A} 左侧 \texttt{CBD} 为左子树、右侧 \texttt{EF} 为右子树。
+左子树先序 \texttt{BCD}、中序 \texttt{CBD}：\texttt{B} 为根，\texttt{C} 为左孩子，\texttt{D} 为右孩子。
+右子树先序 \texttt{EF}、中序 \texttt{EF}：\texttt{E} 为根，无左孩子，\texttt{F} 为右孩子。
+因而 $B$ 为：\texttt{A} 的左孩子 \texttt{B}（\texttt{B} 的左、右孩子为 \texttt{C}、\texttt{D}），\texttt{A} 的右孩子 \texttt{E}（\texttt{E} 的右孩子为 \texttt{F}）。
+转换规则中，二叉树根结点的右链上每个结点对应森林中一棵树的根，右链为 \texttt{A}$\to$\texttt{E}$\to$\texttt{F}，故共 3 棵树。第一棵树包含根 \texttt{A} 及其左子树，共 4 个结点。
+还原成森林核对：$T_1$ 中 \texttt{A} 的孩子是 \texttt{B} 和 \texttt{D}（\texttt{B} 的右兄弟成为 \texttt{A} 的下一个孩子），\texttt{B} 的孩子是 \texttt{C}；$T_2$ 只有 \texttt{E}；$T_3$ 只有 \texttt{F}。森林先序遍历 \texttt{ABCDEF} 与 $B$ 的先序一致。
+\boxed{\textbf{答案：}(A)}\else \answerarea[6] \fi
+
+\item \textbf{（真题风格·综合题）} 七个字符 \texttt{A}$\sim$\texttt{G} 在电文中出现的次数依次为 $4,7,9,11,14,20,25$（单位：千次），总次数为 90 千次。
+\begin{enumerate}
+    \item[(1)] 按上述权值构造 Huffman 树，写出每一步的合并过程及合并后的森林；
+    \item[(2)] 约定左分支为 0、右分支为 1，给出各字符的 Huffman 编码，并说明编码是否唯一；
+    \item[(3)] 计算 WPL 和平均码长（单位：位），写出计算口径；
+    \item[(4)] 若改用定长编码，至少需要多少位？与 Huffman 编码相比，传输这 90 千个字符可节省多少比特？
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 每次从森林中取两个根权值最小的树合并，新根权值为二者之和：
+\begin{center}
+\begin{tabular}{ccl}
+\toprule
+步骤 & 合并 & 合并后的森林 \\
+\midrule
+1 & $4+7=11$ & $\{9,11,11,14,20,25\}$ \\
+2 & $9+11=20$ & $\{11,14,20,20,25\}$ \\
+3 & $11+14=25$ & $\{20,20,25,25\}$ \\
+4 & $20+20=40$ & $\{25,25,40\}$ \\
+5 & $25+25=50$ & $\{40,50\}$ \\
+6 & $40+50=90$ & $\{90\}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+第 2 步取的是叶子 11 与 9 合并，第 3 步取的是第 1 步得到的内部结点 11 与 14 合并。等权时合并次序可以不同，得到的树形也可能不同，但各叶子的码长与 WPL 不变。
+
+(2) 按“先合并者为左、后取者为右”的一种取法，根 90 的左孩子为 40、右孩子为 50；40 的左孩子为 20（由 $9+11$ 得到）、右孩子为叶子 20；该 20 的左孩子为 9、右孩子为叶子 11；50 的左孩子为 25（由 $11+14$ 得到）、右孩子为叶子 25；该 25 的左孩子为 11（由 $4+7$ 得到）、右孩子为 14；该 11 的左孩子为 4、右孩子为 7。
+由此得到编码：
+\begin{center}
+\begin{tabular}{ccccccc}
+\toprule
+字符 & \texttt{A} & \texttt{B} & \texttt{C} & \texttt{D} & \texttt{E} & \texttt{F} \\
+\midrule
+权值 & 4 & 7 & 9 & 11 & 14 & 20 \\
+编码 & 1000 & 1001 & 000 & 001 & 101 & 01 \\
+码长 & 4 & 4 & 3 & 3 & 3 & 2 \\
+\bottomrule
+\end{tabular}
+\hspace{10pt}
+\begin{tabular}{cc}
+\toprule
+字符 & \texttt{G} \\
+\midrule
+权值 & 25 \\
+编码 & 11 \\
+码长 & 2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+编码不唯一：任一内部结点的左右子树可以互换，等权子树的位置也可交换，都会得到另一组合法编码；但每个字符的码长、以及 WPL 是确定的。上述编码满足前缀性质（没有一个码字是另一个码字的前缀）。
+
+(3) 口径：$w_i$ 为字符 $i$ 的出现次数（千次），$l_i$ 为其码长，则 $\mathrm{WPL}=\sum w_i l_i$，单位是千比特。
+\[
+\mathrm{WPL}=4\times4+7\times4+9\times3+11\times3+14\times3+20\times2+25\times2
+=16+28+27+33+42+40+50=236.
+\]
+平均码长 $=236/90\approx2.62$ 位。用内部结点权值之和验算：$11+20+25+40+50+90=236$，一致。
+
+(4) 7 个字符的定长编码至少需要 $\lceil\log_2 7\rceil=3$ 位，总位数 $=90\times3=270$ 千比特。
+Huffman 编码总位数即 WPL $=236$ 千比特，节省 $270-236=34$ 千比特 $=34000$ 比特，相对节省 $34/270\approx12.6\%$。
+\boxed{\textbf{答案：}\mathrm{WPL}=236,\ \bar l\approx2.62\text{ 位，节省 }34000\text{ 比特}}\else \answerarea[10] \fi
+
+\item \textbf{（真题风格·综合题）} 设二叉树以二叉链表存储，结点结构为 \texttt{lchild}、\texttt{data}、\texttt{rchild}，相关栈操作 \texttt{InitStack}、\texttt{Push}、\texttt{Pop}、\texttt{StackEmpty} 均已定义。
+\begin{enumerate}
+    \item[(1)] 写出中序遍历的非递归算法（用栈），并说明每个结点入栈、出栈各多少次；
+    \item[(2)] 若把该树中序线索化（结点增加 \texttt{ltag}、\texttt{rtag}），写出不借助栈的中序遍历算法；
+    \item[(3)] 比较两种方法的时间、空间复杂度，并说明后序线索二叉树为什么通常仍需栈才能遍历。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 沿左链一路入栈，走到空则退栈访问，再转向右子树：
+\begin{lstlisting}[language=C]
+void InOrderNR(BiTree T) {
+    Stack S; InitStack(&S);
+    BiTree p = T;
+    while (p != NULL || !StackEmpty(S)) {
+        if (p != NULL) {
+            Push(&S, p);          /* 第一次经过该结点：入栈，深入左子树 */
+            p = p->lchild;
+        } else {
+            Pop(&S, p);           /* 左子树处理完：出栈并访问 */
+            visit(p);
+            p = p->rchild;        /* 转向右子树 */
+        }
+    }
+}
+\end{lstlisting}
+每个结点恰好入栈一次、出栈一次：入栈发生在第一次经过它并转向左子树时，出栈发生在它的左子树遍历结束、轮到访问它时。因此总入栈 $n$ 次、出栈 $n$ 次。
+
+(2) 中序线索化后，序列首结点是从根出发沿左孩子走到头的结点；每个结点的后继由 \texttt{rtag} 决定：
+\begin{lstlisting}[language=C]
+ThreadNode *FirstNode(ThreadNode *p) {
+    while (p->ltag == 0) p = p->lchild;   /* 最左下结点 */
+    return p;
+}
+ThreadNode *NextNode(ThreadNode *p) {
+    if (p->rtag == 0) return FirstNode(p->rchild); /* 右子树最左下 */
+    return p->rchild;                              /* 右线索即后继 */
+}
+void InOrderThreadTraverse(ThreadTree T) {
+    ThreadNode *p;
+    for (p = FirstNode(T); p != NULL; p = NextNode(p))
+        visit(p);
+}
+\end{lstlisting}
+
+说明：\texttt{rtag=1} 时右指针就是线索，直接给出后继；\texttt{rtag=0} 时后继是右子树中第一个被访问的结点，即右子树的最左下结点。前者沿线索一步到位，后者沿孩子指针下行，都不需要栈，也不需要双亲。
+
+(3) 时间复杂度都是 $O(n)$：栈版本每个结点入栈、出栈各一次，每条边被走下、走上各一次；线索版本每个结点访问一次，找后继时走过的指针总数也是 $O(n)$（右子树内部的下降过程与遍历本身重合，不会重复扫描整棵子树）。
+空间复杂度：栈版本为 $O(h)$，$h$ 为树高，单链时退化为 $O(n)$；线索版本只用常数个辅助指针，为 $O(1)$，代价是每个结点多两个标志位、线索化本身需要一次遍历。
+后序线索树通常仍需栈（或三叉链表）：后序序列中 $p$ 是所在子树里最后被访问的结点，所以 $p$ 的后序后继一定在 $p$ 的子树之外。当 $p$ 有右孩子（\texttt{rtag=0}）时没有线索可用，只能靠双亲判断：若 $p$ 是左孩子且双亲有右子树，后继是双亲右子树的后序首结点；否则后继就是双亲。只有 \texttt{rtag=1} 的结点能由右线索直接得到后继。因此对一般结点无法仅凭自身指针确定后继。
+
+\boxed{\textbf{答案：}\text{代码见上；时间均为 }O(n)\text{，栈版空间 }O(h)\text{、线索版 }O(1)}\else \answerarea[10] \fi
+
+\end{enumerate}
+
+\vspace{8pt}

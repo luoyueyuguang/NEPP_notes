@@ -1,0 +1,729 @@
+\section{习题}
+
+\subsection{本章速览}
+
+\begin{itemize}
+  \item \textbf{联合、边缘、条件的关系。} 联合分布完整描述 $(X,Y)$；边缘分布由联合分布“积掉”另一个变量得到，但反过来一般不能由两个边缘分布还原联合分布。离散型看表求和，连续型对密度积分。
+  \item \textbf{条件分布仍是分布。} 离散型 $P(Y=y_j\mid X=x_i)=\dfrac{p_{ij}}{p_{i\cdot}}$；连续型 $f_{Y\mid X}(y\mid x)=\dfrac{f(x,y)}{f_X(x)}$（要求 $f_X(x)>0$）。条件密度对 $y$ 积分为 $1$，可据此求条件概率和条件期望。
+  \item \textbf{独立性要处处成立。} 离散型需对所有 $i,j$ 有 $p_{ij}=p_{i\cdot}p_{\cdot j}$；连续型需 $f(x,y)=f_X(x)f_Y(y)$ 几乎处处成立。若联合密度的非零区域不是“矩形”（两个区间之积），则 $X,Y$ 必不独立。
+  \item \textbf{和的分布用卷积。} 独立时 $f_{X+Y}(z)=\displaystyle\int_{-\infty}^{+\infty}f_X(x)f_Y(z-x)\,\mathrm dx$，关键是确定被积函数非零的 $x$ 范围。正态、泊松、二项、卡方分布具有可加性。
+  \item \textbf{极值先求分布函数。} 独立时 $F_{\max}(z)=F_X(z)F_Y(z)$，$F_{\min}(z)=1-[1-F_X(z)][1-F_Y(z)]$；$n$ 个独立同分布时为 $F^n$ 与 $1-(1-F)^n$。先写分布函数再求导，不要直接猜密度。
+  \item \textbf{变量替换要乘雅可比。} 若 $u=g_1(x,y),v=g_2(x,y)$ 有唯一反函数且 $J=\frac{\partial(x,y)}{\partial(u,v)}\neq0$，则 $f_{U,V}(u,v)=f\bigl(x(u,v),y(u,v)\bigr)|J|$；求单个函数的密度时，把另一个变量积掉。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 设二维离散型随机变量 $(X,Y)$ 的联合分布律为
+\[
+\begin{array}{c|ccc}
+X\backslash Y & 0 & 1 & 2\\
+\hline
+0 & 0.12 & 0.08 & 0.10\\
+1 & 0.18 & 0.12 & 0.10\\
+2 & 0.10 & 0.20 & 0.00
+\end{array}
+\]
+求：(1) $X,Y$ 的边缘分布律；(2) $P(X=Y)$ 与 $P(X+Y\leq 2)$；(3) 在 $X=1$ 的条件下 $Y$ 的条件分布律；(4) 判断 $X$ 与 $Y$ 是否独立。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 边缘分布按行、按列求和；事件概率把满足条件的格子概率相加；条件分布用该行概率除以行和；独立性只要找到一个格子不满足 $p_{ij}=p_{i\cdot}p_{\cdot j}$ 即可否定。
+
+(1) 按行求和得 $X$ 的分布律
+\[
+P(X=0)=0.30,\qquad P(X=1)=0.40,\qquad P(X=2)=0.30.
+\]
+按列求和得 $Y$ 的分布律
+\[
+P(Y=0)=0.40,\qquad P(Y=1)=0.40,\qquad P(Y=2)=0.20.
+\]
+
+(2) $X=Y$ 的格子为 $(0,0),(1,1),(2,2)$，故
+\[
+P(X=Y)=0.12+0.12+0.00=0.24.
+\]
+满足 $X+Y\leq 2$ 的格子为 $(0,0),(0,1),(0,2),(1,0),(1,1),(2,0)$，故
+\[
+\begin{aligned}
+P(X+Y\leq 2)&=0.12+0.08+0.10+0.18+0.12+0.10\\
+&=0.70.
+\end{aligned}
+\]
+
+(3) $P(X=1)=0.40$，于是
+\[
+\begin{aligned}
+P(Y=0\mid X=1)&=\frac{0.18}{0.40}=0.45,\\
+P(Y=1\mid X=1)&=\frac{0.12}{0.40}=0.30,\\
+P(Y=2\mid X=1)&=\frac{0.10}{0.40}=0.25.
+\end{aligned}
+\]
+三者之和为 $1$，计算正确。
+
+(4) 虽然 $p_{00}=0.12=0.30\times0.40$，但
+\[
+p_{01}=0.08\neq 0.30\times0.40=0.12.
+\]
+只要有一个格子不成立就不独立，故 $X$ 与 $Y$ 不独立。
+
+\[
+\boxed{\begin{gathered}
+\textbf{答案：}\quad \text{边缘分布如上；}\quad P(X=Y)=0.24,\quad P(X+Y\leq2)=0.70,\\
+\text{条件分布为 }(0.45,0.30,0.25);\quad X,Y\text{ 不独立。}
+\end{gathered}}
+\]
+
+\else \answerarea[10] \fi%
+\textbf{2.} 设二维随机变量 $(X,Y)$ 的联合概率密度为
+\[
+f(x,y)=\begin{cases}
+c(x+y), & 0<y<x<1,\\
+0, & \text{其他}.
+\end{cases}
+\]
+(1) 求常数 $c$；(2) 求边缘密度 $f_X(x),f_Y(y)$；(3) 求条件密度 $f_{Y\mid X}(y\mid x)$ 及 $P\!\left(Y<\frac{x}{2}\mid X=x\right)$；(4) 判断 $X$ 与 $Y$ 是否独立。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 先用规范性 $\iint f=1$ 定 $c$；求边缘密度时固定一个变量、在另一变量的实际范围内积分；条件密度由 $f/f_X$ 得到；条件概率对条件密度积分。
+
+(1) 积分区域为 $0<x<1,\ 0<y<x$：
+\[
+\iint_D (x+y)\,\mathrm dy\,\mathrm dx
+=\int_0^1\left(\int_0^x (x+y)\,\mathrm dy\right)\mathrm dx
+=\int_0^1\left(x^2+\frac{x^2}{2}\right)\mathrm dx
+=\frac32\cdot\frac13=\frac12.
+\]
+由 $c\cdot\frac12=1$ 得 $c=2$，即
+\[
+f(x,y)=2(x+y),\qquad 0<y<x<1.
+\]
+
+(2) 固定 $x\in(0,1)$，$y$ 的范围是 $(0,x)$：
+\[
+f_X(x)=\int_0^x 2(x+y)\,\mathrm dy
+=2\left(x^2+\frac{x^2}{2}\right)=3x^2,\qquad 0<x<1.
+\]
+固定 $y\in(0,1)$，$x$ 的范围是 $(y,1)$：
+\[
+f_Y(y)=\int_y^1 2(x+y)\,\mathrm dx
+=\left[x^2+2xy\right]_{x=y}^{x=1}
+=1+2y-3y^2=(1-y)(3y+1),\qquad 0<y<1.
+\]
+验证：$\int_0^1(1+2y-3y^2)\,\mathrm dy=1+1-1=1$。
+
+(3) 当 $0<x<1$ 时 $f_X(x)=3x^2>0$，故
+\[
+f_{Y\mid X}(y\mid x)=\frac{2(x+y)}{3x^2},\qquad 0<y<x.
+\]
+于是
+\[
+P\!\left(Y<\frac{x}{2}\mid X=x\right)
+=\int_0^{x/2}\frac{2(x+y)}{3x^2}\,\mathrm dy
+=\frac{1}{3x^2}\left[2xy+y^2\right]_0^{x/2}
+=\frac{1}{3x^2}\left(x^2+\frac{x^2}{4}\right).
+\]
+注意 $2x\cdot\frac{x}{2}=x^2$，$\left(\frac{x}{2}\right)^2=\frac{x^2}{4}$，故概率为
+\[
+\frac{5x^2/4}{3x^2}=\frac{5}{12}.
+\]
+
+(4) 联合密度的非零区域是三角形 $0<y<x<1$，不是两个区间之积，故 $X,Y$ 不独立。也可取点验证：$f(\tfrac12,\tfrac14)=\tfrac32$，而
+\[
+f_X(\tfrac12)f_Y(\tfrac14)=\frac34\cdot\frac{21}{16}=\frac{63}{64}\neq\frac32.
+\]
+
+\boxed{\textbf{答案：}c=2;\ \text{边缘密度与条件密度如上；}P\!\left(Y<\frac{x}{2}\mid X=x\right)=\frac{5}{12};\ X,Y\text{ 不独立。}}
+
+\else \answerarea[10] \fi%
+\textbf{3.} 设 $X\sim U(0,1)$，在 $X=x\ (0<x<1)$ 的条件下 $Y\sim U(0,x^2)$。求：(1) $(X,Y)$ 的联合密度；(2) $Y$ 的边缘密度 $f_Y(y)$；(3) $E(Y)$（用条件期望与直接积分两种方法）；(4) $P(Y\leq \tfrac14)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 已知“边缘密度 $\times$ 条件密度”可还原联合密度；求 $f_Y$ 时固定 $y$，由 $y<x^2$ 解出 $x>\sqrt y$。计算期望时用重期望公式最快，再用直接积分核对。
+
+(1) $f_X(x)=1\ (0<x<1)$，且当 $0<x<1$ 时
+\[
+f_{Y\mid X}(y\mid x)=\frac{1}{x^2},\qquad 0<y<x^2.
+\]
+由密度乘法公式
+\[
+f(x,y)=f_X(x)f_{Y\mid X}(y\mid x)=\frac{1}{x^2},\qquad 0<y<x^2<1.
+\]
+非零区域是 $0<x<1,\ 0<y<x^2$，其面积为 $\int_0^1 x^2\,\mathrm dx=\frac13$，而密度为 $1/x^2$，故总积分为 $\int_0^1\int_0^{x^2}x^{-2}\,\mathrm dy\,\mathrm dx=\int_0^1 1\,\mathrm dx=1$，规范性成立。
+
+(2) 固定 $y\in(0,1)$。由 $0<y<x^2$ 得 $x>\sqrt y$，又 $x<1$，故 $x\in(\sqrt y,1)$：
+\[
+f_Y(y)=\int_{\sqrt y}^{1}\frac{1}{x^2}\,\mathrm dx
+=\left[-\frac1x\right]_{\sqrt y}^{1}
+=\frac{1}{\sqrt y}-1,\qquad 0<y<1.
+\]
+验证：$\int_0^1\left(y^{-1/2}-1\right)\mathrm dy=2-1=1$。
+
+(3) 方法一（条件期望）：给定 $X=x$ 时 $Y\sim U(0,x^2)$，故
+\[
+E(Y\mid X=x)=\frac{x^2}{2},\qquad
+E(Y)=E\!\left[\frac{X^2}{2}\right]=\frac{1}{2}\cdot\frac13=\frac16.
+\]
+方法二（直接积分）：
+\[
+E(Y)=\int_0^1 y\left(\frac{1}{\sqrt y}-1\right)\mathrm dy
+=\int_0^1\left(y^{1/2}-y\right)\mathrm dy
+=\frac23-\frac12=\frac16.
+\]
+两种方法一致。
+
+(4)
+\[
+P\!\left(Y\leq\frac14\right)
+=\int_0^{1/4}\left(\frac{1}{\sqrt y}-1\right)\mathrm dy
+=\left[2\sqrt y-y\right]_0^{1/4}
+=2\cdot\frac12-\frac14=\frac34.
+\]
+
+\[
+\boxed{\begin{gathered}
+\textbf{答案：}\quad f(x,y)=\frac{1}{x^2}\ (0<y<x^2<1),\qquad
+f_Y(y)=\frac{1}{\sqrt y}-1\ (0<y<1),\\
+E(Y)=\frac16,\qquad P\!\left(Y\leq\frac14\right)=\frac34.
+\end{gathered}}
+\]
+
+\else \answerarea[10] \fi%
+\textbf{4.} 设二维随机变量 $(X,Y)$ 的联合概率密度为
+\[
+f(x,y)=\begin{cases}
+c\,\mathrm e^{-(x+2y)}, & 0<y<x,\\
+0, & \text{其他}.
+\end{cases}
+\]
+(1) 求 $c$；(2) 求边缘密度 $f_X(x),f_Y(y)$；(3) 判断 $X,Y$ 是否独立；(4) 求 $f_{X\mid Y}(x\mid y)$ 与 $E(X\mid Y=y)$，并求 $E(X)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 先按区域 $0<y<x<+\infty$ 积分定 $c$；边缘密度注意积分上限（$f_X$ 对 $y$ 从 $0$ 到 $x$，$f_Y$ 对 $x$ 从 $y$ 到 $+\infty$）。条件密度用 $f/f_Y$，条件期望对条件密度积分。
+
+(1)
+\[
+\iint f\,\mathrm dy\,\mathrm dx
+=c\int_0^{+\infty}\!\!\int_0^x \mathrm e^{-x-2y}\,\mathrm dy\,\mathrm dx
+=c\int_0^{+\infty}\mathrm e^{-x}\cdot\frac{1-\mathrm e^{-2x}}{2}\,\mathrm dx.
+\]
+而
+\[
+\frac12\int_0^{+\infty}\left(\mathrm e^{-x}-\mathrm e^{-3x}\right)\mathrm dx
+=\frac12\left(1-\frac13\right)=\frac13,
+\]
+故 $c\cdot\frac13=1$，即 $c=3$。
+
+(2) 当 $x>0$ 时
+\[
+f_X(x)=\int_0^x 3\mathrm e^{-x-2y}\,\mathrm dy
+=3\mathrm e^{-x}\cdot\frac{1-\mathrm e^{-2x}}{2}
+=\frac32\left(\mathrm e^{-x}-\mathrm e^{-3x}\right).
+\]
+当 $y>0$ 时
+\[
+f_Y(y)=\int_y^{+\infty}3\mathrm e^{-x-2y}\,\mathrm dx
+=3\mathrm e^{-2y}\cdot \mathrm e^{-y}=3\mathrm e^{-3y}.
+\]
+即 $Y\sim \Exp(3)$。验证 $f_X$ 的积分为 $\frac32(1-\frac13)=1$。
+
+(3) 联合密度的非零区域 $0<y<x$ 不是矩形，故 $X,Y$ 不独立。也可由
+\[
+f(x,y)=3\mathrm e^{-x-2y}\neq \frac32\left(\mathrm e^{-x}-\mathrm e^{-3x}\right)\cdot 3\mathrm e^{-3y}=f_X(x)f_Y(y)
+\]
+（例如在 $x=y=1$ 处两边不相等）否定独立性。
+
+(4) 当 $y>0$ 时 $f_Y(y)=3\mathrm e^{-3y}>0$，故
+\[
+f_{X\mid Y}(x\mid y)=\frac{3\mathrm e^{-x-2y}}{3\mathrm e^{-3y}}
+=\mathrm e^{-(x-y)},\qquad x>y.
+\]
+即在 $Y=y$ 条件下 $X-y\sim \Exp(1)$，于是
+\[
+E(X\mid Y=y)=y+1.
+\]
+再由重期望公式及 $E(Y)=\frac13$，
+\[
+E(X)=E\bigl[E(X\mid Y)\bigr]=E(Y)+1=\frac13+1=\frac43.
+\]
+
+\[
+\boxed{\begin{gathered}
+\textbf{答案：}\quad c=3;\qquad
+f_X(x)=\frac32\left(\mathrm e^{-x}-\mathrm e^{-3x}\right)\ (x>0),\\
+f_Y(y)=3\mathrm e^{-3y}\ (y>0);\qquad X,Y\text{ 不独立};\\
+f_{X\mid Y}(x\mid y)=\mathrm e^{-(x-y)}\ (x>y),\qquad E(X\mid Y=y)=y+1,\qquad E(X)=\frac43.
+\end{gathered}}
+\]
+
+\else \answerarea[10] \fi%
+\textbf{5.} 设 $(X,Y)$ 的联合分布律为
+\[
+\begin{array}{c|cc}
+X\backslash Y & 0 & 1\\
+\hline
+0 & 0.1 & 0.2\\
+1 & 0.3 & 0.4
+\end{array}
+\]
+令 $U=X+Y$，$M=\max(X,Y)$。求：(1) $U$ 的分布律；(2) $M$ 的分布律；(3) 判断 $U$ 与 $M$ 是否独立。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 先列出 $(X,Y)$ 的四个取值及概率，再按 $U,M$ 的取值合并同类项；判断独立性时，找一对 $(u,m)$ 使联合概率不等于两个边缘概率之积。
+
+四个基本结果：
+\[
+(0,0):0.1,\quad (0,1):0.2,\quad (1,0):0.3,\quad (1,1):0.4.
+\]
+
+(1) $U=X+Y$ 的可能取值为 $0,1,2$：
+\[
+P(U=0)=P(0,0)=0.1,
+\]
+\[
+P(U=1)=P(0,1)+P(1,0)=0.2+0.3=0.5,
+\]
+\[
+P(U=2)=P(1,1)=0.4.
+\]
+校验：$0.1+0.5+0.4=1$，且 $E(U)=0\times0.1+1\times0.5+2\times0.4=1.3$，与 $E(X)+E(Y)=0.7+0.6=1.3$ 一致，因为 $E(X+Y)=E(X)+E(Y)$ 恒成立。
+
+(2) $M=\max(X,Y)$ 的可能取值为 $0,1$：
+\[
+P(M=0)=P(X=0,Y=0)=0.1,
+\]
+\[
+P(M=1)=1-P(M=0)=0.9.
+\]
+也可直接相加：$P(0,1)+P(1,0)+P(1,1)=0.2+0.3+0.4=0.9$。
+
+(3) 注意事件 $\{U=0\}=\{M=0\}=\{X=0,Y=0\}$，故
+\[
+P(U=0,M=0)=0.1,
+\]
+而
+\[
+P(U=0)P(M=0)=0.1\times0.1=0.01\neq0.1.
+\]
+所以 $U$ 与 $M$ 不独立。
+
+\[
+\boxed{\begin{gathered}
+\textbf{答案：}\quad P(U=0)=0.1,\quad P(U=1)=0.5,\quad P(U=2)=0.4;\\
+P(M=0)=0.1,\quad P(M=1)=0.9;\qquad U,M\text{ 不独立。}
+\end{gathered}}
+\]
+
+\else \answerarea[10] \fi%
+
+\subsection{综合提高题}
+\textbf{6.} 设 $X\sim U(0,2)$，$Y\sim U(0,3)$，且 $X,Y$ 相互独立，$Z=X+Y$。求：(1) $f_Z(z)$；(2) $P(Z<2.5)$；(3) $E(Z)$ 与 $D(Z)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 用卷积公式。两个均匀密度的乘积为常数 $\frac16$，卷积值等于“满足 $0<z-x<3$ 的 $x$ 区间长度”乘以 $\frac16$，因此只需分段讨论区间长度。
+
+(1) $f_X(x)=\frac12\ (0<x<2)$，$f_Y(y)=\frac13\ (0<y<3)$。由独立性，
+\[
+f_Z(z)=\int_{-\infty}^{+\infty}f_X(x)f_Y(z-x)\,\mathrm dx
+=\frac16\int_0^2 \mathbf 1_{\{0<z-x<3\}}\,\mathrm dx.
+\]
+条件 $0<z-x<3$ 等价于 $z-3<x<z$，故积分区间为 $(0,2)\cap(z-3,z)$，其长度为
+\[
+\ell(z)=\begin{cases}
+z, & 0<z<2,\\
+2, & 2\leq z\leq 3,\\
+5-z, & 3<z<5,\\
+0, & \text{其他}.
+\end{cases}
+\]
+于是
+\[
+f_Z(z)=\begin{cases}
+\dfrac{z}{6}, & 0<z<2,\\[4pt]
+\dfrac13, & 2\leq z\leq 3,\\[4pt]
+\dfrac{5-z}{6}, & 3<z<5,\\[4pt]
+0, & \text{其他}.
+\end{cases}
+\]
+规范性校验：$\frac16\left(\int_0^2 z\,\mathrm dz+\int_2^3 2\,\mathrm dz+\int_3^5(5-z)\,\mathrm dz\right)=\frac16(2+2+2)=1$。
+
+(2)
+\[
+P(Z<2.5)=\int_0^2\frac{z}{6}\,\mathrm dz+\int_2^{2.5}\frac13\,\mathrm dz
+=\frac{2}{6}+\frac{1}{3}\cdot\frac12
+=\frac13+\frac16=\frac12.
+\]
+这也与 $Z$ 的分布关于 $2.5$ 对称相符。
+
+(3) 由期望与方差的可加性（独立性保证方差可加）：
+\[
+E(Z)=E(X)+E(Y)=1+\frac32=\frac52,
+\]
+\[
+D(Z)=D(X)+D(Y)=\frac{2^2}{12}+\frac{3^2}{12}
+=\frac13+\frac34=\frac{13}{12}.
+\]
+
+\boxed{\textbf{答案：}f_Z(z)=\begin{cases}\frac{z}{6},&0<z<2,\\ \frac13,&2\leq z\leq3,\\ \frac{5-z}{6},&3<z<5,\\ 0,&\text{其他};\end{cases}\quad P(Z<2.5)=\frac12;\quad E(Z)=\frac52,\ D(Z)=\frac{13}{12}.}
+
+\else \answerarea[10] \fi%
+\textbf{7.} 设 $X_1,X_2,X_3$ 相互独立，均服从 $U(0,1)$，记
+\[
+M=\max(X_1,X_2,X_3),\qquad m=\min(X_1,X_2,X_3).
+\]
+(1) 求 $M$ 的分布函数、密度与 $E(M)$；(2) 求 $m$ 的分布函数、密度与 $E(m)$；(3) 求 $(m,M)$ 的联合密度；(4) 用联合密度求 $E(M-m)$，并与 (1)(2) 的结果核对。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 极值问题先写分布函数：$\{M\leq z\}$ 等价于“每个都 $\leq z$”，$\{m>z\}$ 等价于“每个都 $>z$”。求联合密度时按“谁最大、谁最小、剩下一个落在中间”计数。
+
+(1) 当 $0\leq z\leq1$ 时，由独立性
+\[
+F_M(z)=P(X_1\leq z,X_2\leq z,X_3\leq z)=z^3.
+\]
+故 $F_M(z)=0\ (z<0)$，$F_M(z)=1\ (z>1)$。求导得
+\[
+f_M(z)=3z^2,\qquad 0<z<1.
+\]
+于是
+\[
+E(M)=\int_0^1 z\cdot3z^2\,\mathrm dz=3\cdot\frac14=\frac34.
+\]
+
+(2) 当 $0\leq z\leq1$ 时，
+\[
+F_m(z)=1-P(m>z)=1-P(X_1>z,X_2>z,X_3>z)=1-(1-z)^3.
+\]
+求导得
+\[
+f_m(z)=3(1-z)^2,\qquad 0<z<1.
+\]
+于是
+\[
+E(m)=\int_0^1 3z(1-z)^2\,\mathrm dz
+=3\left(\frac12-\frac23+\frac14\right)
+=3\cdot\frac{1}{12}=\frac14.
+\]
+
+(3) 设 $0<u<v<1$。事件“$m\in\mathrm du,\ M\in\mathrm dv$”要求：三个变量中有一个取最小值（3 种选法），一个取最大值（2 种选法），剩下的一个落在 $(u,v)$ 内（长度 $v-u$）。由于每个 $X_i$ 的密度为 $1$，故
+\[
+f_{m,M}(u,v)\,\mathrm du\,\mathrm dv
+=3\cdot 2\cdot(v-u)\,\mathrm du\,\mathrm dv,
+\]
+即
+\[
+f_{m,M}(u,v)=6(v-u),\qquad 0<u<v<1.
+\]
+规范性校验：
+\[
+\int_0^1\!\!\int_0^v 6(v-u)\,\mathrm du\,\mathrm dv
+=\int_0^1 3v^2\,\mathrm dv=1.
+\]
+
+(4)
+\[
+E(M-m)=\int_0^1\!\!\int_0^v 6(v-u)^2\,\mathrm du\,\mathrm dv.
+\]
+内层积分
+\[
+\int_0^v 6(v-u)^2\,\mathrm du
+=\left[-2(v-u)^3\right]_{u=0}^{u=v}=2v^3,
+\]
+故
+\[
+E(M-m)=\int_0^1 2v^3\,\mathrm dv=\frac12.
+\]
+而由 (1)(2)，$E(M)-E(m)=\frac34-\frac14=\frac12$，两者一致。
+
+\[
+\boxed{\begin{gathered}
+\textbf{答案：}\quad F_M(z)=z^3,\quad f_M(z)=3z^2,\quad E(M)=\frac34;\\
+F_m(z)=1-(1-z)^3,\quad f_m(z)=3(1-z)^2,\quad E(m)=\frac14;\\
+f_{m,M}(u,v)=6(v-u)\ (0<u<v<1),\qquad E(M-m)=\frac12.
+\end{gathered}}
+\]
+
+\else \answerarea[10] \fi%
+\textbf{8.} 设 $X,Y$ 相互独立且都服从参数为 $1$ 的指数分布。令
+\[
+U=X+Y,\qquad V=\frac{X}{X+Y}.
+\]
+(1) 求 $(U,V)$ 的联合密度；(2) 求 $U,V$ 的边缘密度并判断独立性；(3) 指出 $U,V$ 各服从什么分布；(4) 求 $E(V)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 这是二重换元：先解出 $x,y$ 用 $u,v$ 表示，算雅可比行列式，再乘原联合密度。若结果能分解成“只含 $u$”与“只含 $v$”两个因子，则两者独立。
+
+(1) 联合密度为
+\[
+f_{X,Y}(x,y)=\mathrm e^{-(x+y)},\qquad x>0,\ y>0.
+\]
+由 $u=x+y,\ v=\dfrac{x}{x+y}$ 反解：
+\[
+x=uv,\qquad y=u(1-v).
+\]
+由 $x>0,y>0$ 得 $u>0,\ 0<v<1$。雅可比行列式
+\[
+J=\frac{\partial(x,y)}{\partial(u,v)}
+=\begin{vmatrix}
+\dfrac{\partial x}{\partial u} & \dfrac{\partial x}{\partial v}\\[6pt]
+\dfrac{\partial y}{\partial u} & \dfrac{\partial y}{\partial v}
+\end{vmatrix}
+=\begin{vmatrix}
+v & u\\
+1-v & -u
+\end{vmatrix}
+=-uv-u(1-v)=-u,
+\]
+故 $|J|=u$。于是
+\[
+f_{U,V}(u,v)=f_{X,Y}(uv,u(1-v))\cdot u
+=\mathrm e^{-u}\cdot u,\qquad u>0,\ 0<v<1.
+\]
+即
+\[
+f_{U,V}(u,v)=u\mathrm e^{-u},\qquad u>0,\ 0<v<1.
+\]
+
+(2) 对 $v$ 积分得
+\[
+f_U(u)=\int_0^1 u\mathrm e^{-u}\,\mathrm dv=u\mathrm e^{-u},\qquad u>0.
+\]
+对 $u$ 积分得
+\[
+f_V(v)=\int_0^{+\infty}u\mathrm e^{-u}\,\mathrm du=1,\qquad 0<v<1.
+\]
+（这里用了 $\int_0^{+\infty}u\mathrm e^{-u}\,\mathrm du=1$。）由于
+\[
+f_{U,V}(u,v)=f_U(u)f_V(v)
+\]
+在非零区域上处处成立，故 $U$ 与 $V$ 相互独立。
+
+(3) $f_U(u)=u\mathrm e^{-u}\ (u>0)$ 是形状参数 $2$、率参数 $1$ 的伽马密度，即 $U\sim \Gamma(2,1)$；$f_V(v)=1\ (0<v<1)$，即 $V\sim U(0,1)$。
+
+(4) 由 $V\sim U(0,1)$，
+\[
+E(V)=\frac{0+1}{2}=\frac12.
+\]
+也可直接积分：$E(V)=\int_0^1 v\cdot1\,\mathrm dv=\frac12$。直观上 $X,Y$ 同分布，$X/(X+Y)$ 关于 $\frac12$ 对称，期望必为 $\frac12$。
+
+\[
+\boxed{\begin{gathered}
+\textbf{答案：}\quad f_{U,V}(u,v)=u\mathrm e^{-u}\quad (u>0,\ 0<v<1);\\
+f_U(u)=u\mathrm e^{-u},\quad f_V(v)=1,\quad U\text{ 与 }V\text{ 独立};\\
+U\sim\Gamma(2,1),\quad V\sim U(0,1),\quad E(V)=\frac12.
+\end{gathered}}
+\]
+
+\else \answerarea[10] \fi%
+\textbf{9.} 设 $X,Y$ 相互独立且都服从 $U(0,1)$，令 $Z=\dfrac{X}{Y}$。求：(1) $Z$ 的分布函数；(2) $Z$ 的概率密度；(3) $P(Z\leq2)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 商的分布不宜直接套公式，先回到定义 $F_Z(z)=P(X\leq zY)$，在单位正方形内用面积（因联合密度为 $1$）计算；注意 $0<z<1$ 与 $z\geq1$ 时区域形状不同。
+
+(1) 当 $z\leq0$ 时，$X>0,\ zY\leq0$，故 $F_Z(z)=0$。
+
+当 $0<z<1$ 时，区域 $\{(x,y):0<x<1,0<y<1,x\leq zy\}$ 是顶点为 $(0,0),(0,1),(z,1)$ 的三角形，面积为
+\[
+\int_0^1 zy\,\mathrm dy=\frac z2.
+\]
+故 $F_Z(z)=\dfrac z2$。
+
+当 $z\geq1$ 时，考虑对立事件 $X>zY$。由 $x<1$ 知只需 $y<\frac1z$，于是
+\[
+P(X>zY)=\int_0^{1/z}\left(1-zy\right)\mathrm dy
+=\frac1z-\frac{z}{2}\cdot\frac{1}{z^2}
+=\frac{1}{2z}.
+\]
+故
+\[
+F_Z(z)=1-\frac{1}{2z},\qquad z\geq1.
+\]
+（$z=1$ 时两个表达式都给出 $\frac12$，分布函数连续。）
+
+(2) 在 $0<z<1$ 内求导得 $f_Z(z)=\frac12$；在 $z>1$ 内求导得
+\[
+f_Z(z)=\frac{1}{2z^2}.
+\]
+即
+\[
+f_Z(z)=\begin{cases}
+\dfrac12, & 0<z<1,\\[4pt]
+\dfrac{1}{2z^2}, & z\geq1,\\[4pt]
+0, & z<0.
+\end{cases}
+\]
+（$z=1$ 处可任意取值，不影响积分。）规范性校验：
+\[
+\int_0^1\frac12\,\mathrm dz+\int_1^{+\infty}\frac{1}{2z^2}\,\mathrm dz
+=\frac12+\frac12=1.
+\]
+
+(3)
+\[
+P(Z\leq2)=F_Z(2)=1-\frac{1}{4}=\frac34.
+\]
+也可由密度积分：$\frac12+\int_1^2\frac{1}{2z^2}\,\mathrm dz=\frac12+\frac14=\frac34$。
+
+\[
+\boxed{\begin{gathered}
+\textbf{答案：}\quad F_Z(z)=0\ (z\leq0),\quad \frac z2\ (0<z<1),\quad 1-\frac{1}{2z}\ (z\geq1);\\
+f_Z(z)=\frac12\ (0<z<1),\quad \frac{1}{2z^2}\ (z\geq1),\quad 0\ (z<0);\\
+P(Z\leq2)=\frac34.
+\end{gathered}}
+\]
+
+\else \answerarea[10] \fi%
+\subsection{真题风格与综合训练}
+
+\textbf{10.}（选择题）设随机变量 $X$ 与 $Y$ 相互独立，且都服从标准正态分布 $N(0,1)$，则下列结论正确的是
+\begin{enumerate}[label=(\Alph*)]
+  \item $X+Y$ 与 $X-Y$ 相互独立
+  \item $X+Y$ 与 $X-Y$ 相关但不独立
+  \item $X^2$ 与 $Y^2$ 不独立
+  \item $X$ 与 $X^2$ 相互独立
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 独立正态变量的线性变换仍服从联合正态；对联合正态，“不相关”与“独立”等价。至于函数的独立性，用“独立变量的函数仍独立”判断。
+
+令 $U=X+Y,\ V=X-Y$。$(U,V)$ 是 $(X,Y)$ 的线性变换，而 $(X,Y)$ 服从二维正态分布，故 $(U,V)$ 也服从二维正态分布。计算协方差：
+\[
+\Cov(U,V)=\Cov(X+Y,X-Y)
+=\Cov(X,X)-\Cov(X,Y)+\Cov(Y,X)-\Cov(Y,Y).
+\]
+由 $X,Y$ 独立，$\Cov(X,Y)=0$，且 $\Cov(X,X)=D(X)=1,\ \Cov(Y,Y)=D(Y)=1$，所以
+\[
+\Cov(U,V)=1-0+0-1=0.
+\]
+联合正态下协方差为 $0$ 即独立，故 (A) 正确，(B) 错误。
+
+(C)：$X^2$ 只与 $X$ 有关，$Y^2$ 只与 $Y$ 有关，而 $X,Y$ 独立，故 $X^2$ 与 $Y^2$ 独立。(C) 错误。
+
+(D)：$X^2$ 由 $X$ 完全决定，二者不独立。例如
+\[
+P(X>1,\ X^2\leq1)=0,
+\]
+但
+\[
+P(X>1)P(X^2\leq1)=P(X>1)P(-1\leq X\leq1)>0,
+\]
+故 $X$ 与 $X^2$ 不独立。(D) 错误。
+
+\boxed{\textbf{答案：}(A)}
+
+\else \answerarea[8] \fi%
+\textbf{11.}（填空题）设 $X\sim P(1)$，$Y\sim P(2)$，且 $X,Y$ 相互独立。则
+\[
+P(X+Y=2)=\underline{\qquad\qquad},\qquad
+P(X=1\mid X+Y=2)=\underline{\qquad\qquad}.
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 独立泊松变量之和仍为泊松变量，参数相加；条件概率按定义写成“交事件概率除以条件事件概率”，交事件 $\{X=1,X+Y=2\}$ 就是 $\{X=1,Y=1\}$。
+
+由泊松分布的可加性，
+\[
+X+Y\sim P(1+2)=P(3).
+\]
+故
+\[
+P(X+Y=2)=\mathrm e^{-3}\frac{3^2}{2!}=\frac{9}{2}\mathrm e^{-3}.
+\]
+也可用卷积直接验证：
+\[
+\sum_{k=0}^{2}\mathrm e^{-1}\frac{1^k}{k!}\cdot
+\mathrm e^{-2}\frac{2^{2-k}}{(2-k)!}
+=\mathrm e^{-3}\left(2+2+\frac12\right)
+=\frac92\mathrm e^{-3}.
+\]
+
+再求条件概率。由独立性，
+\[
+P(X=1,\ X+Y=2)=P(X=1,Y=1)
+=\mathrm e^{-1}\cdot 2\mathrm e^{-2}=2\mathrm e^{-3}.
+\]
+于是
+\[
+P(X=1\mid X+Y=2)
+=\frac{P(X=1,Y=1)}{P(X+Y=2)}
+=\frac{2\mathrm e^{-3}}{\frac92\mathrm e^{-3}}
+=\frac49.
+\]
+
+\boxed{\textbf{答案：}\frac{9}{2}\mathrm e^{-3};\quad \frac49}
+
+\else \answerarea[8] \fi%
+\textbf{12.}（解答题）设 $X\sim \Exp(1)$，$Y\sim \Exp(2)$，且 $X,Y$ 相互独立，记 $Z=\min(X,Y)$。
+(1) 求 $Z$ 的分布函数、密度与 $E(Z)$；
+(2) 求 $P(X<Y)$；
+(3) 求 $M=\max(X,Y)$ 的分布函数，并求 $E(M)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 最小值用“生存函数”最方便：$\{Z>z\}=\{X>z,Y>z\}$。$P(X<Y)$ 对 $Y$ 的密度加权 $F_X(y)$ 积分。最大值仍先写分布函数 $\{M\leq z\}=\{X\leq z,Y\leq z\}$，再用 $E(M)=E(X)+E(Y)-E(Z)$ 避免重复积分。
+
+(1) 当 $z\geq0$ 时，由独立性
+\[
+P(Z>z)=P(X>z,Y>z)=P(X>z)P(Y>z)
+=\mathrm e^{-z}\cdot\mathrm e^{-2z}=\mathrm e^{-3z}.
+\]
+故
+\[
+F_Z(z)=1-\mathrm e^{-3z}\quad(z\geq0),\qquad f_Z(z)=3\mathrm e^{-3z}\quad(z>0),
+\]
+即 $Z\sim \Exp(3)$，
+\[
+E(Z)=\frac13.
+\]
+
+(2) 对 $Y$ 的取值积分：
+\[
+P(X<Y)=\int_0^{+\infty}P(X<y)f_Y(y)\,\mathrm dy
+=\int_0^{+\infty}\left(1-\mathrm e^{-y}\right)2\mathrm e^{-2y}\,\mathrm dy.
+\]
+于是
+\[
+P(X<Y)=2\int_0^{+\infty}\mathrm e^{-2y}\,\mathrm dy
+-2\int_0^{+\infty}\mathrm e^{-3y}\,\mathrm dy
+=1-\frac23=\frac13.
+\]
+这与“指数分布竞争”的直观一致：$X$ 的平均等待时间更长，故 $X$ 先发生的概率较小。
+
+(3) 当 $z\geq0$ 时，
+\[
+F_M(z)=P(X\leq z,Y\leq z)
+=\left(1-\mathrm e^{-z}\right)\left(1-\mathrm e^{-2z}\right).
+\]
+求导可验证密度为
+\[
+f_M(z)=\mathrm e^{-z}+2\mathrm e^{-2z}-3\mathrm e^{-3z},\qquad z>0.
+\]
+利用 $M+Z=X+Y$（最大值与最小值之和等于两变量之和），
+\[
+E(M)=E(X)+E(Y)-E(Z)
+=1+\frac12-\frac13=\frac76.
+\]
+用密度核对：
+\[
+\int_0^{+\infty}z\left(\mathrm e^{-z}+2\mathrm e^{-2z}-3\mathrm e^{-3z}\right)\mathrm dz
+=1+\frac{2}{4}-\frac{3}{9}
+=1+\frac12-\frac13=\frac76.
+\]
+
+\[
+\boxed{\begin{gathered}
+\textbf{答案：}\quad F_Z(z)=1-\mathrm e^{-3z},\quad f_Z(z)=3\mathrm e^{-3z}\ (z>0),\quad E(Z)=\frac13;\\
+P(X<Y)=\frac13;\\
+F_M(z)=\left(1-\mathrm e^{-z}\right)\left(1-\mathrm e^{-2z}\right),\quad E(M)=\frac76.
+\end{gathered}}
+\]
+
+\else \answerarea[10] \fi%

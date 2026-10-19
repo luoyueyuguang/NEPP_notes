@@ -1,954 +1,598 @@
 \section{矩阵}
 
-\subsection{矩阵的逆}
+上一章把线性方程组写成 \(Ax=b\)，消元过程就是对增广矩阵作行变换。这一章把矩阵本身当作研究对象：方阵什么时候能反解，一个矩阵里有多少条独立信息，把大矩阵切成小块以后运算怎么走。
 
-\begin{mydef}{逆矩阵的定义}{inverse-matrix}
-设 \(A\) 为 \(n\) 阶方阵，若存在 \(n\) 阶方阵 \(B\)，使得
+先看一个二元方程组
 \[
-AB = BA = I,
+\begin{cases}
+2x+y=5,\\
+x+2y=4.
+\end{cases}
 \]
-则称 \(A\) 为\textbf{可逆矩阵}（非奇异矩阵），称 \(B\) 为 \(A\) 的\textbf{逆矩阵}（inverse），记作 \(B = A^{-1}\)。
+它的解是 \(x=2,\ y=1\)。把系数按行排成
+\[
+A=\begin{pmatrix}2&1\\1&2\end{pmatrix},\qquad
+b=\begin{pmatrix}5\\4\end{pmatrix},
+\]
+方程就是 \(Ax=b\)。如果存在矩阵 \(B\)，使得 \(BA=I\)，两边左乘 \(B\) 就得到
+\[
+x=Bb,
+\]
+一次矩阵乘法就能解完。这样的 \(B\) 就是 \(A\) 的逆。
 
-若不存在这样的 \(B\)，则称 \(A\) 为\textbf{不可逆矩阵}（奇异矩阵）。
+\subsection{逆矩阵}
+
+\begin{mydef}{逆矩阵}{inverse-matrix}
+设 \(A\) 为 \(n\) 阶方阵。若存在 \(n\) 阶方阵 \(B\)，使得
+\[
+AB=BA=I,
+\]
+则称 \(A\) 可逆，称 \(B\) 为 \(A\) 的\textbf{逆矩阵}，记作 \(A^{-1}\)。不存在这样的 \(B\) 时，称 \(A\) 奇异。
 \end{mydef}
 
-\begin{mydef}{逆矩阵的唯一性}{inverse-uniqueness}
-可逆矩阵的逆矩阵是唯一的。\\
-\textbf{证明：} 若 \(B\) 和 \(C\) 都是 \(A\) 的逆矩阵，即 \(AB = BA = I\) 且 \(AC = CA = I\)，则
+定义要求两个方向的乘积都等于 \(I\)。对同阶方阵，验证一边就够。若 \(AB=I\)，取行列式得 \(|A||B|=1\)，所以 \(|A|\neq0\)，\(A\) 有逆。于是
 \[
-B = BI = B(AC) = (BA)C = IC = C.
+B=IB=(A^{-1}A)B=A^{-1}(AB)=A^{-1},
 \]
-\end{mydef}
-
-\begin{mydef}{伴随矩阵}{adjugate-matrix}
-设 \(A = (a_{ij})_{n \times n}\)，\(A_{ij}\) 为元素 \(a_{ij}\) 的代数余子式，则称
+任何满足定义的矩阵都只能等于 \(A^{-1}\)。这也说明逆矩阵唯一：若 \(B,C\) 都满足定义，则
 \[
-A^* = \begin{pmatrix}
-A_{11} & A_{21} & \cdots & A_{n1} \\
-A_{12} & A_{22} & \cdots & A_{n2} \\
-\vdots & \vdots & \ddots & \vdots \\
-A_{1n} & A_{2n} & \cdots & A_{nn}
-\end{pmatrix}
+B=BI=B(AC)=(BA)C=IC=C.
 \]
-为 \(A\) 的\textbf{伴随矩阵}（adjugate matrix）。
 
-\boxed{\textbf{关键}} 伴随矩阵是代数余子式矩阵的\textbf{转置}：\((A^*)_{ij} = A_{ji}\)，即第 \(i\) 行第 \(j\) 列的元素是 \(a_{ji}\) 的代数余子式。
-\end{mydef}
-
-\begin{conclusion}{伴随矩阵的基本关系}{adjugate-basic-relation}
-对任意 \(n\) 阶方阵 \(A\)，有
+几条运算规则由定义直接推出。乘积求逆要反序：
 \[
-AA^* = A^*A = |A|I.
+(AB)^{-1}=B^{-1}A^{-1},
 \]
-\textbf{证明要点：} 按行列式展开定理，\(\sum_{k=1}^{n} a_{ik}A_{jk} = \delta_{ij}|A|\)（当 \(i=j\) 时为行列式展开，当 \(i \neq j\) 时为异行展开，结果为零）。由于\((A^*)_{kj}=A_{jk}\)，该和式正是\(AA^*\)的\((i,j)\)元，故 \(AA^* = |A|I\)。同理可得 \(A^*A = |A|I\)。
-\end{conclusion}
+因为 \((AB)(B^{-1}A^{-1})=A(BB^{-1})A^{-1}=I\)。转置与求逆可以交换：\((A^{\mathrm T})^{-1}=(A^{-1})^{\mathrm T}\)。数乘要取倒数：\((kA)^{-1}=k^{-1}A^{-1}\)（\(k\neq0\)）。行列式也取倒数：\(|A^{-1}|=|A|^{-1}\)。
 
-\begin{conclusion}{伴随矩阵法求逆}{inverse-via-adjugate}
-若 \(|A| \neq 0\)（即 \(A\) 可逆），则由 \(AA^* = |A|I\) 得
+二阶矩阵的逆有现成公式：
 \[
-A^{-1} = \frac{1}{|A|} A^*.
+\begin{pmatrix}a&b\\c&d\end{pmatrix}^{-1}
+=\frac{1}{ad-bc}\begin{pmatrix}d&-b\\-c&a\end{pmatrix}.
 \]
-这就是\textbf{伴随矩阵法}求逆矩阵的公式。
-\end{conclusion}
+主对角互换，副对角变号，再除以行列式。三阶以上不要背这种展开式，用下一节的消元法。
 
-\begin{conclusion}{逆矩阵的性质}{inverse-properties}
-设 \(A, B\) 均为 \(n\) 阶可逆方阵，\(k \neq 0\)，则：
+\begin{conclusion}{可逆的等价刻画}{invertible-equivalences}
+设 \(A\) 为 \(n\) 阶方阵，下列命题等价：
 \begin{enumerate}
-    \item \((A^{-1})^{-1} = A\)；
-    \item \((kA)^{-1} = \frac{1}{k}A^{-1}\)；
-    \item \((AB)^{-1} = B^{-1}A^{-1}\)（注意顺序反转）；
-    \item \((A^{\mathrm{T}})^{-1} = (A^{-1})^{\mathrm{T}}\)；
-    \item \(|A^{-1}| = |A|^{-1} = \frac{1}{|A|}\)；
-    \item \((A^n)^{-1} = (A^{-1})^n\)（记号 \(A^{-n}\)）；
-    \item 若 \(A\) 可逆且 \(AB = AC\)，则 \(B = C\)（左消去律）；若 \(BA = CA\)，则 \(B = C\)（右消去律）。
+    \item \(A\) 可逆；
+    \item \(|A|\neq0\)；
+    \item \(r(A)=n\)；
+    \item \(Ax=0\) 只有零解；
+    \item \(A\) 的列向量组线性无关，行向量组也线性无关；
+    \item \(A\) 经初等行变换可化为 \(I\)；
+    \item \(A\) 是若干初等矩阵的乘积。
 \end{enumerate}
 \end{conclusion}
 
-\begin{conclusion}{矩阵可逆的充要条件}{invertibility-conditions}
-设 \(A\) 为 \(n\) 阶方阵，则以下命题等价：
-\begin{enumerate}
-    \item \(A\) 可逆（存在 \(A^{-1}\)）；
-    \item \(|A| \neq 0\)；
-    \item \(r(A) = n\)（满秩）；
-    \item \(A\) 的行（列）向量组线性无关；
-    \item 齐次方程组 \(Ax = 0\) 仅有零解；
-    \item 对任意 \(b \in \mathbb{R}^n\)，非齐次方程组 \(Ax = b\) 有唯一解；
-    \item \(A\) 可以通过初等行变换化为单位矩阵 \(I\)；
-    \item \(A\) 可以表示为初等矩阵的乘积；
-    \item \(0\) 不是 \(A\) 的特征值；
-    \item \(A^{\mathrm{T}}\) 可逆。
-\end{enumerate}
-\end{conclusion}
+这些说法讲的是同一件事：\(A\) 不把非零向量压成零。若 \(|A|=0\)，齐次方程 \(Ax=0\) 有非零解，列向量线性相关，消元会出现零行；而初等矩阵都可逆，它们的乘积也可逆，所以奇异矩阵写不成初等矩阵的乘积。
 
-\boxed{\textbf{求逆矩阵的三种方法}}
-\begin{enumerate}
-    \item \textbf{伴随矩阵法：} \(A^{-1} = \dfrac{1}{|A|}A^*\)。适用于二阶、三阶小矩阵或理论证明。
-    \item \textbf{初等变换法（Gauss--Jordan消元）：} \((A \mid I) \xrightarrow{\text{初等行变换}} (I \mid A^{-1})\)。最实用的数值方法。
-    \item \textbf{解方程组法：} 设 \(X = (x_{ij})\) 为 \(A^{-1}\)，解矩阵方程 \(AX = I\)（即 \(n\) 个线性方程组 \(Ax_j = e_j\)）。适用于理论分析。
-\end{enumerate}
-
-\subsection{初等矩阵}
-
-\begin{mydef}{初等矩阵的定义}{elementary-matrix}
-以下三种由单位矩阵 \(I\) 经过\textbf{一次}初等变换得到的矩阵称为\textbf{初等矩阵}：
-\begin{enumerate}
-    \item \textbf{倍乘初等矩阵} \(E_i(k)\)：将 \(I\) 的第 \(i\) 行（列）乘以非零常数 \(k\)，
-    \[
-    E_i(k) = \begin{pmatrix}
-    1 & & & & \\
-    & \ddots & & & \\
-    & & k & & \\
-    & & & \ddots & \\
-    & & & & 1
-    \end{pmatrix}, \quad k \neq 0.
-    \]
-    \item \textbf{互换初等矩阵} \(E_{ij}\)：交换 \(I\) 的第 \(i\) 行（列）与第 \(j\) 行（列），
-    \[
-    E_{ij} = \begin{pmatrix}
-    1 & & & & & & \\
-    & \ddots & & & & & \\
-    & & 0 & \cdots & 1 & & \\
-    & & \vdots & \ddots & \vdots & & \\
-    & & 1 & \cdots & 0 & & \\
-    & & & & & \ddots & \\
-    & & & & & & 1
-    \end{pmatrix}.
-    \]
-    \item \textbf{倍加初等矩阵} \(E_{ij}(k)\)：将 \(I\) 的第 \(j\) 行的 \(k\) 倍加到第 \(i\) 行，
-    \[
-    E_{ij}(k) = \begin{pmatrix}
-    1 & & & & & & \\
-    & \ddots & & & & & \\
-    & & 1 & \cdots & k & & \\
-    & & & \ddots & \vdots & & \\
-    & & & & 1 & & \\
-    & & & & & \ddots & \\
-    & & & & & & 1
-    \end{pmatrix}.
-    \]
-\end{enumerate}
-\end{mydef}
-
-\begin{conclusion}{初等变换与初等矩阵乘法的关系}{elementary-row-col-relation}
-\begin{itemize}
-    \item \textbf{左乘行变：} 用初等矩阵\textbf{左乘}矩阵 \(A\)，相当于对 \(A\) 作相应的\textbf{初等行变换}：
-    \begin{align*}
-    E_i(k)A &\;\text{——}\; \text{将 } A \text{ 的第 } i \text{ 行乘以 } k,\\
-    E_{ij}A &\;\text{——}\; \text{交换 } A \text{ 的第 } i \text{ 行与第 } j \text{ 行},\\
-    E_{ij}(k)A &\;\text{——}\; \text{将 } A \text{ 的第 } j \text{ 行的 } k \text{ 倍加到第 } i \text{ 行}.
-    \end{align*}
-    \item \textbf{右乘列变：} 用初等矩阵\textbf{右乘}矩阵 \(A\)，相当于对 \(A\) 作相应的\textbf{初等列变换}：
-    \begin{align*}
-    AE_i(k) &\;\text{——}\; \text{将 } A \text{ 的第 } i \text{ 列乘以 } k,\\
-    AE_{ij} &\;\text{——}\; \text{交换 } A \text{ 的第 } i \text{ 列与第 } j \text{ 列},\\
-    AE_{ij}(k) &\;\text{——}\; \text{将 } A \text{ 的第 } i \text{ 列的 } k \text{ 倍加到第 } j \text{ 列}.
-    \end{align*}
-\end{itemize}
-\end{conclusion}
-
-\begin{conclusion}{初等矩阵的性质}{elementary-matrix-properties}
-\begin{enumerate}
-    \item \textbf{可逆性：} 初等矩阵都是可逆矩阵，且逆矩阵仍为初等矩阵：
-    \[
-    E_i(k)^{-1} = E_i\!\left(\frac{1}{k}\right),\quad
-    E_{ij}^{-1} = E_{ij},\quad
-    E_{ij}(k)^{-1} = E_{ij}(-k).
-    \]
-    \item \textbf{行列式：}
-    \[
-    |E_i(k)| = k,\quad |E_{ij}| = -1,\quad |E_{ij}(k)| = 1.
-    \]
-    \item \textbf{转置：}
-    \[
-    E_i(k)^{\mathrm{T}} = E_i(k),\quad
-    E_{ij}^{\mathrm{T}} = E_{ij},\quad
-    E_{ij}(k)^{\mathrm{T}} = E_{ji}(k).
-    \]
-\end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{初等变换法求逆矩阵}{gauss-jordan-inverse}
-对增广矩阵 \((A \mid I)\) 作初等行变换，当左边化为单位矩阵时，右边即为 \(A^{-1}\)：
+消去律只在可逆时成立。取
 \[
-(A \mid I) \xrightarrow{\text{初等行变换}} (I \mid A^{-1}).
+A=\begin{pmatrix}1&0\\0&0\end{pmatrix},\quad
+B=\begin{pmatrix}0&0\\1&0\end{pmatrix},\quad
+C=0,
 \]
-\end{conclusion}
-
-\begin{formula}{初等变换法求逆的矩阵解释}{gauss-jordan-matrix-explanation}
-若 \(A\) 可逆，则存在初等矩阵 \(P_1, P_2, \ldots, P_k\)，使得
-\[
-P_k \cdots P_2 P_1 A = I.
-\]
-于是
-\[
-A^{-1} = P_k \cdots P_2 P_1.
-\]
-即对 \(A\) 作初等行变换化为 \(I\) 的过程，等价于左乘一系列初等矩阵；把这些初等矩阵的乘积作用在 \(I\) 上，即得到 \(A^{-1}\)。
-\end{formula}
-
-\subsection{矩阵的秩}
-
-\begin{mydef}{矩阵的秩}{matrix-rank}
-设 \(A\) 为 \(m \times n\) 矩阵，若 \(A\) 中存在一个 \(r\) 阶子式不等于零，而所有 \(r+1\) 阶子式（如果存在）全为零，则称 \(r\) 为矩阵 \(A\) 的\textbf{秩}（rank），记作 \(r(A)\) 或 \(\operatorname{rank}(A)\)。
-
-规定零矩阵的秩为 \(0\)。
-
-\boxed{\text{注}} 子式即从 \(A\) 中任取 \(k\) 行和 \(k\) 列交叉位置上元素构成的行列式。矩阵的秩等于其\textbf{最高阶非零子式}的阶数。
-\end{mydef}
-
-\begin{conclusion}{秩的基本性质}{rank-basic-properties}
-设 \(A\) 为 \(m \times n\) 矩阵，则：
-\begin{enumerate}
-    \item \(0 \leq r(A) \leq \min\{m, n\}\)；
-    \item \(r(A^{\mathrm{T}}) = r(A)\)——转置不改变秩；
-    \item 若 \(A \sim B\)（相似），则 \(r(A) = r(B)\)；
-    \item 若 \(A \cong B\)（等价，即存在可逆 \(P, Q\) 使得 \(B = PAQ\)），则 \(r(A) = r(B)\)；
-    \item 可逆矩阵必满秩：若 \(A\) 为 \(n\) 阶方阵可逆，则 \(r(A) = n\)；
-    \item \(r(kA) = r(A)\)（当 \(k \neq 0\) 时）；
-    \item 初等变换不改变矩阵的秩——这是求秩的基本工具；
-    \item \(\max\{r(A), r(B)\} \leq r(A \mid B) \leq r(A) + r(B)\)（增广矩阵的秩）；
-    \item \(r(A + B) \leq r(A) + r(B)\)；
-    \item \(r(AB) \leq \min\{r(A), r(B)\}\)。
-\end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{求秩的常用方法}{rank-computation-methods}
-\begin{enumerate}
-    \item \textbf{初等变换法（最常用）：} 通过初等行变换将矩阵化为行阶梯形，非零行的行数即为秩。
-    \item \textbf{子式判别法：} 找到一个 \(r\) 阶非零子式，且所有 \(r+1\) 阶子式均为零。
-    \item \textbf{借助已知不等式：} 利用秩的性质（如 \(r(AB) \leq \min\{r(A), r(B)\}\)）结合其他信息推断。
-    \item \textbf{线性无关向量组法：} 矩阵的秩等于其列向量组的极大线性无关组所含向量的个数，也等于行向量组的极大线性无关组所含向量的个数。
-\end{enumerate}
-\end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\small]
-% 行阶梯形：第 1-3 行为非零行（阶梯状），第 4 行为全零行
-\foreach \r in {1,2,3}{
-  \foreach \c in {\r,...,5}{
-    \fill[blue!12] (\c-1,4-\r) rectangle (\c,5-\r);
-  }
-}
-\foreach \r in {1,2,3}{
-  \fill[blue!35] (\r-1,4-\r) rectangle (\r,5-\r);
-}
-% 网格线
-\foreach \r in {0,...,4}{
-  \draw[gray!60] (\r,0) -- (\r,4);
-}
-\foreach \c in {0,...,5}{
-  \draw[gray!60] (0,\c) -- (5,\c);
-}
-% 主元
-\node at (0.5,3.5){$\ast$};
-\node at (1.5,2.5){$\ast$};
-\node at (2.5,1.5){$\ast$};
-% 主元下方的零元素
-\node[gray!70,font=\scriptsize] at (0.5,2.5){$0$};
-\node[gray!70,font=\scriptsize] at (0.5,1.5){$0$};
-\node[gray!70,font=\scriptsize] at (1.5,1.5){$0$};
-\node[gray!70,font=\scriptsize] at (0.5,0.5){$0$};
-\node[gray!70,font=\scriptsize] at (1.5,0.5){$0$};
-\node[gray!70,font=\scriptsize] at (2.5,0.5){$0$};
-\node[gray!70,font=\scriptsize] at (3.5,0.5){$0$};
-\node[gray!70,font=\scriptsize] at (4.5,0.5){$0$};
-\node[font=\small] at (2.5,-0.7){行阶梯形：非零行数等于秩 $\Rightarrow\, r(A)=3$};
-\end{tikzpicture}
-\end{center}
-
-\begin{conclusion}{秩与方程组的解}{rank-and-linear-systems}
-设 \(A\) 为 \(m \times n\) 矩阵，\(b\) 为 \(m\) 维列向量：
-\begin{itemize}
-    \item \textbf{齐次方程组} \(Ax = 0\)：
-    \begin{itemize}
-        \item 仅有零解 \(\Leftrightarrow\) \(r(A) = n\)（列满秩）；
-        \item 有非零解 \(\Leftrightarrow\) \(r(A) < n\)。
-    \end{itemize}
-    \item \textbf{非齐次方程组} \(Ax = b\)：
-    \begin{itemize}
-        \item 有解 \(\Leftrightarrow\) \(r(A) = r(A \mid b)\)；
-        \item 有唯一解 \(\Leftrightarrow\) \(r(A) = r(A \mid b) = n\)；
-        \item 有无穷多解 \(\Leftrightarrow\) \(r(A) = r(A \mid b) < n\)；
-        \item 无解 \(\Leftrightarrow\) \(r(A) \neq r(A \mid b)\)。
-    \end{itemize}
-\end{itemize}
-\end{conclusion}
-
-\begin{conclusion}{有关秩的重要不等式}{rank-inequalities}
-设 \(A, B\) 为可乘矩阵，以下不等式在理论与证明中极为重要：
-\begin{enumerate}
-    \item \textbf{矩阵乘积的秩：}
-    \[
-    r(AB)\leqslant\min\{r(A),r(B)\}.
-    \]
-    \item \textbf{Sylvester 不等式（拓展）：} 若 \(A\) 为 \(m \times n\)，\(B\) 为 \(n \times s\)，则
-    \[
-    r(AB)\geqslant r(A)+r(B)-n.
-    \]
-    \item \textbf{Frobenius 不等式（拓展）：}
-    \[
-    r(ABC) \geq r(AB) + r(BC) - r(B).
-    \]
-    \item \textbf{分块矩阵秩的不等式：}
-    \[
-    r\begin{pmatrix} A & 0 \\ 0 & B \end{pmatrix} = r(A) + r(B),
-    \]
-    \[
-    r\begin{pmatrix} A & C \\ 0 & B \end{pmatrix} \geq r(A) + r(B).
-    \]
-    \item 若 \(AB = 0\)，则 \(r(A) + r(B) \leq n\)（其中 \(A\) 为 \(m \times n\)，\(B\) 为 \(n \times s\)）。
-\end{enumerate}
-\end{conclusion}
-
-\subsection{分块矩阵}
-
-\begin{mydef}{分块矩阵}{block-matrix}
-将矩阵 \(A\) 用纵线和横线分割成若干小矩阵，每个小矩阵称为 \(A\) 的一个\textbf{子块}，以子块为元素的矩阵称为\textbf{分块矩阵}（block matrix）。例如：
-\[
-A = \begin{pmatrix}
-A_{11} & A_{12} \\
-A_{21} & A_{22}
-\end{pmatrix},
-\]
-其中 \(A_{11}, A_{12}, A_{21}, A_{22}\) 分别为适当阶数的子块。
-\end{mydef}
-
-\begin{formula}{分块矩阵的运算}{block-matrix-operations}
-\begin{enumerate}
-    \item \textbf{加法（同型分块）：}
-    \[
-    \begin{pmatrix} A_{11} & A_{12} \\ A_{21} & A_{22} \end{pmatrix} +
-    \begin{pmatrix} B_{11} & B_{12} \\ B_{21} & B_{22} \end{pmatrix} =
-    \begin{pmatrix} A_{11}+B_{11} & A_{12}+B_{12} \\ A_{21}+B_{21} & A_{22}+B_{22} \end{pmatrix}.
-    \]
-    \item \textbf{数乘：}
-    \[
-    k\begin{pmatrix} A_{11} & A_{12} \\ A_{21} & A_{22} \end{pmatrix} =
-    \begin{pmatrix} kA_{11} & kA_{12} \\ kA_{21} & kA_{22} \end{pmatrix}.
-    \]
-    \item \textbf{乘法（分块须可乘）：}
-    \[
-    \begin{pmatrix} A_{11} & A_{12} \\ A_{21} & A_{22} \end{pmatrix}
-    \begin{pmatrix} B_{11} & B_{12} \\ B_{21} & B_{22} \end{pmatrix} =
-    \begin{pmatrix} A_{11}B_{11}+A_{12}B_{21} & A_{11}B_{12}+A_{12}B_{22} \\ A_{21}B_{11}+A_{22}B_{21} & A_{21}B_{12}+A_{22}B_{22} \end{pmatrix}.
-    \]
-    \item \textbf{转置：}
-    \[
-    \begin{pmatrix} A_{11} & A_{12} \\ A_{21} & A_{22} \end{pmatrix}^{\mathrm{T}} =
-    \begin{pmatrix} A_{11}^{\mathrm{T}} & A_{21}^{\mathrm{T}} \\ A_{12}^{\mathrm{T}} & A_{22}^{\mathrm{T}} \end{pmatrix}.
-    \]
-\end{enumerate}
-\end{formula}
-
-\begin{mydef}{分块对角矩阵}{block-diagonal-matrix}
-形如
-\[
-A = \begin{pmatrix}
-A_1 & & \\
-& A_2 & \\
-& & \ddots & \\
-& & & A_k
-\end{pmatrix}
-\]
-的分块矩阵称为\textbf{分块对角矩阵}（block diagonal matrix），其中 \(A_1, A_2, \ldots, A_k\) 为方阵（阶数可以不同），空白处全为零子块。记作 \(A = \operatorname{diag}(A_1, A_2, \ldots, A_k)\)。
-\end{mydef}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\small]
-% A = diag(A11, A22): A11 为 2x2 块（左上），A22 为 1x1 块（右下），其余为零块
-\fill[blue!18] (0,1) rectangle (2,3);
-\fill[orange!25] (2,0) rectangle (3,1);
-% 细网格线
-\draw[gray!60] (1,0) -- (1,3);
-\draw[gray!60] (2,0) -- (2,3);
-\draw[gray!60] (0,1) -- (3,1);
-\draw[gray!60] (0,2) -- (3,2);
-\draw[gray!60] (0,0) rectangle (3,3);
-% 分块边界（粗线）
-\draw[black,thick] (2,0) -- (2,3);
-\draw[black,thick] (0,1) -- (3,1);
-% 块标签
-\node at (1,2){$A_{11}$};
-\node at (2.5,0.5){$A_{22}$};
-% 零块
-\node[gray!70,font=\scriptsize] at (2.5,2){$0$};
-\node[gray!70,font=\scriptsize] at (1,0.5){$0$};
-\node[font=\small] at (1.5,-0.6){$A=\operatorname{diag}(A_{11},A_{22})$};
-\end{tikzpicture}
-\end{center}
-
-\begin{conclusion}{分块对角矩阵的性质}{block-diagonal-properties}
-设 \(A = \operatorname{diag}(A_1, A_2, \ldots, A_k)\)，\(B = \operatorname{diag}(B_1, B_2, \ldots, B_k)\)（分块方式一致），则：
-\begin{enumerate}
-    \item \(|A| = |A_1| \cdot |A_2| \cdots |A_k|\)；
-    \item \(r(A) = r(A_1) + r(A_2) + \cdots + r(A_k)\)；
-    \item 若每个 \(A_i\) 都可逆，则 \(A\) 可逆，且
-    \[
-    A^{-1} = \operatorname{diag}(A_1^{-1}, A_2^{-1}, \ldots, A_k^{-1});
-    \]
-    \item \(A + B = \operatorname{diag}(A_1+B_1, A_2+B_2, \ldots, A_k+B_k)\)；
-    \item \(AB = \operatorname{diag}(A_1B_1, A_2B_2, \ldots, A_kB_k)\)；
-    \item \(A^n = \operatorname{diag}(A_1^n, A_2^n, \ldots, A_k^n)\)（\(n\) 为正整数）。
-\end{enumerate}
-\end{conclusion}
-
-\begin{mydef}{分块三角矩阵}{block-triangular-matrix}
-形如
-\[
-A = \begin{pmatrix}
-A_{11} & A_{12} \\
-0 & A_{22}
-\end{pmatrix}
-\quad \text{或} \quad
-A = \begin{pmatrix}
-A_{11} & 0 \\
-A_{21} & A_{22}
-\end{pmatrix}
-\]
-的分块矩阵分别称为\textbf{分块上三角矩阵}和\textbf{分块下三角矩阵}，其中 \(A_{11}, A_{22}\) 为方阵。
-\end{mydef}
-
-\begin{conclusion}{分块三角矩阵的行列式与可逆性}{block-triangular-properties}
-设 \(A = \begin{pmatrix} A_{11} & A_{12} \\ 0 & A_{22} \end{pmatrix}\)（分块上三角），则：
-\begin{enumerate}
-    \item \(|A| = |A_{11}| \cdot |A_{22}|\)；
-    \item \(A\) 可逆 \(\Leftrightarrow\) \(A_{11}\) 和 \(A_{22}\) 均可逆；
-    \item 当 \(A\) 可逆时，
-    \[
-    A^{-1} = \begin{pmatrix}
-    A_{11}^{-1} & -A_{11}^{-1}A_{12}A_{22}^{-1} \\
-    0 & A_{22}^{-1}
-    \end{pmatrix}.
-    \]
-\end{enumerate}
-\end{conclusion}
-
-\subsection{正交矩阵}
-
-\begin{mydef}{正交矩阵}{orthogonal-matrix}
-设 \(Q\) 为 \(n\) 阶\textbf{实}方阵，若满足
-\[
-Q^{\mathrm{T}}Q = QQ^{\mathrm{T}} = I,
-\]
-即 \(Q^{-1} = Q^{\mathrm{T}}\)，则称 \(Q\) 为\textbf{正交矩阵}（orthogonal matrix）。
-
-等价地，\(Q\) 的列（行）向量组是 \(\mathbb{R}^n\) 的标准正交基——各列（行）为单位向量且两两正交。
-\end{mydef}
-
-\begin{conclusion}{正交矩阵的性质}{orthogonal-matrix-properties}
-设 \(Q, Q_1, Q_2\) 为 \(n\) 阶正交矩阵，则：
-\begin{enumerate}
-    \item \(|Q| = \pm 1\)（行列式的绝对值为 \(1\)）；
-    \item \(Q^{-1} = Q^{\mathrm{T}}\) 仍为正交矩阵；
-    \item \(Q_1Q_2\) 仍为正交矩阵（正交矩阵的乘积仍为正交矩阵）；
-    \item \(Q^{\mathrm{T}}\) 仍为正交矩阵；
-    \item \(Q\) 的特征值的模为 \(1\)（即 \(|\lambda| = 1\)）；
-    \item 正交变换保内积、保长度：对任意向量 \(x, y \in \mathbb{R}^n\)，
-    \[
-    (Qx, Qy) = (x, y),\quad \|Qx\| = \|x\|.
-    \]
-\end{enumerate}
-\end{conclusion}
+则 \(AB=AC=0\)，但 \(B\neq C\)。\(A\) 不可逆，约不掉。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.56\linewidth, height=5.6cm, axis equal image,
-  xmin=-3, xmax=3, ymin=-3, ymax=3,
-  xlabel={$x$}, ylabel={$y$}, font=\footnotesize,
-]
-% 单位圆
-\addplot[gray!60,dashed,domain=0:360,samples=140] ({cos(x)},{sin(x)});
-% 正交矩阵 Q（此处取旋转 90 度）：保长、保内积
-\draw[->,blue,thick] (axis cs:0,0) -- (axis cs:2,1) node[above,font=\scriptsize]{$\mathbf{x}$};
-\draw[->,red,thick] (axis cs:0,0) -- (axis cs:-1,2) node[left,font=\scriptsize]{$Q\mathbf{x}$};
-\node[font=\scriptsize,blue] at (axis cs:1.1,1.55){$\|\mathbf{x}\|$};
-\node[font=\scriptsize,red] at (axis cs:-1.7,1.6){$\|Q\mathbf{x}\|$};
-\node[font=\scriptsize,black] at (axis cs:0,-2.7){$\|Q\mathbf{x}\|=\|\mathbf{x}\|$};
+  width=0.8\linewidth,height=7.6cm,axis equal image,
+  xmin=-0.45,xmax=3.8,ymin=-0.45,ymax=3.8,
+  xlabel={$x_1$},ylabel={$x_2$},font=\footnotesize,
+  xtick={1,2,3},ytick={1,2,3},clip=false]
+\fill[blue!10] (axis cs:0,0) -- (axis cs:2,1) -- (axis cs:3,3) -- (axis cs:1,2) -- cycle;
+\draw[blue!60!black,thick] (axis cs:0,0) -- (axis cs:2,1) -- (axis cs:3,3) -- (axis cs:1,2) -- cycle;
+\draw[dashed,gray!70] (axis cs:0,0) rectangle (axis cs:1,1);
+\draw[->,thick,gray] (axis cs:0,0) -- (axis cs:1,0) node[below,font=\scriptsize]{$e_1$};
+\draw[->,thick,gray] (axis cs:0,0) -- (axis cs:0,1) node[left,font=\scriptsize]{$e_2$};
+\draw[->,very thick,red!80!black] (axis cs:0,0) -- (axis cs:2,1);
+\node[red!80!black,font=\scriptsize,anchor=north west] at (axis cs:2.05,0.95){$Ae_1$};
+\draw[->,very thick,orange!80!black] (axis cs:0,0) -- (axis cs:1,2);
+\node[orange!80!black,font=\scriptsize,anchor=south east] at (axis cs:0.95,2.05){$Ae_2$};
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 矩阵 \(A\) 把单位正方形映成蓝色平行四边形，\(e_1,e_2\) 的像就是 \(A\) 的两列。平行四边形面积等于 \(|\det A|=3\)。两列共线时 \(\det A=0\)，平行四边形压成线段，不同的点被映到同一处，映射就没有逆。}}
 
-\noindent\textbf{拓展（稳定与正交性）:} 正交矩阵保长保内积（\(\|Q\mathbf{x}\| = \|\mathbf{x}\|\)），其条件数 \(\kappa(Q) = 1\)，是数值上最「理想」的变换——误差不被放大，故数值线性代数偏爱正交（QR）分解。最小二乘的\textbf{正规方程} \(A^{\mathrm{T}}A\,\mathbf{x} = A^{\mathrm{T}}\mathbf{b}\) 满足 \(\kappa(A^{\mathrm{T}}A) = \kappa(A)^2\)，往往病态，因此稳定算法（QR 或奇异值分解）通常优于直接解正规方程。\\
-\subsection{矩阵方程}
+\subsection{伴随矩阵}
 
-\begin{formula}{矩阵方程的解法}{matrix-equation-solutions}
-常见矩阵方程的标准形式与解法：
-\begin{enumerate}
-    \item \textbf{\(AX = B\)（\(A\) 可逆）：} 左乘 \(A^{-1}\)，得 \(X = A^{-1}B\)。
-    \item \textbf{\(XA = B\)（\(A\) 可逆）：} 右乘 \(A^{-1}\)，得 \(X = BA^{-1}\)。
-    \item \textbf{\(AXB = C\)（\(A, B\) 均可逆）：} 分别左乘 \(A^{-1}\)、右乘 \(B^{-1}\)，得 \(X = A^{-1}CB^{-1}\)。
-    \item \textbf{\(AX + XB = C\)（Sylvester方程）：} 需借助 Kronecker 积或特征值条件，不在本书范围。
-\end{enumerate}
+二阶求逆公式里那个矩阵是怎么来的？把 \(A=\begin{pmatrix}a&b\\c&d\end{pmatrix}\) 的四个代数余子式算出来：
+\[
+C_{11}=d,\quad C_{12}=-c,\quad C_{21}=-b,\quad C_{22}=a.
+\]
+按原位置摆是 \(\begin{pmatrix}d&-c\\-b&a\end{pmatrix}\)，转置之后才是 \(\begin{pmatrix}d&-b\\-c&a\end{pmatrix}\)。这个“余子式矩阵的转置”就是伴随矩阵。
 
-\boxed{\textbf{一般策略}} 对 \(A\) 不可逆或非方阵的情形，可将矩阵方程转化为线性方程组求解（将未知矩阵 \(X\) 的各列分别作为未知向量）。
-\end{formula}
+\begin{mydef}{伴随矩阵}{adjugate-matrix}
+设 \(A=(a_{ij})\) 为 \(n\) 阶方阵，\(M_{ij}\) 是划去第 \(i\) 行第 \(j\) 列后剩下的 \(n-1\) 阶行列式，称
+\[
+C_{ij}=(-1)^{i+j}M_{ij}
+\]
+为 \(a_{ij}\) 的代数余子式。把 \(C_{ij}\) 放在第 \(j\) 行第 \(i\) 列，得到的矩阵称为 \(A\) 的\textbf{伴随矩阵}，记作 \(A^*\)：
+\[
+(A^*)_{ij}=C_{ji}.
+\]
+\end{mydef}
 
-\begin{conclusion}{矩阵方程解的存在性条件}{matrix-equation-existence}
-\begin{enumerate}
-    \item \(AX = B\) 有解 \(\Leftrightarrow\) \(r(A) = r(A \mid B)\)（将 \(B\) 按列分块，相当于 \(n\) 个方程组 \(Ax_j = b_j\) 同时有解）。
-    \item \(XA = B\) 有解 \(\Leftrightarrow\) \(r(A^{\mathrm{T}}) = r(A^{\mathrm{T}} \mid B^{\mathrm{T}})\)（取转置化归为前一种）。
-    \item 特别地，若 \(A\) 为方阵且可逆，则 \(AX = B\) 有唯一解 \(X = A^{-1}B\)。
-\end{enumerate}
+下标最容易弄反。\(A^*\) 的第 \(i\) 行第 \(j\) 列放的是 \(C_{ji}\)，不是 \(C_{ij}\)。判断有没有放对，最可靠的办法是算 \(AA^*\)，看结果是不是数量矩阵。
+
+\begin{conclusion}{伴随矩阵的基本恒等式}{adjugate-identity}
+对任意 \(n\) 阶方阵 \(A\)，
+\[
+AA^*=A^*A=|A|I.
+\]
 \end{conclusion}
 
+先看二阶情形，直接乘开：
+\[
+\begin{pmatrix}a&b\\c&d\end{pmatrix}
+\begin{pmatrix}d&-b\\-c&a\end{pmatrix}
+=\begin{pmatrix}ad-bc&0\\0&ad-bc\end{pmatrix}
+=(ad-bc)I.
+\]
+一般情形看 \((i,j)\) 元。由 \((A^*)_{kj}=C_{jk}\)，
+\[
+(AA^*)_{ij}=\sum_{k=1}^{n}a_{ik}C_{jk}.
+\]
+当 \(i=j\) 时，这是 \(|A|\) 按第 \(i\) 行的展开。当 \(i\neq j\) 时，它等于把 \(A\) 的第 \(j\) 行换成第 \(i\) 行后所得矩阵的行列式，那个矩阵有两行相同，行列式为零。所以 \(AA^*=|A|I\)。同理 \(A^*A=|A|I\)。
+
+这个恒等式对奇异矩阵也成立。若 \(|A|\neq0\)，两边除以 \(|A|\) 得
+\[
+A^{-1}=\frac{1}{|A|}A^*.
+\]
+这就是伴随矩阵法。它的计算量是 \(n^2\) 个 \(n-1\) 阶行列式，实际求逆仍以消元为主，伴随矩阵更多用在证明和低阶计算里。
+
+由恒等式还可以得到几个常用结论。取行列式，
+\[
+|A||A^*|=|A|^n,
+\]
+所以 \(n\ge2\) 时 \(|A^*|=|A|^{n-1}\)。\(A\) 可逆时直接约去 \(|A|\)；\(A\) 奇异时 \(|A|=0\)，此时伴随矩阵的秩至多为 \(1\)，故 \(|A^*|=0\)，两边仍相等。
+
+伴随矩阵的秩只有三种可能：
+\[
+r(A^*)=
+\begin{cases}
+n,&r(A)=n,\\
+1,&r(A)=n-1,\\
+0,&r(A)\le n-2.
+\end{cases}
+\]
+\(r(A)=n\) 时 \(A^*=|A|A^{-1}\) 可逆。\(r(A)=n-1\) 时，\(AA^*=0\) 说明 \(A^*\) 的每一列都是 \(Ax=0\) 的解，而零空间是一维的，所以 \(r(A^*)\le1\)；又因为存在非零的 \(n-1\) 阶子式，\(A^*\neq0\)，秩正好是 \(1\)。\(r(A)\le n-2\) 时所有 \(n-1\) 阶子式为零，\(A^*=0\)。
+
+另外，\((A^{\mathrm T})^*=(A^*)^{\mathrm T}\)，\((kA)^*=k^{n-1}A^*\)，\((AB)^*=B^*A^*\)。注意 \((A+B)^*\) 一般不等于 \(A^*+B^*\)，伴随对加法没有分配律。
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,>=stealth]
+% 左：代数余子式矩阵
+\fill[red!16] (1,2) rectangle ++(1,1);
+\fill[blue!16] (0,1) rectangle ++(1,1);
+\foreach \i in {0,1,2}{\foreach \j in {0,1,2}{\draw[gray!55] (\i,\j) rectangle ++(1,1);}}
+\node at (0.5,2.5){$C_{11}$};
+\node[red!70!black] at (1.5,2.5){$C_{12}$};
+\node at (2.5,2.5){$C_{13}$};
+\node[blue!70!black] at (0.5,1.5){$C_{21}$};
+\node at (1.5,1.5){$C_{22}$};
+\node at (2.5,1.5){$C_{23}$};
+\node at (0.5,0.5){$C_{31}$};
+\node at (1.5,0.5){$C_{32}$};
+\node at (2.5,0.5){$C_{33}$};
+\node at (1.5,3.35){代数余子式按原位置};
+% 右：伴随矩阵
+\fill[red!16] (4.6,1) rectangle ++(1,1);
+\fill[blue!16] (5.6,2) rectangle ++(1,1);
+\foreach \i in {0,1,2}{\foreach \j in {0,1,2}{\draw[gray!55] (4.6+\i,\j) rectangle ++(1,1);}}
+\node at (5.1,2.5){$C_{11}$};
+\node[blue!70!black] at (6.1,2.5){$C_{21}$};
+\node at (7.1,2.5){$C_{31}$};
+\node[red!70!black] at (5.1,1.5){$C_{12}$};
+\node at (6.1,1.5){$C_{22}$};
+\node at (7.1,1.5){$C_{32}$};
+\node at (5.1,0.5){$C_{13}$};
+\node at (6.1,0.5){$C_{23}$};
+\node at (7.1,0.5){$C_{33}$};
+\node at (6.1,3.35){伴随矩阵 $A^*$};
+\draw[->,thick] (3.25,1.5)--(4.25,1.5) node[midway,above,font=\scriptsize]{转置};
+\node[font=\scriptsize] at (1.5,-0.45){$(i,j)$ 元是 $a_{ij}$ 的代数余子式};
+\node[font=\scriptsize] at (6.1,-0.45){$(i,j)$ 元取 $C_{ji}$};
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 左边是余子式按行列位置摆成的矩阵，右边是伴随矩阵。红色与蓝色两个元素交换了位置，说明伴随矩阵相当于把余子式矩阵转置。\(C_{ij}\) 里的符号 \((-1)^{i+j}\) 已经算进去了，所以图上不再另画正负号。}}
+
+\subsection{初等矩阵}
+
+方程组消元时，交换两行、把某行乘一个数、把某行的倍数加到另一行，这三种动作都作用在矩阵的行上。它们也可以写成矩阵乘法。以交换第 \(1,2\) 行为例：
+\[
+P=\begin{pmatrix}0&1&0\\1&0&0\\0&0&1\end{pmatrix},\qquad
+A=\begin{pmatrix}1&2\\3&4\\5&6\end{pmatrix},\qquad
+PA=\begin{pmatrix}3&4\\1&2\\5&6\end{pmatrix}.
+\]
+\(P\) 就是单位矩阵交换前两行得到的。对单位矩阵做一次初等变换，所得的矩阵称为\textbf{初等矩阵}，一共三类。
+
+\begin{mydef}{初等矩阵}{elementary-matrix}
+由 \(n\) 阶单位矩阵 \(I\) 经过一次初等变换得到的矩阵称为初等矩阵，分三种：
+\begin{enumerate}
+    \item 倍乘矩阵 \(E_i(k)\)：把 \(I\) 的第 \(i\) 行乘以 \(k\neq0\)；
+    \item 互换矩阵 \(E_{ij}\)：交换 \(I\) 的第 \(i\) 行与第 \(j\) 行；
+    \item 倍加矩阵 \(E_{ij}(k)\)：把 \(I\) 的第 \(j\) 行的 \(k\) 倍加到第 \(i\) 行。
+\end{enumerate}
+\end{mydef}
+
+二阶情形写出来最清楚：
+\[
+E_1(k)=\begin{pmatrix}k&0\\0&1\end{pmatrix},\qquad
+E_{12}=\begin{pmatrix}0&1\\1&0\end{pmatrix},\qquad
+E_{12}(k)=\begin{pmatrix}1&k\\0&1\end{pmatrix}.
+\]
+
+初等矩阵的作用就是执行同名变换。左乘作行变换：
+\[
+\begin{pmatrix}1&k\\0&1\end{pmatrix}
+\begin{pmatrix}a&b\\c&d\end{pmatrix}
+=\begin{pmatrix}a+kc&b+kd\\c&d\end{pmatrix},
+\]
+第一行加上了第二行的 \(k\) 倍。右乘作列变换：
+\[
+\begin{pmatrix}a&b\\c&d\end{pmatrix}
+\begin{pmatrix}1&k\\0&1\end{pmatrix}
+=\begin{pmatrix}a&ka+b\\c&kc+d\end{pmatrix},
+\]
+第二列加上了第一列的 \(k\) 倍。
+
+注意同一个 \(E_{ij}(k)\)，左乘和右乘的指标方向相反：左乘把第 \(j\) 行加到第 \(i\) 行，右乘把第 \(i\) 列加到第 \(j\) 列。记混了可以回到 \(2\times2\) 的例子现算。
+
+三类初等矩阵都可逆，逆矩阵还是同类：
+\[
+E_i(k)^{-1}=E_i\!\left(\frac1k\right),\qquad
+E_{ij}^{-1}=E_{ij},\qquad
+E_{ij}(k)^{-1}=E_{ij}(-k).
+\]
+它们的行列式分别是 \(k\)、\(-1\)、\(1\)，都不为零。所以初等矩阵的乘积一定可逆。反过来，可逆矩阵经初等行变换能化为 \(I\)；把每步变换对应的初等矩阵求逆后乘起来，就得到 \(A\) 的一个初等矩阵分解。
+
+用初等行变换求逆，就是把 \(A\) 化成 \(I\) 的那串动作同时作用在 \(I\) 上：
+\[
+(A\mid I)\xrightarrow{\text{初等行变换}}(I\mid A^{-1}).
+\]
+设这串行变换对应的初等矩阵依次为 \(P_1,P_2,\dots,P_k\)，左乘后得到
+\[
+P_k\cdots P_1(A\mid I)=(P_k\cdots P_1A\mid P_k\cdots P_1).
+\]
+左半变成 \(I\) 时，\(P_k\cdots P_1A=I\)，于是 \(P_k\cdots P_1=A^{-1}\)，右半正好记录了累计乘积。若左半出现全零行，说明 \(A\) 不可逆，这串变换走不到 \(I\)。
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,>=stealth]
+\node[draw,rounded corners,fill=blue!6,minimum width=3.2cm,minimum height=1.4cm] (L) at (0,0) {$(A\mid I)$};
+\node[draw,rounded corners,fill=green!8,minimum width=3.6cm,minimum height=1.4cm] (R) at (5.6,0) {$(I\mid A^{-1})$};
+\draw[->,thick] (L.east)--(R.west) node[midway,above,font=\scriptsize]{左乘 $E_k\cdots E_1$};
+\node[font=\scriptsize,align=center] at (0,-1.15){行变换把左半消成 $I$};
+\node[font=\scriptsize,align=center] at (5.6,-1.15){右半累计为 $E_k\cdots E_1=A^{-1}$};
+\node[font=\scriptsize,align=center] at (2.8,-1.95){$E_k\cdots E_1(A\mid I)=(E_k\cdots E_1A\mid E_k\cdots E_1)=(I\mid A^{-1})$};
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 同一串行变换同时作用在 \(A\) 和 \(I\) 上。左半从 \(A\) 变到 \(I\)，右半从 \(I\) 变到累计乘积 \(P\)。左半变成 \(I\) 时 \(PA=I\)，所以 \(P=A^{-1}\)。左半若出现零行，\(P\) 就不存在，右半没有意义。}}
+
+\subsection{分块矩阵}
+
+高阶矩阵经常带有大片的零，或者由几个低阶问题拼成。把矩阵用横线和竖线切开，每一小块当作一个元素，就得到分块矩阵。例如
+\[
+M=\left(\begin{array}{cc|cc}
+1&2&0&0\\
+3&4&0&0\\ \hline
+0&0&5&6\\
+0&0&7&8
+\end{array}\right)
+=\begin{pmatrix}B&0\\0&C\end{pmatrix},
+\]
+其中 \(B=\begin{pmatrix}1&2\\3&4\end{pmatrix}\)，\(C=\begin{pmatrix}5&6\\7&8\end{pmatrix}\)。行列式按块算：
+\[
+|M|=|B|\,|C|=(-2)(-2)=4.
+\]
+求逆也只在块内进行，四阶的问题拆成两个二阶问题。
+
+只要分块方式匹配，加法、数乘、乘法、转置的规则与普通矩阵一样。加法要求两个矩阵分法相同。乘法要求左边矩阵的列分法与右边矩阵的行分法一致，否则 \(A_{ik}B_{kj}\) 不能乘：
+\[
+\begin{pmatrix}A_{11}&A_{12}\\A_{21}&A_{22}\end{pmatrix}
+\begin{pmatrix}B_{11}&B_{12}\\B_{21}&B_{22}\end{pmatrix}
+=
+\begin{pmatrix}
+A_{11}B_{11}+A_{12}B_{21}&A_{11}B_{12}+A_{12}B_{22}\\
+A_{21}B_{11}+A_{22}B_{21}&A_{21}B_{12}+A_{22}B_{22}
+\end{pmatrix}.
+\]
+形式像二阶矩阵乘法，只是每个乘积的次序不能换。转置除了交换非对角块，还要把每个块转置：
+\[
+\begin{pmatrix}A&B\\C&D\end{pmatrix}^{\mathrm T}
+=\begin{pmatrix}A^{\mathrm T}&C^{\mathrm T}\\B^{\mathrm T}&D^{\mathrm T}\end{pmatrix}.
+\]
+
+分块对角矩阵
+\[
+A=\operatorname{diag}(A_1,A_2,\dots,A_k)
+\]
+的运算逐块进行：
+\[
+|A|=\prod_{i=1}^{k}|A_i|,\qquad
+r(A)=\sum_{i=1}^{k}r(A_i),\qquad
+A^{-1}=\operatorname{diag}(A_1^{-1},\dots,A_k^{-1}),
+\]
+最后一式要求每个 \(A_i\) 都可逆。幂和多项式也逐块计算，因为不同块之间没有交叉项。
+
+分块三角矩阵
+\[
+M=\begin{pmatrix}A&B\\0&D\end{pmatrix}
+\]
+的行列式等于对角块行列式之积，\(|M|=|A||D|\)。按前 \(k\) 行作 Laplace 展开即可：只有取前 \(k\) 列的那一项不为零，其余项都含一个来自零块的列。\(M\) 可逆当且仅当 \(A,D\) 都可逆，此时
+\[
+M^{-1}=\begin{pmatrix}
+A^{-1}&-A^{-1}BD^{-1}\\
+0&D^{-1}
+\end{pmatrix}.
+\]
+右上块不是零，直接相乘可以验证：\(A(-A^{-1}BD^{-1})+BD^{-1}=0\)。
+
+更一般的分块矩阵可以用分块消元处理。当 \(A\) 可逆时，
+\[
+\begin{pmatrix}A&B\\C&D\end{pmatrix}
+=
+\begin{pmatrix}I&0\\CA^{-1}&I\end{pmatrix}
+\begin{pmatrix}A&B\\0&D-CA^{-1}B\end{pmatrix}.
+\]
+右边第一个因子是对角线全为 \(I\) 的分块三角阵，行列式为 \(1\)。所以
+\[
+\begin{vmatrix}A&B\\C&D\end{vmatrix}
+=|A|\cdot|D-CA^{-1}B|.
+\]
+\(D-CA^{-1}B\) 称为 Schur 补。若 \(D\) 可逆，也可以写成 \(|D|\cdot|A-BD^{-1}C|\)。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+% A
+\fill[blue!12] (0,1) rectangle (2,2);
+\draw[thick] (0,0) rectangle (2,2);
+\draw[thick] (1,0)--(1,2);
+\draw[thick] (0,1)--(2,1);
+\node at (0.5,1.5){$A_{11}$};\node at (1.5,1.5){$A_{12}$};
+\node at (0.5,0.5){$A_{21}$};\node at (1.5,0.5){$A_{22}$};
+\node[font=\footnotesize] at (2.55,1){$\times$};
+% B
+\fill[orange!18] (3,0) rectangle (4,2);
+\draw[thick] (3,0) rectangle (5,2);
+\draw[thick] (4,0)--(4,2);
+\draw[thick] (3,1)--(5,1);
+\node at (3.5,1.5){$B_{11}$};\node at (4.5,1.5){$B_{12}$};
+\node at (3.5,0.5){$B_{21}$};\node at (4.5,0.5){$B_{22}$};
+\node[font=\footnotesize] at (5.55,1){$=$};
+% C
+\fill[green!18] (6,1) rectangle (7,2);
+\draw[thick] (6,0) rectangle (8,2);
+\draw[thick] (7,0)--(7,2);
+\draw[thick] (6,1)--(8,1);
+\node at (6.5,1.5){$C_{11}$};\node at (7.5,1.5){$C_{12}$};
+\node at (6.5,0.5){$C_{21}$};\node at (7.5,0.5){$C_{22}$};
+\node[font=\scriptsize,align=center] at (4,2.55){$C_{11}=A_{11}B_{11}+A_{12}B_{21}$};
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 蓝色是 \(A\) 的第一块行，橙色是 \(B\) 的第一块列，两者做分块内积得到绿色的 \(C_{11}\)。分块乘法与普通乘法一样，是“行乘列”，只不过每个元素换成了矩阵。}}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+\fill[red!12] (0,0) rectangle (1.2,1.2);
+\draw[thick] (0,0) rectangle (2.4,2.4);
+\draw[thick] (1.2,0)--(1.2,2.4);
+\draw[thick] (0,1.2)--(2.4,1.2);
+\node at (0.6,1.8){$A$};\node at (1.8,1.8){$B$};
+\node at (0.6,0.6){$C$};\node at (1.8,0.6){$D$};
+\draw[->,thick] (2.7,1.2)--(4.1,1.2) node[midway,above,font=\scriptsize]{消去左下块};
+\draw[thick] (4.6,0) rectangle (7.0,2.4);
+\draw[thick] (5.8,0)--(5.8,2.4);
+\draw[thick] (4.6,1.2)--(7.0,1.2);
+\node at (5.2,1.8){$A$};\node at (6.4,1.8){$B$};
+\node at (5.2,0.6){$0$};\node at (6.4,0.6){$D'$};
+\node[font=\scriptsize] at (5.8,-0.45){$D'=D-CA^{-1}B$};
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 第二块行减去 \(CA^{-1}\) 倍的第一块行，左下块 \(C\) 被消成零，右下块变成 Schur 补 \(D'\)。这次消元相当于左乘一个对角线为 \(I\) 的分块三角阵，行列式为 \(1\)，所以总行列式不变，仍是 \(|A||D'|\)。}}
+
+\subsection{矩阵的秩}
+
+消元能把矩阵里“多余”的行暴露出来。对
+\[
+A=\begin{pmatrix}
+1&2&3&1\\
+2&4&7&3\\
+3&6&10&4
+\end{pmatrix}
+\]
+依次作 \(R_2-2R_1\)、\(R_3-3R_1\)、\(R_3-R_2\)，得到
+\[
+A\sim\begin{pmatrix}
+1&2&3&1\\
+0&0&1&1\\
+0&0&0&0
+\end{pmatrix}.
+\]
+最后只剩两个非零行。第三行本来就不提供新信息：它正好是第一行加第二行。四个未知量里只有两个独立方向，另外两个可以自由取值。
+
+\begin{mydef}{矩阵的秩}{matrix-rank}
+矩阵 \(A\) 的\textbf{秩} \(r(A)\) 是它的行阶梯形中非零行的个数。等价地，\(r(A)\) 是 \(A\) 中非零子式的最高阶数，也是列向量组极大无关组所含向量的个数。
+\end{mydef}
+
+三种说法一致，原因不难看清。初等行变换不改变行空间，阶梯形的非零行就是行空间的一组基，所以非零行数等于行空间的维数。行变换也不改变列向量之间的线性关系：左乘可逆矩阵 \(P\) 时，\(Ax=0\) 与 \(PAx=0\) 同解。阶梯形中主元所在的列线性无关，其余列都是它们的组合，这个关系原样回到 \(A\)，所以主元个数也等于列秩。行秩与列秩相等，这条结论就包含在上面这段推理里。
+
+秩的基本不等式都来自列空间：
+\begin{itemize}
+\item \(r(AB)\le\min\{r(A),r(B)\}\)。\(AB\) 的每一列是 \(A\) 的列向量的组合，所以 \(AB\) 的列空间包含在 \(A\) 的列空间里，维数不超过 \(r(A)\)。对 \(B\) 的那一半由转置得到：\(r(AB)=r(B^{\mathrm T}A^{\mathrm T})\le r(B)\)。
+\item \(r(A+B)\le r(A)+r(B)\)。和矩阵的列空间包含在两个列空间的和里，而两个子空间之和的维数不超过维数之和。
+\item 若 \(AB=0\)（\(A\) 为 \(m\times n\)），则 \(r(A)+r(B)\le n\)。\(B\) 的每一列都满足 \(Ax=0\)，都落在 \(A\) 的零空间里，而零空间的维数是 \(n-r(A)\)。
+\item Sylvester 不等式：\(r(AB)\ge r(A)+r(B)-n\)。把 \(AB\) 看成先作用 \(B\) 再作用 \(A\)。\(\ker(AB)\) 中的向量经 \(B\) 作用后落进 \(\ker A\)，这个映射的核是 \(\ker B\)，所以
+\[
+\dim\ker(AB)\le\dim\ker B+\dim\ker A.
+\]
+代入 \(\dim\ker X=n-r(X)\)，得 \(n-r(AB)\le 2n-r(A)-r(B)\)，移项即得。
+\end{itemize}
+
+分块对角阵的秩按块相加。分块三角阵 \(\begin{pmatrix}A&B\\0&D\end{pmatrix}\) 的秩不小于 \(r(A)+r(D)\)，因为对角块所在的行列位置互不干扰。
+
+秩把方程组的解分成几种情况。设 \(A\) 为 \(m\times n\)。
+
+\(Ax=0\) 总有零解。有非零解当且仅当 \(r(A)<n\)，此时解空间的维数是 \(n-r(A)\)；\(r(A)=n\) 时只有零解。
+
+\(Ax=b\) 有解当且仅当 \(r(A)=r(A\mid b)\)。有解时，解集是“一个特解加零空间”，即 \(x_0+\ker A\)。解唯一当且仅当 \(r(A)=n\)；此时零空间只有零向量。
+
+\(r(A\mid b)\) 只可能等于 \(r(A)\) 或 \(r(A)+1\)，因为添一列最多让秩增加 \(1\)。所以判断无解只看这两个数是否相等，不必比较具体数值。
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize]
+% 自由列底色
+\fill[orange!12] (1,0) rectangle (2,3);
+\fill[orange!12] (3,0) rectangle (4,3);
+% 主元格
+\fill[blue!25] (0,2) rectangle (1,3);
+\fill[blue!25] (2,1) rectangle (3,2);
+% 网格与元素
+\draw (0,0) rectangle (4,3);
+\foreach \x in {1,2,3}{\draw[gray!60] (\x,0)--(\x,3);}
+\foreach \y in {1,2}{\draw[gray!60] (0,\y)--(4,\y);}
+\node at (0.5,2.5){$1$};\node at (1.5,2.5){$2$};\node at (2.5,2.5){$3$};\node at (3.5,2.5){$1$};
+\node at (0.5,1.5){$0$};\node at (1.5,1.5){$0$};\node at (2.5,1.5){$1$};\node at (3.5,1.5){$1$};
+\node at (0.5,0.5){$0$};\node at (1.5,0.5){$0$};\node at (2.5,0.5){$0$};\node at (3.5,0.5){$0$};
+% 标注
+\node[blue!70!black,font=\scriptsize,above] at (0.5,3){主元};
+\node[orange!80!black,font=\scriptsize,below] at (1.5,0){自由列};
+\node[orange!80!black,font=\scriptsize,below] at (3.5,0){自由列};
+\node[font=\scriptsize,anchor=west,align=left] at (4.25,2.2){$r(A)=2$\\（两个主元）};
+\node[font=\scriptsize,anchor=west,align=left] at (4.25,1.2){$n-r(A)=2$\\（零空间维数）};
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 行阶梯形的两行各有主元，所以秩是 \(2\)。主元所在的两列是独立方向；另外两列没有主元，对应两个自由变量。自由列的个数 \(4-2\) 就是齐次方程 \(Ax=0\) 解空间的维数。}}
+
+\subsection{矩阵方程}
+
+未知量也可以是矩阵。解
+\[
+XA=B,\qquad
+A=\begin{pmatrix}1&2\\1&3\end{pmatrix},\quad
+B=\begin{pmatrix}2&1\\1&1\end{pmatrix}.
+\]
+\(|A|=1\)，\(A^{-1}=\begin{pmatrix}3&-2\\-1&1\end{pmatrix}\)。两边右乘 \(A^{-1}\)：
+\[
+X=BA^{-1}
+=\begin{pmatrix}2&1\\1&1\end{pmatrix}
+\begin{pmatrix}3&-2\\-1&1\end{pmatrix}
+=\begin{pmatrix}5&-3\\2&-1\end{pmatrix}.
+\]
+代回验算，\(XA\) 的两个列分别等于 \(B\) 的两个列。
+
+常见的三种形式与解法如下。
+\begin{itemize}
+\item \(AX=B\)，\(A\) 可逆：左乘 \(A^{-1}\)，得 \(X=A^{-1}B\)。
+\item \(XA=B\)，\(A\) 可逆：右乘 \(A^{-1}\)，得 \(X=BA^{-1}\)。
+\item \(AXB=C\)，\(A,B\) 都可逆：先左乘 \(A^{-1}\)，再右乘 \(B^{-1}\)，得 \(X=A^{-1}CB^{-1}\)。
+\end{itemize}
+次序不能换。矩阵乘法不交换，\(A^{-1}B\) 与 \(BA^{-1}\) 一般是两个不同的矩阵。
+
+\(A\) 不可逆或不是方阵时，把 \(X\) 按列分块：
+\[
+X=(x_1,x_2,\dots,x_s),\qquad B=(b_1,b_2,\dots,b_s).
+\]
+方程 \(AX=B\) 等价于 \(s\) 个方程组
+\[
+Ax_j=b_j,\qquad j=1,2,\dots,s.
+\]
+有解当且仅当每一列都满足 \(r(A)=r(A\mid b_j)\)，合起来就是
+\[
+r(A)=r(A\mid B).
+\]
+这里 \((A\mid B)\) 是把 \(B\) 的全部列接在 \(A\) 右边得到的 \(m\times(n+s)\) 矩阵。
+
+解不唯一时，每个 \(x_j\) 都可以加上零空间里的向量，所以 \(X=X_0+Z\)，其中 \(Z\) 的每一列都属于 \(\ker A\)。
+
+\(XA=B\) 可以转置成 \(A^{\mathrm T}X^{\mathrm T}=B^{\mathrm T}\)，化归为前一种。含 \(X\) 的项先合并，但只能在同侧提取：
+\[
+AX+BX=(A+B)X,\qquad XA-XB=X(A-B).
+\]
+\(AX+XB\) 不能写成 \((A+B)X\) 或 \(X(A+B)\)，因为 \(AX\) 与 \(XA\) 不是一回事。形如 \(AX+XB=C\) 的方程叫 Sylvester 方程，解法超出本章范围。
+
+多项式方程也要小心。\(X^2-3X+2I=0\) 可以分解为
+\[
+(X-I)(X-2I)=0,
+\]
+但不能由此断言 \(X=I\) 或 \(X=2I\)。矩阵有零因子，两个非零矩阵的乘积可以是零。例如
+\[
+X=\begin{pmatrix}1&1\\0&2\end{pmatrix}
+\]
+满足 \((X-I)(X-2I)=0\)，它既不是 \(I\) 也不是 \(2I\)。
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,>=stealth]
+% 左列：X 的列
+\foreach \y/\lab in {2.4/{$x_1$},1.7/{$x_2$},0.7/{$x_s$}}{
+  \node[draw,rounded corners,minimum width=1.1cm,minimum height=0.5cm,fill=blue!6] at (0.55,\y){\lab};
+}
+\node at (0.55,1.25){$\vdots$};
+% 右列：B 的列
+\foreach \y/\lab in {2.4/{$b_1$},1.7/{$b_2$},0.7/{$b_s$}}{
+  \node[draw,rounded corners,minimum width=1.1cm,minimum height=0.5cm,fill=orange!9] at (5.55,\y){\lab};
+}
+\node at (5.55,1.25){$\vdots$};
+\foreach \y in {2.4,1.7,0.7}{
+  \draw[->,thick] (1.2,\y)--(4.9,\y);
+  \node[font=\scriptsize,above] at (3.05,\y){$A$};
+}
+\node[font=\scriptsize] at (0.55,3.2){未知矩阵 $X$ 的列};
+\node[font=\scriptsize] at (5.55,3.2){已知矩阵 $B$ 的列};
+\node[font=\scriptsize,align=center] at (3.05,-0.15){每个 $j$ 解一个 $Ax_j=b_j$};
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize \(AX=B\) 按列看：\(X\) 的第 \(j\) 列经过 \(A\) 映成 \(B\) 的第 \(j\) 列。\(s\) 个方程组共用同一个系数矩阵 \(A\)，所以行变换可以在增广矩阵 \((A\mid B)\) 上一次做完。只要有一列无解，整个矩阵方程就无解。}}
+
+\subsection{正交矩阵}
+
+有一类可逆矩阵，逆矩阵就是转置，求逆不用算。设 \(Q\) 为 \(n\) 阶实方阵，若
+\[
+Q^{\mathrm T}Q=QQ^{\mathrm T}=I,
+\]
+即 \(Q^{-1}=Q^{\mathrm T}\)，则称 \(Q\) 为\textbf{正交矩阵}。
+
+把 \(Q\) 按列分块 \(Q=(q_1,q_2,\dots,q_n)\)。\(Q^{\mathrm T}Q\) 的 \((i,j)\) 元是 \(q_i^{\mathrm T}q_j\)，所以 \(Q^{\mathrm T}Q=I\) 就是在说：每一列的长度为 \(1\)，任意两列的内积为 \(0\)。这组列向量构成 \(\mathbb{R}^n\) 的一组标准正交基。行向量也一样。
+
+由定义可以推出几条性质。
+
+取行列式，\(|Q^{\mathrm T}Q|=|Q|^2=1\)，所以 \(|Q|=\pm1\)。行列式为 \(1\) 的正交变换是旋转，为 \(-1\) 时含一次镜像。
+
+正交变换保内积：
+\[
+(Qx)\cdot(Qy)=x^{\mathrm T}Q^{\mathrm T}Qy=x^{\mathrm T}y=x\cdot y.
+\]
+取 \(x=y\) 得 \(\|Qx\|=\|x\|\)，长度不变；夹角由内积决定，所以夹角也不变。
+
+两个正交矩阵的乘积仍正交，正交矩阵的逆（也就是转置）仍正交：
+\[
+(Q_1Q_2)^{\mathrm T}(Q_1Q_2)=Q_2^{\mathrm T}Q_1^{\mathrm T}Q_1Q_2=Q_2^{\mathrm T}Q_2=I.
+\]
+
+几何上，正交变换只改变图形的朝向，不改变形状。旋转、反射、以及它们的组合都属于这一类。数值计算中也常用正交变换，因为乘以正交矩阵不会放大向量的长度，误差不会被放大。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.62\linewidth,height=5.6cm,axis equal image,
+  xmin=-2.3,xmax=2.3,ymin=-2.3,ymax=2.3,
+  xlabel={$x_1$},ylabel={$x_2$},font=\footnotesize,
+  xtick={-2,-1,1,2},ytick={-2,-1,1,2},clip=false]
+\addplot[gray!60,dashed,domain=0:360,samples=160]({cos(x)},{sin(x)});
+\draw[->,thick,blue] (axis cs:0,0)--(axis cs:1.8,0.6);
+\node[blue,font=\scriptsize,anchor=south west] at (axis cs:1.8,0.6){$x$};
+\draw[->,thick,red!80!black] (axis cs:0,0)--(axis cs:-0.6,1.8);
+\node[red!80!black,font=\scriptsize,anchor=east] at (axis cs:-0.68,1.8){$Qx$};
+\draw[->,thick,blue!55] (axis cs:0,0)--(axis cs:0.6,1.8);
+\node[blue!55,font=\scriptsize,anchor=west] at (axis cs:0.68,1.8){$y$};
+\draw[->,thick,red!50] (axis cs:0,0)--(axis cs:-1.8,0.6);
+\node[red!50,font=\scriptsize,anchor=north east] at (axis cs:-1.8,0.6){$Qy$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 这里 \(Q=\left(\begin{smallmatrix}0&-1\\1&0\end{smallmatrix}\right)\)，作用是逆时针转 \(90^\circ\)。\(x,y\) 变成 \(Qx,Qy\)，长度和夹角都没变；虚线单位圆上的点转完仍在圆上。正交变换不改变图形的大小和形状。}}
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\textbf{1.} \textbf{（填空题）} 设 \(A = \begin{pmatrix} 2 & 1 \\ 5 & 3 \end{pmatrix}\)，用伴随矩阵法求 \(A^{-1} = \underline{\quad\quad}\)。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\(|A| = 2 \times 3 - 1 \times 5 = 1\)。伴随矩阵：
-\[
-A^* = \begin{pmatrix} A_{11} & A_{21} \\ A_{12} & A_{22} \end{pmatrix}
-= \begin{pmatrix} 3 & -1 \\ -5 & 2 \end{pmatrix}.
-\]
-故
-\[
-A^{-1} = \frac{1}{|A|} A^* = \begin{pmatrix} 3 & -1 \\ -5 & 2 \end{pmatrix}.
-\]
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{2.} \textbf{（选择题）} 下列矩阵中，不是初等矩阵的是（\quad）
-\begin{enumerate}[label=(\Alph*)]
-    \item \(\begin{pmatrix} 1 & 0 & 0 \\ 0 & 3 & 0 \\ 0 & 0 & 1 \end{pmatrix}\)
-    \item \(\begin{pmatrix} 0 & 1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{pmatrix}\)
-    \item \(\begin{pmatrix} 1 & 0 & 0 \\ 2 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}\)
-    \item \(\begin{pmatrix} 1 & 1 & 0 \\ 1 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}\)
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} \textbf{答案：D。}
-
-初等矩阵由单位矩阵经\textbf{一次}初等变换得到。
-\begin{itemize}
-    \item (A)：将 \(I\) 的第2行乘以 \(3\)，是倍乘初等矩阵 \(E_2(3)\)。
-    \item (B)：交换 \(I\) 的第1、2行，是互换初等矩阵 \(E_{12}\)。
-    \item (C)：将 \(I\) 的第1行的 \(2\) 倍加到第2行，是倍加初等矩阵 \(E_{21}(2)\)。
-    \item (D)：第 \((1,2)\) 和第 \((2,1)\) 位置均非零，需至少两次初等变换才能从单位矩阵得到，故不是初等矩阵。
-\end{itemize}
-
-\boxed{\text{注}} 初等矩阵只有三种类型：倍乘 \(E_i(k)\)、互换 \(E_{ij}\)、倍加 \(E_{ij}(k)\)。判断标准是能否由单位矩阵经过一次初等变换得到，不能只按非对角非零元的个数判断；例如互换型初等矩阵本身就含两个非对角的\(1\)。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{3.} \textbf{（计算题）} 用初等变换法 \((A \mid I) \to (I \mid A^{-1})\) 求矩阵
-\[
-A = \begin{pmatrix}
-1 & 2 & 3 \\
-2 & 2 & 1 \\
-3 & 4 & 3
-\end{pmatrix}
-\]
-的逆矩阵。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\[
-\begin{aligned}
-(A \mid I) &=
-\left(\begin{array}{ccc|ccc}
-1 & 2 & 3 & 1 & 0 & 0 \\
-2 & 2 & 1 & 0 & 1 & 0 \\
-3 & 4 & 3 & 0 & 0 & 1
-\end{array}\right)
-\xrightarrow[R_3-3R_1]{R_2-2R_1}
-\left(\begin{array}{ccc|ccc}
-1 & 2 & 3 & 1 & 0 & 0 \\
-0 & -2 & -5 & -2 & 1 & 0 \\
-0 & -2 & -6 & -3 & 0 & 1
-\end{array}\right) \\[6pt]
-&\xrightarrow{R_3-R_2}
-\left(\begin{array}{ccc|ccc}
-1 & 2 & 3 & 1 & 0 & 0 \\
-0 & -2 & -5 & -2 & 1 & 0 \\
-0 & 0 & -1 & -1 & -1 & 1
-\end{array}\right)
-\xrightarrow[R_2 \leftarrow -\frac{1}{2}R_2]{R_3 \leftarrow -R_3}
-\left(\begin{array}{ccc|ccc}
-1 & 2 & 3 & 1 & 0 & 0 \\
-0 & 1 & \frac{5}{2} & 1 & -\frac{1}{2} & 0 \\
-0 & 0 & 1 & 1 & 1 & -1
-\end{array}\right) \\[6pt]
-&\xrightarrow[R_1-3R_3]{R_2-\frac{5}{2}R_3}
-\left(\begin{array}{ccc|ccc}
-1 & 2 & 0 & -2 & -3 & 3 \\
-0 & 1 & 0 & -\frac{3}{2} & -3 & \frac{5}{2} \\
-0 & 0 & 1 & 1 & 1 & -1
-\end{array}\right)
-\xrightarrow{R_1-2R_2}
-\left(\begin{array}{ccc|ccc}
-1 & 0 & 0 & 1 & 3 & -2 \\
-0 & 1 & 0 & -\frac{3}{2} & -3 & \frac{5}{2} \\
-0 & 0 & 1 & 1 & 1 & -1
-\end{array}\right)
-\end{aligned}
-\]
-故
-\[
-A^{-1} = \begin{pmatrix}
-1 & 3 & -2 \\[2pt]
--\frac{3}{2} & -3 & \frac{5}{2} \\[2pt]
-1 & 1 & -1
-\end{pmatrix}.
-\]
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{4.} \textbf{（选择题）} 设 \(Q\) 为正交矩阵，则下列结论错误的是（\quad）
-\begin{enumerate}[label=(\Alph*)]
-    \item \(|Q| = 1\)
-    \item \(Q^{-1} = Q^{\mathrm{T}}\)
-    \item \(Q\) 的列向量组是标准正交向量组
-    \item \(Q^{\mathrm{T}}\) 也是正交矩阵
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} \textbf{答案：A。}
-
-正交矩阵满足 \(Q^{\mathrm{T}}Q = I\)，两边取行列式得 \(|Q^{\mathrm{T}}Q| = |Q^{\mathrm{T}}||Q| = |Q|^2 = 1\)，故 \(|Q| = \pm 1\)，不一定是 \(1\)。例如 \(Q = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix}\) 满足 \(Q^{\mathrm{T}}Q = I\)，而 \(|Q| = -1\)。选项A误为「\(=1\)」，应该是「\(=\pm 1\)」。
-
-选项B、C、D均为正交矩阵的正确性质。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{5.} \textbf{（计算题）} 用初等行变换求矩阵的秩：
-\[
-A = \begin{pmatrix}
-1 & 1 & 2 & 2 & 1 \\
-0 & 2 & 1 & 5 & -1 \\
-2 & 0 & 3 & -1 & 3 \\
-1 & 1 & 0 & 4 & -1
-\end{pmatrix}.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 对 \(A\) 作初等行变换化为行阶梯形：
-\[
-A \xrightarrow[R_4-R_1]{R_3-2R_1}
-\begin{pmatrix}
-1 & 1 & 2 & 2 & 1 \\
-0 & 2 & 1 & 5 & -1 \\
-0 & -2 & -1 & -5 & 1 \\
-0 & 0 & -2 & 2 & -2
-\end{pmatrix}
-\xrightarrow{R_3+R_2}
-\begin{pmatrix}
-1 & 1 & 2 & 2 & 1 \\
-0 & 2 & 1 & 5 & -1 \\
-0 & 0 & 0 & 0 & 0 \\
-0 & 0 & -2 & 2 & -2
-\end{pmatrix}
-\]
-
-交换第3、4行：
-\[
-\xrightarrow{R_3 \leftrightarrow R_4}
-\begin{pmatrix}
-1 & 1 & 2 & 2 & 1 \\
-0 & 2 & 1 & 5 & -1 \\
-0 & 0 & -2 & 2 & -2 \\
-0 & 0 & 0 & 0 & 0
-\end{pmatrix}
-\]
-
-行阶梯形有3个非零行，故 \(r(A) = 3\)。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{6.} \textbf{（填空题）} 设分块对角矩阵
-\[
-A = \begin{pmatrix}
-B & 0 \\
-0 & C
-\end{pmatrix},
-\]
-其中 \(B = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}\)，\(C = \begin{pmatrix} 5 \end{pmatrix}\)。则 \(|A| = \underline{\quad\quad}\)，\(A^{-1} = \underline{\quad\quad}\)。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\[
-|A| = |B| \cdot |C| = (1 \times 4 - 2 \times 3) \times 5 = (-2) \times 5 = -10.
-\]
-
-\(B^{-1} = \dfrac{1}{-2}\begin{pmatrix} 4 & -2 \\ -3 & 1 \end{pmatrix} = \begin{pmatrix} -2 & 1 \\ \frac{3}{2} & -\frac{1}{2} \end{pmatrix}\)，\(C^{-1} = \begin{pmatrix} \frac{1}{5} \end{pmatrix}\)。
-
-故
-\[
-A^{-1} = \begin{pmatrix}
-B^{-1} & 0 \\
-0 & C^{-1}
-\end{pmatrix}
-= \begin{pmatrix}
--2 & 1 & 0 \\[2pt]
-\frac{3}{2} & -\frac{1}{2} & 0 \\[2pt]
-0 & 0 & \frac{1}{5}
-\end{pmatrix}.
-\]
-
-
-\else \answerarea \fi%
-\subsection{综合提高题}
-
-\textbf{7.} \textbf{（拓展证明题：Sylvester 不等式）} 设 \(A\) 为 \(m \times n\) 矩阵，\(B\) 为 \(n \times s\) 矩阵。证明：
-\[
-r(AB) \geq r(A) + r(B) - n.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{证明（线性映射观点）：} 考虑线性映射 \(A: \mathbb{R}^n \to \mathbb{R}^m\)，\(B: \mathbb{R}^s \to \mathbb{R}^n\)。限制 \(A\) 在 \(\operatorname{Im} B\) 上的作用，由维数公式：
-\[
-\dim \operatorname{Im}(AB) = \dim A(\operatorname{Im} B) = \dim(\operatorname{Im} B) - \dim(\operatorname{Im} B \cap \ker A).
-\]
-由于 \(\operatorname{Im} B \cap \ker A \subseteq \ker A\)，\(\dim(\operatorname{Im} B \cap \ker A) \leq \dim \ker A = n - r(A)\)，因此
-\[
-r(AB) = \dim \operatorname{Im}(AB) \geq r(B) - (n - r(A)) = r(A) + r(B) - n.
-\]
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{8.} \textbf{（证明题，\(\star\star\star\) 经典考研题）} 设 \(A\) 为 \(n\) 阶方阵，满足 \(A^2 = A\)（幂等矩阵）。证明：
-\[
-r(A) + r(I - A) = n.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{证法一（利用 \(A(I-A)=0\)）：}
-
-由 \(A^2 = A\)，得 \(A - A^2 = A(I - A) = 0\)。由 \(AB = 0 \Rightarrow r(A) + r(B) \leq n\)（其中 \(A\) 列数 \(= B\) 行数 \(= n\)），得
-\[
-r(A) + r(I - A) \leq n. \tag{1}
-\]
-
-另一方面，\(I = A + (I - A)\)，利用秩不等式 \(r(X+Y) \leq r(X) + r(Y)\)：
-\[
-n = r(I) = r(A + (I - A)) \leq r(A) + r(I - A). \tag{2}
-\]
-
-由 (1) 和 (2) 即得 \(r(A) + r(I - A) = n\)。
-
-\textbf{证法二（利用空间分解）：} 对任意向量 \(\mathbf{x}\)，有
-\[
-\mathbf{x}=A\mathbf{x}+(I-A)\mathbf{x},
-\]
-其中 \(A\mathbf{x}\in\operatorname{Im}A\)，且
-\(A(I-A)\mathbf{x}=\mathbf0\)，故 \((I-A)\mathbf{x}\in\ker A\)。又
-\(\operatorname{Im}A\cap\ker A=\{\mathbf0\}\)：若 \(\mathbf y=A\mathbf z\) 且 \(A\mathbf y=\mathbf0\)，则
-\(\mathbf y=A\mathbf z=A^2\mathbf z=A\mathbf y=\mathbf0\)。因此
-\[
-\mathbb R^n=\operatorname{Im}A\oplus\ker A.
-\]
-取这两个子空间的基合并，可得
-\(A=P\operatorname{diag}(I_r,0)P^{-1}\)，其中 \(r=r(A)\)。于是
-\(I-A=P\operatorname{diag}(0,I_{n-r})P^{-1}\)，从而
-\(r(I-A)=n-r\)，即 \(r(A)+r(I-A)=n\)。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{9.} \textbf{（计算题，伴随矩阵综合）} 设 \(A\) 为三阶方阵，\(|A| = 2\)。计算
-\[
-\bigl| (A^*)^{-1} + 2A \bigr|.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-由伴随矩阵的性质：\(A^* = |A|A^{-1} = 2A^{-1}\)。于是
-\[
-(A^*)^{-1} = (2A^{-1})^{-1} = \frac{1}{2}A.
-\]
-因此
-\[
-(A^*)^{-1} + 2A = \frac{1}{2}A + 2A = \frac{5}{2}A.
-\]
-取行列式：
-\[
-\bigl| (A^*)^{-1} + 2A \bigr| = \left|\frac{5}{2}A\right| = \left(\frac{5}{2}\right)^3 |A| = \frac{125}{8} \times 2 = \frac{125}{4}.
-\]
-
-\boxed{\text{注}} 本题关键：利用 \(A^* = |A|A^{-1}\) 将伴随矩阵化为逆矩阵，避免直接展开计算。此性质对 \(n\) 阶可逆方阵通用：\(A^* = |A|A^{-1}\)，\((A^*)^{-1} = \frac{1}{|A|}A\)。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{10.} \textbf{（证明题）} 设 \(A\) 为 \(m \times n\) 非零矩阵，且 \(r(A) = 1\)。证明：
-\begin{enumerate}[label=(\arabic*)]
-    \item 存在非零列向量 \(\alpha \in \mathbb{R}^m\) 和非零行向量 \(\beta^{\mathrm{T}} \in \mathbb{R}^n\)（即 \(\beta\) 为 \(n\) 维列向量），使得 \(A = \alpha \beta^{\mathrm{T}}\)；
-    \item 当 \(m = n\)（\(A\) 为方阵）时，\(A^2 = (\operatorname{tr} A)A\)。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{(1)} 因 \(r(A) = 1\)，\(A\) 的列向量组的极大线性无关组只含一个向量。设 \(\alpha\) 为 \(A\) 的任一非零列向量，则其他各列均为 \(\alpha\) 的倍数。设第 \(j\) 列为 \(b_j \alpha\)，令 \(\beta = (b_1, b_2, \ldots, b_n)^{\mathrm{T}}\)，则
-\[
-A = \begin{pmatrix} b_1\alpha & b_2\alpha & \cdots & b_n\alpha \end{pmatrix} = \alpha \begin{pmatrix} b_1 & b_2 & \cdots & b_n \end{pmatrix} = \alpha \beta^{\mathrm{T}}.
-\]
-
-\textbf{(2)} 当 \(m = n\) 时，\(A^2 = (\alpha\beta^{\mathrm{T}})(\alpha\beta^{\mathrm{T}}) = \alpha(\beta^{\mathrm{T}}\alpha)\beta^{\mathrm{T}}\)。其中 \(\beta^{\mathrm{T}}\alpha\) 是一个标量（\(1 \times 1\) 矩阵），且
-\[
-\beta^{\mathrm{T}}\alpha = \sum_{i=1}^{n} b_i a_i,
-\]
-而 \(\operatorname{tr} A = \operatorname{tr}(\alpha\beta^{\mathrm{T}}) = \operatorname{tr}(\beta^{\mathrm{T}}\alpha) = \beta^{\mathrm{T}}\alpha\)（\(\alpha\beta^{\mathrm{T}}\) 的迹等于 \(\beta^{\mathrm{T}}\alpha\)）。因此
-\[
-A^2 = (\beta^{\mathrm{T}}\alpha) \alpha\beta^{\mathrm{T}} = (\operatorname{tr} A) A.
-\]
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{11.} \textbf{（计算题）} 解矩阵方程 \(AXB = C\)，其中
-\[
-A = \begin{pmatrix} 1 & 2 \\ 3 & 5 \end{pmatrix},\quad
-B = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix},\quad
-C = \begin{pmatrix} 1 & 0 \\ 2 & 1 \end{pmatrix}.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-先验证 \(A, B\) 均可逆：\(|A| = 1 \times 5 - 2 \times 3 = -1\)，\(|B| = 1\)，均可逆。
-
-\[
-A^{-1} = \frac{1}{-1}\begin{pmatrix} 5 & -2 \\ -3 & 1 \end{pmatrix} = \begin{pmatrix} -5 & 2 \\ 3 & -1 \end{pmatrix},
-\quad
-B^{-1} = \begin{pmatrix} 1 & -1 \\ 0 & 1 \end{pmatrix}.
-\]
-
-由 \(AXB = C\)，得 \(X = A^{-1}CB^{-1}\)：
-\[
-\begin{aligned}
-X &= \begin{pmatrix} -5 & 2 \\ 3 & -1 \end{pmatrix}
-\begin{pmatrix} 1 & 0 \\ 2 & 1 \end{pmatrix}
-\begin{pmatrix} 1 & -1 \\ 0 & 1 \end{pmatrix} \\[4pt]
-&= \begin{pmatrix} -5 \times 1 + 2 \times 2 & -5 \times 0 + 2 \times 1 \\ 3 \times 1 + (-1) \times 2 & 3 \times 0 + (-1) \times 1 \end{pmatrix}
-\begin{pmatrix} 1 & -1 \\ 0 & 1 \end{pmatrix} \\[4pt]
-&= \begin{pmatrix} -1 & 2 \\ 1 & -1 \end{pmatrix}
-\begin{pmatrix} 1 & -1 \\ 0 & 1 \end{pmatrix} \\[4pt]
-&= \begin{pmatrix} -1 & 3 \\ 1 & -2 \end{pmatrix}.
-\end{aligned}
-\]
-
-\boxed{\text{注}} 牢记矩阵乘法顺序：\(AXB = C \Rightarrow X = A^{-1}CB^{-1}\)，注意 \(A^{-1}\) 左乘、\(B^{-1}\) 右乘的位置不能交换。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{12.} \textbf{（证明题）} 设 \(A, B\) 分别为 \(m \times n\) 和 \(n \times s\) 矩阵。证明：
-\[
-r\begin{pmatrix} A & 0 \\ 0 & B \end{pmatrix} = r(A) + r(B).
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-设 \(r(A) = r\)，\(r(B) = t\)。存在可逆矩阵 \(P_1, Q_1\) 和 \(P_2, Q_2\) 使得
-\[
-P_1 A Q_1 = \begin{pmatrix} I_r & 0 \\ 0 & 0 \end{pmatrix}_{m \times n},\qquad
-P_2 B Q_2 = \begin{pmatrix} I_t & 0 \\ 0 & 0 \end{pmatrix}_{n \times s}.
-\]
-构造分块可逆矩阵：
-\[
-P = \begin{pmatrix} P_1 & 0 \\ 0 & P_2 \end{pmatrix},\quad
-Q = \begin{pmatrix} Q_1 & 0 \\ 0 & Q_2 \end{pmatrix}.
-\]
-则
-\[
-P \begin{pmatrix} A & 0 \\ 0 & B \end{pmatrix} Q
-= \begin{pmatrix} P_1 A Q_1 & 0 \\ 0 & P_2 B Q_2 \end{pmatrix}
-= \begin{pmatrix} I_r & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 \\ 0 & 0 & I_t & 0 \\ 0 & 0 & 0 & 0 \end{pmatrix}.
-\]
-右边矩阵的非零行显然有 \(r + t\) 行，故其秩为 \(r + t\)。因 \(P, Q\) 可逆（初等变换不改变秩），原分块矩阵的秩亦为 \(r + t = r(A) + r(B)\)。
-
-
-\else \answerarea \fi%
-\subsection{真题风格与综合训练}
-
-\textbf{13.} \textbf{（\boxed{\textbf{真题风格}}，选择题）} 设 \(A, B\) 均为 \(n\) 阶方阵，且 \(AB = 0\)，则下列结论中\textbf{不一定}成立的是（\quad）
-\begin{enumerate}[label=(\Alph*)]
-    \item \(r(A) + r(B) \leq n\)
-    \item \(BA = 0\)
-    \item 若 \(A \neq 0\)，则 \(r(B) \leq n - 1\)
-    \item 若 \(B \neq 0\)，则 \(A\) 不可逆
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} \textbf{答案：B。}
-
-逐项分析：
-\begin{itemize}
-    \item (A)：\(AB = 0 \Rightarrow r(A) + r(B) \leq n\) 是标准结论（矩阵乘法秩不等式）。由 Sylvester 不等式 \(0 = r(AB) \geq r(A) + r(B) - n\) 即得。
-    \item (B)：\(AB = 0\) 不能推出 \(BA = 0\)，矩阵乘法不可交换。例如 \(A = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}\)，\(B = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}\)，则 \(AB = 0\) 但 \(BA = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}\begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix} = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix} \neq 0\)。
-    \item (C)：若 \(A \neq 0\)，则 \(r(A) \geq 1\)，由 \(r(A) + r(B) \leq n\) 得 \(r(B) \leq n - r(A) \leq n - 1\)，一定成立。
-    \item (D)：若 \(B \neq 0\)，则 \(B\) 至少有一个非零列。由 \(AB = 0\) 知 \(B\) 的每一列都是 \(Ax = 0\) 的解。若 \(A\) 可逆，则 \(Ax = 0\) 仅有零解，故 \(B\) 的每列都为零，与 \(B \neq 0\) 矛盾。因此 \(A\) 必定不可逆。一定成立。
-\end{itemize}
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{14.} \textbf{（\boxed{\textbf{真题风格}}，证明题）} 设 \(A\) 为 \(m \times n\) 矩阵，\(B\) 为 \(n \times s\) 矩阵，且 \(AB = 0\)。证明：
-\[
-r(A) + r(B) \leq n.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{证法一（列空间与零空间，主线方法）：}
-\(AB = 0\) 意味着 \(B\) 的每一列都属于 \(\ker A = \{x \mid Ax = 0\}\)。故 \(B\) 的列空间 \(\operatorname{Im} B \subseteq \ker A\)。因此
-\[
-r(B) = \dim \operatorname{Im} B \leq \dim \ker A = n - r(A),
-\]
-即 \(r(A) + r(B) \leq n\)。
-
-\textbf{证法二（Sylvester 不等式，拓展简证）：}
-由 \(r(AB)\geq r(A)+r(B)-n\) 及 \(r(AB)=0\)，立即得到
-\(r(A)+r(B)\leq n\)。
-
-\boxed{\text{注}} 本题是矩阵乘积与秩关系的典型训练。备考时重点掌握证法一：由
-\(\operatorname{Im}B\subseteq\ker A\) 结合齐次方程组基础解系所含向量个数即可完成证明。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{15.} \textbf{（\boxed{\textbf{真题风格}}，计算题）} 设 \(A\) 为 \(n\) 阶方阵，满足 \(A^2 - 3A + 2I = 0\)。
-\begin{enumerate}[label=(\arabic*)]
-    \item 证明 \(A\) 可逆，并求 \(A^{-1}\)（用 \(A\) 表示）；
-    \item 确定 \(A\) 可能的特征值。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{(1)} 由 \(A^2 - 3A + 2I = 0\) 得 \(A^2 - 3A = -2I\)，即
-\[
-A(A - 3I) = -2I.
-\]
-两边除以 \(-2\)：
-\[
-A \cdot \frac{3I - A}{2} = I.
-\]
-故 \(A\) 可逆，且
-\[
-A^{-1} = \frac{3I - A}{2} = \frac{3}{2}I - \frac{1}{2}A.
-\]
-
-\textbf{另法：} 由 \(A^2 - 3A + 2I = 0\) 因式分解得 \((A - I)(A - 2I) = 0\)。但注意矩阵多项式因式分解不一定能直接用于求逆。上面的方法是正确的：从 \(A^2 - 3A = -2I\) 提出 \(A\) 得到 \(A(A - 3I) = -2I\)。
-
-\textbf{(2)} 设 \(\lambda\) 是 \(A\) 的任一特征值，对应特征向量 \(x \neq 0\)。由 \(A^2x = \lambda^2 x\)，\(Ax = \lambda x\)，代入方程：
-\[
-A^2x - 3Ax + 2x = \lambda^2 x - 3\lambda x + 2x = (\lambda^2 - 3\lambda + 2)x = 0.
-\]
-因 \(x \neq 0\)，故 \(\lambda^2 - 3\lambda + 2 = 0\)，即 \((\lambda - 1)(\lambda - 2) = 0\)。因此 \(A\) 的特征值只能是 \(1\) 或 \(2\)。
-
-\boxed{\text{注}} 注意：满足 \(A^2 - 3A + 2I = 0\) 并不意味着 \(A\) 必有特征值 \(1\) \textbf{和} \(2\)，而是特征值\textbf{只能取} \(1\) 或 \(2\)（可能全为 \(1\)、全为 \(2\)、或两者都有）。例如 \(A = I\) 满足条件，特征值全为 \(1\)；\(A = 2I\) 也满足，特征值全为 \(2\)。
-
-\else \answerarea \fi%
+\input{algebra/exercises/chap5.tex}

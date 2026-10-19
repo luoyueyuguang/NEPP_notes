@@ -1,325 +1,384 @@
 \section{树与二叉树}
 
-\subsection{树的定义与基本术语}
+家族谱、文件目录、算术表达式，画出来都是“一层套一层”的结构：一个人有父母，一个目录里有子目录，一个运算符有两个运算对象。它们共同的特征是\textbf{分叉}——一个结点可以带多个后继，而不是像线性表那样只有一个。把这种结构抽象出来，就是树。
 
-\begin{mydef}{树}{tree}
-树（Tree）是 $n\ (n\geqslant 0)$ 个结点的有限集。当 $n=0$ 时称为空树。任意一棵非空树满足：
+\subsection{树的形状与几条计数规律}
+
+先看一个具体的组织图：总经理 A 下面有三位部门经理 B、C、D；B 手下有组长 E、F；C 手下有组长 G；D 手下有组长 H、I。把每个人画成一个结点，把“直接领导”画成一条有向边，就得到下图的形状。它没有环，任意两个结点之间有且只有一条简单路径，这正是树的特征。
+
+\begin{mydef}{树}{tree-def}
+树是 $n\ (n\geqslant 0)$ 个结点的有限集合。$n=0$ 时称为空树；$n>0$ 时满足：
 \begin{enumerate}
-    \item 有且仅有一个特定的称为\textbf{根}（Root）的结点；
-    \item 当 $n>1$ 时，其余结点可分为 $m\ (m>0)$ 个互不相交的有限集 $T_1,T_2,\ldots,T_m$，其中每个集合本身又是一棵树，称为根的\textbf{子树}（Subtree）。
+  \item 有且仅有一个特殊的结点称为\textbf{根}；
+  \item 其余结点可以分成 $m\ (m>0)$ 个互不相交的集合 $T_1,\ldots,T_m$，每个集合本身又是一棵树，称为根的\textbf{子树}。
 \end{enumerate}
-树的定义是\textbf{递归}的：树由根和若干子树构成，子树本身也是树。
-\end{mydef}
-
-\begin{conclusion}{树的基本术语}{tree-terms}
-\begin{itemize}
-    \item \textbf{结点的度}（Degree）：结点拥有的子树个数。树的度为各结点度的最大值。
-    \item \textbf{叶子结点}（Leaf）：度为 $0$ 的结点，也称终端结点。
-    \item \textbf{分支结点}：度大于 $0$ 的结点，也称非终端结点。
-    \item \textbf{孩子/双亲/兄弟}：结点的子树的根称为该结点的\textbf{孩子}（Child）；该结点称为孩子的\textbf{双亲}（Parent）；同一双亲的孩子互为\textbf{兄弟}（Sibling）。
-    \item \textbf{路径与路径长度}：从结点 $v_0$ 到 $v_k$ 的\textbf{路径}是结点序列 $v_0,v_1,\ldots,v_k$，其中 $v_{i-1}$ 是 $v_i$ 的双亲。路径上边的数目称为\textbf{路径长度}。
-    \item \textbf{深度与高度}：结点的\textbf{深度}（Depth）是从根到该结点的路径长度（根深为 $0$ 或 $1$，依约定）；树的\textbf{高度}（Height）是树中结点的最大深度。408 通常约定根深度为 $1$，高度 = 最大层数。
-    \item \textbf{祖先与子孙}：从根到某结点路径上的所有结点（不含自身）为该结点的\textbf{祖先}；以某结点为根的子树中除该结点自身外的所有结点为其\textbf{子孙}。
-    \item \textbf{有序树 vs 无序树}：子树有左右次序之分则为有序树，否则为无序树。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-408 中树的\textbf{深度通常从 1 开始计数}（根的深度/层数为 1），$\text{树高} = \max\{\text{结点深度}\}$。但部分教材（如邓俊辉）从 0 开始，考试务必以题目约定为准。
-\end{attention}
-
-\begin{formula}{树的基本性质}{tree-properties}
-设树 $T$ 有 $n$ 个结点，则：
-\begin{enumerate}
-    \item $T$ 中\textbf{边数} $= n-1$。
-    \item 按本章定义，结点的度是其孩子（子树）数，因此\textbf{各结点度数之和等于边数}：$\sum \deg_{\text{树}}(v)=n-1$。将边定向为父$\to$子时，这也就是 $\sum \operatorname{outdeg}(v)=n-1$。
-    \item 若把树另行视为无向图，则图论中的顶点度统计每条边的两个端点，故 $\sum \deg_{\text{图}}(v)=2(n-1)$。这里的图论度数与上一项的“孩子数”不是同一概念，不能混用。
-    \item 设按孩子数计、度为 $k$ 的结点有 $n_k$ 个，则 $n = \sum n_k$，且 $\sum k \cdot n_k = n-1$。
-\end{enumerate}
-\end{formula}
-
-\subsection{二叉树的定义与性质}
-
-\begin{mydef}{二叉树}{binary-tree}
-二叉树（Binary Tree）是 $n\ (n\geqslant 0)$ 个结点的有限集，每个结点\textbf{至多}有两棵子树（分别称为左子树和右子树），且子树有\textbf{左右之分}，次序不能任意颠倒。
-\end{mydef}
-
-\begin{attention}
-二叉树\textbf{不是}度为 2 的树——度为 2 的树要求至少有一个度为 2 的结点，而二叉树可以全部结点度为 1（如单链状）。二叉树是结点的\textbf{有限集}加上\textbf{左右子树的递归结构}，它区分左右，即使只有一棵子树也要指明是左子树还是右子树。
-\end{attention}
-
-\subsubsection{特殊二叉树}
-
-\begin{mydef}{满二叉树}{full-binary-tree}
-一棵高度为 $h$ 的二叉树，若每一层的结点数都达到最大值（第 $i$ 层有 $2^{i-1}$ 个结点，$1\leqslant i \leqslant h$），且叶子结点只出现在第 $h$ 层，则称为\textbf{满二叉树}（Full Binary Tree）。结点总数 $n = 2^h - 1$。
-\end{mydef}
-
-\begin{mydef}{完全二叉树}{complete-binary-tree}
-一棵高度为 $h$、有 $n$ 个结点的二叉树，当且仅当其每个结点都与高度为 $h$ 的满二叉树中编号 $1\sim n$ 的结点\textbf{一一对应}时，称为\textbf{完全二叉树}（Complete Binary Tree）。
-等价描述：除最后一层外每层都满，且最后一层的结点\textbf{从左到右}连续排列，中间不留空位。
+定义是递归的：树由根和若干棵子树组成，子树仍是树。正因为如此，后面几乎所有操作都写成递归形式。
 \end{mydef}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={draw, circle, minimum size=5mm, inner sep=1pt}]
-  \node[fill=SoftTeal] (A) at (0,0){A};
-  \node[fill=SoftBlue] (B) at (-1.2,-1){B};
-  \node[fill=SoftBlue] (C) at (1.2,-1){C};
-  \node[fill=SoftGray] (D) at (-1.8,-2){D};
-  \node[fill=SoftGray] (E) at (-0.6,-2){E};
-  \node[fill=SoftGray] (F) at (0.6,-2){F};
-  \node[fill=SoftGray] (G) at (1.8,-2){G};
-  \draw[->] (A) -- (B); \draw[->] (A) -- (C);
-  \draw[->] (B) -- (D); \draw[->] (B) -- (E);
-  \draw[->] (C) -- (F); \draw[->] (C) -- (G);
-  \node[font=\scriptsize, Navy, draw=none, rounded corners=0pt, minimum size=0pt, inner sep=0pt] at (0,-2.85){满二叉树：每一层结点数都达到最大（$n=2^3-1=7$）};
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.12, transform shape,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=6.4mm, inner sep=0pt},
+  lf/.style={draw=Teal!40, fill=SoftBlue, circle, minimum size=6.4mm, inner sep=0pt}]
+  \node[nd] (A) at (0,0) {A};
+  \node[nd] (B) at (-2.4,-1.15) {B};
+  \node[nd] (C) at (0,-1.15) {C};
+  \node[nd] (D) at (2.4,-1.15) {D};
+  \node[lf] (E) at (-3.1,-2.3) {E};
+  \node[lf] (F) at (-1.7,-2.3) {F};
+  \node[lf] (G) at (0,-2.3) {G};
+  \node[lf] (H) at (1.7,-2.3) {H};
+  \node[lf] (I) at (3.1,-2.3) {I};
+  \foreach \p/\c in {A/B,A/C,A/D,B/E,B/F,C/G,D/H,D/I}
+    \draw[->, Teal!65] (\p) -- (\c);
+  \foreach \y/\t in {0/第 1 层, -1.15/第 2 层, -2.3/第 3 层}
+    \node[font=\scriptsize, MutedText, anchor=east] at (-3.75,\y) {\t};
+  \foreach \y in {0,-1.15,-2.3}
+    \draw[RuleGray, densely dotted] (-3.7,\y) -- (3.8,\y);
+  \node[font=\scriptsize, MutedText, anchor=west] at (0.4,0.05) {度 3};
+  \node[font=\scriptsize, MutedText, anchor=east] at (-2.78,-1.45) {度 2};
+  \node[font=\scriptsize, MutedText, anchor=west] at (0.4,-1.45) {度 1};
+  \node[font=\scriptsize, MutedText, anchor=west] at (2.78,-1.45) {度 2};
+  \draw[Teal!55, thick] (-3.35,-2.78) -- (-1.45,-2.78);
+  \node[font=\scriptsize, TealDark, anchor=north] at (-2.4,-2.82) {E、F 互为兄弟，双亲都是 B};
+  \node[font=\scriptsize, MutedText, anchor=west] at (3.55,-2.3) {叶子：E、F、G、H、I};
+  \node[font=\scriptsize, Navy, anchor=west] at (-3.7,-3.55)
+    {$n=9$，边 $=8$；度数之和 $=3+2+1+2=8=n-1$};
 \end{tikzpicture}
-\hspace{1.1cm}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={draw, circle, minimum size=5mm, inner sep=1pt}]
-  \node[fill=SoftTeal] (A) at (0,0){A};
-  \node[fill=SoftBlue] (B) at (-1.2,-1){B};
-  \node[fill=SoftBlue] (C) at (1.2,-1){C};
-  \node[fill=SoftGray] (D) at (-1.8,-2){D};
-  \node[fill=SoftGray] (E) at (-0.6,-2){E};
-  \node[fill=SoftGray] (F) at (0.6,-2){F};
-  \draw[->] (A) -- (B); \draw[->] (A) -- (C);
-  \draw[->] (B) -- (D); \draw[->] (B) -- (E);
-  \draw[->] (C) -- (F);
-  \node[font=\scriptsize, Navy, draw=none, rounded corners=0pt, minimum size=0pt, inner sep=0pt] at (0,-2.85){完全二叉树：最后一层从左到右连续（$n=6$）};
+
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：每一层用虚线隔开，层号从 1 开始；结点旁标的是它的度（孩子个数）。根 A 有 3 个孩子，所以度是 3；E、F 没有孩子，度是 0，也就是叶子。}
+\end{center}
+
+有了图，几个术语可以一次说清。结点的\textbf{度}是它的孩子个数，所有结点度的最大值称为\textbf{树的度}。根所在的层号为 1；从根到某结点的边数加 1 就是该结点的\textbf{深度}（层号），树中最大的层号称为\textbf{高度}。从根到某结点经过的边数称为\textbf{路径长度}。同一个双亲的孩子互为\textbf{兄弟}。如果结点的孩子区分左右次序，这棵树称为\textbf{有序树}，否则称为\textbf{无序树}；二叉树可以看成每个结点有两个固定位置（左、右）的有序树：位置为空也算一种状态，所以只有一个孩子时仍要区分左右。
+
+从图中还能数出一个恒等式。除根以外，每个结点恰好有一条边连向它的双亲，所以 $n$ 个结点共有 $n-1$ 条边；换一个方向数，每条边都是某个结点连向它的一个孩子，所以边数又等于所有结点度数之和。设度为 $i$ 的结点有 $n_i$ 个，就有
+\[
+n-1=\sum_{i\geqslant 1} i\,n_i,\qquad n=\sum_{i\geqslant 0} n_i .
+\]
+两式相减，得到只含叶子数的式子
+\[
+n_0=1+\sum_{i\geqslant 2}(i-1)\,n_i .
+\]
+它的用法很直接：题目给出各种非叶结点的个数，叶子数不用画图就能算出来。比如图中有 $n_3=1$、$n_2=2$、$n_1=1$，则 $n_0=1+2\times1+1\times2=5$，与图上的五个叶子一致。
+
+\begin{attention}
+\textbf{“度”在两套语言里含义不同。}树里说结点的度，指它有几个孩子，$\sum \deg(v)=n-1$；把树当无向图看时，图的度还要把连向双亲的那条边算上，于是 $\sum \deg_{\text{图}}(v)=2(n-1)$。408 的选择题常用这一点做干扰项。
+
+另外，深度从 1 还是从 0 开始，各教材约定不同。本章与 408 常用约定一致：根的层号（深度）为 1，树的高度等于最大层号。做题时以题干约定为准。
+\end{attention}
+
+\subsection{二叉树：左右必须分清}
+
+二叉树常被误解成“每个结点最多两个孩子”。真正的限制更强：\textbf{左右子树是有次序的}。一个结点只有一个孩子时，也必须说明它是左孩子还是右孩子。这个区别不是文字游戏——中序遍历的“左、根、右”，二叉排序树的“小在左、大在右”，Huffman 编码的 0 和 1，全都依赖左右之分。
+
+\begin{mydef}{二叉树}{binary-tree-def}
+二叉树是 $n\ (n\geqslant0)$ 个结点的有限集合，它或者为空，或者由一个根结点和两棵互不相交的、分别称为\textbf{左子树}和\textbf{右子树}的二叉树组成。
+\end{mydef}
+
+因此，二叉树不是“度为 2 的树”：度为 2 的树至少含有一个度为 2 的结点，而二叉树可以一个都没有（例如每个结点只有左孩子的单支树）。
+
+\subsubsection{满二叉树与完全二叉树}
+
+满二叉树要求每一层都排满；完全二叉树放宽了最后一层，但要求结点从左到右连续排列，中间不能空。
+
+\begin{mydef}{满二叉树与完全二叉树}{full-complete}
+高度为 $h$ 的二叉树，若第 $i$ 层恰有 $2^{i-1}$ 个结点（$1\leqslant i\leqslant h$），称为\textbf{满二叉树}，结点总数为 $2^h-1$。
+
+若一棵 $n$ 个结点的二叉树，按满二叉树的层序编号后，其结点恰好占据编号 $1\sim n$，称为\textbf{完全二叉树}。等价地说：除最后一层外每层都满，最后一层的结点从左到右连续。
+\end{mydef}
+
+
+
+\subsubsection{二叉树的基本性质}
+
+设二叉树中度为 0、1、2 的结点数分别为 $n_0,n_1,n_2$。
+
+\begin{formula}{二叉树的计数性质}{binary-count}
+\begin{enumerate}
+  \item 第 $i$ 层至多有 $2^{i-1}$ 个结点（$i\geqslant1$）；高度为 $h$ 的二叉树至多有 $2^h-1$ 个结点。
+  \item $n_0=n_2+1$。
+  \item $n$ 个结点的二叉树，高度至少为 $\lceil\log_2(n+1)\rceil$，至多为 $n$。
+\end{enumerate}
+\end{formula}
+
+第一条按层数归纳即可：根是 $2^0$，每个结点至多带两个孩子，下一层至多翻倍。
+
+第二条是 408 出现频率最高的公式，证明只用数边：结点总数 $n=n_0+n_1+n_2$；除根外每个结点有一条入边，故边数为 $n-1$；另一方面，度为 1 的结点贡献 1 条出边，度为 2 的贡献 2 条，所以
+\[
+n-1=n_1+2n_2 .
+\]
+两式联立消去 $n_1$：
+\[
+n_0+n_1+n_2-1=n_1+2n_2\;\Longrightarrow\;n_0=n_2+1 .
+\]
+这个等式与树的形状无关，只要求每个结点至多两个孩子。做题时若给出 $n_0$ 和 $n_2$ 中的一个，另一个立刻确定；若给出总结点数，还要用 $n_1$ 的取值补足。
+
+对完全二叉树，$n_1$ 只能取 0 或 1（最后一层不会出现“有右孩子却没有左孩子”的结点）。由 $n=2n_0+n_1-1$ 可得
+\[
+n_0=\left\lceil\frac n2\right\rceil,\qquad
+n_1=\begin{cases}1,&n\text{ 为偶数},\\0,&n\text{ 为奇数}.\end{cases}
+\]
+高度则满足
+\[
+h=\lceil\log_2(n+1)\rceil=\lfloor\log_2 n\rfloor+1 .
+\]
+例如 $n=1000$ 时，$n_1=1$，$n_0=500$，$h=\lceil\log_2 1001\rceil=10$。
+
+完全二叉树的编号与数组下标一一对应，下图把编号规则画了出来。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=8.6mm, inner sep=0pt, align=center},
+  lf/.style={draw=Teal!40, fill=SoftBlue, circle, minimum size=8.6mm, inner sep=0pt, align=center}]
+  \node[nd] (A) at (0,0) {A{\tiny\,1}};
+  \node[nd] (B) at (-2.4,-1.25) {B{\tiny\,2}};
+  \node[nd] (C) at (2.4,-1.25) {C{\tiny\,3}};
+  \node[nd] (D) at (-3.5,-2.5) {D{\tiny\,4}};
+  \node[nd] (E) at (-1.3,-2.5) {E{\tiny\,5}};
+  \node[lf] (F) at (1.3,-2.5) {F{\tiny\,6}};
+  \node[lf] (G) at (3.5,-2.5) {G{\tiny\,7}};
+  \node[lf] (H) at (-4.1,-3.75) {H{\tiny\,8}};
+  \node[lf] (I) at (-2.9,-3.75) {I{\tiny\,9}};
+  \node[lf] (J) at (-1.7,-3.75) {J{\tiny\,10}};
+  \foreach \p/\c in {A/B,A/C,B/D,B/E,C/F,C/G,D/H,D/I,E/J}
+    \draw[->, Teal!65] (\p) -- (\c);
+  \draw[RuleGray, dashed] (-4.8,-4.15) -- (4.2,-4.15);
+  \node[font=\scriptsize, MutedText, anchor=north] at (0,-4.4) {第 4 层：8、9、10 从左到右连续};
+  \node[font=\scriptsize, MutedText, anchor=west, align=left] at (4.25,-1.55)
+    {左孩子 $2i$\\[2pt] 右孩子 $2i+1$\\[2pt] 双亲 $\lfloor i/2\rfloor$};
+  \node[font=\scriptsize, Navy, anchor=west, align=left] at (4.25,-2.95)
+    {$n=10$，叶子编号 $6\sim10$\\[2pt] 共 $5=\lceil n/2\rceil$ 个};
 \end{tikzpicture}
 \end{center}
 
-\begin{conclusion}{完全二叉树的性质}{complete-tree-properties}
-对于 $n$ 个结点的完全二叉树（层序编号 $1\sim n$）：
-\begin{enumerate}
-    \item 编号为 $i$ 的结点，其左孩子编号为 $2i$（若 $2i\leqslant n$，否则无左孩子）；
-    \item 右孩子编号为 $2i+1$（若 $2i+1\leqslant n$，否则无右孩子）；
-    \item 双亲编号为 $\lfloor i/2 \rfloor$（$i>1$）；
-    \item 叶子结点只可能在最后两层出现；
-    \item 若结点 $i$ 为叶子，则编号 $\geqslant i$ 的结点均为叶子；若结点 $i$ 只有左孩子，则编号 $>i$ 的结点均为叶子。
-\end{enumerate}
-\end{conclusion}
+图怎么看：结点内的小字是层序编号。这张图把完全二叉树的编号规则画全了：$n=10$ 时，前五个结点是分支结点，编号 $6\sim10$ 是叶子；编号为 $i$ 的结点，孩子编号直接是 $2i$ 和 $2i+1$，双亲编号是 $\lfloor i/2\rfloor$。因此完全二叉树可以不用指针，直接存进数组。
 
-\subsubsection{二叉树的核心性质}
+\subsection{二叉树的两种存储布局}
 
-\begin{formula}{二叉树核心性质}{binary-tree-core-props}
-设二叉树中度为 0、1、2 的结点数分别为 $n_0,n_1,n_2$，总结点数 $n = n_0+n_1+n_2$。
-\begin{enumerate}
-    \item \textbf{（408 高频）} $n_0 = n_2 + 1$。\\
-    证明：由 $n = n_0+n_1+n_2$，且边数 $= n-1 = n_1 + 2n_2$（每个度为 $k$ 的结点贡献 $k$ 条边指向孩子）。联立得 $n_0 = n_2+1$。
-    \item 第 $i$ 层上最多有 $2^{i-1}$ 个结点（$i\geqslant 1$）。
-    \item 高度为 $h$ 的二叉树最多有 $2^h-1$ 个结点。
-    \item 具有 $n$ 个结点的二叉树，高度至少为 $\lceil\log_2(n+1)\rceil$（或 $\lfloor\log_2 n\rfloor+1$）。
-    \item \textbf{（408 高频）} 具有 $n$ 个结点的完全二叉树的高度为 $\lceil\log_2(n+1)\rceil$ 或 $\lfloor\log_2 n\rfloor + 1$。
-\end{enumerate}
-\end{formula}
+\subsubsection{顺序存储}
 
-\subsection{二叉树的存储结构}
+完全二叉树的编号已经给出了下标，直接把结点按编号放进一维数组即可：\texttt{T[i]} 存编号为 $i$ 的结点，\texttt{T[0]} 闲置。下标关系就是上一节的三条公式。
 
-\subsubsection{顺序存储结构}
-
-\begin{formula}{二叉树的顺序存储}{seq-binary-tree}
-将完全二叉树的结点按层序编号 $1\sim n$，用数组 \texttt{T[1..n]} 存储：\texttt{T[i]} 存编号为 $i$ 的结点。
-\begin{lstlisting}[language=C]
-#define MaxSize 100
-typedef int ElemType;
-typedef ElemType SqBiTree[MaxSize];  // T[0] 可闲置或存结点数
-\end{lstlisting}
-对于\textbf{非完全二叉树}，需要按完全二叉树的编号规则留出空位（存放特殊标记如 \texttt{0} 或 \texttt{'\#'}），会造成空间浪费。最坏情况（单链状，深度为 $k$）需要 $2^k-1$ 个存储位置，仅用 $k$ 个。
+非完全二叉树也能这样存，但必须按完全二叉树的编号留空。下图对比了两种情况：十个结点的完全树恰好占十个单元；而四个结点的右单支树，编号依次是 1、3、7、15，要占十五个单元，其中十一个是空位。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={draw, circle, minimum size=5mm, inner sep=1pt}]
-  \node[fill=SoftTeal] (A) at (0,0){A};
-  \node[fill=SoftBlue] (B) at (-1.2,-1){B};
-  \node[fill=SoftBlue] (C) at (1.2,-1){C};
-  \node[fill=SoftGray] (E) at (0,-2){E};
-  \draw[->] (A) -- (B); \draw[->] (A) -- (C);
-  \draw[->] (B) -- (E);
-\end{tikzpicture}
-\hspace{1.1cm}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \foreach \i in {1,2,3,4,5,6,7}{
-    \draw[thick] (\i*0.75,0) rectangle (\i*0.75+0.7,0.7);
-    \node[font=\scriptsize, black!55] at (\i*0.75+0.35,-0.25){$\i$};
+  \def\w{0.52}
+  % 完全树
+  \foreach \i/\v in {1/A,2/B,3/C,4/D,5/E,6/F,7/G,8/H,9/I,10/J} {
+    \node[draw=RuleGray, fill=SoftBlue, minimum width=\w cm, minimum height=0.5cm, inner sep=0pt]
+      at ({\i*\w}, 1.5) {\v};
+    \node[font=\tiny, MutedText] at ({\i*\w}, 1.08) {\i};
   }
-  \node[font=\scriptsize, TealDark] at (1.1,0.35){A};
-  \node[font=\scriptsize, TealDark] at (1.85,0.35){B};
-  \node[font=\scriptsize, TealDark] at (2.6,0.35){C};
-  \node[font=\scriptsize, MutedText] at (3.35,0.35){$\#$};
-  \node[font=\scriptsize, TealDark] at (4.1,0.35){E};
-  \node[font=\scriptsize, MutedText] at (4.85,0.35){$\#$};
-  \node[font=\scriptsize, MutedText] at (5.6,0.35){$\#$};
-  \node[font=\scriptsize, black!70] at (3.3,1.15){数组 $T[1..7]$：空出的位置用 $\#$ 标记};
+  \node[font=\tiny, Navy, anchor=east] at (-0.15,1.5) {完全树};
+  \node[font=\tiny, MutedText, anchor=west] at ({11*\w},1.5) {无空位};
+  % 单支树
+  \foreach \i/\v in {1/A,2/\#,3/B,4/\#,5/\#,6/\#,7/C,8/\#,9/\#,10/\#,11/\#,12/\#,13/\#,14/\#,15/D} {
+    \ifnum\i=1 \def\fc{SoftAmber}\else\ifnum\i=3 \def\fc{SoftAmber}\else\ifnum\i=7 \def\fc{SoftAmber}\else\ifnum\i=15 \def\fc{SoftAmber}\else\def\fc{SoftGray}\fi\fi\fi\fi
+    \node[draw=RuleGray, fill=\fc, minimum width=\w cm, minimum height=0.5cm, inner sep=0pt]
+      at ({\i*\w}, -0.7) {\v};
+    \node[font=\tiny, MutedText] at ({\i*\w}, -1.12) {\i};
+  }
+  \node[font=\tiny, Navy, anchor=east] at (-0.15,-0.7) {单支树};
+  \node[font=\scriptsize, MutedText, anchor=west] at (0.0,-1.75) {编号 $1,3,7,15$：深度每加一层，下标翻倍再加一};
 \end{tikzpicture}
+
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：每个格子下方的数字是数组下标，格子里是结点编号对应的数据。完全树的下标连续；右单支树的数据只落在 $1,3,7,15$ 四个位置，其余格子必须留空。}
 \end{center}
-\end{formula}
 
-\subsubsection{二叉链表存储}
+最坏情况就是右单支树：深度为 $k$ 时最后一个结点的编号是 $2^k-1$，而实际只有 $k$ 个结点，空间从 $O(n)$ 退化到 $O(2^n)$。所以顺序存储只适合完全二叉树，或者结点位置固定的场合（如堆）。
 
-\begin{formula}{二叉链表}{binary-linked-storage}
-每个结点含数据域和左右指针域：
+\subsubsection{二叉链表}
+
+一般二叉树更常用链式存储。每个结点存数据域和两个指针域：
+
 \begin{lstlisting}[language=C]
 typedef struct BiTNode {
     ElemType data;
     struct BiTNode *lchild, *rchild;
 } BiTNode, *BiTree;
 \end{lstlisting}
-$n$ 个结点的二叉链表共有 $2n$ 个指针域，其中 $n-1$ 个指向孩子（每条边对应一个指针），剩余 $n+1$ 个为空指针域。线索二叉树正是利用这些空指针域。
 
-三叉链表：在上述结点中增加 \texttt{parent} 指针域，便于查找双亲。
-\end{formula}
+$n$ 个结点一共有 $2n$ 个指针域，其中 $n-1$ 个用来指向孩子（每条边对应一个指针），剩下的
+\[
+2n-(n-1)=n+1
+\]
+个是空指针。这个数字很关键：下一节的线索二叉树，就是把这 $n+1$ 个空指针利用起来。
 
-\begin{figure}[htbp]
-\centering
-\begin{tikzpicture}[>=stealth, node distance=2.0cm, auto,
-    every node/.style={draw, circle, minimum size=6mm, inner sep=1pt}]
-\node (A) {A};
-\node (B) [below left of=A] {B};
-\node (C) [below right of=A] {C};
-\node (D) [below left of=B] {D};
-\node (E) [below right of=B] {E};
-\node (F) [below left of=C] {F};
-\draw[->] (A) -- (B);
-\draw[->] (A) -- (C);
-\draw[->] (B) -- (D);
-\draw[->] (B) -- (E);
-\draw[->] (C) -- (F);
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=6.6mm, inner sep=0pt}]
+  % 结点结构
+  \node[draw=RuleGray, fill=SoftGray, minimum width=1.35cm, minimum height=0.48cm, inner sep=0pt] (s1) at (4.6,1.15) {\tiny\texttt{lchild}};
+  \node[draw=RuleGray, fill=SoftAmber, minimum width=1.05cm, minimum height=0.48cm, inner sep=0pt] (s2) at (5.8,1.15) {\tiny\texttt{data}};
+  \node[draw=RuleGray, fill=SoftGray, minimum width=1.35cm, minimum height=0.48cm, inner sep=0pt] (s3) at (7.0,1.15) {\tiny\texttt{rchild}};
+  \node[font=\scriptsize, MutedText, anchor=north] at (5.8,0.83) {一个结点的三个域};
+  % 树
+  \node[nd] (A) at (0,0) {A};
+  \node[nd] (B) at (-2.0,-1.2) {B};
+  \node[nd] (C) at (2.0,-1.2) {C};
+  \node[nd] (D) at (-3.0,-2.4) {D};
+  \node[nd] (E) at (-1.0,-2.4) {E};
+  \draw[->, Teal!70] (A) -- node[fill=white, inner sep=0.5pt, font=\scriptsize]{L} (B);
+  \draw[->, Teal!70] (A) -- node[fill=white, inner sep=0.5pt, font=\scriptsize]{R} (C);
+  \draw[->, Teal!70] (B) -- node[fill=white, inner sep=0.5pt, font=\scriptsize]{L} (D);
+  \draw[->, Teal!70] (B) -- node[fill=white, inner sep=0.5pt, font=\scriptsize]{R} (E);
+  % 空指针
+  \foreach \p/\x/\y in {C/1.35/-2.2, C/2.65/-2.2, D/-3.45/-3.0, D/-2.55/-3.0, E/-1.45/-3.0, E/-0.55/-3.0} {
+    \node[font=\scriptsize, MutedText] at (\x,\y) {$\varnothing$};
+  }
+  \draw[->, dashed, MutedText] (C) -- (1.35,-2.2);
+  \draw[->, dashed, MutedText] (C) -- (2.65,-2.2);
+  \draw[->, dashed, MutedText] (D) -- (-3.45,-3.0);
+  \draw[->, dashed, MutedText] (D) -- (-2.55,-3.0);
+  \draw[->, dashed, MutedText] (E) -- (-1.45,-3.0);
+  \draw[->, dashed, MutedText] (E) -- (-0.55,-3.0);
+  \node[font=\tiny, Navy, anchor=west, align=left] at (3.9,-2.55)
+    {$n=5$：$2n=10$ 个指针域\\[2pt] 实线 4 条，空指针 6 条\\[2pt] $6=n+1$};
 \end{tikzpicture}
-\caption{二叉树的二叉链表表示：每个结点通过 lchild/rchild 指针连接左右孩子}
-\end{figure}
 
-\subsection{二叉树的遍历}
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：实线是真正指向孩子的指针，旁边标 L/R 表示左或右；虚线指向 $\varnothing$，表示该指针域为空。五个结点共有十个指针域，四条实线之外还剩六个空域。}
+\end{center}
 
-遍历（Traversal）是按某种次序访问二叉树中的每个结点，且每个结点仅访问一次。遍历是二叉树一切操作的基础。
+如果还需要频繁找双亲，可以在结点里再加一个 \texttt{parent} 指针，称为三叉链表。代价是每个结点多一个指针域。
 
-\subsubsection{递归遍历}
+\subsection{遍历：三种深度优先与一种广度优先}
 
-\begin{formula}{先序、中序、后序遍历的递归算法}{recursive-traversal}
-三种深度优先遍历的核心区别在于\textbf{访问根结点的时机}：
+遍历是把每个结点访问一次，且只访问一次。“访问”具体做什么不影响次序：可以打印、累加、求高度。三种深度优先遍历的差别只有一句话：\textbf{访问根结点的时机}。
 
+\begin{formula}{先序、中序、后序}{three-orders}
+以根为参照：
+\begin{itemize}
+  \item \textbf{先序}（根左右）：先访问根，再先序遍历左子树，最后先序遍历右子树；
+  \item \textbf{中序}（左根右）：先中序遍历左子树，再访问根，最后中序遍历右子树；
+  \item \textbf{后序}（左右根）：先后序遍历左子树，再后序遍历右子树，最后访问根。
+\end{itemize}
+把“访问根”这一行在递归代码中挪动位置，就得到三种算法：
 \begin{lstlisting}[language=C]
-// 先序遍历：根 $\to$ 左 $\to$ 右
 void PreOrder(BiTree T) {
     if (T) {
-        visit(T);              // （1） 访问根
-        PreOrder(T->lchild);   // （2） 遍历左子树
-        PreOrder(T->rchild);   // （3） 遍历右子树
+        visit(T);              // 根
+        PreOrder(T->lchild);   // 左
+        PreOrder(T->rchild);   // 右
     }
 }
-
-// 中序遍历：左 $\to$ 根 $\to$ 右
 void InOrder(BiTree T) {
     if (T) {
-        InOrder(T->lchild);    // （1） 遍历左子树
-        visit(T);              // （2） 访问根
-        InOrder(T->rchild);    // （3） 遍历右子树
+        InOrder(T->lchild);    // 左
+        visit(T);              // 根
+        InOrder(T->rchild);    // 右
     }
 }
-
-// 后序遍历：左 $\to$ 右 $\to$ 根
 void PostOrder(BiTree T) {
     if (T) {
-        PostOrder(T->lchild);  // （1） 遍历左子树
-        PostOrder(T->rchild);  // （2） 遍历右子树
-        visit(T);              // （3） 访问根
+        PostOrder(T->lchild);  // 左
+        PostOrder(T->rchild);  // 右
+        visit(T);              // 根
     }
 }
 \end{lstlisting}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, every node/.style={draw, circle, minimum size=5mm, inner sep=1pt}]
-  \node[fill=SoftTeal] (A) at (0,0){A};
-  \node[fill=SoftBlue] (B) at (-1.2,-1){B};
-  \node[fill=SoftBlue] (C) at (1.2,-1){C};
-  \draw[->] (A) -- (B); \draw[->] (A) -- (C);
-  \node[font=\scriptsize, black!70, draw=none, rounded corners=0pt, minimum size=0pt, inner sep=0pt] at (0,-1.95){先序（根左右）：A B C\quad 中序（左根右）：B A C\quad 后序（左右根）：B C A};
-\end{tikzpicture}
-\end{center}
 \end{formula}
 
-\begin{conclusion}{递归遍历的时间/空间复杂度}{traversal-complexity}
-每个结点访问一次且仅一次：时间复杂度 $O(n)$。
-递归调用栈的最大深度 = 树的高度，空间复杂度为 $O(h)$。退化为单链时 $h=n$，故最坏为 $O(n)$；仅在树高为 $O(\log n)$（如平衡树）时，栈空间才是 $O(\log n)$。
-\end{conclusion}
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=9.6mm, inner sep=0pt, align=center}]
+  \node[nd] (A) at (0,0) {A\\[-2pt]{\tiny 1/4/7}};
+  \node[nd] (B) at (-1.8,-1.2) {B\\[-2pt]{\tiny 2/2/3}};
+  \node[nd] (C) at (1.8,-1.2) {C\\[-2pt]{\tiny 5/7/6}};
+  \node[nd] (D) at (-2.6,-2.4) {D\\[-2pt]{\tiny 3/1/1}};
+  \node[nd] (E) at (-1.0,-2.4) {E\\[-2pt]{\tiny 4/3/2}};
+  \node[nd] (F) at (1.8,-2.4) {F\\[-2pt]{\tiny 6/6/5}};
+  \node[nd] (G) at (1.1,-3.6) {G\\[-2pt]{\tiny 7/5/4}};
+  \foreach \p/\c in {A/B,A/C,B/D,B/E,C/F,F/G}
+    \draw[->, Teal!65] (\p) -- (\c);
+  \node[font=\scriptsize, Navy, anchor=west] at (-3.1,0.78) {结点内：先序 / 中序 / 后序序号};
+  \node[font=\scriptsize, anchor=west] at (-2.95,-4.35) {先序：A\ B\ D\ E\ C\ F\ G};
+  \node[font=\scriptsize, anchor=west] at (-2.95,-4.75) {中序：D\ B\ E\ A\ G\ F\ C};
+  \node[font=\scriptsize, anchor=west] at (-2.95,-5.15) {后序：D\ E\ B\ G\ F\ C\ A};
+\end{tikzpicture}
+\end{center}
 
-\subsubsection{非递归遍历}
+图怎么看：每个结点有三个序号，分别对应它在三种序列中的位置。以 A 为例：先序第一个访问它，中序在左子树 D、B、E 之后访问它，后序要等整棵树都访问完才轮到它，所以是 $1/4/7$。按第一分量从小到大读出结点就是先序，按第二、第三分量同理，得到下面的三行序列。
 
-\begin{conclusion}{中序非递归遍历}{inorder-nonrecursive}
-用栈模拟递归调用栈，是 408 综合应用题的高频考点：
+\subsubsection{非递归遍历与栈}
+
+递归能工作，是因为系统栈替我们记住了“还没有做完的结点”。自己用栈模拟，就能把过程展开。以中序为例，反复做两件事：沿着左孩子一路压栈，直到空；然后弹栈访问，转向右子树。
+
 \begin{lstlisting}[language=C]
 void InOrderNR(BiTree T) {
     Stack S; InitStack(&S);
     BiTree p = T;
     while (p || !StackEmpty(S)) {
         if (p) {
-            Push(&S, p);          // 沿左链走到底
+            Push(&S, p);         // 沿左链走到底，边走边压
             p = p->lchild;
         } else {
-            Pop(&S, &p);          // 退栈，访问
+            Pop(&S, &p);         // 左边走不动了，弹出栈顶
             visit(p);
-            p = p->rchild;        // 转向右子树
+            p = p->rchild;       // 转向右子树
         }
     }
 }
 \end{lstlisting}
-\textbf{核心思路：}「沿左支深入，遇空则退栈访问，再转向右子树」。这也是 408 代码题最常考察的非递归模式。
-\end{conclusion}
 
-\begin{conclusion}{先序非递归遍历}{preorder-nonrecursive}
-与中序类似，但\textbf{入栈前}即访问：
-\begin{lstlisting}[language=C]
-void PreOrderNR(BiTree T) {
-    Stack S; InitStack(&S);
-    BiTree p = T;
-    while (p || !StackEmpty(S)) {
-        if (p) {
-            visit(p);             // 先序：入栈前访问
-            Push(&S, p);
-            p = p->lchild;
-        } else {
-            Pop(&S, &p);
-            p = p->rchild;
-        }
-    }
-}
-\end{lstlisting}
-\end{conclusion}
+先序只是把 \texttt{visit(p)} 挪到压栈之前；后序麻烦一些，因为弹出栈顶时可能只是“左子树刚做完”，右子树还没访问。解决办法是记一个 \texttt{lastVisited}：只有右孩子为空或已经访问过，才真正弹出并访问。
 
-\begin{conclusion}{后序非递归遍历}{postorder-nonrecursive}
-后序非递归较复杂：需要区分「从左子树返回」和「从右子树返回」两种退栈情形。
 \begin{lstlisting}[language=C]
 void PostOrderNR(BiTree T) {
     Stack S; InitStack(&S);
-    BiTree p = T, lastVisited = NULL;
+    BiTree p = T, last = NULL;
     while (p || !StackEmpty(S)) {
         if (p) {
             Push(&S, p);
-            p = p->lchild;           // 沿左支深入
+            p = p->lchild;
         } else {
-            GetTop(S, &p);           // 查看栈顶，不弹栈
-            if (p->rchild && p->rchild != lastVisited)
-                p = p->rchild;       // 右子树未访问，转向
+            GetTop(S, &p);
+            if (p->rchild && p->rchild != last)
+                p = p->rchild;        // 右子树还没做，先去右边
             else {
-                Pop(&S, &p);         // 左右皆访问，弹出
+                Pop(&S, &p);
                 visit(p);
-                lastVisited = p;
-                p = NULL;            // 强制下次取栈顶
+                last = p;             // 记录刚访问的结点
+                p = NULL;
             }
         }
     }
 }
 \end{lstlisting}
-\textbf{记忆技巧：} 入栈条件同先序；退栈时必须确保右子树已访问（用 \texttt{lastVisited} 标记），否则暂不弹出。
-\end{conclusion}
 
-\subsubsection{层次遍历}
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 五个栈状态
+  \foreach \x/\st/\out/\title in {%
+    0/{A\quad B\quad D}/{---}/{p 沿左链压栈},%
+    3.05/{A\quad B}/{D}/{弹出 D，访问},%
+    6.10/{A}/{D\quad B}/{弹出 B，访问},%
+    9.15/{$\varnothing$}/{D\quad B\quad A}/{弹出 A，访问后 p=C},%
+    12.20/{$\varnothing$}/{D\quad B\quad A\quad C}/{压入 C 后立即弹出}} {
+    \node[font=\tiny, Navy, anchor=west] at (\x,1.05) {\title};
+    \node[draw=RuleGray, fill=SoftGray, minimum width=2.5cm, minimum height=0.5cm,
+          anchor=west, inner sep=3pt] at (\x,0.5) {\st};
+    \node[font=\tiny, MutedText, anchor=west] at (\x,-0.1) {输出：\out};
+  }
+  \node[font=\tiny, MutedText, anchor=west] at (0,-0.42) {方框内从左到右：栈底 $\to$ 栈顶};
+\end{tikzpicture}
 
-\begin{conclusion}{层次遍历}{level-order}
-借助队列，逐层从左向右访问：
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：从左到右是时间顺序，方框里是当前的栈，右边是已经输出的序列。前四步走完左链并连续弹出，第五步才转到 A 的右子树 C。}
+\end{center}
+
+\subsubsection{层次遍历与队列}
+
+层次遍历按“从上到下、同层从左到右”访问。它不用栈，而用队列：根先入队；每次出队一个结点并访问，然后把它的左、右孩子依次入队。
+
 \begin{lstlisting}[language=C]
 void LevelOrder(BiTree T) {
     Queue Q; InitQueue(&Q);
     if (T) EnQueue(&Q, T);
     while (!QueueEmpty(Q)) {
+        BiTree p;
         DeQueue(&Q, &p);
         visit(p);
         if (p->lchild) EnQueue(&Q, p->lchild);
@@ -327,339 +386,671 @@ void LevelOrder(BiTree T) {
     }
 }
 \end{lstlisting}
-时间复杂度 $O(n)$，空间复杂度 $O(w)$，$w$ 为树的最大宽度（最坏 $O(n)$）。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=9.2mm, inner sep=0pt, align=center}]
+  \node[nd] (A) at (0,0) {A{\tiny\,1}};
+  \node[nd] (B) at (-1.6,-1.15) {B{\tiny\,2}};
+  \node[nd] (C) at (1.6,-1.15) {C{\tiny\,3}};
+  \node[nd] (D) at (-2.4,-2.3) {D{\tiny\,4}};
+  \node[nd] (E) at (-0.8,-2.3) {E{\tiny\,5}};
+  \node[nd] (F) at (0.8,-2.3) {F{\tiny\,6}};
+  \node[nd] (G) at (2.4,-2.3) {G{\tiny\,7}};
+  \foreach \p/\c in {A/B,A/C,B/D,B/E,C/F,C/G}
+    \draw[->, Teal!65] (\p) -- (\c);
+  % 队列
+  \node[font=\tiny, MutedText, anchor=east] at (-2.7,-3.5) {队头};
+  \foreach \i/\v in {0/C,1/D,2/E} {
+    \node[draw=RuleGray, fill=SoftAmber, minimum width=0.65cm, minimum height=0.45cm, inner sep=0pt]
+      at (-2.1+0.65*\i,-3.5) {\v};
+  }
+  \node[font=\tiny, MutedText, anchor=west] at (-0.05,-3.5) {队尾};
+  \node[font=\tiny, MutedText, anchor=west] at (0.45,-3.5) {（刚访问完 B）};
+  \node[font=\tiny, Navy, anchor=east] at (-3.0,-2.6) {编号 = 层序次序};
+\end{tikzpicture}
+\end{center}
+
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：结点内的数字是层序访问的次序；下方队列画的是刚访问完 B、准备访问 C 的瞬间，队头是 C，后面依次是 D、E。}
+
+三个深度优先遍历的时间复杂度都是 $O(n)$：每个结点进一次、出一次。空间取决于栈的深度，即树高 $h$，最坏 $O(n)$（单支树），最好 $O(\log n)$（平衡树）。层次遍历的空间是队列的最大长度，也就是树的最大宽度 $w$，最坏同样是 $O(n)$。
+
+\subsection{由遍历序列还原二叉树}
+
+\begin{conclusion}{哪些序列组合能唯一确定二叉树}{reconstruct-theorem}
+在结点关键字互异、序列合法的前提下：
+\begin{itemize}
+  \item 先序 + 中序：唯一确定；
+  \item 后序 + 中序：唯一确定；
+  \item 层次 + 中序：唯一确定；
+  \item 先序 + 后序：\textbf{不能}唯一确定。
+\end{itemize}
 \end{conclusion}
 
-\subsection{遍历序列构造二叉树}
+先序 + 中序的做法只有一句话：先序的第一个是根，拿这个根去中序里切出左右两段，再按段长回到先序切分，递归处理。
 
-\begin{conclusion}{由遍历序列构造二叉树}{construct-from-traversal}
-\textbf{核心定理（408 高频）：} 在\textbf{结点关键字互异且遍历序列合法}的前提下，已知\textbf{中序序列 + 先序序列} 或 \textbf{中序序列 + 后序序列}，可唯一确定一棵二叉树。\textbf{已知先序 + 后序无法唯一确定二叉树}（除非另有能够消除歧义的结构条件）。
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \def\w{0.62}
+  % 整棵树
+  \foreach \i/\v in {0/A,1/B,2/D,3/E,4/C,5/F,6/G} {
+    \ifnum\i=0 \def\fc{SoftAmber}\else\ifnum\i<4 \def\fc{SoftBlue}\else\def\fc{SoftTeal}\fi\fi
+    \node[draw=RuleGray, fill=\fc, minimum width=0.56cm, minimum height=0.48cm, inner sep=0pt]
+      (p\i) at (0.4+0.62*\i,0) {\v};
+  }
+  \foreach \i/\v in {0/D,1/B,2/E,3/A,4/G,5/F,6/C} {
+    \ifnum\i=3 \def\fc{SoftAmber}\else\ifnum\i<3 \def\fc{SoftBlue}\else\def\fc{SoftTeal}\fi\fi
+    \node[draw=RuleGray, fill=\fc, minimum width=0.56cm, minimum height=0.48cm, inner sep=0pt]
+      (q\i) at (0.4+0.62*\i,-0.95) {\v};
+  }
+  \node[font=\scriptsize, Navy, anchor=east] at (0.0,0) {先序};
+  \node[font=\scriptsize, Navy, anchor=east] at (0.0,-0.95) {中序};
+  \draw[->, dashed, Burgundy] (0.4+0.62*3,0.40) -- (0.4+0.62*3,0.27);
+  \node[font=\scriptsize, Burgundy, anchor=south] at (0.4+0.62*3,0.42) {根 A 落在中序第 4 位};
+  \node[font=\scriptsize, MutedText] at (1.2,-1.45) {左子树 3 个};
+  \node[font=\scriptsize, MutedText] at (4.3,-1.45) {右子树 3 个};
+  % 左子问题
+  \node[font=\scriptsize, TealDark, anchor=east] at (0.0,-2.45) {先序};
+  \node[font=\scriptsize, TealDark, anchor=east] at (0.0,-3.15) {中序};
+  \foreach \i/\v in {0/B,1/D,2/E} {
+    \ifnum\i=0 \def\fc{SoftAmber}\else\def\fc{SoftBlue}\fi
+    \node[draw=RuleGray, fill=\fc, minimum width=0.56cm, minimum height=0.44cm, inner sep=0pt]
+      at (0.4+0.62*\i,-2.45) {\v};
+  }
+  \foreach \i/\v in {0/D,1/B,2/E} {
+    \ifnum\i=1 \def\fc{SoftAmber}\else\def\fc{SoftBlue}\fi
+    \node[draw=RuleGray, fill=\fc, minimum width=0.56cm, minimum height=0.44cm, inner sep=0pt]
+      at (0.4+0.62*\i,-3.15) {\v};
+  }
+  \node[font=\scriptsize, MutedText, anchor=west] at (2.4,-2.8) {根 B，左 D，右 E};
+  % 右子问题
+  \node[font=\scriptsize, TealDark, anchor=east] at (5.7,-2.45) {先序};
+  \node[font=\scriptsize, TealDark, anchor=east] at (5.7,-3.15) {中序};
+  \foreach \i/\v in {0/C,1/F,2/G} {
+    \ifnum\i=0 \def\fc{SoftAmber}\else\def\fc{SoftTeal}\fi
+    \node[draw=RuleGray, fill=\fc, minimum width=0.56cm, minimum height=0.44cm, inner sep=0pt]
+      at (6.1+0.62*\i,-2.45) {\v};
+  }
+  \foreach \i/\v in {0/G,1/F,2/C} {
+    \ifnum\i=2 \def\fc{SoftAmber}\else\def\fc{SoftTeal}\fi
+    \node[draw=RuleGray, fill=\fc, minimum width=0.56cm, minimum height=0.44cm, inner sep=0pt]
+      at (6.1+0.62*\i,-3.15) {\v};
+  }
+  \node[font=\scriptsize, MutedText, anchor=west] at (8.1,-2.8) {根 C，左 G，右 F};
+\end{tikzpicture}
 
-\textbf{构造方法}（已知先序 + 中序）：
-\begin{enumerate}
-    \item 先序的第一个结点为根；
-    \item 在中序中找到根的位置，根左侧为左子树中序，根右侧为右子树中序；
-    \item 根据左/右子树的结点数目，在先序中切分出左/右子树的先序；
-    \item 对左右子树递归执行上述步骤。
-\end{enumerate}
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：上面两行是整棵树的先序与中序，橙色格是根；蓝色段和青色段分别是根的左、右子树。把两段分别取出来，就得到下面两个规模更小的子问题，橙色格是子树的根。}
+\end{center}
+
+写成代码，先序区间 \texttt{[pl,pr]}、中序区间 \texttt{[il,ir]}，左子树长度由根在中序中的位置决定：
 
 \begin{lstlisting}[language=C]
-// pre[pl..pr] 为先序区间, in[il..ir] 为中序区间
 BiTree Build(char pre[], char in[], int pl, int pr, int il, int ir) {
     if (pl > pr) return NULL;
     BiTree root = (BiTree)malloc(sizeof(BiTNode));
-    root->data = pre[pl];                    // 根 = 先序首元
-    int k;                                   // 根在中序中的位置
-    for (k = il; k <= ir; k++)
-        if (in[k] == pre[pl]) break;
-    if (k > ir) {                         // 序列不合法或关键字不一致
-        free(root);
-        return NULL;
-    }
-    int leftLen = k - il;                    // 左子树结点数
+    root->data = pre[pl];
+    int k = il;
+    while (k <= ir && in[k] != pre[pl]) k++;
+    if (k > ir) { free(root); return NULL; }   // 序列不匹配
+    int leftLen = k - il;
     root->lchild = Build(pre, in, pl+1, pl+leftLen, il, k-1);
     root->rchild = Build(pre, in, pl+leftLen+1, pr, k+1, ir);
     return root;
 }
 \end{lstlisting}
 
-后序 + 中序的构造完全对称：后序的最后结点为根，其余逻辑相同。
-\end{conclusion}
+后序 + 中序完全对称：后序的最后一个元素是根，其余步骤相同。
 
-\begin{attention}
-408 选择题高频考察「给定两个遍历序列，判断能否唯一确定二叉树」以及「由序列还原二叉树的中间步骤」。务必掌握手动构造的流程：\textbf{找根$\to$切分中序$\to$切分先序/后序$\to$递归}。
-\end{attention}
+先序 + 后序为什么不够？下图给了最小反例：两棵树都只有两个结点，先序都是 AB，后序都是 BA，但一棵 B 在左，一棵 B 在右。先序告诉我们“A 是根、B 是孩子”，后序告诉我们“B 先于 A 被访问”，两者都无法确定 B 挂在哪一边。
 
-\subsection{线索二叉树}
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=8mm, inner sep=0pt}]
+  \node[nd] (A1) at (0,0) {A};
+  \node[nd] (B1) at (-1.0,-1.3) {B};
+  \draw[->, Teal!65] (A1) -- (B1);
+  \node[nd] (A2) at (4.2,0) {A};
+  \node[nd] (B2) at (5.2,-1.3) {B};
+  \draw[->, Teal!65] (A2) -- (B2);
+  \node[font=\scriptsize, MutedText, anchor=north] at (0,-2.0) {先序 AB，后序 BA};
+  \node[font=\scriptsize, MutedText, anchor=north] at (4.7,-2.0) {先序 AB，后序 BA};
+  \node[font=\scriptsize, Navy, anchor=north] at (2.4,-2.75) {同样的两个序列，对应两种不同树形};
+\end{tikzpicture}
+\end{center}
 
-\begin{mydef}{线索二叉树}{threaded-binary-tree}
-普通二叉链表中有 $n+1$ 个空指针域。线索二叉树将这些空指针域利用起来：
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：两棵树都只有 A、B 两个结点，先序都是先 A 后 B，后序都是先 B 后 A；差别只在 B 是左孩子还是右孩子，而这两个序列都没有记录这个信息。}
+
+\subsection{线索二叉树：把空指针用起来}
+
+二叉链表有 $n+1$ 个空指针。遍历时我们常常需要“下一个是谁”“上一个是谁”，而递归或栈都在额外花空间。线索二叉树的做法是：把空着的左指针改为指向该遍历次序下的\textbf{前驱}，空着的右指针改为指向\textbf{后继}。指针现在有两种身份，必须加标记区分。
+
+\begin{mydef}{线索二叉树}{thread-tree}
+结点增加两个标志位 \texttt{ltag}、\texttt{rtag}：
 \begin{itemize}
-    \item 若结点无左孩子，则 \texttt{lchild} 指向\textbf{前驱}（某种遍历次序下的直接前驱）；
-    \item 若结点无右孩子，则 \texttt{rchild} 指向\textbf{后继}（某种遍历次序下的直接后继）。
+  \item \texttt{ltag=0}：\texttt{lchild} 指向左孩子；\texttt{ltag=1}：\texttt{lchild} 指向前驱线索。
+  \item \texttt{rtag=0}：\texttt{rchild} 指向右孩子；\texttt{rtag=1}：\texttt{rchild} 指向后继线索。
 \end{itemize}
-需要两个标志位 \texttt{ltag}、\texttt{rtag} 区分指针是指向孩子（0）还是线索（1）。
+按某种遍历次序建立的线索，分别称为先序、中序、后序线索二叉树。
 \end{mydef}
 
-\begin{formula}{线索二叉树的结点结构}{threaded-node}
 \begin{lstlisting}[language=C]
 typedef struct ThreadNode {
     ElemType data;
     struct ThreadNode *lchild, *rchild;
-    int ltag, rtag;          // 0: 孩子指针; 1: 线索指针
+    int ltag, rtag;          // 0: 孩子; 1: 线索
 } ThreadNode, *ThreadTree;
 \end{lstlisting}
-\end{formula}
 
-\subsubsection{中序线索化}
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=6.8mm, inner sep=0pt}]
+  \node[nd] (A) at (0,0) {A};
+  \node[nd] (B) at (-1.9,-1.2) {B};
+  \node[nd] (C) at (1.9,-1.2) {C};
+  \node[nd] (D) at (-2.7,-2.4) {D};
+  \node[nd] (E) at (-1.1,-2.4) {E};
+  \node[nd] (F) at (2.7,-2.4) {F};
+  \draw[->, Teal!70] (A) -- (B);
+  \draw[->, Teal!70] (A) -- (C);
+  \draw[->, Teal!70] (B) -- (D);
+  \draw[->, Teal!70] (B) -- (E);
+  \draw[->, Teal!70] (C) -- (F);
+  % 线索
+  \draw[->, dashed, Burgundy!75, line width=0.7pt, bend left=45] (D) to (B);
+  \draw[->, dashed, Burgundy!75, line width=0.7pt, bend left=38] (E) to (A);
+  \draw[->, dashed, Burgundy!75, line width=0.7pt, bend right=28] (C) to (A);
+  \draw[->, dashed, Burgundy!75, line width=0.7pt] (D) to (-3.35,-3.05);
+  \draw[->, dashed, Burgundy!75, line width=0.7pt] (F) to (3.35,-3.05);
+  \node[font=\scriptsize, MutedText] at (-3.45,-3.2) {$\varnothing$};
+  \node[font=\scriptsize, MutedText] at (3.45,-3.2) {$\varnothing$};
+  \node[font=\scriptsize, Navy, anchor=north] at (0,-3.85)
+    {实线：孩子指针；虚线：线索（中序前驱/后继）};
+  \node[font=\scriptsize, MutedText, anchor=north] at (0,-4.3)
+    {中序序列：D\ B\ E\ A\ C\ F；空指针 $n+1=7$ 个，全部改为线索};
+\end{tikzpicture}
+\end{center}
 
-\begin{conclusion}{中序线索化的算法}{inorder-threading}
-在递归中序遍历的过程中，用一个\textbf{全局变量} \texttt{pre} 记录刚刚访问过的结点，以便建立线索：
+图怎么看：实线仍是孩子指针，虚线是中序线索。E 指向 B、F 指向 C 的线索都与孩子边重合，没有重复画出。最值得注意的是 E 的右指针：E 没有右孩子，空出来的域直接指向 A，而 A 并不在 E 的子树里。这就是线索的价值——它把遍历的“下一步”存进了空域，遍历时不必再借助栈。
+
+中序线索化的过程就是中序遍历，只是把“访问”换成“修改空指针”。需要用一个 \texttt{pre} 记住刚刚访问的结点，才能把前驱的后继线索接上：
+
 \begin{lstlisting}[language=C]
-ThreadNode *pre = NULL;  // 全局变量，记录前一个访问结点
+ThreadNode *pre = NULL;            // 全局变量，指向刚访问的结点
 
 void InThread(ThreadTree T) {
     if (T) {
-        InThread(T->lchild);            // （1） 线索化左子树
-        if (!T->lchild) {               // （2） 处理当前结点
+        InThread(T->lchild);
+        if (T->lchild == NULL) {   // 左空，指向前驱
             T->lchild = pre;
             T->ltag = 1;
         }
-        if (pre && !pre->rchild) {      // （3） 处理前驱的右线索
+        if (pre != NULL && pre->rchild == NULL) {  // 前驱的右空，指向后继
             pre->rchild = T;
             pre->rtag = 1;
         }
-        pre = T;                        // （4） 更新 pre
-        InThread(T->rchild);            // （5） 线索化右子树
+        pre = T;
+        InThread(T->rchild);
     }
 }
 \end{lstlisting}
-通过增设头结点，可以将中序线索二叉树组织成循环链表以方便遍历。
-\end{conclusion}
 
-\subsubsection{线索二叉树的前驱与后继}
-
-\begin{conclusion}{中序线索二叉树：找前驱与后继}{threaded-pred-succ}
-这是 408 选择题/简答题的常考点。
-
-\textbf{找后继 $\text{succ}(p)$：}
+找前驱、后继分两种情况。以中序为例，结点 $p$ 的后继：
 \begin{itemize}
-    \item 若 \texttt{p->rtag == 1}，则 \texttt{p->rchild} 即为后继（线索直接给出）；
-    \item 若 \texttt{p->rtag == 0}（有右孩子），后继为\textbf{右子树中第一个被访问的结点}（中序：右子树的最左下结点）。
+  \item 若 \texttt{rtag=1}，右指针本身就是后继；
+  \item 若 \texttt{rtag=0}，说明有右子树，中序下下一个访问的是右子树的\textbf{最左下}结点。
 \end{itemize}
+前驱完全对称：\texttt{ltag=1} 时左指针就是前驱；否则是左子树的\textbf{最右下}结点。
 
 \begin{lstlisting}[language=C]
-ThreadNode *InOrderSucc(ThreadNode *p) {
-    if (p->rtag == 1) return p->rchild;         // 直接由线索给出
-    ThreadNode *q = p->rchild;                   // 进入右子树
-    while (q->ltag == 0) q = q->lchild;          // 找到最左下结点
+ThreadNode *InSucc(ThreadNode *p) {
+    if (p->rtag == 1) return p->rchild;
+    ThreadNode *q = p->rchild;
+    while (q->ltag == 0) q = q->lchild;   // 右子树最左下
     return q;
 }
-\end{lstlisting}
-
-\textbf{找前驱 $\text{pred}(p)$：}
-\begin{itemize}
-    \item 若 \texttt{p->ltag == 1}，则 \texttt{p->lchild} 即为前驱；
-    \item 若 \texttt{p->ltag == 0}（有左孩子），前驱为\textbf{左子树中最后一个被访问的结点}（中序：左子树的最右下结点）。
-\end{itemize}
-
-\begin{lstlisting}[language=C]
-ThreadNode *InOrderPred(ThreadNode *p) {
+ThreadNode *InPred(ThreadNode *p) {
     if (p->ltag == 1) return p->lchild;
     ThreadNode *q = p->lchild;
-    while (q->rtag == 0) q = q->rchild;
+    while (q->rtag == 0) q = q->rchild;   // 左子树最右下
     return q;
 }
 \end{lstlisting}
-\end{conclusion}
 
 \begin{attention}
-\textbf{408 常考陷阱：}
-\begin{enumerate}
-    \item 中序线索树中找前驱/后继的规律不适用于先序/后序线索树——分别有不同的查找规则。
-    \item 先序线索树中找后继：有左孩子则后继为左孩子，否则为右孩子（或线索）；找前驱需要知道双亲，一般需三叉链表。
-    \item 后序线索树中找前驱：有右孩子则前驱为右孩子，否则为左孩子（或线索）；找后继需要知道双亲。
-\end{enumerate}
+线索只对建立它的那种次序有效。三种次序下“就地找前驱/后继”的难易正好相反：
+\begin{itemize}
+  \item 中序：前驱、后继都能就地找到，不需要双亲或栈；当线索指针不可用时，要沿子树走到最左下或最右下，最坏 $O(h)$；
+  \item 先序：后继容易（有左孩子就是左孩子，否则是右孩子或线索），\textbf{前驱}可能在祖先方向，通常要借助双亲指针；
+  \item 后序：前驱容易，\textbf{后继}可能在祖先方向，通常要借助双亲指针。
+\end{itemize}
+另外，判断 \texttt{lchild} 到底指孩子还是线索，必须看 \texttt{ltag}，不能看它是否为空。
 \end{attention}
 
-\subsection{树与森林的存储与遍历}
+\subsection{树、森林与二叉树的互相表示}
 
-\subsubsection{树的存储结构}
+一般树每个结点可以有任意多个孩子，直接用“左孩子、右孩子”两个指针存不下。常见办法有三种。
 
-\begin{conclusion}{树的双亲表示法}{parent-representation}
-用数组存储结点，每个结点附带\textbf{双亲编号}。根的双亲为 $-1$：
-\begin{lstlisting}[language=C]
-typedef struct {
-    ElemType data;
-    int parent;                // 双亲下标，-1 表示根
-} PTNode;
-typedef struct {
-    PTNode nodes[MaxSize];
-    int n;                     // 结点数
-} PTree;
-\end{lstlisting}
-优点：求双亲 $O(1)$。缺点：求孩子需遍历整个数组 $O(n)$。
-\end{conclusion}
+\textbf{双亲表示法}用数组存每个结点和它的双亲下标，求双亲 $O(1)$，求孩子要扫描整个数组。\textbf{孩子表示法}把每个结点的孩子串成链表。408 最常用的是\textbf{孩子兄弟表示法}：每个结点两个指针，\texttt{firstchild} 指向第一个孩子，\texttt{nextsibling} 指向下一个兄弟。
 
-\begin{conclusion}{孩子兄弟表示法（二叉树表示法）}{child-sibling-representation}
-\textbf{408 最重要的树的存储方式：} 每个结点有两个指针：\texttt{firstchild}（指向第一个孩子）和 \texttt{nextsibling}（指向下一个兄弟）。
 \begin{lstlisting}[language=C]
 typedef struct CSNode {
     ElemType data;
     struct CSNode *firstchild, *nextsibling;
 } CSNode, *CSTree;
 \end{lstlisting}
-这种表示法使得任何一棵树都可以唯一地转换为一棵二叉树——\textbf{左孩子右兄弟}。
-\end{conclusion}
 
-\subsubsection{树/森林与二叉树的转换}
+这两个指针恰好就是二叉树的左、右指针，于是任何树都能唯一地转成二叉树，规则叫“\textbf{左孩子右兄弟}”：
 
-\begin{conclusion}{树$\to$二叉树的转换规则}{tree-to-binary}
-给定一棵树：
 \begin{enumerate}
-    \item 每个结点只保留其\textbf{第一个孩子}的连线，删除与其他孩子的连线；
-    \item 同一层的兄弟结点之间用新的连线连接（从左向右）；
-    \item 以根为轴，将原本向下的孩子关系转为\textbf{向左下方}倾斜。
+  \item 每个结点只保留与第一个孩子的连线，作为左孩子；
+  \item 结点原来的兄弟，依次连成右孩子链；
+  \item 原先向下的边因此变成向左下或向右下的边。
 \end{enumerate}
-\textbf{口诀：} 左孩子、右兄弟。转换后的二叉树右子树一定为空（因根无兄弟）。
-\end{conclusion}
-
-\begin{conclusion}{森林$\to$二叉树的转换规则}{forest-to-binary}
-\begin{enumerate}
-    \item 先将森林中的每棵树各自转换为二叉树；
-    \item 将第一棵树的根作为总根，后续树的根依次作为前一棵树的根的\textbf{右孩子}。
-\end{enumerate}
-森林转换成的二叉树，根有右子树（因为下一棵树的根成为其右孩子）。
-\end{conclusion}
-
-\subsubsection{树与森林的遍历}
-
-\begin{conclusion}{树的遍历}{tree-traversal}
-\begin{itemize}
-    \item \textbf{先根遍历：} 先访问根，再依次先根遍历各子树。\textbf{结果与对应二叉树的先序遍历相同。}
-    \item \textbf{后根遍历：} 先依次后根遍历各子树，再访问根。\textbf{结果与对应二叉树的中序遍历相同。}
-    \item \textbf{层次遍历：} 从上到下、从左到右依次访问。
-\end{itemize}
-注意：树\textbf{没有中根遍历}——因为树的中序无统一定义。
-\end{conclusion}
-
-\begin{conclusion}{森林的遍历}{forest-traversal}
-设森林 $F = \{T_1, T_2, \ldots, T_m\}$：
-\begin{itemize}
-    \item \textbf{先序遍历：} 先访问 $T_1$ 的根，再先序遍历 $T_1$ 的子树森林，最后先序遍历 $\{T_2,\ldots,T_m\}$。\textbf{结果与对应二叉树的先序遍历相同。}
-    \item \textbf{中序遍历（后序遍历）：} 先中序遍历 $T_1$ 的子树森林，访问 $T_1$ 的根，再中序遍历 $\{T_2,\ldots,T_m\}$。\textbf{结果与对应二叉树的中序遍历相同。}
-\end{itemize}
-\textbf{结论：} 森林的先序 = 对应二叉树的先序；森林的中序 = 对应二叉树的中序。
-\end{conclusion}
-
-\subsection{Huffman 树与 Huffman 编码}
-
-\begin{mydef}{Huffman 树}{huffman-tree}
-给定 $n$ 个权值 $\{w_1,w_2,\ldots,w_n\}$ 作为 $n$ 个叶子结点的权值，构造一棵二叉树。若该树的\textbf{带权路径长度}（WPL）达到最小，则称为\textbf{最优二叉树}，即 Huffman 树。
-
-带权路径长度定义为：
-\[
-\text{WPL} = \sum_{i=1}^{n} w_i \cdot l_i
-\]
-其中 $l_i$ 是第 $i$ 个叶子结点到根的路径长度（边的条数，或深度 $-1$）。
-\end{mydef}
-
-\begin{conclusion}{Huffman 树的构造算法}{huffman-construction}
-\begin{enumerate}
-    \item 将 $n$ 个权值视为 $n$ 棵仅含根结点的二叉树，构成森林 $F$；
-    \item 从 $F$ 中选取\textbf{两棵根权值最小的树}作为左右子树，构造一棵新树，新树根的权值为两子树根权值之和；
-    \item 将新树加入 $F$，删除原来的两棵树；
-    \item 重复步骤 2—3，直到 $F$ 中只剩一棵树——即为 Huffman 树。
-\end{enumerate}
-可以使用\textbf{最小堆}（优先队列）高效实现：每次取出两个最小值，合并后压回。时间复杂度 $O(n\log n)$。
-\end{conclusion}
-
-\begin{formula}{Huffman 树的性质}{huffman-properties}
-\begin{enumerate}
-    \item Huffman 树中\textbf{没有度为 1 的结点}（$n_1=0$）。由 $n_0=n_2+1$ 得总结点数 $=2n_0-1$。
-    \item 权值越大的叶子离根越近，权值越小的叶子离根越远。这是 WPL 最小化的直观体现。
-    \item 给定权值集合，Huffman 树\textbf{不唯一}（左右子树可交换，等权结点次序可任意）。但 \textbf{WPL 值唯一}。
-    \item Huffman 树不一定是完全二叉树。
-\end{enumerate}
-\end{formula}
-
-\subsubsection{Huffman 编码}
-
-\begin{conclusion}{Huffman 编码的构造}{huffman-encoding}
-以字符出现频率为权值构造 Huffman 树，然后对每条边标记：
-\begin{itemize}
-    \item 从根到左孩子的边标记为 $0$；
-    \item 从根到右孩子的边标记为 $1$。
-\end{itemize}
-从根到每个叶子结点的路径上的 $0/1$ 序列即为该字符的 Huffman 编码。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=1.4cm and 1.8cm, auto,
-    every node/.style={draw, circle, minimum size=7mm, inner sep=1pt}]
-\node (R) {$\sum$}
-    child { node (L) { }
-        child { node (A) {A} edge from parent node[left, draw=none, inner sep=1pt] {0} }
-        child { node (B) {B} edge from parent node[right, draw=none, inner sep=1pt] {1} }
-        edge from parent node[left, draw=none, inner sep=1pt] {0}
-    }
-    child { node (C) {C} edge from parent node[right, draw=none, inner sep=1pt] {1} };
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=6.4mm, inner sep=0pt}]
+  % 原树
+  \node[nd] (A) at (0,0) {A};
+  \node[nd] (B) at (-2.2,-1.1) {B};
+  \node[nd] (C) at (0,-1.1) {C};
+  \node[nd] (D) at (2.2,-1.1) {D};
+  \node[nd] (E) at (-2.8,-2.2) {E};
+  \node[nd] (F) at (-1.6,-2.2) {F};
+  \draw[->, Teal!70] (A) -- (B);
+  \draw[->, Teal!70] (A) -- (C);
+  \draw[->, Teal!70] (A) -- (D);
+  \draw[->, Teal!70] (B) -- (E);
+  \draw[->, Teal!70] (B) -- (F);
+  \node[font=\tiny, MutedText, anchor=north] at (0,-2.85) {一般树};
+  % 二叉树
+  \node[nd] (A2) at (4.8,0) {A};
+  \node[nd] (B2) at (3.7,-1.2) {B};
+  \node[nd] (C2) at (4.9,-2.4) {C};
+  \node[nd] (D2) at (6.1,-3.6) {D};
+  \node[nd] (E2) at (2.8,-2.4) {E};
+  \node[nd] (F2) at (3.5,-3.6) {F};
+  \draw[->, Teal!70] (A2) -- (B2);
+  \draw[->, Teal!70] (B2) -- (C2);
+  \draw[->, Teal!70] (C2) -- (D2);
+  \draw[->, Teal!70] (B2) -- (E2);
+  \draw[->, Teal!70] (E2) -- (F2);
+  \node[font=\tiny, MutedText, anchor=north] at (4.9,-4.2) {转换后的二叉树：左孩子右兄弟};
+  \draw[->, dashed, MutedText] (2.95,-0.55) -- (3.95,-0.55);
+  \node[font=\scriptsize, MutedText, anchor=south] at (3.45,-0.55) {转换};
 \end{tikzpicture}
 \end{center}
 
-\textbf{Huffman 编码的性质：}
-\begin{enumerate}
-    \item \textbf{前缀编码}（Prefix Code）：任意字符的编码都不是另一字符编码的前缀。这保证了即时解码（无需预知码长）。
-    \item 由性质 1，Huffman 树中\textbf{所有字符结点都是叶子结点}，内部结点不对应任何字符。
-    \item 对于同一组频率，Huffman 编码\textbf{不唯一}（由树的不唯一性导致），但总编码长度（= WPL）唯一。
-\end{enumerate}
-\end{conclusion}
+图怎么看：A 没有兄弟，所以它的右子树为空；B 的兄弟 C、D 被串成 B 的右链；E 的兄弟 F 变成 E 的右孩子。森林转换只是多一步：第一棵树的根作总根，后面每棵树的根依次作为前一个根的右孩子。因此森林对应的二叉树，根一定有右子树（只要森林里不止一棵树）。
 
-\begin{attention}
-\textbf{408 高频计算题：}
-\begin{enumerate}
-    \item 给定一组权值，要求\textbf{构造 Huffman 树}并画出结构图；
-    \item 计算\textbf{WPL 值}（含中间步骤）；
-    \item 给出 Huffman 编码方案，计算\textbf{压缩率或平均码长}；
-    \item 判断某组编码是否为合法前缀编码。
-\end{enumerate}
-\textbf{快速计算 WPL 技巧：} 不需要等树画完再逐叶算——构造过程中\textbf{每次合并两个最小权值，将它们的和累加}，最终累加值即为 WPL。这是因为每个内部结点的权值等于其子树权值之和，所有内部结点权值之和 = WPL。
-\end{attention}
-
-\subsection{并查集}
-
-\begin{mydef}{并查集}{union-find}
-并查集（Disjoint Set / Union-Find）是一种管理\textbf{不相交集合}的数据结构，支持两种操作：
+遍历的对应关系常考，而且很好记：
 \begin{itemize}
-    \item \textbf{Find(x)}：查找元素 $x$ 所属集合的代表元（根）；
-    \item \textbf{Union(x, y)}：合并 $x$ 和 $y$ 所在的集合。
+  \item 树的\textbf{先根遍历} = 对应二叉树的\textbf{先序}；
+  \item 树的\textbf{后根遍历} = 对应二叉树的\textbf{中序}；
+  \item 森林的\textbf{先序} = 对应二叉树的先序；森林的\textbf{中序} = 对应二叉树的中序。
 \end{itemize}
-底层使用\textbf{树（森林）的双亲表示法}：每个集合对应一棵树，根结点为集合代表元。可用数组 \texttt{parent[i]} 存储双亲下标，根结点的 \texttt{parent} 为 $-1$。
+树没有“中根遍历”，因为一个结点有多个孩子，“中间”没有定义。
+
+\subsection{Huffman 树：让总码长最短}
+
+设四个字符出现的次数是 $2,4,5,7$，总共 18 个字符。若用等长编码，每个字符 2 位，共需 $18\times2=36$ 位。能不能更短？把出现多的字符编短一些、出现少的编长一些，总长度就会下降。Huffman 树给出的是一种最优的变长前缀编码，本例可以做到 35 位。
+
+衡量一棵带权二叉树好坏的量是\textbf{带权路径长度}：
+\[
+\mathrm{WPL}=\sum_{i=1}^{n} w_i\,l_i ,
+\]
+其中 $w_i$ 是第 $i$ 个叶子的权值，$l_i$ 是它到根的边数（也就是深度减一）。WPL 越小，平均码长越短。
+
+\begin{mydef}{Huffman 树}{huffman-def}
+给定 $n$ 个权值 $w_1,\ldots,w_n$ 作为 $n$ 个叶子的权，若某棵二叉树的 WPL 达到最小，称它为\textbf{最优二叉树}或 \textbf{Huffman 树}。
 \end{mydef}
 
-\begin{formula}{并查集的基本实现}{union-find-impl}
-\begin{lstlisting}[language=C]
-#define MaxSize 100
-int parent[MaxSize];
-
-void Init(int n) {                      // 初始每个元素自成一个集合
-    for (int i = 0; i < n; i++)
-        parent[i] = -1;
-}
-
-int Find(int x) {                       // 查找根
-    while (parent[x] >= 0)
-        x = parent[x];
-    return x;
-}
-
-void Union(int x, int y) {              // 合并
-    int rx = Find(x), ry = Find(y);
-    if (rx != ry) parent[rx] = ry;      // 将 rx 的根指向 ry
-}
-\end{lstlisting}
-\end{formula}
-
-\begin{conclusion}{并查集的优化}{union-find-optimizations}
-朴素实现中树可能退化为链，导致 \texttt{Find} 为 $O(n)$。两种经典优化：
+构造方法是贪心的，每一步都合并当前最小的两个：
 \begin{enumerate}
-    \item \textbf{按秩合并（Union by Rank）：} 总是将秩较小的树合并到秩较大的树上；秩通常是树高的上界，而不是集合元素个数。
-    \item \textbf{按大小合并（Union by Size）：} 总是将元素较少的集合挂到元素较多的集合下。可用根结点 \texttt{parent} 的负值绝对值记录集合大小；下方代码采用的正是这种方式。
-    \item \textbf{路径压缩（Path Compression）：} 在 \texttt{Find} 过程中，将查找路径上的所有结点直接指向根。与按秩或按大小合并结合使用时，摊还复杂度为 $O(\alpha(n))$，其中 $\alpha$ 为增长极慢的反 Ackermann 函数。
+  \item 把 $n$ 个权值各自看成一棵单结点树，组成森林；
+  \item 取出根权值最小的两棵树，作为左右子树合并，新根的权值为两者之和；
+  \item 把新树放回森林，重复，直到只剩一棵树。
+\end{enumerate}
+用最小堆实现，每次取两个最小值、压回一个和，复杂度 $O(n\log n)$。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.05, transform shape,
+  leaf/.style={draw=Teal!55, fill=SoftBlue, circle, minimum size=7.2mm, inner sep=0pt},
+  inode/.style={draw=Amber!70, fill=SoftAmber, circle, minimum size=7.2mm, inner sep=0pt}]
+  \node[inode] (r) at (0,0) {18};
+  \node[leaf] (w7) at (-1.9,-1.2) {7};
+  \node[inode] (n11) at (1.9,-1.2) {11};
+  \node[leaf] (w5) at (0.9,-2.4) {5};
+  \node[inode] (n6) at (2.9,-2.4) {6};
+  \node[leaf] (w2) at (2.4,-3.6) {2};
+  \node[leaf] (w4) at (3.4,-3.6) {4};
+  \draw[->, Teal!70] (r) -- node[fill=white, inner sep=0.5pt, font=\scriptsize]{0} (w7);
+  \draw[->, Teal!70] (r) -- node[fill=white, inner sep=0.5pt, font=\scriptsize]{1} (n11);
+  \draw[->, Teal!70] (n11) -- node[fill=white, inner sep=0.5pt, font=\scriptsize]{0} (w5);
+  \draw[->, Teal!70] (n11) -- node[fill=white, inner sep=0.5pt, font=\scriptsize]{1} (n6);
+  \draw[->, Teal!70] (n6) -- node[fill=white, inner sep=0.5pt, font=\scriptsize]{0} (w2);
+  \draw[->, Teal!70] (n6) -- node[fill=white, inner sep=0.5pt, font=\scriptsize]{1} (w4);
+  \node[font=\scriptsize, Amber!85!black, anchor=south west] at (n6.north east) {(1) $2+4$};
+  \node[font=\scriptsize, Amber!85!black, anchor=south west] at (n11.north east) {(2) $5+6$};
+  \node[font=\scriptsize, Amber!85!black, anchor=south west] at (r.north east) {(3) $7+11$};
+  \node[font=\scriptsize, MutedText, anchor=west] at (4.9,-0.2) {叶子：权值};
+  \node[font=\scriptsize, MutedText, anchor=west] at (4.9,-0.7) {内部结点：合并后的和};
+  \node[font=\scriptsize, Navy, anchor=west, align=left] at (4.9,-2.1)
+    {编码：7$\to$0，5$\to$10\\[2pt] 2$\to$110，4$\to$111};
+  \node[font=\scriptsize, Navy, anchor=west] at (-2.6,-4.25)
+    {$\mathrm{WPL}=7\times1+5\times2+2\times3+4\times3=35$};
+\end{tikzpicture}
+
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：圆圈里的数是权值，内部结点是合并出来的和，边上的 0/1 是编码。括号中的编号是合并的先后：先合并 2 和 4，再合并 5 与 6，最后合并 7 与 11。WPL 也可以直接由三次合并的和相加得到：$6+11+18=35$。}
+\end{center}
+
+Huffman 树有几条常用性质，都可以从构造过程直接看出来：
+\begin{enumerate}
+  \item 没有度为 1 的结点。每次合并都是“左、右各一棵”，不会产生单孩子结点。于是 $n_1=0$，由 $n_0=n_2+1$ 得总结点数 $n=2n_0-1$。
+  \item 权值大的叶子不会比权值小的叶子更深。否则交换这两个叶子的权值，树形不变而 WPL 下降，与最优性矛盾。
+  \item 树不唯一：左右子树可以交换，等权权值的合并次序也可以不同。但 \textbf{WPL 唯一}。
+  \item WPL 等于所有内部结点权值之和。每个叶子权值在它到根的每条边上被计一次，累加起来正好等于所有祖先内部结点的权值和。
 \end{enumerate}
 
+把 Huffman 树的左分支记 0、右分支记 1，从根到叶子的 0/1 串就是该字符的编码。由于字符只放在叶子上，任何一个编码都不会是另一个编码的前缀——这就是\textbf{前缀编码}，解码时不必预先知道码长，从根出发逐位下行，到叶子就输出一个字符，再回到根继续。
+
+\begin{attention}
+Huffman 编码是“前缀码中最优”的，不是“所有编码中最优的”。如果允许编码之间互为前缀，虽然平均长度可能更短，但无法唯一解码，实际不能用。
+
+计算题里常见的口径要写清楚：平均码长 $=\mathrm{WPL}/\sum w_i$；等长编码位数 $=\lceil\log_2 n\rceil$；压缩率按“节省的位数 / 原位数”计算。此外，给定一组编码判断是否为前缀码，只需检查有没有一个码是另一个码的前缀。
+\end{attention}
+
+\subsection{二叉排序树}
+
+二叉排序树（BST）把“左小右大”写进结构里，借它可以在 $O(h)$ 时间内完成查找、插入、删除。$h$ 是树高，理想情况 $O(\log n)$，退化成单支树时 $O(n)$。
+
+\begin{mydef}{二叉排序树}{bst-def}
+一棵二叉树是二叉排序树，当且仅当：对任意结点，其左子树（若存在）中所有关键字都小于该结点的关键字，其右子树中所有关键字都大于该结点的关键字，且左右子树本身也是二叉排序树。
+\end{mydef}
+
+注意定义要求的是“整棵左子树都小”，不是“左孩子小”。因此判断一棵树是否为 BST，不能只比较父子，正确做法是中序遍历，检查序列是否严格递增；或者递归时把每个结点限制在一个开区间 $(lo,hi)$ 内。
+
+查找的过程就是不断缩小可行区间：比当前结点小就往左，区间上界改为当前关键字；大就往右，下界改为当前关键字。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=6.6mm, inner sep=0pt}]
+  \node[nd] (n50) at (0,0) {50};
+  \node[nd] (n30) at (-3.0,-1.2) {30};
+  \node[nd] (n70) at (3.0,-1.2) {70};
+  \node[nd] (n20) at (-4.0,-2.4) {20};
+  \node[nd] (n40) at (-2.0,-2.4) {40};
+  \node[nd] (n60) at (2.0,-2.4) {60};
+  \node[nd] (n80) at (4.0,-2.4) {80};
+  \node[nd] (n35) at (-2.8,-3.6) {35};
+  \node[nd, fill=SoftAmber, draw=Amber!70] (n45) at (-1.2,-3.6) {45};
+  \node[nd] (n65) at (1.2,-3.6) {65};
+  \foreach \p/\c in {n50/n30,n50/n70,n30/n20,n30/n40,n70/n60,n70/n80,n40/n35,n40/n45,n60/n65}
+    \draw[->, Teal!55] (\p) -- (\c);
+  \draw[->, Burgundy, line width=1.1pt] (n50) -- (n30);
+  \draw[->, Burgundy, line width=1.1pt] (n30) -- (n40);
+  \draw[->, Burgundy, line width=1.1pt] (n40) -- (n45);
+  \node[font=\scriptsize, MutedText, anchor=west, align=left] at (4.55,-1.5)
+    {可行区间依次为\\[2pt] $(-\infty,50)$\\[2pt] $(30,50)$\\[2pt] $(30,40)$\\[2pt] $(40,50)$};
+  \node[font=\scriptsize, Navy, anchor=west] at (4.55,-3.3) {中序：20 30 35 40 45 50 60 65 70 80};
+\end{tikzpicture}
+
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：粗箭头是查找 45 走过的路径，每走一步都把可能的关键字限制在一个更窄的开区间里。最终 45 落在 $(40,50)$ 内。}
+\end{center}
+
 \begin{lstlisting}[language=C]
-// 路径压缩的 Find
-int Find(int x) {
-    if (parent[x] < 0) return x;
-    return parent[x] = Find(parent[x]);   // 递归压缩
+BiTree BSTSearch(BiTree T, KeyType key) {
+    while (T != NULL && T->data != key)
+        T = (key < T->data) ? T->lchild : T->rchild;
+    return T;                        // 找不到时返回 NULL
 }
 
-// 按大小合并：根结点 parent 的负值绝对值表示集合大小
-void Union(int x, int y) {
+int BSTInsert(BiTree *T, KeyType key) {
+    if (*T == NULL) {
+        *T = (BiTree)malloc(sizeof(BiTNode));
+        (*T)->data = key;
+        (*T)->lchild = (*T)->rchild = NULL;
+        return 1;
+    }
+    if (key == (*T)->data) return 0; // 已存在，不重复插入
+    return (key < (*T)->data)
+         ? BSTInsert(&((*T)->lchild), key)
+         : BSTInsert(&((*T)->rchild), key);
+}
+\end{lstlisting}
+
+插入的落点一定是某个空指针，新结点总是成为叶子，不需要移动已有结点。删除分三种情况：
+\begin{enumerate}
+  \item 被删结点是叶子：直接摘掉，把双亲对应指针置空；
+  \item 只有一个孩子：用这个孩子顶替它的位置；
+  \item 有两个孩子：用中序前驱（左子树最右下的结点）或中序后继（右子树最左下的结点）顶替它的关键字，再删除那个替身。替身至多只有一个孩子，于是归入前两种情况。
+\end{enumerate}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=6.4mm, inner sep=0pt}]
+  % 删除前
+  \node[nd] (a50) at (1.4,0) {50};
+  \node[nd] (a30) at (0.3,-1.2) {30};
+  \node[nd] (a70) at (2.5,-1.2) {70};
+  \node[nd] (a40) at (0.9,-2.4) {40};
+  \node[nd] (a60) at (1.9,-2.4) {60};
+  \node[nd] (a45) at (1.4,-3.6) {45};
+  \foreach \p/\c in {a50/a30,a50/a70,a30/a40,a70/a60,a40/a45}
+    \draw[->, Teal!55] (\p) -- (\c);
+  \draw[->, Burgundy, line width=1pt] (a50) -- (a30);
+  \draw[->, Burgundy, line width=1pt] (a30) -- (a40);
+  \draw[->, Burgundy, line width=1pt] (a40) -- (a45);
+  \draw[draw=Burgundy, dashed, line width=1pt] (a50) circle (0.42);
+  \node[font=\scriptsize, Burgundy, anchor=west] at (1.95,0.15) {待删};
+  % 删除后
+  \node[nd, fill=SoftAmber, draw=Amber!70] (b45) at (8.6,0) {45};
+  \node[nd] (b30) at (7.5,-1.2) {30};
+  \node[nd] (b70) at (9.5,-1.2) {70};
+  \node[nd] (b40) at (7.9,-2.4) {40};
+  \node[nd] (b60) at (8.8,-2.4) {60};
+  \foreach \p/\c in {b45/b30,b45/b70,b30/b40,b70/b60}
+    \draw[->, Teal!55] (\p) -- (\c);
+  \node[font=\scriptsize, Amber!85!black, anchor=west] at (9.1,0.15) {新根};
+  \draw[->, MutedText, dashed, line width=0.8pt] (3.35,-1.75) -- (6.55,-1.75);
+  \node[font=\scriptsize, MutedText, anchor=south] at (4.95,-1.75) {前驱 45 顶替 50};
+  \node[font=\tiny, MutedText, anchor=north] at (1.4,-4.25) {前驱 = 左子树最右下的 45};
+  \node[font=\tiny, MutedText, anchor=north] at (8.6,-3.05) {40 的右指针置空};
+\end{tikzpicture}
+\end{center}
+
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：左边虚线圆圈住的是待删的 50；沿它的左子树一直向右找到前驱 45，把 45 复制到根，再删掉原来的 45。右边是删除后的树，40 的右指针已经置空。}
+
+同一个关键字集合，插入次序不同会得到不同形状的 BST。按 $1,2,3,4,5$ 依次插入，树退化成右单支，查找变回 $O(n)$；按 $3,2,4,1,5$ 插入则接近平衡。这正是下一节要解决的问题。
+
+\subsection{AVL 树：把树高压住}
+
+AVL 树是最早的自平衡二叉排序树。它在每个结点上记录左右子树的高度差，一旦某个结点的平衡因子超出 $\{-1,0,1\}$，就通过旋转把局部结构调整回来。
+
+\begin{mydef}{AVL 树}{avl-def}
+二叉排序树中，若每个结点的\textbf{平衡因子}
+\[
+\mathrm{BF}(v)=h(v\text{ 的左子树})-h(v\text{ 的右子树})
+\]
+都满足 $|\mathrm{BF}(v)|\leqslant1$，称为 \textbf{AVL 树}。这里叶子高度为 1，空树高度为 0，因此叶子 $\mathrm{BF}=0$。
+\end{mydef}
+
+插入一个结点后，只有从插入点到根这条路径上的平衡因子会变。从插入点往上找，第一个失衡的结点记为 $z$；沿 $z$ 到插入点的路径取下面两层的结点 $y$ 和 $x$，根据 $z,y,x$ 的相对位置分成四种情况：
+
+\begin{itemize}
+  \item \textbf{LL}：$x$ 在 $z$ 的左子树的左子树，对 $z$ 做一次\textbf{右旋}；
+  \item \textbf{RR}：$x$ 在 $z$ 的右子树的右子树，对 $z$ 做一次\textbf{左旋}；
+  \item \textbf{LR}：$x$ 在 $z$ 的左子树的右子树，先对 $y$ 左旋，再对 $z$ 右旋；
+  \item \textbf{RL}：$x$ 在 $z$ 的右子树的左子树，先对 $y$ 右旋，再对 $z$ 左旋。
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=0.9, transform shape,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=6.2mm, inner sep=0pt},
+  sub/.style={draw=RuleGray, fill=SoftGray, minimum width=0.5cm, minimum height=0.38cm, inner sep=0pt}]
+  % LL 前
+  \node[nd] (z1) at (1.5,0) {z}; \node[font=\tiny, Burgundy, fill=SoftAmber, draw=Amber!60, rounded corners=1pt, inner sep=1pt, anchor=west] at (1.78,0.22) {+2};
+  \node[nd] (y1) at (0.7,-0.95) {y}; \node[font=\tiny, Burgundy, fill=SoftAmber, draw=Amber!60, rounded corners=1pt, inner sep=1pt, anchor=east] at (0.3,-0.68) {+1};
+  \node[nd] (x1) at (-0.1,-1.9) {x};
+  \node[sub] (A1) at (-0.6,-2.7) {A}; \node[sub] (B1) at (0.4,-2.7) {B};
+  \node[sub] (C1) at (1.5,-1.9) {C}; \node[sub] (D1) at (2.4,-0.95) {D};
+  \foreach \p/\c in {z1/y1,z1/D1,y1/x1,y1/C1,x1/A1,x1/B1} \draw[Teal!60] (\p) -- (\c);
+  \node[font=\tiny, MutedText, anchor=north] at (0.7,-3.15) {LL：对 $z$ 右旋};
+  % 后
+  \node[nd] (y2) at (5.0,0) {y};
+  \node[nd] (x2) at (4.2,-0.95) {x};
+  \node[nd] (z2) at (5.8,-0.95) {z};
+  \node[sub] (A2) at (3.7,-1.7) {A}; \node[sub] (B2) at (4.7,-1.7) {B};
+  \node[sub] (C2) at (5.3,-1.7) {C}; \node[sub] (D2) at (6.3,-1.7) {D};
+  \foreach \p/\c in {y2/x2,y2/z2,x2/A2,x2/B2,z2/C2,z2/D2} \draw[Teal!60] (\p) -- (\c);
+  \draw[->, Burgundy, thick] (3.0,-1.1) -- (3.55,-1.1);
+  % RR 前
+  \node[nd] (z3) at (10.2,0) {z}; \node[font=\tiny, Burgundy, fill=SoftAmber, draw=Amber!60, rounded corners=1pt, inner sep=1pt, anchor=east] at (9.92,0.22) {-2};
+  \node[nd] (y3) at (11.0,-0.95) {y}; \node[font=\tiny, Burgundy, fill=SoftAmber, draw=Amber!60, rounded corners=1pt, inner sep=1pt, anchor=west] at (11.3,-0.68) {-1};
+  \node[nd] (x3) at (11.8,-1.9) {x};
+  \node[sub] (A3) at (9.2,-0.95) {A}; \node[sub] (B3) at (10.2,-1.9) {B};
+  \node[sub] (C3) at (11.3,-2.7) {C}; \node[sub] (D3) at (12.3,-2.7) {D};
+  \foreach \p/\c in {z3/y3,z3/A3,y3/x3,y3/B3,x3/C3,x3/D3} \draw[Teal!60] (\p) -- (\c);
+  \node[font=\tiny, MutedText, anchor=north] at (10.8,-3.15) {RR：对 $z$ 左旋};
+  % RR 后
+  \node[nd] (x4) at (14.9,0) {x};
+  \node[nd] (y4) at (14.1,-0.95) {y};
+  \node[nd] (z4) at (15.7,-0.95) {z};
+  \node[sub] (A4) at (13.4,-1.7) {A}; \node[sub] (B4) at (14.4,-1.7) {B};
+  \node[sub] (C4) at (15.2,-1.7) {C}; \node[sub] (D4) at (16.2,-1.7) {D};
+  \foreach \p/\c in {x4/y4,x4/z4,y4/A4,y4/B4,z4/C4,z4/D4} \draw[Teal!60] (\p) -- (\c);
+  \draw[->, Burgundy, thick] (12.9,-1.1) -- (13.45,-1.1);
+\end{tikzpicture}
+
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：左边是旋转前，右边是旋转后，方框 A--D 表示高度为 $h$ 或 $h+1$ 的子树。LL 和 RR 都是“中间结点 y 上位”，一次旋转即可；旋转后 $x,y,z$ 的平衡因子都回到 0，子树高度也恢复。}
+\end{center}
+
+单旋转的代码以 LL 为例：把 $y$ 的右子树挂到 $z$ 的左边，再让 $z$ 成为 $y$ 的右孩子。
+
+\begin{lstlisting}[language=C]
+void RotateRight(BiTree *z) {      // LL
+    BiTree y = (*z)->lchild;
+    (*z)->lchild = y->rchild;      // y 的右子树改挂到 z 左边
+    y->rchild = *z;
+    *z = y;                        // y 上位
+}
+void RotateLeft(BiTree *z) {       // RR
+    BiTree y = (*z)->rchild;
+    (*z)->rchild = y->lchild;
+    y->lchild = *z;
+    *z = y;
+}
+\end{lstlisting}
+
+双旋转的情况多一步“先把孙子转成直链”：LR 先对 $y$ 左旋，变成 LL，再对 $z$ 右旋；RL 先对 $y$ 右旋，变成 RR，再对 $z$ 左旋。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=0.9, transform shape,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=6.2mm, inner sep=0pt},
+  sub/.style={draw=RuleGray, fill=SoftGray, minimum width=0.5cm, minimum height=0.38cm, inner sep=0pt}]
+  % LR 前
+  \node[nd] (z1) at (1.8,0) {z}; \node[font=\tiny, Burgundy, fill=SoftAmber, draw=Amber!60, rounded corners=1pt, inner sep=1pt, anchor=west] at (2.08,0.22) {+2};
+  \node[nd] (y1) at (1.0,-0.95) {y}; \node[font=\tiny, Burgundy, fill=SoftAmber, draw=Amber!60, rounded corners=1pt, inner sep=1pt, anchor=east] at (0.6,-0.68) {-1};
+  \node[nd] (x1) at (1.8,-1.9) {x};
+  \node[sub] (A1) at (0.2,-1.9) {A}; \node[sub] (B1) at (1.3,-2.7) {B};
+  \node[sub] (C1) at (2.3,-2.7) {C}; \node[sub] (D1) at (3.1,-0.95) {D};
+  \foreach \p/\c in {z1/y1,z1/D1,y1/x1,y1/A1,x1/B1,x1/C1} \draw[Teal!60] (\p) -- (\c);
+  \node[font=\tiny, MutedText, anchor=north] at (1.6,-3.15) {LR：先左旋 $y$，再右旋 $z$};
+  % LR 后
+  \node[nd] (x2) at (6.0,0) {x};
+  \node[nd] (y2) at (5.2,-0.95) {y};
+  \node[nd] (z2) at (6.8,-0.95) {z};
+  \node[sub] (A2) at (4.5,-1.7) {A}; \node[sub] (B2) at (5.5,-1.7) {B};
+  \node[sub] (C2) at (6.3,-1.7) {C}; \node[sub] (D2) at (7.3,-1.7) {D};
+  \foreach \p/\c in {x2/y2,x2/z2,y2/A2,y2/B2,z2/C2,z2/D2} \draw[Teal!60] (\p) -- (\c);
+  % RL 前
+  \node[nd] (z3) at (11.2,0) {z}; \node[font=\tiny, Burgundy, fill=SoftAmber, draw=Amber!60, rounded corners=1pt, inner sep=1pt, anchor=east] at (10.92,0.22) {-2};
+  \node[nd] (y3) at (12.0,-0.95) {y}; \node[font=\tiny, Burgundy, fill=SoftAmber, draw=Amber!60, rounded corners=1pt, inner sep=1pt, anchor=west] at (12.3,-0.68) {+1};
+  \node[nd] (x3) at (11.2,-1.9) {x};
+  \node[sub] (A3) at (10.1,-0.95) {A}; \node[sub] (B3) at (10.7,-2.7) {B};
+  \node[sub] (C3) at (11.7,-2.7) {C}; \node[sub] (D3) at (13.0,-1.9) {D};
+  \foreach \p/\c in {z3/y3,z3/A3,y3/x3,y3/D3,x3/B3,x3/C3} \draw[Teal!60] (\p) -- (\c);
+  \node[font=\tiny, MutedText, anchor=north] at (11.6,-3.15) {RL：先右旋 $y$，再左旋 $z$};
+  % RL 后
+  \node[nd] (x4) at (15.9,0) {x};
+  \node[nd] (z4) at (15.1,-0.95) {z};
+  \node[nd] (y4) at (16.7,-0.95) {y};
+  \node[sub] (A4) at (14.4,-1.7) {A}; \node[sub] (B4) at (15.4,-1.7) {B};
+  \node[sub] (C4) at (16.2,-1.7) {C}; \node[sub] (D4) at (17.2,-1.7) {D};
+  \foreach \p/\c in {x4/z4,x4/y4,z4/A4,z4/B4,y4/C4,y4/D4} \draw[Teal!60] (\p) -- (\c);
+\end{tikzpicture}
+
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：LR 旋转前 $z$ 的左子树偏高、$y$ 的右子树偏高，两个方向相反，单旋解决不了；先把 $x$ 转到 $y$ 的位置变成 LL，再按 LL 处理。RL 完全对称。旋转后新根都是 $x$。}
+\end{center}
+
+AVL 的插入最多做一次旋转（单旋或双旋）就能恢复整棵树；删除则可能沿路径一直往上，需要 $O(\log n)$ 次旋转。无论哪种，查找、插入、删除都是 $O(\log n)$。
+
+为什么高度能压到对数级？考虑高度为 $h$ 的 AVL 树最少需要多少个结点，记为 $N_h$（叶子高度为 1，空树 $h=0$）。根的两棵子树高度最多差 1，为了让结点最少，一边取 $h-1$，另一边取 $h-2$：
+\[
+N_h=N_{h-1}+N_{h-2}+1,\qquad N_0=0,\ N_1=1 .
+\]
+数列是 $1,2,4,7,12,20,\ldots$，恰好 $N_h=F_{h+2}-1$（$F_1=F_2=1$）。由 Fibonacci 数的增长可得 $h<1.44\log_2(n+2)$，所以 $h=O(\log n)$。
+
+\subsection{并查集：只关心“谁和谁一伙”}
+
+并查集管理若干个不相交的集合，只支持两种操作：查某个元素属于哪个集合（\texttt{Find}），把两个集合合并（\texttt{Union}）。它底层就是一片森林，用双亲表示法存：数组 \texttt{parent[i]} 记录 $i$ 的双亲，根结点的 \texttt{parent} 存负数，绝对值表示集合大小。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  nd/.style={draw=Teal!55, fill=SoftTeal, circle, minimum size=6.2mm, inner sep=0pt}]
+  \node[nd] (n1) at (0,0) {1};
+  \node[nd] (n2) at (-1.2,-1.0) {2};
+  \node[nd] (n3) at (1.2,-1.0) {3};
+  \node[nd] (n4) at (-1.2,-2.0) {4};
+  \node[nd] (n5) at (3.6,0) {5};
+  \node[nd] (n6) at (2.6,-1.0) {6};
+  \node[nd] (n7) at (4.6,-1.0) {7};
+  \foreach \p/\c in {n1/n2,n1/n3,n2/n4,n5/n6,n5/n7} \draw[->, Teal!60] (\p) -- (\c);
+  \node[font=\tiny, Burgundy, anchor=south] at (n1.north) {$-4$};
+  \node[font=\tiny, Burgundy, anchor=south] at (n5.north) {$-3$};
+  \draw[->, dashed, Burgundy, bend left=20] (n4) to (n1);
+  \node[font=\tiny, Burgundy, anchor=north] at (-1.2,-2.35) {压缩后直指根};
+  % 数组
+  \def\aw{0.62}
+  \foreach \i/\v in {1/$-4$,2/$1$,3/$1$,4/$2$,5/$-3$,6/$5$,7/$6$} {
+    \node[draw=RuleGray, fill=SoftBlue, minimum width=\aw cm, minimum height=0.44cm, inner sep=0pt]
+      at (6.2+\i*\aw, -0.5) {\v};
+    \node[font=\tiny, MutedText] at (6.2+\i*\aw, -0.9) {\i};
+  }
+  \node[font=\tiny, Navy, anchor=west] at (5.75,0.0) {压缩前};
+  \foreach \i/\v in {1/$-4$,2/$1$,3/$1$,4/$1$,5/$-3$,6/$5$,7/$6$} {
+    \node[draw=RuleGray, fill=SoftAmber, minimum width=\aw cm, minimum height=0.44cm, inner sep=0pt]
+      at (6.2+\i*\aw, -1.8) {\v};
+    \node[font=\tiny, MutedText] at (6.2+\i*\aw, -2.2) {\i};
+  }
+  \node[font=\tiny, Navy, anchor=west] at (5.75,-1.3) {压缩后};
+\end{tikzpicture}
+
+\smallskip
+{\footnotesize\color{MutedText}图怎么看：箭头指向双亲，根没有双亲，所以它的格子里存负数，$-4$ 表示这个集合有 4 个元素。执行 \texttt{Find(4)} 后，路径 $4\to2\to1$ 上的结点被直接挂到根 1 下，数组里只有 \texttt{parent[4]} 由 2 改成 1。}
+\end{center}
+
+\begin{lstlisting}[language=C]
+int parent[MaxSize];
+
+int Find(int x) {                    // 路径压缩
+    if (parent[x] < 0) return x;
+    return parent[x] = Find(parent[x]);
+}
+
+void Union(int x, int y) {           // 按大小合并
     int rx = Find(x), ry = Find(y);
     if (rx == ry) return;
-    if (parent[rx] > parent[ry]) {         // rx 的集合较小
-        parent[ry] += parent[rx];          // 更新 ry 集合的大小
+    if (parent[rx] > parent[ry]) {   // rx 集合更小（负数的绝对值小）
+        parent[ry] += parent[rx];
         parent[rx] = ry;
     } else {
         parent[rx] += parent[ry];
@@ -667,286 +1058,32 @@ void Union(int x, int y) {
     }
 }
 \end{lstlisting}
-\end{conclusion}
 
-\begin{attention}
-并查集在 408 中通常以选择题（考察优化效果和时间复杂度）或简答题（结合图论中的 Kruskal 算法）出现。需区分\textbf{按秩合并}与\textbf{按大小合并}的元数据含义，并理解它们和\textbf{路径压缩}的配合。
-\end{attention}
+只按大小合并，树高是 $O(\log n)$；只做路径压缩，单次操作可能很慢但摊还也不差；两者一起用，摊还复杂度是 $O(\alpha(n))$，其中 $\alpha$ 是反 Ackermann 函数，在实际规模内不超过 4。408 里它常与 Kruskal 算法一起出现：判断加入一条边会不会成环，就是判断两个端点是否已经在同一个集合。
 
-\subsection{408 高频考点与真题风格}
+\subsection{几组容易混的说法}
 
-\begin{conclusion}{树与二叉树 408 选择题常考点}{tree-keypoints}
-\begin{enumerate}
-    \item \textbf{二叉树性质计算：} $n_0=n_2+1$ 是考察频率最高的公式，常结合 $n=n_0+n_1+n_2$ 出计算题——给定两个量求第三个。
-    \item \textbf{完全二叉树的性质：} 编号规则（$2i$ 和 $2i+1$）、叶子结点个数范围、高度计算。
-    \item \textbf{遍历序列分析：} 给定先序 + 中序（或后序 + 中序），还原二叉树。
-    \item \textbf{线索二叉树：} 中序线索化，找前驱/后继的步骤，区分 ltag/rtag 的含义。
-    \item \textbf{树/森林与二叉树的转换：} 孩子兄弟表示法，「左孩子右兄弟」规则。
-    \item \textbf{Huffman 树：} WPL 计算、Huffman 树的结点数（$2n_0-1$）、给定编码判断是否为前缀码。
-    \item \textbf{二叉树的遍历序列与树形对应关系：} 如前序序列与中序序列相同的树是什么形态（只有右子树的单链树）。
-    \item \textbf{非递归遍历：} 中序非递归的栈变化过程，何时入栈、何时出栈。
-\end{enumerate}
-\end{conclusion}
-
-
-\newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（真题风格·选择题）} 在一棵二叉树中，度为 2 的结点数为 5，度为 1 的结点数为 6，则叶子结点数为
-\begin{center}
-\begin{tabular}{ll}
-(A) 5 & (B) 6 \\[6pt]
-(C) 7 & (D) 11
+\begin{tablebox}{概念对照}
+\centering
+\begin{tabular}{p{0.36\linewidth}p{0.56\linewidth}}
+\toprule
+容易错的说法 & 正确的理解 \\
+\midrule
+二叉树就是度为 2 的树 & 二叉树允许没有度为 2 的结点，但必须区分左右；度为 2 的树至少有一个度为 2 的结点 \\
+满二叉树 = 完全二叉树 & 满是每层都满；完全是最后一层从左到右连续，可以缺右边的结点 \\
+树的度 = 结点的度 & 树的度是所有结点度的最大值；某个结点的度是它的孩子数 \\
+深度从 0 开始 & 408 常用根深度为 1；题目另有约定时按题目 \\
+先序 + 后序能定树 & 不能，必须再有中序（或层次）序列 \\
+线索树中 \texttt{lchild} 一定指孩子 & 要看 \texttt{ltag}：0 是孩子，1 是前驱 \\
+Huffman 树唯一 & 树形不唯一，WPL 唯一 \\
+AVL 插入后要一路旋转 & 插入最多一次单旋或双旋；删除才可能多次 \\
+\bottomrule
 \end{tabular}
-\end{center}
+\end{tablebox}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 由二叉树性质 $n_0 = n_2 + 1$，得叶子结点数 $n_0 = 5 + 1 = 6$。度为 1 的结点数与叶子数无关。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 一棵完全二叉树共有 768 个结点，则该二叉树中叶子结点的个数为
-\begin{center}
-\begin{tabular}{ll}
-(A) 383 & (B) 384 \\[6pt]
-(C) 385 & (D) 386
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 设完全二叉树中 $n_1 = 0$ 或 $1$。由 $n_0 = n_2 + 1$ 和 $n = n_0 + n_1 + n_2$，得 $n = 2n_0 + n_1 - 1$。
-代入 $n = 768$：$2n_0 = 769 - n_1$。若 $n_1 = 1$，则 $2n_0 = 768$，$n_0 = 384$；若 $n_1 = 0$，则 $2n_0 = 769$，$n_0$ 非整数（舍去）。故叶子数 $n_0 = 384$。
-\textbf{速算技巧：} $n$ 为偶数时，完全二叉树的 $n_1 = 1$，$n_0 = n/2$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 已知一棵二叉树的先序遍历序列为 \texttt{ABDECFG}，中序遍历序列为 \texttt{DBEAFCG}，则该二叉树的后序遍历序列为
-\begin{center}
-\begin{tabular}{ll}
-(A) \texttt{DEBFGCA} & (B) \texttt{EDBFGCA} \\[6pt]
-(C) \texttt{DEBFGAC} & (D) \texttt{DEBGFCA}
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 由先序知根为 A，中序中 A 左边 \texttt{DBE} 为左子树，右边 \texttt{FCG} 为右子树。
-左子树的先序为 \texttt{BDE}，中序为 \texttt{DBE}，知 B 为根，D 为 B 的左孩子，E 为 B 的右孩子。
-右子树的先序为 \texttt{CFG}，中序为 \texttt{FCG}，知 C 为根，F 为 C 的左孩子，G 为 C 的右孩子。
-后序遍历（左$\to$右$\to$根）：\texttt{DEBFGCA}。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 一棵非空二叉树的先序序列与后序序列正好相反，则该二叉树一定
-\begin{center}
-\begin{tabular}{ll}
-(A) 所有结点无左孩子 & (B) 所有结点无右孩子 \\[6pt]
-(C) 只有一个叶结点 & (D) 是满二叉树
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 先序 = 根$\to$左$\to$右，后序 = 左$\to$右$\to$根。二者相反，意味着对每个结点，先访问根再访问子树 vs 先访问子树再访问根。
-举例：先序 \texttt{ABC}，后序 \texttt{CBA}，则树为 A 有左 B，B 有左 C（单链向左）。若树为 A 有右 B、B 有右 C，则先序为 \texttt{ABC}、后序仍为 \texttt{CBA}，同样只有一个叶结点。
-\textbf{结论：} 每个结点至多只有一个孩子结点，即整个树只有一个叶结点（否则中间有分叉就会出现不相反的片段）。所有结点无左孩子或所有结点无右孩子仅是两种特例，不一定是普通情况。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 设给定的权值集合为 $\{2, 3, 4, 7, 8, 9\}$，构造 Huffman 树，则该树的带权路径长度 WPL 为
-\begin{center}
-\begin{tabular}{ll}
-(A) 80 & (B) 81 \\[6pt]
-(C) 82 & (D) 83
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 构造过程（每次取两个最小权值合并）：
-(1) $2+3=5$，集合 $\{4,5,7,8,9\}$；
-(2) $4+5=9$，集合 $\{7,8,9,9\}$；
-(3) $7+8=15$，集合 $\{9,9,15\}$；
-(4) $9+9=18$，集合 $\{15,18\}$；
-(5) $15+18=33$。
-WPL $=$ 所有合并和 $= 5+9+15+18+33 = 80$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 一组字符 $\{A,B,C,D,E\}$ 出现的频率分别为 $\{5,2,8,3,13\}$，对其进行 Huffman 编码，则字符 E 的编码长度是
-\begin{center}
-\begin{tabular}{ll}
-(A) 1 位 & (B) 2 位 \\[6pt]
-(C) 3 位 & (D) 4 位
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 构造 Huffman 树：频率排序 $\{2(B), 3(D), 5(A), 8(C), 13(E)\}$。
-(1) $2+3=5$（B,D合并为5）；集合 $\{5(A), 5(B,D), 8(C), 13(E)\}$；
-(2) $5+5=10$（A与B,D合并）；集合 $\{8(C), 10, 13(E)\}$；
-(3) $8+10=18$；集合 $\{13(E), 18\}$；
-(4) $13+18=31$。
-最后一次合并时 E 是根的一个孩子，故其编码长度为 1。左右分支的 0/1 约定只会改变具体码字，不会改变码长。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 已知一棵二叉树的先序遍历序列为 \texttt{ABDFEC}，中序遍历序列为 \texttt{BFDAEC}，则该二叉树的后序遍历序列为
-\begin{center}
-\begin{tabular}{ll}
-(A) \texttt{FDBECA} & (B) \texttt{BFDECA} \\[6pt]
-(C) \texttt{FDEBCA} & (D) \texttt{FDBEAC}
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 先序首元 A 为根，中序中 A 前为左子树 \texttt{BFD}，后为右子树 \texttt{EC}。
-左子树的先序为 \texttt{BDF}、中序为 \texttt{BFD}：B 无左子树，其右子树的根为 D；D 的左孩子为 F。右子树的先序和中序均为 \texttt{EC}：E 无左孩子，右孩子为 C。因此左、右子树的后序分别为 \texttt{FDB}、\texttt{CE}，整棵树的后序为 \texttt{FDBECA}。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·选择题）} 下列关于线索二叉树的叙述中，正确的是
-\begin{center}
-\begin{tabularx}{0.96\linewidth}{@{}X@{}}
-(A) 先序线索二叉树中，任意结点都可在不知道双亲的情况下直接找到其先序前驱 \\[4pt]
-(B) 中序线索二叉树中，若某结点的 \texttt{rtag=1}，则其右指针指向中序后继 \\[4pt]
-(C) 后序线索二叉树中，任意结点都可在不知道双亲的情况下直接找到其后序后继 \\[4pt]
-(D) 只有叶结点的空指针域才可以改作线索
-\end{tabularx}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} (A) 错，先序前驱一般需要双亲信息，不能仅靠当前结点的线索确定。(B) 正确，\texttt{rtag=1} 明确表示右指针域是线索，在线索化的中序序列中指向该结点的直接后继。(C) 错，后序后继常涉及双亲，二叉链式结构中不能保证直接找到。(D) 错，任何结点的空指针域都可按遍历次序改作前驱或后继线索，并非仅限叶结点。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 在中序线索二叉树中，指针 \texttt{p} 指向某结点且 \texttt{p->rtag == 0}，则 \texttt{p} 的直接中序后继是
-\begin{center}
-\begin{tabular}{ll}
-(A) \texttt{p->rchild} \\
-(B) \texttt{p} 的右子树中最左下结点 \\
-(C) \texttt{p} 的左子树中最右下结点 \\
-(D) 无法直接确定
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} \texttt{p->rtag == 0} 表示 \texttt{p->rchild} 是常规孩子指针（不是线索），即 \texttt{p} 有右子树。中序遍历下，每个结点的后继是其右子树中第一个被访问的结点——即右子树的\textbf{最左下结点}（沿右孩子的左链走到底）。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 设森林 $F$ 对应的二叉树为 $B$，它有 $m$ 个结点，$B$ 的根为 $p$，$p$ 的右子树结点数为 $n$，则森林 $F$ 中第一棵树的结点个数是
-\begin{center}
-\begin{tabular}{ll}
-(A) $m-n$ & (B) $m-n-1$ \\[6pt]
-(C) $n+1$ & (D) 无法确定
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 森林$\to$二叉树的转换规则：第一棵树的根 = 二叉树根 $p$，第一棵树中除根以外的结点 $\to$ $p$ 的左子树；其余森林中的树 $\to$ $p$ 的右子树。
-故第一棵树的结点数 $= 1$（根）+ 左子树结点数 $= 1 + (m - 1 - n) = m - n$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 已知一棵二叉树的先序序列为 $a,b,c,d$，中序序列为 $b,a,d,c$，则下列说法正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 该二叉树是满二叉树 \\
-(B) 该二叉树的结点 $b$ 和结点 $d$ 在同一层 \\
-(C) 该二叉树中结点 $a$ 只有左孩子 \\
-(D) 该二叉树的后序序列为 $b,d,c,a$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 先序首元 $a$ 为根，中序 $a$ 前 \texttt{b} 为左子树（1结点），后 \texttt{d,c} 为右子树。
-右子树先序 \texttt{cd}，中序 \texttt{dc}：c 为根，d 为 c 的左孩子。树：a 左 b，右 c；c 左 d。
-后序为 \texttt{b,d,c,a}。(A) 错，结点 c 只有左孩子，不是满二叉树；(B) 错，b 在第 2 层，d 在第 3 层；(C) 错，a 同时有左孩子 b 和右孩子 c；(D) 正确。
-\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（综合题）} 已知一棵二叉树的先序遍历序列为 \texttt{ABDEGCF}，中序遍历序列为 \texttt{DBGEACF}。
-\begin{enumerate}
-    \item[(1)] 画出该二叉树的结构（标明各结点的左右孩子）；
-    \item[(2)] 写出其后序遍历序列和层次遍历序列；
-    \item[(3)] 将该二叉树转换为对应的森林，画出森林结构图（简述转换规则）。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) 构造步骤：先序首元 A 为根。中序中 A 前 \texttt{DBGE}（4结点）为左子树，后 \texttt{CF}（2结点）为右子树。
-左子树先序 \texttt{BDEG}，中序 \texttt{DBGE}：B 根，D 左，\texttt{GE} 右。右子树的先序 \texttt{EG}，中序 \texttt{GE}：E 根，G 左。
-右子树先序 \texttt{CF}，中序 \texttt{CF}：C 根，F 右（中序 C 前为空$\to$无左子树，后为 F$\to$右子树）。
-
-最终结构：
-\begin{verbatim}
-        A
-       / \
-      B   C
-     / \   \
-    D   E   F
-       /
-      G
-\end{verbatim}
-
-(2) 后序遍历（左$\to$右$\to$根）：\texttt{DGEBFCA}。层次遍历（从上到下，从左到右）：\texttt{ABCDEFG}。
-(3) 二叉树$\to$森林：抹去右子树的父子关系（二叉树中根结点沿右链走到底，每遇到一个右孩子即断开），得到多棵树。规则：二叉树中，根和沿左链走到的结点为第一棵树中的父子关系，沿右链走到的结点为下一棵树的根。
-
-断开：A 右 C、C 右 F，断开得到三棵树。第一棵树（A 为根，左子树 B）：恢复为一般树时，每个结点保留左孩子，左孩子的右链变为该结点的其他孩子。B 的左 D$\to$B 的第一个孩子 D；B 的右 E$\to$A 的第二个孩子 E；E 的左 G$\to$E 的第一个孩子 G。森林为：第一棵树 $A(B(D),E(G))$，第二棵树根为 C，第三棵树根为 F。
-\boxed{\textbf{答案：}\text{如上}}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（综合题，真题风格）} 设有字符集 $\{A, B, C, D, E, F\}$，各字符在电文中出现的频率分别为 $\{0.05,\;0.10,\;0.15,\;0.20,\;0.25,\;0.25\}$。
-\begin{enumerate}
-    \item[(1)] 构造 Huffman 树，画出树的形态（内部结点标出合并权值，叶子结点标出字符）；
-    \item[(2)] 求各字符的 Huffman 编码（约定左分支为 0，右分支为 1）；
-    \item[(3)] 计算带权路径长度 WPL（写出计算过程）；
-    \item[(4)] 若将字符 F 的频率改为 0.40，重新构造 Huffman 树并计算 WPL，与 (3) 比较变化并解释原因。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) 为方便构造，将频率放大为整数权值：$\{5,10,15,20,25,25\}$。
-合并过程：
-- $5+10=15$，集合 $\{15,15,20,25,25\}$
-- $15+15=30$，集合 $\{20,25,25,30\}$
-- $20+25=45$，集合 $\{25,30,45\}$
-- $25+30=55$，集合 $\{45,55\}$
-- $45+55=100$
-
-WPL = 所有内部结点权值之和 $= 15+30+45+55+100 = 245$（对应原始频率，需还原比例：$245/100 = 2.45$，即 $\sum w_i l_i$）。或者直接计算：
-A(0.05, 路径长4): $0.05\times4=0.20$
-B(0.10, 路径长4): $0.10\times4=0.40$
-C(0.15, 路径长3): $0.15\times3=0.45$
-D(0.20, 路径长2): $0.20\times2=0.40$
-E(0.25, 路径长2): $0.25\times2=0.50$
-F(0.25, 路径长2): $0.25\times2=0.50$
-WPL $= 0.20+0.40+0.45+0.40+0.50+0.50 = 2.45$
-
-(2) 一组与上述合并过程一致的编码（约定左分支为 0、右分支为 1）为：
-A: 1110, B: 1111, C: 110, D: 00, E: 01, F: 10。
-等权叶子或等权子树交换左右位置时，具体码字可以不同，但各字符的码长和 WPL 不变。
-
-(3) WPL = 2.45（见过程）。
-
-(4) 若 F 频率 = 0.40，新权值 $\{5,10,15,20,25,40\}$：
-- $5+10=15$，$\{15,15,20,25,40\}$
-- $15+15=30$，$\{20,25,30,40\}$
-- $20+25=45$，$\{30,40,45\}$
-- $30+40=70$，$\{45,70\}$
-- $45+70=115$
-
-由这棵树得到的码长为 A、B 各 4 位，C 为 3 位，D、E、F 各 2 位。因此
-\[
-\mathrm{WPL}=0.05\times4+0.10\times4+0.15\times3
- +0.20\times2+0.25\times2+0.40\times2=2.75.
-\]
-也可由内部结点权值和验证：$(15+30+45+70+115)/100=2.75$。
-
-这里把 F 的频率单独改为 0.40 后，六个给定数之和变为 1.15，因而它们应理解为相对频数而非已经归一化的概率。未归一化 WPL 从 2.45 增至 2.75；若比较平均码长，则新平均码长为 $2.75/1.15\approx2.39$ 位，反而略低于原来的 2.45 位，这是高频字符获得较短码字的结果。
-
-\textbf{答案：}(1) 见上述合并过程；(2) 一组可行编码为 A:1110，B:1111，C:110，D:00，E:01，F:10；(3) WPL 为 2.45；(4) 未归一化 WPL 为 2.75，归一化平均码长约为 2.39 位。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
+\input{ds/exercises/chap4.tex}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item 邓俊辉《数据结构（C++语言版）》第 5 章「二叉树」——二叉树的遍历算法族（先/中/后序递归与非递归的统一框架）、Huffman 编码的贪心正确性证明。第 6 章「图」——并查集在 Kruskal 算法与图的连通性判定中的应用。
-    \item Sedgewick《算法》（第 4 版）第 3.2--3.3 节「二叉查找树」与「平衡查找树」——从二叉树的遍历到 BST 上的查找与插入，为后续平衡树（AVL/红黑树）的学习建立基础。
+  \item 邓俊辉《数据结构（C++语言版）》第 5 章「二叉树」——遍历算法族、线索化与 Huffman 编码的贪心正确性；第 6 章「图」中并查集在 Kruskal 算法里的用法。
+  \item Sedgewick《算法》（第 4 版）第 3.2--3.3 节「二叉查找树」与「平衡查找树」——从 BST 的查找、插入、删除过渡到 AVL 与红黑树的平衡思想。
 \end{itemize}

@@ -1,0 +1,292 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 设栈的初始状态为空，入栈序列为 $1,2,3,4$，每个元素入栈后允许在任意时刻出栈（入栈顺序不能改变）。下列出栈序列中\textbf{不可能}出现的是
+\begin{center}
+\begin{tabular}{ll}
+(A) $1,2,3,4$ & (B) $4,3,2,1$ \\[6pt]
+(C) $3,1,2,4$ & (D) $2,3,4,1$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 合法出栈序列的判据是：任何时刻只能弹出当前栈顶元素，尚未入栈的元素不能提前输出。逐项模拟：
+\begin{enumerate}
+\item[(A)] 每入栈一个元素就立即弹出，得到 $1,2,3,4$，合法。
+\item[(B)] 四个元素全部入栈后依次弹出，得到 $4,3,2,1$，合法。
+\item[(C)] 要第一个输出 $3$，必须先压入 $1,2,3$ 再弹出 $3$；此时栈内自底向顶为 $1,2$，栈顶是 $2$，下一个只能输出 $2$，无法输出 $1$。故该序列不可能。
+\item[(D)] 压入 $1,2$，弹出 $2$；压入 $3$，弹出 $3$；压入 $4$，弹出 $4$；最后弹出 $1$，得到 $2,3,4,1$，合法。
+\end{enumerate}
+\par\noindent\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某顺序栈的栈顶指针 \texttt{top} 指向栈顶元素，空栈时 \texttt{top}$=-1$，存储空间足够大。依次执行 \texttt{Push(A)}、\texttt{Push(B)}、\texttt{Pop}、\texttt{Push(C)}、\texttt{Push(D)}、\texttt{Pop}、\texttt{Pop} 后，\texttt{top} 的值为 \underline{\qquad}，栈中元素个数为 \underline{\qquad}，栈顶元素为 \underline{\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 按“\texttt{top} 指向栈顶元素”的约定，入栈时先 \texttt{++top} 再写入，出栈时先读取再 \texttt{--top}。逐步跟踪：
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+操作 & \texttt{top} & 栈内元素（底$\to$顶） \\
+\midrule
+初态 & $-1$ & 空 \\
+\texttt{Push(A)} & $0$ & A \\
+\texttt{Push(B)} & $1$ & A, B \\
+\texttt{Pop} & $0$ & A \\
+\texttt{Push(C)} & $1$ & A, C \\
+\texttt{Push(D)} & $2$ & A, C, D \\
+\texttt{Pop} & $1$ & A, C \\
+\texttt{Pop} & $0$ & A \\
+\bottomrule
+\end{tabular}
+\end{center}
+最终 \texttt{top}$=0$，说明栈中只有下标 $0$ 一个元素 A，元素个数为 $1$，栈顶元素就是 A。
+\par\noindent\boxed{\textbf{答案：}0;\ 1;\ \mathrm{A}}\else \answerarea \fi
+
+\item \textbf{（填空题）} 循环队列存放在数组 $Q[0..9]$ 中，约定 \texttt{front} 指向队头元素，\texttt{rear} 指向队尾元素的下一个位置。某时刻 \texttt{front}$=6$、\texttt{rear}$=3$。此时队列中元素个数为 \underline{\qquad}，队尾元素所在的下标为 \underline{\qquad}；若判满采用“牺牲一个存储单元”的策略，此时最多还能入队 \underline{\qquad} 个元素。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 设 $\text{MaxSize}=10$。
+\begin{enumerate}
+\item[(1)] 元素个数按环形距离计算：
+\[
+(\texttt{rear}-\texttt{front}+\text{MaxSize})\bmod \text{MaxSize}=(3-6+10)\bmod 10=7.
+\]
+\item[(2)] \texttt{rear} 指向队尾的下一个位置，故队尾元素下标为
+\[
+(\texttt{rear}-1+\text{MaxSize})\bmod \text{MaxSize}=(3-1+10)\bmod 10=2.
+\]
+顺便可验证：从下标 $6$ 开始顺时针数 7 个位置，依次是 $6,7,8,9,0,1,2$，最后一个正是 $2$。
+\item[(3)] 牺牲一个单元时队列最多容纳 $10-1=9$ 个元素，已有 $7$ 个，还能入队 $9-7=2$ 个。
+\end{enumerate}
+\par\noindent\boxed{\textbf{答案：}7;\ 2;\ 2}\else \answerarea \fi
+
+\item \textbf{（填空题）} 中缀表达式 $A*(B+C)-D/E$ 对应的后缀表达式为 \underline{\qquad\qquad}；若把中缀表达式改成 $A*(B+C-D)/E$，对应的后缀表达式为 \underline{\qquad\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 手工转换可先把中缀表达式按优先级完全加括号，再把每个运算符移到它所在括号的右括号之后，最后去掉全部括号。
+\begin{enumerate}
+\item[(1)] $A*(B+C)-D/E$ 的完全括号形式为 $\bigl((A*(B+C))-(D/E)\bigr)$。把括号内的运算符依次移到对应右括号之后，得到后缀表达式 \texttt{ABC+*DE/-}。
+\item[(2)] $A*(B+C-D)/E$ 中括号内的 $B+C-D$ 按左结合视为 $(B+C)-D$，完全括号形式为 $\bigl((A*((B+C)-D))/E\bigr)$，同样处理后得到 \texttt{ABC+D-*E/}。
+\end{enumerate}
+注意两种写法中操作数出现的先后顺序始终是 $A,B,C,D,E$，改变的只是运算符的位置，可用这一点快速自查。
+\par\noindent\boxed{\textbf{答案：}\texttt{ABC+*DE/-};\ \texttt{ABC+D-*E/}}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 后缀表达式（操作数均为整数，除法为整除）$3\ 10\ 4\ -\ -\ 6\ 2\ /\ +$ 的值为
+\begin{center}
+\begin{tabular}{ll}
+(A) $-3$ & (B) $0$ \\[6pt]
+(C) $3$ & (D) $9$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 从左到右扫描，遇操作数入栈，遇运算符弹出两个操作数（\textbf{先弹出的是右操作数}）计算后把结果压回：
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+读入 & 运算 & 操作数栈（底$\to$顶） \\
+\midrule
+$3$ & 入栈 & $3$ \\
+$10$ & 入栈 & $3,10$ \\
+$4$ & 入栈 & $3,10,4$ \\
+$-$ & $10-4=6$ & $3,6$ \\
+$-$ & $3-6=-3$ & $-3$ \\
+$6$ & 入栈 & $-3,6$ \\
+$2$ & 入栈 & $-3,6,2$ \\
+$/$ & $6/2=3$ & $-3,3$ \\
+$+$ & $-3+3=0$ & $0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+第二个减号处若把操作数顺序写反成 $6-3$，会得到 $+3$，最终结果变成 $6$，不在选项中；减法和除法都必须用“后弹出者减/除先弹出者”。
+\par\noindent\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 一个输入受限的双端队列：元素只允许从同一端（左端）插入，但允许从两端删除。现有 $1,2,3,4$ 依次从左端插入，插入过程中可随时从任一端删除。下列输出序列中\textbf{不可能}得到的是
+\begin{center}
+\begin{tabular}{ll}
+(A) $1,2,3,4$ & (B) $2,4,3,1$ \\[6pt]
+(C) $3,1,4,2$ & (D) $4,2,1,3$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 队列中元素从左到右的顺序始终与插入顺序一致（新元素插在最左边），因此任一时刻可删除的只有最左元素（最后插入者）和最右元素（最早插入者）。
+\begin{enumerate}
+\item[(A)] 只从左端插入、只从右端删除，即退化为普通队列，得到 $1,2,3,4$。
+\item[(B)] 插入 $1,2$ 后从左端删 $2$；插入 $3,4$ 后队列为 $4,3,1$，从左端删 $4$；再从左端删 $3$，从右端删 $1$。
+\item[(C)] 插入 $1,2,3$ 后从左端删 $3$，此时队列为 $2,1$；从右端删 $1$；插入 $4$ 后队列为 $4,2$，从左端删 $4$，最后删 $2$。
+\item[(D)] 要第一个输出 $4$，必须先把 $1,2,3,4$ 全部插入，此时队列从左到右为 $4,3,2,1$；删去 $4$ 后剩下 $3,2,1$，可删的只有左端的 $3$ 或右端的 $1$，位于中间的 $2$ 取不到，故 $4,2,\ldots$ 不可能。
+\end{enumerate}
+\par\noindent\boxed{\textbf{答案：}(D)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格·单项选择题）} 用算符优先法把中缀表达式 $A-(B+C*D)/E+F$ 转换为后缀表达式，转换过程中运算符栈（栈中同时存放运算符和左括号）中元素个数的最大值是
+\begin{center}
+\begin{tabular}{ll}
+(A) $3$ & (B) $4$ \\[6pt]
+(C) $5$ & (D) $6$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 规则：操作数直接输出；左括号入栈；右括号不断弹出运算符输出直到弹出左括号；运算符入栈前，先弹出栈中所有优先级不低于它的栈顶运算符。按此规则逐步模拟，并记录每步之后栈的深度（栈内元素个数）：
+\begin{center}
+\begin{tabular}{llcl}
+\toprule
+读入 & 栈（底$\to$栈顶） & 输出 & 深度 \\
+\midrule
+$A$ & 空 & $A$ & 0 \\
+$-$ & $-$ & $A$ & 1 \\
+$($ & $-,\ ($ & $A$ & 2 \\
+$B$ & $-,\ ($ & $AB$ & 2 \\
+$+$ & $-,\ (,\ +$ & $AB$ & 3 \\
+$C$ & $-,\ (,\ +$ & $ABC$ & 3 \\
+$*$ & $-,\ (,\ +,\ *$ & $ABC$ & 4 \\
+$D$ & $-,\ (,\ +,\ *$ & $ABCD$ & 4 \\
+$)$ & $-$ & $ABCD*+$ & 1 \\
+$/$ & $-,/$ & $ABCD*+$ & 2 \\
+$E$ & $-,/$ & $ABCD*+E$ & 2 \\
+$+$ & $+$ & $ABCD*+E/-$ & 1 \\
+$F$ & $+$ & $ABCD*+E/-F$ & 1 \\
+结束 & 空 & $ABCD*+E/-F+$ & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+深度最大出现在读入 $*$ 之后（栈内为 $-, (, +, *$），等于 $4$。左括号也占用栈空间，若把它漏算就会错选 (A)。转换结果为 $ABCD*+E/-F+$。
+\par\noindent\boxed{\textbf{答案：}(B)}\else \answerarea[8] \fi
+
+\item \textbf{（真题风格·单项选择题）} 循环队列 $Q[0..7]$ 采用“牺牲一个存储单元”的方式判满，\texttt{front} 指向队头元素，\texttt{rear} 指向队尾元素的下一个位置，初始时 \texttt{front}$=$\texttt{rear}$=0$。依次执行：入队 a、b、c、d、e；出队 3 次；入队 f、g、h、i、j；出队 4 次；入队 k。最终 \texttt{front}、\texttt{rear} 的值和队列中元素个数分别是
+\begin{center}
+\begin{tabular}{ll}
+(A) $7$，$3$，$4$ & (B) $7$，$3$，$3$ \\[6pt]
+(C) $3$，$7$，$4$ & (D) $7$，$2$，$4$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 数组长度 $\text{MaxSize}=8$，牺牲一个单元后最多存放 $7$ 个元素。长度公式为 $(\texttt{rear}-\texttt{front}+8)\bmod 8$，入队、出队时相应指针都按模 $8$ 加一。逐步跟踪：
+\begin{center}
+\begin{tabular}{llccc}
+\toprule
+阶段 & 操作 & \texttt{front} & \texttt{rear} & 队内元素（队头$\to$队尾） \\
+\midrule
+初态 & — & $0$ & $0$ & 空（长度 $0$） \\
+1 & 入队 a$\sim$e & $0$ & $5$ & a,b,c,d,e（长度 $5$） \\
+2 & 出队 3 次 & $3$ & $5$ & d,e（长度 $2$） \\
+3 & 入队 f$\sim$j & $3$ & $(5+5)\bmod 8=2$ & d,e,f,g,h,i,j（长度 $7$，队满） \\
+4 & 出队 4 次 & $(3+4)\bmod 8=7$ & $2$ & h,i,j（长度 $3$） \\
+5 & 入队 k & $7$ & $(2+1)\bmod 8=3$ & h,i,j,k（长度 $4$） \\
+\bottomrule
+\end{tabular}
+\end{center}
+第 3 步入队 5 个元素后长度恰好达到 $7$，此时 $(\texttt{rear}+1)\bmod 8=3=\texttt{front}$，确实处于队满状态，5 次入队全部成功。最终 $\texttt{front}=7$、$\texttt{rear}=3$，长度 $(\texttt{rear}-\texttt{front}+8)\bmod 8=(3-7+8)\bmod 8=4$。
+\par\noindent\boxed{\textbf{答案：}(A)}\else \answerarea[8] \fi
+
+\item \textbf{（真题风格·综合应用题）} 括号匹配。给定由字母、运算符及三种括号 \texttt{()}、\texttt{[]}、\texttt{\{\}} 组成的字符串，设计算法判断其中的括号是否正确配对，要求在不匹配时指出错误类型与出错位置（字符下标从 $1$ 开始）。回答：
+\begin{enumerate}
+\item[(1)] 写出算法（说明栈中存放什么、何时入栈、何时出栈、扫描结束后如何判定）；
+\item[(2)] 对字符串 $S_1=\texttt{[(a+b)*\{c-[d/(e+f)]\}]}$，求扫描过程中栈内元素个数的最大值；
+\item[(3)] 对字符串 $S_2=\texttt{[(a+b)*\{c-[d/(e+f)]\})}$，判断是否匹配；若不匹配，说明出错位置和错误类型。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 栈中只存\textbf{尚未配对的左括号}。遇左括号入栈；遇右括号时，若栈空说明右括号多余，否则弹出栈顶左括号并与当前右括号比较类型，类型不符即为交叉错误。
+\begin{lstlisting}[language=C]
+bool BracketMatch(char *s) {
+    SqStack S; InitStack(&S);          // 栈中存放左括号字符
+    char c, top;
+    for (int i = 0; s[i] != '\0'; i++) {
+        c = s[i];
+        if (c == '(' || c == '[' || c == '{') {
+            Push(&S, c);               // 左括号入栈，等待配对
+        } else if (c == ')' || c == ']' || c == '}') {
+            if (StackEmpty(S)) {       // 右括号多余
+                printf("位置 %d：右括号多余\n", i + 1);
+                return false;
+            }
+            Pop(&S, &top);             // 弹出最近的未配对左括号
+            if ((c == ')' && top != '(') ||
+                (c == ']' && top != '[') ||
+                (c == '}' && top != '{')) {
+                printf("位置 %d：括号类型不匹配\n", i + 1);
+                return false;
+            }
+        }                          // 其它字符（字母、运算符）直接跳过
+    }
+    if (!StackEmpty(S)) {          // 左括号多余
+        printf("左括号多余\n");
+        return false;
+    }
+    return true;
+}
+\end{lstlisting}
+时间复杂度 $O(n)$（每个字符至多处理一次），空间复杂度 $O(n)$（最坏情况全部是左括号）。
+
+(2) 字母和运算符不影响栈，只需跟踪括号。$S_1$ 中的括号依次为
+\begin{center}
+\small
+\begin{tabular}{l*{10}{c}}
+\toprule
+括号 & \texttt{[} & \texttt{(} & \texttt{)} & \texttt{\{} & \texttt{[} & \texttt{(} & \texttt{)} & \texttt{]} & \texttt{\}} & \texttt{]} \\
+栈内个数 & $1$ & $2$ & $1$ & $2$ & $3$ & $4$ & $3$ & $2$ & $1$ & $0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+最大值为 $4$，出现在读入 \texttt{(e+f)} 的左圆括号之后，此时栈内自底向顶为 \texttt{[ ( \{ [ (}。扫描结束时栈为空，$S_1$ 匹配。
+
+(3) $S_2$ 与 $S_1$ 只差最后一个字符：$S_1$ 以 \texttt{]} 结尾，$S_2$ 以 \texttt{)} 结尾。扫描到倒数第二个字符 \texttt{\}} 时栈中只剩最外层的 \texttt{[}，最后一个字符 \texttt{)} 到来时栈不空，于是弹出栈顶 \texttt{[}，发现 \texttt{)} 与 \texttt{[} 类型不同，判定为\textbf{括号类型不匹配}，出错位置是第 $21$ 个字符。这也说明“栈不空就继续弹”并不够，必须检查类型。
+\par\noindent\boxed{\textbf{答案：}(2)\ 4;\quad (3)\ \text{第 21 个字符类型不匹配}}\else \answerarea[10] \fi
+
+\item \textbf{（真题风格·综合应用题）} 用两个栈 \texttt{S1}、\texttt{S2} 模拟一个队列（栈的 \texttt{top} 指向栈顶元素，初值 $-1$，容量足够）。约定：入队时元素压入 \texttt{S1}；出队时若 \texttt{S2} 非空，直接弹出 \texttt{S2} 栈顶；若 \texttt{S2} 为空，先把 \texttt{S1} 中元素全部弹出并压入 \texttt{S2}，再从 \texttt{S2} 弹出。回答：
+\begin{enumerate}
+\item[(1)] 写出入队与出队算法；
+\item[(2)] 元素 a、b、c、d、e 依次入队，然后连续出队 2 次，再入队 f、g，最后连续出队 3 次。写出全部出队元素，并给出每一步之后 \texttt{S1}、\texttt{S2} 的内容（自底向顶）；
+\item[(3)] 说明 $n$ 次入队与 $n$ 次出队（任意交错）的总时间复杂度为什么是 $O(n)$。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 入队只压 \texttt{S1}；出队先保证 \texttt{S2} 有货，再从 \texttt{S2} 弹出。
+\begin{lstlisting}[language=C]
+bool EnQueue(SqStack *S1, ElemType x) {
+    return Push(S1, x);                 // 入队：直接压入 S1
+}
+
+bool DeQueue(SqStack *S1, SqStack *S2, ElemType *x) {
+    if (StackEmpty(*S2)) {              // S2 空才需要转移
+        if (StackEmpty(*S1)) return false;   // 两栈都空，队空
+        ElemType e;
+        while (!StackEmpty(*S1)) {      // S1 全部倒入 S2
+            Pop(S1, &e);
+            Push(S2, e);
+        }
+    }
+    return Pop(S2, x);                  // 从 S2 栈顶弹出队头
+}
+\end{lstlisting}
+\texttt{S1} 的栈顶对应“最近入队”，倒进 \texttt{S2} 后 \texttt{S2} 的栈顶恰好是最早入队、应最先出队的元素，故符合 FIFO。
+
+(2) 逐步跟踪（括号内自底向顶）：
+\begin{center}
+\begin{tabular}{clll}
+\toprule
+步骤 & 操作 & \texttt{S1} & \texttt{S2} \\
+\midrule
+1 & 入队 a$\sim$e & (a,b,c,d,e) & 空 \\
+2 & 出队，$\texttt{S2}$ 空，倒入后弹出 & 空 & (e,d,c,b)，弹出 a \\
+3 & 出队，直接弹出 & 空 & (e,d,c)，弹出 b \\
+4 & 入队 f & (f) & (e,d,c) \\
+5 & 入队 g & (f,g) & (e,d,c) \\
+6 & 出队 & (f,g) & (e,d)，弹出 c \\
+7 & 出队 & (f,g) & (e)，弹出 d \\
+8 & 出队 & (f,g) & 空，弹出 e \\
+\bottomrule
+\end{tabular}
+\end{center}
+全部出队元素依次为 a、b、c、d、e；此时 \texttt{S1} 中还剩 f、g，下次出队时再整体倒入 \texttt{S2}，会先输出 f。
+
+(3) 每个元素的一生最多经历四次栈操作：压入 \texttt{S1}、从 \texttt{S1} 弹出、压入 \texttt{S2}、从 \texttt{S2} 弹出。倒栈只在 \texttt{S2} 为空时发生，已经把元素搬到 \texttt{S2} 的元素不会再次被搬动，因此 $n$ 个元素在全部 $2n$ 次队列操作中共计 $O(n)$ 次栈操作，均摊到每次队列操作是 $O(1)$。需要注意这是\textbf{均摊}结论：单次出队最坏可能因倒栈花费 $O(n)$ 时间。
+\par\noindent\boxed{\textbf{答案：}a,b,c,d,e;\quad \text{均摊}O(1)}\else \answerarea[10] \fi
+
+\end{enumerate}
+
+\vspace{8pt}

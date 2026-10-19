@@ -1,0 +1,316 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 某系统用 TLB 和页表完成地址转换，数据访问经过 Cache。下列叙述中正确的是
+\begin{center}
+\small
+\begin{tabularx}{0.98\linewidth}{@{}XX@{}}
+(A) TLB 未命中且页表项有效时，地址转换不需访问主存 & (B) Cache 按物理地址索引时，必须先完成地址转换 \\[4pt]
+(C) 缺页处理结束后，从触发缺页指令的下一条指令继续执行 & (D) 二级页表由操作系统查询，硬件只查一级页表
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} TLB 只是页表项的副本，未命中时必须按页表逐级读出页表项，这些页表项存放在主存中，所以 (A) 错。缺页时触发缺页的指令并没有完成，调页后必须重新执行该指令，不能直接执行下一条，所以 (C) 错。地址转换（包括多级页表的逐级查找）由 MMU 硬件完成，操作系统只在缺页等异常时介入，所以 (D) 错。按物理地址索引的 Cache 必须先得到物理地址才能确定行号，故 (B) 对。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某系统按字节编址，虚拟地址 32 位，物理地址 36 位，页面大小 8 KiB，页表项长 4 B，采用单级页表。
+\begin{enumerate}
+\item[(1)] 页内偏移占 \underline{\qquad} 位，虚页号占 \underline{\qquad} 位，页框号占 \underline{\qquad} 位。
+\item[(2)] 该页表共有 \underline{\qquad} 个页表项，连续存放时占 \underline{\qquad} 主存。
+\item[(3)] 进程访问虚拟地址 \texttt{0x0001A2B3}，TLB 未命中，查得对应页框号为 \texttt{0x1F2C5}，则物理地址为 \underline{\qquad}；若该次数据访问在 Cache 中命中，全程共需 \underline{\qquad} 次主存访问。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $8\text{ KiB}=2^{13}$ B，故页内偏移 13 位；虚页号 $32-13=19$ 位；页框号 $36-13=23$ 位。页表项数等于虚页数 $2^{19}=524\,288$，每项 4 B，总大小为 $2^{19}\times 4=2^{21}$ B $=2$ MiB。
+
+虚拟地址低 13 位为页内偏移：$\texttt{0x1A2B3}\bmod 2^{13}=\texttt{0x2B3}$；虚页号为 $\texttt{0x1A2B3}\gg 13=\texttt{0xD}$。物理地址 $=\texttt{0x1F2C5}\times 2^{13}+\texttt{0x2B3}=\texttt{0x3E58A000}+\texttt{0x2B3}=\texttt{0x3E58A2B3}$。TLB 未命中时先读一次页表项，再访问一次数据；Cache 命中不额外访问主存，故共 2 次。\par\noindent\boxed{\parbox{0.88\linewidth}{\raggedright\textbf{答案：}(1) 13，19，23；(2) $2^{19}$ 项，共 2 MiB；(3) \texttt{0x3E58A2B3}，共 2 次主存访问}}\else \answerarea[6] \fi
+
+\item \textbf{（单项选择题）} 系统有 A、B、C 三类资源，总量为 $(5,2,3)$，当前分配情况如下表。此时系统的一个安全序列是
+\begin{center}
+\small
+\begin{tabular}{|c|ccc|ccc|}
+\hline
+进程 & \multicolumn{3}{c|}{Allocation} & \multicolumn{3}{c|}{Max} \\
+ & A & B & C & A & B & C \\
+\hline
+P0 & 1 & 0 & 1 & 2 & 2 & 2 \\
+P1 & 1 & 1 & 0 & 3 & 2 & 1 \\
+P2 & 2 & 0 & 1 & 2 & 1 & 2 \\
+\hline
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) P0$\to$P1$\to$P2 & (B) P1$\to$P2$\to$P0 \\[4pt]
+(C) P2$\to$P1$\to$P0 & (D) P2$\to$P0$\to$P1
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 已分配总量为 $(4,1,2)$，故 Available $=(1,1,1)$。各进程 Need $=$ Max $-$ Allocation：P0 $(1,2,1)$、P1 $(2,1,1)$、P2 $(0,1,1)$。
+
+初始只有 P2 的 Need 不超过 Work $=(1,1,1)$，先完成 P2，Work 变为 $(1,1,1)+(2,0,1)=(3,1,2)$。此时 P0 的 B 类需求为 2，仍大于 Work 的 1；P1 的 $(2,1,1)\leqslant(3,1,2)$，完成 P1 后 Work 为 $(4,2,2)$；最后 P0 也可完成。因此安全序列为 P2$\to$P1$\to$P0。其余选项在第一步或第二步就会因某一类资源不足而无法继续。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某文件系统采用 UNIX 混合索引：i-node 含 10 个直接块指针、1 个一级间接块指针、1 个二级间接块指针；盘块 4 KiB，每个块指针 4 B，i-node 常驻内存。
+\begin{enumerate}
+\item[(1)] 单个文件最大为 \underline{\qquad} B，约为 \underline{\qquad} GiB。
+\item[(2)] 访问文件内偏移 1 MiB 处的数据，需读 \underline{\qquad} 个索引块，共 \underline{\qquad} 次磁盘 I/O；该块在一级间接块中的下标为 \underline{\qquad}。
+\item[(3)] 访问偏移 6 MiB 处的数据，需经过 \underline{\qquad} 间接索引，共 \underline{\qquad} 次磁盘 I/O。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 每个 4 KiB 盘块可存 $4096/4=1024$ 个指针。
+直接块覆盖 $10\times4\text{ KiB}=40$ KiB；一级间接覆盖 $1024\times4\text{ KiB}=4$ MiB；二级间接覆盖 $1024^2\times4\text{ KiB}=4$ GiB。最大文件为
+\[
+4\text{ GiB}+4\text{ MiB}+40\text{ KiB}=4\,294\,967\,296+4\,194\,304+40\,960=4\,299\,202\,560\text{ B},
+\]
+约为 $4.0039$ GiB。
+
+偏移 1 MiB 对应逻辑块号 $1\,048\,576/4096=256$。直接块是 0--9 号，一级间接块从 10 号开始，故下标为 $256-10=246$。路径为“一级间接块 $\to$ 数据块”，i-node 已在内存，共 2 次 I/O。
+
+偏移 6 MiB 对应逻辑块号 $6\,291\,456/4096=1536$。直接块加一级间接块共覆盖 $10+1024=1034$ 块（0--1033 号），1536 号落在二级间接区，区内序号为 $1536-1034=502$。二级间接中，$502<1024$，故外层下标 0、内层下标 502，路径为“二级间接根块 $\to$ 二级间接块 $\to$ 数据块”，共 3 次 I/O。\par\noindent\boxed{\parbox{0.88\linewidth}{\raggedright\textbf{答案：}(1) $4\,299\,202\,560$ B，约 4.0039 GiB；(2) 1 个索引块，2 次 I/O，下标 246；(3) 二级间接，3 次 I/O}}\else \answerarea[6] \fi
+
+\item \textbf{（填空题）} 某磁盘转速 10000 r/min，每道 400 个扇区，每扇区 512 B，平均寻道时间 8 ms。忽略控制器与排队开销，读取 8 KiB 数据：
+\begin{enumerate}
+\item[(1)] 每转时间为 \underline{\qquad} ms，平均旋转延迟为 \underline{\qquad} ms。
+\item[(2)] 传输时间为 \underline{\qquad} ms。
+\item[(3)] 平均访问时间为 \underline{\qquad} ms。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 每转时间 $60/10000=6$ ms，平均旋转延迟取半转，即 3 ms。8 KiB 占 $8192/512=16$ 个扇区，传输时间
+\[
+\frac{16}{400}\times 6\text{ ms}=0.24\text{ ms}.
+\]
+平均访问时间 $=8+3+0.24=11.24$ ms。注意平均旋转延迟与传输时间不能合并成“一转”，二者物理含义不同。\par\noindent\boxed{\parbox{0.88\linewidth}{\raggedright\textbf{答案：}每转 6 ms，平均旋转延迟 3 ms，传输时间 0.24 ms，平均访问时间 11.24 ms}}\else \answerarea[5] \fi
+
+\item \textbf{（单项选择题）} 某进程用 \texttt{mmap} 把文件映射到虚拟地址空间，采用请求分页。下列叙述中正确的是
+\begin{center}
+\begin{tabular}{p{0.46\linewidth}p{0.46\linewidth}}
+(A) 采用 \texttt{MAP\_PRIVATE} 映射的页被修改后，换出时必须写回原文件 & (B) 文件映射页若未被修改，换出时可直接丢弃，不必写回文件 \\[4pt]
+(C) 匿名页换出时写回其对应的可执行文件 & (D) 映射区第一次被访问时，页面一定已在内存中
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 私有映射写入时触发写时复制，修改后的页按匿名页处理，换出时写入交换区而不是原文件，故 (A) 错。文件映射页以文件为后备存储，干净页与文件内容一致，换出时无需写回，故 (B) 对。匿名页没有文件后备，换出时写入交换区，故 (C) 错。映射只是建立虚拟区间，第一次访问通常触发缺页，由缺页处理从文件调入页面，故 (D) 错。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格·综合应用题）} 某单 CPU 系统采用时间片轮转调度，时间片 $q=3$ 个时间单位；进程 P1 在 0 时刻到达，P2 在 2 时刻到达。两进程的页面引用序列（每个时间单位执行一条访存指令，引用一个页号）为
+\[
+\text{P1}:1,2,1,3;\qquad \text{P2}:2,3,2,1.
+\]
+每个进程固定分配 2 个页框，采用局部 LRU 置换，初始页框为空。缺页时该访存指令不完成，系统启动页面 I/O，服务时间为 3 个时间单位；系统只有一个磁盘，缺页请求按 FIFO 排队，一次服务一个。I/O 完成后进程排入就绪队列队尾，重新执行刚才缺页的指令。进程到达即排入就绪队尾；时间片用完且就绪队列非空时抢占并排尾；CPU 空闲时就调度队首进程。
+
+\begin{enumerate}
+\item[(1)] 分别给出 P1、P2 的缺页次数和运行结束时的驻留页集合。
+\item[(2)] 画出 0--20 时间单位的 CPU 时间线（空闲区间也要标出）。
+\item[(3)] 求两进程的完成时间、周转时间及平均周转时间，并计算 CPU 利用率（发生缺页的那一个时间单位也算 CPU 忙）。
+\item[(4)] 若把时间片改为 1，完成时间和缺页次数是否改变？说明理由。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+\textbf{(1) 缺页与驻留页。} P1 依次引用 1、2、1、3：引用 1、2 各缺页一次，引用 1 命中；引用 3 缺页，按 LRU 淘汰页 2，最终驻留 $\{1,3\}$，共缺页 3 次。P2 依次引用 2、3、2、1：引用 2、3 缺页，引用 2 命中；引用 1 缺页，淘汰页 3，最终驻留 $\{1,2\}$，共缺页 3 次。
+
+\textbf{(2) 时间线。} 按题设规则逐段推演：
+
+\begin{center}
+\small
+\begin{tabular}{|c|c|l|}
+\hline
+时间区间 & 运行进程 & 事件 \\
+\hline
+0--1 & P1 & 引用页 1，缺页，I/O 1--4 \\
+1--2 & --- & 两进程均阻塞，CPU 空闲 \\
+2--3 & P2 & 引用页 2，缺页，请求排队，I/O 4--7 \\
+3--4 & --- & CPU 空闲 \\
+4--5 & P1 & 重新执行页 1，命中 \\
+5--6 & P1 & 引用页 2，缺页，请求排队，I/O 7--10 \\
+6--7 & --- & CPU 空闲 \\
+7--8 & P2 & 重新执行页 2，命中 \\
+8--9 & P2 & 引用页 3，缺页，请求排队，I/O 10--13 \\
+9--10 & --- & CPU 空闲 \\
+10--11 & P1 & 重新执行页 2，命中 \\
+11--12 & P1 & 引用页 1，命中 \\
+12--13 & P1 & 引用页 3，缺页，I/O 13--16 \\
+13--14 & P2 & 重新执行页 3，命中 \\
+14--15 & P2 & 引用页 2，命中 \\
+15--16 & P2 & 引用页 1，缺页，请求排队，I/O 16--19 \\
+16--17 & P1 & 重新执行页 3，命中，P1 完成 \\
+17--19 & --- & CPU 空闲 \\
+19--20 & P2 & 重新执行页 1，命中，P2 完成 \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{(3) 指标。} P1 完成时刻 17，周转时间 $17-0=17$；P2 完成时刻 20，周转时间 $20-2=18$。平均周转时间 $(17+18)/2=17.5$。CPU 忙的时间单位为 14 个（P1、P2 各 7 个，含各自 3 个发生缺页的单位），总时间 20，故利用率为 $14/20=70\%$。
+
+\textbf{(4) 时间片改为 1。} 结果不变。除缺页阻塞外，任一时刻至多只有一个进程就绪：P1 在 1--4、6--10、13--16 阻塞，P2 在 3--7、9--13、16--19 阻塞。时间片到期时，另一个进程要么尚未到达，要么正在等待 I/O，就绪队列为空，同一进程会立即被再次调度，所以执行顺序与缺页时刻都不变，缺页仍为 $3+3$ 次，完成时刻仍为 17 和 20。\par\noindent\boxed{\parbox{0.88\linewidth}{\raggedright\textbf{答案：}(1) P1 缺页 3 次，驻留 $\{1,3\}$；P2 缺页 3 次，驻留 $\{1,2\}$。\ (2) 见上表。\ (3) 完成时刻 17、18，周转时间 17、18，平均 17.5，CPU 利用率 70\%。\ (4) 不变。}}\else \answerarea[16] \fi
+
+\item \textbf{（真题风格·综合应用题）} 某系统按字节编址，虚拟地址 32 位，物理地址 28 位，页面大小 4 KiB，采用“一级页号 10 位 $+$ 二级页号 10 位 $+$ 页内偏移 12 位”的二级页表，页表项 4 B。TLB 全相联，共 8 项，当前有效项如下：
+\begin{center}
+\small
+\begin{tabular}{|c|c|}
+\hline
+虚页号 & 页框号 \\
+\hline
+\texttt{0x00A38} & \texttt{0x02F10} \\
+\texttt{0x00A3C} & \texttt{0x03A5C} \\
+\texttt{0x00A40} & \texttt{0x01180} \\
+\hline
+\end{tabular}
+\end{center}
+Cache 采用直接映射，共 64 行，每行 32 B。CPU 读取虚拟地址 \texttt{0x00A3C5E7} 处的 4 B 数据。
+\begin{enumerate}
+\item[(1)] 写出虚拟地址的字段划分，并给出该地址的一级页号、二级页号和页内偏移。
+\item[(2)] 判断 TLB 是否命中；若命中，求物理地址。
+\item[(3)] 若 TLB 未命中且页表项有效，在 Cache 命中和 Cache 缺失两种情况下，完成本次数据访问各需几次主存访问（不计 TLB 和 Cache 本身的访问）？
+\item[(4)] 求该物理地址对应的 Cache 行号、标记字段和块内偏移；说明 4 B 数据是否跨块。
+\item[(5)] 设 TLB 访问 2 ns，主存访问 100 ns，Cache 访问 5 ns；TLB 命中率 96\%，Cache 命中率 95\%，缺页率 $10^{-4}$，缺页处理时间 8 ms。求平均访问时间（从发出虚拟地址到取得数据）。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+\textbf{(1)} 页面 4 KiB $=2^{12}$ B，故页内偏移 12 位，虚页号 $32-12=20$ 位。二级页表两级各 10 位，正好覆盖 20 位虚页号。虚拟地址 \texttt{0x00A3C5E7} 的低 12 位为 \texttt{0x5E7}，虚页号为 \texttt{0x00A3C}。一级页号 $=\texttt{0x00A3C}\gg10=\texttt{0x2}$；二级页号 $=\texttt{0x00A3C}\ \&\ \texttt{0x3FF}=\texttt{0x23C}$。
+
+\textbf{(2)} TLB 表中有虚页号 \texttt{0x00A3C}，命中，页框号为 \texttt{0x03A5C}。物理地址
+\[
+\texttt{0x03A5C}\times 2^{12}+\texttt{0x5E7}
+=\texttt{0x03A5C000}+\texttt{0x5E7}
+=\texttt{0x03A5C5E7}.
+\]
+
+\textbf{(3)} TLB 未命中时，先访问一级页表得到二级页表基址（1 次主存访问），再访问二级页表得到页表项（1 次）。若 Cache 命中，数据从 Cache 取得，共 2 次主存访问；若 Cache 缺失，还要把数据块从主存调入 Cache，共 3 次。注意页表项本身若被 Cache 缓存，实际次数可能更少，本题按“页表项每次都在主存取”计算。
+
+\textbf{(4)} Cache 64 行 $=2^6$，行内 32 B $=2^5$，故行号 6 位、块内偏移 5 位，标记为 $28-6-5=17$ 位。物理地址 \texttt{0x03A5C5E7} 的低 5 位为 $7$，即块内偏移 7。行号
+\[
+(\texttt{0x03A5C5E7}\gg5)\ \&\ \texttt{0x3F}=\texttt{0x2F}=47,
+\]
+标记 $=\texttt{0x03A5C5E7}\gg11=\texttt{0x74B8}$。4 B 数据占块内字节 7--10，均在 0--31 内，不跨块。
+
+\textbf{(5)} 先算不考虑缺页的访问时间。TLB 命中时：$2+5+0.05\times100=12$ ns；TLB 未命中时：$2+2\times100+5+0.05\times100=212$ ns。故
+\[
+T=0.96\times12+0.04\times212=11.52+8.48=20\text{ ns}.
+\]
+再计入缺页：
+\[
+T'=(1-10^{-4})\times20+10^{-4}\times8\times10^{6}
+\approx 19.998+800=819.998\text{ ns}\approx0.82\ \mu\text{s}.
+\]
+缺页率虽只有万分之一，但一次缺页要 8 ms，仍使平均访问时间约为不含缺页时的 $41$ 倍（一次缺页的代价比正常访问高约五个数量级）。\par\noindent\boxed{\parbox{0.88\linewidth}{\raggedright\textbf{答案：}(1) 一级页号 10 位、二级页号 10 位、页内偏移 12 位，一级页号 \texttt{0x2}，二级页号 \texttt{0x23C}，偏移 \texttt{0x5E7}。\ (2) TLB 命中，物理地址 \texttt{0x03A5C5E7}。\ (3) Cache 命中 2 次，缺失 3 次。\ (4) 行号 47，标记 \texttt{0x74B8}，块内偏移 7，不跨块。\ (5) 不含缺页 20 ns，含缺页约 820 ns。}}\else \answerarea[16] \fi
+
+\item \textbf{（真题风格·综合应用题）} 某文件系统采用 UNIX 混合索引：i-node 有 10 个直接块指针、1 个一级间接指针、1 个二级间接指针；盘块 4 KiB，块指针 4 B，i-node 常驻内存。磁盘有 200 个磁道（0--199），磁头当前在 100 号磁道并向磁道号增大的方向移动。现有 5 个读块请求，对应磁道号依次为
+\[
+55,\ 90,\ 130,\ 160,\ 20.
+\]
+\begin{enumerate}
+\item[(1)] 求单个文件的最大长度（以字节和 GiB 表示）。
+\item[(2)] 进程要读文件内偏移 10 MiB 处的一个字节：求逻辑块号、需要经过的索引块，以及不计 i-node 读取时的磁盘 I/O 次数。
+\item[(3)] 分别按 FCFS、SSTF、SCAN、C-LOOK 写出服务顺序并计算磁头移动总磁道数；SCAN 和 C-LOOK 均按当前方向先服务，SCAN 到达端点 199 后才反向。
+\item[(4)] 设每移动一个磁道用时 0.15 ms，磁盘转速 6000 r/min，每道 64 个扇区，每扇区 512 B。按 SSTF 顺序读取这 5 个 4 KiB 块，忽略排队和控制器开销，求总时间。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+\textbf{(1)} 每个盘块可存 $4096/4=1024$ 个指针。直接块 $10\times4\text{ KiB}=40$ KiB，一级间接 $1024\times4\text{ KiB}=4$ MiB，二级间接 $1024^2\times4\text{ KiB}=4$ GiB，故最大文件为
+\[
+4\text{ GiB}+4\text{ MiB}+40\text{ KiB}=4\,299\,202\,560\text{ B}\approx4.0039\text{ GiB}.
+\]
+
+\textbf{(2)} 偏移 10 MiB 对应逻辑块号 $10\times1024\times1024/4096=2560$。直接块 0--9 号，一级间接块 10--1033 号，共 1034 块；2560 号落在二级间接区，区内序号 $2560-1034=1526$。二级间接块含 1024 个指针，故外层下标 $\lfloor1526/1024\rfloor=1$，内层下标 $1526\bmod1024=502$。访问路径为“二级间接根块 $\to$ 二级间接块 $\to$ 数据块”，共 3 次 I/O。
+
+\textbf{(3)} 各算法服务顺序与移动量：
+\begin{center}
+\small
+\begin{tabular}{|c|l|c|}
+\hline
+算法 & 服务顺序（从 100 出发） & 总移动磁道数 \\
+\hline
+FCFS & 55, 90, 130, 160, 20 & $45+35+40+30+140=290$ \\
+SSTF & 90, 55, 20, 130, 160 & $10+35+35+110+30=220$ \\
+SCAN & 130, 160, 199, 90, 55, 20 & $30+30+39+109+35+35=278$ \\
+C-LOOK & 130, 160, 20, 55, 90 & $30+30+140+35+35=270$ \\
+\hline
+\end{tabular}
+\end{center}
+SCAN 先沿增大方向到端点 199，再反向服务 90、55、20；C-LOOK 不走到端点，直接从 160 折返到最小请求 20，再沿增大方向服务 55、90。SSTF 的 220 道最小。
+
+\textbf{(4)} 6000 r/min 时每转 $60/6000=10$ ms，平均旋转延迟 5 ms。4 KiB 块占 $4096/512=8$ 个扇区，传输时间
+\[
+\frac{8}{64}\times10=1.25\text{ ms}.
+\]
+SSTF 总寻道 $220\times0.15=33$ ms；5 个块的平均旋转与传输为 $5\times(5+1.25)=31.25$ ms。总时间
+\[
+33+31.25=64.25\text{ ms}.
+\]
+\par\noindent\boxed{\parbox{0.88\linewidth}{\raggedright\textbf{答案：}(1) $4\,299\,202\,560$ B，约 4.0039 GiB。\ (2) 逻辑块号 2560，经二级间接索引，3 次 I/O。\ (3) FCFS 290、SSTF 220、SCAN 278、C-LOOK 270 道。\ (4) 64.25 ms。}}\else \answerarea[16] \fi
+
+\item \textbf{（真题风格·综合应用题）} 某流水线由三个进程组成：P1 不断生产零件放入缓冲 A（容量 10）；P2 从 A 取出零件加工，把成品放入缓冲 B（容量 5）；P3 从 B 取出成品消费。A、B 均按 FIFO 使用，对同一缓冲区的存取必须互斥；生产、加工、消费本身可以并发。
+\begin{enumerate}
+\item[(1)] 给出所需的信号量及其含义、初值。
+\item[(2)] 用 P、V 操作写出三个进程的程序。
+\item[(3)] 若 P2 把 \texttt{P(mutexA)} 放在 \texttt{P(fullA)} 之前，分析可能出现的后果。
+\item[(4)] 若同时有 3 个 P2 进程并行加工，信号量和程序是否需要修改？说明理由。
+\item[(5)] 若把 B 的容量改为 1，程序是否仍然正确？对流水线性能有什么影响？
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+\textbf{(1)} 需要 6 个信号量：
+\begin{itemize}
+\item \texttt{emptyA}=10、\texttt{fullA}=0：A 中空位数和已有零件数；
+\item \texttt{emptyB}=5、\texttt{fullB}=0：B 中空位数和已有成品数；
+\item \texttt{mutexA}=1、\texttt{mutexB}=1：分别保护 A、B 的队列结构和读写指针。
+\end{itemize}
+
+\textbf{(2)} 程序如下。申请空位必须放在申请互斥量之前，否则缓冲区满时进程会握着锁睡眠，其他进程无法释放空位。
+\begin{lstlisting}[language=C]
+semaphore emptyA = 10, fullA = 0, mutexA = 1;
+semaphore emptyB = 5,  fullB = 0, mutexB = 1;
+
+void P1() {
+    while (1) {
+        item = produce();
+        P(&emptyA);          // 申请 A 的空位
+        P(&mutexA);
+        putA(item);          // 放入缓冲 A
+        V(&mutexA);
+        V(&fullA);           // 通知 P2 有零件
+    }
+}
+
+void P2() {
+    while (1) {
+        P(&fullA);           // 等待 A 中有零件
+        P(&mutexA);
+        item = getA();
+        V(&mutexA);
+        V(&emptyA);          // 释放 A 的空位
+        item = process(item); // 加工在临界区外进行
+        P(&emptyB);          // 申请 B 的空位
+        P(&mutexB);
+        putB(item);
+        V(&mutexB);
+        V(&fullB);           // 通知 P3 有成品
+    }
+}
+
+void P3() {
+    while (1) {
+        P(&fullB);           // 等待 B 中有成品
+        P(&mutexB);
+        item = getB();
+        V(&mutexB);
+        V(&emptyB);          // 释放 B 的空位
+        consume(item);       // 消费在临界区外进行
+    }
+}
+\end{lstlisting}
+
+\textbf{(3)} 若 P2 先执行 \texttt{P(mutexA)} 再执行 \texttt{P(fullA)}：当 A 为空时，P2 持有 \texttt{mutexA} 并在 \texttt{fullA} 上阻塞；P1 生产出零件后可以执行 \texttt{P(emptyA)}，但随后在 \texttt{P(mutexA)} 上阻塞，无法把零件放入 A，也就无法执行 \texttt{V(fullA)}。于是 P2 永远等不到零件，P1 永远等不到锁，形成死锁。原来的顺序让 P2 在等待数据时不持有锁，避免了这一问题。
+
+\textbf{(4)} 不需要修改。3 个 P2 进程都按同一顺序执行：先在 \texttt{mutexA} 保护下从 A 取走一个零件，再在 \texttt{mutexB} 保护下向 B 放入一个成品。\texttt{fullA}、\texttt{emptyA} 计数的是 A 中产品与空位的总数，\texttt{fullB}、\texttt{emptyB} 计数的是 B 中的数量，多个加工者只会让计数增减更频繁，不会破坏互斥或同步条件。加工过程在临界区外，可由多个 P2 真正并行。
+
+\textbf{(5)} 仍然正确，不会死锁。B 的容量变为 1 只改变 \texttt{emptyB} 的初值，P2 在 B 满时阻塞于 \texttt{P(emptyB)}，等待 P3 取走成品；P3 取走后面 \texttt{V(emptyB)}，P2 即可继续。性能上，B 只能暂存一个成品，P2 的加工节奏更容易被 P3 的消费速度牵制，P2 阻塞更频繁；A 仍可缓冲 10 个零件，所以 P1 不会立即被拖慢，但 A 填满后 P1 也会阻塞。缓冲变小降低了生产与消费之间的解耦程度，吞吐量可能下降。
+\par\noindent\boxed{\parbox{0.88\linewidth}{\raggedright\textbf{答案：}共 6 个信号量，初值与程序见上。\ (3) 会死锁。\ (4) 不必修改。\ (5) 仍然正确，但生产与消费耦合增强、阻塞更频繁。}}\else \answerarea[18] \fi
+
+\end{enumerate}

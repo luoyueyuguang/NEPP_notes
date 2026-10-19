@@ -1,541 +1,379 @@
 \section{计算机系统概述}
 
-\subsection{计算机发展历程}
+先看一行 C 代码：\texttt{c = a + b;}。编译器把它变成几条机器指令，处理器从存储器中取出这些指令，译码，从寄存器或主存取操作数，做一次加法，再把结果写回。整个过程只涉及三样东西：指令、数据，以及存放它们的存储单元。本章要回答的是，这三样东西怎样被组织成一台机器，以及这种组织方式怎样决定程序跑多快。
+
+\subsection{一条指令在机器里走一遍}
+
+1946 年公布的 ENIAC 是第一台通用电子数字计算机，但它没有“存储程序”：计算步骤靠插线和开关设定，换一道题往往要重新接线。1945 年，冯·诺依曼在为 EDVAC 写的报告中提出了另一条路：把指令也当作数据存进存储器，机器按地址逐条取指、译码、执行。EDVAC 到 1951 年才投入运行，而 EDSAC 在 1949 年就已经跑起了存储程序；此后，“存储程序”成为通用计算机的基本模型。
 
 \begin{mydef}{冯·诺依曼结构}{von-neumann}
-冯·诺依曼（John von Neumann）于 1945 年提出「存储程序」（Stored Program）概念，奠定了现代通用计算机的基本架构。其核心思想可概括为：
-
+冯·诺依曼结构的基本特征是：
 \begin{enumerate}
-    \item \textbf{存储程序}：指令和数据以同等地位存放在同一个存储器中，按地址访问。
-    \item \textbf{顺序执行}：CPU 从存储器中逐条取出指令，经译码后执行，程序计数器（PC）自动指向下一条指令。
-    \item \textbf{二进制编码}：指令和数据均以二进制形式表示。
-    \item \textbf{五大部件}：计算机由\textbf{运算器}、\textbf{控制器}、\textbf{存储器}、\textbf{输入设备}和\textbf{输出设备}五大部分组成。
+    \item 指令和数据都以二进制表示，存放在同一个存储器中，按地址访问；
+    \item 指令由操作码和地址码组成，指令序列由程序计数器（PC）引导，逐条取出执行；
+    \item 计算机由运算器、控制器、存储器、输入设备和输出设备五大部分组成；
+    \item 原始方案以运算器为中心，输入/输出设备与存储器之间的数据传送也要经过运算器。
 \end{enumerate}
 \end{mydef}
 
-\begin{conclusion}{冯·诺依曼结构 vs 现代计算机结构}{vn-vs-modern}
-\textbf{冯·诺依曼结构的特点：以运算器为中心。}
+这里最容易被误解的是“同一个存储器”。它指的是逻辑上统一编址、按地址访问的存储空间，不是说物理上只能有一个存储体。现代处理器把指令 Cache 和数据 Cache 分开，操作系统用虚拟存储把主存和磁盘连成一个地址空间，程序员看到的仍然是一个可以按地址访问的存储空间，所以这些优化并不推翻存储程序模型。
 
-在冯·诺依曼原始设计中，运算器（ALU）处于整个系统的中心位置：输入/输出设备与存储器之间的数据传送都需要经过运算器，运算器既是计算的核心，也是数据流动的枢纽。这一设计导致了所谓的「冯·诺依曼瓶颈」——总线上的数据传送成为性能制约因素。
+把机箱打开，五大部分的分工可以这样看。运算器负责算术和逻辑运算，核心是 ALU、累加器 ACC、乘商寄存器 MQ 和通用寄存器；控制器负责指挥，核心是 PC、指令寄存器 IR、指令译码器 ID 和时序/控制信号发生器；存储器存放程序和数据，核心是存储体、地址译码器和读写电路，CPU 通过 MAR 送地址、通过 MDR 收/发数据；输入设备把外界信息送进来，输出设备把结果送出去。运算器和控制器合称 CPU，CPU 与主存合称主机，外存和 I/O 设备属于外设。
 
-\textbf{现代计算机结构的特点：以存储器为中心。}
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, line width=0.5pt]
+  % CPU 外框
+  \draw[rounded corners=3pt, fill=SoftBlue, draw=Navy!45] (-7.45,0.2) rectangle (-0.6,5.05);
+  \node[anchor=north west, font=\scriptsize\bfseries, text=Navy] at (-7.3,4.98) {CPU};
+  % 控制器
+  \draw[rounded corners=2pt, fill=SoftTeal, draw=Teal!45] (-7.2,2.35) rectangle (-2.65,4.9);
+  \node[draw, fill=white, minimum width=1.05cm, minimum height=0.42cm] (pc) at (-6.55,4.35) {PC};
+  \node[draw, fill=white, minimum width=1.05cm, minimum height=0.42cm] (ir) at (-3.3,2.65) {IR};
+  \node[draw, fill=white, minimum width=1.05cm, minimum height=0.42cm] (id) at (-5.1,2.65) {ID};
+  \node[draw, fill=white, minimum width=1.05cm, minimum height=0.42cm] (mar) at (-3.3,4.35) {MAR};
+  \node[draw, fill=white, minimum width=1.05cm, minimum height=0.42cm] (mdr) at (-3.3,3.5) {MDR};
+  % 运算器
+  \node[draw, fill=white, minimum width=1.05cm, minimum height=0.48cm] (acc) at (-6.45,1.7) {ACC};
+  \node[draw, fill=white, minimum width=1.05cm, minimum height=0.48cm] (x) at (-4.95,1.7) {X};
+  \node[draw, fill=SoftGray, minimum width=2.0cm, minimum height=0.55cm] (alu) at (-5.7,0.85) {ALU};
+  % 主存
+  \draw[rounded corners=3pt, fill=SoftGray, draw=MutedText!55] (0.9,1.7) rectangle (5.9,4.8);
+  \node[font=\scriptsize\bfseries, text=Navy] at (3.4,4.5) {主存储器};
+  \node[font=\tiny, text=MutedText] at (3.4,4.02) {存储体 + 地址译码 + 读写电路};
+  \node[font=\tiny, text=MutedText] at (3.4,2.95) {按地址访问，指令与数据同等存放};
+  % 地址总线、数据总线
+  \draw[->, Navy!70, line width=0.75pt] (mar.east) -- (0.9,4.35);
+  \draw[<->, Teal!70, line width=0.75pt] (0.9,3.5) -- (mdr.east);
+  % 控制总线：从控制器下方绕到主存
+  \draw[->, Amber!80, line width=0.75pt] (-2.9,2.35) -- (-2.9,2.1) -- (0.9,2.1);
+  % CPU 内部数据通路
+  \draw[->] (pc.east) -- node[above, font=\tiny]{(1)} (mar.west);
+  \draw[->] (mdr.south) -- node[right, font=\tiny]{(3)} (ir.north);
+  \draw[->] (ir.west) -- node[above, font=\tiny]{(4)} (id.east);
+  \draw[->] (mdr.east) -- (-2.3,3.5) -- (-2.3,1.7) -- node[above, font=\tiny]{(5)} (x.east);
+  \draw[->] (x.south) -- (alu.north east);
+  \draw[->] (acc.south) -- (alu.north west);
+  \draw[->] (alu.west) -- (-7.0,0.85) -- (-7.0,1.7) -- node[left, font=\tiny]{(6)} (acc.west);
+  % 总线图例
+  \draw[Navy!70, line width=0.75pt] (-6.8,-0.35) -- (-6.0,-0.35);
+  \node[right, font=\scriptsize] at (-6.0,-0.35){地址总线（单向）};
+  \draw[Teal!70, line width=0.75pt] (-2.5,-0.35) -- (-1.7,-0.35);
+  \node[right, font=\scriptsize] at (-1.7,-0.35){数据总线（双向）};
+  \draw[Amber!80, line width=0.75pt] (1.6,-0.35) -- (2.4,-0.35);
+  \node[right, font=\scriptsize] at (2.4,-0.35){控制总线};
+  % 步骤说明
+  \node[font=\scriptsize, text=MutedText] at (0.2,-0.85){(1) PC$\to$MAR\quad (2) 主存读出\quad (3) MDR$\to$IR\quad (4) 译码\quad (5) 取操作数\quad (6) 运算并写回};
+\end{tikzpicture}
+\end{center}
 
-现代计算机体系结构转向了「以存储器为中心」：
-\begin{itemize}
-    \item CPU（运算器 + 控制器）与存储器通过系统总线直接通信；
-    \item I/O 设备通过 I/O 控制器/接口电路与总线相连，数据可以在存储器和 I/O 设备之间直接传送（DMA 方式），无需经过 CPU 的运算器；
-    \item 存储器成为数据交换的中心枢纽。
-\end{itemize}
-\end{conclusion}
+图里标的是一条加法指令要走的路径。取指阶段，PC 把地址送到 MAR，经地址总线选中主存单元；主存读出内容，经数据总线送到 MDR，再送入 IR；控制器让 PC 指向下一条指令（指令长度可变时加上指令长度）。译码阶段，ID 分析 IR 中的操作码，产生控制信号。执行阶段，如果操作数在存储器中，IR 的地址码再走一次 MAR、主存、MDR，把操作数送到 X 或 ACC；ALU 完成运算，结果写回 ACC 或主存。图中的地址总线是单向的，数据总线是双向的，控制总线传递读/写、中断等信号；实际机器为了并行，往往给指令和数据配不同的总线或 Cache。
 
 \begin{attention}
-\textbf{408 常考点：} 冯·诺依曼结构的核心特征是「存储程序」。多选题中常出现「冯·诺依曼计算机的特点」的判断，注意：
-\begin{itemize}
-    \item 「指令和数据以同等地位存放在同一存储器」——正确（但现代机器中指令 Cache 和数据 Cache 分离是性能优化，不改变「同一存储器」的逻辑模型）；
-    \item 「指令与数据均用二进制表示」——正确；
-    \item 「指令顺序执行，PC 自增指向下一条」——正确（是基本模型；现代 CPU 的流水线和乱序执行是内部优化，程序员看到的是顺序执行）。
-\end{itemize}
+地址总线的位数决定 CPU 能直接编址多少个单元。$n$ 位地址总线最多选择 $2^n$ 个编址单元；若按字节编址，主存最大容量就是 $2^n$ 字节。数据总线的宽度决定一次能并行传送多少位，64 位数据总线一次传 8 字节。MAR 的位数与地址总线位数一致，MDR 的位数通常与存储字长一致。
 \end{attention}
 
-\begin{conclusion}{计算机发展简史}{computer-history}
-\begin{tablebox}{计算机发展的四个时代}
-\centering
-\begin{tabularx}{\linewidth}{|c|c|c|X|}
-\hline
-时代 & 时间 & 核心元件 & 特点 \\
-\hline
-第一代 & 1946--1957 & 电子管 & 体积大、功耗高、机器语言编程 \\
-第二代 & 1958--1964 & 晶体管 & 出现高级语言（FORTRAN）、批处理系统 \\
-第三代 & 1965--1971 & 中小规模 IC & 操作系统成熟、出现微机雏形 \\
-第四代 & 1972--至今 & 大规模/超大规模 IC & 微处理器诞生、PC 普及、多核并行 \\
-\hline
-\end{tabularx}
-\end{tablebox}
+和原始方案相比，现代计算机改成了“以存储器为中心”：CPU 通过系统总线和存储器直接通信，I/O 设备通过 I/O 接口挂到总线上，DMA 方式下数据可以在存储器和 I/O 设备之间直接传送，不必经过运算器。但 CPU 和存储器之间的通路仍然是瓶颈，这就是常说的“冯·诺依曼瓶颈”。后来的 Cache、多级存储层次和更宽的内存总线，很大程度上都是在缓解这条通路的速度差。它说的是带宽限制，不是“内存容量不够”。
 
-\textbf{摩尔定律（Moore's Law）：} 在经典表述中，集成电路上可经济集成的晶体管数量大约每 18--24 个月增长一倍。它描述的是集成度趋势，并不等价于处理器性能按同一比例自动增长；功耗、存储墙和并行度都会影响实际性能。随着传统缩放放缓，现代处理器更多依靠多核、向量化和专用加速器提升性能。
-\end{conclusion}
+从所用器件看，计算机大致经历了电子管、晶体管、中小规模集成电路、大规模与超大规模集成电路四个阶段。1965 年，摩尔（Gordon Moore）提出，集成电路上可经济集成的晶体管数大约每 18--24 个月翻一番，这条经验规律后来被称为摩尔定律（Moore's law）；它支撑了主频和存储容量的长期增长，但近年已经放缓，单核主频不再快速上升，性能提升更多依靠多核、向量指令和专用加速器。摩尔定律描述的是集成度趋势，不等于处理器性能自动按同一比例增长。
 
-\subsection{计算机硬件组成}
+\subsection{硬件之上：软件与层次结构}
 
-\begin{mydef}{计算机硬件五大部件}{hardware-components}
-现代计算机的硬件系统由以下五大部件组成，通过系统总线（地址总线、数据总线、控制总线）互联：
+硬件只认识二进制机器指令。要让“$c=a+b$”这样的表达式跑起来，还需要软件把高层写法逐层落到机器指令上。操作系统、编译程序、汇编程序、链接程序、数据库管理系统、设备驱动，这些都属于系统软件：它们要么管理硬件资源，要么为其他程序提供运行环境。浏览器、办公软件、游戏属于应用软件。两者的边界不是绝对的，数据库系统既可以被看作系统软件，也可以被看作应用支撑平台；408 通常把它归入系统软件。
 
-\begin{enumerate}
-    \item \textbf{运算器（ALU，Arithmetic Logic Unit）}：执行算术运算和逻辑运算。核心部件包括 ALU、累加器（ACC）、乘商寄存器（MQ）、通用寄存器组等。
-    \item \textbf{控制器（CU，Control Unit）}：指挥整个计算机系统协调工作。核心部件包括程序计数器（PC）、指令寄存器（IR）、指令译码器（ID）、时序发生器和微操作信号发生器。运算器与控制器合称 CPU。
-    \item \textbf{存储器（Memory）}：存放程序和数据。分为主存储器（内存）和辅助存储器（外存）。主存由存储体、MAR（存储器地址寄存器）、MDR（存储器数据寄存器）及读写电路组成。
-    \item \textbf{输入设备}：将程序和数据从外界送入计算机，如键盘、鼠标、扫描仪。
-    \item \textbf{输出设备}：将处理结果从计算机送出到外界，如显示器、打印机。
-\end{enumerate}
-\end{mydef}
+程序设计语言大致分三级。机器语言就是二进制指令，硬件能直接执行；汇编语言用助记符代替操作码和地址码，再由汇编程序翻译成机器语言；高级语言用接近自然语言和数学表达式的写法，由编译程序翻译，或者由解释程序逐条解释执行。编译和解释的差别不在“谁更高级”，而在翻译和执行的先后关系。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \draw[thick,Navy!70] (-6.5,0) -- (6.5,0);
-  \node[font=\scriptsize,black!70] at (0,-0.35){系统总线（地址总线 / 数据总线 / 控制总线）};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.85cm] (in) at (-4.5,1.2){输入设备};
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=3.0cm,minimum height=1.5cm,align=center] (cpu) at (-1.5,1.2){\textbf{CPU}\\运算器 + 控制器};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.7cm,minimum height=0.85cm] (mem) at (2.0,1.2){存储器};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.85cm] (out) at (4.8,1.2){输出设备};
-  \draw[Navy!70] (in.south) -- (-4.5,0);
-  \draw[Navy!70] (cpu.south) -- (-1.5,0);
-  \draw[Navy!70] (mem.south) -- (2.0,0);
-  \draw[Navy!70] (out.south) -- (4.8,0);
+  % 时间轴
+  \draw[->] (0,0) -- (10.8,0) node[right, font=\scriptsize]{时间};
+  % 编译方式
+  \node[anchor=east, font=\scriptsize] at (-0.15,2.0){编译方式};
+  \fill[SoftAmber, draw=Amber!60] (0,1.62) rectangle (4,2.38);
+  \node[font=\scriptsize] at (2,2.0){编译 + 优化（只做一次）};
+  \fill[SoftTeal, draw=Teal!60] (4,1.62) rectangle (10,2.38);
+  \node[font=\scriptsize] at (7,2.0){执行目标代码};
+  % 解释方式
+  \node[anchor=east, font=\scriptsize] at (-0.15,0.8){解释方式};
+  \foreach \i in {0,...,4} {
+    \fill[SoftAmber, draw=Amber!60] ({2*\i},0.42) rectangle ({2*\i+0.8},1.18);
+    \node[font=\scriptsize] at ({2*\i+0.4},0.8){译};
+    \fill[SoftTeal, draw=Teal!60] ({2*\i+0.8},0.42) rectangle ({2*\i+2},1.18);
+    \node[font=\scriptsize] at ({2*\i+1.4},0.8){执行};
+  }
+  \draw[dashed, MutedText!70] (4,0.15) -- (4,2.6);
+  \node[font=\scriptsize, text=MutedText, align=center] at (4,2.8){开始执行};
+  \node[font=\scriptsize, text=MutedText] at (5,-0.28){示意图；宽度不代表实际耗时};
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-\textbf{408 常考辨析：CPU 包含哪两部分？} 运算器 + 控制器 = CPU（中央处理器）。注意「主机」的概念在 408 中通常指 CPU + 主存储器（不包括外存和 I/O 设备）。
-\end{attention}
+图的上半部分是编译方式：先把整个源程序翻译成目标程序，之后反复执行都不再付翻译开销，所以适合反复运行的大程序。下半部分是解释方式：读一条语句，翻译并执行，再读下一条，翻译和执行交替出现；启动快、跨平台方便，但每次执行都要重新翻译。Java 先编译成字节码，再由 JVM 解释或即时编译（JIT），是两种方式的混合。图中把每条语句的翻译宽度画成一样，只是为了对比结构，不代表真实比例。
 
-\begin{conclusion}{运算器的核心寄存器}{alu-registers}
-\begin{tablebox}{运算器常用寄存器}
-\centering
-\begin{tabularx}{\linewidth}{|p{0.34\linewidth}|X|}
-\hline
-寄存器 & 功能 \\
-\hline
-ACC（Accumulator） & 累加器，存放 ALU 运算结果 \\
-MQ（Multiplier-Quotient） & 乘商寄存器，乘法时存乘数，除法时存商 \\
-X（通用操作数寄存器） & 存放一个 ALU 输入操作数 \\
-PSW/FLAGS & 程序状态字/标志寄存器，存放条件码（ZF/OF/CF/SF）\\
-\hline
-\end{tabularx}
-\end{tablebox}
+把“谁在翻译谁”排成层次，就得到常见的六级模型：
 
-不同体系结构中寄存器命名有所不同，但功能等价。x86 中累加器为 EAX/RAX，ARM 中使用通用寄存器 r0--r15。
-\end{conclusion}
-
-\begin{conclusion}{控制器的基本工作流程}{cu-workflow}
-控制器完成一条指令的基本流程（取指--译码--执行）：
-\begin{enumerate}
-    \item \textbf{取指（Fetch）}：按 PC 所指地址从存储器取指令$\to$IR，PC 自增指向下一条指令。
-    \item \textbf{译码（Decode）}：指令译码器分析 IR 中的操作码，产生相应的控制信号。
-    \item \textbf{执行（Execute）}：根据译码结果，控制相关部件完成数据传送或运算。
-    \item \textbf{写回（Write Back）}：将结果写回寄存器或存储器（如有需要）。
-\end{enumerate}
-\end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, node distance=0.3cm]
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (f) at (0,0.4) {取指};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (d) at (2.4,0.4) {译码};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (e) at (4.8,0.4) {执行};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (w) at (7.2,0.4) {写回};
-  \draw[->] (f) -- (d);
-  \draw[->] (d) -- (e);
-  \draw[->] (e) -- (w);
-  \node[align=center,font=\scriptsize,black!70] at (0,-0.6){按 PC 所指地址\\取指令到 IR，PC 自增};
-  \node[align=center,font=\scriptsize,black!70] at (2.4,-0.6){译码器分析操作码\\产生控制信号};
-  \node[align=center,font=\scriptsize,black!70] at (4.8,-0.6){按控制信号完成\\数据传送或运算};
-  \node[align=center,font=\scriptsize,black!70] at (7.2,-0.6){结果写回寄存器\\或存储器};
-\end{tikzpicture}
-\end{center}
-
-\begin{conclusion}{存储器的层次结构}{memory-hierarchy}
-存储器按速度和容量分为层次结构（见后续章节详述）：
-\[
-\text{CPU 寄存器} > \text{Cache（L1/L2/L3）} > \text{主存（DRAM）} > \text{辅存（SSD/HDD）}
-\]
-从左到右：速度递减、容量递增、单位成本递减。
-\end{conclusion}
-
-\subsection{计算机软件系统}
-
-\begin{mydef}{系统软件 vs 应用软件}{software-classification}
-计算机软件分为两大类：
-
-\begin{enumerate}
-    \item \textbf{系统软件（System Software）}：管理计算机系统资源、支撑其他软件运行的软件。包括：
-    \begin{itemize}
-        \item \textbf{操作系统（OS）}：管理硬件资源、提供程序运行环境（如 Linux、Windows、macOS）。
-        \item \textbf{语言处理程序}：编译器、汇编器、解释器，将高级/汇编语言程序翻译为机器码。
-        \item \textbf{数据库管理系统（DBMS）}：如 MySQL、PostgreSQL。
-        \item \textbf{实用程序}：加载器、链接器、调试器。
-    \end{itemize}
-    \item \textbf{应用软件（Application Software）}：直接为用户完成特定任务的软件，如办公软件、浏览器、游戏、科学计算程序等。
-\end{enumerate}
-
-\textbf{408 常考辨析：} 操作系统属于系统软件；数据库管理系统（DBMS）通常也归入系统软件范畴；编译器、汇编器是系统软件。
-\end{mydef}
-
-\begin{conclusion}{三个级别的程序设计语言}{language-levels}
-\begin{tablebox}{三种语言级别对比}
-\centering
-\small
-\begin{tabularx}{\linewidth}{|p{2.2cm}|X|X|X|}
-\hline
-特性 & 机器语言 & 汇编语言 & 高级语言 \\
-\hline
-形式 & 二进制代码 & 助记符 & 类自然语言/数学表达式 \\
-可读性 & 极差 & 较差 & 良好 \\
-可移植性 & 无 & 差 & 好（需编译器适配）\\
-执行效率 & 最高 & 高 & 取决于编译器优化 \\
-程序示例 & \texttt{B8 0001} & \texttt{MOV AX, 1} & \texttt{int a = 1;} \\
-翻译方式 & 直接执行 & 汇编器$\to$机器码 & 编译器$\to$机器码或解释执行 \\
-\hline
-\end{tabularx}
-\end{tablebox}
-
-\textbf{翻译过程：} 高级语言 $\xrightarrow{\text{编译器/解释器}}$ 汇编语言 $\xrightarrow{\text{汇编器}}$ 机器语言。注意：编译与解释是两种不同的翻译方式：
-\begin{itemize}
-    \item \textbf{编译（Compilation）}：一次性将整个源程序翻译为目标代码，再执行目标代码（如 C/C++、Go、Rust）。
-    \item \textbf{解释（Interpretation）}：逐条翻译并执行，不生成独立的目标文件（如 Python、JavaScript 的传统执行方式）。
-\end{itemize}
-\end{conclusion}
-
-\subsection{计算机系统的层次结构}
-
-\begin{mydef}{计算机系统的多层次模型}{system-layers}
-计算机系统可以抽象为层次模型：下层为上层提供接口（服务），上层通过调用下层接口实现更高级的功能。从底层到上层的典型分层如下：
-\end{mydef}
-
-\begin{conclusion}{从微程序到高级语言的六级层次}{system-layers-detail}
-\begin{center}
-\begin{tabular}{|c|c|l|}
-\hline
-层次 & 层级 & 核心概念 \\
-\hline
-$L_0$ & 微程序级/硬联逻辑 & 微指令、微操作，由硬件直接执行 \\
-$L_1$ & 传统机器语言级 & 二进制机器指令，由微程序解释执行 \\
-$L_2$ & 操作系统级 & 提供系统调用，管理资源与抽象 \\
-$L_3$ & 汇编语言级 & 助记符指令，由汇编器翻译为 $L_1$ \\
-$L_4$ & 高级语言级 & C/C++/Java 等，由编译器翻译 \\
-$L_5$ & 应用层（用户层）& 应用程序通过 API/库使用系统服务 \\
-\hline
-\end{tabular}
-\end{center}
-
-\textbf{关键概念：}
-\begin{itemize}
-    \item \textbf{翻译（Translation）}：将上层程序整体转换为下层等价程序，再在下层执行。$L_3\to L_1$（汇编器）、$L_4\to L_1$（编译器）均通过翻译。
-    \item \textbf{解释（Interpretation）}：下层程序逐条处理上层程序的每条语句并直接执行，不生成完整的目标程序。$L_1$ 的机器指令通常由 $L_0$ 的微程序解释执行。
-    \item \textbf{虚拟机（Virtual Machine）}：通过「翻译 + 解释」的组合，使得上层语言不需要考虑底层的硬件细节，每一层对上层来说都是一台「虚拟机器」。典型例子：JVM 将 Java 字节码解释/即时编译（JIT）在物理机上执行。
-\end{itemize}
-\end{conclusion}
-
+\vspace*{0.25cm}
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=5.2cm,minimum height=0.62cm,align=center] (L5) at (0,2.6){$L_5$ 应用层（用户层）：API / 库调用};
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=5.2cm,minimum height=0.62cm,align=center] (L4) at (0,1.85){$L_4$ 高级语言级：C/C++/Java};
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=5.2cm,minimum height=0.62cm,align=center] (L3) at (0,1.1){$L_3$ 汇编语言级：助记符};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=5.2cm,minimum height=0.62cm,align=center] (L2) at (0,0.35){$L_2$ 操作系统级：系统调用 / 资源抽象};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=5.2cm,minimum height=0.62cm,align=center] (L1) at (0,-0.4){$L_1$ 传统机器语言级（二进制指令）};
-  \node[draw,rounded corners=2pt,fill=Burgundy!12,minimum width=5.2cm,minimum height=0.62cm,align=center] (L0) at (0,-1.15){$L_0$ 微程序级 / 硬联逻辑（物理机）};
-  \node[font=\scriptsize,black!70,anchor=west] at (3.0,1.475){翻译：$L_4\!\to\!L_1$（编译器/汇编器）};
-  \node[font=\scriptsize,black!70,anchor=west] at (3.0,-0.775){解释：$L_1\!\to\!L_0$（微程序）};
-  % 虚框标注：L2--L5 为虚拟机
-  \draw[dashed,Burgundy!60,rounded corners=2pt] (-3.1,2.9) rectangle (3.1,-0.05);
-  \node[font=\scriptsize,Burgundy!80] at (-3.1,3.05){$L_2$--$L_5$：虚拟机（由下层软件+硬件模拟）};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, minimum width=6.4cm, minimum height=0.62cm] (l5) at (0,5.2){$L_5$ 应用层：API / 库调用};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, minimum width=6.4cm, minimum height=0.62cm] (l4) at (0,4.3){$L_4$ 高级语言级：C/C++/Java};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, minimum width=6.4cm, minimum height=0.62cm] (l3) at (0,3.4){$L_3$ 汇编语言级：助记符};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, minimum width=6.4cm, minimum height=0.62cm] (l2) at (0,2.5){$L_2$ 操作系统级：系统调用 / 资源抽象};
+  \node[draw, rounded corners=2pt, fill=SoftGray, minimum width=6.4cm, minimum height=0.62cm] (l1) at (0,1.6){$L_1$ 传统机器级：机器指令（ISA）};
+  \node[draw, rounded corners=2pt, fill=SoftGray, minimum width=6.4cm, minimum height=0.62cm] (l0) at (0,0.7){$L_0$ 微程序级 / 硬联逻辑};
+  % 左侧虚框
+  \draw[dashed, Burgundy!60, rounded corners=3pt] (-4.0,2.05) rectangle (3.4,5.56);
+  \draw[dashed, MutedText!70, rounded corners=3pt] (-4.0,0.3) rectangle (3.4,1.95);
+  % 右侧说明
+  \node[anchor=west, font=\scriptsize, align=left] (tr) at (4.6,3.55){编译器、汇编器\\把 $L_3/L_4$ 整体\\翻译成 $L_1$ 指令};
+  \draw[->, Burgundy!70] (4.55,3.25) -- (4.2,3.25) -- (4.2,1.6) -- (3.25,1.6);
+  \node[anchor=west, font=\scriptsize, align=left] (in) at (4.6,1.05){微程序逐条\\解释 $L_1$ 指令};
+  \draw[->, Teal!70] (4.55,1.05) -- (3.9,1.05) -- (3.9,0.7) -- (3.25,0.7);
+  \node[font=\scriptsize, text=MutedText, align=center] at (0,-0.45){虚线框：$L_2$--$L_5$ 为虚拟机器，$L_0$--$L_1$ 为实际机器；\\ RISC 处理器常用硬联逻辑实现 $L_0$，此时没有微程序。};
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-\textbf{408 常考点——翻译 vs 解释：}
-\begin{itemize}
-    \item 在层次结构模型中，$L_3$（汇编）到 $L_1$（机器）是\textbf{翻译}；$L_4$（高级语言）到 $L_1$ 也是\textbf{翻译}。
-    \item $L_0$（微程序）到 $L_1$ 是\textbf{解释}——每一条机器指令由一段微程序解释执行。
-    \item 注意：物理上不存在 $L_2$--$L_5$ 层的「硬件」，这些是虚拟机器（由下层软件+硬件模拟出来的抽象）。物理机器一般指 $L_0$ 和 $L_1$。
-\end{itemize}
-\end{attention}
+图里右侧的两条箭头表示上层程序怎样落到下层：编译器和汇编器做的是整体翻译，把一段源程序转换成等价的机器指令序列，再交给硬件；微程序做的是解释，每取到一条机器指令，就用一段微程序里的微指令序列去完成它。图中的虚线框表示层次的虚实：$L_0$ 和 $L_1$ 有对应的硬件，是实际机器；$L_2$ 以上没有专门的硬件，是操作系统和语言处理程序在裸机上构造出来的虚拟机器。
 
-\subsection{计算机性能指标}
+这里要区分两个“层次”概念。一个是上面这种按翻译关系划分的机器层次；另一个是计算机组成里的“体系结构（ISA）与微架构”。指令格式、寻址方式、寄存器个数、数据类型这些对程序员可见的部分属于 ISA；流水线级数、Cache 容量、分支预测器、总线宽度属于微架构，对程序员透明。同一套 ISA 可以有完全不同的微架构，例如同样执行 x86 指令的处理器，流水线深度和 Cache 大小可能差很多。408 选择题常问“哪一项对程序员透明”，Cache 容量和流水线级数通常是透明的那一类，而寄存器个数、指令格式不是。
 
-\begin{mydef}{基本性能指标}{performance-metrics}
-衡量计算机性能的主要指标包括：
-\begin{enumerate}
-    \item \textbf{机器字长（Word Size）}：CPU 一次能处理的二进制数据的位数。通常与通用寄存器位数和 ALU 宽度一致。字长越长，计算精度越高，但硬件成本也越大。常见：32 位、64 位。
-    \item \textbf{主频（Clock Frequency）}：CPU 内部时钟信号的频率，以 Hz 为单位。主频 $f$ 决定了时钟周期 $T = 1/f$。例如主频 3.0 GHz $\to$ 时钟周期 $T \approx 0.33\text{ ns}$。
-    \item \textbf{CPI（Cycles Per Instruction）}：执行一条指令所需的平均时钟周期数。CPI 越小，CPU 效率越高。
-    \item \textbf{MIPS（Million Instructions Per Second）}：每秒执行百万条指令。
-    \item \textbf{MFLOPS（Million Floating-point Operations Per Second）}：每秒百万次浮点运算。类似还有 GFLOPS、TFLOPS。
-\end{enumerate}
-\end{mydef}
+\subsection{性能：指令、周期与时间}
 
-\begin{formula}{CPU 执行时间的核心公式}{cpu-time-formula}
-\textbf{CPU 执行时间}是衡量计算机性能的最终标尺。核心公式：
+衡量性能有两个不同的问题：完成一个任务要多久，以及单位时间能完成多少任务。前者叫响应时间或执行时间，后者叫吞吐率。一台机器可能通过流水线让吞吐率很高，但单个任务从开始到结束的延迟并不短；反过来，降低延迟的措施通常也会改善吞吐率。408 题目里说“性能”，默认比较的是同一程序的执行时间。
+
+CPU 执行时间只统计 CPU 真正花在程序上的时间，不包括等待 I/O 的时间；墙钟时间（elapsed time）则把 I/O 等待、操作系统调度都算进去。题目说“忽略 I/O”时，用 CPU 执行时间即可。把 CPU 执行时间拆开，就得到本章最重要的公式：
+\begin{formula}{CPU 执行时间}{cpu-time}
 \[
-\boxed{T_{\text{CPU}} = N \times \text{CPI} \times T_{\text{clk}} = \frac{N \times \text{CPI}}{f}}
+T_{\text{CPU}}=\frac{N\times \mathrm{CPI}}{f}=N\times \mathrm{CPI}\times T_{\text{clk}},
+\qquad T_{\text{clk}}=\frac{1}{f}.
 \]
-其中：
-\begin{itemize}
-    \item $N$：程序执行的总\textbf{指令条数}（Instruction Count）。
-    \item $\text{CPI}$：平均每条指令的\textbf{时钟周期数}（Cycles Per Instruction）。
-    \item $T_{\text{clk}}$：\textbf{时钟周期}（Clock Cycle Time），$T_{\text{clk}} = 1 / f$。
-    \item $f$：主频（Clock Frequency）。
-\end{itemize}
-
-\textbf{三个维度的优化方向：}
-\begin{itemize}
-    \item 减少 $N$：编译器优化、更好的算法；
-    \item 降低 CPI：微架构改进（流水线、超标量、乱序执行）；
-    \item 减少 $T_{\text{clk}}$（提高主频）：改进工艺、更好的电路设计。
-\end{itemize}
+其中 $N$ 是程序执行的机器指令条数，$\mathrm{CPI}$ 是平均每条指令占用的时钟周期数，$f$ 是主频，$T_{\text{clk}}$ 是时钟周期。
 \end{formula}
 
-\begin{conclusion}{MIPS 与 MFLOPS 计算}{mips-mflops}
-\[
-\boxed{\text{MIPS} = \frac{\text{指令条数}}{\text{执行时间} \times 10^{6}} = \frac{f}{\text{CPI} \times 10^{6}}}
-\]
-\[
-\boxed{\text{MFLOPS} = \frac{\text{浮点运算次数}}{\text{执行时间} \times 10^{6}}}
-\]
+$N$ 不是源程序的行数，也不是编译器生成的汇编语句数，而是真正被执行的机器指令条数；循环会把它放大，分支会改变它。CPI 也不是指令系统的固定常数，而是这个程序在这台机器上的平均值。三个因子分别对应三类优化：更好的算法和编译器减少 $N$，更好的微架构降低 CPI，更好的工艺和电路提高 $f$。三者不是独立的，提高主频往往要加长流水线或提高电压，可能反过来增加 CPI。
 
-\textbf{注意事项：}
-\begin{itemize}
-    \item MIPS 是\textbf{与程序有关的指标}——同一 CPU 运行不同程序时 MIPS 不同，不能用 MIPS 直接比较不同指令系统的机器的性能。
-    \item MIPS 忽略了指令功能的差异（复杂指令 vs 简单指令执行的工作量不同），因此有时会出现「MIPS 较高但实际性能却较差」的情况（所谓「MIPS 陷阱」）。
-    \item MFLOPS 更适用于科学计算领域的性能比较。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频计算考点——CPI 与 MIPS 的换算：}
-\begin{enumerate}
-    \item \textbf{已知主频和 MIPS，求 CPI：}
-    \[
-    \text{CPI} = \frac{f}{\text{MIPS} \times 10^{6}}
-    \]
-    \item \textbf{多类指令的加权 CPI：} 若程序包含 $k$ 类指令，每类指令条数为 $N_i$，CPI 为 $\text{CPI}_i$，则：
-    \[
-    \text{CPI}_{\text{avg}} = \frac{\sum_{i=1}^{k} N_i \times \text{CPI}_i}{\sum_{i=1}^{k} N_i} = \sum_{i=1}^{k} \left( \frac{N_i}{\sum N_i} \right) \times \text{CPI}_i
-    \]
-    \item \textbf{执行时间比较：} 比较两台机器的性能时，最终依据是 $T_{\text{CPU}}$（或与其成正比的 $N \times \text{CPI} / f$），不能只比较 MIPS 或主频。
-\end{enumerate}
-\end{attention}
-
-\begin{conclusion}{性能指标速查表}{perf-metrics-table}
-\begin{tablebox}{常见性能指标}
-\centering
-\begin{tabular}{|c|l|l|}
-\hline
-指标 & 定义 & 备注 \\
-\hline
-机器字长 & CPU 一次处理的二进制位数 & 32/64 位 \\
-主频 $f$ & 时钟信号频率 & GHz 级 \\
-$T_{\text{clk}}$ & $1/f$，时钟周期 & 例如 3 GHz $\to$ 0.33 ns \\
-CPI & 每条指令的平均时钟数 & 越小越好 \\
-IPC & $1/\text{CPI}$，每周期指令数 & 越大越好 \\
-MIPS & 每秒百万条指令 & 与程序相关 \\
-MFLOPS & 每秒百万次浮点运算 & 科学计算常用 \\
-$T_{\text{CPU}}$ & $N \times \text{CPI} \times T_{\text{clk}}$ & 终极性能指标 \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-其中 $\text{IPC} = 1/\text{CPI}$。现代超标量处理器的 IPC 可以大于 1（每个周期发射多条指令）。
-\end{conclusion}
-
-\begin{conclusion}{性能计算实例}{perf-example}
-\boxed{\textbf{例}} 某计算机主频为 2.0 GHz，运行某程序共执行 $2\times 10^{9}$ 条指令，CPI = 1.5。求 CPU 执行时间和 MIPS。
-
-\textbf{解：}
-\begin{itemize}
-    \item $T_{\text{clk}} = 1 / (2.0\times 10^{9}) = 0.5 \times 10^{-9} \text{ s} = 0.5 \text{ ns}$
-    \item $T_{\text{CPU}} = N \times \text{CPI} \times T_{\text{clk}} = 2\times 10^{9} \times 1.5 \times 0.5 \times 10^{-9} = 1.5 \text{ s}$
-    \item $\text{MIPS} = f / (\text{CPI} \times 10^{6}) = 2\times 10^{9} / (1.5 \times 10^{6}) \approx 1333.3$
-\end{itemize}
-
-\boxed{\textbf{例}} 某程序包含三类指令，A 类 10,000 条（CPI = 1）、B 类 20,000 条（CPI = 2）、C 类 10,000 条（CPI = 3）。求该程序的平均 CPI。
-
-\textbf{解：}
-\[
-\text{CPI}_{\text{avg}} = \frac{10,000\times1 + 20,000\times2 + 10,000\times3}{10,000+20,000+10,000} = \frac{80,000}{40,000} = 2.0
-\]
-\end{conclusion}
-
-\subsection{408 高频考点与答题策略}
-
-\begin{conclusion}{本章 408 核心考点总结}{chap1-keypoints}
-\begin{enumerate}
-    \item \textbf{冯·诺依曼结构的核心特征}：存储程序、五大部件、以运算器为中心（注意与现代以存储器为中心的对比）。
-    \item \textbf{五大部件的功能与辨析}：运算器（ALU + 寄存器）、控制器（PC/IR/ID）、两者合称 CPU；主机 = CPU + 主存。
-    \item \textbf{软件分类}：系统软件（OS/编译器/汇编器/DBMS）vs 应用软件——这个知识点在选择题中常以「以下哪个属于系统软件」的形式出现。
-    \item \textbf{三个语言级别}：机器语言（二进制）、汇编语言（助记符$\to$汇编器翻译）、高级语言（编译器翻译或解释执行）。注意区分编译与解释。
-    \item \textbf{计算机层次结构}：$L_0$（微程序）到 $L_5$（应用层），理解每一层的作用及层次间的翻译/解释关系。常考点：哪几层是虚拟机？哪几层是物理机？
-    \item \textbf{CPU 执行时间公式}：$T_{\text{CPU}} = N \times \text{CPI} \times T_{\text{clk}}$。这是串起所有性能指标的枢纽公式，必须熟练运用。
-    \item \textbf{MIPS 计算}：$\text{MIPS} = f / (\text{CPI} \times 10^{6})$，注意单位的统一（主频用 Hz）。
-    \item \textbf{多类指令的加权 CPI}：按频度加权求和，408 计算题高频出现。
-\end{enumerate}
-\end{conclusion}
-
-\begin{attention}
-\textbf{常见易错点：}
-\begin{itemize}
-    \item 主频单位换算：1 GHz = $10^{9}$ Hz；1 ms = $10^{-3}$ s；1 $\mu$s = $10^{-6}$ s；1 ns = $10^{-9}$ s。
-    \item MIPS 公式中分母的 $10^6$ 不要遗漏。
-    \item 冯·诺依曼计算机中「指令和数据放在同一存储器」——这里的「同一存储器」指的是逻辑上的统一编址主存，不是指 Cache 的物理分离。
-    \item 「五大部分」中不包括「总线」——总线和电源属于支撑结构。
-\end{itemize}
-\end{attention}
-
-\newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（单项选择题）} 冯·诺依曼计算机中，指令和数据在存储器中的存放方式是
 \begin{center}
-\begin{tabularx}{0.96\linewidth}{@{}X X@{}}
-(A) 分别存放在两个独立存储器中 & (B) 以同等地位存放在同一个存储器中 \\[4pt]
-(C) 指令存放在 ROM，数据存放在 RAM & (D) 指令存放在 Cache，数据存放在主存
-\end{tabularx}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, rounded corners=2pt, fill=SoftBlue, minimum width=6.4cm, minimum height=0.78cm] (n) at (0,3.3){指令条数 $N=2.0\times10^{9}$};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, minimum width=6.4cm, minimum height=0.78cm] (c) at (0,2.0){总周期数 $=N\times\mathrm{CPI}=3.0\times10^{9}$};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, minimum width=6.4cm, minimum height=0.78cm] (t) at (0,0.7){执行时间 $=N\times\mathrm{CPI}\times T_{\text{clk}}=1.5\,\mathrm{s}$};
+  \draw[->] (n) -- (c) node[midway, right, font=\tiny]{$\times\,\mathrm{CPI}=1.5$};
+  \draw[->] (c) -- (t) node[midway, right, font=\tiny]{$\times\,T_{\text{clk}}=0.5\,\mathrm{ns}$};
+  \node[anchor=west, font=\scriptsize, text=MutedText, align=left] at (3.5,3.3){算法、编译器\\决定指令条数};
+  \node[anchor=west, font=\scriptsize, text=MutedText, align=left] at (3.5,2.0){指令混合与微架构\\决定平均 CPI};
+  \node[anchor=west, font=\scriptsize, text=MutedText, align=left] at (3.5,0.7){工艺、电路、电压\\决定时钟周期};
+  \node[font=\scriptsize, text=MutedText] at (0,4.2){性能 $=1/T_{\text{CPU}}$，三个因子相乘，缺一不可};
+\end{tikzpicture}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 存储程序原理把指令和数据以同等地位放在统一编址的主存中，二者由指令执行语境区分；现代实现可在 Cache 层采用分离结构，但不改变该逻辑模型。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+图把一次性能计算拆成两步单位换算：先把“多少条指令”乘上“每条多少周期”，得到总周期数；再乘上“每周期多少秒”，得到时间。以 $N=2.0\times10^{9}$、$\mathrm{CPI}=1.5$、$f=2.0\,\mathrm{GHz}$ 为例，总周期数是 $3.0\times10^{9}$，时钟周期是 $0.5\,\mathrm{ns}$，执行时间就是 $1.5\,\mathrm{s}$。如果只把主频提高一倍而 CPI 也翻倍，执行时间不会变；这就是不能只看主频的原因。
 
-\item \textbf{（单项选择题）} 以下关于 CPU 组成的说法中，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) CPU 仅包含运算器 & (B) CPU 仅包含控制器 \\[4pt]
-(C) CPU 包含运算器和控制器 & (D) CPU 包含运算器、控制器和主存储器
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} CPU 的核心组成是运算器和控制器，现代 CPU 通常还包含寄存器、Cache 等；主存不属于 CPU 的基本组成。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（单项选择题）} 某计算机主频为 1.2 GHz，运行某程序的 CPI 为 2.0，则该计算机的 MIPS 为
-\begin{center}
-\begin{tabular}{ll}
-(A) $600$ & (B) $1200$ \\[6pt]
-(C) $2400$ & (D) $600\times 10^{6}$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} $\mathrm{MIPS}=f/(\mathrm{CPI}\times10^6)=1.2\times10^9/(2\times10^6)=600$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（单项选择题）} 以下不属于系统软件的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 操作系统 & (B) 编译器 \\[4pt]
-(C) 数据库管理系统 & (D) 浏览器
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 操作系统、编译器和数据库管理系统通常归为系统软件；浏览器属于应用软件。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\item \textbf{（填空题）} 在计算机系统的层次结构中，能直接被硬件识别和执行的层次是 \underline{\qquad\qquad} 级。汇编语言程序需要通过 \underline{\qquad\qquad} 翻译为机器语言。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 机器语言；汇编程序（汇编器）。\else \answerarea \fi
-
-\item \textbf{（简答题）} 简述冯·诺依曼结构的主要特点，并说明现代计算机结构与其最主要的区别是什么。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 冯·诺依曼结构的要点包括：采用存储程序方式；指令和数据以二进制表示并存放在统一编址的存储器中；按地址访问；通常按指令顺序执行，除非遇到转移；由运算器、控制器、存储器、输入和输出五部分组成。现代通用计算机仍以该逻辑模型为基础，但通过指令/数据分离 Cache、流水线、乱序执行、多核和并行存储层次等手段缓解“冯·诺依曼瓶颈”。不能简单说现代计算机已经完全脱离冯·诺依曼结构。\else \answerarea \fi
-
-\item \textbf{（计算题）} 某计算机主频为 2.5 GHz，运行基准测试程序中共执行了 $5\times 10^{9}$ 条指令，CPI 为 1.6。求：（1）CPU 执行时间；（2）该计算机的 MIPS。
-
-\ifshowsolutions\par\noindent\textbf{答案：}
+当程序里有多类指令时，平均 CPI 要按指令条数加权，而不是把各类 CPI 做算术平均。设第 $i$ 类指令占全部指令的比例为 $p_i$，CPI 为 $\mathrm{CPI}_i$，则
 \[
-T=\frac{IC\times\mathrm{CPI}}{f}
-=\frac{5\times10^9\times1.6}{2.5\times10^9}=3.2\text{ s}.
+\mathrm{CPI}_{\text{avg}}=\sum_{i=1}^{k}p_i\,\mathrm{CPI}_i,
+\qquad \sum_{i=1}^{k}p_i=1.
 \]
-\[
-\mathrm{MIPS}=\frac{2.5\times10^9}{1.6\times10^6}=1562.5.
-\]
-\else \answerarea \fi
+等价地，先算总周期数 $\sum_i N_i\,\mathrm{CPI}_i$，再除以总条数 $\sum_i N_i$。两种写法结果相同，题目给“占比”就用前者，给“条数”就用后者。
 
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格，单项选择题）} 某程序在计算机 A 上运行需 10 s，A 的主频为 2 GHz。计算机 B 执行该程序的指令条数与 A 相同，但平均 CPI 为 A 的 1.2 倍。若目标是在 B 上用 6 s 运行完该程序，则 B 所需的主频为
 \begin{center}
-\begin{tabular}{ll}
-(A) $2.56$ GHz & (B) $3.33$ GHz \\[6pt]
-(C) $4.00$ GHz & (D) $4.44$ GHz
-\end{tabular}
+\begin{tikzpicture}[font=\scriptsize]
+  \def\s{5} % 每周期对应的厘米数
+  \fill[SoftBlue, draw=Navy!45] (0,0) rectangle ({0.5*\s},0.8);
+  \fill[SoftTeal, draw=Teal!45] ({0.5*\s},0) rectangle ({1.3*\s},0.8);
+  \fill[SoftAmber, draw=Amber!55] ({1.3*\s},0) rectangle ({1.9*\s},0.8);
+  \fill[SoftGray, draw=MutedText!45] ({1.9*\s},0) rectangle ({2.1*\s},0.8);
+  \node[font=\scriptsize] at ({0.25*\s},0.4){0.5};
+  \node[font=\scriptsize] at ({0.9*\s},0.4){0.8};
+  \node[font=\scriptsize] at ({1.6*\s},0.4){0.6};
+  \node[font=\scriptsize] at ({2.0*\s},0.4){0.2};
+  \draw[<->] (0,1.1) -- ({2.1*\s},1.1) node[midway, above, font=\scriptsize]{每条指令平均 $2.1$ 个周期};
+  % 图例
+  \fill[SoftBlue, draw=Navy!45] (0,-0.62) rectangle (0.32,-0.34);
+  \node[right, font=\scriptsize] at (0.32,-0.48){整数 ALU：$50\%\times1=0.5$};
+  \fill[SoftTeal, draw=Teal!45] (0,-1.18) rectangle (0.32,-0.90);
+  \node[right, font=\scriptsize] at (0.32,-1.04){取数/存数：$20\%\times4=0.8$};
+  \fill[SoftAmber, draw=Amber!55] (5.8,-0.62) rectangle (6.12,-0.34);
+  \node[right, font=\scriptsize] at (6.12,-0.48){浮点运算：$20\%\times3=0.6$};
+  \fill[SoftGray, draw=MutedText!45] (5.8,-1.18) rectangle (6.12,-0.90);
+  \node[right, font=\scriptsize] at (6.12,-1.04){分支跳转：$10\%\times2=0.2$};
+  \node[anchor=west, font=\scriptsize, text=MutedText] at (0,-1.8){直接算术平均 $(1+4+3+2)/4=2.5$ 是错的：没有按指令出现次数加权};
+\end{tikzpicture}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 指令条数相同，故
-\[
-\frac{T_B}{T_A}=\frac{\mathrm{CPI}_B}{\mathrm{CPI}_A}
-\frac{f_A}{f_B}=\frac{6}{10}.
-\]
-代入 $\mathrm{CPI}_B/\mathrm{CPI}_A=1.2$、$f_A=2$ GHz，得 $f_B=4$ GHz。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+图中每一段的宽度是 $p_i\times\mathrm{CPI}_i$，也就是这类指令平均给“每条指令”贡献了多少个周期。四段首尾相接，总长度 $0.5+0.8+0.6+0.2=2.1$ 就是平均 CPI。取数/存数类指令只占 $20\%$，但 CPI 高，贡献了 $0.8$ 个周期，是四类里最大的一段；这说明优化时不能只盯着出现次数最多的指令。
 
-\item \textbf{（真题风格，单项选择题）} 某程序在某台计算机上运行，该程序包含 A、B、C 三类指令，其 CPI 分别为 1、2、3。已知程序中三类指令的条数之比为 $2:3:5$，则该程序的平均 CPI 为
+知道执行时间和指令条数，就能算指令速率：
+\[
+\mathrm{MIPS}=\frac{N}{T_{\text{CPU}}\times10^{6}}
+=\frac{f}{\mathrm{CPI}\times10^{6}}.
+\]
+这里 $f$ 用 Hz，分母的 $10^{6}$ 是把“条/秒”换成“百万条/秒”。如果主频用 MHz 表示，则 $\mathrm{MIPS}=f_{\text{MHz}}/\mathrm{CPI}$，不再乘 $10^{6}$。浮点性能用 MFLOPS 表示，定义是每秒执行的百万次浮点运算；GFLOPS、TFLOPS 分别是 $10^{3}$、$10^{6}$ 个 MFLOPS。
+
+MIPS 有一个著名的陷阱：它把不同指令当成等价的工作量。RISC 机器的指令简单，完成同一任务往往需要更多指令，MIPS 可能更高，但程序不一定更快；CISC 机器一条指令做更多事，MIPS 可能更低，实际完成的任务却更多。所以 MIPS 只能在同一指令系统、同一程序的条件下比较，不能跨机器直接比。MFLOPS 也只适合浮点密集型程序，拿它衡量整数或 I/O 密集型负载同样会失真。
+
+实际评测用基准程序（benchmark）。SPEC CPU 让机器运行一组有代表性的程序，把每台机器的执行时间与参考机相比得到一个比值，最后用几何平均汇总。用几何平均而不是算术平均，是因为这些量是比值，几何平均不会被某一个特别快或特别慢的程序过度拉偏。基准程序也有局限：编译器可以针对它做特殊优化，测出来的分数不一定代表真实负载。
+
+\subsection{Amdahl 定律：一部分加速能换来多少}
+
+假设一个程序原来的执行时间是 $T_0$，其中比例为 $\alpha$ 的部分可以加速 $k$ 倍，其余部分完全不能加速。改进后的时间是
+\[
+T'=(1-\alpha)T_0+\frac{\alpha T_0}{k}
+=T_0\left[(1-\alpha)+\frac{\alpha}{k}\right].
+\]
+整体加速比是
+\[
+S=\frac{T_0}{T'}=\frac{1}{(1-\alpha)+\alpha/k}.
+\]
+当 $k\to\infty$ 时，$\alpha/k\to0$，加速比的上限是
+\[
+S_{\max}=\frac{1}{1-\alpha}.
+\]
+这个上限只由不能加速的部分决定，和可加速部分能提多快无关。
+
+举个具体的例子：程序原来跑 $100\,\mathrm{s}$，其中 $80\,\mathrm{s}$ 可以加速，$\alpha=0.8$。把这部分提速 $4$ 倍，改进后是 $20+80/4=40\,\mathrm{s}$，加速比 $2.5$；即使把这部分提速 $100$ 倍，时间也只降到 $20.8\,\mathrm{s}$，加速比约 $4.8$，离上限 $5$ 很近。剩下的 $20\,\mathrm{s}$ 才是真正的瓶颈。
+
 \begin{center}
-\begin{tabular}{ll}
-(A) $2.0$ & (B) $2.1$ \\[6pt]
-(C) $2.3$ & (D) $2.5$
-\end{tabular}
+\begin{tikzpicture}
+\begin{axis}[
+  width=13cm, height=7.2cm,
+  xlabel={可加速部分的加速倍数 $k$},
+  ylabel={整体加速比 $S$},
+  xmin=1, xmax=16, ymin=1, ymax=10.8,
+  xtick={1,2,4,6,8,10,12,14,16},
+  ytick={1,2,3,4,5,6,7,8,9,10},
+  grid=major, grid style={RuleGray!60},
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  legend style={font=\scriptsize, draw=RuleGray, fill=white, fill opacity=0.9, text opacity=1},
+  legend pos=north east,
+  axis lines=left,
+]
+\addplot[Navy, thick, domain=1:16, samples=120] {1/(0.5+0.5/x)};
+\addlegendentry{$\alpha=0.5$，上限 $2$}
+\addplot[Teal, thick, domain=1:16, samples=120] {1/(0.2+0.8/x)};
+\addlegendentry{$\alpha=0.8$，上限 $5$}
+\addplot[Burgundy, thick, domain=1:16, samples=120] {1/(0.1+0.9/x)};
+\addlegendentry{$\alpha=0.9$，上限 $10$}
+\addplot[MutedText!55, dashed, domain=1:16, samples=2, forget plot] {2};
+\addplot[MutedText!55, dashed, domain=1:16, samples=2, forget plot] {5};
+\addplot[MutedText!55, dashed, domain=1:16, samples=2, forget plot] {10};
+\node[font=\scriptsize, align=left, anchor=north west] at (axis cs:6.0,9.8){曲线越往右越平\\瓶颈在未加速的部分};
+\end{axis}
+\end{tikzpicture}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{解析：} 加权平均 CPI 为 $(2\times1+3\times2+5\times3)/(2+3+5)=23/10=2.3$。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+图里横轴是可加速部分的加速倍数，纵轴是整体加速比，每条曲线对应一个 $\alpha$。三条虚线是各自的上限 $1/(1-\alpha)$。可以看到，$\alpha=0.9$ 的曲线在 $k=16$ 时到 $6.4$，离上限 $10$ 还很远；$\alpha=0.5$ 的曲线在同样的 $k$ 下只有 $1.88$，已经贴近上限 $2$。曲线变平的速度说明：当可加速部分已经提得很快时，再继续加速它，收益主要被未加速部分吃掉。
 
-\item \textbf{（真题风格，综合题）} 某计算机的主频为 3.0 GHz，运行某程序时测得 MIPS 为 1200。回答以下问题：
+用 Amdahl 定律时，$\alpha$ 是“原执行时间中可加速部分的比例”，不是指令条数的比例，也不是代码行数的比例。如果题目给出的是各部分原来的时间，先算它们占总时间的比例，再代入。若同时改进多个部分，设第 $i$ 部分原时间占比为 $\alpha_i$、加速倍数为 $k_i$，则
+\[
+\frac{T'}{T_0}=\left(1-\sum_i\alpha_i\right)+\sum_i\frac{\alpha_i}{k_i}.
+\]
+Amdahl 定律假设问题规模固定。如果问题规模随着处理器数量一起变大（例如更大的矩阵、更多的数据），加速比可以接近线性增长，这时用的是 Gustafson 的观点；408 题目通常采用固定问题规模的版本。
+
+\subsection{存储层次：快、大、便宜不能同时要}
+
+遍历一个 $10000\times10000$ 的整型二维数组，按行访问和按列访问的指令条数差不多，耗时却可能差好几倍。原因不在 CPU 算得慢，而在数据所在的位置：按行访问时，相邻元素在内存中连续，第一次缺失会把一整块数据搬进 Cache，后续访问大多命中；按列访问时，每次跨过一整行，搬进来的块用不上，几乎每次都要访问主存。存储层次要解决的就是这个速度差。
+
+程序访问有两个稳定的规律。时间局部性：刚被访问过的单元，很可能很快再被访问，比如循环变量、栈顶、反复调用的函数。空间局部性：一个单元被访问后，它附近的单元很可能接着被访问，比如数组的相邻元素、顺序执行的指令。存储层次把最近用过的和附近的数据放在快而小的层，把久不用的数据放在慢而大的层，用局部性把“平均访问时间”拉近到快的那一层。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+  % 七层梯形
+  \fill[SoftTeal, draw=Teal!50] (-0.9,6.3) -- (0.9,6.3) -- (1.3,5.58) -- (-1.3,5.58) -- cycle;
+  \node[font=\scriptsize] at (0,5.94){寄存器};
+  \fill[SoftBlue, draw=Navy!35] (-1.3,5.58) -- (1.3,5.58) -- (1.7,4.86) -- (-1.7,4.86) -- cycle;
+  \node[font=\scriptsize] at (0,5.22){L1 Cache};
+  \fill[SoftBlue, draw=Navy!35] (-1.7,4.86) -- (1.7,4.86) -- (2.1,4.14) -- (-2.1,4.14) -- cycle;
+  \node[font=\scriptsize] at (0,4.50){L2 Cache};
+  \fill[SoftAmber, draw=Amber!50] (-2.1,4.14) -- (2.1,4.14) -- (2.5,3.42) -- (-2.5,3.42) -- cycle;
+  \node[font=\scriptsize] at (0,3.78){L3 Cache};
+  \fill[SoftAmber, draw=Amber!50] (-2.5,3.42) -- (2.5,3.42) -- (3.1,2.70) -- (-3.1,2.70) -- cycle;
+  \node[font=\scriptsize] at (0,3.06){主存 DRAM};
+  \fill[SoftGray, draw=MutedText!40] (-3.1,2.70) -- (3.1,2.70) -- (3.8,1.98) -- (-3.8,1.98) -- cycle;
+  \node[font=\scriptsize] at (0,2.34){SSD};
+  \fill[SoftGray, draw=MutedText!40] (-3.8,1.98) -- (3.8,1.98) -- (4.6,1.26) -- (-4.6,1.26) -- cycle;
+  \node[font=\scriptsize] at (0,1.62){HDD};
+  % 右侧典型参数
+  \foreach \y/\re/\txt in {
+    5.94/1.1/{$<$1 KB\\$<$1 ns},
+    5.22/1.5/{32--64 KB\\$\approx$1 ns},
+    4.50/1.9/{256 KB--2 MB\\$\approx$4 ns},
+    3.78/2.3/{8--32 MB\\$\approx$15 ns},
+    3.06/2.8/{8--64 GB\\$\approx$80 ns},
+    2.34/3.45/{256 GB--2 TB\\$\approx$0.1 ms},
+    1.62/4.2/{1--10 TB\\$\approx$10 ms}} {
+    \draw[RuleGray] (\re,\y) -- (4.75,\y);
+    \node[anchor=west, font=\scriptsize, align=left] at (4.85,\y){\txt};
+  }
+  % 左侧方向箭头
+  \draw[->, MutedText] (-5.3,6.3) -- (-5.3,1.26);
+  \node[rotate=90, anchor=south, font=\scriptsize, text=MutedText] at (-5.8,3.78){容量增大、速度变慢、每位成本降低};
+  \node[font=\scriptsize, text=MutedText] at (0,6.75){上层是下层的缓存；相邻层之间按块搬运};
+  \node[font=\scriptsize, text=MutedText] at (0,0.95){典型数量级，随工艺和年代变化};
+\end{tikzpicture}
+\end{center}
+
+图里越往上容量越小、访问越快、每位成本越高；越往下容量越大、访问越慢、每位成本越低。相邻两层之间不是按一个字节搬运，而是按块搬运：Cache 和主存之间通常以 64 字节左右的 Cache 行（块）为单位，主存和磁盘之间以页为单位。块的存在是为了利用空间局部性，一次把相邻数据都取上来；块太小浪费空间局部性，块太大则每次缺失要搬更多数据，缺失代价上升。
+
+设上层命中率为 $h$，命中时间为 $T_{\text{hit}}$，未命中时额外付出的时间为 $T_{\text{miss}}$，则平均访问时间
+\[
+T_{\text{avg}}=T_{\text{hit}}+(1-h)T_{\text{miss}}.
+\]
+如果题目给的是“下层完整访问时间”$T_{\text{lower}}$，则写成
+\[
+T_{\text{avg}}=h\,T_{\text{hit}}+(1-h)T_{\text{lower}}.
+\]
+两种写法只差 $T_{\text{miss}}$ 的定义：前者把 $T_{\text{miss}}$ 看作“缺失代价”，即比命中多花的时间；后者把下层访问时间整个算进去。做题时先看题目给的是哪一个，不要混用。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=12.5cm, height=6.2cm,
+  xlabel={命中率 $h$},
+  ylabel={平均访问时间 $T_{\text{avg}}$（ns）},
+  xmin=0.8, xmax=1, ymin=0, ymax=25,
+  xtick={0.8,0.85,0.9,0.95,1},
+  ytick={0,5,10,15,20,25},
+  grid=major, grid style={RuleGray!60},
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  axis lines=left,
+]
+\addplot[Navy, thick, domain=0.8:1, samples=120] {1+100*(1-x)};
+\addplot[only marks, mark=*, mark size=1.6pt, Burgundy] coordinates {(0.9,11) (0.99,2)};
+\draw[dashed, MutedText!60] (axis cs:0.9,0) -- (axis cs:0.9,11) -- (axis cs:0.8,11);
+\draw[dashed, MutedText!60] (axis cs:0.99,0) -- (axis cs:0.99,2) -- (axis cs:0.85,2);
+\node[anchor=west, font=\scriptsize] at (axis cs:0.902,13){$h=0.9$：11 ns};
+\node[anchor=north west, font=\scriptsize, align=left] at (axis cs:0.802,24.5){$T_{\text{hit}}=1$ ns\\$T_{\text{miss}}=100$ ns};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+图里假设命中一次只要 $1\,\mathrm{ns}$，缺失一次要多花 $100\,\mathrm{ns}$。命中率 $0.9$ 时平均访问时间是 $1+0.1\times100=11\,\mathrm{ns}$；命中率提高到 $0.99$，平均时间降到 $1+0.01\times100=2\,\mathrm{ns}$，相差 $5.5$ 倍。注意 $1\%$ 的缺失率仍然让平均时间翻了一倍：缺失代价比命中时间大两个数量级时，少量缺失就足以主导平均值，所以优化 Cache 命中率通常比单纯提高命中速度更有效。
+
+存储层次对程序员基本透明：不用改程序，Cache 自动工作。但“透明”不等于“没有影响”。数组按行还是按列遍历、循环是否分块、数据结构是否紧凑，都会改变命中率。虚拟存储则是另一层：它把主存当作磁盘的 Cache，用页表完成地址转换，由硬件和操作系统共同管理；Cache 通常由硬件自动管理，操作系统只负责建立页表和在进程切换时维护地址空间。这些内容在第 3 章展开，这里先建立“上层快而小、下层慢而大、按块搬运、靠局部性生效”的整体图景。
+
+\subsection{容易混淆的几组概念}
+
 \begin{enumerate}
-    \item[(1)] 求该程序运行时的平均 CPI；
-    \item[(2)] 若该程序共执行 $3.6\times 10^{9}$ 条指令，求 CPU 执行时间；
-    \item[(3)] 若通过编译器优化，将程序的指令条数减少 20\%，但 CPI 增加了 10\%，优化后的程序执行时间比优化前更快还是更慢？请给出计算过程。
+    \item \textbf{CPU、主机与外设。} 运算器加控制器是 CPU；CPU 加主存是主机（408 教材的常用口径）；外存和输入/输出设备属于外设。不要把外存算进主机，也不要把“主机”等同于整台计算机。
+    \item \textbf{机器字长、指令字长、存储字长。} 机器字长是 CPU 一次能处理的二进制位数，通常等于通用寄存器位数和 ALU 宽度；指令字长是一条指令的位数，可以等于或多个存储字长；存储字长是一个编址单元的位数。三者可以不同，题目给“字长”时要看它修饰的是哪个对象。
+    \item \textbf{主频高不等于速度快。} 执行时间由 $N$、CPI、$T_{\text{clk}}$ 三者共同决定。主频提高但 CPI 或指令条数同步上升时，程序可能一点没快，甚至更慢。
+    \item \textbf{CPI 与 IPC。} CPI 是每条指令平均占用的周期数，IPC 是每周期平均完成的指令数，二者互为倒数。理想流水线的 IPC 接近 1；超标量处理器一个周期可以发射多条指令，IPC 可以大于 1，此时 CPI 小于 1。
+    \item \textbf{MIPS 不能跨指令系统比较。} MIPS 把指令当成等价的工作量，不同 ISA 的指令功能差别很大。同一台机器跑不同程序，MIPS 也不同，所以它不是一个机器的固有属性。
+    \item \textbf{Amdahl 定律中的 $\alpha$。} $\alpha$ 是可加速部分占原执行时间的比例，不是指令条数或代码行数的比例。上限 $1/(1-\alpha)$ 来自不能加速的那部分，换更快的加速部件也突破不了。
+    \item \textbf{编译与解释、翻译与解释。} 编译是“先整体翻译，再执行目标程序”；解释是“逐条翻译并执行”。在层次结构里，汇编器和编译器做翻译，微程序解释机器指令；操作系统提供的是系统调用和资源抽象，不是翻译。
+    \item \textbf{存储程序与 Cache 分离。} “指令和数据放在同一存储器”是逻辑模型。指令 Cache 和数据 Cache 分开、虚拟存储把磁盘并入地址空间，都是性能优化，不改变按地址访问、顺序取指的基本模型。
+    \item \textbf{地址总线与主存容量。} $n$ 位地址总线给出 $2^n$ 个编址单元；只有按字节编址时，最大容量才是 $2^n$ 字节。若按字编址，还要乘存储字长。
+    \item \textbf{冯·诺依曼瓶颈。} 它指 CPU 与存储器之间通路的带宽限制，不是容量不足。Cache、多级存储层次、更宽的总线和多通道内存都是在缓解这个瓶颈。
 \end{enumerate}
 
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) $\mathrm{CPI}=f/(\mathrm{MIPS}\times10^6)=3.0\times10^9/(1200\times10^6)=2.5$。
-
-(2) $T=3.6\times10^9\times2.5/(3.0\times10^9)=3$ s。
-
-(3) 主频不变时，执行时间比为 $0.8\times1.1=0.88$。优化后为 $3\times0.88=2.64$ s，比原来快12\%。\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 在计算机系统的层次结构中：
-\begin{enumerate}
-    \item[(1)] 描述从 $L_4$（高级语言级）到 $L_1$（机器语言级）的转换过程，指出哪些步骤使用了翻译，哪些步骤使用了（或可能使用）解释；
-    \item[(2)] 说明 Java 语言程序的执行过程如何体现「虚拟机」的概念；
-    \item[(3)] 为什么说操作系统层（$L_2$）是虚拟机而非物理机？操作系统为上层提供了哪些抽象？
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) 高级语言源程序通常由编译器翻译为汇编代码或目标代码；汇编程序把汇编语言翻译为机器语言，链接器再把目标模块和库连接为可执行程序。某些语言也可先翻译为中间代码，再由解释器或虚拟机逐条解释/即时编译执行。机器语言最终由硬件直接执行。
-
-(2) Java 编译器先把源程序翻译为与具体 ISA 无关的字节码；JVM 对字节码进行解释或 JIT 编译，并向程序提供统一的类加载、内存管理和运行时服务，因此同一字节码可运行在不同物理机器上的 JVM 实现中。
-
-(3) OS 通过系统调用和资源管理把裸机扩展成更方便、安全的抽象机器，例如进程/线程、虚拟地址空间、文件、目录、套接字和逻辑设备；这些对象由软件构造，不是硬件直接提供的物理实体。\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 某处理器包含 4 类指令，其 CPI 和在某个典型程序中的使用频度如下表：
-\begin{tablebox}{指令分布}
-\centering
-\begin{tabular}{|c|c|c|}
-\hline
-指令类型 & CPI & 频度 \\
-\hline
-整数 ALU & 1 & 45\% \\
-数据传送 & 2 & 30\% \\
-浮点运算 & 4 & 15\% \\
-分支跳转 & 3 & 10\% \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-\begin{enumerate}
-    \item[(1)] 计算该程序的平均 CPI；
-    \item[(2)] 若该处理器的主频为 2.0 GHz，求 MIPS；
-    \item[(3)] 设计者计划将浮点运算的 CPI 从 4 降为 2，同时主频提升到 2.5 GHz，其他不变。改进后的整体性能提升为原来的多少倍？（用 $T_{\text{CPU}}$ 之比表示）
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) 平均 CPI 为
-\[
-1\times0.45+2\times0.30+4\times0.15+3\times0.10=1.95.
-\]
-(2) $\mathrm{MIPS}=2000/1.95\approx1025.64$。
-
-(3) 新平均 CPI 为 $1.95-4\times0.15+2\times0.15=1.65$。在指令条数不变时，性能提升倍数为
-\[
-\frac{T_{\text{old}}}{T_{\text{new}}}
-=\frac{1.95/(2.0\text{ GHz})}{1.65/(2.5\text{ GHz})}
-\approx1.477.
-\]
-即性能约提高到原来的1.48倍。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item Patterson \& Hennessy《计算机组成与设计：硬件/软件接口》第 1 章「计算机概念与技术」——1.1--1.6 节全面覆盖本章内容，包括性能公式的导数和 Amdahl 定律。
-    \item Bryant \& O'Hallaron《深入理解计算机系统》（CS:APP）第 1 章「计算机系统漫游」——1.1--1.9 节从程序员视角理解计算机系统的抽象层次，包含 Amdahl 定律（第 1.9 节）和并发/并行的初步讨论。
+    \item Patterson \& Hennessy《计算机组成与设计：硬件/软件接口》第 1 章——从程序性能、CPI、Amdahl 定律讲到存储层次，配有大量实测数据，适合把本章公式和真实机器对应起来。
+    \item Bryant \& O'Hallaron《深入理解计算机系统》第 1 章——从程序员视角走一遍“源程序到进程”的路径，第 1.9 节讨论 Amdahl 定律和并行性，第 6 章讲存储层次。
+    \item 唐朔飞《计算机组成原理》第 1 章——冯·诺依曼结构、五大部件、指令周期和计算机性能指标的国内教材口径，与 408 的术语更接近。
 \end{itemize}
+
+\noindent\textbf{本章符号速查：} $N$ 为执行的机器指令条数；$\mathrm{CPI}$ 为平均每条指令的时钟周期数；$f$ 为主频，$T_{\text{clk}}=1/f$；$\mathrm{IPC}=1/\mathrm{CPI}$；$\alpha$ 为原执行时间中可加速部分的比例，$k$ 为该部分的加速倍数；$h$ 为命中率，$T_{\text{hit}}$ 为命中时间，$T_{\text{miss}}$ 为缺失代价。
+
+\newpage
+\input{co/exercises/chap1.tex}

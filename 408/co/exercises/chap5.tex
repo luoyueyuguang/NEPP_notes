@@ -1,0 +1,261 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 下列关于指令周期、机器周期和时钟周期的叙述中，正确的是
+\begin{center}
+\begin{tabular}{@{}p{0.94\linewidth}@{}}
+(A) 一条指令的指令周期可由若干机器周期组成，一个机器周期又由若干时钟周期组成，不同指令的指令周期可以不同 \\[4pt]
+(B) 时钟周期是 CPU 完成一次主存访问所需的时间 \\[4pt]
+(C) 机器周期与时钟周期是同一个概念，只是叫法不同 \\[4pt]
+(D) 为保证流水线正常工作，所有指令的指令周期必须相同
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 指令周期是取出一条指令并执行完毕所需的时间，它按“取指—（间址）—执行—（中断）”划分，具体包含几个机器周期随指令而异：寄存器型指令通常较短，访存型、间接寻址指令较长。机器周期（CPU 周期）一般指完成一次总线事务这类基本操作所需的时间，通常包含多个时钟周期；时钟周期则由主频决定，是最小的时间单位。故 (A) 正确。(B) 把“一次主存访问”与时钟周期混为一谈，一次访存往往需要多个时钟周期。(C) 混淆了层次关系。(D) 流水线只要求各段划分规整、便于重叠，并不要求所有指令的指令周期相同；CISC 指令的指令周期差别很大，仍可流水化。\boxed{\text{答案：(A)}}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 某 CPU 采用单总线数据通路，ALU 的两个输入端分别接暂存器 Y 和内部总线。执行 \texttt{ADD R1, R2}（功能 $R1 \leftarrow R1+R2$）时，设置暂存器 Y 的主要原因是
+\begin{center}
+\begin{tabular}{@{}p{0.42\linewidth}@{\hspace{1em}}p{0.45\linewidth}@{}}
+(A) 提高 ALU 的运算速度 & (B) 暂存一个操作数，解决单总线一次只能传送一个数据的矛盾 \\[4pt]
+(C) 保存 ALU 产生的状态标志 & (D) 在取指阶段暂存指令
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 单总线在同一时钟周期内只能传送一个数据，而 ALU 做加法必须同时获得两个操作数。做法是：先让一个操作数经总线送入暂存器 Y 并锁存，下一周期再把另一个操作数送上总线接到 ALU 的 B 端，此时 ALU 的 A 端仍保持 Y 的值，一拍完成运算。因此 Y 是操作数锁存器，作用是化解总线带宽不足，而不是加快 ALU 本身的速度，(A) 错。状态标志由 PSW 保存，(C) 错；指令由 IR 保存，(D) 错。\boxed{\text{答案：(B)}}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 下列关于硬布线控制器和微程序控制器的叙述中，正确的是
+\begin{center}
+\begin{tabular}{@{}p{0.94\linewidth}@{}}
+(A) 微程序控制器的控制信号由组合逻辑电路直接产生，因此速度更快 \\[4pt]
+(B) 硬布线控制器修改指令功能时，只需改写控制存储器中的微程序 \\[4pt]
+(C) 微程序控制器把控制信号以微指令形式存放在控制存储器中，增加或修改指令只需改写相应微程序 \\[4pt]
+(D) 微程序控制器不需要时钟，因而不存在时序问题
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 硬布线控制器用组合逻辑（门电路、PLA）直接由指令译码信号和时序信号产生控制信号，速度快但逻辑杂乱、修改困难；微程序控制器把每条机器指令编成一段微程序存入控制存储器 CM，逐拍读出微指令再译码成控制信号，速度较慢但规整、易修改易扩展。(A) 把两者的实现方式说反了；(B) 把微程序的优点安到了硬布线上；(D) 错，微指令仍是一拍执行一条，同样依赖时钟与时序。\boxed{\text{答案：(C)}}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 在经典五级流水线（IF/ID/EX/MEM/WB）中，已配置 EX/MEM$\to$EX 与 MEM/WB$\to$EX 的转发通路，且寄存器堆在同一周期内先写后读。下列叙述中正确的是
+\begin{center}
+\begin{tabular}{@{}p{0.94\linewidth}@{}}
+(A) 相邻两条 ALU 指令之间的 RAW 冒险至少需要阻塞 1 个周期 \\[4pt]
+(B) \texttt{lw} 指令与其后紧跟的使用该结果的 ALU 指令之间，仅靠转发不能消除冒险，仍需阻塞 1 个周期 \\[4pt]
+(C) \texttt{lw} 的结果在 MEM 段末已经可用，可以直接转发到同一周期 EX 段的输入端，故 load-use 冒险无需阻塞 \\[4pt]
+(D) 结构冒险可以通过编译器重排指令完全消除
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 相邻两条 ALU 指令：前一条在 EX 段末已得到结果，后一条下一周期才进 EX，经 EX/MEM$\to$EX 转发即可，不需要阻塞，(A) 错。load-use：\texttt{lw} 的数据到 MEM 段末才从存储器取出，而紧随其后的指令在下一周期 EX 段开始就要用该数据，转发通路来不及在本拍开始前把数据送到 ALU 输入端，只能让消费者在 ID 段多停一拍，(B) 对，(C) 的说法把“下一周期可用”偷换成了“同一周期可用”。结构冒险源于硬件资源数量不足（如单端口存储器被取指和访存同时争用），重排指令只能减少冲突发生的次数，不能改变资源数量，因此谈不上“完全消除”，(D) 错。\boxed{\text{答案：(B)}}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某微程序控制器的微指令字长为 32 位，格式为：控制字段 20 位、判别测试字段 3 位、下地址字段 9 位。控制字段分成 4 个互斥字段，每个 5 位，采用字段直接编码，每个字段留出一个编码表示“不产生微操作”。则：
+\begin{enumerate}
+    \item[(1)] 该微指令最多可控制 \underline{\qquad} 个微操作；
+    \item[(2)] 控制存储器最多有 \underline{\qquad} 个字；
+    \item[(3)] 若每条机器指令对应 4 条微指令，另有一段占 3 条微指令的公共取指微程序，则最多可容纳 \underline{\qquad} 条机器指令。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (1) 一个 5 位字段有 $2^5=32$ 种编码，其中留一种表示“本字段不产生微操作”，故每个字段可表示 $32-1=31$ 个互斥微操作；4 个字段共 $4\times31=124$ 个。注意不能把 4 个 5 位字段当作 20 位直接编码（那将是 20 个），也不能忘记扣除“不操作”编码（那将是 128 个）。
+
+(2) 下地址字段 9 位，给出 $\mu$PC 的编码空间，故 CM 最多 $2^9=512$ 个字。
+
+(3) 公共取指微程序被所有机器指令共享，只占一份：$512-3=509$ 个字可供各指令的微程序使用；每条指令 4 条微指令，$\lfloor 509/4\rfloor=127$ 条，用去 508 个字，余 1 个字不足以再放一条指令。\boxed{\text{答案：(1) 124\quad(2) 512\quad(3) 127}}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某 5 段流水线各段的组合逻辑延迟分别为 $3,\,2,\,4,\,2,\,3$ ns，流水段寄存器延迟为 $0.5$ ns，忽略时钟偏斜。连续执行 200 条指令且不发生任何冒险。则：
+\begin{enumerate}
+    \item[(1)] 时钟周期为 \underline{\qquad} ns；
+    \item[(2)] 执行这 200 条指令共需 \underline{\qquad} ns；
+    \item[(3)] 相对非流水线实现（每条指令 $3+2+4+2+3=14$ ns，不计寄存器延迟）的加速比为 \underline{\qquad}（保留两位小数）。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (1) 流水线时钟周期由最慢的一段加上流水段寄存器开销决定：
+\[
+T=\max\{3,2,4,2,3\}+0.5=4+0.5=4.5\ \text{ns}.
+\]
+(2) $k=5$ 段、$n=200$ 条指令，第一条指令需 $5T$ 填满流水线，此后每拍完成一条：
+\[
+T_{\text{pipe}}=(k+n-1)T=(5+200-1)\times4.5=204\times4.5=918\ \text{ns}.
+\]
+(3) 非流水线时间 $T_{\text{seq}}=200\times14=2800$ ns，故
+\[
+S=\frac{2800}{918}\approx3.05 .
+\]
+理想加速比上限为 $14/4.5\approx3.11$，实际略低。\par\noindent
+\boxed{\text{答案：(1) 4.5\quad(2) 918\quad(3) 3.05}}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格·单项选择题）} 某 5 段流水线（IF/ID/EX/MEM/WB）中，分支指令要到 EX 段末才能确定是否跳转，处理器采用“总预测不跳转”的静态策略。程序中分支指令占 20\%，其中 30\% 实际发生跳转。忽略其他冒险与流水线建立开销，则该程序的 CPI 约为
+\begin{center}
+\begin{tabular}{ll}
+(A) 1.06 & (B) 1.12 \\[6pt]
+(C) 1.20 & (D) 1.40
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 无冒险时 CPI 的基准值为 1。“总预测不跳转”只有在分支实际跳转时才出错，故预测错误率就是 30\%。分支在 EX 段末才定论，此时流水线中已取入的后继指令有两条：一条在 ID、一条在 IF，它们都按顺序路径取来，必须清除，因此每次预测错误损失 2 个时钟周期。于是
+\[
+\text{CPI}=1+(\text{分支比例})\times(\text{预测错误率})\times(\text{错误代价})
+=1+0.20\times0.30\times2=1.12 .
+\]
+干扰项来源：(A) 把代价误算成 1 拍；(C) 忘记乘预测错误率 30\%；(D) 认为凡分支都预测错误。\boxed{\text{答案：(B)}}\else \answerarea \fi
+
+\item \textbf{（真题风格·单项选择题）} 某 5 段流水线处理器的取指和访存共用同一个单端口存储器，未分离指令 Cache 与数据 Cache。指令中 load/store 占 25\%，其余指令不访问数据存储器；每条访存指令都要占用一个 MEM 段。发生争用时让访存指令优先，取指阻塞 1 个周期。忽略其他冒险，程序足够长，则 CPI 约为
+\begin{center}
+\begin{tabular}{ll}
+(A) 1.00 & (B) 1.13 \\[6pt]
+(C) 1.25 & (D) 1.50
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 这是典型的结构冒险。五级流水线中，某条指令处于 MEM 段时，比它晚 3 条（相隔 3 个周期）的指令正好处于 IF 段。二者使用同一个单端口存储器，同一周期只能服务一个访问，因此每出现一条访存指令，就要让取指停顿 1 个周期。设访存指令比例为 $f=0.25$，则平均每条指令多花 $f\times1$ 个周期：
+\[
+\text{CPI}=1+0.25\times1=1.25 .
+\]
+(B) 1.13 对应把 25\% 误当成“每 8 条才冲突一次”之类的折算，没有依据；(D) 1.50 相当于假设每条访存指令冲突 2 次。分离指令 Cache 与数据 Cache（或采用双端口存储器）才能从根本上消除该冒险。\boxed{\text{答案：(C)}}\else \answerarea \fi
+
+\item \textbf{（综合应用题·数据通路与指令周期）} 某 16 位 CPU 采用单总线数据通路，主要部件有：PC（带独立自增通路，自增不占用总线）、MAR、MDR、IR、通用寄存器 R0--R3、暂存器 Y 和 Z、ALU。约定：
+\begin{itemize}
+    \item 单总线同一时钟周期只能传送一个数据，寄存器堆的读、写都在数据传送的同一周期内完成；
+    \item 主存的读或写在一个时钟周期内完成；
+    \item ALU 的组合输出必须经 Z 锁存后才能写回寄存器。
+\end{itemize}
+指令 \texttt{ADD R1, (R2)} 的功能为 $R1 \leftarrow R1+\mathrm{Mem}[R2]$，源操作数采用寄存器间接寻址。回答：
+\begin{enumerate}
+    \item[(1)] 写出取指周期的微操作序列及各步的有效控制信号；
+    \item[(2)] 写出执行周期的微操作序列及各步的有效控制信号，并说明为什么必须使用暂存器 Z；
+    \item[(3)] 该指令从取指到执行完毕共需多少个时钟周期？
+    \item[(4)] 若在该指令执行结束后响应中断，写出中断周期由硬件（中断隐指令）完成的三项操作及其先后次序。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (1) 取指周期共 3 拍：
+\begin{center}
+\small
+\begin{tabular}{cll}
+\hline
+时钟 & 微操作 & 有效控制信号 \\
+\hline
+$T_1$ & $\mathrm{PC}\to\mathrm{MAR}$，同时 $\mathrm{PC}+1\to\mathrm{PC}$ & \texttt{PCout}、\texttt{MARin}、\texttt{PC+1} \\
+$T_2$ & $\mathrm{MEM}(\mathrm{MAR})\to\mathrm{MDR}$ & \texttt{MemRead}、\texttt{MDRin} \\
+$T_3$ & $\mathrm{MDR}\to\mathrm{IR}$ & \texttt{MDRout}、\texttt{IRin} \\
+\hline
+\end{tabular}
+\end{center}
+$T_1$ 中 PC 的自增走独立通路，不与“PC 送 MAR”争用总线，故两者可同拍完成；若 PC 无自增通路，则需拆成两拍。
+
+(2) 执行周期共 5 拍。先由 R2 给出地址并读出操作数，再把 R1 送入 Y，最后让存储器数据经总线进入 ALU 的 B 端完成加法：
+\begin{center}
+\small
+\begin{tabular}{cll}
+\hline
+时钟 & 微操作 & 有效控制信号 \\
+\hline
+$T_4$ & $\mathrm{R2}\to\mathrm{MAR}$ & \texttt{R2out}、\texttt{MARin} \\
+$T_5$ & $\mathrm{MEM}(\mathrm{MAR})\to\mathrm{MDR}$ & \texttt{MemRead}、\texttt{MDRin} \\
+$T_6$ & $\mathrm{R1}\to Y$ & \texttt{R1out}、\texttt{Yin} \\
+$T_7$ & $\mathrm{MDR}\to$ ALU 的 B 端，$\mathrm{ALU}(Y+B)\to Z$ & \texttt{MDRout}、\texttt{ALUadd}、\texttt{Zin} \\
+$T_8$ & $Z\to\mathrm{R1}$ & \texttt{Zout}、\texttt{R1in} \\
+\hline
+\end{tabular}
+\end{center}
+必须用 Z 的原因有两点：其一，单总线在 $T_7$ 已被 MDR 的数据占用，ALU 的运算结果无法在同一拍再经总线写入 R1；其二，ALU 是组合逻辑，输入撤销后输出不能保持到下一拍，必须用 Z 把结果锁存住，$T_8$ 再由 \texttt{Zout} 送上总线写回。若没有 Z，结果会在总线上丢失。
+
+(3) 取指 3 拍 $+$ 执行 5 拍 $=8$ 个时钟周期。注意 \texttt{(R2)} 是寄存器间接寻址，R2 的内容本身就是有效地址，不需要再访问一次主存取“间接地址”，因此没有独立的间址周期；若把它误当成存储器间接寻址而多加一个间址周期，就会得到错误答案。
+
+(4) 中断周期由硬件依次完成：\textbf{第一步：关中断}（清除中断允许触发器，防止现场保存过程被新的中断打断）；\textbf{第二步：保存断点}（把 PC 的内容，必要时连同 PSW，压入堆栈或存入指定单元，以便返回）；\textbf{第三步：引出中断服务程序}（把中断服务程序入口地址送入 PC）。三者顺序不能颠倒：先关中断才能保证保存断点的过程完整，最后才能用新入口覆盖 PC。
+
+\boxed{\text{答案：(1)(2) 见解析；(3) 8 个周期；(4) 关中断、保存断点、送入口地址}}\else \answerarea[12] \fi
+
+\item \textbf{（综合应用题·流水线冒险与指令调度）} 某处理器采用经典五级流水线（IF/ID/EX/MEM/WB），配置完整的转发通路（含向 EX 段两个输入端以及向 MEM 段存储数据的转发），寄存器堆同一周期内先写后读；紧邻的 load-use 冒险仍需阻塞 1 个周期。执行如下指令序列：
+\begin{lstlisting}
+I1: lw   R1, 0(R2)     % R1 <- Mem[R2+0]
+I2: add  R3, R1, R4    % R3 <- R1 + R4
+I3: lw   R5, 8(R2)     % R5 <- Mem[R2+8]
+I4: sub  R6, R5, R1    % R6 <- R5 - R1
+I5: add  R7, R6, R3    % R7 <- R6 + R3
+\end{lstlisting}
+\begin{enumerate}
+    \item[(1)] 列出序列中所有的 RAW 相关，标明相关寄存器，并指出哪些会导致阻塞；
+    \item[(2)] 在完整转发下，需要插入多少个阻塞周期？用表格形式画出流水线时空图，给出执行完该序列的总周期数；
+    \item[(3)] 仅通过重排指令消除全部阻塞，给出新序列、总周期数，并分别计算两种排列的 CPI（以 5 条指令、最后一条指令完成 WB 为口径）。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (1) 按序发射、按序写回，因此只可能出现 RAW：
+\begin{itemize}
+    \item I1 $\to$ I2，寄存器 R1：\texttt{lw} 的数据在 MEM 段末才可用，消费者下一拍就要进 EX，转发来不及，\textbf{阻塞 1 拍}。
+    \item I3 $\to$ I4，寄存器 R5：同为 load-use，\textbf{阻塞 1 拍}。
+    \item I1 $\to$ I4，寄存器 R1：二者相隔 I2、I3，I1 已在第 5 拍写回，I4 到第 6 拍才读寄存器，不阻塞。
+    \item I4 $\to$ I5，寄存器 R6：I4 在 EX 段末产出，I5 下一拍才进 EX，经 EX/MEM$\to$EX 转发，不阻塞。
+    \item I2 $\to$ I5，寄存器 R3：相隔两条指令，I2 早已写回，不阻塞。
+\end{itemize}
+
+(2) 两处 load-use 各阻塞 1 拍，共 \textbf{2 个阻塞周期}。时空图如下（数字为时钟周期序号，同一格表示该拍所处流水段）：
+\begin{center}
+\setlength{\tabcolsep}{4.2pt}
+\small
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+指令 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 \\
+\hline
+I1 & IF & ID & EX & MEM & WB & & & & & & \\
+\hline
+I2 & & IF & ID & ID$^*$ & EX & MEM & WB & & & & \\
+\hline
+I3 & & & IF & IF & ID & EX & MEM & WB & & & \\
+\hline
+I4 & & & & & IF & ID & ID$^*$ & EX & MEM & WB & \\
+\hline
+I5 & & & & & & IF & IF & ID & EX & MEM & WB \\
+\hline
+\end{tabular}
+\end{center}
+表中 $*$ 表示因 load-use 在 ID 段停留的一拍。$T_4$ 时 I2 停住，I3 也随之停在 IF；$T_7$ 时 I4 停住，I5 随之停在 IF。最后一条指令 I5 在第 11 拍完成 WB，故总周期数为
+\[
+5+4+2=11\ \text{拍}.
+\]
+
+(3) 把与 I2 无依赖的 I3 提到 I2 之前，使两条 \texttt{lw} 连续发射，两条使用装入结果的指令各自与对应的 \texttt{lw} 拉开一拍以上：
+\begin{lstlisting}
+I1: lw   R1, 0(R2)
+I3: lw   R5, 8(R2)
+I2: add  R3, R1, R4
+I4: sub  R6, R5, R1
+I5: add  R7, R6, R3
+\end{lstlisting}
+新时空图（数字为周期）：
+\begin{center}
+\setlength{\tabcolsep}{4.2pt}
+\small
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+指令 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\
+\hline
+I1 & IF & ID & EX & MEM & WB & & & & \\
+\hline
+I3 & & IF & ID & EX & MEM & WB & & & \\
+\hline
+I2 & & & IF & ID & EX & MEM & WB & & \\
+\hline
+I4 & & & & IF & ID & EX & MEM & WB & \\
+\hline
+I5 & & & & & IF & ID & EX & MEM & WB \\
+\hline
+\end{tabular}
+\end{center}
+校验各相关处：I2 在 $T_5$ 进 EX，I1 于 $T_4$ 结束 MEM，经 MEM/WB$\to$EX 转发，无需阻塞；I4 在 $T_6$ 进 EX，I3 于 $T_5$ 结束 MEM，同样可转发；I5 在 $T_7$ 进 EX，I4 于 $T_6$ 结束 EX，经 EX/MEM$\to$EX 转发。故阻塞为 0，总周期数
+\[
+5+4=9\ \text{拍}.
+\]
+CPI 按“总周期数 / 指令条数”计：原序列 $\mathrm{CPI}=11/5=2.2$；重排后 $\mathrm{CPI}=9/5=1.8$。这条序列能这样调度的前提是 I1 与 I3 访问的是不同地址、且两条 \texttt{load} 之间没有写操作，交换它们不改变程序语义；若两条访问同一单元且其中一条为 \texttt{store}，则不能随意调换。
+
+\boxed{\text{答案：(1) 见解析；(2) 2 拍、共 11 拍；(3) 0 拍、共 9 拍，CPI 2.2$\to$1.8}}\else \answerarea[14] \fi
+
+\end{enumerate}
+
+\vspace{8pt}

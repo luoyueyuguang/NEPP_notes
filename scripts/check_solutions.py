@@ -25,6 +25,32 @@ END = re.compile(r"\\end\{([^}]+)\}")
 TOKEN_RE = re.compile(
     r"\\ifshowsolutions\b|\\fi\b|\\answerarea\b|\\begin\{[^}]+\}|\\end\{[^}]+\}"
 )
+# 解答标记不得出现在开关之外（纯题目版会原样排版）。
+SOLUTION_MARK_RE = re.compile(
+    r"\\boxed\{\s*(?:\\textbf\{\s*(?:解|证明|答案)|\\text\{\s*(?:\\textbf\{\s*)?(?:解|证明|答案))"
+)
+
+
+def outside_solution_marks(lines, toks):
+    """Return line numbers of solution boxes outside any \\ifshowsolutions block."""
+    marks = []
+    depth = 0
+    tok_i = 0
+    for ln, line in enumerate(lines):
+        pre = active(line)
+        # Count toggles on this line before testing the line's content.
+        opens = len(re.findall(r"\\ifshowsolutions\b", pre))
+        closes = len(re.findall(r"\\fi\b", pre))
+        if (
+            depth == 0
+            and "\\ifshowsolutions" not in pre
+            and SOLUTION_MARK_RE.search(pre)
+        ):
+            marks.append(ln + 1)
+        depth += opens - closes
+        if depth < 0:
+            depth = 0
+    return marks
 
 
 def active(line):
@@ -49,6 +75,11 @@ def scan(path):
             toks.append((ln, m.group(0)))
 
     errors = []
+    for ln in outside_solution_marks(lines, toks):
+        errors.append(
+            f"{path}:{ln}: solution box outside \\ifshowsolutions "
+            f"(would leak into the exercise build)"
+        )
     blocks = 0
     # Process each \\ifshowsolutions block (no nesting of the toggle is allowed).
     i, n = 0, len(toks)
@@ -87,7 +118,10 @@ def scan(path):
             errors.append(f"{path}:{start_ln+1}: unmatched \\ifshowsolutions (no \\fi)")
             i = n
             continue
-        if not has_else_aa:
+        end_ln = toks[j][0]
+        block_text = "\n".join(lines[start_ln : end_ln + 1])
+        is_solution = ("\\boxed" in block_text) or ("解析" in block_text) or ("解答" in block_text)
+        if is_solution and not has_else_aa:
             errors.append(f"{path}:{start_ln+1}: block lacks '\\else \\answerarea'")
         if envstack:
             errs = ", ".join(sorted(set(envstack)))
@@ -103,7 +137,14 @@ def main():
     files = []
     for root_dir in ("408", "math"):
         files += glob.glob(os.path.join(ROOT, root_dir, "**", "*.tex"), recursive=True)
-    files = sorted(set(f for f in files if not f.endswith("main.tex")))
+    files = sorted(
+        set(
+            f
+            for f in files
+            if not f.endswith("main.tex")
+            and not os.path.basename(f).startswith("_")
+        )
+    )
 
     errors = []
     total_blocks = 0

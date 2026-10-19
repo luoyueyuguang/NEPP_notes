@@ -1,1062 +1,626 @@
 \section{微分方程}
-\subsection{基本概念}
-\begin{mydef}{常微分方程}{ODE}
-    含有自变量、自变量的未知函数、未知函数的导数或微分的方程称为微分方程。
-    当未知函数是一元函数时，称为常微分方程。
+
+\subsection{微分方程与方向场}
+
+代数方程求的是数，微分方程求的是函数。比如
+\[
+  y'=y
+\]
+要求一个函数，它的导数处处等于它自己。$y=Ce^x$ 就满足：两边都是 $Ce^x$。$C$ 每取一个值，得到一条曲线；再补一个初始条件，比如 $y(0)=2$，就只剩 $y=2e^x$ 这一条。认类型、求一族解、用初值挑一条，这是本章反复要做的三件事。
+
+\begin{mydef}{常微分方程、阶与线性}{ODEBasic}
+含有自变量 $x$、未知函数 $y(x)$ 及其导数的方程称为微分方程；未知函数是一元函数时称为常微分方程。
+方程中出现的最高阶导数的阶数称为方程的阶。若方程能写成
+\[
+  a_n(x)y^{(n)}+a_{n-1}(x)y^{(n-1)}+\cdots+a_1(x)y'+a_0(x)y=g(x),
+\]
+其中系数 $a_i(x)$ 与右端 $g(x)$ 只依赖于 $x$，且 $y$ 及其各阶导数都只以一次方出现，则称为 $n$ 阶线性方程；否则称为非线性方程。
 \end{mydef}
 
-\begin{mydef}{线性微分方程与非线性微分方程}{LinearNonlinearODE}
-    若未知函数及其各阶导数只以一次线性组合出现，且其系数仅为自变量的函数，即方程可写成
-    \[
-    a_n(x)y^{(n)}+a_{n-1}(x)y^{(n-1)}+\cdots+a_1(x)y'+a_0(x)y=g(x),
-    \]
-    则称其为线性微分方程；否则称为非线性微分方程。特别地，$yy'$、$(y')^2$、$\sin y$ 等含未知函数或其导数的非线性组合均不属于线性方程。
+线性与否只看未知函数：$xy'+y=x^2$ 是线性的，因为系数 $x,1$ 不含 $y$；$yy'+y=x$ 不是，$(y')^2$、$\sin y$ 一出现也立即是非线性。
+
+\begin{mydef}{解、通解与初值问题}{ODESolution}
+若 $y=\varphi(x)$ 在区间 $I$ 上有直到 $n$ 阶的连续导数，代入方程后对一切 $x\in I$ 恒成立，则称它是方程在 $I$ 上的解。
+$n$ 阶方程含 $n$ 个独立任意常数的解称为通解，不含任意常数的解称为特解。在 $x_0$ 处给定
+\[
+  y(x_0)=y_0,\quad y'(x_0)=y_1,\quad\ldots,\quad y^{(n-1)}(x_0)=y_{n-1},
+\]
+这组条件称为初始条件，与方程合在一起称为初值问题。
 \end{mydef}
 
-\begin{mydef}{微分方程的阶}{ODEOrder}
-    设$F(x,y,y',\cdots,y^{(n)})$为$x,y$及其导数的一个函数，$y=y(x)$为未知函数，则方程
-    \[
-        F(x,y,y',\cdots,y^{(n)})=0
-    \]
-    其中$n$称为该方程的\textbf{阶}。若把 $x,y,y',\ldots,y^{(n)}$ 视为相互独立的形式变量，则 $F$ 是已知的 $n+2$ 元函数。
+$n$ 阶方程需要 $n$ 个初始条件，正好把通解里的 $n$ 个常数定下来；少给一个，解就还有一族。
+
+把一阶方程写成 $y'=f(x,y)$，可以在 $xy$ 平面上把它画出来：在每一点 $(x,y)$ 画一小段斜率为 $f(x,y)$ 的线段，所有线段组成\emph{方向场}。方程的解是处处与方向场相切的曲线，称为积分曲线。只要 $f$ 和 $\partial f/\partial y$ 在 $(x_0,y_0)$ 附近连续，过该点的积分曲线就恰好有一条（解的存在唯一性），所以不同的积分曲线不会相交。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.8\linewidth, height=6.2cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-2.9, xmax=2.9, ymin=-2.9, ymax=2.9,
+  xtick={-2,-1,0,1,2}, ytick={-2,-1,0,1,2},
+  font=\footnotesize,
+  legend pos=south east,
+  legend style={fill=white, fill opacity=0.88, text opacity=1, draw=gray!40},
+]
+\foreach \x in {-2.6,-1.95,...,2.6}{
+  \foreach \y in {-2.6,-1.95,...,2.6}{
+    \pgfmathsetmacro{\m}{\x-\y}
+    \pgfmathsetmacro{\sdx}{0.16/sqrt(1+\m*\m)}
+    \pgfmathsetmacro{\sdy}{\m*\sdx}
+    \addplot[gray!75,line width=0.6pt,forget plot]
+      coordinates {(\x-\sdx,\y-\sdy) (\x+\sdx,\y+\sdy)};
+  }
+}
+\addplot[blue,thick,domain=-2.85:2.85,samples=140] {x-1+2*exp(-x)};
+\addlegendentry{$C=2$}
+\addplot[red,thick,domain=-2.85:2.85,samples=140] {x-1};
+\addlegendentry{$C=0$}
+\addplot[green!55!black,thick,domain=-2.85:2.85,samples=140] {x-1-exp(-x)};
+\addlegendentry{$C=-1$}
+\end{axis}
+\end{tikzpicture}\\*[-0.2em]
+\parbox{0.86\linewidth}{\centering\footnotesize
+方程 $y'=x-y$ 的方向场与三条积分曲线 $y=x-1+Ce^{-x}$。每根短线段给出该点处解曲线的斜率；初值 $(0,1)$ 落在 $C=2$ 的那条曲线上，所以它才是该初值问题的解。曲线越往右越贴近直线 $y=x-1$，因为 $Ce^{-x}$ 在衰减。}
+\end{center}
+
+\subsection{可分离变量}
+
+先看一个具体的方程：
+\[
+  \frac{\mathrm{d}y}{\mathrm{d}x}=xy.
+\]
+当 $y\ne0$ 时，把含 $y$ 的移到一边、含 $x$ 的移到另一边：
+\[
+  \frac{\mathrm{d}y}{y}=x\,\mathrm{d}x.
+\]
+两边各自积分，
+\[
+  \ln|y|=\frac{x^2}{2}+C_1,
+  \qquad\text{即}\qquad
+  y=Ce^{x^2/2},
+\]
+其中 $C=\pm e^{C_1}$；再补上 $C=0$ 对应的 $y\equiv0$。代回去检验：$y'=Cxe^{x^2/2}=xy$，确实成立。这里的通解含一个任意常数，符合一阶方程的要求。
+
+\begin{mydef}{可分离变量方程}{SeparableODE}
+若一阶方程能写成
+\[
+  y'=f(x)g(y),
+\]
+其中 $f,g$ 在讨论区间上连续，则称为可分离变量方程。
 \end{mydef}
 
-\begin{mydef}{微分方程的解}{ODESolution}
-    若把某函数及其导数代入微分方程后，能使方程成立，则称该函数为该微分方程的一个\textbf{解}。
-    要求解必须在某区间内连续，并且具有与方程阶数相同的连续导数。
-\end{mydef}
-
-\begin{mydef}{微分方程的通解和特解}{ODEGeneralParticularSolution}
-    含有任意常数的解称为该微分方程的\textbf{通解}，不含任意常数的解称为该微分方程的\textbf{特解}。
-\end{mydef}
-
-\begin{mydef}{微分方程的初值问题}{ODEIVP}
-    能确定通解中的任意常数的条件称为定解条件，初始条件是定解条件的一种，初始条件的形式与方程的阶数有关。\\
-    一般说
-    以\(x\)为自变量，以\(y(x)\)为未知函数的\(n\)阶微分方程的初始条件为
-    \[y|_{x=x_0}=y_0
-    ,y'|_{x=x_0}=y_1,\cdots,y^{(n-1)}|_{x=x_0}=y_{n-1}\]
-    其中\(x_0,y_0,y_1,\cdots,y_{n-1}\)是给定的常数。
-    由微分方程及初始条件所组成的方程组称为该微分方程的\textbf{初值问题}。即联立式
-    \[
-        \begin{cases}
-            F(x,y,y',\cdots,y^{(n)})=0 \\
-            y|_{x=x_0}=y_0,y'|_{x=x_0}=y_1,\cdots ,y^{(n-1)}|_{x=x_0}=y_{n-1}
-        \end{cases}
-    \]
-\end{mydef}
-
-\subsection{一阶微分方程}
-\begin{mydef}{变量可分离的微分方程}{SeparableODE}
-    形如
-    \[
-        \frac{\mathrm{d}y}{\mathrm{d}x} = f(x)g(y)
-    \]
-    的微分方程称为变量可分离的微分方程。 \\
-\end{mydef}
-\begin{conclusion}{变量可分离的微分方程的解法}{SeparableODESolution}
-   其解法为分离变量法，即将\(y\)的函数与\(\mathrm{d}y\)放在等式一边，\(x\)的函数与\(\mathrm{d}x\)放在等式另一边，然后对两边积分。
-    即
-    \[
-        \begin{aligned}
-        \frac{\mathrm{d}y}{\mathrm{d}x} = f(x)g(y) \Leftrightarrow 
-        \frac{\mathrm{d}y}{g(y)} = f(x) \mathrm{d}x
-        \end{aligned}
-    \]
-    积分得
-    \[
-        \int \frac{\mathrm{d}y}{g(y)} = \int f(x) \mathrm{d}x
-        + C
-    \]
-    分离变量时若除以了\(g(y)\)，还应单独检查并补回满足\(g(y)=0\)的常值解；这些解可能在除法过程中丢失。
+\begin{conclusion}{分离变量法}{SeparableMethod}
+当 $g(y)\ne0$ 时，把 $y'$ 写成 $\mathrm{d}y/\mathrm{d}x$，方程化为
+\[
+  \frac{\mathrm{d}y}{g(y)}=f(x)\,\mathrm{d}x,
+\]
+两边积分得
+\[
+  \int\frac{\mathrm{d}y}{g(y)}=\int f(x)\,\mathrm{d}x+C.
+\]
+这是隐式通解，能解出 $y$ 时再写成显式。分离时除以了 $g(y)$，必须单独检查 $g(y)=0$ 的常值解 $y\equiv y_0$ 是否满足原方程，这些解可能在除法中丢失。
 \end{conclusion}
 
-\begin{mydef}{$y'+p(x)y=q(x)$的微分方程}{FirstOrderLinearODE}
-    形如
-    \[
-        y' + p(x)y = q(x)
-    \]
-    的微分方程称为一阶线性微分方程。\\
-    其齐次方程为
-    \[
-        y' + p(x)y = 0
-    \]
+再看一个会丢解的例子：$y'=y^2$。分离得 $\mathrm{d}y/y^2=\mathrm{d}x$，积分为 $-1/y=x+C$，即 $y=-1/(x+C)$。但 $y\equiv0$ 代回原方程也成立，它在除以 $y^2$ 时被丢掉了，最后要补回来。通解中的 $C$ 取极限 $C\to\infty$ 也能看出这个解，但不能用“取极限”代替检查。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.78\linewidth, height=6cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-1.5, xmax=1.5, ymin=-3.2, ymax=3.2,
+  xtick={-1,0,1}, ytick={-2,-1,0,1,2},
+  font=\footnotesize,
+  legend pos=north west,
+  legend style={fill=white, fill opacity=0.88, text opacity=1, draw=gray!40},
+]
+\addplot[blue,thick,domain=-1.45:1.45,samples=120] {1.0*exp(x^2/2)};
+\addlegendentry{$C=1$}
+\addplot[red,thick,domain=-1.45:1.45,samples=120] {0.5*exp(x^2/2)};
+\addlegendentry{$C=0.5$}
+\addplot[green!55!black,thick,domain=-1.45:1.45,samples=120] {-0.8*exp(x^2/2)};
+\addlegendentry{$C=-0.8$}
+\addplot[black,thick,dashed,domain=-1.45:1.45,samples=2] {0};
+\addlegendentry{$y\equiv0$}
+\end{axis}
+\end{tikzpicture}\\*[-0.2em]
+\parbox{0.86\linewidth}{\centering\footnotesize
+$y'=xy$ 的积分曲线 $y=Ce^{x^2/2}$。$C$ 的符号决定曲线在 $x$ 轴上方还是下方，大小决定它离轴多远。所有曲线在 $x=0$ 处斜率为零，因为那里 $y'=xy=0$；虚线 $y\equiv0$ 正是分离变量时被除掉的解。}
+\end{center}
+
+\subsection{一阶线性方程与积分因子}
+
+看一个能直接凑出导数的方程：
+\[
+  y'+y=2.
+\]
+两边乘 $e^x$，左边恰好是乘积的导数：
+\[
+  e^xy'+e^xy=(e^xy)'=2e^x.
+\]
+积分一次得 $e^xy=2e^x+C$，即 $y=2+Ce^{-x}$。乘上去的 $e^x$ 叫\emph{积分因子}。
+
+一般情形下怎么找它？设乘 $\mu(x)$ 后左边能写成 $(\mu y)'$：
+\[
+  \mu y'+\mu p y=\mu y'+\mu'y
+  \quad\Longleftrightarrow\quad
+  \mu'=\mu p.
+\]
+这是一个可分离方程，解为 $\mu=e^{\int p\,\mathrm{d}x}$。于是 $(\mu y)'=\mu q$，积分即得通解。
+
+\begin{mydef}{一阶线性方程}{FirstOrderLinear}
+形如
+\[
+  y'+p(x)y=q(x)
+\]
+的方程称为一阶线性方程。$q(x)\equiv0$ 时称为齐次的，否则称为非齐次的。当 $p,q$ 在区间 $I$ 上连续时，方程的解在整个 $I$ 上有定义。
 \end{mydef}
 
-\begin{conclusion}{$y'+p(x)y=q(x)$的解法}{FirstOrderLinearODESolution}
-    \begin{enumerate}
-        \item 积分因子法\\
-        设\(\mu(x)\)为积分因子，则
-        \[
-            \mu(x)y' + \mu(x)p(x)y = \mu(x)q(x)
-        \]
-        可改写为
-        \[
-            [\mu(x)y]' = q(x)\mu(x)
-        \]
-        积分得
-        \[
-            \mu(x)y = \int \mu(x)q(x) \mathrm{d}x + C
-        \]
-        其中\(\mu(x)\)为积分因子，\(C\)为任意常数。\\
-        一般取\textbf{\(\mu(x)=e^{\int p(x) \mathrm{d}x}\)}。
-        \item 公式法
-        \[
-            y = \mu(x)^{-1} \left( \int \mu(x) q(x) \mathrm{d}x + C \right)
-        \]
-        将\(\mu(x)\)换成\(e^{\int p(x) \mathrm{d}x}\)即得
-        \[
-            y = e^{-\int p(x) \mathrm{d}x} \left( \int e^{\int p(x) \mathrm{d}x} q(x) \mathrm{d}x + C \right)
-        \]
-        相应的齐次方程通解为
-        \[
-            y = Ce^{-\int p(x) \mathrm{d}x}
-        \]
-    \end{enumerate}
+\begin{conclusion}[breakable=false]{一阶线性方程的通解}{LinearSolution}
+取 $\mu(x)=e^{\int p(x)\,\mathrm{d}x}$（只取一个原函数即可），则
+\[
+  y=e^{-\int p\,\mathrm{d}x}\left(\int \mu(x)q(x)\,\mathrm{d}x+C\right).
+\]
+齐次方程 $y'+p(x)y=0$ 的通解为 $y=Ce^{-\int p\,\mathrm{d}x}$；非齐次方程的通解等于齐次通解加上非齐次的一个特解。
+\end{conclusion}
+
+公式里的两个 $\int p\,\mathrm{d}x$ 是同一个原函数。换一个原函数只相当于把 $e^{\int p}$ 乘上一个常数，最终被 $C$ 吸收，解集不变。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.78\linewidth, height=6cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=0, xmax=4.2, ymin=-0.6, ymax=4.6,
+  xtick={0,1,2,3,4}, ytick={0,1,2,3,4},
+  font=\footnotesize,
+  legend pos=north east,
+  legend style={fill=white, fill opacity=0.88, text opacity=1, draw=gray!40},
+]
+\addplot[black,dashed,thick,domain=0:4.1,samples=2] {2};
+\addlegendentry{$y^*=2$}
+\addplot[blue,thick,domain=0:4.1,samples=100] {2+exp(-x)};
+\addlegendentry{$y=2+e^{-x}$}
+\addplot[red,thick,domain=0:4.1,samples=100] {2-exp(-x)};
+\addlegendentry{$y=2-e^{-x}$}
+\draw[<->,red!70!black,thick] (axis cs:0.65,2) -- (axis cs:0.65,{2+exp(-0.65)});
+\node[font=\scriptsize,red!70!black,anchor=east] at (axis cs:0.6,2.27) {$Ce^{-x}$};
+\addplot[only marks,mark=*,blue!70!black] coordinates {(0,3)};
+\addplot[only marks,mark=*,red!70!black] coordinates {(0,1)};
+\end{axis}
+\end{tikzpicture}\\*[-0.2em]
+\parbox{0.86\linewidth}{\centering\footnotesize
+$y'+y=2$ 的通解 $y=2+Ce^{-x}$。虚线是特解 $y^*=2$，两条实线是 $C=1$ 与 $C=-1$ 时的解；竖箭头标出的高度差就是齐次解 $Ce^{-x}$。由于 $e^{-x}$ 衰减，所有解都趋向同一个稳态 $y=2$，初值只影响开始阶段。}
+\end{center}
+
+换一个 $p$ 不是常数的例子：求 $y'+y/x=x^2$（$x>0$）。这里 $p=1/x$，$\mu=e^{\ln x}=x$，方程变成
+\[
+  (xy)'=x^3
+  \quad\Longrightarrow\quad
+  xy=\frac{x^4}{4}+C
+  \quad\Longrightarrow\quad
+  y=\frac{x^3}{4}+\frac{C}{x}.
+\]
+代回检验：$y'=3x^2/4-C/x^2$，$y/x=x^2/4+C/x^2$，相加正好是 $x^2$。
+
+\subsection{齐次方程与变量代换}
+
+有的方程既不能分离，也不是线性的，但右端只通过比值 $y/x$ 依赖于 $x,y$。例如
+\[
+  y'=\left(\frac{y}{x}\right)^2+\frac{y}{x}.
+\]
+令 $u=y/x$，即 $y=ux$，则 $y'=u+xu'$。代入得
+\[
+  u+xu'=u^2+u
+  \quad\Longrightarrow\quad
+  x\frac{\mathrm{d}u}{\mathrm{d}x}=u^2,
+\]
+这就可分离了：$\mathrm{d}u/u^2=\mathrm{d}x/x$，积分为 $-1/u=\ln|x|+C$，所以
+\[
+  y=ux=-\frac{x}{\ln|x|+C}.
+\]
+
+\begin{mydef}{齐次方程}{HomogeneousODE}
+形如
+\[
+  y'=\varphi\left(\frac{y}{x}\right)
+\]
+的方程称为齐次方程。这里的“齐次”指右端只依赖比值 $y/x$，与“齐次线性方程”中“右端为零”的意思不同。
+\end{mydef}
+
+\begin{conclusion}{齐次方程的解法}{HomogeneousMethod}
+令 $u=y/x$，则 $y=ux$、$y'=u+xu'$，方程化为
+\[
+  x\frac{\mathrm{d}u}{\mathrm{d}x}=\varphi(u)-u,
+\]
+分离变量并积分：
+\[
+  \int\frac{\mathrm{d}u}{\varphi(u)-u}=\ln|x|+C.
+\]
+若 $\varphi(u_0)=u_0$，则 $u\equiv u_0$ 也是解，对应射线 $y=u_0x$；分离时除以 $\varphi(u)-u$ 会把它丢掉。
 \end{conclusion}
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
+  width=0.72\linewidth, height=6.2cm,
   xlabel={$x$}, ylabel={$y$},
-  xmin=-1.1, xmax=1.1, ymin=-6, ymax=6,
-  xtick={-1,0,1}, ytick={-5,-4,-3,-2,-1,1,2,3,4,5},
-  legend pos=north east, font=\footnotesize,
-  domain=-1.1:1.1, samples=120,
+  xmin=0, xmax=3.2, ymin=-0.3, ymax=3.2,
+  xtick={1,2,3}, ytick={1,2,3},
+  font=\footnotesize,
 ]
-\addplot[blue,thick] {2*exp(-x)};
-\addlegendentry{$y=2e^{-x}$}
-\addplot[red,thick] {exp(-x)};
-\addlegendentry{$y=e^{-x}$}
-\addplot[green!55!black,thick] {0.5*exp(-x)};
-\addlegendentry{$y=0.5e^{-x}$}
-\addplot[blue!45,thick] {-2*exp(-x)};
-\addplot[red!55,thick] {-exp(-x)};
-\addplot[green!65!black,thick] {-0.5*exp(-x)};
+\addplot[gray!55,thick,domain=0:3.1,samples=2] {0.5*x};
+\addplot[gray!55,thick,domain=0:3.1,samples=2] {x};
+\addplot[gray!55,thick,domain=0:1.55,samples=2] {2*x};
+\foreach \px in {0.8,1.6,2.4}{
+  \pgfmathsetmacro{\sdx}{0.16/sqrt(1+0.75*0.75)}
+  \pgfmathsetmacro{\sdy}{0.75*\sdx}
+  \addplot[red,thick,forget plot]
+    coordinates {(\px-\sdx,0.5*\px-\sdy) (\px+\sdx,0.5*\px+\sdy)};
+}
+\foreach \px in {0.8,1.6,2.4}{
+  \pgfmathsetmacro{\sdx}{0.16/sqrt(1+2*2)}
+  \pgfmathsetmacro{\sdy}{2*\sdx}
+  \addplot[red,thick,forget plot]
+    coordinates {(\px-\sdx,\px-\sdy) (\px+\sdx,\px+\sdy)};
+}
+\foreach \px in {0.5,0.9,1.3}{
+  \pgfmathsetmacro{\sdx}{0.16/sqrt(1+6*6)}
+  \pgfmathsetmacro{\sdy}{6*\sdx}
+  \addplot[red,thick,forget plot]
+    coordinates {(\px-\sdx,2*\px-\sdy) (\px+\sdx,2*\px+\sdy)};
+}
+\node[font=\scriptsize,anchor=west] at (axis cs:2.8,1.35) {$y=\frac12x$};
+\node[font=\scriptsize,anchor=west] at (axis cs:2.65,2.72) {$y=x$};
+\node[font=\scriptsize,anchor=west] at (axis cs:1.35,2.95) {$y=2x$};
 \end{axis}
-\end{tikzpicture}
+\end{tikzpicture}\\*[-0.2em]
+\parbox{0.86\linewidth}{\centering\footnotesize
+齐次方程的斜率只与射线 $y/x=u$ 的角度有关：同一条射线上画出的红色小线段互相平行。图中三条射线分别对应 $u=\frac12,1,2$，斜率依次为 $\varphi(u)$。既然沿射线斜率不变，把 $u=y/x$ 当作新的未知函数就很自然。}
 \end{center}
 
-\noindent\textbf{拓展（数值解 ODE）:}当 $y'+p(x)y=q(x)$ 这类方程无法（或难以）写出显式解时，数值方法把连续方程“离散化”：在网格 $x_n=x_0+nh$ 上，Euler 法 $y_{n+1}=y_n+h\,f(x_n,y_n)$ 沿切线步进，Runge--Kutta（如 RK4）则用若干函数值加权获得更高阶精度。步长 $h$ 越小越精确，但过小的 $h$ 会放大舍入误差并引发稳定性问题（刚性方程、A-稳定）。这套“离散化+迭代”正是动力学模拟与神经网络常微分方程 \texttt{neural ODE} 的起点。
+伯努利方程 $y'+p(x)y=q(x)y^n$（$n\ne0,1$）也是靠代换化为线性。两边除以 $y^n$，令 $u=y^{1-n}$，则 $u'=(1-n)y^{-n}y'$，方程变成
+\[
+  \frac{u'}{1-n}+p(x)u=q(x),
+\]
+这是关于 $u$ 的一阶线性方程。代换要求 $y\ne0$，解完要回头检查 $y\equiv0$（$n>0$ 时它通常是解）。
 
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[width=0.82\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-0.1, xmax=1.3, ymin=0.9, ymax=2.9,
-  xtick={0,0.25,0.5,0.75,1}, ytick={1,1.5,2,2.5,3},
-  legend pos=north west, font=\footnotesize,
-  domain=0:1.2, samples=120]
-\addplot[blue,thick] {exp(x)};
-\addlegendentry{精确解 $y=e^x$}
-\addplot[red,thick,mark=*] coordinates {(0,1) (0.25,1.25) (0.5,1.5625) (0.75,1.953125) (1,2.441406)};
-\addlegendentry{Euler 折线 $h=0.25$}
-\end{axis}
-\end{tikzpicture}
-\end{center}
-\centerline{\footnotesize 解 $y'=y,\ y(0)=1$：Euler 法（$h=0.25$）的折线点列逐步偏离精确解 $e^x$；$h$ 越小偏离越小，但步数增多、舍入误差累积。}
+\subsection{可降阶的高阶方程}
 
-\begin{mydef}{全微分方程}{ALLODEForm}
-    \(P(x, y)dx + Q(x, y)dy = 0\),存在\(u(x,y)\)，使得
-    \(du = P(x,y)dx + Q(x,y)dy\)\\
-    若 $P,Q$ 在所考察的单连通区域上具有连续的一阶偏导数，且满足\(\frac{\partial Q}{\partial x} = \frac{\partial P}{\partial y}\)，则该微分形式为全微分，原方程称为全微分方程。
-\end{mydef}
+二阶方程一般没有统一解法，但有两类可以通过换元降成一阶。
 
-\begin{conclusion}{全微分方程的解法}{ODESolutionMethod}
-    主要的方法为求原函数法，即求出\(u(x,y)\)，使得
-    \[du = P(x,y)dx + Q(x,y)dy\]
-    则其通解为\(u(x,y) = C\)，其中\(C\)为任意常数。
-    方法主要有以下三种
-    \begin{enumerate}
-        \item 特殊路径积分法
-        \[
-            u(x,y) = \int_{x_0}^{x} P(t,y_0) \mathrm{d}t + \int_{y_0}^{y} Q(x,t) \mathrm{d}t
-        \]
-        \item 不定积分法 \\
-        由\(\frac{\partial u}{\partial x} = P(x,y)\),对\(x\)积分得
-        \[
-        u(x,y) = \int P(x,y)\,\mathrm{d}x + C(y)
-        \]
-        对\(y\)求导得
-        \[
-            \frac{\partial u}{\partial y} = Q(x,y) = \frac{\partial}{\partial y}
-            \left(\int P(x,y)\,\mathrm{d}x+C(y)\right)
-            =\frac{\partial}{\partial y}\left(\int P(x,y)\,\mathrm{d}x\right)+C'(y)
-        \]
-        由此解的\(C'(y)\)，再对\(y\)积分得\(C(y)\)，从而得出\(u(x,y)\)。
-        \[
-            u(x,y) = \int P(x,y)\,\mathrm{d}x + C(y)
-        \]
-        \item 凑微分法
-        \[
-            P(x, y)dx + Q(x, y)dy = \cdots = du
-        \]
-    \end{enumerate}
-\end{conclusion}
-\subsection{简单代换可解的方程}
-\begin{conclusion}{齐次方程的代换}{HomogeneousODE}
-    形如
-    \[
-        \frac{\mathrm{d}y}{\mathrm{d}x} = \varphi\left(\frac{y}{x}\right)
-    \]
-    的微分方程。\\
-    其解法为变量代换法，令\(u = \frac{y}{x}\)，则\(y = ux\)，代入原方程得
-    \[
-        x\frac{\mathrm{d}u}{\mathrm{d}x} = \varphi(u) -u
-    \]
-    其通解为
-    \[
-        \int \frac{\mathrm{d}u}{\varphi(u) - u} = \int \frac{\mathrm{d}x}{x} + C = ln|x| + C
-    \]
-    这是一个变量可分离的微分方程。
-\end{conclusion}
+\textbf{不显含 $y$：}方程形如 $y''=f(x,y')$。令 $p=y'$，则 $y''=p'$，方程变成一阶方程
+\[
+  p'=f(x,p).
+\]
+解出 $p(x)$ 后再积分一次得 $y$。
 
-\begin{conclusion}{伯努利方程}{BernoulliODE}
-    形如
-    \[
-        y' + p(x)y = q(x)y^n (n \neq 0,1)
-    \]
-    的微分方程称为伯努利方程。\\
-    其解法为变量代换法，令\(u = y^{1-n}\)，则
-    \[
-        \frac{\mathrm{d}u}{\mathrm{d}x} = (1-n)y^{-n}y'
-    \]
-    代入原方程得
-    \[
-        \frac{1}{1-n} \frac{\mathrm{d}u}{\mathrm{d}x} + p(x)u = q(x)
-    \]
-    这是一个一阶线性微分方程。
-    由于代换\(u=y^{1-n}\)通常要求\(y\ne0\)，完成代换求解后还应回到原方程检查是否存在被代换遗漏的零解；当原方程有定义时，\(y\equiv0\)通常也是解。
-\end{conclusion}
+\textbf{不显含 $x$：}方程形如 $y''=f(y,y')$。仍令 $p=y'$，但把 $p$ 看成 $y$ 的函数。由链式法则
+\[
+  y''=\frac{\mathrm{d}p}{\mathrm{d}x}
+      =\frac{\mathrm{d}p}{\mathrm{d}y}\frac{\mathrm{d}y}{\mathrm{d}x}
+      =p\frac{\mathrm{d}p}{\mathrm{d}y},
+\]
+方程变成 $p\,\mathrm{d}p/\mathrm{d}y=f(y,p)$。解出 $p=p(y)$ 后，再由 $\mathrm{d}y/\mathrm{d}x=p(y)$ 分离变量求 $y$。
 
-\begin{conclusion}{$\frac{\mathrm{dy}}{\mathrm{dx}} = \frac{h(y)}{p(y)x + q(y)}$类似方程的解法}{FirstOrderLinearODE}
-    形如
-    \[
-        \frac{\mathrm{dy}}{\mathrm{dx}} = \frac{h(y)}{p(y)x + q(y)}
-    \]
-    或
-    \[
-        \frac{\mathrm{dy}}{\mathrm{dx}} = \frac{h(y)}{p(y)x + q(y)x^\alpha}(\alpha \neq 0,1)
-    \]
-    的微分方程。\\
-    其解法为自变量和因变量互换，即颠倒翻转，即化为
-    \[
-        \frac{\mathrm{dx}}{\mathrm{dy}} = \frac{p(y)x + q(y)}{h(y)} = \frac{p(y)}{h(y)}x + \frac{q(y)}{h(y)}
-    \]
-    或
-    \[
-        \frac{\mathrm{dx}}{\mathrm{dy}} = \frac{p(y)x + q(y)x^\alpha}{h(y)} = \frac{p(y)}{h(y)}x + \frac{q(y)}{h(y)}x^\alpha
-    \]
-\end{conclusion}
-
-\begin{tablebox}{可降阶的高阶微分方程}
-    \begin{tabularx}{\textwidth}{|c|X|}
-        \hline
-        方程形式 & 通解求法 \\
-        \hline
-        \(y^{(n)} = f(x)\) & 
-        经过\(n\)次积分得 \[y = \int \cdots \int f(x) \mathrm{d}x + C_1x^{n-1} + C_2x^{n-2} + \cdots + C_n\] \\
-        \hline
-        \(y'' = f(x, y')\) & 令\(p = y'\)，则\(y'' = p'\)，方程变为
-        \[
-            p' = f(x, p)
-        \]
-        这是一个一阶微分方程，解出\(p\)后再积分得\(y\)。 \\
-        \hline
-        \(y'' = f(y, y')\) & 令\(p = y'\)，原方程变为
-        \[
-            p\frac{\mathrm{d}p}{\mathrm{d}y} = f(y, p)
-        \]
-        \[
-            y'' = \frac{\mathrm{d^2}y}{\mathrm{d}x^2} = \frac{\mathrm{dp}}{\mathrm{d}x} = \frac{\mathrm{dp}}{\mathrm{d}y} \cdot \frac{\mathrm{dy}}{\mathrm{d}x} = p\frac{\mathrm{dp}}{\mathrm{d}y}
-        \]
-        这是一个一阶微分方程，解出\(p\)后再积分得\(y\)。 \\
-        \hline
-    \end{tabularx}
-\end{tablebox}
-
-\begin{conclusion}{含变限积分得方程得求法}{IntegralFormODE}
-    形如
-    \[
-        y' = f\left(x, y(x), \int_{x_0}^{x} g(t, y(t)) \mathrm{d}t\right)
-    \]
-    的微分方程。\\
-    令
-    \[
-        z = \int_{x_0}^{x} g(t, y(t)) \mathrm{d}t
-    \]
-    则
-    \[
-        z' = g(x, y)
-    \]
-    原方程组变为
-    \[
-        \begin{cases}
-            y' = f(x, y, z) \\
-            z' = g(x, y)
-        \end{cases}
-    \]
-    \newline
-    \newline
-    即步骤为
-    \begin{enumerate}
-        \item 对方程两边求导，得到常微分方程
-        \item 根据上下限与初始条件，进行联立求解
-    \end{enumerate}
-    若通过定积分求变限积分，则将定积分转化为含参变限积分的形式
-\end{conclusion}
-
-\subsection{线性微分方程}
-\begin{mydef}{线性微分方程形式}{ODEForm}
-    一阶线性微分方程解的一般形式为
-    \[
-        y' + p(x)y = f(x)
-    \]
-    二阶线性微分方程解的一般形式为
-    \[
-        y'' + p(x)y' + q(x)y = f(x)
-    \]
-    当右端\(f(x) = 0\)时，称为齐次线性微分方程，否则称为非齐次线性微分方程。\\
-\end{mydef}
-
-\begin{conclusion}{解的性质}{ODEProperty}
-    设\(y_1(x), y_2(x)\)分别是线性微分方程的两个解,即
-    \[
-        y' + p(x)y = f_1(x), 
-        y' + p(x)y = f_2(x), 
-    \]
-    或
-    \[
-        y'' + p(x)y' + q(x)y = f_1(x), 
-        y'' + p(x)y' + q(x)y = f_2(x)
-    \]
-    则\(A_1y_1(x) + A_2y_2(x)\)也是
-    方程\(y' + p(x)y = A_1f_1(x) + A_2f_2(x)\)或
-    \(y'' + p(x)y' + q(x)y = A_1f_1(x) + A_2f_2(x)\)的解
-    \\同时具有以下性质
-    \begin{enumerate}
-        \item 若\(y_1,y_2\)分别对应右端\(f_1,f_2\)，则\(A_1y_1+A_2y_2\)对应右端\(A_1f_1+A_2f_2\)。
-        \item 同一非齐次方程的两个解之差是对应齐次方程的解；两个同方程特解之和一般对应右端\(2f\)，不再是原方程的解。
-        \item 对应齐次方程的任一解与非齐次方程的任一解之和，仍是该非齐次方程的解。
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{解的结构}{ODEStructure}
-    设\(y^*\)是非齐次线性微分方程的一个特解，\(y_h\)是对应齐次线性微分方程的通解，则非齐次线性微分方程的通解为
-    \[
-        y = y_h + y^*
-    \]
-    其中\(y_h\)是齐次方程的通解，\(y^*\)是非齐次方程的特解。\\
-    \newline
-    若\(y_1, y_2\)是齐次方程的两个线性无关的解，则齐次方程的通解为
-    \[
-        y = c_1y_1(x) + c_2y_2(x)
-    \]
-    其中\(c_1, c_2\)为任意常数。
-    \\
-    \newline
-    非齐次方程的解集不是向量空间，不能用“两个线性无关的非齐次解作线性组合”构造通解。正确结构始终是“一个非齐次特解＋对应齐次通解”。
-    \newline
-    若\(\exists c_0, c_1, c_2, \cdots, c_n, c_i\)使得
-    \(c_0y_0(x) + c_1y_1(x) + c_2y_2(x) + \cdots + c_ny_n(x) \equiv 0\)
-    且不全为零,则称函数组\(\{y_0, y_1, y_2, \cdots, y_n\}\)在区间\(I\)上线性相关，否则称为线性无关。\\
-    \boxed{\text{注}}
-    这里和线性方程组的知识点极为相似
-\end{conclusion}
-
-\begin{mydef}{二阶常数齐次线性微分方程}{SecondOrderHomogeneousODE}
-    其一般形式为
-    \[
-        y'' + py' + qy = 0
-    \]
-    其特征方程为
-    \[
-        r^2 + pr + q = 0
-    \]
-    根据判别式\(\Delta = p^2 - 4q\)的值，分为三种情况
-    \begin{enumerate}
-        \item \(\Delta > 0\)，有两个不等实根\(r_1, r_2\)，则通解为
-        \[
-            y = C_1e^{r_1x} + C_2e^{r_2x}
-        \]
-        \item \(\Delta = 0\)，有两个相等实根\(r\)，则通解为
-        \[
-            y = (C_1 + C_2x)e^{rx}  
-        \]
-        \item \(\Delta < 0\)，有两个共轭复根\(\alpha \pm \beta i\)，则通解为
-        \[
-            y = e^{\alpha x}(C_1\cos{\beta x} + C_2\sin{\beta x})
-        \]
-    \end{enumerate}
-\end{mydef}
+还有一类 $y^{(n)}=f(x)$，连续积分 $n$ 次即可，最后会带出 $n-1$ 次多项式 $C_1x^{n-1}+\cdots+C_n$。降阶的代价是最后还要再积一次分，所以通解里的常数个数不会少。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=0, xmax=6, ymin=-1.6, ymax=1.6,
-  xtick={0,1,2,3,4,5,6}, ytick={-1,0,1},
-  legend pos=north east, font=\footnotesize,
-  domain=0:6, samples=200,
+  width=6.6cm, height=6.6cm,
+  xlabel={$y$}, ylabel={$p=y'$},
+  xmin=-2.8, xmax=2.8, ymin=-2.8, ymax=2.8,
+  xtick={-2,-1,0,1,2}, ytick={-2,-1,0,1,2},
+  font=\footnotesize,
 ]
-\addplot[dashed,gray!70,thick] {exp(-x)};
-\addlegendentry{$y=e^{\alpha x}$}
-\addplot[dashed,gray!70,thick] {-exp(-x)};
-\addlegendentry{$y=-e^{\alpha x}$}
-\addplot[blue,thick] {exp(-x)*sin(deg(2*x))};
-\addlegendentry{$y=e^{-x}\sin 2x$}
+\addplot[blue,thick,domain=0:360,samples=160] ({2*cos(x)},{-2*sin(x)});
+\addplot[red,thick,domain=0:720,samples=400]
+  ({exp(-0.002618*x)*(2*cos(0.988686*x)+0.30343*sin(0.988686*x))},
+   {-2.02288*exp(-0.002618*x)*sin(0.988686*x)});
 \end{axis}
-\end{tikzpicture}
+\end{tikzpicture}\\*[-0.2em]
+\parbox{0.86\linewidth}{\centering\footnotesize
+把 $(y,y')$ 看成平面上的点，二阶方程就变成一阶系统 $y'=p,\ p'=f(y,p)$，每点给出一个运动方向。蓝色闭轨对应 $y''+y=0$：$y$ 与 $p$ 周期变化，是无阻尼振动；红色轨线对应 $y''+0.3y'+y=0$：它向内盘旋，振幅逐渐衰减。两个初始条件 $y(x_0),y'(x_0)$ 正是相平面上的一个起点。}
 \end{center}
 
+\subsection{常系数线性方程}
 
-\begin{mydef}{n阶常数齐次线性微分方程}{nOrderHomogeneousODE}
-    其一般形式为
-    \[
-        y^{(n)} + a_{n-1}y^{(n-1)} + \cdots + a_1y' + a_0y = 0
-    \]
-    其特征方程为
-    \[
-        r^n + a_{n-1}r^{n-1} + \cdots + a_1r + a_0 = 0
-    \]
-    特征根与通解的关系与二阶类似
-    \begin{enumerate}
-        \item 若特征方程有\(n\)个互不相同的实根\(r_1, r_2, \cdots, r_n\)，则通解为
-        \[
-            y = C_1e^{r_1x} + C_2e^{r_2x} + \cdots + C_ne^{r_nx}
-        \]
-        \item 若特征方程有重根\(r\)，重数为\(m\)，则通解中对应的部分为
-        \[
-            e^{rx}(C_1 + C_2x + C_3x^2 + \cdots + C_mx^{m-1})
-        \]
-        \item 若特征方程有共轭复根\(\alpha \pm \beta i\)，重数为\(m\)，则通解中对应的部分为
-        \[
-            \begin{aligned}
-            &e^{\alpha x}[(A_1 + A_2x + A_3x^2 + \cdots + A_mx^{m-1})\cos{\beta x}  \\
-            &+ (B_1 + B_2x + B_3x^2 + \cdots + B_mx^{m-1})\sin{\beta x}]
-            \end{aligned}
-        \]
-    \end{enumerate}
-    三阶以上的微分方程大多不可求解，能求解的只是一些特殊情形。
-\end{mydef}
-
-\begin{mydef}{二阶非齐次线性微分方程}{nOrderNonHomogeneousODE}
-    其一般形式为
-    \[
-        y'' + p(x)y' + q(x)y = f(x)
-    \]
-\end{mydef}
-
-\begin{tablebox}{二阶常系数非齐次线性微分方程解的形式(待定系数法)}
-    \begin{tabularx}{\textwidth}{|c|X|}
-            \hline
-            $f(x)$ & $y^*$ \\
-            \hline
-            \(f(x) = P_n(x)\) & $\begin{cases}
-                R_n(x), &\text{特征方程无}0\text{根} \\
-                xR_n(x), &\text{特征方程有}0\text{为单重根} \\
-                x^2R_n(x), &\text{特征方程有}0\text{为重根} \\
-            \end{cases}$ \\
-            \hline
-            \(f(x) = e^{\lambda x}\) & $\begin{cases}
-                Ae^{\lambda x}, &\lambda\text{不是特征根} \\
-                Axe^{\lambda x}, &\lambda\text{是单重特征根} \\
-                A x^2 e^{\lambda x}, &\lambda\text{是重特征根} \\
-            \end{cases}$ \\
-            \hline
-            \(
-            \begin{aligned}
-            &e^{\lambda x}\\
-            &[P_n(x)\sin{\omega x} \\
-            &+ Q_m(x)\cos{\omega x}]
-            \end{aligned}
-            \)
-            & $\begin{cases}
-                e^{\lambda x}[R_l(x)\cos{\omega x} + S_l(x)\sin{\omega x}],&\lambda \pm i\omega\text{不是特征根} \\
-                xe^{\lambda x}[R_l(x)\cos{\omega x} + S_l(x)\sin{\omega x}],&\lambda \pm i\omega\text{是单重特征根} \\
-            \end{cases}$ \\
-            \hline
-        \end{tabularx}
-\end{tablebox}
-
-
-\begin{mydef}{欧拉方程}{EulerEquation}
-    形如
-    \[
-        x^ny^{(n)} + a_{n-1}x^{n-1}y^{(n-1)} + \cdots + a_1xy' + a_0y = f(x)
-    \]的方程称为欧拉方程。\\
-    令\(x = e^t\)，则
-    \[
-        \frac{\mathrm{d}y}{\mathrm{d}x} = \frac{\mathrm{d}y}{\mathrm{d}t} \cdot \frac{\mathrm{d}t}{\mathrm{d}x} = \frac{1}{x}\frac{\mathrm{d}y}{\mathrm{d}t}
-    \]
-    \[
-        \frac{\mathrm{d^2}y}{\mathrm{d}x^2} = \frac{\mathrm{d}}{\mathrm{d}x}\left(\frac{1}{x}\frac{\mathrm{d}y}{\mathrm{d}t}\right) = -\frac{1}{x^2}\frac{\mathrm{d}y}{\mathrm{d}t} + \frac{1}{x^2}\frac{\mathrm{d^2}y}{\mathrm{d}t^2}
-    \]
-    将这些关系代回欧拉方程，得到了\(n\)阶常系数线性微分方程。
-    令\(x = \pm  e^t\),则\(t = \ln|x|\)，则
-    二阶欧拉方程转化为
-    \[
-        \frac{\mathrm{d^2}y}{\mathrm{d}t^2} + (p - 1)\frac{\mathrm{d}y}{\mathrm{d}t} + qy = f(\pm e^t)
-    \]
-\end{mydef}
-
-
-\subsection{微分算子法（拓展）}
-
-\textbf{考研定位：}微分算子记号可用于简化常系数线性微分方程的书写，但不属于考研数学一必须掌握的独立解法。主线仍应使用特征方程法和待定系数法。
-
-令
+当 $p,q$ 是常数时，齐次方程 $y''+py'+qy=0$ 有完全机械的解法。把 $y=e^{rx}$ 代进去：
 \[
-  D=\frac{\mathrm d}{\mathrm dx},\qquad
-  L(D)=a_nD^n+a_{n-1}D^{n-1}+\cdots+a_1D+a_0.
+  y''+py'+qy=(r^2+pr+q)e^{rx}.
 \]
-求导算子满足线性性
+$e^{rx}$ 恒不为零，所以 $e^{rx}$ 是解的充要条件是
 \[
-  D(\alpha f+\beta g)=\alpha Df+\beta Dg,
+  r^2+pr+q=0.
 \]
-但这并不意味着任意函数映射 \(x\mapsto f(x)\) 都是线性变换。例如 \(f(x)=1+x\) 是仿射函数，不满足 \(f(0)=0\)。
+这个二次方程叫特征方程，它的根叫特征根。判别式 $\Delta=p^2-4q$ 决定三种情形。
 
-常系数线性方程可简写为
+$\Delta>0$：两个不同实根 $r_1,r_2$，通解为
 \[
-  L(D)y=F(x).
+  y=C_1e^{r_1x}+C_2e^{r_2x}.
 \]
-齐次方程 \(L(D)y=0\) 的解由特征方程 \(L(r)=0\) 得到。对非齐次方程，算子记号只是一种简写，选取特解仍按待定系数法进行。
+两个解线性无关，因为比值 $e^{(r_1-r_2)x}$ 不是常数。
 
-一个有用的恒等式是移位公式：
+$\Delta=0$：重根 $r=-p/2$。$e^{rx}$ 只给一个解，另一个是 $xe^{rx}$。验证：记 $L=(D-r)^2$，则 $(D-r)(xe^{rx})=e^{rx}$，再作用一次 $(D-r)$ 得零。通解为
 \[
-  L(D)\bigl[e^{\lambda x}v(x)\bigr]
-  =e^{\lambda x}L(D+\lambda)v(x).
+  y=(C_1+C_2x)e^{rx}.
 \]
-它说明右端含 \(e^{\lambda x}\) 时可先令 \(y=e^{\lambda x}v\)；若 \(\lambda\) 是特征根，还需按其重数乘以相应的 \(x^s\)，这与待定系数法的“共振”规则完全一致。
 
-\textbf{说明：}
-\begin{enumerate}
-  \item 在次数不超过 \(n\) 的多项式空间上，求导算子满足 \(D^{n+1}=0\)；一般矩阵或一般函数空间上的求导算子并不具有这一性质。
-  \item 形式记号 \(L(D)^{-1}\) 不能不加条件地当作普通矩阵求逆。只有在所作用的有限维函数空间和展开终止等条件明确时，才可作为简便计算。
-  \item 三角型右端可利用 \(e^{(\alpha+i\beta)x}\) 辅助计算，最后取实部或虚部；实际备考中直接采用待定系数法更稳妥。
+$\Delta<0$：一对共轭复根 $r=\alpha\pm i\beta$，其中 $\alpha=-p/2$，$\beta=\sqrt{4q-p^2}/2$。由欧拉公式
+\[
+  e^{(\alpha\pm i\beta)x}=e^{\alpha x}(\cos\beta x\pm i\sin\beta x),
+\]
+取实部与虚部得到两个实解，通解为
+\[
+  y=e^{\alpha x}(C_1\cos\beta x+C_2\sin\beta x).
+\]
+
+\begin{center}
+\begin{tabular}{@{}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{}}
+\begin{tikzpicture}
+\begin{axis}[width=0.30\linewidth, height=3.9cm,
+  xmin=0, xmax=4, ymin=-0.08, ymax=1.18,
+  xtick={0,2,4}, ytick={0,1}, font=\scriptsize,
+  title={$\Delta>0$}, title style={font=\scriptsize}]
+\addplot[blue,thick,domain=0:4,samples=100] {exp(-x)};
+\addplot[red,thick,domain=0:4,samples=100] {exp(-2*x)};
+\addplot[green!55!black,thick,domain=0:4,samples=100] {1.4*exp(-x)-0.4*exp(-2*x)};
+\end{axis}
+\end{tikzpicture}
+&
+\begin{tikzpicture}
+\begin{axis}[width=0.30\linewidth, height=3.9cm,
+  xmin=0, xmax=4, ymin=-0.08, ymax=1.18,
+  xtick={0,2,4}, ytick={0,1}, font=\scriptsize,
+  title={$\Delta=0$}, title style={font=\scriptsize}]
+\addplot[blue,thick,domain=0:4,samples=100] {exp(-x)};
+\addplot[red,thick,domain=0:4,samples=100] {x*exp(-x)};
+\addplot[green!55!black,thick,domain=0:4,samples=100] {(1+x)*exp(-x)};
+\end{axis}
+\end{tikzpicture}
+&
+\begin{tikzpicture}
+\begin{axis}[width=0.30\linewidth, height=3.9cm,
+  xmin=0, xmax=6, ymin=-1.15, ymax=1.15,
+  xtick={0,3,6}, ytick={-1,0,1}, font=\scriptsize,
+  title={$\Delta<0$}, title style={font=\scriptsize}]
+\addplot[blue,thick,domain=0:6,samples=160] {exp(-0.2*x)*cos(deg(3*x))};
+\addplot[red,thick,domain=0:6,samples=160] {exp(-0.2*x)*sin(deg(3*x))};
+\addplot[green!55!black,thick,domain=0:6,samples=160]
+  {0.8*exp(-0.2*x)*cos(deg(3*x))+0.6*exp(-0.2*x)*sin(deg(3*x))};
+\end{axis}
+\end{tikzpicture}
+\end{tabular}\\*[-0.2em]
+\parbox{0.9\linewidth}{\centering\footnotesize
+三种特征根对应的解。左：两个不同负实根，两个衰减模式叠加，不振荡；中：重根，$xe^{rx}$ 先升后降，正好处在振荡与不振荡的分界上；右：共轭复根，在指数包络内做等周期振荡。}
+\end{center}
+
+$n$ 阶常系数齐次方程同理。特征根 $r$ 若重数为 $m$，对应
+\[
+  e^{rx}(C_1+C_2x+\cdots+C_mx^{m-1});
+\]
+共轭复根 $\alpha\pm i\beta$ 若各重 $m$ 次，对应
+\[
+  e^{\alpha x}\bigl[(A_1+\cdots+A_mx^{m-1})\cos\beta x
+  +(B_1+\cdots+B_mx^{m-1})\sin\beta x\bigr].
+\]
+把所有实根、复根对应的项加起来就是通解。五次及以上的代数方程一般没有根式解，所以能解的 $n$ 阶方程，特征根通常是题目设计好的整数或有理数。
+
+非齐次方程 $y''+py'+qy=f(x)$ 的通解结构是
+\[
+  y=y_h+y^*,
+\]
+其中 $y_h$ 是齐次方程的通解，$y^*$ 是非齐次方程的一个特解。把它代入：齐次部分给零，特解给 $f$，加起来正好是 $f$。两个非齐次解之差是齐次解，所以只要找到一个特解，其余解都由齐次通解平移得到。
+
+右端是多项式、指数、正弦余弦的组合时，特解的形状与右端相同，只差系数和可能的 $x^k$ 因子，这就是待定系数法。
+
+\begin{conclusion}{非齐次方程的特解设法}{TrialSolution}
+设 $P_n,Q_m$ 分别表示 $n$ 次、$m$ 次多项式。
+\begin{enumerate}[itemsep=3pt,topsep=3pt]
+  \item $f(x)=P_n(x)$：设 $y^*=x^kQ_n(x)$，其中 $Q_n$ 与 $P_n$ 同次、系数待定，$k$ 是 $0$ 作为特征根的重数（不是根取 $0$，单根取 $1$，重根取 $2$）。
+  \item $f(x)=e^{\lambda x}P_n(x)$：设 $y^*=x^ke^{\lambda x}Q_n(x)$，$k$ 是 $\lambda$ 作为特征根的重数。
+  \item $f(x)=e^{\lambda x}\bigl[P_n(x)\cos\omega x+Q_m(x)\sin\omega x\bigr]$：设
+  \[
+    y^*=x^ke^{\lambda x}\bigl[R_l(x)\cos\omega x+S_l(x)\sin\omega x\bigr],
+  \]
+  其中 $l=\max\{n,m\}$，$k=1$ 当 $\lambda+i\omega$ 是特征根，否则 $k=0$。
 \end{enumerate}
-\subsection{微分方程的简单应用}
-\begin{mydef}{利用定积分的几何意义列方程}{IntegralFormODEApplication}
-    利用面积，弧长，体积，形心等列方程
-    弧长公式为
-    \[
-        L = \int_{a}^{b} \sqrt{1 + (y')^2} \mathrm{d}x
-    \]
-    体积公式为
-    \[
-        V = \pi\int_{a}^{b} y^2 \mathrm{d}x
-    \]
-    上式适用于平面图形绕\(x\)轴旋转所得旋转体。若密度均匀，其\(x\)坐标形心为
-    \[
-        \bar{x} = \frac{\pi}{V} \int_{a}^{b} x y^2 \mathrm{d}x.
-    \]
+右端是几项之和时，按叠加原理分别设特解再相加。
+\end{conclusion}
 
-\end{mydef}
-
-\begin{mydef}{利用导数的几何意义列方程}{DerivativeFormODEApplication}
-    导数的几何意义是函数在点处的切线的斜率。即\(
-        Y-y(x_0)=y'(x_0)(X-x_0)
-    \)
-    所以\(y'(x)\)是\(y(x)\)的切线的斜率，即\(y'(x)\)是\(y(x)\)的变化率。
-\end{mydef}
-
-\begin{mydef}{利用变化率满足的条件列方程}{RateFormODEApplication}
-    若函数\(y(x)\)的变化率满足\(y'(x) = f(x)\)，则\(y(x)\)是\(f(x)\)的积分。
-\end{mydef}
-
-\begin{mydef}{利用牛顿第二定律列方程}{NewtonSecondLaw}
-    质点作直线运动，\(t\)时刻的位置为\(y=y(t)\)。若质点质量为\(m\)，所受合力为
-    \(f(t,y(t),y'(t))\),则由牛顿第二定律得
-    \[
-        m\frac{\mathrm{d}^2y}{\mathrm{d}t^2}=m y''(t)=f(t,y(t),y'(t)).
-    \]
-    当满足一下情形时，可进行降阶
-    \begin{enumerate}
-        \item 外力\(f\)只依赖于时间\(t\)于速度\(v = \frac{\mathrm{d}y}{\mathrm{d}t}\),方程变成
-        \[
-            m\frac{\mathrm{d}v}{\mathrm{d}t} = f(t,v)
-        \]
-        \item 外力\(f\)只与位移\(y\)及速度\(v\)相关，由于\(
-            \frac{\mathrm{d^2}y}{\mathrm{d}t^2} = \frac{\mathrm{d}v}{\mathrm{d}t} = \frac{\mathrm{dv}}{\mathrm{dy}} \cdot 
-            \frac{\mathrm{d}y}{\mathrm{d}t} = v \frac{\mathrm{d}v}{\mathrm{d}y}
-        \),则\(
-            mv\frac{\mathrm{d}v}{\mathrm{d}y} = f(y, v)
-        \)
-    \end{enumerate}
-\end{mydef}
+为什么有时要多乘一个 $x$？以 $y''-y=e^x$ 为例。特征根是 $\pm1$，$e^x$ 本身已经是齐次解，代进左边得零，设 $Ae^x$ 永远凑不出右端。改设 $y^*=Axe^x$，则
+\[
+  y^{*\prime}=A(x+1)e^x,\qquad
+  y^{*\prime\prime}=A(x+2)e^x,
+\]
+于是 $y^{*\prime\prime}-y^*=2Ae^x$，取 $A=1/2$ 即可。乘 $x$ 相当于把待定函数从常数换成一次多项式，让它在特征根方向上“错开”一层。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
-  xlabel={$t$}, ylabel={$T$},
-  xmin=0, xmax=60, ymin=0, ymax=105,
-  xtick={0,10,20,30,40,50,60}, ytick={0,20,40,60,80,100},
-  legend pos=north east, font=\footnotesize,
-  domain=0:60, samples=160,
+  width=0.76\linewidth, height=5.8cm,
+  xlabel={$\omega$}, ylabel={振幅},
+  xmin=0, xmax=2.2, ymin=0, ymax=9.2,
+  xtick={0,0.5,1,1.5,2}, ytick={0,2,4,6,8},
+  font=\footnotesize, samples=150,
 ]
-\addplot[dashed,gray!70,thick] {20};
-\addlegendentry{$T=20$ (环境温度)}
-\addplot[blue,thick] {20+80*exp(-0.0693*x)};
-\addlegendentry{$T(t)=20+80e^{-kt}$}
-\addplot[only marks,red,mark size=2pt] coordinates {(10,60) (30,30)};
-\node[font=\scriptsize,red] at (axis cs:10,66) {$(10,60)$};
-\node[font=\scriptsize,red] at (axis cs:33,26) {$(30,30)$};
+\addplot[blue,thick,domain=0:0.97] {1/(1-x^2)};
+\addplot[blue,thick,domain=1.03:2.2] {1/(x^2-1)};
+\draw[dashed,red!70!black,thick] (axis cs:1,0) -- (axis cs:1,9.2);
+\node[font=\scriptsize,red!70!black,anchor=west] at (axis cs:1.04,7.6) {$\omega=\omega_0$};
 \end{axis}
-\end{tikzpicture}
+\end{tikzpicture}\\*[-0.2em]
+\parbox{0.86\linewidth}{\centering\footnotesize
+无阻尼受迫振动 $y''+\omega_0^2y=\cos\omega t$ 的特解振幅为 $1/|\omega_0^2-\omega^2|$，图中取 $\omega_0=1$。激励频率越接近固有频率，振幅越大；在 $\omega=\omega_0$ 处无阻尼情形振幅无界，这就是共振。待定系数法里多乘的那个 $x$，对应的正是振幅随时间线性增长。}
 \end{center}
 
-\begin{mydef}{利用微元法分析或相应的变限积分列方程}{MicroElementAnalysis}
-    由于
-    \[
-        \delta y \approx F(x, y, \delta x)\delta x
-    \]
-    就可以得到微分方程
-    \[
-        \frac{\mathrm{d}y}{\mathrm{d}x} = f(x, y),\lim_{\delta x \to 0} F(x, y, \delta x) = f(x, y)
-    \]
-\end{mydef}
+\subsection{欧拉方程}
+
+欧拉方程的每一项都是 $x^ky^{(k)}$ 的形式：
+\[
+  x^ny^{(n)}+a_{n-1}x^{n-1}y^{(n-1)}+\cdots+a_1xy'+a_0y=f(x),
+  \qquad x>0.
+\]
+系数是幂函数：对 $y=x^r$ 求导会带出因子 $r/x$，前面乘的 $x$ 正好把它抵消。所以换元后应该得到常系数方程。
+
+令 $x=e^t$，即 $t=\ln x$，记 $D=\mathrm{d}/\mathrm{d}t$。由链式法则
+\[
+  \frac{\mathrm{d}y}{\mathrm{d}x}
+  =\frac{\mathrm{d}y}{\mathrm{d}t}\frac{\mathrm{d}t}{\mathrm{d}x}
+  =\frac1x\,Dy,
+\]
+所以 $xy'=Dy$。再求一次：
+\[
+  \frac{\mathrm{d}^2y}{\mathrm{d}x^2}
+  =\frac{\mathrm{d}}{\mathrm{d}x}\left(\frac1x Dy\right)
+  =-\frac1{x^2}Dy+\frac1{x^2}D^2y
+  =\frac1{x^2}D(D-1)y,
+\]
+即 $x^2y''=D(D-1)y$。一般地
+\[
+  x^ky^{(k)}=D(D-1)\cdots(D-k+1)y.
+\]
+代回原方程，就得到以 $t$ 为自变量的常系数方程，右端 $f(x)$ 写成 $f(e^t)$。解出 $y(t)$ 后再把 $t=\ln x$ 换回来。
+
+例如 $x^2y''-2xy'+2y=0$。代入得
+\[
+  \bigl[D(D-1)-2D+2\bigr]y=(D^2-3D+2)y=0,
+\]
+特征根 $1,2$，所以 $y=C_1x+C_2x^2$。
+
+再看非齐次的 $x^2y''-3xy'+4y=x$。化为
+\[
+  (D^2-4D+4)y=e^t,
+  \qquad\text{即}\qquad (D-2)^2y=e^t.
+\]
+齐次部分为 $(C_1+C_2t)e^{2t}$。右端 $e^t$ 中 $\lambda=1$ 不是特征根，设 $Ae^t$，代入得 $(1-4+4)A=1$，$A=1$。于是
+\[
+  y=(C_1+C_2\ln x)x^2+x.
+\]
+
+$x<0$ 时令 $x=-e^t$，$t=\ln|x|$，公式里的 $\ln x$ 全部换成 $\ln|x|$。考研题一般注明 $x>0$，按上面的做法即可。
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize]
+\draw[->] (-0.4,2.5) -- (9.8,2.5) node[right] {$t=\ln x$};
+\foreach \p/\lab in {1/0, 4.7/1, 8.39/2}{
+  \draw (\p,2.5) -- (\p,2.32);
+  \node[above=1pt] at (\p,2.5) {$\lab$};
+}
+\draw[->] (-0.4,0) -- (9.8,0) node[right] {$x$};
+\foreach \p/\lab in {1/1, 3.718/e, 8.39/e^2}{
+  \draw (\p,0) -- (\p,-0.18);
+  \node[below=1pt] at (\p,0) {$\lab$};
+}
+\draw[->,blue!70!black,thick] (1,2.3) -- (1,0.15);
+\draw[->,blue!70!black,thick] (4.7,2.3) -- (3.718,0.15);
+\draw[->,blue!70!black,thick] (8.39,2.3) -- (8.39,0.15);
+\node[blue!70!black,anchor=west] at (2.0,1.35) {$x=e^t$};
+\end{tikzpicture}\\*[-0.2em]
+\parbox{0.88\linewidth}{\centering\footnotesize
+对数换元把 $x$ 轴上的等比间隔 $1,e,e^2$ 拉成 $t$ 轴上的等距间隔 $0,1,2$。幂函数 $x^r$ 因此变成指数 $e^{rt}$，$x^ky^{(k)}$ 变成常系数导数，欧拉方程也就化为常系数方程。}
+\end{center}
+
+\subsection{含变限积分的方程}
+
+有些问题给出的不是导数之间的关系，而是一个含未知函数积分的等式，例如
+\[
+  y(x)=1+\int_0^x y(t)\,\mathrm{d}t.
+\]
+这叫积分方程。它看起来比微分方程复杂，其实两边求导就回到微分方程：
+\[
+  y'=y.
+\]
+初始条件由原式令 $x=0$ 得到：积分上下限相同，积分项为零，所以 $y(0)=1$。因此 $y=e^x$。
+
+这一步的依据是微积分基本定理。如果积分号内还含 $x$，要用莱布尼茨公式：
+\[
+  \frac{\mathrm{d}}{\mathrm{d}x}\int_{x_0}^x K(x,t)y(t)\,\mathrm{d}t
+  =K(x,x)y(x)+\int_{x_0}^x \frac{\partial K}{\partial x}(x,t)y(t)\,\mathrm{d}t.
+\]
+每求导一次，就少一层积分。求导两次得到二阶方程时，要用原方程和它的一阶导数在 $x_0$ 处补两个初值：原方程给 $y(x_0)=f(x_0)$，求导后的式子给
+\[
+  y'(x_0)=f'(x_0)+K(x_0,x_0)y(x_0).
+\]
+例如 $K(x,t)=x-t$ 时 $K(x,x)=0$，于是
+\[
+  y(x)=f(x)+\int_0^x (x-t)y(t)\,\mathrm{d}t
+\]
+求导一次得 $y'=f'+\int_0^x y(t)\,\mathrm{d}t$，再求导得 $y''=f''+y$；初值为 $y(0)=f(0)$、$y'(0)=f'(0)$。
+
+积分方程与初值问题在适当条件下等价，所以也可以逐次代入求近似解：把 $y_0=1$ 代回积分得 $y_1=1+x$，再代一次得 $y_2=1+x+x^2/2$，依此类推。每次多匹配一阶导数，极限就是 $e^x$。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.76\linewidth, height=6cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=0, xmax=1.6, ymin=0.9, ymax=5.2,
+  xtick={0,0.5,1,1.5}, ytick={1,2,3,4,5},
+  font=\footnotesize,
+  legend pos=south east,
+  legend style={font=\scriptsize, fill=white, fill opacity=0.88, text opacity=1, draw=gray!40},
+]
+\addplot[gray!70,thick,domain=0:1.55,samples=2] {1};
+\addlegendentry{$y_0=1$}
+\addplot[green!60!black,thick,domain=0:1.55,samples=100] {1+x};
+\addlegendentry{$y_1=1+x$}
+\addplot[orange!80!black,thick,domain=0:1.55,samples=100] {1+x+x^2/2};
+\addlegendentry{$y_2$}
+\addplot[red!70!black,thick,domain=0:1.55,samples=100] {1+x+x^2/2+x^3/6};
+\addlegendentry{$y_3$}
+\addplot[blue,thick,domain=0:1.55,samples=100] {exp(x)};
+\addlegendentry{$e^x$}
+\end{axis}
+\end{tikzpicture}\\*[-0.2em]
+\parbox{0.86\linewidth}{\centering\footnotesize
+对 $y=1+\int_0^x y(t)\,\mathrm{d}t$ 逐次代入，得到 $1$、$1+x$、$1+x+\frac{x^2}{2}$、$1+x+\frac{x^2}{2}+\frac{x^3}{6}$，正是 $e^x$ 的泰勒多项式。迭代次数越多，曲线在 $x=0$ 附近贴合得越久；这说明积分方程的解可以由初值一步步积出来。}
+\end{center}
+
+\subsection{从实际问题列方程}
+
+应用题通常不难在解方程，而难在把一句话翻译成方程。常用的线索有三条。
+
+变化率：某量的变化率与它自身或与环境之差成正比，就写成 $y'=ky$ 或 $y'=-k(y-a)$，例如放射衰变、人口增长、牛顿冷却。
+
+微元与累积：小区间上的增量约等于“密度 $\times$ 长度”，取极限后得到积分或微分方程，例如旋转体体积、弧长、形心。
+
+几何条件：切线斜率为 $y'$，切线方程为 $Y-y=y'(X-x)$，截距、法线、面积都可以由此列式。
+
+列完方程，还要把题目的初始状态写成初始条件，并检查解在什么区间有意义：分母不能为零，根号内不能为负，时间通常要求非负。
+
+例如牛顿冷却定律：物体温度 $T(t)$ 与环境温度 $T_{\mathrm{env}}$ 之差的变化率与温差成正比，
+\[
+  T'=-k(T-T_{\mathrm{env}}),\qquad k>0.
+\]
+这是可分离方程，解为
+\[
+  T(t)=T_{\mathrm{env}}+(T_0-T_{\mathrm{env}})e^{-kt}.
+\]
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.76\linewidth, height=5.6cm,
+  xlabel={$t$（分钟）}, ylabel={$T$（$^\circ$C）},
+  xmin=0, xmax=62, ymin=0, ymax=108,
+  xtick={0,10,20,30,40,50,60}, ytick={0,20,40,60,80,100},
+  font=\footnotesize,
+  legend pos=north east,
+  legend style={fill=white, fill opacity=0.88, text opacity=1, draw=gray!40},
+]
+\addplot[black,dashed,thick,domain=0:61,samples=2] {20};
+\addlegendentry{$T_{\mathrm{env}}=20$}
+\addplot[blue,thick,domain=0:61,samples=140] {20+80*exp(-0.05*x)};
+\addlegendentry{$T(t)=20+80e^{-0.05t}$}
+\addplot[red,dashed,thick,domain=0:9,samples=2] {100-4*x};
+\end{axis}
+\end{tikzpicture}\\*[-0.2em]
+\parbox{0.86\linewidth}{\centering\footnotesize
+冷却曲线 $T=20+80e^{-0.05t}$。开始时温差大、降温快，$t=0$ 处的切线（红色虚线）斜率就是 $-k(T_0-T_{\mathrm{env}})=-4$；随着 $T$ 接近环境温度 $20$，曲线变平，降温变慢。$k$ 越大，趋于环境温度越快。}
+\end{center}
 
 \newpage
-\subsection{习题精练}
-
-\subsubsection{基础过关题}
-
-\textbf{1.}（变量可分离方程）求解初值问题：
-\[
-\frac{\mathrm{d}y}{\mathrm{d}x} = \frac{1+y^{2}}{1+x^{2}},\quad y(0)=1.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-分离变量得
-\[
-\frac{\mathrm{d}y}{1+y^{2}} = \frac{\mathrm{d}x}{1+x^{2}},
-\]
-两边积分：$\arctan y = \arctan x + C$。代入 $y(0)=1$ 得 $\arctan 1 = \arctan 0 + C$，即 $\frac{\pi}{4}=C$。故
-\[
-\arctan y = \arctan x + \frac{\pi}{4}.
-\]
-取正切：
-\[
-y = \tan\!\Bigl(\arctan x + \frac{\pi}{4}\Bigr) = \frac{x+1}{1-x}.
-\]
-由初始条件 $y(0)=1$ 及表达式 $\frac{x+1}{1-x}$ 在 $x=0$ 取值为 $1$，解在 $(-\infty,1)$ 内有定义。
-
-\bigskip
-
-\else \answerarea \fi%
-\textbf{2.}（一阶线性方程）求解方程
-\[
-y' + \frac{2}{x}y = \frac{\sin x}{x^{2}},\quad x>0.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-积分因子 $\mu(x)=e^{\int\frac{2}{x}\mathrm{d}x}=e^{2\ln x}=x^{2}$。方程两边同乘 $x^{2}$：
-\[
-x^{2}y' + 2xy = \sin x \quad\Longrightarrow\quad (x^{2}y)' = \sin x.
-\]
-积分得 $x^{2}y = -\cos x + C$，故通解
-\[
-y = \frac{C-\cos x}{x^{2}}.
-\]
-
-\bigskip
-
-\else \answerarea \fi%
-\textbf{3.}（齐次方程）求解方程
-\[
-(x^{2}+y^{2})\mathrm{d}x - xy\,\mathrm{d}y = 0.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-化为 $\frac{\mathrm{d}y}{\mathrm{d}x} = \frac{x^{2}+y^{2}}{xy} = \frac{x}{y} + \frac{y}{x}$。这是齐次方程，令 $u=\frac{y}{x}$，则 $y=ux$，$y'=u+xu'$。代入：
-\[
-u + x\frac{\mathrm{d}u}{\mathrm{d}x} = \frac{1}{u} + u \quad\Longrightarrow\quad x\frac{\mathrm{d}u}{\mathrm{d}x} = \frac{1}{u}.
-\]
-分离变量：$u\,\mathrm{d}u = \frac{\mathrm{d}x}{x}$，积分得 $\frac{u^{2}}{2} = \ln|x| + C$。代回 $u=\frac{y}{x}$：
-\[
-\frac{y^{2}}{2x^{2}} = \ln|x| + C \quad\Longrightarrow\quad y^{2} = 2x^{2}(\ln|x|+C).
-\]
-
-\bigskip
-
-\else \answerarea \fi%
-\textbf{4.}（伯努利方程）求解方程
-\[
-y' - \frac{2}{x}y = x^{2}y^{2},\quad x>0.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-这是伯努利方程 ($n=2$)。令 $z = y^{1-2} = y^{-1}$，则 $z' = -y^{-2}y'$，即 $y' = -y^{2}z'$。代入原方程：
-\[
--y^{2}z' - \frac{2}{x}y = x^{2}y^{2}.
-\]
-由 $y=\frac{1}{z}$ 得 $y^{2}=\frac{1}{z^{2}}$，代入：
-\[
--\frac{1}{z^{2}}z' - \frac{2}{x}\cdot\frac{1}{z} = \frac{x^{2}}{z^{2}}.
-\]
-两边乘 $z^{2}$：
-\[
--z' - \frac{2}{x}z = x^{2} \quad\Longrightarrow\quad z' + \frac{2}{x}z = -x^{2}.
-\]
-这是一阶线性方程，积分因子 $\mu(x)=x^{2}$。两边乘 $x^{2}$：$(x^{2}z)' = -x^{4}$，积分得 $x^{2}z = -\frac{x^{5}}{5}+C$。故
-\[
-z = -\frac{x^{3}}{5} + \frac{C}{x^{2}}.
-\]
-代回 $z=\frac{1}{y}$ 得通解
-\[
-y = \frac{1}{-\frac{x^{3}}{5} + \frac{C}{x^{2}}} = \frac{5x^{2}}{5C - x^{5}}.
-\]
-
-\else \answerarea \fi%
-\newpage
-\subsubsection{综合提高题}
-
-\textbf{5.}（待定系数法——三角函数右端）求微分方程
-\[
-y'' - 4y' + 5y = e^{2x}\sin x
-\]
-的通解。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-齐次方程的特征方程为 $r^{2}-4r+5=0$，解得 $r=2\pm i$。故齐次通解
-\[
-y_{h} = e^{2x}(C_{1}\cos x + C_{2}\sin x).
-\]
-注意右端 $e^{2x}\sin x$ 对应的特征根 $2+i$ 恰为特征根（一重），故设特解为
-\[
-y^{*} = x e^{2x}(A\cos x + B\sin x).
-\]
-记 $u = A\cos x + B\sin x$，则 $y^{*}=xe^{2x}u$。求导：
-\[
-\begin{aligned}
-(y^{*})' &= e^{2x}\bigl[(2x+1)u + xu'\bigr],\\
-(y^{*})'' &= e^{2x}\bigl[(4x+4)u + (4x+2)u' + xu''\bigr].
-\end{aligned}
-\]
-其中 $u' = -A\sin x + B\cos x$，$u'' = -A\cos x - B\sin x = -u$。
-
-代入 $y''-4y'+5y = e^{2x}\sin x$，消去 $e^{2x}$：
-\[
-(4x+4)u + (4x+2)u' + xu'' - 4\bigl[(2x+1)u + xu'\bigr] + 5xu = \sin x.
-\]
-利用 $u''=-u$，整理得
-\[
-\bigl[(4x+4)-4(2x+1)+5x -x\bigr]u + \bigl[(4x+2)-4x\bigr]u' = \sin x.
-\]
-化简：$x$ 的系数 $(4-8+5-1)x=0$，常数项 $4-4=0$，故 $u$ 系数为 $0$。$u'$ 系数为 $2$，得
-\[
-2u' = \sin x \quad\Longrightarrow\quad 2(-A\sin x + B\cos x) = \sin x.
-\]
-比较系数：$2B=0 \Rightarrow B=0$，$-2A=1 \Rightarrow A=-\frac{1}{2}$。故特解
-\[
-y^{*} = x e^{2x}\Bigl(-\frac{1}{2}\cos x\Bigr) = -\frac{1}{2}x e^{2x}\cos x.
-\]
-通解为
-\[
-y = e^{2x}(C_{1}\cos x + C_{2}\sin x) - \frac{1}{2}x e^{2x}\cos x.
-\]
-
-\bigskip
-
-\else \answerarea \fi%
-\textbf{6.}（欧拉方程）求解方程
-\[
-x^{2}y'' - 2xy' + 2y = x^{2}\ln x,\quad x>0.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-令 $x=e^{t}$（即 $t=\ln x$），记 $D_{t}=\frac{\mathrm{d}}{\mathrm{d}t}$。由 $xy'=D_{t}y$，$x^{2}y''=D_{t}(D_{t}-1)y$，原方程化为
-\[
-[D_{t}(D_{t}-1) - 2D_{t} + 2]y = (e^{t})^{2}\cdot t = t e^{2t},
-\]
-即 $(D_{t}^{2}-3D_{t}+2)y = t e^{2t}$。对应齐次方程特征方程 $r^{2}-3r+2=0$，$r_{1}=1$，$r_{2}=2$。故 $y_{h}=C_{1}e^{t}+C_{2}e^{2t}=C_{1}x+C_{2}x^{2}$。
-
-右端 $t e^{2t}$，$2$ 是单特征根，设特解 $y_{p}^{*}=t(At+B)e^{2t}=(At^{2}+Bt)e^{2t}$。求导：
-\[
-\begin{aligned}
-D_{t}y_{p}^{*} &= [2At+B + 2(At^{2}+Bt)]e^{2t} = [2At^{2}+(2A+2B)t+B]e^{2t},\\
-D_{t}^{2}y_{p}^{*} &= [4At+(2A+2B) + 2(2At^{2}+(2A+2B)t+B)]e^{2t}\\
-&= [4At^{2}+(8A+4B)t+(2A+4B)]e^{2t}.
-\end{aligned}
-\]
-代入 $(D_{t}^{2}-3D_{t}+2)y_{p}^{*}=t e^{2t}$，消去 $e^{2t}$：
-\[
-\begin{aligned}
-&[4At^{2}+(8A+4B)t+(2A+4B)] - 3[2At^{2}+(2A+2B)t+B] + 2(At^{2}+Bt) = t.
-\end{aligned}
-\]
-整理 $t^{2}$ 项：$4A-6A+2A=0$。$t$ 项：$(8A+4B)-3(2A+2B)+2B = 8A+4B-6A-6B+2B = 2A = 1$，故 $A=\frac{1}{2}$。常数项：$(2A+4B)-3B = 2A+B = 0$，故 $B=-2A=-1$。
-
-特解 $y_{p}^{*}=(\frac{1}{2}t^{2}-t)e^{2t}$。代回 $x=e^{t}$：
-\[
-y_{p} = \Bigl(\frac{1}{2}\ln^{2}x - \ln x\Bigr)x^{2}.
-\]
-通解为
-\[
-y = C_{1}x + C_{2}x^{2} + x^{2}\Bigl(\frac{1}{2}\ln^{2}x - \ln x\Bigr).
-\]
-
-\bigskip
-
-\else \answerarea \fi%
-\textbf{7.}（常数变易法）求解方程
-\[
-y'' + y = \frac{1}{\cos x},\quad |x|<\frac{\pi}{2}.
-\]
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-齐次方程 $y''+y=0$ 的通解为 $y_{h}=C_{1}\cos x + C_{2}\sin x$。用常数变易法，设特解 $y^{*}=u_{1}(x)\cos x+u_{2}(x)\sin x$，其中
-\[
-\begin{cases}
-u_{1}'\cos x + u_{2}'\sin x = 0,\\[4pt]
--u_{1}'\sin x + u_{2}'\cos x = \dfrac{1}{\cos x}.
-\end{cases}
-\]
-解此关于 $u_{1}',u_{2}'$ 的线性方程组。系数行列式 $\Delta = \cos^{2}x+\sin^{2}x=1$。
-\[
-u_{1}' = \frac{\begin{vmatrix}0 & \sin x\\ \frac{1}{\cos x} & \cos x\end{vmatrix}}{1} = -\frac{\sin x}{\cos x} = -\tan x,
-\]
-\[
-u_{2}' = \frac{\begin{vmatrix}\cos x & 0\\ -\sin x & \frac{1}{\cos x}\end{vmatrix}}{1} = 1.
-\]
-积分得 $u_{2}(x)=x$，$u_{1}(x)=-\int\tan x\,\mathrm{d}x = \ln|\cos x| = \ln(\cos x)$（因 $|x|<\frac{\pi}{2}$ 时 $\cos x>0$）。故特解
-\[
-y^{*} = \ln(\cos x)\cdot\cos x + x\sin x.
-\]
-通解为
-\[
-y = C_{1}\cos x + C_{2}\sin x + \cos x\cdot\ln(\cos x) + x\sin x.
-\]
-
-\bigskip
-
-\else \answerarea \fi%
-\textbf{8.}（微分方程的应用——牛顿冷却定律）某物体在 $t=0$ 时温度为 $100^{\circ}\mathrm{C}$，放置在温度为 $20^{\circ}\mathrm{C}$ 的恒温环境中。已知经过 $10$ 分钟后物体温度降至 $60^{\circ}\mathrm{C}$。按牛顿冷却定律（冷却速率与物体和环境的温差成正比），求物体温度降至 $30^{\circ}\mathrm{C}$ 所需的时间。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-设 $T(t)$ 为 $t$ 时刻物体的温度。由牛顿冷却定律：
-\[
-\frac{\mathrm{d}T}{\mathrm{d}t} = -k(T-20),\quad k>0.
-\]
-分离变量：$\frac{\mathrm{d}T}{T-20} = -k\,\mathrm{d}t$，积分得 $\ln|T-20| = -kt + C$，即
-\[
-T(t) = 20 + Ce^{-kt}.
-\]
-由 $T(0)=100$ 得 $20+C=100$，$C=80$。故 $T(t)=20+80e^{-kt}$。
-由 $T(10)=60$ 得 $20+80e^{-10k}=60$，$e^{-10k}=\frac{1}{2}$，故 $-10k=\ln\frac{1}{2}=-\ln 2$，$k=\frac{\ln 2}{10}$。
-
-令 $T(t)=30$：$20+80e^{-kt}=30$，$e^{-kt}=\frac{1}{8}=2^{-3}$，$-kt = -3\ln 2$，
-\[
-t = \frac{3\ln 2}{k} = \frac{3\ln 2}{\ln 2/10} = 30.
-\]
-故物体温度降至 $30^{\circ}\mathrm{C}$ 需要 $30$ 分钟。
-
-\else \answerarea \fi%
-\newpage
-\subsection{真题风格与综合训练}
-
-\textbf{9.}（\boxed{\textbf{真题风格}}，微分方程与积分方程综合）设 $f(x)$ 在 $[0,+\infty)$ 上连续，且满足
-\[
-f(x) = x + \int_{0}^{x} (x-t)f(t)\,\mathrm{d}t.
-\]
-求 $f(x)$ 的表达式。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-将积分方程改写为
-\[
-f(x) = x + x\int_{0}^{x}f(t)\,\mathrm{d}t - \int_{0}^{x}tf(t)\,\mathrm{d}t.
-\]
-令 $F(x)=\int_{0}^{x}f(t)\,\mathrm{d}t$，$G(x)=\int_{0}^{x}tf(t)\,\mathrm{d}t$，则 $F'(x)=f(x)$，$G'(x)=xf(x)$，且 $F(0)=G(0)=0$。
-原方程化为 $f(x)=x+xF(x)-G(x)$。
-
-对 $x$ 求导（$f$ 连续故 $F,G$ 可导）：
-\[
-f'(x) = 1 + F(x) + xf(x) - xf(x) = 1 + F(x).
-\]
-再求导：$f''(x) = F'(x) = f(x)$。故 $f$ 满足 $f''-f=0$。特征方程 $r^{2}-1=0$，$r=\pm 1$，$f(x)=C_{1}e^{x}+C_{2}e^{-x}$。
-
-由原方程令 $x=0$：$f(0)=0$。由 $f'(x)=1+F(x)$，令 $x=0$：$f'(0)=1+F(0)=1$。代入通解：
-\[
-\begin{cases}
-C_{1}+C_{2}=0,\\
-C_{1}-C_{2}=1,
-\end{cases}
-\]
-解得 $C_{1}=\frac{1}{2}$，$C_{2}=-\frac{1}{2}$。故
-\[
-f(x) = \frac{e^{x}-e^{-x}}{2} = \operatorname{sh} x.
-\]
-
-\bigskip
-
-\else \answerarea \fi%
-\textbf{10.}（\boxed{\textbf{真题风格}}，含参微分方程的边值问题）讨论参数 $\lambda$ 取何值时，边值问题
-\[
-\begin{cases}
-y'' + \lambda y = 0,\quad 0<x<\pi,\\
-y(0)=0,\quad y(\pi)=0
-\end{cases}
-\]
-有非零解，并求出相应的非零解。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-这是一个含参边值问题，按 $\lambda$ 的符号分三种情形讨论。
-
-\textbf{情形 1：}$\lambda<0$。设 $\lambda=-\omega^{2}$（$\omega>0$），方程 $y''-\omega^{2}y=0$，通解 $y=C_{1}e^{\omega x}+C_{2}e^{-\omega x}$。由 $y(0)=0$ 得 $C_{1}+C_{2}=0$；由 $y(\pi)=0$ 得 $C_{1}e^{\omega\pi}+C_{2}e^{-\omega\pi}=C_{1}(e^{\omega\pi}-e^{-\omega\pi})=0$，故 $C_{1}=0$，只有零解。
-
-\textbf{情形 2：}$\lambda=0$。方程 $y''=0$，$y=C_{1}x+C_{2}$。$y(0)=0\Rightarrow C_{2}=0$；$y(\pi)=0\Rightarrow C_{1}\pi=0\Rightarrow C_{1}=0$，只有零解。
-
-\textbf{情形 3：}$\lambda>0$。设 $\lambda=\omega^{2}$（$\omega>0$），方程 $y''+\omega^{2}y=0$，通解 $y=C_{1}\cos\omega x+C_{2}\sin\omega x$。由 $y(0)=0$ 得 $C_{1}=0$，故 $y=C_{2}\sin\omega x$。由 $y(\pi)=0$ 得 $C_{2}\sin\omega\pi=0$。要存在非零解需 $C_{2}\neq 0$，即 $\sin\omega\pi=0$，故 $\omega\pi = n\pi$，$n=1,2,3,\ldots$。即 $\omega=n$，$\lambda=n^{2}$。
-
-综上，当且仅当 $\lambda = n^{2}$（$n=1,2,3,\ldots$）时边值问题有非零解，对应的非零解为
-\[
-y_{n}(x) = C\sin nx,\quad C\neq 0.
-\]
-
-\bigskip
-
-\else \answerarea \fi%
-\textbf{11.}（\boxed{\textbf{真题风格}}，含参微分方程的定性讨论）设 $a$ 为实参数，求方程
-\[
-y'' + ay' + y = 0
-\]
-的任一解都在 $x\to+\infty$ 时趋于零的充要条件。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-特征方程为 $r^{2}+ar+1=0$，判别式 $\Delta = a^{2}-4$。
-
-\textbf{情形 1：}$\Delta>0$，即 $|a|>2$。特征根 $r_{1,2}=\frac{-a\pm\sqrt{a^{2}-4}}{2}$。通解 $y=C_{1}e^{r_{1}x}+C_{2}e^{r_{2}x}$。
-要使 $y\to 0$（$x\to+\infty$），需 $r_{1}<0$ 且 $r_{2}<0$，即两实根均为负。由韦达定理，$r_{1}r_{2}=1>0$，故两根同号；$r_{1}+r_{2}=-a$。二者均为负 $\Leftrightarrow -a<0\Leftrightarrow a>0$。结合 $|a|>2$，得 $a>2$。
-
-\textbf{情形 2：}$\Delta=0$，即 $a=\pm 2$。特征根 $r=-\frac{a}{2}$（二重根）。通解 $y=(C_{1}+C_{2}x)e^{-ax/2}$。
-当 $a=2$ 时 $y=(C_{1}+C_{2}x)e^{-x}\to 0$；当 $a=-2$ 时，除零解外均不趋于 $0$。
-
-\textbf{情形 3：}$\Delta<0$，即 $|a|<2$。特征根 $r_{1,2}= -\frac{a}{2}\pm i\frac{\sqrt{4-a^{2}}}{2}$。通解
-\[
-y = e^{-ax/2}\Bigl(C_{1}\cos\frac{\sqrt{4-a^{2}}}{2}x + C_{2}\sin\frac{\sqrt{4-a^{2}}}{2}x\Bigr).
-\]
-当 $x\to+\infty$ 时 $y\to 0 \Leftrightarrow e^{-ax/2}\to 0 \Leftrightarrow -\frac{a}{2}<0 \Leftrightarrow a>0$。结合 $|a|<2$，得 $0<a<2$。
-
-综合三种情形，$y\to 0$（$x\to+\infty$）对任意初始条件成立 $\Leftrightarrow a>0$。
-
-\bigskip
-
-\else \answerarea \fi%
-\textbf{12.}（\boxed{\textbf{真题风格}}，积分—微分方程综合）设 $y=y(x)$ 二阶可导，且满足
-\[
-y'' = \int_{0}^{x} y(t)\,\mathrm{d}t + e^{-x},
-\]
-及 $y(0)=0$，$y'(0)=1$。求 $y(x)$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-令 $I(x)=\int_{0}^{x}y(t)\,\mathrm{d}t$，则 $I'(x)=y(x)$，$I''(x)=y'(x)$，$I'''(x)=y''(x)$，且 $I(0)=0$，$I'(0)=y(0)=0$。
-
-原方程化为 $I'''(x) = I(x) + e^{-x}$，即
-\[
-I''' - I = e^{-x}.
-\]
-这是三阶常系数线性方程。特征方程 $r^{3}-1=0$，即 $(r-1)(r^{2}+r+1)=0$，特征根为
-\[
-r_{1}=1,\quad r_{2,3}=-\frac{1}{2}\pm i\frac{\sqrt{3}}{2}.
-\]
-齐次通解：
-\[
-I_{h} = C_{1}e^{x} + e^{-x/2}\Bigl(C_{2}\cos\frac{\sqrt{3}}{2}x + C_{3}\sin\frac{\sqrt{3}}{2}x\Bigr).
-\]
-
-右端 $e^{-x}$，对应的特征根 $-1$ 不是特征根，设特解 $I_{p}=Ae^{-x}$。代入 $I_{p}'''-I_{p}=e^{-x}$：
-\[
-(-Ae^{-x}) - Ae^{-x} = -2Ae^{-x} = e^{-x} \quad\Longrightarrow\quad A = -\frac{1}{2}.
-\]
-故 $I_{p} = -\frac{1}{2}e^{-x}$。通解：
-\[
-I(x) = C_{1}e^{x} + e^{-x/2}\Bigl(C_{2}\cos\frac{\sqrt{3}}{2}x + C_{3}\sin\frac{\sqrt{3}}{2}x\Bigr) - \frac{1}{2}e^{-x}.
-\]
-
-由初始条件 $I(0)=0$：
-\[
-C_{1} + C_{2} - \frac{1}{2} = 0. \tag{1}
-\]
-由 $I'(0)=0$（即 $y(0)=0$）：
-\[
-I'(x) = C_{1}e^{x} + e^{-x/2}\Bigl[\Bigl(-\frac{1}{2}C_{2}+\frac{\sqrt{3}}{2}C_{3}\Bigr)\cos\frac{\sqrt{3}}{2}x + \Bigl(-\frac{1}{2}C_{3}-\frac{\sqrt{3}}{2}C_{2}\Bigr)\sin\frac{\sqrt{3}}{2}x\Bigr] + \frac{1}{2}e^{-x}.
-\]
-代入 $x=0$：
-\[
-C_{1} - \frac{1}{2}C_{2} + \frac{\sqrt{3}}{2}C_{3} + \frac{1}{2} = 0. \tag{2}
-\]
-由 $y'(0)=1$ 即 $I''(0)=1$：
-\[
-I''(x) = C_{1}e^{x} + e^{-x/2}\Bigl[\cdots\Bigr] - \frac{1}{2}e^{-x},
-\]
-在 $x=0$ 处（略去与 $\sin,\cos$ 混叠的繁琐展开，直接计算）：
-\[
-I''(0) = C_{1} + \Bigl(-\frac{1}{2}\Bigr)\Bigl(-\frac{1}{2}C_{2}+\frac{\sqrt{3}}{2}C_{3}\Bigr) + \frac{\sqrt{3}}{2}\Bigl(-\frac{1}{2}C_{3}-\frac{\sqrt{3}}{2}C_{2}\Bigr) - \frac{1}{2}.
-\]
-展开 $e^{-x/2}$ 项在 $x=0$ 的二阶导（或直接用算子法）：更简洁的方法是直接利用 $I'''(0)=I(0)+e^{0}=0+1=1$ 作为边界条件的补充，但这需要更高阶导数。换一种方式：由原方程 $y''=\int y + e^{-x}$ 在 $x=0$ 处得 $y''(0)=I(0)+1=1$。而 $y''(0)=I'''(0)=1$，这与 $I'''-I=e^{-x}$ 在 $x=0$ 处一致（$1-0=1$）。
-
-我们利用 $y(0)=I'(0)=0$，$y'(0)=I''(0)=1$。直接计算 $I''(0)$：
-\[
-\begin{aligned}
-I''(x) &= C_{1}e^{x} + \frac{\mathrm{d}^{2}}{\mathrm{d}x^{2}}\Bigl[e^{-x/2}\bigl(C_{2}\cos\alpha x + C_{3}\sin\alpha x\bigr)\Bigr] - \frac{1}{2}e^{-x},\quad \alpha=\frac{\sqrt{3}}{2}.
-\end{aligned}
-\]
-记 $J(x)=e^{-x/2}(C_{2}\cos\alpha x + C_{3}\sin\alpha x)$。则
-\[
-J'(x) = e^{-x/2}\Bigl[\bigl(-\frac{1}{2}C_{2}+\alpha C_{3}\bigr)\cos\alpha x + \bigl(-\frac{1}{2}C_{3}-\alpha C_{2}\bigr)\sin\alpha x\Bigr],
-\]
-\[
-J''(x) = e^{-x/2}\Bigl[\bigl((\frac{1}{4}-\alpha^{2})C_{2}-\alpha C_{3}\bigr)\cos\alpha x + \bigl((\frac{1}{4}-\alpha^{2})C_{3}+\alpha C_{2}\bigr)\sin\alpha x\Bigr].
-\]
-由于 $\alpha^{2}=\frac{3}{4}$，$\frac{1}{4}-\alpha^{2}=-\frac{1}{2}$，故
-\[
-J''(0) = -\frac{1}{2}C_{2} - \alpha C_{3} = -\frac{1}{2}C_{2} - \frac{\sqrt{3}}{2}C_{3}.
-\]
-因此
-\[
-I''(0) = C_{1} + \Bigl(-\frac{1}{2}C_{2} - \frac{\sqrt{3}}{2}C_{3}\Bigr) - \frac{1}{2} = C_{1} - \frac{1}{2}C_{2} - \frac{\sqrt{3}}{2}C_{3} - \frac{1}{2} = 1. \tag{3}
-\]
-
-联立 (1)(2)(3)：
-\[
-\begin{cases}
-C_{1} + C_{2} = \frac{1}{2},\\[4pt]
-C_{1} - \frac{1}{2}C_{2} + \frac{\sqrt{3}}{2}C_{3} = -\frac{1}{2},\\[4pt]
-C_{1} - \frac{1}{2}C_{2} - \frac{\sqrt{3}}{2}C_{3} = \frac{3}{2}.
-\end{cases}
-\]
-(2)+(3) 得 $2C_{1} - C_{2} = 1$。与 (1) 联立：$C_{1}+C_{2}=\frac{1}{2}$，解得 $C_{1}=\frac{1}{2}$，$C_{2}=0$。
-(2)-(3) 得 $\sqrt{3}C_{3} = -2$，故 $C_{3}=-\frac{2}{\sqrt{3}}$。
-
-因此
-\[
-I(x) = \frac{1}{2}e^{x} - \frac{2}{\sqrt{3}}e^{-x/2}\sin\frac{\sqrt{3}}{2}x - \frac{1}{2}e^{-x}.
-\]
-最终 $y(x)=I'(x)$。求导：
-\[
-\begin{aligned}
-y(x)
-&=\frac12e^x+e^{-x/2}
-\left(\frac1{\sqrt3}\sin\frac{\sqrt3}{2}x
--\cos\frac{\sqrt3}{2}x\right)
-+\frac12e^{-x}.
-\end{aligned}
-\]
-可验证 $y(0)=\frac{1}{2}-1+\frac{1}{2}=0$，$y'(0)=1$，满足条件。
-
-\else \answerarea \fi%
+\input{calculus/exercises/chap5.tex}

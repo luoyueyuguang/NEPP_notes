@@ -1,0 +1,444 @@
+\section{习题}
+
+\subsection{本章速览}
+\begin{itemize}[leftmargin=1.6em,itemsep=2pt]
+    \item \textbf{切比雪夫不等式}：只要$E(X)$与$D(X)$存在，对任意$\varepsilon>0$，
+    \[
+    P\{|X-E(X)|\geq\varepsilon\}\leq\frac{D(X)}{\varepsilon^{2}},\qquad
+    P\{|X-E(X)|<\varepsilon\}\geq1-\frac{D(X)}{\varepsilon^{2}}.
+    \]
+    它只利用一、二阶矩，故对任何分布都成立，代价是界通常很保守。
+    \item \textbf{依概率收敛}：若对任意$\varepsilon>0$有$\lim\limits_{n\to\infty}P\{|Y_n-a|<\varepsilon\}=1$，则称$Y_n\overset{P}{\longrightarrow}a$。它刻画单个随机变量“取值落在$a$附近”的概率趋于$1$，与分布收敛不是一回事。
+    \item \textbf{三个大数定律的条件}：切比雪夫大数定律要求相互独立、方差一致有界（$D(X_i)\leq C$），不要求同分布；伯努利大数定律给出频率$\frac{\mu_n}{n}\overset{P}{\longrightarrow}p$；辛钦大数定律要求独立同分布且期望存在，\emph{不要求方差存在}。
+    \item \textbf{林德伯格--莱维中心极限定理}：若$X_1,X_2,\ldots$独立同分布，$E(X_i)=\mu$，$D(X_i)=\sigma^2\in(0,\infty)$，则
+    \[
+    \frac{\sum_{i=1}^{n}X_i-n\mu}{\sqrt{n}\,\sigma}\xrightarrow{\ d\ }N(0,1),
+    \]
+    即$n$很大时$\sum X_i$近似服从$N(n\mu,n\sigma^2)$。
+    \item \textbf{棣莫弗--拉普拉斯定理}：$X\sim B(n,p)$，$0<p<1$，则$\dfrac{X-np}{\sqrt{np(1-p)}}$近似服从$N(0,1)$。离散分布作正态近似时须作\textbf{连续性修正}：
+    \[
+    P(a\leq X\leq b)\approx\Phi\!\left(\frac{b+0.5-np}{\sqrt{np(1-p)}}\right)-\Phi\!\left(\frac{a-0.5-np}{\sqrt{np(1-p)}}\right).
+    \]
+    经验上要求$np$与$n(1-p)$都比较大（如均不小于$5$）。
+    \item \textbf{泊松近似}：$n$大、$p$小、$\lambda=np$适中时，$B(n,p)$近似为$P(\lambda)$，即$P(X=k)\approx\mathrm{e}^{-\lambda}\lambda^k/k!$。它与正态近似分工不同：泊松近似擅长小$p$的计数与尾部，正态近似擅长$np(1-p)$较大时的区间概率。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 设随机变量$X$满足$E(X)=10$，$D(X)=4$。
+(1) 用切比雪夫不等式估计$P(4<X<16)$的下界；
+(2) 设$X_1,X_2,\ldots,X_{100}$相互独立且都与$X$同分布，$\bar X=\frac{1}{100}\sum_{i=1}^{100}X_i$，用切比雪夫不等式估计$P(|\bar X-10|<0.5)$的下界。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+(1) 事件$4<X<16$等价于$|X-10|<6$，取$\varepsilon=6$：
+\[
+P(4<X<16)=P(|X-10|<6)\geq1-\frac{D(X)}{6^{2}}=1-\frac{4}{36}=\frac{8}{9}.
+\]
+(2) 由独立性，
+\[
+E(\bar X)=10,\qquad D(\bar X)=\frac{1}{100^{2}}\sum_{i=1}^{100}D(X_i)=\frac{100\times4}{10000}=0.04.
+\]
+取$\varepsilon=0.5$，得
+\[
+P(|\bar X-10|<0.5)\geq1-\frac{0.04}{0.5^{2}}=1-0.16=0.84.
+\]
+\textbf{评注：}切比雪夫不等式不需要知道分布，只需期望与方差；两问的差别只在于对$\bar X$使用$D(\bar X)=D(X)/n$。这个下界通常偏松，不能当作概率的精确值。
+\par\noindent\boxed{\text{答案：}(1)\ \frac89,\ (2)\ 0.84}
+
+\vspace{0.4cm}
+
+\else \answerarea[8] \fi%
+%
+\textbf{2.} 抛一枚均匀硬币$n$次，以$\mu_n$表示正面出现的次数。
+(1) 用切比雪夫不等式求最小的$n$，使$P\!\left(\left|\frac{\mu_n}{n}-\frac12\right|<0.01\right)\geq0.95$；
+(2) 用棣莫弗--拉普拉斯中心极限定理求同一要求下的$n$（已知$\Phi(1.96)=0.975$），并比较两个结果。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+$\mu_n\sim B(n,\frac12)$，故$E(\mu_n/n)=\frac12$，$D(\mu_n/n)=\frac{0.25}{n}$。
+(1) 由切比雪夫不等式，取$\varepsilon=0.01$：
+\[
+P\!\left(\left|\frac{\mu_n}{n}-\frac12\right|<0.01\right)\geq1-\frac{0.25/n}{10^{-4}}=1-\frac{2500}{n}.
+\]
+要求$1-\frac{2500}{n}\geq0.95$，即$\frac{2500}{n}\leq0.05$，故$n\geq50000$。
+(2) 由中心极限定理，$\dfrac{\mu_n/n-0.5}{\sqrt{0.25/n}}$近似服从$N(0,1)$。于是
+\[
+P\!\left(\left|\frac{\mu_n}{n}-\frac12\right|<0.01\right)
+\approx2\Phi\!\left(\frac{0.01\sqrt n}{0.5}\right)-1
+=2\Phi(0.02\sqrt n)-1.
+\]
+要求$2\Phi(0.02\sqrt n)-1\geq0.95$，即$\Phi(0.02\sqrt n)\geq0.975$，故$0.02\sqrt n\geq1.96$，$\sqrt n\geq98$，$n\geq9604$。
+比较：切比雪夫要求$n\geq50000$，中心极限定理只要求$n\geq9604$，前者约为后者的$5.2$倍。原因是切比雪夫不等式对一切分布成立，没有利用二项分布的具体形状；而中心极限定理利用了独立同分布随机和的结构，所以给出的样本量更贴近实际。
+\par\noindent\boxed{\text{答案：}(1)\ n\geq50000,\ (2)\ n\geq9604}
+
+\vspace{0.4cm}
+
+\else \answerarea[8] \fi%
+%
+\textbf{3.} 判断下列说法是否正确，并简要说明理由。
+(1) 辛钦大数定律要求随机变量的方差存在；
+(2) 若$X_n\overset{P}{\longrightarrow}a$（$a$为常数），则$E(X_n)\to a$；
+(3) 伯努利大数定律是辛钦大数定律的特例；
+(4) 切比雪夫大数定律要求随机变量序列同分布。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+(1) \textbf{错误。}辛钦大数定律的条件是独立同分布且期望存在，不要求方差存在。
+(2) \textbf{错误。}依概率收敛不能保证期望收敛，因为期望可能不存在，或概率很小的极端取值会抬高期望。反例：设
+\[
+P(X_n=n)=\frac1n,\qquad P(X_n=0)=1-\frac1n.
+\]
+对任意$\varepsilon>0$，当$n>\varepsilon$时$P(|X_n-0|\geq\varepsilon)=\frac1n\to0$，故$X_n\overset{P}{\longrightarrow}0$；但$E(X_n)=n\cdot\frac1n=1$对一切$n$成立，并不趋于$0$。
+(3) \textbf{正确。}设第$i$次试验的示性变量$X_i\sim B(1,p)$，则$X_1,X_2,\ldots$独立同分布，$E(X_i)=p$。由辛钦大数定律，$\frac1n\sum_{i=1}^{n}X_i=\frac{\mu_n}{n}\overset{P}{\longrightarrow}p$，这正是伯努利大数定律。
+(4) \textbf{错误。}切比雪夫大数定律只要求相互独立与方差一致有界，允许各$X_i$服从不同的分布。
+\par\noindent\boxed{\text{答案：错、错、对、错}}
+
+\vspace{0.4cm}
+
+\else \answerarea[10] \fi%
+%
+\textbf{4.} 设$X\sim B(200,0.3)$。
+(1) 用棣莫弗--拉普拉斯中心极限定理，\textbf{不作}连续性修正，近似计算$P(50\leq X\leq70)$；
+(2) 作连续性修正，重新近似计算$P(50\leq X\leq70)$；
+(3) 已知精确值约为$0.8952$，比较两问的误差并说明连续性修正的作用。
+（参考值：$\Phi(1.54)=0.9382$，$\Phi(1.62)=0.9474$。）
+
+\ifshowsolutions%
+\boxed{\text{解}}
+$E(X)=200\times0.3=60$，$D(X)=200\times0.3\times0.7=42$，$\sigma=\sqrt{42}\approx6.4807$。
+(1) 不作修正时，直接把端点$50,70$标准化：
+\[
+P(50\leq X\leq70)\approx\Phi\!\left(\frac{70-60}{6.4807}\right)-\Phi\!\left(\frac{50-60}{6.4807}\right)
+=\Phi(1.543)-\Phi(-1.543).
+\]
+由$\Phi(-1.543)=1-\Phi(1.543)$，得
+\[
+P(50\leq X\leq70)\approx2\Phi(1.54)-1=2\times0.9382-1=0.8764.
+\]
+(2) 作连续性修正，把整数区间$[50,70]$扩张为$(49.5,70.5)$：
+\[
+z_1=\frac{49.5-60}{6.4807}\approx-1.6202,\qquad
+z_2=\frac{70.5-60}{6.4807}\approx1.6202.
+\]
+于是
+\[
+P(50\leq X\leq70)\approx2\Phi(1.62)-1=2\times0.9474-1=0.8948.
+\]
+(3) 与精确值$0.8952$相比，不修正的误差约为$0.0188$，修正后的误差约为$0.0004$。连续性修正把“离散点上的概率”换成“以该点为中心、长度为$1$的区间上的概率”，补偿了用连续分布近似阶梯分布时的错位，因此在$n$不算很大时明显更精确。当$n$越大、$np(1-p)$越大时，两种算法的差别会逐渐缩小。
+\par\noindent\boxed{\text{答案：}(1)\ 0.8764,\ (2)\ 0.8948}
+
+\vspace{0.4cm}
+
+\else \answerarea[10] \fi%
+%
+\textbf{5.} 某车间生产的产品次品率为$p=0.002$，各件产品是否合格相互独立。以$X$表示$1000$件产品中的次品数。
+(1) 说明为什么适合用泊松分布近似$X$，并写出近似分布的参数；
+(2) 用泊松近似计算$P(X=0)$与$P(X\geq3)$（取$\mathrm{e}^{-2}=0.1353$）；
+(3) 若改用正态近似并作连续性修正计算$P(X\geq3)$，会得到什么结果？说明本题为何不宜用正态近似。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+(1) $X\sim B(1000,0.002)$。这里$n=1000$很大，$p=0.002$很小，而$\lambda=np=2$大小适中，符合“二项分布的泊松近似”的典型条件，故可用$P(2)$近似，即
+\[
+P(X=k)\approx\frac{2^k\mathrm{e}^{-2}}{k!},\qquad k=0,1,2,\ldots
+\]
+(2) 由$\lambda=2$：
+\[
+P(X=0)\approx\mathrm{e}^{-2}=0.1353,
+\]
+\[
+P(X\geq3)=1-P(X=0)-P(X=1)-P(X=2)
+\approx1-\mathrm{e}^{-2}\left(1+2+\frac{2^2}{2}\right)
+=1-5\mathrm{e}^{-2}.
+\]
+代入$\mathrm{e}^{-2}=0.1353$，得
+\[
+P(X\geq3)\approx1-5\times0.1353=1-0.6765=0.3235.
+\]
+（若保留更多位数，$5\mathrm{e}^{-2}=0.676676$，结果为$0.3233$。）
+(3) $E(X)=2$，$D(X)=1000\times0.002\times0.998=1.996$，$\sigma\approx1.4128$。对$X\geq3$作连续性修正，从$2.5$开始：
+\[
+P(X\geq3)\approx1-\Phi\!\left(\frac{2.5-2}{1.4128}\right)=1-\Phi(0.354)\approx1-0.638=0.362.
+\]
+这个结果与泊松近似的$0.323$偏差不小。原因是$np=2$太小，二项分布严重右偏，正态近似要求$np$与$n(1-p)$都比较大，本题不满足；而泊松近似正是针对“$n$大、$p$小、$\lambda$适中”的情形，故更合适。
+\textbf{答案：}(1) $P(2)$；(2) $P(X=0)\approx0.1353$，$P(X\geq3)\approx0.323$；(3) 约$0.362$，因$np=2$太小、分布右偏，不宜用正态近似。
+
+\vspace{0.4cm}
+
+\else \answerarea[10] \fi%
+%
+\subsection{综合提高题}
+
+\textbf{6.} 设随机变量序列$\{X_n\}$相互独立，$E(X_n)=\mu_n$，$D(X_n)=\sigma_n^2<\infty$。记
+\[
+\bar X_n=\frac1n\sum_{i=1}^{n}X_i,\qquad \bar\mu_n=\frac1n\sum_{i=1}^{n}\mu_i.
+\]
+(1) 证明：若$\lim\limits_{n\to\infty}\dfrac{1}{n^2}\sum\limits_{i=1}^{n}\sigma_i^2=0$，则$\bar X_n-\bar\mu_n\overset{P}{\longrightarrow}0$；
+(2) 取$\mu_n=0$，$\sigma_n^2=\sqrt n$，验证(1)的条件成立，并指出各$X_n$的方差无界；
+(3) 若$X_1,X_2,\ldots$独立同分布且$E|X_1|<\infty$，能否仅用切比雪夫不等式证明$\bar X_n\overset{P}{\longrightarrow}E(X_1)$？应改用哪个大数定律？
+
+\ifshowsolutions%
+\boxed{\text{解}}
+(1) 由独立性，
+\[
+E(\bar X_n-\bar\mu_n)=\frac1n\sum_{i=1}^{n}\mu_i-\bar\mu_n=0,
+\]
+\[
+D(\bar X_n-\bar\mu_n)=D(\bar X_n)=\frac{1}{n^2}\sum_{i=1}^{n}D(X_i)=\frac{1}{n^2}\sum_{i=1}^{n}\sigma_i^2.
+\]
+对任意$\varepsilon>0$，由切比雪夫不等式，
+\[
+0\leq P(|\bar X_n-\bar\mu_n|\geq\varepsilon)
+\leq\frac{1}{\varepsilon^2}\cdot\frac{1}{n^2}\sum_{i=1}^{n}\sigma_i^2\longrightarrow0.
+\]
+故$P(|\bar X_n-\bar\mu_n|<\varepsilon)\to1$，即$\bar X_n-\bar\mu_n\overset{P}{\longrightarrow}0$。
+(2) 此时
+\[
+\frac{1}{n^2}\sum_{i=1}^{n}\sigma_i^2=\frac{1}{n^2}\sum_{i=1}^{n}\sqrt i
+\leq\frac{1}{n^2}\cdot n\sqrt n=\frac{1}{\sqrt n}\longrightarrow0,
+\]
+故(1)的条件成立，从而$\bar X_n\overset{P}{\longrightarrow}0$。但$\sigma_n^2=\sqrt n\to\infty$，方差并不一致有界。这说明切比雪夫大数定律中“方差一致有界”只是充分条件，并非必要条件；真正起作用的是平均方差$\frac{1}{n^2}\sum\sigma_i^2$趋于$0$。
+(3) 不能。切比雪夫不等式需要$D(X_1)$存在且有限，而$E|X_1|<\infty$只保证期望存在，不能保证方差存在（例如自由度$2$的$t$分布）。应改用辛钦大数定律：独立同分布且期望存在，即得$\bar X_n\overset{P}{\longrightarrow}E(X_1)$。
+\textbf{答案：}(1) 见证明；(2) 条件成立且$\sigma_n^2=\sqrt n$无界；(3) 不能，应改用辛钦大数定律。
+
+\vspace{0.4cm}
+
+\else \answerarea[10] \fi%
+%
+\textbf{7.} 设$X_1,X_2,\ldots,X_n$相互独立，均服从$[0,1]$上的均匀分布，$\bar X_n=\frac1n\sum_{i=1}^{n}X_i$。
+(1) 当$n=100$时，用中心极限定理近似计算$P(0.45\leq\bar X_n\leq0.55)$（已知$\Phi(1.73)=0.9582$）；
+(2) 求最小的$n$，使$P(|\bar X_n-0.5|\leq0.05)\geq0.95$（已知$z_{0.025}=1.96$）；
+(3) 若不用中心极限定理而改用切比雪夫不等式，同一精度要求下$n$至少为多少？比较并解释差异。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+$E(X_i)=\frac12$，$D(X_i)=\frac{(1-0)^2}{12}=\frac1{12}$，故$E(\bar X_n)=\frac12$，$D(\bar X_n)=\frac{1}{12n}$。
+(1) $n=100$时，$\sigma_{\bar X}=\frac{1}{\sqrt{1200}}\approx0.028868$。标准化得
+\[
+P(0.45\leq\bar X_n\leq0.55)
+\approx\Phi\!\left(\frac{0.55-0.5}{0.028868}\right)-\Phi\!\left(\frac{0.45-0.5}{0.028868}\right)
+=\Phi(1.732)-\Phi(-1.732).
+\]
+故其近似值为
+\[
+2\Phi(1.73)-1=2\times0.9582-1=0.9164.
+\]
+(2) 由中心极限定理，
+\[
+P(|\bar X_n-0.5|\leq0.05)
+\approx2\Phi\!\left(\frac{0.05}{\sqrt{1/(12n)}}\right)-1
+=2\Phi(0.05\sqrt{12n})-1.
+\]
+要求它不小于$0.95$，即$\Phi(0.05\sqrt{12n})\geq0.975$，所以
+\[
+0.05\sqrt{12n}\geq1.96
+\ \Longrightarrow\ \sqrt n\geq\frac{1.96}{0.05\sqrt{12}}\approx11.316
+\ \Longrightarrow\ n\geq128.05.
+\]
+故最小整数$n=129$。
+(3) 由切比雪夫不等式，
+\[
+P(|\bar X_n-0.5|\leq0.05)\geq1-\frac{D(\bar X_n)}{0.05^2}
+=1-\frac{1/(12n)}{0.0025}=1-\frac{1}{0.03n}.
+\]
+要求$1-\frac{1}{0.03n}\geq0.95$，得$0.03n\geq20$，即$n\geq666.7$，故$n\geq667$。
+比较：切比雪夫需要$n\geq667$，中心极限定理只需$n\geq129$，相差约$5.2$倍。切比雪夫不等式只利用方差、对一切分布成立，因此界很保守；中心极限定理利用了均匀分布独立和的分布趋近正态这一结构，在$n$较大时给出更紧的样本量估计。注意中心极限定理给出的是近似值，严格保证仍需切比雪夫这类不等式。
+\par\noindent\boxed{\text{答案：}(1)\ 0.9164,\ (2)\ n=129,\ (3)\ n=667}
+
+\vspace{0.4cm}
+
+\else \answerarea[10] \fi%
+%
+\textbf{8.} 设$X\sim B(100,0.05)$。
+(1) 用参数$\lambda=5$的泊松分布近似计算$P(X\leq8)$与$P(X=8)$（取$\mathrm{e}^{-5}=0.006738$，并利用$\sum_{k=0}^{8}\frac{5^k}{k!}\approx138.31$）；
+(2) 用正态近似并作连续性修正计算同样的两个概率（已知$\Phi(1.61)=0.9463$，$\Phi(1.15)=0.8749$）；
+(3) 已知精确值$P(X\leq8)\approx0.9369$、$P(X=8)\approx0.0649$，判断本题哪种近似更好，并说明选择近似的依据。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+(1) 泊松近似：
+\[
+P(X=8)\approx\frac{5^8\mathrm{e}^{-5}}{8!}.
+\]
+由$\sum_{k=0}^{8}\frac{5^k}{k!}\approx138.31$，得
+\[
+P(X\leq8)\approx\mathrm{e}^{-5}\sum_{k=0}^{8}\frac{5^k}{k!}
+\approx0.006738\times138.31\approx0.9319.
+\]
+又$\frac{5^8}{8!}=\frac{390625}{40320}\approx9.688$，故
+\[
+P(X=8)\approx9.688\times0.006738\approx0.0653.
+\]
+(2) $E(X)=5$，$D(X)=100\times0.05\times0.95=4.75$，$\sigma=\sqrt{4.75}\approx2.1794$。
+对$P(X\leq8)$作连续性修正，上端取$8.5$：
+\[
+P(X\leq8)\approx\Phi\!\left(\frac{8.5-5}{2.1794}\right)\approx\Phi(1.61)=0.9463.
+\]
+对$P(X=8)$，把点$8$扩张为$(7.5,8.5)$：
+\[
+P(X=8)\approx\Phi\!\left(\frac{8.5-5}{2.1794}\right)-\Phi\!\left(\frac{7.5-5}{2.1794}\right)
+\approx\Phi(1.61)-\Phi(1.15).
+\]
+利用题给值，
+\[
+P(X=8)\approx0.9463-0.8749=0.0714.
+\]
+(3) 与精确值比较：$P(X\leq8)$的泊松近似误差约$0.005$，正态近似误差约$0.009$；$P(X=8)$的泊松近似误差约$0.0004$，正态近似误差约$0.0065$。本题泊松近似更好。
+依据：$n=100$较大而$p=0.05$较小，$\lambda=np=5$适中，满足泊松近似的典型条件；同时$np(1-p)=4.75$偏小，二项分布仍有明显右偏，正态近似（即使作了连续性修正）精度较差。一般地，$p$很小、$np$适中时优先用泊松近似；$np$与$n(1-p)$都较大时用正态近似。
+\textbf{答案：}(1) $P(X\leq8)\approx0.9319$，$P(X=8)\approx0.0653$；(2) $0.9463$，$0.0714$；(3) 泊松近似更好，因$p$小、$np=5$适中。
+
+\vspace{0.4cm}
+
+\else \answerarea[10] \fi%
+%
+\textbf{9.} 某保险公司有$10000$名投保人，每人一年内出险的概率为$0.01$，各人是否出险相互独立，每人一年内至多出险一次。每次出险赔付$1000$元，每人每年缴纳保费$11$元。以$X$表示一年内的出险人数。
+(1) 用切比雪夫不等式估计“公司亏损”（赔付总额超过保费收入）的概率上界；
+(2) 用中心极限定理并作连续性修正近似计算该亏损概率；
+(3) 若要控制亏损概率不超过$0.05$，每人年保费至少应定为多少元（取整数）？用中心极限定理判断。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+$X\sim B(10000,0.01)$，$E(X)=100$，$D(X)=10000\times0.01\times0.99=99$，$\sigma=\sqrt{99}\approx9.9499$。保费总收入为$10000\times11=110000$元，赔付总额为$1000X$元。
+(1) 亏损等价于$1000X>110000$，即$X>110$，亦即$X\geq111$。于是$|X-100|\geq11$，由切比雪夫不等式
+\[
+P(X\geq111)\leq P(|X-100|\geq11)\leq\frac{D(X)}{11^2}=\frac{99}{121}\approx0.818.
+\]
+这个上界很粗，只能说明亏损并非几乎必然发生。
+(2) 由棣莫弗--拉普拉斯定理，$X$近似服从$N(100,99)$。对$X\geq111$作连续性修正，从$110.5$开始：
+\[
+P(X\geq111)\approx1-\Phi\!\left(\frac{110.5-100}{\sqrt{99}}\right)
+=1-\Phi(1.0553).
+\]
+查表$\Phi(1.06)\approx0.8554$，故
+\[
+P(X\geq111)\approx1-0.8554=0.1446.
+\]
+(3) 设每人年保费为$c$元，则保费总收入为$10000c$元，亏损等价于
+\[
+1000X>10000c\quad\Longleftrightarrow\quad X>10c.
+\]
+当$c=11$时，$X>110$，由(2)亏损概率约$0.145>0.05$，不满足要求。
+当$c=12$时，$X>120$，即$X\geq121$。作连续性修正：
+\[
+P(X\geq121)\approx1-\Phi\!\left(\frac{120.5-100}{\sqrt{99}}\right)
+=1-\Phi(2.0603).
+\]
+查表$\Phi(2.06)\approx0.9803$，故
+\[
+P(X\geq121)\approx1-0.9803=0.0197<0.05.
+\]
+因此每人年保费至少定为$12$元。
+\textbf{评注：}本题的亏损概率位于分布右尾，中心极限定理给出的$0.145$与精确二项概率$0.146$相当接近；$c=12$时近似值$0.0197$与精确值$0.0221$也同阶。但尾部越极端，正态近似的相对误差越大，实际定价应以精确二项计算复核。
+\par\noindent\boxed{\text{答案：}(1)\ 0.818,\ (2)\ 0.145,\ (3)\ 12}
+
+\vspace{0.4cm}
+
+\else \answerarea[10] \fi%
+%
+\subsection{真题风格与综合训练}
+%
+\textbf{10.}（真题风格·选择题）下列命题中正确的是
+\begin{enumerate}[label=(\Alph*),leftmargin=2.2em,itemsep=2pt]
+    \item 切比雪夫大数定律要求随机变量序列同分布；
+    \item 辛钦大数定律要求每个随机变量的方差存在；
+    \item 设$X_1,X_2,\ldots$独立同分布，$E(X_i)=\mu$，$D(X_i)=\sigma^2\in(0,\infty)$，则$\dfrac{\sqrt n(\bar X_n-\mu)}{\sigma}$依分布收敛于$N(0,1)$；
+    \item 棣莫弗--拉普拉斯定理表明，当$n$充分大时$B(n,p)$近似服从$N(np,np(1-p))$，因此二项分布本身依分布收敛于某个正态分布。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{解}}
+(A) 错误。切比雪夫大数定律只要求相互独立与方差一致有界，允许分布不同。
+(B) 错误。辛钦大数定律要求独立同分布且期望存在，不要求方差存在。
+(C) 正确。这正是林德伯格--莱维中心极限定理的结论，其中
+\[
+\frac{\sqrt n(\bar X_n-\mu)}{\sigma}=\frac{\sum_{i=1}^{n}X_i-n\mu}{\sqrt n\,\sigma}.
+\]
+(D) 错误。前半句的近似结论成立，但“二项分布本身依分布收敛于正态分布”不成立：$B(n,p)$的均值与方差都随$n$增大而增大，未标准化的分布会不断向远处平移并展宽，不存在通常意义下的极限分布；只有标准化后的变量才收敛于$N(0,1)$。
+\par\noindent\boxed{\text{答案：}(C)}
+
+\vspace{0.4cm}
+
+\else \answerarea[6] \fi%
+%
+\textbf{11.}（真题风格·填空题）某射手每次射击的命中率为$0.6$，各次射击相互独立，共射击$400$次。以$X$表示命中次数。
+(1) 作连续性修正，用正态近似计算$P(225\leq X\leq255)\approx$\underline{\qquad\qquad}；
+(2) 若不作连续性修正，同一概率的近似值为\underline{\qquad\qquad}；
+(3) 已知精确值约为$0.8865$，由此可知在本题中连续性修正使误差由约\underline{\qquad\qquad}降为约\underline{\qquad\qquad}。
+（参考值：$\Phi(1.58)=0.9429$，$\Phi(1.53)=0.9370$。）
+
+\ifshowsolutions%
+\boxed{\text{解}}
+$X\sim B(400,0.6)$，$E(X)=240$，$D(X)=400\times0.6\times0.4=96$，$\sigma=\sqrt{96}\approx9.7980$。
+(1) 作连续性修正，把$[225,255]$扩张为$(224.5,255.5)$：
+\[
+z_1=\frac{224.5-240}{9.7980}\approx-1.582,\qquad
+z_2=\frac{255.5-240}{9.7980}\approx1.582.
+\]
+故
+\[
+P(225\leq X\leq255)\approx2\Phi(1.58)-1=2\times0.9429-1=0.8858.
+\]
+(2) 不作修正时，取端点$225,255$：
+\[
+\frac{255-240}{9.7980}\approx1.531,
+\]
+所以
+\[
+P(225\leq X\leq255)\approx2\Phi(1.53)-1=2\times0.9370-1=0.8740.
+\]
+(3) 以精确值$0.8865$为基准，不修正的误差约为$|0.8865-0.8740|=0.0125$，修正后的误差约为$|0.8865-0.8858|=0.0007$。
+\par\noindent\boxed{\text{答案：}(1)\ 0.8858,\ (2)\ 0.8740,\ (3)\ 0.0125,\ 0.0007}
+
+\vspace{0.4cm}
+
+\else \answerarea[8] \fi%
+%
+\textbf{12.}（真题风格·解答题）某工厂生产的零件长度（单位：mm）是随机变量，期望为$10$，标准差为$0.2$。各零件长度相互独立。抽取$n$个零件，以$\bar X_n$表示样本均值。
+(1) 当$n=100$时，用中心极限定理近似计算$P(|\bar X_n-10|\leq0.03)$（已知$\Phi(1.5)=0.9332$）；
+(2) 求最小的$n$，使$P(|\bar X_n-10|\leq0.03)\geq0.95$（已知$z_{0.025}=1.96$）；
+(3) 若题目不说明零件长度的分布，上述中心极限定理的使用是否需要额外条件？若改用切比雪夫不等式达到同样精度，$n$至少为多少？比较两种方法所得$n$的含义。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+$E(X_i)=10$，$D(X_i)=0.2^2=0.04$，故$E(\bar X_n)=10$，$D(\bar X_n)=\frac{0.04}{n}$。
+(1) $n=100$时，$\sigma_{\bar X}=\frac{0.2}{10}=0.02$。由中心极限定理，
+\[
+P(|\bar X_n-10|\leq0.03)
+\approx2\Phi\!\left(\frac{0.03}{0.02}\right)-1
+=2\Phi(1.5)-1.
+\]
+代入$\Phi(1.5)=0.9332$，得
+\[
+P(|\bar X_n-10|\leq0.03)\approx2\times0.9332-1=0.8664.
+\]
+(2) 一般地，
+\[
+P(|\bar X_n-10|\leq0.03)
+\approx2\Phi\!\left(\frac{0.03}{0.2/\sqrt n}\right)-1
+=2\Phi(0.15\sqrt n)-1.
+\]
+要求它不小于$0.95$，即$\Phi(0.15\sqrt n)\geq0.975$，故
+\[
+0.15\sqrt n\geq1.96
+\ \Longrightarrow\ \sqrt n\geq13.0667
+\ \Longrightarrow\ n\geq170.74.
+\]
+所以最小整数$n=171$。
+(3) 中心极限定理的常用形式（林德伯格--莱维）要求$X_i$独立同分布且方差有限，并不要求正态分布；本题已给独立、同分布（同一生产条件）、期望与方差，故可直接使用。若要得到严格的不等式保证，则用切比雪夫不等式：
+\[
+P(|\bar X_n-10|\leq0.03)\geq1-\frac{0.04/n}{0.03^2}
+=1-\frac{0.04}{0.0009n}.
+\]
+要求$1-\frac{0.04}{0.0009n}\geq0.95$，即
+\[
+\frac{0.04}{0.0009n}\leq0.05
+\ \Longrightarrow\ n\geq\frac{0.04}{0.0009\times0.05}\approx888.9,
+\]
+故$n\geq889$。
+比较：中心极限定理给出的$n=171$是“近似达到$0.95$”所需的样本量，依赖$n$较大时$\bar X_n$近似正态；切比雪夫给出的$n=889$对一切具有该期望、方差的分布都成立，是严格的充分条件，因而更保守。两者含义不同：前者是近似精度，后者是可靠上界。
+\textbf{答案：}(1) $0.8664$；(2) $n=171$；(3) 无需正态条件，只需独立同分布且方差有限；切比雪夫要求$n\geq889$。
+
+\vspace{0.4cm}
+
+\else \answerarea[10] \fi%

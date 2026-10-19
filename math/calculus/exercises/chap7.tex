@@ -1,0 +1,509 @@
+\section{习题}
+
+\subsection{本章速览}
+
+\begin{itemize}
+\item \textbf{数量积：}$\mathbf a\cdot\mathbf b=|\mathbf a||\mathbf b|\cos\theta=x_1x_2+y_1y_2+z_1z_2$。用途有四：判垂直（点积为零）、求夹角、求模 $|\mathbf a|=\sqrt{\mathbf a\cdot\mathbf a}$、求投影向量 $\dfrac{\mathbf a\cdot\mathbf b}{|\mathbf b|^2}\mathbf b$（注意分母是 $|\mathbf b|^2$，不是 $|\mathbf b|$）。
+\item \textbf{向量积：}$|\mathbf a\times\mathbf b|=|\mathbf a||\mathbf b|\sin\theta$ 等于以 $\mathbf a,\mathbf b$ 为邻边的平行四边形面积，方向由右手法则确定；$\mathbf a\times\mathbf b=\mathbf 0$ 当且仅当两向量平行。它是“造向量”的主力：过三点的平面取 $\mathbf n=\overrightarrow{AB}\times\overrightarrow{AC}$，两平面交线的方向取 $\mathbf s=\mathbf n_1\times\mathbf n_2$。
+\item \textbf{混合积：}$(\mathbf a,\mathbf b,\mathbf c)=\mathbf a\cdot(\mathbf b\times\mathbf c)$，其绝对值是以三向量为棱的平行六面体体积，等于 $0$ 当且仅当三向量共面。异面直线的距离 $d=\dfrac{|(\overrightarrow{P_1P_2},\mathbf s_1,\mathbf s_2)|}{|\mathbf s_1\times\mathbf s_2|}$，分子为零即两直线共面。
+\item \textbf{平面与直线的方程：}平面用点法式 $A(x-x_0)+B(y-y_0)+C(z-z_0)=0$；直线用点向式 $\dfrac{x-x_0}{l}=\dfrac{y-y_0}{m}=\dfrac{z-z_0}{n}$。判断线面关系时，“方向向量平行于法向量”才是垂直；“方向向量垂直于法向量”只说明平行或直线在平面内，还需代入一点区分。
+\item \textbf{距离与夹角：}点面距 $\dfrac{|Ax_0+By_0+Cz_0+D|}{\sqrt{A^2+B^2+C^2}}$；点线距 $\dfrac{|\mathbf s\times\overrightarrow{P_0P_1}|}{|\mathbf s|}$。线线角用 $\cos\theta$，线面角用 $\sin\theta=\dfrac{|\mathbf s\cdot\mathbf n|}{|\mathbf s||\mathbf n|}$，两者容易混。线线垂直只看方向向量是否正交；两直线可以相交，也可以异面。
+\item \textbf{旋转曲面：}曲线在 $xOz$ 面内写成 $f(x,z)=0,\ y=0$。绕 $z$ 轴旋转时 $z$ 不动，把 $x$ 换成 $\pm\sqrt{x^2+y^2}$，得 $f(\pm\sqrt{x^2+y^2},z)=0$；绕 $x$ 轴旋转时把 $z$ 换成 $\pm\sqrt{y^2+z^2}$。口诀：“绕谁转，谁不变，另一个用平方和开方代替”。母线取整条直线还是只取射线，决定得到单叶还是双叶。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 已知向量 $\mathbf a=(1,1,0)$，$\mathbf b=(1,0,1)$。求：
+(1) $\mathbf a\cdot\mathbf b$ 与 $\mathbf a\times\mathbf b$；
+(2) $\mathbf a$ 与 $\mathbf b$ 的夹角 $\theta$；
+(3) $\mathbf a$ 在 $\mathbf b$ 上的投影向量；
+(4) 以 $\mathbf a,\mathbf b$ 为邻边的平行四边形面积。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}点积、叉积按坐标公式直接算；夹角由 $\cos\theta=\dfrac{\mathbf a\cdot\mathbf b}{|\mathbf a||\mathbf b|}$ 得到；投影向量是在 $\mathbf b$ 方向上的分量，面积就是 $|\mathbf a\times\mathbf b|$。
+
+(1) 由坐标公式
+\[
+\mathbf a\cdot\mathbf b=1\cdot1+1\cdot0+0\cdot1=1,
+\]
+\[
+\mathbf a\times\mathbf b=
+\begin{vmatrix}
+\hat\imath & \hat\jmath & \hat k\\
+1 & 1 & 0\\
+1 & 0 & 1
+\end{vmatrix}
+=(1\cdot1-0\cdot0)\hat\imath-(1\cdot1-0\cdot1)\hat\jmath+(1\cdot0-1\cdot1)\hat k
+=(1,-1,-1).
+\]
+于是 $|\mathbf a\times\mathbf b|=\sqrt{1+1+1}=\sqrt3$。
+
+(2) $|\mathbf a|=\sqrt{1^2+1^2+0^2}=\sqrt2$，$|\mathbf b|=\sqrt{1^2+0^2+1^2}=\sqrt2$，故
+\[
+\cos\theta=\frac{\mathbf a\cdot\mathbf b}{|\mathbf a||\mathbf b|}=\frac{1}{\sqrt2\cdot\sqrt2}=\frac12,
+\]
+所以 $\theta=\dfrac{\pi}{3}$。用面积公式反查：$|\mathbf a||\mathbf b|\sin\dfrac{\pi}{3}=2\cdot\dfrac{\sqrt3}{2}=\sqrt3$，与 (1) 一致。
+
+(3) 投影向量为
+\[
+\frac{\mathbf a\cdot\mathbf b}{|\mathbf b|^2}\,\mathbf b=\frac{1}{2}(1,0,1)=\left(\frac12,0,\frac12\right),
+\]
+其长度（数量投影）为 $\dfrac{1}{\sqrt2}=\dfrac{\sqrt2}{2}$。可以验证 $\mathbf a-\left(\frac12,0,\frac12\right)=\left(\frac12,1,-\frac12\right)$ 与 $\mathbf b$ 的点积为 $0$，即确实分解成了“沿 $\mathbf b$ 的分量 + 垂直 $\mathbf b$ 的分量”。
+
+(4) 平行四边形面积 $S=|\mathbf a\times\mathbf b|=\sqrt3$；相应三角形面积为 $\dfrac{\sqrt3}{2}$。
+
+\[
+\boxed{\text{\textbf{答案：}$\mathbf a\cdot\mathbf b=1$，$\mathbf a\times\mathbf b=(1,-1,-1)$，$\theta=\dfrac{\pi}{3}$，投影向量 $\left(\dfrac12,0,\dfrac12\right)$，面积 $\sqrt3$。}}
+\]
+\else \answerarea[8] \fi%
+
+\textbf{2.} 求过三点 $A(1,2,0)$，$B(0,1,1)$，$C(2,0,1)$ 的平面方程，并写成截距式；再求该平面与三个坐标面围成的四面体体积。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}三点定平面，关键是求法向量：取平面内两个不共线的向量作叉积。求出一般式后，令 $y=z=0$ 等分别得到三个截距，即可写截距式并算体积。
+
+\[
+\overrightarrow{AB}=B-A=(-1,-1,1),\qquad
+\overrightarrow{AC}=C-A=(1,-2,1).
+\]
+取
+\[
+\mathbf n=\overrightarrow{AB}\times\overrightarrow{AC}
+=\begin{vmatrix}
+\hat\imath & \hat\jmath & \hat k\\
+-1 & -1 & 1\\
+1 & -2 & 1
+\end{vmatrix}
+=(1,\,2,\,3),
+\]
+其中三个分量分别为 $(-1)\cdot1-1\cdot(-2)=1$，$-\big[(-1)\cdot1-1\cdot1\big]=2$，$(-1)\cdot(-2)-(-1)\cdot1=3$。
+
+由点法式，取点 $A(1,2,0)$：
+\[
+1\cdot(x-1)+2\cdot(y-2)+3\cdot(z-0)=0
+\;\Longrightarrow\;
+x+2y+3z-5=0.
+\]
+代 $B$：$0+2+3-5=0$；代 $C$：$2+0+3-5=0$，说明所求无误。
+
+令 $y=z=0$ 得 $x=5$；令 $x=z=0$ 得 $y=\dfrac52$；令 $x=y=0$ 得 $z=\dfrac53$。故截距式为
+\[
+\frac{x}{5}+\frac{y}{5/2}+\frac{z}{5/3}=1.
+\]
+三个截距点 $(5,0,0)$、$\left(0,\frac52,0\right)$、$\left(0,0,\frac53\right)$ 与原点构成三棱两两垂直的四面体，体积
+\[
+V=\frac16\cdot5\cdot\frac52\cdot\frac53=\frac{125}{36}.
+\]
+
+\[
+\boxed{\text{\textbf{答案：}$x+2y+3z=5$，截距式 $\dfrac{x}{5}+\dfrac{y}{5/2}+\dfrac{z}{5/3}=1$，体积 $\dfrac{125}{36}$。}}
+\]
+\else \answerarea[8] \fi%
+
+\textbf{3.} 求过点 $P(1,2,1)$ 且以 $\mathbf s=(2,-1,3)$ 为方向向量的直线的对称式方程与参数式方程，并求该直线与平面 $x+y+z=0$ 的交点。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}点向式直接写出对称式；令比值等于 $t$ 得参数式；把参数式代入平面方程解出 $t$，再回代。由于 $\mathbf s\cdot(1,1,1)=4\neq0$，直线与平面必相交且只有一个交点。
+
+对称式：
+\[
+\frac{x-1}{2}=\frac{y-2}{-1}=\frac{z-1}{3}.
+\]
+令其比值为 $t$，得参数式
+\[
+\begin{cases}
+x=1+2t,\\
+y=2-t,\\
+z=1+3t,
+\end{cases}\qquad t\in\mathbb R.
+\]
+代入平面方程：
+\[
+(1+2t)+(2-t)+(1+3t)=4+4t=0
+\;\Longrightarrow\; t=-1.
+\]
+回代得交点 $(-1,3,-2)$。校验：$\dfrac{-1-1}{2}=-1$，$\dfrac{3-2}{-1}=-1$，$\dfrac{-2-1}{3}=-1$，三个比值相等，且 $-1+3-2=0$，确在平面上。
+
+\[
+\boxed{\text{\textbf{答案：}$\dfrac{x-1}{2}=\dfrac{y-2}{-1}=\dfrac{z-1}{3}$；$x=1+2t,\ y=2-t,\ z=1+3t$；交点 $(-1,3,-2)$。}}
+\]
+\else \answerarea[8] \fi%
+
+\textbf{4.} 已知点 $P(1,2,3)$，平面 $\Pi_1:2x-y+2z=4$，平面 $\Pi_2:2x-y+2z=10$。求：
+(1) $P$ 到 $\Pi_1$ 的距离；
+(2) $\Pi_1$ 与 $\Pi_2$ 之间的距离；
+(3) 过 $P$ 且平行于 $\Pi_1$ 的平面方程。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}(1) 套点面距公式；(2) 两平面法向量相同，先确认平行，再在其中一个平面上取点算到另一个平面的距离（或直接用 $\dfrac{|D_1-D_2|}{|\mathbf n|}$）；(3) 平行平面法向量相同，只需把 $P$ 代入定常数项。
+
+(1) $\Pi_1$ 即 $2x-y+2z-4=0$，$\mathbf n=(2,-1,2)$，$|\mathbf n|=\sqrt{4+1+4}=3$。于是
+\[
+d_1=\frac{|2\cdot1-1\cdot2+2\cdot3-4|}{3}=\frac{|2-2+6-4|}{3}=\frac23.
+\]
+
+(2) 两平面法向量相同而常数项 $4\neq10$，故平行且不重合。取 $\Pi_1$ 上的点 $P_1(2,0,0)$（因为 $2\cdot2=4$），它到 $\Pi_2$ 的距离
+\[
+d=\frac{|2\cdot2-0+0-10|}{3}=\frac{6}{3}=2.
+\]
+这与公式 $d=\dfrac{|D_2-D_1|}{|\mathbf n|}=\dfrac{|10-4|}{3}=2$ 一致。
+
+(3) 设所求平面为 $2x-y+2z+D=0$。代入 $P$：$2-2+6+D=0$，得 $D=-6$，即
+\[
+2x-y+2z=6.
+\]
+
+\[
+\boxed{\text{\textbf{答案：}(1) $\dfrac23$；(2) $2$；(3) $2x-y+2z=6$。}}
+\]
+\else \answerarea[8] \fi%
+
+\textbf{5.} 将 $xOz$ 面内的双曲线 $\dfrac{x^2}{4}-\dfrac{z^2}{9}=1,\ y=0$ 分别绕 $z$ 轴和绕 $x$ 轴旋转，求所得曲面的方程，并指出曲面类型。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}绕 $z$ 轴旋转时，曲面上点到 $z$ 轴的距离为 $\sqrt{x^2+y^2}$，它等于原来母线上对应点的 $|x|$，所以把 $x^2$ 换成 $x^2+y^2$；绕 $x$ 轴旋转时 $x$ 不变，把 $z^2$ 换成 $y^2+z^2$。
+
+绕 $z$ 轴：$z$ 保持不变，$x^2\mapsto x^2+y^2$，得
+\[
+\frac{x^2+y^2}{4}-\frac{z^2}{9}=1.
+\]
+这是单叶双曲面：对任意 $z$，截口都是实椭圆 $\dfrac{x^2+y^2}{4}=1+\dfrac{z^2}{9}$，曲面连成一片。
+
+绕 $x$ 轴：$x$ 保持不变，$z^2\mapsto y^2+z^2$，得
+\[
+\frac{x^2}{4}-\frac{y^2+z^2}{9}=1.
+\]
+移项为 $\dfrac{x^2}{4}=1+\dfrac{y^2+z^2}{9}\ge1$，故 $|x|\ge2$，曲面分成 $x\ge2$ 与 $x\le-2$ 两叶，是双叶双曲面。
+
+注意两问不能互换：绕哪条轴转，那条轴的变量保持不变，另一变量用“平方和”替换。
+
+\[
+\boxed{\begin{gathered}
+\text{\textbf{答案：}绕 $z$ 轴得 $\dfrac{x^2+y^2}{4}-\dfrac{z^2}{9}=1$（单叶双曲面）；}\\
+\text{绕 $x$ 轴得 $\dfrac{x^2}{4}-\dfrac{y^2+z^2}{9}=1$（双叶双曲面）。}
+\end{gathered}}
+\]
+\else \answerarea[8] \fi%
+
+\subsection{综合提高题}
+
+\textbf{6.} 求过点 $P(1,1,1)$ 且与直线 $L:\dfrac{x-1}{1}=\dfrac{y-2}{-1}=\dfrac{z-3}{2}$ 垂直相交的直线方程，并求点 $P$ 到 $L$ 的距离。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}“垂直相交”意味着先找垂足 $Q\in L$，再用 $(Q-P)\perp\mathbf s$ 定出 $Q$。只要求垂直而不要求相交，过 $P$ 的垂线会有无穷多条（都在以 $\mathbf s$ 为法向量、过 $P$ 的平面内），所以“相交”这个条件是定出唯一直线的关键。
+
+$L$ 过点 $A(1,2,3)$，方向向量 $\mathbf s=(1,-1,2)$。设垂足
+\[
+Q=(1+t,\,2-t,\,3+2t).
+\]
+则
+\[
+\overrightarrow{PQ}=(t,\,1-t,\,2+2t).
+\]
+由 $\overrightarrow{PQ}\cdot\mathbf s=0$：
+\[
+t\cdot1+(1-t)\cdot(-1)+(2+2t)\cdot2=t-1+t+4+4t=6t+3=0,
+\]
+得 $t=-\dfrac12$，于是
+\[
+Q=\left(\frac12,\frac52,2\right),\qquad
+\overrightarrow{PQ}=\left(-\frac12,\frac32,1\right)=\frac12(-1,3,2).
+\]
+所求直线以 $(-1,3,2)$ 为方向向量，方程为
+\[
+\frac{x-1}{-1}=\frac{y-1}{3}=\frac{z-1}{2}.
+\]
+校验垂直：$(-1,3,2)\cdot(1,-1,2)=-1-3+4=0$。
+
+距离
+\[
+d=|PQ|=\sqrt{\left(-\frac12\right)^2+\left(\frac32\right)^2+1^2}
+=\sqrt{\frac14+\frac94+1}=\sqrt{\frac{14}{4}}=\frac{\sqrt{14}}{2}.
+\]
+用叉积公式复核：
+\[
+\mathbf s\times\overrightarrow{PQ}
+=(1,-1,2)\times\left(-\frac12,\frac32,1\right)=(-4,-2,1),
+\]
+其模为 $\sqrt{21}$，故 $d=\dfrac{\sqrt{21}}{\sqrt6}=\sqrt{\dfrac72}=\dfrac{\sqrt{14}}{2}$，一致。
+
+\[
+\boxed{\text{\textbf{答案：}$\dfrac{x-1}{-1}=\dfrac{y-1}{3}=\dfrac{z-1}{2}$；$d=\dfrac{\sqrt{14}}{2}$。}}
+\]
+\else \answerarea[10] \fi%
+
+\textbf{7.} 设
+\[
+L_1:\begin{cases}x-y=0,\\ z=0,\end{cases}
+\qquad
+L_2:\begin{cases}x-1=0,\\ y-z+2=0.\end{cases}
+\]
+(1) 判断两直线的位置关系；
+(2) 若异面，求它们的距离；
+(3) 求两直线的夹角；
+(4) 求公垂线方程。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}一般式直线的方向向量等于两平面法向量的叉积。先看方向是否平行，再用混合积判断是否共面：混合积为零则相交（或平行），不为零则异面。异面距离用 $d=\dfrac{|(\overrightarrow{A_1A_2},\mathbf s_1,\mathbf s_2)|}{|\mathbf s_1\times\mathbf s_2|}$，公垂线方向就是 $\mathbf s_1\times\mathbf s_2$。
+
+$L_1$ 的方向
+\[
+\mathbf s_1=(1,-1,0)\times(0,0,1)=(-1,-1,0)\parallel(1,1,0),
+\]
+过点 $A_1(0,0,0)$。
+
+$L_2$ 的方向
+\[
+\mathbf s_2=(1,0,0)\times(0,1,-1)=(0,1,1),
+\]
+过点 $A_2(1,-1,1)$（满足 $x-1=0$，$y-z+2=-1-1+2=0$）。
+
+(1) $\mathbf s_1\times\mathbf s_2=(1,-1,0)\times(0,1,1)=(1,-1,1)\neq\mathbf 0$，两直线不平行。又
+\[
+\overrightarrow{A_1A_2}=(1,-1,1),
+\]
+\[
+(\overrightarrow{A_1A_2},\mathbf s_1,\mathbf s_2)
+=(1,-1,1)\cdot(1,-1,1)=1+1+1=3\neq0,
+\]
+故三向量不共面，两直线异面。
+
+(2) 异面直线距离
+\[
+d=\frac{|(\overrightarrow{A_1A_2},\mathbf s_1,\mathbf s_2)|}{|\mathbf s_1\times\mathbf s_2|}
+=\frac{3}{\sqrt{1+1+1}}=\sqrt3.
+\]
+
+(3) 夹角（取锐角）
+\[
+\cos\theta=\frac{|\mathbf s_1\cdot\mathbf s_2|}{|\mathbf s_1||\mathbf s_2|}
+=\frac{|1|}{\sqrt2\cdot\sqrt2}=\frac12,
+\]
+故 $\theta=60^\circ$。
+
+(4) 公垂线方向为 $\mathbf n=(1,-1,1)$。它所在的平面有两个：过 $L_1$ 且平行于 $\mathbf n$ 的平面，过 $L_2$ 且平行于 $\mathbf n$ 的平面。分别求法向量：
+
+过 $L_1$ 的平面法向量
+\[
+\mathbf s_1\times\mathbf n=(1,1,0)\times(1,-1,1)=(1,-1,-2),
+\]
+过 $A_1(0,0,0)$，得 $x-y-2z=0$。
+
+过 $L_2$ 的平面法向量
+\[
+\mathbf s_2\times\mathbf n=(0,1,1)\times(1,-1,1)=(2,1,-1),
+\]
+过 $A_2(1,-1,1)$，得 $2(x-1)+(y+1)-(z-1)=0$，即 $2x+y-z=0$。
+
+两平面之交即为公垂线：
+\[
+\begin{cases}
+x-y-2z=0,\\
+2x+y-z=0,
+\end{cases}
+\qquad\text{即}\qquad
+\frac{x}{1}=\frac{y}{-1}=\frac{z}{1}.
+\]
+校验：该直线与 $L_1$ 交于 $(0,0,0)$，与 $L_2$ 交于 $(1,-1,1)$，两点距离为 $\sqrt3$，恰等于 (2) 中的距离，说明这两个交点就是垂足。
+
+\[
+\boxed{\begin{gathered}
+\text{\textbf{答案：}异面；$d=\sqrt3$；夹角 $60^\circ$；}\\
+\text{公垂线 $\dfrac{x}{1}=\dfrac{y}{-1}=\dfrac{z}{1}$，即 $\{x-y-2z=0,\ 2x+y-z=0\}$。}
+\end{gathered}}
+\]
+\else \answerarea[10] \fi%
+
+\textbf{8.} 已知直线 $L:\begin{cases}x+y+z=1,\\ x-y+z=0,\end{cases}$ 与平面 $\Pi:x=0$。
+(1) 求 $L$ 与 $\Pi$ 的夹角；
+(2) 求过 $L$ 且垂直于 $\Pi$ 的平面方程；
+(3) 求 $L$ 在 $\Pi$ 上的投影直线方程。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}$L$ 是两平面交线，方向向量为两法向量的叉积。线面角用 $\sin\theta$。求过交线的平面用平面束，再让法向量与 $\Pi$ 的法向量垂直。投影直线就是“过 $L$ 且垂直于 $\Pi$ 的平面”与 $\Pi$ 的交线（因为该平面正是沿 $\Pi$ 的法线方向张成的投影柱面）。
+
+$L$ 的两平面法向量 $\mathbf n_1=(1,1,1)$，$\mathbf n_2=(1,-1,1)$，故
+\[
+\mathbf s=\mathbf n_1\times\mathbf n_2=(2,0,-2)\parallel(1,0,-1).
+\]
+求 $L$ 上一点：两式相减得 $2y=1$，即 $y=\dfrac12$；令 $x=0$，由 $x+y+z=1$ 得 $z=\dfrac12$，故 $A\left(0,\dfrac12,\dfrac12\right)\in L$。
+
+(1) $\Pi$ 的法向量 $\mathbf n=(1,0,0)$，
+\[
+\sin\theta=\frac{|\mathbf s\cdot\mathbf n|}{|\mathbf s||\mathbf n|}
+=\frac{|1|}{\sqrt2\cdot1}=\frac{\sqrt2}{2},
+\]
+故 $\theta=45^\circ$。
+
+(2) 设过 $L$ 的平面为
+\[
+\lambda(x+y+z-1)+\mu(x-y+z)=0,
+\]
+其法向量 $\mathbf m=(\lambda+\mu,\ \lambda-\mu,\ \lambda+\mu)$。与 $\Pi$ 垂直，即 $\mathbf m\perp(1,0,0)$：
+\[
+(\lambda+\mu)\cdot1+(\lambda-\mu)\cdot0+(\lambda+\mu)\cdot0=0
+\;\Longrightarrow\;\lambda+\mu=0.
+\]
+取 $\lambda=1,\ \mu=-1$，得
+\[
+(x+y+z-1)-(x-y+z)=0\;\Longrightarrow\;2y-1=0\;\Longrightarrow\;y=\frac12.
+\]
+显然 $L$ 上所有点都满足 $y=\dfrac12$，且 $y=\dfrac12$ 的法向量 $(0,1,0)$ 与 $(1,0,0)$ 垂直，符合要求。
+
+(3) 投影直线为
+\[
+\begin{cases}
+y=\dfrac12,\\
+x=0.
+\end{cases}
+\]
+它过点 $\left(0,\dfrac12,\dfrac12\right)$，方向为 $(0,0,1)$。用投影公式复核方向：$\mathbf s-\dfrac{\mathbf s\cdot\mathbf n}{|\mathbf n|^2}\mathbf n=(1,0,-1)-(1,0,0)=(0,0,-1)$，确与 $z$ 轴平行；且投影线与 $L$ 的夹角应为 $45^\circ$，而 $(1,0,-1)$ 与 $(0,0,-1)$ 的夹角余弦为 $\dfrac{1}{\sqrt2}$，吻合。
+
+\[
+\boxed{\text{\textbf{答案：}(1) $45^\circ$；(2) $y=\dfrac12$；(3) $\begin{cases}x=0,\\ y=\dfrac12.\end{cases}$}}
+\]
+\else \answerarea[10] \fi%
+
+\textbf{9.} 将 $yOz$ 面内的直线 $z=2y,\ x=0$ 绕 $z$ 轴旋转一周得到曲面 $\Sigma$。
+(1) 求 $\Sigma$ 的方程，指出曲面类型及母线与 $z$ 轴的夹角；
+(2) 求 $\Sigma$ 与平面 $z=2$ 的交线；
+(3) 求 $\Sigma$ 与平面 $y=1$ 的交线，并指出其类型。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}旋转时点到 $z$ 轴的距离 $\sqrt{x^2+y^2}$ 等于母线上对应点的 $|y|$，而 $z$ 坐标不变。由 $z=2y$ 得 $|y|=\dfrac{|z|}{2}$，故 $\sqrt{x^2+y^2}=\dfrac{|z|}{2}$，平方即得曲面方程。截线就是把平面方程与曲面方程联立、再在所给平面内看曲线类型。
+
+(1) 设 $P(x,y,z)$ 在曲面上，它由母线上的点 $(0,y_0,z_0)$ 绕 $z$ 轴旋转而来，则
+\[
+z_0=z,\qquad x^2+y^2=y_0^2 .
+\]
+由 $z_0=2y_0$ 得 $y_0=\dfrac{z}{2}$，代入得
+\[
+x^2+y^2=\frac{z^2}{4},
+\qquad\text{即}\qquad z^2=4(x^2+y^2).
+\]
+这是圆锥面（双叶，顶点在原点）。母线的方向向量为 $(0,1,2)$，它与 $z$ 轴方向 $(0,0,1)$ 的夹角 $\alpha$ 满足
+\[
+\tan\alpha=\frac{1}{2},\qquad \alpha=\arctan\frac12 .
+\]
+若母线只取射线 $y\ge0$（即 $z\ge0$），则只得到上半锥面 $z=2\sqrt{x^2+y^2}$；题中给的是整条直线，故得到上下两叶。
+
+(2) 令 $z=2$，代入曲面方程：
+\[
+4=4(x^2+y^2)\;\Longrightarrow\;x^2+y^2=1.
+\]
+故交线是平面 $z=2$ 内以 $(0,0,2)$ 为圆心、半径为 $1$ 的圆。
+
+(3) 令 $y=1$，代入：
+\[
+z^2=4(x^2+1)\;\Longrightarrow\;\frac{z^2}{4}-x^2=1 .
+\]
+在平面 $y=1$ 内，这是实轴沿 $z$ 方向、顶点为 $(0,1,\pm2)$ 的双曲线。
+
+\[
+\boxed{\begin{gathered}
+\text{\textbf{答案：}(1) $z^2=4(x^2+y^2)$，圆锥面，$\alpha=\arctan\dfrac12$；}\\
+\text{(2) 圆 $x^2+y^2=1,\ z=2$；(3) 双曲线 $\dfrac{z^2}{4}-x^2=1,\ y=1$。}
+\end{gathered}}
+\]
+\else \answerarea[10] \fi%
+
+\subsection{真题风格与综合训练}
+
+\textbf{10.}（单项选择题）下列命题中正确的是
+
+\begin{center}
+\begin{tabular}{p{0.46\linewidth}p{0.46\linewidth}}
+(A) 若直线 $L$ 的方向向量 $\mathbf s$ 与平面 $\Pi$ 的法向量 $\mathbf n$ 满足 $\mathbf s\cdot\mathbf n=0$，则 $L\parallel\Pi$； & (B) 若两条直线的方向向量正交，则这两条直线必相交；\\[4pt]
+(C) 若两个平面的法向量平行，则这两个平面平行； & (D) 若直线 $L$ 的方向向量与平面 $\Pi$ 的法向量平行，则 $L\perp\Pi$。
+\end{tabular}
+\end{center}
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}逐项检查定义中的“遗漏情形”：线面平行还要求无公共点；方向正交不能推出两直线相交；两平面“平行”要排除重合。
+
+(A) 错。$\mathbf s\cdot\mathbf n=0$ 只说明方向与平面平行，直线可能整条落在平面内。反例：$L$ 取 $x$ 轴（$\mathbf s=(1,0,0)$），$\Pi$ 取 $z=0$（$\mathbf n=(0,0,1)$），此时 $\mathbf s\cdot\mathbf n=0$，但 $L\subset\Pi$，不是平行。
+
+(B) 错。方向正交只说明两直线所成角为 $90^\circ$，它们可能相交，也可能异面。反例：$L_1$ 为 $x$ 轴（$y=z=0$），$L_2:\{(1,1,t)\}$，方向分别为 $(1,0,0)$ 与 $(0,0,1)$，正交，但 $L_2$ 上点的 $y$ 坐标恒为 $1$，与 $L_1$ 无交点，两直线异面。
+
+(C) 错。法向量平行只说明两平面平行或重合。反例：$x+y+z=1$ 与 $2x+2y+2z=2$ 实为同一平面。
+
+(D) 对。直线方向向量平行于平面法向量，正是直线垂直于平面的判定条件（此时直线与平面内任意方向都垂直）。
+
+\[
+\boxed{\text{\textbf{答案：}(D)}}
+\]
+\else \answerarea[8] \fi%
+
+\textbf{11.}（填空题）直线 $\dfrac{x-1}{1}=\dfrac{y}{1}=\dfrac{z-1}{-1}$ 与平面 $x+y+z=0$ 的夹角 $\theta=\underline{\qquad}$。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}线面角是直线与其在平面上投影的夹角，等于方向向量与法向量夹角的余角，所以用 $\sin$ 而不是 $\cos$。
+
+直线的方向向量 $\mathbf s=(1,1,-1)$，平面法向量 $\mathbf n=(1,1,1)$，于是
+\[
+\sin\theta=\frac{|\mathbf s\cdot\mathbf n|}{|\mathbf s||\mathbf n|}
+=\frac{|1+1-1|}{\sqrt3\cdot\sqrt3}=\frac13 .
+\]
+故
+\[
+\theta=\arcsin\frac13\approx 19.47^\circ .
+\]
+若误用 $\cos$，会得到 $\arccos\dfrac13$，那是方向向量与法向量的夹角，不是线面角。
+
+\[
+\boxed{\text{\textbf{答案：}$\arcsin\dfrac13$（约 $19.47^\circ$）}}
+\]
+\else \answerarea[4] \fi%
+
+\textbf{12.} 已知点 $M(1,2,3)$ 与直线 $L:x=y=z$。
+(1) 求点 $M$ 在 $L$ 上的投影（垂足）$Q$；
+(2) 求 $M$ 关于 $L$ 的对称点 $M'$；
+(3) 求 $M$ 到 $L$ 的距离。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}过 $M$ 作垂直于 $L$ 的平面，其法向量就是 $L$ 的方向向量；该平面与 $L$ 的交点即垂足 $Q$。$Q$ 是 $MM'$ 的中点，于是 $M'=2Q-M$。距离为 $|MQ|$。
+
+$L$ 过原点，方向向量 $\mathbf s=(1,1,1)$。
+
+(1) 过 $M$ 且以 $\mathbf s$ 为法向量的平面为
+\[
+1\cdot(x-1)+1\cdot(y-2)+1\cdot(z-3)=0
+\;\Longrightarrow\;x+y+z=6 .
+\]
+$L$ 上的点可写成 $(t,t,t)$，代入得 $3t=6$，即 $t=2$。故垂足
+\[
+Q=(2,2,2).
+\]
+
+(2) $Q$ 是线段 $MM'$ 的中点，所以
+\[
+M'=2Q-M=2(2,2,2)-(1,2,3)=(3,2,1).
+\]
+校验：$\overrightarrow{MM'}=(2,0,-2)$ 与 $\mathbf s=(1,1,1)$ 的点积为 $2+0-2=0$，即 $MM'\perp L$；且 $MM'$ 的中点为 $(2,2,2)\in L$，确为对称点。
+
+(3) 距离
+\[
+d=|MQ|=\sqrt{(2-1)^2+(2-2)^2+(2-3)^2}=\sqrt2 .
+\]
+用点线距公式复核：取 $L$ 上点 $O(0,0,0)$，
+\[
+\mathbf s\times\overrightarrow{OM}=(1,1,1)\times(1,2,3)=(1,-2,1),
+\]
+其模为 $\sqrt6$，故 $d=\dfrac{\sqrt6}{\sqrt3}=\sqrt2$，一致。
+
+\[
+\boxed{\text{\textbf{答案：}$Q(2,2,2)$，$M'(3,2,1)$，$d=\sqrt2$。}}
+\]
+\else \answerarea[10] \fi%

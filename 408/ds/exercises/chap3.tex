@@ -1,0 +1,179 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 下列关于串的说法中，正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 空串是含有一个空格字符的串 & (B) 两个串相等当且仅当它们的长度相等 \\[6pt]
+(C) 空格串的长度等于其中空格字符的个数 & (D) 串只能采用顺序存储，不能采用链式存储
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 空串是不含任何字符的串，长度为 0；空格串由一个或多个空格组成，空格本身也是字符，所以空格串的长度就是其中空格的个数，长度至少为 1，(C) 正确。(A) 把空格串误当成空串；两个串相等要求长度相同且对应位置字符全部相同，(B) 只说了长度；串有顺序存储、堆分配存储和块链存储等多种方式，(D) 错误。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\item \textbf{（计算题）} 设主串 $S=$ "ababababc"，模式串 $T=$ "ababc"，下标均从 1 开始。用 BF 算法查找 $T$ 在 $S$ 中第一次出现的位置，写出每一趟的对齐位置、该趟比较次数和失配位置，并求总比较次数。
+
+\ifshowsolutions\par\noindent\textbf{解析：} BF 每趟从主串的一个位置开始，与模式串逐字符比较，失配后主串起点右移一位、模式串回到首字符。
+\begin{enumerate}
+\item[(1)] 第 1 趟从 $S[1]$ 对齐：前 4 对字符 abab 全部相同，第 5 对 $S[5]=a$ 与 $T[5]=c$ 失配，比较 5 次。
+\item[(2)] 第 2 趟从 $S[2]$ 对齐：$S[2]=b$ 与 $T[1]=a$ 立即失配，比较 1 次。
+\item[(3)] 第 3 趟从 $S[3]$ 对齐：$S[3..6]=$ abab 匹配，$S[7]=a$ 与 $T[5]=c$ 失配，比较 5 次。
+\item[(4)] 第 4 趟从 $S[4]$ 对齐：$S[4]=b$ 与 $T[1]=a$ 立即失配，比较 1 次。
+\item[(5)] 第 5 趟从 $S[5]$ 对齐：$S[5..9]=$ ababc 与 $T$ 完全相同，比较 5 次后匹配成功。
+\end{enumerate}
+总比较次数为 $5+1+5+1+5=17$，首次匹配的起始位置为 5。\boxed{\textbf{答案：}5;\ 17}\else \answerarea[8] \fi
+
+\item \textbf{（填空题）} 串 $S=$ "abcde" 中，子串（按起始位置和长度区分，包含空串）共有 \underline{\qquad} 个；其中真子串（不包含 $S$ 本身）有 \underline{\qquad} 个。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 长度为 $k$ 的子串有 $5-k+1$ 个（$k=1,2,3,4,5$），故非空子串共
+\[
+5+4+3+2+1=\frac{5\times 6}{2}=15
+\]
+个；空串也是子串，合计 $15+1=16$ 个。真子串要求不等于 $S$ 本身，因此再去掉 $S$ 一个，得 15 个。\boxed{\textbf{答案：}16;\ 15}\else \answerarea \fi
+
+\item \textbf{（填空题）} 模式串 $T=$ "ababaca"，下标从 1 开始，则 $\mathrm{next}[4]=$ \underline{\qquad}，$\mathrm{next}[6]=$ \underline{\qquad}，$\mathrm{next}[7]=$ \underline{\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 按 408 约定 $\mathrm{next}[1]=0$，且 $j\geqslant 2$ 时 $\mathrm{next}[j]$ 等于 $T[1..j-1]$ 的最长相等真前后缀长度加 1。
+\begin{enumerate}
+\item[(1)] $j=4$：$T[1..3]=$ "aba"，最长相等真前后缀为 "a"（长度 1），故 $\mathrm{next}[4]=1+1=2$。
+\item[(2)] $j=6$：$T[1..5]=$ "ababa"，最长相等真前后缀为 "aba"（长度 3），故 $\mathrm{next}[6]=3+1=4$。
+\item[(3)] $j=7$：$T[1..6]=$ "ababac"，首字符 a 与末字符 c 不同，更长的前缀也不可能相等，故无相等真前后缀，$\mathrm{next}[7]=1$。
+\end{enumerate}
+\boxed{\textbf{答案：}2;\ 4;\ 1}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 已知模式串 $T=$ "aabaab" 的 next 数组为 $(0,1,2,1,2,3)$（下标从 1 开始），则 $\mathrm{nextval}[3]$ 与 $\mathrm{nextval}[6]$ 分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) 2 和 2 & (B) 0 和 2 \\[6pt]
+(C) 2 和 3 & (D) 0 和 3
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $\mathrm{nextval}[1]=0$；对 $j\geqslant 2$，若 $T[j]=T[\mathrm{next}[j]]$，说明按 next 跳过去后仍会在同一字符上失配，故 $\mathrm{nextval}[j]=\mathrm{nextval}[\mathrm{next}[j]]$；否则 $\mathrm{nextval}[j]=\mathrm{next}[j]$。
+\begin{enumerate}
+\item[(1)] $j=3$：$\mathrm{next}[3]=2$，$T[3]=b$ 与 $T[2]=a$ 不同，故 $\mathrm{nextval}[3]=2$。
+\item[(2)] $j=6$：$\mathrm{next}[6]=3$，$T[6]=b$ 与 $T[3]=b$ 相同，故 $\mathrm{nextval}[6]=\mathrm{nextval}[3]=2$，而不是 3。
+\end{enumerate}
+\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 用 BF 算法进行模式匹配时，下列情形中比较次数会达到最坏情况 $O(nm)$ 的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 主串和模式串的字符集都很大 & (B) 主串为 $a^n$，模式串为 $a^{m-1}b$，且 $m\leqslant n/2$ \\[6pt]
+(C) 模式串长度 $m=1$ & (D) 主串中不含模式串的首字符
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 最坏情况出现在“每一趟都比较到模式串末尾才失配，且可对齐的位置又很多”时。取 $S=a^n$、$T=a^{m-1}b$（$m\leqslant n/2$）：每一趟前 $m-1$ 个字符都相同，最后一个字符必失配，每趟比较 $m$ 次；共有 $n-m+1$ 趟，因 $m\leqslant n/2$ 有 $n-m+1\geqslant n/2$，总次数为 $\Theta(nm)$。(A) 字符集大小不决定比较次数；(C) 每趟最多比较 1 次，总计 $O(n)$；(D) 每趟首字符即失配，每趟 1 次，总计 $O(n)$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格·单项选择题）} 已知模式串 $T=$ "abcabcaa"，下标从 1 开始，则 $\mathrm{next}[6]$ 与 $\mathrm{next}[8]$ 分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) 3 和 4 & (B) 3 和 5 \\[6pt]
+(C) 4 和 5 & (D) 4 和 4
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 求 $\mathrm{next}[6]$ 看前 5 个字符 "abcab"：前缀 "ab" 与后缀 "ab" 相等且最长，长度 2，故 $\mathrm{next}[6]=2+1=3$。求 $\mathrm{next}[8]$ 看前 7 个字符 "abcabca"：前缀 "abca" 与后缀 "abca"（位置 $4\sim 7$）相等，长度 4，故 $\mathrm{next}[8]=4+1=5$。注意不能取整串 "abcabca" 本身作为前后缀，必须是真前后缀。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（真题风格·单项选择题）} 关于 nextval 数组，下列说法正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 对任意 $j\geqslant 2$，$\mathrm{nextval}[j]<\mathrm{next}[j]$ & (B) 若 $T[j]\neq T[\mathrm{next}[j]]$，则 $\mathrm{nextval}[j]=\mathrm{next}[j]$ \\[6pt]
+(C) nextval 的计算依赖主串 & (D) 改用 nextval 后比较次数一定减少
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} nextval 的定义就是：当 $T[j]\neq T[\mathrm{next}[j]]$ 时保持 $\mathrm{next}[j]$ 不变，只有当两字符相同、跳过去仍会失配时才继续前跳，故 (B) 正确。(A) 不一定取严格小于，例如 $T=$ "aabaab" 时 $\mathrm{nextval}[3]=\mathrm{next}[3]=2$。(C) next 与 nextval 都只由模式串自身决定，与主串无关。(D) 若某次失配处 $T[j]\neq T[\mathrm{next}[j]]$，则 nextval 与 next 的跳转完全相同，比较次数不变（见下一题的实例）。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（真题风格·综合题）} 设模式串 $T=$ "abacabab"，主串 $S=$ "abacabacabab"，下标均从 1 开始。
+\begin{enumerate}
+\item[(1)] 求 $T$ 的 next 数组与 nextval 数组；
+\item[(2)] 按 next 数组执行 KMP 匹配，指出每次失配后指针如何变化，列出全部字符比较并求首次匹配位置与总比较次数；
+\item[(3)] 若改用 nextval 数组，比较次数是否改变？说明理由。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 逐位求 next（$\mathrm{next}[j]$ 为 $T[1..j-1]$ 最长相等真前后缀长度加 1）与 nextval：
+\[
+\begin{array}{c|cccccccc}
+j&1&2&3&4&5&6&7&8\\ \hline
+T[j]&a&b&a&c&a&b&a&b\\
+\mathrm{next}[j]&0&1&1&2&1&2&3&4\\
+\mathrm{nextval}[j]&0&1&0&2&0&1&0&4
+\end{array}
+\]
+其中 $\mathrm{next}[4]=2$ 来自 "aba" 的 border "a"；$\mathrm{next}[8]=4$ 来自 "abacaba" 的 border "aba"。nextval 逐位判断：$j=3$ 时 $T[3]=T[1]=a$，故取 $\mathrm{nextval}[1]=0$；$j=4$ 时 $T[4]=c\neq T[2]=b$，保持 2；$j=5$ 时 $T[5]=T[1]$，取 0；$j=6$ 时 $T[6]=T[2]=b$，取 $\mathrm{nextval}[2]=1$；$j=7$ 时 $T[7]=T[3]=a$，取 $\mathrm{nextval}[3]=0$；$j=8$ 时 $T[8]=b\neq T[4]=c$，保持 4。
+
+(2) 从 $(i,j)=(1,1)$ 开始，$i$ 只增不减。前 7 对字符全部相同；第 8 次比较 $(i,j)=(8,8)$ 时 $S[8]=c$ 与 $T[8]=b$ 失配，此时 $j\leftarrow \mathrm{next}[8]=4$，$i$ 仍为 8。随后依次比较 $(8,4),(9,5),(10,6),(11,7),(12,8)$，全部相同，$j$ 增到 9 超过 $m=8$，匹配成功。比较序列为
+\[
+(1,1),(2,2),\ldots,(7,7),(8,8),\ (8,4),(9,5),\ldots,(12,8),
+\]
+共 $8+5=13$ 次。结束时 $i=13$，匹配起点为 $i-m=13-8=5$，验证 $S[5..12]=$ "abacabab" $=T$。
+
+(3) 本过程中只在 $j=8$ 处失配一次，而 $T[8]=b\neq T[4]=c$，所以 $\mathrm{nextval}[8]=\mathrm{next}[8]=4$。两种数组给出的跳转完全相同，比较次数仍为 13，没有减少。
+\boxed{\textbf{答案：}(1)\ \text{见表};\ (2)\ 5,\ 13\text{ 次};\ (3)\ \text{不变}}\else \answerarea[10] \fi
+
+\item \textbf{（真题风格·算法综合题）} 设主串 $S$ 与模式串 $T$ 均采用顺序存储，字符存放在 \texttt{ch[1..length]} 中，下标从 1 开始。设计算法统计 $T$ 在 $S$ 中出现的所有起始位置（允许重叠，例如 $S=$ "aaaaa"、$T=$ "aa" 时位置为 1、2、3、4），要求总时间为 $O(n+m)$，其中 $n=|S|$、$m=|T|$。
+\begin{enumerate}
+\item[(1)] 说明算法假设与计数口径；
+\item[(2)] 给出求 next 的预处理函数和统计函数（C 语言描述）；
+\item[(3)] 分析时间与空间复杂度；
+\item[(4)] 写出 $S=$ "aaaaa"、$T=$ "aa" 时的输出。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 口径：一次匹配成功后不停止，而是继续寻找下一个起点，允许两次匹配重叠。为了让匹配成功后能立刻接上，预处理要多算一项 $\mathrm{next}[m+1]$，它等于 $T$ 的最长相等真前后缀长度加 1（即“整串的 border 之后”应继续比较的模式位置）。
+
+(2) 代码：
+\begin{lstlisting}[language=C]
+/* 计算 next[1..T.length+1]，多出的一项供匹配成功后继续使用 */
+void GetNextPlus(SString T, int next[]) {
+    int j = 1, k = 0;
+    next[1] = 0;
+    while (j <= T.length) {
+        if (k == 0 || T.ch[j] == T.ch[k]) {
+            ++j; ++k;
+            next[j] = k;
+        } else {
+            k = next[k];
+        }
+    }
+}
+
+int CountOccur(SString S, SString T, int next[]) {
+    int i = 1, j = 1, cnt = 0;
+    GetNextPlus(T, next);
+    while (i <= S.length) {
+        if (j == 0 || S.ch[i] == T.ch[j]) {
+            ++i; ++j;
+        } else {
+            j = next[j];           /* i 不回溯，只移动模式串 */
+        }
+        if (j > T.length) {        /* 找到一次完整匹配 */
+            printf("%d ", i - T.length);
+            ++cnt;
+            j = next[j];           /* 从最长 border 之后继续，允许重叠 */
+        }
+    }
+    return cnt;
+}
+\end{lstlisting}
+
+(3) 复杂度：$i$ 从 1 增到 $n+1$，至多增加 $n$ 次；$j$ 每次通过 $j=\mathrm{next}[j]$ 严格减小，而 $j$ 的增加只发生在 $i$ 增加时，故回退总次数不超过增加总次数。预处理 $O(m)$，匹配阶段 $O(n)$，总时间 $O(n+m)$；除 next 数组占 $O(m)$ 外，辅助空间为 $O(1)$。
+
+(4) $T=$ "aa" 时 $\mathrm{next}[1..3]=(0,1,2)$。匹配过程中每读入一个主串字符就可能完成一次匹配，输出位置依次为 1、2、3、4，函数返回 4。
+\boxed{\textbf{答案：}O(n+m);\ \text{本例输出 }1,2,3,4}\else \answerarea[10] \fi
+
+\end{enumerate}
+
+\vspace{8pt}

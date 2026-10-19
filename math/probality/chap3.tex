@@ -1,1253 +1,705 @@
-\section{多维随机变量的函数分布}
-\subsection{二维随机变量联合分布函数与边缘分布函数}
+\section{多维随机变量及其函数分布}
 
-\begin{mydef}{二维随机变量}{two-dim random conditionable}
-    设$X = X(\omega)$，$Y = Y(\omega)$是定义在样本空间$\Omega$上的随机变量，
-    则称向量$(X, Y)$是二维随机变量。
+抛两枚骰子，把第一枚的点数记为 $X$，第二枚记为 $Y$。要描述 $X$ 的分布，说“$1$ 到 $6$ 各占 $1/6$”就够了；$Y$ 也一样。可是“两枚点数之和是 $7$”的概率，单靠这两个分布算不出来——它取决于两个点数怎么搭配。同样，身高和体重各自都近似服从正态分布，但“身高超过 $180$ 且体重不足 $50$ 公斤”的概率，也不能由两个一维分布直接相乘得到。
+
+两个随机变量放在一起研究时，需要的新对象是二维随机变量 $(X,Y)$，它取平面上的点，分布叫联合分布。下面的两张表最能说明“联合”比“各自”多出了什么。
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0,font=\scriptsize]
+  % ---------- 表 1 ----------
+  \begin{scope}
+    \draw[thick] (0,0) rectangle (2.2,2.2);
+    \draw[gray!60] (1.1,0) -- (1.1,2.2);
+    \draw[gray!60] (0,1.1) -- (2.2,1.1);
+    \node at (0.55,1.65) {0.20};
+    \node at (1.65,1.65) {0.30};
+    \node at (0.55,0.55) {0.30};
+    \node at (1.65,0.55) {0.20};
+    \draw[gray!60] (2.45,0) -- (2.45,2.2);
+    \node at (2.85,1.65) {0.50};
+    \node at (2.85,0.55) {0.50};
+    \draw[gray!60] (0,-0.45) -- (2.2,-0.45);
+    \node at (0.55,-0.80) {0.50};
+    \node at (1.65,-0.80) {0.50};
+    \node at (0.55,2.50) {$Y=0$};
+    \node at (1.65,2.50) {$Y=1$};
+    \node at (-0.55,1.65) {$X=0$};
+    \node at (-0.55,0.55) {$X=1$};
+    \node[gray!60!black] at (2.85,2.50) {行和};
+    \node[gray!60!black] at (-0.55,-0.80) {列和};
+  \end{scope}
+  % ---------- 表 2 ----------
+  \begin{scope}[xshift=5.6cm]
+    \draw[thick] (0,0) rectangle (2.2,2.2);
+    \draw[gray!60] (1.1,0) -- (1.1,2.2);
+    \draw[gray!60] (0,1.1) -- (2.2,1.1);
+    \node at (0.55,1.65) {0.25};
+    \node at (1.65,1.65) {0.25};
+    \node at (0.55,0.55) {0.25};
+    \node at (1.65,0.55) {0.25};
+    \draw[gray!60] (2.45,0) -- (2.45,2.2);
+    \node at (2.85,1.65) {0.50};
+    \node at (2.85,0.55) {0.50};
+    \draw[gray!60] (0,-0.45) -- (2.2,-0.45);
+    \node at (0.55,-0.80) {0.50};
+    \node at (1.65,-0.80) {0.50};
+    \node at (0.55,2.50) {$Y=0$};
+    \node at (1.65,2.50) {$Y=1$};
+    \node at (-0.55,1.65) {$X=0$};
+    \node at (-0.55,0.55) {$X=1$};
+  \end{scope}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 两张表的行和、列和都是 $0.5$，所以 $X$、$Y$ 各自的分布完全一样；格子里的数却不同。表 1 中 $X,Y$ 更容易取到相同的值（$P(X=Y)=0.40$），表 2 中四个格子等可能（$P(X=Y)=0.50$）。边缘分布只保留了“各自怎么分布”，丢掉了“如何搭配”。}
+\end{center}
+
+这两张表也预告了独立性：表 2 的每个格子都等于对应行和乘列和，表 1 则不是。本章先给出联合分布的三种写法（分布函数、分布律、概率密度），再从联合分布里读出边缘分布与条件分布，然后讨论独立性；后半部分处理 $(X,Y)$ 的函数 $g(X,Y)$——和、极值，以及一般的变量替换。三维、$n$ 维的提法完全平行，只是记号更长。
+
+\subsection{联合分布函数}
+
+\begin{mydef}{联合分布函数}{joint-cdf}
+设 $X,Y$ 是定义在同一样本空间上的随机变量，称
+\[
+F(x,y)=P\bigl((X\le x)\cap(Y\le y)\bigr)=P(X\le x,\;Y\le y),\qquad (x,y)\in\mathbb R^2
+\]
+为 $(X,Y)$ 的联合分布函数，简称联合分布。$n$ 维时把 $F$ 写成 $F(x_1,\dots,x_n)=P(X_1\le x_1,\dots,X_n\le x_n)$。
 \end{mydef}
 
-\begin{mydef}{二维随机变量的联合分布函数}{joint distribution function}
-    \[
-        \begin{aligned}
-            F(x, y)& = P((X \leq x) \cap (Y \leq y)) \\
-        & = P(X \leq x, Y \leq y)(-\infty \leq x,y \leq +\infty)
-        \end{aligned}
-    \]
-    为二维随机变量$(X,Y)$的分布函数，也称为对随机变量$X$,$Y$的联合分布函数
+$F(x,y)$ 是“点 $(X,Y)$ 落在左下角无穷矩形 $(-\infty,x]\times(-\infty,y]$ 里”的概率。$x$ 往右移，矩形变大，所以 $F$ 关于 $x$ 单调不减；关于 $y$ 同理。四个极端位置给出边界值：
+\[
+F(-\infty,y)=F(x,-\infty)=0,\qquad F(+\infty,+\infty)=1 .
+\]
+这里 $F(-\infty,y)$ 指 $x\to-\infty$ 时的极限；“事件 $\{X\le -\infty\}$”是空集，概率为 $0$。此外 $F$ 关于每个变量右连续：$F(x+0,y)=F(x,y)$，$F(x,y+0)=F(x,y)$。
+
+单个 $F(x,y)$ 的数值没有直接意义，有意义的是两个角点之间的差。矩形
+\[
+D=\{x_1<X\le x_2,\; y_1<Y\le y_2\}
+\]
+上的概率要用四个角点拼出来：
+\[
+P\bigl((X,Y)\in D\bigr)=F(x_2,y_2)-F(x_1,y_2)-F(x_2,y_1)+F(x_1,y_1).
+\]
+
+\begin{center}
+\begin{tikzpicture}[scale=0.78,font=\scriptsize]
+  \fill[blue!8] (0,0) rectangle (2.4,1.8);
+  \fill[blue!8] (2.4,0) rectangle (5.3,1.8);
+  \fill[blue!8] (0,1.8) rectangle (2.4,3.9);
+  \fill[blue!26] (2.4,1.8) rectangle (5.3,3.9);
+  \draw[dashed,gray!70] (2.4,0) -- (2.4,4.4);
+  \draw[dashed,gray!70] (5.3,0) -- (5.3,4.4);
+  \draw[dashed,gray!70] (0,1.8) -- (6.0,1.8);
+  \draw[dashed,gray!70] (0,3.9) -- (6.0,3.9);
+  \draw[->,thick] (-0.7,0) -- (6.1,0) node[below left] {$x$};
+  \draw[->,thick] (0,-0.7) -- (0,4.5) node[below left] {$y$};
+  \node[below] at (2.4,0) {$x_1$};
+  \node[below] at (5.3,0) {$x_2$};
+  \node[left] at (0,1.8) {$y_1$};
+  \node[left] at (0,3.9) {$y_2$};
+  \node at (1.2,0.9) {$p_{11}$};
+  \node at (3.85,0.9) {$p_{21}$};
+  \node at (1.2,2.85) {$p_{12}$};
+  \node at (3.85,2.85) {$p_{22}$};
+  \node[blue!55!black] at (3.85,4.22) {$D$};
+  \node[gray!60!black,align=left,anchor=west] at (5.9,2.5)
+    {$F(x_2,y_2)=p_{11}+p_{12}+p_{21}+p_{22}$\\[3pt]
+     $F(x_1,y_2)=p_{11}+p_{12}$\\[3pt]
+     $F(x_2,y_1)=p_{11}+p_{21}$\\[3pt]
+     $F(x_1,y_1)=p_{11}$};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 四条虚线把平面切成四块，$p_{22}$ 就是要求的那块。$F(x_2,y_2)$ 把四块全算上，减去左边一列 $p_{11}+p_{12}$，再减去下面一行 $p_{11}+p_{21}$；这时左下角 $p_{11}$ 被减了两次，于是加回一次，正好剩下 $p_{22}$。}
+\end{center}
+
+矩形公式还说明一件事：$F$ 不能随便给定，必须保证任意这样的矩形上的“四角组合”非负。离散型和连续型的联合分布都可以写成 $F$，所以 $F$ 是统一语言；但具体计算时，离散型看表、连续型用密度，比摆弄 $F$ 方便得多。
+
+\subsection{离散型：联合分布律、边缘与条件}
+
+若 $(X,Y)$ 只取有限或可列个点 $(x_i,y_j)$，记
+\[
+p_{ij}=P(X=x_i,\;Y=y_j),\qquad i,j=1,2,\dots
+\]
+则 $p_{ij}\ge 0$ 且 $\sum_i\sum_j p_{ij}=1$。这组数叫联合分布律。把它们排成表，行对应 $X$ 的取值，列对应 $Y$ 的取值，整张表的数加起来是 $1$。
+
+按行求和、按列求和，就得到一维的边缘分布律：
+\[
+p_{i\cdot}=P(X=x_i)=\sum_{j}p_{ij},\qquad
+p_{\cdot j}=P(Y=y_j)=\sum_{i}p_{ij}.
+\]
+
+\begin{center}
+\begin{tikzpicture}[scale=0.95,font=\scriptsize]
+  \fill[blue!10] (0,1.3) rectangle (3.9,2.6);
+  \draw[thick] (0,0) rectangle (3.9,3.9);
+  \draw[gray!60] (1.3,0) -- (1.3,3.9);
+  \draw[gray!60] (2.6,0) -- (2.6,3.9);
+  \draw[gray!60] (0,1.3) -- (3.9,1.3);
+  \draw[gray!60] (0,2.6) -- (3.9,2.6);
+  \node at (0.65,3.25) {0.10}; \node at (1.95,3.25) {0.15}; \node at (3.25,3.25) {0.05};
+  \node at (0.65,1.95) {0.20}; \node at (1.95,1.95) {0.10}; \node at (3.25,1.95) {0.10};
+  \node at (0.65,0.65) {0.05}; \node at (1.95,0.65) {0.05}; \node at (3.25,0.65) {0.20};
+  % 行和
+  \draw[gray!60] (4.1,0) -- (4.1,3.9);
+  \node at (4.55,3.25) {0.30};
+  \node at (4.55,1.95) {0.40};
+  \node at (4.55,0.65) {0.30};
+  % 列和
+  \draw[gray!60] (0,-0.25) -- (3.9,-0.25);
+  \draw[gray!60] (1.3,-1.3) -- (1.3,-0.25);
+  \draw[gray!60] (2.6,-1.3) -- (2.6,-0.25);
+  \node at (0.65,-0.78) {0.35};
+  \node at (1.95,-0.78) {0.30};
+  \node at (3.25,-0.78) {0.35};
+  % 表头
+  \node at (0.65,4.22) {$Y=0$};
+  \node at (1.95,4.22) {$Y=1$};
+  \node at (3.25,4.22) {$Y=2$};
+  \node at (-0.62,3.25) {$X=0$};
+  \node at (-0.62,1.95) {$X=1$};
+  \node at (-0.62,0.65) {$X=2$};
+  \node[gray!60!black] at (4.55,4.22) {行和};
+  \node[gray!60!black] at (-0.62,-0.78) {列和};
+  \node[gray!60!black,align=center] at (1.95,-1.75) {列和 $\Rightarrow$ $Y$ 的边缘分布};
+  \node[gray!60!black,rotate=90,align=center] at (5.35,1.95) {行和 $\Rightarrow$ $X$ 的边缘分布};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 阴影是 $X=1$ 这一行。行和 $0.40$ 是 $P(X=1)$，把这一行的三个数除以 $0.40$，得到条件分布 $(0.50,0.25,0.25)$；行和与列和分别给出 $X$、$Y$ 的边缘分布。表里所有格子加起来是 $1$。}
+\end{center}
+
+有了表，很多概率可以直接数格子。例如 $P(X=Y)$ 是主对角线三个格子之和 $0.10+0.10+0.20=0.40$；$P(X+Y\le 1)$ 是满足条件的三格之和 $0.10+0.15+0.20=0.45$。
+
+条件分布则是把一行（或一列）重新归一化。当 $P(X=x_i)=p_{i\cdot}>0$ 时，
+\[
+P(Y=y_j\mid X=x_i)=\frac{P(X=x_i,Y=y_j)}{P(X=x_i)}=\frac{p_{ij}}{p_{i\cdot}} .
+\]
+上式对固定的 $i$、把所有 $j$ 加起来等于 $1$，所以它确实是一个分布律。分母为 $0$ 的行不能条件化，这与一维条件概率要求 $P(B)>0$ 是一回事。
+
+在连续型里，“固定一个变量”会得到密度而不是分布律，下一节先建立密度语言，再回到条件分布。
+
+\subsection{连续型：联合密度与二维均匀分布}
+
+\begin{mydef}{联合概率密度}{joint-density}
+若存在非负可积函数 $f(x,y)$，使联合分布函数可写成
+\[
+F(x,y)=\int_{-\infty}^{x}\!\!\int_{-\infty}^{y}f(u,v)\,\mathrm dv\,\mathrm du ,
+\]
+则称 $f(x,y)$ 为 $(X,Y)$ 的联合概率密度。反过来，在 $f$ 连续的点上
+\[
+f(x,y)=\frac{\partial^2 F(x,y)}{\partial x\,\partial y}.
+\]
 \end{mydef}
 
-\begin{conclusion}{二维随机变量的联合分布函数的性质}{joint distribution function property}
-\begin{enumerate}
-    \item $0 \leq F(x,y) \leq 1$,且对$x,y$单调不减
-    \item \[
-        \begin{aligned}
-            &F(-\infty, y) = \lim\limits_{x \to -\infty} F(x, y) = 0 \\
-            &F(x, -\infty) = \lim\limits_{y \to -\infty} F(x, y) = 0 \\
-            &F(-\infty, -\infty) = \lim\limits_{x,y \to -\infty} F(x, y) = 0 \\
-            &F(+\infty, +\infty) = \lim\limits_{x,y \to +\infty} F(x, y) = 1 
-        \end{aligned}
-    \]
-    \item F(x,y)关于$x,y$右连续，即
-    \(
-        \begin{aligned}
-            &F(x+0,y) = F(x,y) \\
-            &F(x,y+0) = F(x,y)
-        \end{aligned}
-    \)
-    \item 区域$D = \{(x,y) | x_1 < X \leq x_2, y_1 < Y \leq y_2\}$
-    上的概率为
-    \[
-    \begin{aligned}
-        P\{(X,Y) \in D\}& = P\{
-            x_1 < X \leq x_2, y_1 < Y \leq y_2
-        \} \\
-        & = F(x_2, y_2) - F(x_2, y_1) - F(x_1, y_2) + F(x_1, y_1)
-    \end{aligned}
-    \]
-\end{enumerate}
-\end{conclusion}
+密度满足 $f(x,y)\ge 0$、$\displaystyle\iint_{\mathbb R^2} f(x,y)\,\mathrm dx\,\mathrm dy=1$。任何区域上的概率是密度在该区域上的二重积分：
+\[
+P\bigl((X,Y)\in D\bigr)=\iint_D f(x,y)\,\mathrm dx\,\mathrm dy .
+\]
+密度是“单位面积上的概率”，不是概率；它的数值可以大于 $1$（只要面积足够小）。曲面 $z=f(x,y)$ 下的总体积为 $1$，区域 $D$ 上的概率就是 $D$ 上方那块的体积。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.8\linewidth, height=5.2cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=0, xmax=4, ymin=0, ymax=3.2,
-  xtick={1,2.5}, xticklabels={$x_1$,$x_2$},
-  ytick={1,2.3}, yticklabels={$y_1$,$y_2$},
-  font=\footnotesize, axis lines=left,
+  width=0.68\linewidth,height=6.0cm,
+  view={120}{30}, x dir=reverse,
+  xlabel={$x$},ylabel={$y$},zlabel={$f(x,y)$},
+  xmin=0,xmax=1,ymin=0,ymax=1,zmin=0,zmax=2.8,
+  xtick={0,0.5,1},ytick={0,0.5,1},ztick={0,0.5,1,1.5,2,2.5},
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+  colormap={dblue}{color=(blue!10) color=(blue!55!black)},
 ]
-\fill[blue!15] (1,1) rectangle (2.5,2.3);
-\draw[thick,blue!60!black] (1,1) rectangle (2.5,2.3);
-\draw[dashed,blue!50!black] (0,1) -- (4,1);
-\draw[dashed,blue!50!black] (0,2.3) -- (4,2.3);
-\draw[dashed,blue!50!black] (1,0) -- (1,3.2);
-\draw[dashed,blue!50!black] (2.5,0) -- (2.5,3.2);
-\node[font=\scriptsize,align=center] at (1.75,1.55){$D$\\$\{x_1<X\le x_2,\ y_1<Y\le y_2\}$};
-\node[font=\scriptsize,blue!60!black] at (2.62,2.42){$F(x_2,y_2)$};
+\addplot3[surf,shader=faceted,domain=0:1,domain y=0:1,samples=16,
+  faceted color=blue!45!black,opacity=0.92]
+  {(1/2)*(1+4*x*y)};
 \end{axis}
 \end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 单位正方形上的密度 $f(x,y)=\frac12(1+4xy)$：左前角高度 $0.5$，右上角高度 $2.5$，曲面偏高说明那里的点更容易出现。概率等于曲面在相应区域上方的体积，整个方形上方的体积为 $1$。二维均匀分布的曲面是平的，概率就退化成面积乘常数。}
 \end{center}
 
-\begin{mydef}{二维随机变量的边缘分布函数}{marginal distribution function}
-设二维随机变量的分布函数为
+\begin{mydef}{二维均匀分布}{uniform-2d}
+设 $G$ 是平面上的有界区域，面积为 $A>0$。若
 \[
-    F(x,y) = P(X \leq x, Y \leq y)
+f(x,y)=\begin{cases}\dfrac{1}{A}, & (x,y)\in G,\\[4pt] 0, & (x,y)\notin G,\end{cases}
 \]
+则称 $(X,Y)$ 在 $G$ 上服从二维均匀分布。
+\end{mydef}
 
-其中$X$的分布函数为
+均匀分布下密度是常数，概率只跟面积有关：
 \[
-\begin{aligned}
-    F_X(x) &= P(X \leq x)\\
-    & = P(X\leq x, Y < +\infty)\\
-    & = F(x, +\infty) \\
-    &= \lim\limits_{y \to +\infty}F(x,y)
-\end{aligned}
+P\bigl((X,Y)\in D\bigr)=\frac{\operatorname{area}(D\cap G)}{\operatorname{area}(G)} .
 \]
-    
+例如在单位圆盘上均匀取点，落在一个张角为 $\theta$ 的扇形里的概率是 $\theta/(2\pi)$，与扇形朝哪个方向无关。要注意的是，均匀分布的边缘分布一般不均匀：圆盘上 $X$ 的密度中间高两边低，因为 $x$ 靠近中心时截得的弦更长。下一节就来讲这件事。
 
-其中$Y$的分布函数为
+\subsection{边缘分布：把另一个变量积掉}
+
+只关心 $X$ 时，把 $Y$ 的所有可能都算进来。分布函数层面是令 $y\to+\infty$：
 \[
-    \begin{aligned}
-        & F_Y(y) = P(Y \leq y)\\
-        & = P(X < +\infty, Y \leq y)\\
-        & = F(+\infty, y) \\
-        &= \lim\limits_{x \to +\infty}F(x,y)
-    \end{aligned}
+F_X(x)=P(X\le x)=F(x,+\infty),\qquad F_Y(y)=F(+\infty,y).
 \]
-称为二维随机变量$(X,Y)$关于$X$和$Y$的边缘分布函数
+连续型再对 $x$ 求导，得到边缘密度
+\[
+f_X(x)=\int_{-\infty}^{+\infty}f(x,y)\,\mathrm dy,\qquad
+f_Y(y)=\int_{-\infty}^{+\infty}f(x,y)\,\mathrm dx .
+\]
+固定 $x$ 后，$f(x,y)$ 作为 $y$ 的函数是一条曲线，积分就是这条曲线下的面积。求 $f_Y$ 时对称处理，但积分变量换成 $x$。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[name=reg,width=0.42\linewidth,height=4.6cm,
+  xmin=0,xmax=2.3,ymin=0,ymax=1.25,
+  xlabel={$x$},ylabel={$y$},axis lines=left,
+  xtick={0,1,2},ytick={0,0.5,1},
+  tick label style={font=\scriptsize},label style={font=\small}]
+\fill[blue!14] (axis cs:0,0) -- (axis cs:2,0) -- (axis cs:0,1) -- cycle;
+\draw[thick] (axis cs:0,0) -- (axis cs:2,0) -- (axis cs:0,1) -- cycle;
+\draw[dashed,red!65!black] (axis cs:0.5,0) -- (axis cs:0.5,0.75);
+\draw[dashed,red!65!black] (axis cs:1.0,0) -- (axis cs:1.0,0.5);
+\draw[dashed,red!65!black] (axis cs:1.5,0) -- (axis cs:1.5,0.25);
+\node[font=\scriptsize,blue!55!black] at (axis cs:0.32,0.2) {$G$};
+\node[font=\scriptsize] at (axis cs:1.75,1.05) {(a)};
+\end{axis}
+\begin{axis}[name=mar,at={(reg.east)},anchor=west,xshift=1.0cm,
+  width=0.42\linewidth,height=4.6cm,
+  xmin=0,xmax=2.3,ymin=0,ymax=1.15,
+  xlabel={$x$},ylabel={$f_X(x)$},axis lines=left,
+  xtick={0,1,2},ytick={0,0.5,1},
+  tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[blue!60!black,thick,domain=0:2,samples=80]{1-x/2};
+\addplot[only marks,mark=*,mark size=1.3pt,red!65!black]
+  coordinates {(0.5,0.75) (1,0.5) (1.5,0.25)};
+\node[font=\scriptsize] at (axis cs:1.85,0.95) {(b)};
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape (a) 区域 $G$ 的顶点为 $(0,0),(2,0),(0,1)$，面积为 $1$，在 $G$ 上均匀分布时 $f\equiv 1$。三条红色虚线是固定 $x$ 时的竖截面，长度 $1-x/2$ 随 $x$ 变短。(b) 对应的边缘密度 $f_X(x)=1-x/2$，数值上恰好等于截面长度——这里因为 $f\equiv 1$ 且面积为 $1$。若密度不是常数，$f_X(x)$ 是截面上密度的积分，不是长度。}
+\end{center}
+
+上图中 $f_X(x)=\int_0^{1-x/2}1\,\mathrm dy=1-x/2$（$0<x<2$），$f_X$ 在别处为 $0$；同样 $f_Y(y)=\int_0^{2-2y}\mathrm dx=2-2y$（$0<y<1$）。两者在各自区间上积分都为 $1$，可以此自查。
+
+两个容易出错的地方。第一是积分限：$f(x,y)\ne 0$ 的范围由支撑 $G$ 决定，$y$ 的上限常常是 $x$ 的函数，不能一律写 $-\infty$ 到 $+\infty$。第二是“积掉”不等于“忽略”：只有当 $X,Y$ 独立时，联合密度才等于两个边缘密度之积 $f=f_Xf_Y$；一般情况下 $f_X$ 与 $f_Y$ 乘起来是另一回事。
+
+\subsection{条件分布：固定一个变量}
+
+已知 $X=x$ 时，$Y$ 被限制在竖直线 $x=\text{常数}$ 上。把联合密度沿这条线切下一片 $y\mapsto f(x,y)$，它下方的面积正好是 $f_X(x)$。除以这块面积，曲线下的面积变成 $1$，就得到一条新的密度。
+
+\begin{mydef}{条件概率密度}{cond-density}
+设 $f_X(x)>0$，称
+\[
+f_{Y\mid X}(y\mid x)=\frac{f(x,y)}{f_X(x)}
+\]
+为条件 $X=x$ 下 $Y$ 的条件概率密度。对称地，
+\[
+f_{X\mid Y}(x\mid y)=\frac{f(x,y)}{f_Y(y)},\qquad f_Y(y)>0 .
+\]
+相应的条件分布函数为
+\[
+F_{Y\mid X}(y\mid x)=\int_{-\infty}^{y}\frac{f(x,t)}{f_X(x)}\,\mathrm dt .
+\]
 \end{mydef}
 
-\subsection{二维离散型随机变量}
-\begin{mydef}{二维离散型随机变量的联合概率分布}{joint probability distribution}
-二维随机变量$(X,Y)$可取有限或无穷可列个取值$(x_{i}, y_{i})$，
-则称$P(X=x_{i}, Y=y_{i}) = p_{ij}$为二维随机变量$(X,Y)$的概率分布，
-或随机变量$X$和$Y$的联合概率分布
-\end{mydef}
-
-\begin{conclusion}{二维离散型随机变量的联合概率分布的性质}{joint probability distribution property}
-    \begin{enumerate}
-        \item 对所有$i,j$，$p_{ij} \geq 0$
-        \item \(
-            \sum_{i=1}^{\infty} \sum_{j=1}^{\infty} p_{ij} = 1
-        \)
-    \end{enumerate}
-\end{conclusion}
-
-\begin{mydef}{二维离散型随机变量的边缘概率分布}{marginal probability distribution}
-    设二维随机变量的联合概率分布为
-    \[
-        p_{ij} = P(X=x_{i}, Y=y_{j})
-    \]
-    则$p_{ij}$关于$i$的和为
-    \[
-        p_{i, \cdot} = P(X=x_{i})
-        = \sum_{j=1}^{\infty} p_{ij}
-    \]
-    关于$j$的和为
-    \[
-        p_{ \cdot, j} = P(Y=y_{j})
-        = \sum_{i=1}^{\infty} p_{ij}
-    \]
-    分别称为$X$的边缘概率分布和$Y$的边缘概率分布。
-\end{mydef}
-
-\begin{mydef}{二维离散型随机变量的条件概率分布}{conditional probability distribution}
-    设二维随机变量的联合概率分布为
-    \[
-        p_{ij} = P(X=x_{i}, Y=y_{j})
-    \]
-    在$X = x_i$的条件下，$Y$的概率分布为
-    \[
-        P(Y=y_j | X=x_i) = 
-        \frac{P(X= x_i, Y=y_j)}{P(X = x_i)} =
-        \frac{p_{ij}}{p_{i, \cdot}}
-    \]
-    在$Y = y_j$的条件下，$X$的概率分布为
-    \[
-        P(X=x_i | Y=y_j) = 
-        \frac{P(X= x_i, Y=y_j)}{P(Y = y_j)} =
-        \frac{p_{ij}}{p_{ \cdot, j}}
-    \]
-\end{mydef}
-
-\begin{conclusion}{二维离散型随机变量的条件概率分布的独立性}{conditional probability distribution independence}
-    若对所有 $i,j$ 都有
-    $p_{ij}=p_{i,\cdot}p_{\cdot,j}=P(X=x_i)P(Y=y_j)$，
-    则称$X$和$Y$独立。
-
-\end{conclusion}
-
-\subsection{二维连续型随机变量}
-\begin{mydef}{二维连续型随机变量的联合概率密度}{joint probability density}
-    设二维随机变量分布函数$F(x,y)$,如果存在非负的可积函数$f(x,y)$，
-    使得
-    \[
-        F(x,y) = \int_{-\infty}^{x} \int_{-\infty}^{y} f(u,v)\,\mathrm dv\,\mathrm du
-    \]
-    则称$f(x,y)$为二维随机变量$(X,Y)$的概率密度,为随机变量$X$和$Y$的联合概率密度。
-\end{mydef}
-\begin{conclusion}{二维连续型随机变量的联合概率密度的性质}{joint probability density property}
-    \begin{enumerate}
-        \item $f(x,y) \geq 0$
-        \item $\displaystyle \int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty}f(x,y)\,\mathrm{d}x\,\mathrm{d}y=1$。
-        \item $(X, Y)$落在平面区域$D$上的概率为 
-        \[
-            P\{(X,Y) \in D\} = \iint_{D} f(x,y) dx dy
-        \] 
-        可用来计算不等式 
-        \[
-            P\{Y \leq X\} = P\{(X,Y) \in D\} = {\iint}_{D}f(x,y) dx dy
-        \]
-        \item 若$f(x,y)$在$(x,y)$处连续，则有
-        $\displaystyle f(x,y)=\frac{\partial^2F(x,y)}{\partial x\,\partial y}$。
-    \end{enumerate}
-
-\end{conclusion}
+条件密度是对 $y$ 的密度：$\int_{-\infty}^{+\infty}f_{Y\mid X}(y\mid x)\,\mathrm dy=1$，积分变量是 $y$。因为分母只是常数，条件密度可以大于 $1$——它是“密度”，不是概率。离散型的条件分布律 $p_{ij}/p_{i\cdot}$ 与这里是一回事，只是求和换成了积分。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.8\linewidth, height=5.0cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-0.05, xmax=1.05, ymin=-0.05, ymax=1.05,
-  xtick={0,0.5,1}, ytick={0,0.5,1},
-  font=\footnotesize, axis lines=left,
+  width=0.72\linewidth,height=5.2cm,
+  xlabel={$y$},ylabel={$f_{Y\mid X}(y\mid x)$},
+  xmin=0,xmax=1,ymin=0,ymax=1.8,
+  domain=0:1,samples=100,
+  axis lines=left,
+  tick label style={font=\scriptsize},label style={font=\small},
+  legend style={font=\scriptsize,draw=none,fill=none,
+    at={(0.02,0.98)},anchor=north west},
 ]
-\fill[blue!15] (0,0) -- (1,0) -- (1,1) -- cycle;
-\draw[thick] (0,0) rectangle (1,1);
-\draw[thick,red!70!black] (0,0) -- (1,1);
-\node[font=\scriptsize,blue!50!black] at (0.68,0.26){$D:\ y\le x$};
-\node[font=\scriptsize,gray] at (0.22,0.73){$y>x$};
+\addplot[blue!60!black,thick]{1};
+\addlegendentry{$x=0$}
+\addplot[red!70!black,thick]{0.5+x};
+\addlegendentry{$x=0.5$}
+\addplot[green!50!black,thick]{(1+4*x)/3};
+\addlegendentry{$x=1$}
 \end{axis}
 \end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 仍用单位正方形上的 $f(x,y)=\frac12(1+4xy)$。固定 $x$ 切片再归一化：$x=0$ 时条件密度是常数 $1$，$Y$ 在 $(0,1)$ 上均匀；$x=\frac12$ 时它从 $0.5$ 升到 $1.5$；$x=1$ 时从 $\frac13$ 升到 $\frac53$。$x$ 越大，$Y$ 越容易取大值。三条曲线下的面积都是 $1$。如果 $X,Y$ 独立，三条曲线会完全重合。}
 \end{center}
 
-\begin{mydef}{二维连续型随机变量的边缘概率密度}{marginal probability density}
-    设二维随机变量$(X,Y)$的联合概率密度为$f(x, y)$，
-    由
-    \[
-        F_X(x)=F(x,+\infty)=\int_{-\infty}^{x}\left[\int_{-\infty}^{+\infty}f(u,v)\,\mathrm{d}v\right]\mathrm{d}u
-    \]
-    推得$X$的边缘概率密度为
-    \[
-        f_{X}(x) = \int_{-\infty}^{+\infty} f(x,y) dy
-    \]
-    $Y$的边缘概率密度为
-    \[
-        f_{Y}(y) = \int_{-\infty}^{+\infty} f(x,y) dx
-    \]
+把定义式两边乘以 $f_X(x)$，得到密度的乘法公式
+\[
+f(x,y)=f_X(x)\,f_{Y\mid X}(y\mid x)=f_Y(y)\,f_{X\mid Y}(x\mid y),
+\]
+两个等号分别要求 $f_X(x)>0$、$f_Y(y)>0$。它在两个方向都有用：已知边缘密度和条件密度，可以拼出联合密度；已知联合密度，相除即得条件密度。离散型有完全平行的 $p_{ij}=p_{i\cdot}p_{j\mid i}$。
 
+连续型有一个概念上的坎：$P(X=x)=0$，严格来说不能直接用一维条件概率定义 $P(Y\le y\mid X=x)$。工科教材的做法是把 $f_{Y\mid X}(\cdot\mid x)$ 当作 $h\to0$ 时 $\{x<X\le x+h\}$ 下条件分布的极限，计算上按上式处理即可，前提是 $f_X(x)>0$。
 
-\end{mydef}
-\begin{conclusion}{二维连续型随机变量的条件概率密度}{conditional probability density}
-    设二维随机变量$(X,Y)$的联合概率密度为$f(x, y)$，边缘概率密度$f_{X}(x)$和$f_{Y}(y)$连续且
-    恒大于$0$，则称$\frac{f(x,y)}{f_{Y}(y)}$为在条件$Y=y$下$X$的条件概率密度，
-    称$\frac{f(x,y)}{f_{X}(x)}$为在条件$X=x$下$Y$的条件概率密度，
-    即
-    \[
-    \begin{aligned}
-        f_{X|Y}(x|y) &= \frac{f(x,y)}{f_{Y}(y)} \\
-        f_{Y|X}(y|x) &= \frac{f(x,y)}{f_{X}(x)}
-    \end{aligned}
-    \]
-    对于$(X, Y)$的条件分布函数，有
-    \[
-    \begin{aligned}
-        F_{X|Y}(x|y) &= \int_{-\infty}^{x} \frac{f(t,y)}{f_{Y}(y)} dt \\
-        F_{Y|X}(y|x) &= \int_{-\infty}^{y} \frac{f(x,t)}{f_{X}(x)} dt
-    \end{aligned}
-    \]
+\subsection{独立性}
 
-\end{conclusion}
+若知道 $X$ 的取值不改变 $Y$ 的分布，两个变量就“互不影响”。写成概率就是联合分布等于两个边缘分布相乘。
 
-\begin{formula}{密度乘法公式}{density multiplication formula}
-    \[
-    \begin{aligned}
-        f(x, y) &= f_{X}(x)f_{Y|X}(y|x) \qquad(f_{X}(x) > 0) \\
-        &= f_{Y}(y)f_{X|Y}(x|y) \qquad(f_{Y}(y) > 0)
-    \end{aligned}
-    \]
-\end{formula}
-
-\subsection{二维随机变量的独立性}
-\begin{mydef}{独立性}{independence}
-    设二维随机变量$(X,Y)$的分布函数及边缘分布函数$F(x,y), F_{X}(x), F_{Y}(y)$\\
-    \newline
-    若
-    $
-    \begin{aligned}
-        &P(X \leq x, Y \leq y) = P(X \leq x)P(Y \leq y) \\
-        &F(x,y) = F_{X}(x)F_{Y}(y)
-    \end{aligned}
-    $，则称$X$和$Y$相互独立。
+\begin{mydef}{随机变量的相互独立}{independence-ch3}
+若对所有 $x,y$ 有
+\[
+F(x,y)=F_X(x)F_Y(y),
+\]
+则称 $X$ 与 $Y$ 相互独立。等价地，对任意事件 $A,B$ 有 $P(X\in A,\,Y\in B)=P(X\in A)P(Y\in B)$。
 \end{mydef}
 
-\begin{mydef}{相互独立的充分必要条件}{independence sufficient necessary condition}
-    \begin{enumerate}
-        \item 二维离散型随机变量 \\
-        \(P(X = x_i, Y = y_j) = P(X = x_i)P(Y = y_j)\)，
-        即
-        \(p_{ij} = p_{i\cdot}p_{\cdot j}\ (i,j=1,2,\dots) \Leftrightarrow \)
-        $X$和$Y$相互独立。
-        \item 二维连续型随机变量 \\
-        \(f(x,y)=f_{X}(x)f_{Y}(y)\)对几乎处处的\((x,y)\)成立
-        \(\Leftrightarrow\)  $X$和$Y$相互独立。
-    \end{enumerate}
-    \boxed{\text{注}}两两独立并不等于相互独立,如对于三个事件\(A,B,C\)，两两独立仅能保证
-    \(
-        \begin{aligned}
-            P(A,B) &= P(A)P(B) \\
-            P(A,C) &= P(A)P(C) \\
-            P(B,C) &= P(B)P(C)
-        \end{aligned}
-    \) \\
-    \newline
-    而相互独立则要求 \\
-    \qquad
-    \(
-        P(A,B,C) = P(A)P(B)P(C)
-    \)
-\end{mydef}
-
-\begin{conclusion}{相互独立的性质}{independence property}
-    \begin{enumerate}
-        \item 若随机变量\(X_1, X_2, \dots, X_n\)相互独立，则其中任意\(k(2 \leq k \leq n)\)个随机
-        变量也相互独立
-        \item 若随机变量\(X_1, X_2, \dots, X_n\)相互独立，则它们的函数\(g_{1}(X_1) , g_{2}(X_2),\dots,g_n(X_n)\)也相互独立
-        也相互独立。
-        \item 若两个随机变量独立，则一个关于另一个的条件分布就是其无条件分布，即：对于二维离散型
-        随机变量\((X,Y)\)，若$X$与$Y$独立，则条件分布等于其边缘分布，对于二维连续型随机变量$(X,Y)$,若$X$
-        与$Y$独立，则条件密度等于其概率密度
-        \[
-        \begin{aligned}
-            P(X=x|Y=y) &= P(X=x) \\
-            f_{Y|X}(y|x) &= f_{Y}(y) \\
-            P(Y=y|X=x) &= P(Y=y) \\
-            f_{X|Y}(x|y) &= f_{X}(x)
-        \end{aligned}
-        \]
-    \end{enumerate}
-\end{conclusion}
-\subsection{一些常见的多维随机变量函数分布}
-\begin{mydef}{二维均匀分布的概念}{uniform distribution}
-    设\(G\)是平面上的有界区域，其面积为\(A\),若二维随机变量\(X, Y\)具有联合概率密度
-    \[
-        f(x,y) = \begin{cases}
-            \frac{1}{A}, & (x,y) \in G \\
-            0, & (x,y) \notin G
-        \end{cases}
-    \]
-    则称\((X,Y)\)在区域\(G\)上服从二维均匀分布。
-
-\end{mydef}
-
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.8\linewidth, height=5.0cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-0.05, xmax=1.05, ymin=-0.05, ymax=1.05,
-  xtick={0,0.2,0.6,1}, ytick={0,0.3,0.7,1},
-  font=\scriptsize, axis lines=left,
-]
-\fill[gray!14] (0,0) rectangle (1,1);
-\fill[blue!30] (0.2,0.3) rectangle (0.6,0.7);
-\draw[thick] (0,0) rectangle (1,1);
-\draw[thick,blue!60!black] (0.2,0.3) rectangle (0.6,0.7);
-\node[font=\scriptsize] at (0.5,0.92){$G$};
-\node[font=\scriptsize,blue!50!black] at (0.4,0.5){$D$};
-\node[font=\scriptsize,gray] at (0.86,0.9){$P=\frac{\operatorname{area}(D)}{\operatorname{area}(G)}$};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-
-\begin{conclusion}{二维均匀分布的性质}{uniform distribution property}
-    \begin{enumerate}
-        \item \[
-            P\{(X,Y) \in D\}
-            = \frac{\operatorname{area}(D\cap G)}{\operatorname{area}(G)}
-        \]
-        即在\(G\)内，\((X,Y)\)落在子区域\(D\)的取值仅与\(S_{D}\)有关
-        \item 二维均匀分布的边缘分布，条件分布，数字特征都与区域\(D\)的形状密切相关
-        圆形区域的边缘分布通常不是均匀分布；当\(G\)为与坐标轴平行的直积矩形时，两个边缘分布均为相应区间上的均匀分布
-
-    \end{enumerate}
-\end{conclusion}
-\begin{mydef}{二维正态分布}{normal distribution}
-    如果\((X, Y)\)的联合概率密度为
-    \[
-        f(x,y) = \frac{1}{2\pi\sigma_{1}\sigma_{2}\sqrt{1-\rho^2}}e^{
-        -\frac{1}{2(1 - \rho^2)}[
-            (\frac{x - \mu_{1}}{\sigma_{1}})^2
-            + (\frac{y - \mu_{2}}{\sigma_{2}})^2
-            - 2\rho\frac{x - \mu_{1}}{\sigma_{1}}\frac{y - \mu_{2}}{\sigma_{2}}
-        ]
-        }
-    \]
-    则称\(X, Y\)服从二维正态分布。也称\(X, Y\)是二维正态变量
-    记为\((X, Y) \sim N(\mu_1, \mu_2;\sigma_{1}^2,\sigma_{2}^2;\rho)\)\\
-        其中\(\mu_1 = E(X), \mu_2 = E(Y), \sigma_{1}^2 = D(X), \sigma_{2}^2 = D(Y), \rho = \frac{Cov(X, Y)}{\sigma_1\sigma_2}\)
-    
-\end{mydef}
-
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-2.5, xmax=2.5, ymin=-2.5, ymax=2.5,
-  xtick={-2,-1,0,1,2}, ytick={-2,-1,0,1,2},
-  axis equal image,
-  legend pos=north east, font=\footnotesize,
-]
-\addplot[blue,thick,domain=0:360,samples=120] ({1.4*cos(x)},{1.4*sin(x)});
-\addlegendentry{$\rho=0$}
-\addplot[red,thick,domain=0:360,samples=120] ({0.7071*(1.8*cos(x)-0.9*sin(x))},{0.7071*(1.8*cos(x)+0.9*sin(x))});
-\addlegendentry{$\rho=+0.6$}
-\addplot[green!55!black,thick,domain=0:360,samples=120] ({0.7071*(1.8*cos(x)+0.9*sin(x))},{0.7071*(-1.8*cos(x)+0.9*sin(x))});
-\addlegendentry{$\rho=-0.6$}
-\end{axis}
-\end{tikzpicture}
-\par\vspace{3pt}
-{\footnotesize\itshape 二元正态 $(X,Y)\sim N(\mu_1,\mu_2;\sigma_1^2,\sigma_2^2;\rho)$ 的密度 $f(x,y)$ 是二维“钟形”曲面，图中三条椭圆是它的等值线（这里取 $\mu_1=\mu_2=0,\ \sigma_1=\sigma_2=1$）。$\rho$ 刻画 $X,Y$ 的线性相关强弱：$\rho=0$ 为圆（$X,Y$ 相互独立）；$\rho>0$ 椭圆沿一、三象限倾斜，$\rho<0$ 沿二、四象限倾斜，$|\rho|$ 越大椭圆越扁长。}
-\end{center}
-
-\begin{conclusion}{二维正态分布的性质}{normal distribution property}
-    若\(X,Y\)服从二维正态分布，则
-    \begin{enumerate}
-        \item \(X \sim N(\mu_1, \sigma_{1}^2), Y \sim N(\mu_2, \sigma_{2}^2)\),逆命题不成立
-        \item \(X\)与\(Y\)相互独立的充要条件是\(\rho = 0\),即若\(X\)与\(Y\)独立，则\(X\)与\(Y\)不相关
-        \item 两个二维正态分布的随机变量\(X, Y\)的线性组合也服从正态分布 \\
-        \(aX + bY \sim N(a\mu_1 + b\mu_2, a^2\sigma_{1}^2 + b^2\sigma_{2}^2 + 2ab\rho\sigma_1\sigma_2)\)
-    \end{enumerate}
-\end{conclusion}
-\subsection{二维随机变量的函数分布的求法}
-\begin{conclusion}{一般公式}{general formula}
-    设\(X, Y\)为随机变量，\(g(x, y)\)为二元函数，则\(U=g(X, Y)\)为随机变量\((X, Y)\)的函数。
-    \[
-    F_U(u) = P(g(X, Y) \leq u) =
-    \begin{cases}
-        \sum_{g(x_{i}, y_{j}) \leq u} p_{ij}\\
-        \iint_{g(x,y) \leq u} f(x,y)\mathrm{dx}\mathrm{dy}
-    \end{cases}
-    \]
-    当\(X, Y\)独立时 \\
-    \[
-    F_U(u) = P(g(X, Y) \leq u) =
-    \begin{cases}
-        \sum_{g(x_{i}, y_{j}) \leq u} p_{i\cdot}p_{\cdot j}\\
-        \iint_{g(x,y) \leq u} f_{X}(x) f_{Y}(y)\mathrm{dx}\mathrm{dy}
-    \end{cases}
-    \]
-
-\end{conclusion}
-
-\begin{conclusion}{二维离散型随机变量函数分布的求法}{discrete random variable function distribution}
-    若\((X,Y)\)为二维离散型随机变量，\(P(X=x_i,Y=y_j)=p_{ij}\)，则\(U=g(X,Y)\)仍为离散型随机变量。对\(U\)的任一可能取值\(u\)，
-    \[
-        P(U=u)=\sum_{(i,j):\,g(x_i,y_j)=u}p_{ij}.
-    \]
-    即当多个\((x_i,y_j)\)映到同一\(u\)时，必须把这些原像的概率相加。
-    若\(U=g_1(X,Y),V=g_2(X,Y)\)，则
-    \[
-        P(U=u,V=v)=\sum_{(i,j):\,g_1(x_i,y_j)=u,\ g_2(x_i,y_j)=v}p_{ij}.
-    \]
-    联合分布可进一步推出边缘分布；反之，仅知道两个边缘分布一般不能唯一确定联合分布。
-\end{conclusion}
-
-\begin{conclusion}{二维连续型随机变量函数分布的求法}{continuous random variable function distribution}
-    设\(X, Y\)为二维连续型随机变量，\(U = g(X, Y)\)为随机变量\((X, Y)\)的函数。\((X, Y)\)的联合密度函数为\(f(x, y)\)
-    \begin{enumerate}
-        \item 若\(U = g(X, Y)\)为离散型随机变量，则
-        \[
-        P(U = u_{i}) = \iint_{D} f(x, y) \mathrm{d}x\mathrm{d}y\quad (i = 1,2,\cdots)
-        \]
-        其中\(D = \{(x, y) | g(x, y) = u_{i}\}\)
-        \item 若\(U = g(X, Y)\)为连续型随机变量，则
-        先求分布函数
-        \(
-        F_U(u) = P(U \leq u) 
-        \),再求其密度函数\(f_U(u)\)
-        \item 如果\(X\)为连续型随机变量，\(Y\)为离散型随机变量，且\(P(Y=y_i)=p_i\)，则
-        \[
-        \begin{aligned}
-            F_U(u) = P(U \leq u) &= P(g(X, Y) \leq u) 
-            \\
-            &= \sum_{i}P(Y=y_i)P(g(X,Y)\leq u\mid Y=y_i) \\
-            &= \sum_{i}p_i P(g(X,y_i)\leq u\mid Y=y_i)
-        \end{aligned}
-        \]
-    \end{enumerate}
-    若\(U = g_{1}(X, Y), V = g_{2}(X, Y)\),求\(U, V\)的分布律，有\\
-    \begin{enumerate}
-        \item \[
-        \begin{aligned}
-            F_{U,V}(u,v) &= P(g_{1}(X, Y) \leq u, g_{2}(X, Y) \leq v) \\
-            &= 
-            \iint_{g_{1}(x,y) \leq u, g_{2}(x,y) \leq v} f(x,y)\mathrm{dx}\mathrm{dy}
-        \end{aligned}
-        \]
-        \item (U, V)为离散型随机变量
-        \[
-        \begin{aligned}
-            P(U = u, V = v) &= P(g_{1}(X, Y) = u_{i}, g_{2}(X, Y) = v_{j}) \\
-            &=
-            P((X, Y) \in D) = \iint_{D} f(x, y) \mathrm{dx}\mathrm{dy}\\
-        \end{aligned}
-        \]
-        \(D = \{(x, y) | g_{1}(x, y) = u_{i}, g_{2}(x, y) = v_{j}\}\)
-        或利用边缘分布与联合分布求\((U,V)\)的分布
-    \end{enumerate}
-\end{conclusion}
-
-\begin{tablebox}{几个常见二维连续型随机变量函数的分布公式}
-    \begin{tabular}{|c|c|}
-        \hline
-        函数 & 密度或分布函数公式 \\
-        \hline
-        \(Z = X + Y\) & 
-        \(
-        \begin{aligned}
-            f_Z(z)&=\int_{-\infty}^{\infty}f_{X,Y}(x,z-x)\,\mathrm{d}x,\\
-            f_Z(z)&=\int_{-\infty}^{\infty}f_X(x)f_Y(z-x)\,\mathrm{d}x
-            \quad(X,Y\text{ 独立}).
-        \end{aligned}
-        \)\\
-        \hline
-        \(Z = X - Y\) & 
-        \(
-        \begin{aligned}
-            f_Z(z)&=\int_{-\infty}^{\infty}f_{X,Y}(z+y,y)\,\mathrm{d}y,\\
-            f_Z(z)&=\int_{-\infty}^{\infty}f_X(z+y)f_Y(y)\,\mathrm{d}y
-            \quad(X,Y\text{ 独立}).
-        \end{aligned}
-        \)\\
-        \hline
-        \(Z = XY\) & 
-        \(
-        \begin{aligned}
-            f_Z(z)&=\int_{-\infty}^{\infty}\frac{1}{|x|}
-            f_{X,Y}\!\left(x,\frac{z}{x}\right)\,\mathrm{d}x.
-        \end{aligned}
-        \)\\
-        \hline
-        \(Z = \frac{X}{Y}\) & 
-        \(
-        \begin{aligned}
-            f_Z(z)&=\int_{-\infty}^{\infty}|y|f_{X,Y}(zy,y)\,\mathrm{d}y.
-        \end{aligned}
-        \)\\
-        \hline
-        \(Z = max(X, Y)\) & 
-        \(
-        \begin{aligned}
-            F_{max}(z) &= P(max(X, Y) \leq z) \\
-            &=F_{X,Y}(z,z),\\
-            &=F_X(z)F_Y(z)\quad(X,Y\text{ 独立}),\\
-            f_{\max}(z)&=\frac{\mathrm{d}}{\mathrm{d}z}F_{\max}(z).
-        \end{aligned}
-        \)\\
-        \hline
-        \(Z = min(X, Y)\) & 
-        \(
-        \begin{aligned}
-            F_{min}(z) &= P(min(X, Y) \leq z) \\
-            &=1-P(X>z,Y>z),\\
-            &=1-[1-F_X(z)][1-F_Y(z)]\quad(X,Y\text{ 独立}).
-        \end{aligned}
-        \)\\
-        \hline
-    \end{tabular}
-
-
-\end{tablebox}
-
-\begin{conclusion}{二重换元法}{double substitution method}
-    若\((X, Y) \sim f(x, y)\),若\(\begin{cases}
-        u = u(x, y)
-        v = v(x, y)
-    \end{cases}\)具有一阶连续偏导数，且存在唯一的反函数\(\begin{cases}
-        x = x(u, v)
-        y = y(u, v)
-    \end{cases}\)
-    又
-    \[
-        J = \frac{\partial(x, y)}{\partial(u , v)} = 
-        \begin{vmatrix}
-            \frac{\partial x}{\partial u} & \frac{\partial x}{\partial v} \\
-            \frac{\partial y}{\partial u} & \frac{\partial y}{\partial v} \\
-        \end{vmatrix} 
-        \neq 0
-    \]
-    则\((X, Y)\)的函数\(
-        \begin{cases}
-            U = u(x, y)
-            V = v(x, y)
-        \end{cases}
-    \)的联合概率密度为
-    \[
-        f_{U, V}(u, v) = f[x(u, v), y(u, v)] \cdot |J|
-    \]
-    U的概率密度为
-    \[
-        f_{U}(u) = \int_{-\infty}^{\infty} f_{U, V}(u, v) \mathrm{dv}
-    \]
-    V的概率密度为
-    \[
-        f_{V}(v) = \int_{-\infty}^{\infty} f_{U, V}(u, v) \mathrm{du}
-    \]
-
-\end{conclusion}
-
-\begin{conclusion}{分布的可加性}{additivity of distribution}
-    \(X\)与\(Y\)相互独立
-    \begin{enumerate}
-        \item \(X \sim B(n, p), Y \sim B(m, p),X+Y \sim B(n+m, p)\)
-        \item \(X \sim N(\mu_1, {\sigma_{1}}^2), Y \sim N(\mu_2, {\sigma_{2}}^2), X+Y \sim N(\mu_1 + \mu_2, {\sigma_{1}}^2 + {\sigma_{2}}^2)\)
-        \item \(X \sim P(\lambda_1), Y \sim P(\lambda_2), X+Y \sim P(\lambda_1 + \lambda_2)\)
-        \item \(X \sim \chi^2(n), Y \sim \chi^2(m), X + Y \sim \chi^2(n + m)\)
-    \end{enumerate}
-    上述结论对$n$个变量也成立
-\end{conclusion}
-
-\subsection{一些其他技巧}
-\begin{mydef}{$min$与$max$的经典形式}{min max classic form}
-    \[
-        \begin{aligned}
-            max(X, Y) &= \frac{1}{2}(X + Y + |X - Y|) \\
-            min(X, Y) &= \frac{1}{2}(X + Y - |X - Y|)
-        \end{aligned}
-    \]
-\end{mydef}
-
-\begin{conclusion}{对于$X - Y$的一些性质}{some property of $X - Y$}
-\end{conclusion}
-
-
-
-\newpage
-\section{多维随机变量习题}
-
-\subsection{基础过关题}
-
-\textbf{1.} 设二维离散型随机变量$(X,Y)$的联合分布律如下：
-\[
-\begin{array}{c|ccc}
-X\setminus Y & 0 & 1 & 2 \\
-\hline
--1 & 0.10 & 0.15 & 0.05 \\
-0  & 0.20 & 0.10 & 0.10 \\
-1  & 0.05 & 0.15 & 0.10
-\end{array}
-\]
-\begin{enumerate}
-    \item[(1)] 求$X$和$Y$的边缘分布律；
-    \item[(2)] 求$P(X+Y\leq 1)$；
-    \item[(3)] 求$E(X),E(Y),\Cov(X,Y)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $X$的边缘分布：
-\[
-\begin{aligned}
-P(X=-1)&=0.10+0.15+0.05=0.30,\\
-P(X=0)&=0.20+0.10+0.10=0.40,\\
-P(X=1)&=0.05+0.15+0.10=0.30.
-\end{aligned}
-\]
-$Y$的边缘分布：
-\[
-\begin{aligned}
-P(Y=0)&=0.10+0.20+0.05=0.35,\\
-P(Y=1)&=0.15+0.10+0.15=0.40,\\
-P(Y=2)&=0.05+0.10+0.10=0.25.
-\end{aligned}
-\]
-
-(2) $P(X+Y\leq 1)$：满足$X+Y\leq 1$的$(x,y)$组合为
-\[
-(-1,0),(-1,1),(-1,2),(0,0),(0,1),(1,0).
-\]
-\[
-P(X+Y\leq 1)=0.10+0.15+0.05+0.20+0.10+0.05=0.65.
-\]
-
-(3)
-\[
-E(X)=(-1)\times 0.30+0\times 0.40+1\times 0.30=0,
-\]
-\[
-E(Y)=0\times 0.35+1\times 0.40+2\times 0.25=0.90,
-\]
-\[
-\begin{aligned}
-E(XY)
-&=\sum_{i,j}x_i y_j p_{ij}\\
-&=-0.15-0.10+0.15+0.20=0.10.
-\end{aligned}
-\]
-故
-\[
-\Cov(X,Y)=E(XY)-E(X)E(Y)=0.10-0\times 0.90=0.10.
-\]
-
-\textbf{评注：}对于离散型联合分布表，$E(XY)$直接按定义逐项求和即可。注意不要漏项。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{2.} 设二维随机变量$(X,Y)$的联合概率密度为
-\[
-f(x,y)=\begin{cases}
-6x, & 0<x<y<1,\\
-0, & \text{其他}.
-\end{cases}
-\]
-\begin{enumerate}
-    \item[(1)] 求边缘密度$f_X(x)$和$f_Y(y)$；
-    \item[(2)] 求条件密度$f_{X\mid Y}(x\mid y)$；
-    \item[(3)] 求$P\!\left(X<\frac{1}{2}\;\middle|\;Y=\frac{3}{4}\right)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 先求$f_X(x)$：对固定的$x\in(0,1)$，$y$的范围是$x<y<1$。
-\[
-f_X(x)=\int_{x}^{1}6x\,dy=6x(1-x),\quad 0<x<1.
-\]
-再求$f_Y(y)$：对固定的$y\in(0,1)$，$x$的范围是$0<x<y$。
-\[
-f_Y(y)=\int_{0}^{y}6x\,dx=6\cdot\frac{y^2}{2}=3y^2,\quad 0<y<1.
-\]
-验证规范性：$\int_{0}^{1}3y^2\,dy=1$。$\checkmark$
-
-(2) 条件密度：
-\[
-f_{X\mid Y}(x\mid y)=\frac{f(x,y)}{f_Y(y)}=\frac{6x}{3y^2}=\frac{2x}{y^2},\quad 0<x<y.
-\]
-
-(3)
-\[
-\begin{aligned}
-P\!\left(X<\frac12\;\middle|\;Y=\frac34\right)
-&=\int_0^{1/2}f_{X\mid Y}\!\left(x\;\middle|\;\frac34\right)\mathrm dx\\
-&=\int_0^{1/2}\frac{2x}{(3/4)^2}\,\mathrm dx
-=\frac{16}{9}\cdot\frac14=\frac49.
-\end{aligned}
-\]
-
-\textbf{评注：}条件密度$f_{X\mid Y}(x\mid y)$给出后，条件概率就是对条件密度在指定区间上积分。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{3.} 设随机变量$X\sim U(0,1)$，在$X=x$的条件下，$Y\sim U(0,x)$。
-\begin{enumerate}
-    \item[(1)] 求$(X,Y)$的联合概率密度$f(x,y)$；
-    \item[(2)] 求$Y$的边缘密度$f_Y(y)$；
-    \item[(3)] 求$\Cov(X,Y)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 已知$f_X(x)=1$（$0<x<1$），$f_{Y\mid X}(y\mid x)=\frac{1}{x}$（$0<y<x$）。
-由乘法公式：
-\[
-f(x,y)=f_X(x)f_{Y\mid X}(y\mid x)=1\cdot\frac{1}{x}=\frac{1}{x},\quad 0<y<x<1.
-\]
-
-(2)
-\[
-f_Y(y)=\int_{y}^{1}\frac{1}{x}\,dx=\ln x\Big|_{y}^{1}=-\ln y,\quad 0<y<1.
-\]
-验证：$\int_{0}^{1}(-\ln y)dy=[-y\ln y+y]_{0}^{1}=1$。$\checkmark$
-
-(3) 先求$E(X),E(Y),E(XY)$：
-\[
-E(X)=\int_{0}^{1}x\cdot 1\,dx=\frac{1}{2}.
-\]
-\[
-E(Y)=\int_{0}^{1}y(-\ln y)\,dy
-=\left[-\frac{y^2}{2}\ln y+\frac{y^2}{4}\right]_{0}^{1}=\frac{1}{4}.
-\]
-\[
-E(XY)=\iint_{0<y<x<1}xy\cdot\frac{1}{x}\,dx\,dy
-=\int_{0}^{1}\int_{0}^{x}y\,dy\,dx
-=\int_{0}^{1}\frac{x^2}{2}\,dx=\frac{1}{6}.
-\]
-故
-\[
-\Cov(X,Y)=E(XY)-E(X)E(Y)=\frac{1}{6}-\frac{1}{2}\cdot\frac{1}{4}
-=\frac{1}{6}-\frac{1}{8}=\frac{1}{24}.
-\]
-
-\textbf{评注：}本题通过条件分布构造联合分布，是常见考试题型。注意积分区域的确定：先对$y$积分时，$y$的取值范围是$(0,x)$。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{4.} 设二维随机变量$(X,Y)$的联合分布律为
-\[
-\begin{array}{c|cc}
-X\setminus Y & -1 & 1 \\
-\hline
-0 & \frac{1}{4} & \frac{1}{4} \\
-1 & \frac{1}{4} & \frac{1}{4}
-\end{array}
-\]
-\begin{enumerate}
-    \item[(1)] 判断$X$与$Y$是否独立；
-    \item[(2)] 求$\Cov(X,Y)$和$\rho_{XY}$；
-    \item[(3)] 此例说明了什么？
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $X$的边缘分布：$P(X=0)=\frac{1}{2}$，$P(X=1)=\frac{1}{2}$。
-$Y$的边缘分布：$P(Y=-1)=\frac{1}{2}$，$P(Y=1)=\frac{1}{2}$。
-
-验证独立性：$P(X=0,Y=-1)=\frac{1}{4}=P(X=0)P(Y=-1)=\frac{1}{2}\cdot\frac{1}{2}=\frac{1}{4}$。
-同理可验证其他组合均成立，故$X$与$Y$独立。
-
-(2)
-\[
-E(X)=0\cdot\frac{1}{2}+1\cdot\frac{1}{2}=\frac{1}{2},\quad
-E(Y)=(-1)\cdot\frac{1}{2}+1\cdot\frac{1}{2}=0.
-\]
-\[
-E(XY)=\sum_{i,j}x_i y_j p_{ij}
-=0\cdot(-1)\cdot\frac{1}{4}+0\cdot 1\cdot\frac{1}{4}+1\cdot(-1)\cdot\frac{1}{4}+1\cdot 1\cdot\frac{1}{4}=0.
-\]
-\[
-\Cov(X,Y)=E(XY)-E(X)E(Y)=0-\frac{1}{2}\cdot 0=0.
-\]
-\[
-\rho_{XY}=0.
-\]
-
-(3) 此例中$X,Y$相互独立，因此必有$\rho=0$，它只验证了“独立$\Rightarrow$不相关”。“不相关不一定独立”不能由本例推出，后面的$Y=X^2$例题给出了该逆命题的反例。
-
-\textbf{更关键的反例见综合提高题第8题。}
-
-\vspace{0.5cm}
-
-
-\else \answerarea \fi%
-\subsection{综合提高题}
-
-\textbf{5.} 设随机变量$X$与$Y$相互独立，$X\sim U(0,1)$，$Y$服从参数$\lambda=1$的指数分布，其密度为$f_Y(y)=e^{-y}$（$y>0$）。求$Z=X+Y$的概率密度。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-由卷积公式，当$X$与$Y$独立时：
-\[
-f_Z(z)=\int_{-\infty}^{+\infty}f_X(x)f_Y(z-x)\,dx.
-\]
-$f_X(x)=1$（$0<x<1$），$f_Y(y)=e^{-y}$（$y>0$）。
-
-被积函数非零当且仅当$0<x<1$且$z-x>0$，即$\max(0,z-1)<x<\min(1,z)$。分情况讨论：
-
-\textbf{当$z\leq 0$：}无$x$满足条件，$f_Z(z)=0$。
-
-\textbf{当$0<z\leq 1$：}$x$的范围是$0<x<z$。
-\[
-f_Z(z)=\int_{0}^{z}1\cdot e^{-(z-x)}\,dx
-=e^{-z}\int_{0}^{z}e^{x}\,dx
-=e^{-z}(e^{z}-1)=1-e^{-z}.
-\]
-
-\textbf{当$z>1$：}由 $0<x<1$ 可知 $z-x>0$ 自动成立，故 $x$ 的范围是 $0<x<1$。
-\[
-f_Z(z)=\int_{0}^{1}1\cdot e^{-(z-x)}\,dx
-=e^{-z}\int_{0}^{1}e^{x}\,dx
-=e^{-z}(e-1)=e^{1-z}-e^{-z}.
-\]
-
-综上：
-\[
-f_Z(z)=\begin{cases}
-0, & z\leq 0,\\[2pt]
-1-e^{-z}, & 0<z\leq 1,\\[2pt]
-e^{-z+1}-e^{-z}, & z>1.
-\end{cases}
-\]
-
-\textbf{评注：}卷积积分的关键在于确定积分限——即$f_X(x)$与$f_Y(z-x)$支撑集的交集。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{6.} 设$X\sim N(0,1)$，$Y\sim N(0,1)$，且$X$与$Y$相互独立。令
-\[
-U=X+Y,\quad V=X-Y.
-\]
-\begin{enumerate}
-    \item[(1)] 求$(U,V)$的联合分布；
-    \item[(2)] 判断$U$与$V$是否独立。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 变换$\begin{cases}U=X+Y\\V=X-Y\end{cases}$，逆变换$\begin{cases}X=\frac{U+V}{2}\\Y=\frac{U-V}{2}\end{cases}$。
-
-Jacobian（雅可比）行列式：
-\[
-J=\begin{vmatrix}
-\frac{\partial x}{\partial u}&\frac{\partial x}{\partial v}\\[4pt]
-\frac{\partial y}{\partial u}&\frac{\partial y}{\partial v}
-\end{vmatrix}
-=\begin{vmatrix}
-\frac{1}{2}&\frac{1}{2}\\[4pt]
-\frac{1}{2}&-\frac{1}{2}
-\end{vmatrix}
-=-\frac{1}{4}-\frac{1}{4}=-\frac{1}{2},\quad |J|=\frac{1}{2}.
-\]
-
-$(X,Y)$的联合密度：$f_{X,Y}(x,y)=\frac{1}{2\pi}e^{-\frac{x^2+y^2}{2}}$。
-
-由二重换元法：
-\[
-f_{U,V}(u,v)=f_{X,Y}\!\left(\frac{u+v}{2},\frac{u-v}{2}\right)\cdot |J|
-=\frac{1}{2\pi}\exp\!\left(-\frac{(\frac{u+v}{2})^2+(\frac{u-v}{2})^2}{2}\right)\cdot\frac{1}{2}
-\]
-\[
-=\frac{1}{4\pi}\exp\!\left(-\frac{u^2+v^2}{4}\right)
-=\frac{1}{\sqrt{2\pi\cdot 2}}\exp\!\left(-\frac{u^2}{2\cdot 2}\right)
-\cdot\frac{1}{\sqrt{2\pi\cdot 2}}\exp\!\left(-\frac{v^2}{2\cdot 2}\right).
-\]
-
-(2) 由上式知$f_{U,V}(u,v)=f_U(u)\cdot f_V(v)$，故$U$与$V$相互独立。
-且$U\sim N(0,2)$，$V\sim N(0,2)$。
-
-\textbf{评注：}独立正态变量的正交线性变换仍得到独立正态变量，这是多元正态分布的重要性质。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{7.} 设二维随机变量$(X,Y)$服从二维正态分布$N(0,1;0,1;\rho)$，其联合密度为
-\[
-f(x,y)=\frac{1}{2\pi\sqrt{1-\rho^2}}\exp\!\left[-\frac{x^2-2\rho xy+y^2}{2(1-\rho^2)}\right].
-\]
-\begin{enumerate}
-    \item[(1)] 求$X$与$Y$的相关系数$\rho_{XY}$；
-    \item[(2)] 当$\rho=0$时，$X$与$Y$是否独立？说明理由；
-    \item[(3)] 设$Z=aX+bY$（$a,b$为常数），求$Z$的分布。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 由二维正态分布的定义，参数$\rho$即为$X$与$Y$的相关系数，故
-\[
-\rho_{XY}=\rho.
-\]
-（可通过积分验证：$\Cov(X,Y)=\rho\cdot 1\cdot 1=\rho$，$\rho_{XY}=\rho$。）
-
-(2) 当$\rho=0$时，联合密度化为
-\[
-f(x,y)=\frac{1}{2\pi}e^{-\frac{x^2+y^2}{2}}
-=\frac{1}{\sqrt{2\pi}}e^{-x^2/2}\cdot\frac{1}{\sqrt{2\pi}}e^{-y^2/2}=f_X(x)f_Y(y).
-\]
-故$X$与$Y$相互独立。
-
-\textbf{关键结论：}对于二维正态分布，$X$与$Y$独立$\Leftrightarrow$ $X$与$Y$不相关$(\rho=0)$。这是正态分布特有的性质。
-
-(3) 由二维正态分布的性质，$X$与$Y$的线性组合仍服从正态分布：
-\[
-E(Z)=aE(X)+bE(Y)=0,
-\]
-\[
-D(Z)=a^2D(X)+b^2D(Y)+2ab\Cov(X,Y)
-=a^2+b^2+2ab\rho.
-\]
-故
-\[
-Z\sim N(0,\,a^2+b^2+2ab\rho).
-\]
-
-\textbf{评注：}第(2)问的结论是考研常考辨析点——不相关$\Rightarrow$独立仅在联合正态条件下成立，一般情形下反例普遍存在。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{8.} 设$X\sim N(0,1)$，令$Y=X^2$。
-\begin{enumerate}
-    \item[(1)] 求$\Cov(X,Y)$和$\rho_{XY}$；
-    \item[(2)] $X$与$Y$是否独立？说明理由；
-    \item[(3)] 此例说明了什么？
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1)
-\[
-\Cov(X,Y)=\Cov(X,X^2)=E(X\cdot X^2)-E(X)E(X^2)=E(X^3)-0\cdot E(X^2).
-\]
-由于$X\sim N(0,1)$，其奇数阶矩均为$0$，故$E(X^3)=0$。因此
-\[
-\Cov(X,Y)=0,\quad \rho_{XY}=0.
-\]
-
-(2) $X$与$Y$不独立。取事件
-\[
-A=\{-1\leq X\leq1\},\qquad B=\{Y\leq1\}.
-\]
-由于 $Y=X^2$，事件 $A$ 与 $B$ 实际相同。记 $p=P(A)=P(B)$，则 $0<p<1$，从而
-\[
-P(A\cap B)=p\neq p^2=P(A)P(B).
-\]
-故 $X$ 与 $Y$ 不独立。
-
-(3) \textbf{核心结论：}不相关（$\rho=0$）不蕴含独立。$\rho=0$仅说明不存在线性相关关系，但可能存在非线性函数关系。$X$与$X^2$是最经典的"不相关但不独立"的例子。
-
-\textbf{评注：}考研中常以选择题出现："若$\rho_{XY}=0$，则$X$与$Y$独立"是错误命题，本题即为反例。
-
-\vspace{0.5cm}
-
-
-\else \answerarea \fi%
-\subsection{真题风格与综合训练}
-
-\textbf{9.}（\boxed{\textbf{真题风格}}）设二维随机变量$(X,Y)$的联合概率密度为
-\[
-f(x,y)=\begin{cases}
-2e^{-x}e^{-2y}, & 0<x<+\infty,\;0<y<+\infty,\\
-0, & \text{其他}.
-\end{cases}
-\]
-\begin{enumerate}
-    \item[(1)] 判断$X$与$Y$是否独立；
-    \item[(2)] 求$Z=X+Y$的概率密度；
-    \item[(3)] 求$E(X\mid Y=y)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 联合密度可分解为
-\[
-f(x,y)=e^{-x}\cdot 2e^{-2y}=f_X(x)\cdot f_Y(y),\quad x>0,y>0.
-\]
-其中$f_X(x)=e^{-x}\;(x>0)$，即$X\sim \Exp(1)$；
-$f_Y(y)=2e^{-2y}\;(y>0)$，即$Y\sim \Exp(2)$。
-由于$f(x,y)=f_X(x)f_Y(y)$处处成立（除零测集外），故$X$与$Y$独立。
-
-(2) 由独立性，用卷积公式：
-\[
-f_Z(z)=\int_{-\infty}^{+\infty}f_X(x)f_Y(z-x)\,dx.
-\]
-被积函数非零当$0<x<z$（$z>0$时）。
-\[
-f_Z(z)=\int_{0}^{z}e^{-x}\cdot 2e^{-2(z-x)}\,dx
-=2e^{-2z}\int_{0}^{z}e^{x}\,dx
-=2e^{-2z}(e^{z}-1)=2e^{-z}-2e^{-2z},\quad z>0.
-\]
-$z\leq 0$时$f_Z(z)=0$。
-
-(3) 由独立性，$E(X\mid Y=y)=E(X)=1$。
-
-若不利用独立性，直接计算条件密度：
-\[
-f_{X\mid Y}(x\mid y)=\frac{f(x,y)}{f_Y(y)}=\frac{2e^{-x}e^{-2y}}{2e^{-2y}}=e^{-x}\;(x>0).
-\]
-故
-\[
-E(X\mid Y=y)=\int_{0}^{+\infty}x\cdot e^{-x}\,dx=1.
-\]
-
-\textbf{评注：}本题中联合密度恰好可分解为边缘密度的乘积，故独立。若不可分解，需先求边缘密度再求条件密度。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{10.}（\boxed{\textbf{真题风格}}）设随机变量$X$与$Y$相互独立，$X$的概率密度为
-\[
-f_X(x)=\begin{cases}
-\frac{1}{2}, & -1<x<1,\\
-0, & \text{其他},
-\end{cases}
-\]
-$Y$的概率密度为
-\[
-f_Y(y)=\begin{cases}
-2y, & 0<y<1,\\
-0, & \text{其他}.
-\end{cases}
-\]
-记$U=XY$，求$U$的概率密度$f_U(u)$。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-由$U=XY$的密度公式，当$X$与$Y$独立时：
-\[
-f_U(u)=\int_{-\infty}^{+\infty}\frac{1}{|x|}f_X(x)f_Y\!\left(\frac{u}{x}\right)\,\mathrm{d}x.
-\]
-
-$f_X(x)\neq0$ 要求 $-1<x<1$，而 $f_Y(u/x)\neq0$ 要求 $0<u/x<1$。
-
-当 $0<u<1$ 时，必须有 $x>0$ 且 $u<x<1$，于是
-\[
-f_U(u)=\int_u^1\frac{1}{x}\cdot\frac12\cdot2\frac{u}{x}\,\mathrm{d}x
-=\int_u^1\frac{u}{x^2}\,\mathrm{d}x=1-u.
-\]
-
-当 $-1<u<0$ 时，必须有 $x<0$ 且 $-1<x<u$，于是
-\[
-f_U(u)=\int_{-1}^{u}\frac{1}{-x}\cdot\frac12\cdot2\frac{u}{x}\,\mathrm{d}x
-=\int_{-1}^{u}\frac{-u}{x^2}\,\mathrm{d}x=1+u.
-\]
-
-当 $|u|\geq1$ 时不存在满足支撑条件的 $x$。因此
-\[
-f_U(u)=\begin{cases}
-1+u, & -1<u<0,\\
-1-u, & 0<u<1,\\
-0, & \text{其他}.
-\end{cases}
-\]
-即$f_U(u)=1-|u|$，$|u|<1$（三角分布）。
-
-\textbf{验算：}$\int_{-1}^{1}(1-|u|)du=2\int_{0}^{1}(1-u)du=2\cdot\frac{1}{2}=1$。$\checkmark$
-
-\textbf{评注：}乘积密度公式本身没有问题，关键是准确解出 $0<u/x<1$ 给出的积分区间。对负数乘除不等式时必须同步改变不等号方向。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{11.}（\boxed{\textbf{真题风格}}）设二维随机变量$(X,Y)$在区域$D=\{(x,y):0<y<x<1\}$上服从均匀分布。
-\begin{enumerate}
-    \item[(1)] 求$(X,Y)$的联合概率密度；
-    \item[(2)] 求边缘密度$f_X(x)$和$f_Y(y)$；
-    \item[(3)] 求条件期望$E(Y\mid X=x)$；
-    \item[(4)] 求$\rho_{XY}$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 区域$D$的面积为
-\[
-S_D=\int_{0}^{1}\int_{0}^{x}dy\,dx=\int_{0}^{1}x\,dx=\frac{1}{2}.
-\]
-故
-\[
-f(x,y)=\begin{cases}
-2, & 0<y<x<1,\\
-0, & \text{其他}.
-\end{cases}
-\]
-
-(2) 边缘密度：
-\[
-f_X(x)=\int_{0}^{x}2\,dy=2x,\quad 0<x<1.
-\]
-\[
-f_Y(y)=\int_{y}^{1}2\,dx=2(1-y),\quad 0<y<1.
-\]
-
-(3) 条件密度：
-\[
-f_{Y\mid X}(y\mid x)=\frac{f(x,y)}{f_X(x)}=\frac{2}{2x}=\frac{1}{x},\quad 0<y<x.
-\]
-即给定$X=x$时，$Y\sim U(0,x)$。故
-\[
-E(Y\mid X=x)=\int_{0}^{x}y\cdot\frac{1}{x}\,dy=\frac{x}{2}.
-\]
-
-(4) 先求各矩：
-\[
-E(X)=\int_{0}^{1}x\cdot 2x\,dx=\frac{2}{3},\quad
-E(X^2)=\int_{0}^{1}x^2\cdot 2x\,dx=\frac{1}{2}.
-\]
-\[
-D(X)=E(X^2)-[E(X)]^2=\frac{1}{2}-\frac{4}{9}=\frac{1}{18}.
-\]
-\[
-E(Y)=\int_{0}^{1}y\cdot 2(1-y)\,dy=2\int_{0}^{1}(y-y^2)dy=2\left(\frac{1}{2}-\frac{1}{3}\right)=\frac{1}{3}.
-\]
-\[
-E(Y^2)=\int_{0}^{1}y^2\cdot 2(1-y)\,dy=2\int_{0}^{1}(y^2-y^3)dy=2\left(\frac{1}{3}-\frac{1}{4}\right)=\frac{1}{6}.
-\]
-\[
-D(Y)=\frac{1}{6}-\frac{1}{9}=\frac{1}{18}.
-\]
-\[
-E(XY)=\iint_{D}xy\cdot 2\,dx\,dy
-=2\int_{0}^{1}\int_{0}^{x}xy\,dy\,dx
-=2\int_{0}^{1}x\cdot\frac{x^2}{2}\,dx
-=\int_{0}^{1}x^3\,dx=\frac{1}{4}.
-\]
-\[
-\Cov(X,Y)=E(XY)-E(X)E(Y)=\frac{1}{4}-\frac{2}{3}\cdot\frac{1}{3}
-=\frac{1}{4}-\frac{2}{9}=\frac{9-8}{36}=\frac{1}{36}.
-\]
-\[
-\rho_{XY}=\frac{\Cov(X,Y)}{\sqrt{D(X)D(Y)}}=\frac{1/36}{1/18}=\frac{1}{2}.
-\]
-
-\textbf{评注：}在本题特定的均匀三角形区域 $0<y<x<1$ 上，计算得到 $\rho_{XY}=\frac{1}{2}$。相关系数依赖区域形状与联合密度，不能把该数值推广到任意三角形区域。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{12.}（真题风格）设二维随机变量$(X,Y)$的联合概率密度为
-\[
-f(x,y)=\begin{cases}
-\frac{1}{x}, & 0<y<x<1,\\
-0, & \text{其他}.
-\end{cases}
-\]
-\begin{enumerate}
-    \item[(1)] 验证$f(x,y)$是否为概率密度；
-    \item[(2)] 求边缘密度$f_X(x)$和$f_Y(y)$；
-    \item[(3)] 求$P\!\left(Y<\frac{1}{4}\;\middle|\;X=\frac{1}{2}\right)$；
-    \item[(4)] 求$E(Y)$和$E(Y\mid X)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 验证：
-\[
-\iint_{D}f(x,y)\,dx\,dy=\int_{0}^{1}\int_{0}^{x}\frac{1}{x}\,dy\,dx
-=\int_{0}^{1}\frac{1}{x}\cdot x\,dx=\int_{0}^{1}1\,dx=1.
-\]
-且$f(x,y)\geq 0$，故为概率密度。
-
-(2) 边缘密度：
-\[
-f_X(x)=\int_{0}^{x}\frac{1}{x}\,dy=1,\quad 0<x<1.
-\]
-即$X\sim U(0,1)$。
-\[
-f_Y(y)=\int_{y}^{1}\frac{1}{x}\,dx=\ln x\Big|_{y}^{1}=-\ln y,\quad 0<y<1.
-\]
-
-(3) 条件密度：
-\[
-f_{Y\mid X}(y\mid x)=\frac{f(x,y)}{f_X(x)}=\frac{1/x}{1}=\frac{1}{x},\quad 0<y<x.
-\]
-故
-\[
-P\!\left(Y<\frac{1}{4}\;\middle|\;X=\frac{1}{2}\right)
-=\int_{0}^{\frac{1}{4}}\frac{1}{1/2}\,dy
-=2\cdot\frac{1}{4}=\frac{1}{2}.
-\]
-
-(4)
-\[
-E(Y)=\int_{0}^{1}y\cdot(-\ln y)\,dy.
-\]
-令$t=-\ln y$，则$y=e^{-t}$，$dy=-e^{-t}dt$，$t:+\infty\to 0$：
-\[
-E(Y)=\int_{0}^{+\infty}e^{-t}\cdot t\cdot e^{-t}\,dt
-=\int_{0}^{+\infty}t e^{-2t}\,dt
-=\frac{1}{4}.
-\]
-(利用$\int_{0}^{+\infty}t e^{-\lambda t}dt=\frac{1}{\lambda^2}$。)
-
-条件期望：
-\[
-E(Y\mid X=x)=\int_{0}^{x}y\cdot\frac{1}{x}\,dy=\frac{x}{2}.
-\]
-故$E(Y\mid X)=X/2$（随机变量）。
-
-验证：$E[E(Y\mid X)]=E(X/2)=\frac{1}{4}=E(Y)$。$\checkmark$
-
-\textbf{评注：}本题$f_X(x)=1$说明$X\sim U(0,1)$，但联合分布不是均匀分布。条件分布$Y\mid X=x\sim U(0,x)$，这是典型的"给定$X$后$Y$的条件分布为均匀分布"的模型。验证重期望公式是检查计算正确性的好方法。
-
-\vspace{0.4cm}
-
-\hrule
-\vspace{0.2cm}
-\textbf{本章核心考点总结：}
+按分布类型写出具体判据：
 \begin{itemize}
-    \item 联合分布、边缘分布、条件分布的计算与互推
-    \item 独立性的判定（离散型：$p_{ij}=p_{i\cdot}p_{\cdot j}$；连续型：$f(x,y)=f_X(x)f_Y(y)$）
-    \item 卷积公式求独立随机变量和的分布
-    \item 二重换元法（Jacobian（雅可比）行列式）求变换后的联合分布
-    \item $\Cov(X,Y)$和$\rho_{XY}$的计算
-    \item 独立$\Rightarrow$不相关，但逆命题不成立（正态分布是重要例外）
-    \item 条件期望$E(Y\mid X)$的计算与重期望公式
-    \item 二维均匀分布与二维正态分布的特殊性质
+\item 离散型：对一切 $i,j$ 有 $p_{ij}=p_{i\cdot}\,p_{\cdot j}$。开头表 2 就是这种情形，表 1 则不是（$0.20\ne0.5\times0.5$）。
+\item 连续型：$f(x,y)=f_X(x)f_Y(y)$ 几乎处处成立。只要除去面积为 $0$ 的集合后等式成立即可，个别线上不相等不影响。
 \end{itemize}
 
-\else \answerarea \fi%
+判断连续型是否独立，有两个好用的线索。如果联合密度在矩形 $A\times B$ 上等于 $g(x)h(y)$，且支撑正好是 $A\times B$，那么独立，并且能直接读出 $f_X=g/\int_A g$、$f_Y=h/\int_B h$。反过来，如果密度的非零区域不是两个区间的直积（圆盘、三角形、被斜线切掉一角的方形），那一定不独立——因为条件分布会随另一个变量改变。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,scale=1.1]
+  \fill[blue!12] (0,0) rectangle (2,2);
+  \draw[thick] (0,0) rectangle (2,2);
+  \draw[red!65!black] (0.6,0) -- (0.6,2);
+  \draw[red!65!black] (1.0,0) -- (1.0,2);
+  \draw[red!65!black] (1.4,0) -- (1.4,2);
+  \node at (1,2.3) {(a)};
+  \node[align=center] at (1,-0.5) {矩形支撑：截面等长};
+  % (b) 圆盘支撑
+  \begin{scope}[xshift=5.2cm,yshift=1cm]
+    \fill[blue!12] (0,0) circle (1);
+    \draw[thick] (0,0) circle (1);
+    \draw[red!65!black] (-0.6,{-sqrt(1-0.36)}) -- (-0.6,{sqrt(1-0.36)});
+    \draw[red!65!black] (0,-1) -- (0,1);
+    \draw[red!65!black] (0.6,{-sqrt(1-0.36)}) -- (0.6,{sqrt(1-0.36)});
+    \node at (0,1.3) {(b)};
+    \node[align=center] at (0,-1.5) {圆盘支撑：截面随 $x$ 变短};
+  \end{scope}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 两图都是均匀分布，密度在各自的 $G$ 上为常数。(a) 每条竖截面的长度都相同，边缘密度是常数，联合密度可以分解成 $x$ 的函数乘 $y$ 的函数。(b) 竖截面长度为 $2\sqrt{1-x^2}$，中间长两边短，$f_X(x)=2\sqrt{1-x^2}/\pi$ 不是常数，条件分布也随 $x$ 变，所以 $X$ 与 $Y$ 不独立。}
+\end{center}
+
+独立性的几条常用性质：
+\begin{enumerate}[label=(\arabic*),leftmargin=2.2em]
+\item 独立变量的函数仍独立：若 $X,Y$ 独立，则 $g(X)$ 与 $h(Y)$ 独立，对任意（可测）函数 $g,h$ 成立。反过来一般不成立，除非 $g,h$ 都是可逆变换。
+\item 独立时条件分布等于无条件分布：$f_{Y\mid X}(y\mid x)=f_Y(y)$，$p_{j\mid i}=p_{\cdot j}$。这正是“$X$ 的信息不影响 $Y$”的解析表达。
+\item $n$ 个随机变量相互独立，指联合分布等于 $n$ 个边缘分布之积，等价于离散型对一切取值组合成立 $p_{i_1\cdots i_n}=\prod_k p^{(k)}_{i_k}$，连续型 $f=\prod_k f_k$ 几乎处处成立。独立变量中任意一部分也独立。
+\item 两两独立不等于相互独立：三个变量两两独立只能保证每两个的联合分布分解，不能保证三者的联合分布等于三个边缘之积。
+\item 独立一定不相关（协方差为 $0$，前提是方差存在），但不相关一般不推出独立；只有联合正态时两者才等价，见下一小节。另外，相关系数为 $0$ 只排除线性关系，像 $Y=X^2$（$X$ 关于 $0$ 对称）那样有强烈依赖但协方差为零的例子是存在的。
+\end{enumerate}
+
+\subsection{二维正态分布}
+
+\begin{mydef}{二维正态分布}{bivariate-normal}
+若 $(X,Y)$ 的联合密度为
+\[
+\begin{aligned}
+f(x,y)={}&\frac{1}{2\pi\sigma_1\sigma_2\sqrt{1-\rho^2}}\\[2pt]
+&\times\exp\!\left\{-\frac{1}{2(1-\rho^2)}
+\left[\Bigl(\frac{x-\mu_1}{\sigma_1}\Bigr)^2+\Bigl(\frac{y-\mu_2}{\sigma_2}\Bigr)^2
+-2\rho\,\frac{x-\mu_1}{\sigma_1}\cdot\frac{y-\mu_2}{\sigma_2}\right]\right\},
+\end{aligned}
+\]
+其中 $\mu_1,\mu_2\in\mathbb R$，$\sigma_1,\sigma_2>0$，$-1<\rho<1$，则称 $(X,Y)$ 服从二维正态分布，记作
+\[
+(X,Y)\sim N(\mu_1,\mu_2;\sigma_1^2,\sigma_2^2;\rho).
+\]
+参数 $\mu_1,\mu_2$ 是中心位置，$\sigma_1,\sigma_2$ 控制两个方向的宽窄，$\rho$ 控制倾斜程度。
+\end{mydef}
+
+指数里是二次型，所以等密度线（$f$ 取常数的曲线）是一族同心椭圆。$\rho>0$ 时椭圆沿一、三象限方向拉长，$\rho<0$ 时沿二、四象限；$|\rho|$ 越大越扁，$\rho=0$ 时椭圆的两轴平行于坐标轴，退化成圆（当 $\sigma_1=\sigma_2$）。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[name=na,width=0.30\linewidth,height=4.2cm,
+  xmin=-2.1,xmax=2.1,ymin=-2.1,ymax=2.1,
+  xtick={-2,0,2},ytick={-2,0,2},axis equal image,
+  tick label style={font=\scriptsize},
+  title={\scriptsize $\rho=0$},
+  xlabel={$x$},ylabel={$y$},label style={font=\scriptsize}]
+\addplot[blue!60!black,thick,domain=0:360,samples=140]
+  ({1.4*cos(x)},{1.4*sin(x)});
+\end{axis}
+\begin{axis}[name=nb,at={(na.east)},anchor=west,xshift=0.45cm,
+  width=0.30\linewidth,height=4.2cm,
+  xmin=-2.1,xmax=2.1,ymin=-2.1,ymax=2.1,
+  xtick={-2,0,2},ytick={-2,0,2},axis equal image,
+  tick label style={font=\scriptsize},
+  title={\scriptsize $\rho=0.6$},
+  xlabel={$x$},label style={font=\scriptsize}]
+\addplot[red!70!black,thick,domain=0:360,samples=140]
+  ({(1.77*cos(x)+0.885*sin(x))/1.4142},{(1.77*cos(x)-0.885*sin(x))/1.4142});
+\addplot[gray!70,densely dotted,domain=-1.3:1.3]{x};
+\end{axis}
+\begin{axis}[name=nc,at={(nb.east)},anchor=west,xshift=0.45cm,
+  width=0.30\linewidth,height=4.2cm,
+  xmin=-2.1,xmax=2.1,ymin=-2.1,ymax=2.1,
+  xtick={-2,0,2},ytick={-2,0,2},axis equal image,
+  tick label style={font=\scriptsize},
+  title={\scriptsize $\rho=-0.6$},
+  xlabel={$x$},label style={font=\scriptsize}]
+\addplot[green!50!black,thick,domain=0:360,samples=140]
+  ({(0.885*cos(x)+1.77*sin(x))/1.4142},{(0.885*cos(x)-1.77*sin(x))/1.4142});
+\addplot[gray!70,densely dotted,domain=-1.3:1.3]{-x};
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 三幅图画的是同一高度 $c=1.4$ 的等密度线（$\mu_1=\mu_2=0$，$\sigma_1=\sigma_2=1$）。$\rho=0$ 时是圆；$\rho=0.6$ 时椭圆沿 $y=x$ 拉长，长轴就是那条点线；$\rho=-0.6$ 时沿 $y=-x$ 拉长，方向正好相差 $90^\circ$。同一高度的椭圆越扁，说明该方向上概率衰减得越慢，$X$ 与 $Y$ 的线性关联越强。}
+\end{center}
+
+二维正态有几个必须记住的性质。
+
+\begin{enumerate}[label=(\arabic*),leftmargin=2.2em]
+\item 边缘分布仍是正态：$X\sim N(\mu_1,\sigma_1^2)$，$Y\sim N(\mu_2,\sigma_2^2)$，且与 $\rho$ 无关。反过来不成立：两个边缘都是正态，不能保证联合是二维正态。取 $X\sim N(0,1)$，另取与 $X$ 独立的 $S$，$P(S=1)=P(S=-1)=\frac12$，令 $Y=SX$，则 $Y\sim N(0,1)$，但 $(X,Y)$ 只落在两条直线 $y=\pm x$ 上，没有联合密度。
+\item $X$ 与 $Y$ 相互独立的充要条件是 $\rho=0$。这也是“不相关”与“独立”等价的最常见场合。
+\item 线性组合仍是正态：对不全为零的 $a,b$，
+\[
+aX+bY\sim N\Bigl(a\mu_1+b\mu_2,\; a^2\sigma_1^2+b^2\sigma_2^2+2ab\rho\sigma_1\sigma_2\Bigr).
+\]
+方差里的交叉项 $2ab\rho\sigma_1\sigma_2$ 不能丢；当 $\rho=0$ 时它才消失。
+\item 条件分布也是正态：
+\[
+Y\mid X=x\;\sim\; N\!\left(\mu_2+\rho\frac{\sigma_2}{\sigma_1}(x-\mu_1),\;\sigma_2^2(1-\rho^2)\right).
+\]
+条件均值随 $x$ 线性变化，斜率是 $\rho\sigma_2/\sigma_1$；条件方差比 $\sigma_2^2$ 小，因为知道了 $X$ 就消掉一部分不确定性。
+\end{enumerate}
+
+\subsection{和的分布}
+
+求 $Z=g(X,Y)$ 的分布，通用的做法只有一条：先算分布函数，再求导。以 $Z=X+Y$ 为例，
+\[
+F_Z(z)=P(X+Y\le z)=\iint_{x+y\le z}f(x,y)\,\mathrm dx\,\mathrm dy
+=\int_{-\infty}^{+\infty}\!\!\left[\int_{-\infty}^{z-x}f(x,y)\,\mathrm dy\right]\mathrm dx .
+\]
+内层积分把“$X$ 取在 $x$ 附近时，$Y\le z-x$”的概率算出来，外层再把 $x$ 全部加起来。对 $z$ 求导（内层上限含 $z$），得
+\[
+f_Z(z)=\int_{-\infty}^{+\infty}f(x,z-x)\,\mathrm dx .
+\]
+若 $X,Y$ 独立，$f(x,z-x)=f_X(x)f_Y(z-x)$，于是
+\[
+\boxed{\;f_Z(z)=\int_{-\infty}^{+\infty}f_X(x)\,f_Y(z-x)\,\mathrm dx\;}
+\]
+这就是卷积公式。被积函数非零的范围由 $x$ 与 $z-x$ 各自必须落在支撑里这两条同时决定，所以积分往往要按 $z$ 分段。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[name=conc,width=0.44\linewidth,height=4.9cm,
+  xmin=0,xmax=1.25,ymin=0,ymax=1.35,
+  xlabel={$x$},ylabel={$y$},axis lines=left,
+  xtick={0,1},ytick={0,1},
+  tick label style={font=\scriptsize},label style={font=\small}]
+\draw[thick] (axis cs:0,0) rectangle (axis cs:1,1);
+\draw[dashed,red!70!black] (axis cs:0,0.6) -- (axis cs:0.6,0);
+\draw[dashed,blue!60!black] (axis cs:0,1) -- (axis cs:1,0);
+\draw[dashed,red!70!black] (axis cs:0.4,1) -- (axis cs:1,0.4);
+\node[font=\scriptsize,anchor=west,fill=white,inner sep=1pt] at (axis cs:0.10,0.68) {$z=0.6$};
+\node[font=\scriptsize,anchor=west,fill=white,inner sep=1pt] at (axis cs:0.10,1.05) {$z=1$};
+\node[font=\scriptsize,anchor=west,fill=white,inner sep=1pt] at (axis cs:0.52,1.05) {$z=1.4$};
+\end{axis}
+\begin{axis}[name=dens,at={(conc.east)},anchor=west,xshift=0.8cm,
+  width=0.44\linewidth,height=4.9cm,
+  xmin=0,xmax=2.2,ymin=0,ymax=1.2,
+  xlabel={$z$},ylabel={$f_Z(z)$},axis lines=left,
+  xtick={0,1,2},ytick={0,0.5,1},
+  tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[blue!60!black,thick,domain=0:1,samples=40]{x};
+\addplot[blue!60!black,thick,domain=1:2,samples=40]{2-x};
+\addplot[dashed,gray] coordinates {(1,0) (1,1)};
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 左：$X,Y$ 独立且都服从 $U(0,1)$，密度在单位正方形上为 $1$。$F_Z(z)$ 是直线 $x+y=z$ 左下方的面积；对 $z$ 求导，得到的是这条直线落在正方形里的线段在 $x$ 方向上的长度：$z<1$ 时为 $z$，$z>1$ 时为 $2-z$。右：长度先增后减，$f_Z$ 就是三角形，$z=1$ 处取最大值 $1$，总面积为 $1$。}
+\end{center}
+
+离散型是同样的“错位相乘再相加”：
+\[
+P(Z=z_k)=\sum_{i}P(X=x_i)\,P(Y=z_k-x_i),
+\]
+求和只保留 $z_k-x_i$ 确实是 $Y$ 的取值的那些项。
+
+一个离散一个连续时，用全概率公式按离散变量的取值分组。若 $Y$ 离散、$P(Y=y_i)=p_i$，则
+\[
+F_Z(z)=\sum_i p_i\,P(X\le z-y_i)=\sum_i p_i\,F_X(z-y_i).
+\]
+这里用到了 $X$ 与 $Y$ 独立：只有独立时才可以把条件概率 $P(X\le z-y_i\mid Y=y_i)$ 换成 $F_X(z-y_i)$；否则要保留条件分布，写成 $\sum_i p_iF_{X\mid Y}(z-y_i\mid y_i)$。另外，$Z$ 一般既不是纯连续也不是纯离散的（它有正概率落在可列个点上，其余部分有密度），所以不能直接套卷积公式。
+
+差、积、商的推导思路相同，都是先写成二重积分再换元。结果汇总在表里，使用前提都是 $X,Y$ 独立。
+
+\begin{tablebox}{独立连续型随机变量函数的密度}
+\centering
+\begin{tabular}{ll}
+\toprule
+函数 & 密度 \\
+\midrule
+$Z=X+Y$ & $f_Z(z)=\displaystyle\int_{-\infty}^{+\infty}f_X(x)f_Y(z-x)\,\mathrm dx$ \\[11pt]
+$Z=X-Y$ & $f_Z(z)=\displaystyle\int_{-\infty}^{+\infty}f_X(z+y)f_Y(y)\,\mathrm dy$ \\[11pt]
+$Z=XY$ & $f_Z(z)=\displaystyle\int_{-\infty}^{+\infty}\frac{1}{|x|}f_X(x)f_Y\!\left(\frac{z}{x}\right)\mathrm dx$ \\[11pt]
+$Z=X/Y$ & $f_Z(z)=\displaystyle\int_{-\infty}^{+\infty}|y|\,f_X(zy)f_Y(y)\,\mathrm dy$ \\[11pt]
+\bottomrule
+\end{tabular}
+\end{tablebox}
+
+积与商的公式里 $|x|$、$|y|$ 来自换元的雅可比，$x=0$、$y=0$ 的点由支撑自然排除。商的密度要求分母不为零；若 $Y$ 可能取 $0$，需要单独讨论。
+
+\begin{conclusion}{分布的可加性}{additivity}
+设 $X,Y$ 相互独立，则
+\begin{enumerate}[label=(\arabic*),leftmargin=2.2em]
+\item $X\sim B(n,p)$，$Y\sim B(m,p)$（注意 $p$ 相同）$\Rightarrow X+Y\sim B(n+m,p)$；
+\item $X\sim P(\lambda_1)$，$Y\sim P(\lambda_2)$ $\Rightarrow X+Y\sim P(\lambda_1+\lambda_2)$；
+\item $X\sim N(\mu_1,\sigma_1^2)$，$Y\sim N(\mu_2,\sigma_2^2)$ $\Rightarrow X+Y\sim N(\mu_1+\mu_2,\sigma_1^2+\sigma_2^2)$；
+\item $X\sim\chi^2(n)$，$Y\sim\chi^2(m)$ $\Rightarrow X+Y\sim\chi^2(n+m)$。
+\end{enumerate}
+\end{conclusion}
+
+这些结论对有限个相互独立的同类变量同样成立。可加性对参数有要求：两个二项分布的 $p$ 不同时，和不再是二项分布；两个均匀分布之和一般也不是均匀分布（正是上面的三角形）。
+
+\subsection{极值分布}
+
+最大值 $M=\max(X,Y)$ 与最小值 $m=\min(X,Y)$ 的分布，不要想着先写出密度。$\{M\le z\}$ 这个事件等价于“$X$ 和 $Y$ 都不超过 $z$”，而 $\{m>z\}$ 等价于“$X$ 和 $Y$ 都超过 $z$”，前者是交、后者也是交，正好能用独立性拆开。
+
+\begin{conclusion}{最大值与最小值的分布}{max-min}
+设 $X,Y$ 相互独立，分布函数分别为 $F_X,F_Y$，则
+\[
+F_{\max}(z)=F_X(z)F_Y(z),\qquad
+F_{\min}(z)=1-\bigl[1-F_X(z)\bigr]\bigl[1-F_Y(z)\bigr].
+\]
+若 $X_1,\dots,X_n$ 独立同分布，分布函数为 $F$，则
+\[
+F_{\max}(z)=F^n(z),\qquad f_{\max}(z)=nF^{n-1}(z)f(z);
+\]
+\[
+F_{\min}(z)=1-\bigl[1-F(z)\bigr]^n,\qquad f_{\min}(z)=n\bigl[1-F(z)\bigr]^{n-1}f(z).
+\]
+\end{conclusion}
+
+最小值那条用对立事件推：$\{m>z\}=\{X>z,Y>z\}$，概率是 $[1-F_X(z)][1-F_Y(z)]$，取补即得。注意 $\{m\le z\}$ 并不等于 $\{X\le z\}\cup\{Y\le z\}$ 的简单相加，直接相加会把两者都小的情形算两遍。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[name=amax,width=0.42\linewidth,height=4.4cm,
+  xmin=0,xmax=1,ymin=0,ymax=11,
+  xlabel={$z$},title={\scriptsize $f_{\max}(z)$},axis lines=left,
+  domain=0:1,samples=120,
+  xtick={0,0.5,1},ytick={0,5,10},
+  tick label style={font=\scriptsize},label style={font=\small},
+  legend style={font=\scriptsize,draw=none,fill=none,
+    at={(0.03,0.95)},anchor=north west}]
+\addplot[blue!60!black,thick]{1};
+\addlegendentry{$n=1$}
+\addplot[red!70!black,thick]{5*x^4};
+\addlegendentry{$n=5$}
+\addplot[green!50!black,thick]{10*x^9};
+\addlegendentry{$n=10$}
+\end{axis}
+\begin{axis}[name=amin,at={(amax.east)},anchor=west,xshift=0.9cm,
+  width=0.42\linewidth,height=4.4cm,
+  xmin=0,xmax=1,ymin=0,ymax=11,
+  xlabel={$z$},title={\scriptsize $f_{\min}(z)$},axis lines=left,
+  domain=0:1,samples=120,
+  xtick={0,0.5,1},ytick={0,5,10},
+  tick label style={font=\scriptsize},label style={font=\small},
+  legend style={font=\scriptsize,draw=none,fill=none,
+    at={(0.97,0.95)},anchor=north east}]
+\addplot[blue!60!black,thick]{1};
+\addlegendentry{$n=1$}
+\addplot[red!70!black,thick]{5*(1-x)^4};
+\addlegendentry{$n=5$}
+\addplot[green!50!black,thick]{10*(1-x)^9};
+\addlegendentry{$n=10$}
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 取 $X_i$ 独立同分布 $U(0,1)$。左：最大值的密度 $nz^{n-1}$，$n$ 越大越往 $z=1$ 挤——样本越多，最大值越接近上界，但永远不会超过它；峰值在 $z=1$ 处等于 $n$（密度可以大于 $1$）。右：最小值的密度 $n(1-z)^{n-1}$，形状是左边的镜像，向 $z=0$ 挤，峰值同样为 $n$。两条曲线都随 $n$ 增大变得越来越尖，这就是“极值分布”与单个变量分布形状不同的原因。}
+\end{center}
+
+指数分布的最小值有一个漂亮的结果。若 $X_1,\dots,X_n$ 独立且都服从 $\mathrm{Exp}(\lambda)$，则
+\[
+P(\min X_i>z)=\prod_{i=1}^{n}e^{-\lambda z}=e^{-n\lambda z},\qquad z>0,
+\]
+所以 $\min X_i\sim\mathrm{Exp}(n\lambda)$：$n$ 个独立指数“并联”，等待时间缩短为 $1/n$，速率相加。这个结论在可靠性里很常用，也是“指数分布无记忆性”的直接推论。
+
+两个恒等式可以备查：
+\[
+\max(X,Y)=\frac{X+Y+|X-Y|}{2},\qquad
+\min(X,Y)=\frac{X+Y-|X-Y|}{2}.
+\]
+逐点成立，所以取期望立刻得到 $E(\max)+E(\min)=E(X)+E(Y)$，求期望时能省一次积分。但求分布仍要走分布函数：最大值、最小值的密度一般不是 $f_Xf_Y$ 之类的乘积。
+
+离散型没有密度，直接用分布律或分布函数列举。例如 $X,Y$ 只取 $0,1$ 时，$M=\max(X,Y)$ 在 $M=0$ 处只有 $(0,0)$ 一种来源，在 $M=1$ 处有其余三种来源，按格子加概率即可。
+
+\subsection{变量替换与雅可比}
+
+前面的卷积是从分布函数出发推出来的。如果一次要处理 $(X,Y)$ 的两个函数，或者函数形式复杂，更省事的办法是换元：把 $(x,y)$ 平面上的密度搬到 $(u,v)$ 平面上。
+
+设 $U=g_1(X,Y)$，$V=g_2(X,Y)$，变换
+\[
+u=g_1(x,y),\qquad v=g_2(x,y)
+\]
+在密度非零的区域上有一阶连续偏导、是一一对应，反函数记为 $x=x(u,v)$、$y=y(u,v)$，且
+\[
+J=\frac{\partial(x,y)}{\partial(u,v)}
+=\begin{vmatrix}
+\dfrac{\partial x}{\partial u} & \dfrac{\partial x}{\partial v}\\[8pt]
+\dfrac{\partial y}{\partial u} & \dfrac{\partial y}{\partial v}
+\end{vmatrix}\ne 0 .
+\]
+则
+\[
+f_{U,V}(u,v)=f\bigl(x(u,v),\,y(u,v)\bigr)\,\bigl|J\bigr| ,
+\]
+在 $(u,v)$ 的像区域上成立，别处为 $0$。$|J|$ 是反函数在原像点处的面积伸缩因子：变换把面积放大了 $1/|J|$ 倍，密度就得乘 $|J|$ 才能保持总概率为 $1$。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+  % (a) 单位正方形
+  \fill[blue!10] (0,0) rectangle (2,2);
+  \draw[thick] (0,0) rectangle (2,2);
+  \draw[gray!65] (1,0) -- (1,2);
+  \draw[gray!65] (0,1) -- (2,1);
+  \draw[->,thick] (2.15,0) -- (2.70,0) node[below] {$x$};
+  \draw[->,thick] (1,2.15) -- (1,2.65) node[above] {$y$};
+  \node at (1,-0.4) {(a) 面积 $1$};
+  % 箭头
+  \draw[->,very thick] (3.1,1) -- (4.3,1);
+  \node[below,align=center] at (3.7,0.9) {$u=x+y$\\$v=x-y$};
+  % (b) 菱形
+  \fill[blue!10] (5.4,1) -- (6.4,2) -- (7.4,1) -- (6.4,0) -- cycle;
+  \draw[thick] (5.4,1) -- (6.4,2) -- (7.4,1) -- (6.4,0) -- cycle;
+  \draw[gray!65] (5.9,1.5) -- (6.9,0.5);
+  \draw[gray!65] (5.9,0.5) -- (6.9,1.5);
+  \draw[->,thick] (7.4,1) -- (7.9,1) node[right] {$u$};
+  \draw[->,thick] (6.4,2) -- (6.4,2.5) node[above] {$v$};
+  \node at (6.4,-0.4) {(b) 面积 $2$};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 左：单位正方形，灰线是 $x=\frac12$ 与 $y=\frac12$。右：像区域是顶点 $(0,0),(1,1),(2,0),(1,-1)$ 的菱形，两条灰线的像互相垂直地穿过中心。面积从 $1$ 变成 $2$，而
+$J=\frac{\partial(x,y)}{\partial(u,v)}=-\frac12$，所以密度要乘 $\frac12$ 才守恒。图的形状会变，概率不会凭空增加。}
+\end{center}
+
+拿上面的变换做个完整计算。若 $(X,Y)$ 在单位正方形上均匀分布，$f\equiv1$，则
+\[
+f_{U,V}(u,v)=\begin{cases}
+\dfrac12, & (u,v)\text{ 在菱形内},\\[4pt]
+0, & \text{其他}.
+\end{cases}
+\]
+菱形面积是 $2$，$\frac12\times2=1$，总概率对得上。再把 $v$ 积掉求 $f_U$：固定 $u\in(0,1)$，$v$ 的取值范围是 $|v|\le u$，长度 $2u$，所以 $f_U(u)=u$；对称地 $u\in(1,2)$ 时 $f_U(u)=2-u$。这正是上一节两个 $U(0,1)$ 之和的三角形密度——用换元法和用卷积法得到同一个结果，可以互相印证。
+
+求单个函数 $Z=g(X,Y)$ 的密度时，可以人为补一个变量凑成二维变换，再积掉。比如取 $V=X$、$U=X+Y$，则 $x=v$、$y=u-v$，
+\[
+\left|\frac{\partial(x,y)}{\partial(u,v)}\right|
+=\begin{vmatrix}0 & 1\\ 1 & -1\end{vmatrix}=1 ,
+\]
+于是 $f_{U,V}(u,v)=f(v,u-v)$，对 $v$ 积分就回到卷积公式。商的分布也这样做：取 $U=X/Y$、$V=Y$，反解 $x=uv$、$y=v$，雅可比为 $|v|$，即得表里的 $f_U(u)=\int|v|f(uv,v)\,\mathrm dv$。
+
+如果变换不是一一对应，就要把原像分开算再相加。一维的典型例子是 $U=X^2$：$u>0$ 有两个原像 $x=\pm\sqrt u$，两个分支的雅可比分别是 $\frac{1}{2\sqrt u}$，所以
+\[
+f_U(u)=\frac{1}{2\sqrt u}\Bigl[f_X(\sqrt u)+f_X(-\sqrt u)\Bigr],\qquad u>0 .
+\]
+漏掉一个分支是这类题最常见的错误，做题时先画出变换后每个点有几个原像。
+
+极坐标是最常用的非线性换元。令 $x=r\cos\theta$、$y=r\sin\theta$，则 $J=\frac{\partial(x,y)}{\partial(r,\theta)}=r$。对独立标准正态的 $(X,Y)$，
+\[
+f_{R,\Theta}(r,\theta)=\frac{1}{2\pi}e^{-r^2/2}\cdot r,\qquad r>0,\ 0<\theta<2\pi,
+\]
+它可以拆成只含 $r$ 的因子与只含 $\theta$ 的因子，所以 $R$ 与 $\Theta$ 独立，$\Theta$ 在 $(0,2\pi)$ 上均匀，$R^2\sim\mathrm{Exp}(1/2)$。这条推导说明二维正态的密度具有旋转对称性，也是“用均匀随机数生成正态随机数”一类算法的依据。
+
+\newpage
+
+\input{probality/exercises/chap3.tex}

@@ -1,988 +1,889 @@
 \section{内存管理}
 
-\subsection{内存管理的基本概念}
+先看一个具体的麻烦。一个 32 位程序编译出来以后，代码里的地址从 0 开始，CPU 执行 \texttt{mov 0x12345, \%eax} 时发出的也是 \texttt{0x12345}。但物理内存里同时还放着操作系统、这个进程、以及别的进程，\texttt{0x12345} 这个物理单元未必属于它；即使碰巧属于，换一台机器或换一个进程，这个地址又对不上了。内存管理要解决的，就是让每个进程都以为自己独占一片从 0 开始的地址空间，而真正落到物理内存时又互不干扰。完成这件事的硬件叫 MMU（Memory Management Unit，内存管理单元），它把 CPU 发出的逻辑地址翻译成物理地址；操作系统则负责建立翻译用的表格、分配和回收物理空间，并在需要时把暂时不用的页面放到磁盘上。
 
-\begin{mydef}{内存管理的目标与任务}{mem-mgmt-goals}
-操作系统内存管理（Memory Management）负责\textbf{主存（Main Memory）}的分配与回收、地址变换、内存保护和虚拟内存的扩展。其核心目标：
-\begin{enumerate}
-    \item \textbf{分配与回收}：高效地为进程分配内存空间，进程结束后回收；
-    \item \textbf{地址变换}：将程序中的逻辑地址转换为物理地址；
-    \item \textbf{内存保护}：确保进程只能访问自己的地址空间；
-    \item \textbf{内存扩充}：通过虚拟内存技术，使程序获得比实际物理内存更大的地址空间。
-\end{enumerate}
-\end{mydef}
+本章沿着这条线展开：先看地址空间和连续分配，再进入分页、分段、页表与 TLB，最后把缺页处理和页面置换放进虚拟内存的框架里。
 
-\subsubsection{逻辑地址与物理地址}
+\subsection{地址空间、重定位与内存保护}
 
-\begin{mydef}{地址空间的两层抽象}{addr-spaces}
-\begin{itemize}
-    \item \textbf{逻辑地址（Logical Address）}：也叫虚拟地址（Virtual Address），是 CPU 在执行指令时生成的地址，是程序视角的地址。每个进程拥有独立的逻辑地址空间，从 0 开始编址。
-    \item \textbf{物理地址（Physical Address）}：内存单元的实际地址，是内存芯片视角的地址。整个系统只有一个物理地址空间，所有进程共享。
-    \item \textbf{地址空间（Address Space）}：一个进程可用的所有逻辑地址的集合。32 位系统上，逻辑地址空间通常为 $0 \sim 2^{32}-1$（4 GB）。
-\end{itemize}
-\end{mydef}
+CPU 执行指令时发出的地址叫\textbf{逻辑地址}（Logical Address），也叫虚拟地址。它是程序视角的地址，每个进程都从 0 开始编址，所以不同进程可以有相同的逻辑地址。内存芯片真正接收的地址叫\textbf{物理地址}（Physical Address），整个系统只有一套物理地址空间，所有进程和操作系统共用。逻辑地址的集合叫进程的\textbf{地址空间}；32 位系统里通常是 $0\sim 2^{32}-1$，共 4 GB。
 
-\begin{attention}
-\textbf{408 常考点辨析：逻辑地址 vs 物理地址。} 
-编译时和链接时，程序中出现的是逻辑地址（符号地址经链接后变为可重定位地址）；程序装入内存运行时，CPU 发出的访存地址也是逻辑地址，需经 MMU（Memory Management Unit，内存管理单元）转换为物理地址后才送到地址总线上。
-\end{attention}
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 进程 P1 的逻辑地址空间
+  \node[font=\scriptsize\bfseries] at (1.3,5.35) {进程 P1 的逻辑地址空间};
+  \draw (0,3.2) rectangle (2.6,5.0);
+  \foreach \y in {3.8,4.4} \draw (0,\y) -- (2.6,\y);
+  \node at (1.3,4.7) {代码页 0};
+  \node at (1.3,4.1) {数据页 1};
+  \node at (1.3,3.5) {栈页 2};
+  \node[below] at (1.3,3.15) {都从 0 开始编号};
+  % 进程 P2 的逻辑地址空间
+  \node[font=\scriptsize\bfseries] at (1.3,2.55) {进程 P2 的逻辑地址空间};
+  \draw (0,0.4) rectangle (2.6,2.2);
+  \foreach \y in {1.0,1.6} \draw (0,\y) -- (2.6,\y);
+  \node at (1.3,1.9) {代码页 0};
+  \node at (1.3,1.3) {数据页 1};
+  \node at (1.3,0.7) {堆页 2};
+  % MMU 分界线
+  \draw[dashed, thick, MutedText] (6.0,0.2) -- (6.0,5.4);
+  \node[fill=white, inner sep=2pt, font=\scriptsize\bfseries, text=TealDark] at (6.0,5.45) {MMU 地址变换};
+  % 物理内存
+  \node[font=\scriptsize\bfseries] at (9.8,5.35) {物理内存（全局唯一）};
+  \draw (8.4,0.4) rectangle (11.2,5.0);
+  \foreach \y in {1.0,1.6,2.2,2.8,3.4,4.0,4.6} \draw (8.4,\y) -- (11.2,\y);
+  \node at (9.8,4.8) {操作系统};
+  \node[fill=SoftBlue] at (9.8,4.3) {P1 代码};
+  \node[fill=SoftBlue] at (9.8,3.7) {P1 数据};
+  \node[fill=SoftBlue] at (9.8,3.1) {P1 栈};
+  \node[fill=SoftTeal] at (9.8,2.5) {P2 代码};
+  \node[fill=SoftTeal] at (9.8,1.9) {P2 数据};
+  \node[fill=SoftTeal] at (9.8,1.3) {P2 堆};
+  \node at (9.8,0.7) {空闲};
+  % 映射箭头
+  \draw[->, Teal, thick] (2.65,4.7) -- node[above, font=\tiny]{映射} (8.35,4.3);
+  \draw[->, Teal, thick] (2.65,4.1) -- (8.35,3.7);
+  \draw[->, Teal, thick] (2.65,3.5) -- (8.35,3.1);
+  \draw[->, TealDark, thick] (2.65,1.9) -- (8.35,2.5);
+  \draw[->, TealDark, thick] (2.65,1.3) -- (8.35,1.9);
+  \draw[->, TealDark, thick] (2.65,0.7) -- (8.35,1.3);
+\end{tikzpicture}
+\end{center}
 
-\subsubsection{地址重定位}
+图里左右两边都是“地址”，但含义不同：左边两个进程各自从 0 开始，页号可以重复；右边物理内存只有一份，P1 和 P2 的页面被放到不同的物理位置。中间虚线表示 MMU 在翻译，进程本身看不到右边的具体位置。
 
-\begin{mydef}{地址重定位}{addr-relocation}
-地址重定位（Address Relocation）是将逻辑地址转换为物理地址的过程，也叫\textbf{地址映射}。分为三种方式：
-\begin{enumerate}
-    \item \textbf{静态重定位（Static Relocation）}：在程序\textbf{装入时}一次性完成地址变换。装入程序根据装入的起始物理地址，修改程序中所有与地址相关的指令。装入后地址不再改变。
-    \begin{itemize}
-        \item 优点：无需硬件支持，简单。
-        \item 缺点：程序装入后不能移动（不支持换入换出）；不允许程序在内存中浮动。
-    \end{itemize}
-    
-    \item \textbf{动态重定位（Dynamic Relocation）}：在程序\textbf{执行时}，每次访存都由硬件（MMU 中的\textbf{重定位寄存器}）将逻辑地址加上基址得到物理地址。
-    \[
-    \boxed{\text{物理地址} = \text{逻辑地址} + \text{重定位寄存器（基址）}}
-    \]
-    \begin{itemize}
-        \item 优点：程序可以在内存中移动（支持交换和紧凑）；无需修改程序代码。
-        \item 缺点：需要硬件支持（MMU），每次访存有微小的地址计算开销。
-    \end{itemize}
-    
-    \item \textbf{运行时动态链接（Run-time Dynamic Linking）}：将链接推迟到运行时。程序执行到某外部模块的调用时，OS 才将该模块装入内存并链接。Linux 的 \texttt{.so}、Windows 的 \texttt{.dll} 即采用此方式。
-\end{enumerate}
-\end{mydef}
+\subsubsection{什么时候把逻辑地址变成物理地址}
 
-\begin{attention}
-\textbf{408 高频辨析：三种地址变换时机。}
-\begin{itemize}
-    \item 编译时：编译器知道进程驻留在内存的\textbf{确切位置} $\to$ 生成\textbf{绝对代码}（Absolute Code）。
-    \item 装入时（静态重定位）：编译器不知道确切位置 $\to$ 生成\textbf{可重定位代码}（Relocatable Code），装入时修改。
-    \item 执行时（动态重定位）：进程可在执行期间从一内存段移到另一内存段 $\to$ 需要 MMU 硬件。
-\end{itemize}
-\textbf{注意：}现代通用 OS 均采用\textbf{执行时动态重定位 + 运行时动态链接}的组合。
-\end{attention}
+地址变换发生的时机有三种，差别不只是“早一点还是晚一点”，而是程序装入后还能不能移动。
+
+\textbf{编译时}：如果编译器事先知道程序会装到物理内存的哪个位置，就可以直接生成绝对地址代码。这种代码装入后不能换位置，现代通用操作系统基本不用。
+
+\textbf{装入时（静态重定位）}：编译器生成可重定位代码，装入程序在把程序放进内存时，把所有与地址有关的指令一次性加上装入基址。优点是不需要 MMU；缺点是程序一旦装入就不能移动，因此不支持内存紧凑，也不方便换入换出。
+
+\textbf{执行时（动态重定位）}：指令里仍然保存逻辑地址，每次访存时由 MMU 的重定位寄存器（基址寄存器）加上基址，得到物理地址：
+\[
+\text{物理地址} = \text{逻辑地址} + \text{基址寄存器}.
+\]
+程序可以在内存中移动，只要更新基址寄存器；内存紧凑、交换、虚拟内存都依赖这一点。代价是每次访存多一次加法，并且需要硬件支持。
+
+链接的时机容易和重定位混在一起，但它们是两件事。静态链接在程序运行前把目标模块拼成完整可执行文件；装入时动态链接在装入过程中解析并链接共享模块；运行时动态链接把链接推迟到第一次调用，例如 Linux 的 \texttt{dlopen} 和 Windows 的 \texttt{LoadLibrary}。动态链接解决的是“模块什么时候被拼进来”，动态重定位解决的是“地址什么时候被换算”，不要混为一谈。
 
 \subsubsection{内存保护}
 
-\begin{conclusion}{内存保护的实现机制}{mem-protection}
-内存保护防止一个进程访问不属于它的内存区域。常见实现：
-\begin{enumerate}
-    \item \textbf{界限寄存器（Limit Register）}：存放逻辑地址的最大值。每次访存，MMU 检查逻辑地址是否 $<$ 界限寄存器值。若越界，触发\textbf{地址越界异常}。
-    \item \textbf{基址-界限寄存器对}：重定位寄存器存基址，界限寄存器存长度。硬件检查：$\text{逻辑地址} < \text{界限值}$。
-\end{enumerate}
+只做加法还不够。进程 P1 如果把逻辑地址加到超出自己区域的位置，不能让它读到 P2 的数据。连续分配里通常用一对寄存器：基址寄存器保存进程的起始物理地址，界限寄存器保存进程的长度。MMU 先检查
+\[
+0 \le \text{逻辑地址} < \text{界限寄存器},
+\]
+越界就产生地址越界异常，由操作系统处理；检查通过后再加基址。这样基址决定“从哪里开始”，界限决定“能走多远”。
 
-现代系统更多使用\textbf{分页}中的页表保护位（读/写/执行权限）来实现细粒度的内存保护。
-\end{conclusion}
+分页和分段系统把保护做得更细：页表项或段表项里带读/写/执行权限位，MMU 在翻译的同时检查本次访问是否被允许。后面讲页表项时会再看到这些位。
 
-\begin{attention}
-\textbf{408 考点：} CPU 在用户态执行时发出的地址是逻辑地址。若该逻辑地址超出界限寄存器值，则 MMU 产生\textbf{地址越界中断}，CPU 进入内核态处理。这一过程是硬件完成的，称为\textbf{存储保护}。
-\end{attention}
+\subsection{连续分配与碎片}
 
-\subsubsection{程序的链接}
+连续分配要求一个进程占用一段连续的物理内存。它实现简单，也是理解碎片问题的起点。
 
-\begin{conclusion}{三种链接方式}{link-types}
-\begin{tablebox}{静态链接、装入时动态链接与运行时动态链接}
-\centering
-\begin{tabularx}{\linewidth}{|>{\centering\arraybackslash}p{3.2cm}|X|X|}
-\hline
-链接方式 & 时机 & 特点 \\
-\hline
-静态链接 & 程序装入前（编译后） & 所需目标模块链接成完整可执行文件；文件通常较大，运行时无需再完成动态链接 \\
-\hline
-装入时动态链接 & 程序装入内存时 & 装入时链接所需模块，便于模块共享和更新 \\
-\hline
-运行时动态链接 & 程序执行过程中 & 用到时才链接（如 \texttt{dlopen}），灵活且可按需装入；Linux 的 \texttt{.so} 文件可采用这种方式 \\
-\hline
-\end{tabularx}
-\end{tablebox}
-\end{conclusion}
+\subsubsection{单一连续分配与固定分区}
 
-\subsection{连续分配存储管理方式}
+单一连续分配把内存分成系统区和用户区，用户区一次只放一道程序。它不需要复杂的分配算法，但内存利用率很低，只适合早期的单用户单任务系统。
 
-\begin{mydef}{连续分配}{contiguous-allocation}
-连续分配（Contiguous Allocation）是指为一个进程分配一段\textbf{连续}的物理内存空间。按分区方式分为三类：单一连续分配、固定分区分配和动态分区分配。
-\end{mydef}
+固定分区分配把用户区预先切成若干大小固定的分区，每个分区放一道程序。分区说明表记录每个分区的起始地址、大小和状态。它的缺点是\textbf{内部碎片}：分区按固定大小切好，程序用不完的部分就浪费在分区内部。例如一个 8 MB 的分区装入 5 MB 的程序，剩下 3 MB 虽然空闲，却不能再分给别人。
 
-\subsubsection{单一连续分配}
+\subsubsection{动态分区与外部碎片}
 
-\begin{conclusion}{单一连续分配}{single-contiguous}
-内存分为\textbf{系统区}（低地址，存放 OS）和\textbf{用户区}（高地址，存放一道用户程序）。一次只能装入一道用户程序。
-\begin{itemize}
-    \item \textbf{优点}：简单，无需复杂的内存管理。
-    \item \textbf{缺点}：内存利用率极低（用户区剩余空间浪费）；单用户单任务，无并发。
-    \item \textbf{适用}：早期单用户单任务 OS（如 MS-DOS）。
-\end{itemize}
-\end{conclusion}
+动态分区不预先切块。进程装入时，操作系统从空闲区里找一块足够大的连续空间；如果空闲块比请求大，就把剩下的部分留在空闲链里。进程退出后，它占用的空间重新变成空闲块。这样不会产生内部碎片，但会在内存中留下许多不连续的小空闲区，称为\textbf{外部碎片}：空闲总量也许够，却凑不出一段连续的请求。
 
-\subsubsection{固定分区分配}
-
-\begin{conclusion}{固定分区分配}{fixed-partition}
-将用户空间划分为若干个\textbf{固定大小}的分区（各分区大小可相等也可不等）。每个分区只装入一道程序。
-\begin{itemize}
-    \item \textbf{分区说明表}：记录每个分区的起始地址、大小和状态（已分配/未分配）。
-    \item \textbf{优点}：实现简单，无外部碎片（External Fragmentation）。
-    \item \textbf{缺点}：存在\textbf{内部碎片（Internal Fragmentation）}——分配的分区大于程序实际需要的空间，浪费的部分即为内部碎片；分区总数固定，限制了并发进程数。
-\end{itemize}
-\end{conclusion}
+解决外部碎片的办法是\textbf{紧凑}（Compaction）：把已分配的程序往一端移动，让空闲区合并成一大块。移动程序意味着指令里的地址不能是绝对地址，因此紧凑必须建立在动态重定位之上。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\draw[thick] (0,0) rectangle (3.2,6.2);
-\fill[SoftGray] (0,0) rectangle (3.2,1.0);
-\node[align=center] at (1.6,0.5) {系统区\\（低地址，存放 OS）};
-\fill[SoftBlue] (0,1.1) rectangle (3.2,2.0);
-\node at (1.6,1.55) {分区 1};
-\fill[SoftTeal] (0,2.1) rectangle (3.2,3.0);
-\node at (1.6,2.55) {分区 2};
-\fill[SoftAmber] (0,3.1) rectangle (3.2,4.0);
-\node at (1.6,3.55) {分区 3};
-\fill[SoftAmber!45] (0,4.1) rectangle (3.2,5.0);
-\node at (1.6,4.55) {分区 4};
-\fill[SoftGray!50] (0,5.1) rectangle (3.2,6.2);
-\node at (1.6,5.65) {用户区剩余};
-\node[font=\scriptsize, black!70] at (3.9,6.0) {高地址};
-\node[font=\scriptsize, black!70] at (3.9,0.2) {低地址};
-\node[font=\scriptsize, black!60] at (1.6,-0.55) {固定分区：各分区大小固定，每区装入一道程序（存在内部碎片）};
+  % 固定分区
+  \node[font=\scriptsize\bfseries] at (1.6,6.55) {固定分区};
+  \draw (0,0.3) rectangle (3.2,6.2);
+  \fill[SoftGray] (0,0.3) rectangle (3.2,1.2);
+  \node at (1.6,0.75) {操作系统};
+  \fill[SoftBlue] (0,1.2) rectangle (3.2,2.3);
+  \node at (1.6,1.75) {分区 0：程序 A};
+  \fill[SoftAmber!55] (0,2.3) rectangle (3.2,3.6);
+  \fill[SoftAmber!85] (0,2.95) rectangle (3.2,3.6);
+  \draw (0,2.95) -- (3.2,2.95);
+  \node[font=\scriptsize, text=Burgundy] at (1.6,3.25) {内部碎片};
+  \node[font=\tiny] at (1.6,2.62) {分区 1：程序 B};
+  \fill[SoftGray!55] (0,3.6) rectangle (3.2,4.8);
+  \node at (1.6,4.2) {空闲分区};
+  \fill[SoftTeal] (0,4.8) rectangle (3.2,6.2);
+  \node at (1.6,5.5) {分区 2：程序 C};
+  % 动态分区
+  \node[font=\scriptsize\bfseries] at (7.3,6.55) {动态分区};
+  \draw (5.7,0.3) rectangle (8.9,6.2);
+  \fill[SoftTeal] (5.7,0.3) rectangle (8.9,1.8);
+  \node at (7.3,1.05) {程序 A};
+  \fill[SoftGray!55] (5.7,1.8) rectangle (8.9,2.7);
+  \node at (7.3,2.25) {空闲 0.9 MB};
+  \fill[SoftBlue] (5.7,2.7) rectangle (8.9,4.2);
+  \node at (7.3,3.45) {程序 B};
+  \fill[SoftGray!55] (5.7,4.2) rectangle (8.9,5.0);
+  \node at (7.3,4.6) {空闲 0.8 MB};
+  \fill[SoftAmber!45] (5.7,5.0) rectangle (8.9,6.2);
+  \node at (7.3,5.6) {程序 C};
+  \draw[<->, Burgundy, thick] (9.0,1.8) -- (9.0,2.7);
+  \draw[<->, Burgundy, thick] (9.0,4.2) -- (9.0,5.0);
+  \node[right, Burgundy, font=\scriptsize, align=left] at (9.05,2.25) {外部\\碎片};
+  % 紧凑后的结果
+  \node[font=\scriptsize\bfseries] at (12.0,6.55) {紧凑后};
+  \draw (10.4,0.3) rectangle (13.6,6.2);
+  \fill[SoftTeal] (10.4,0.3) rectangle (13.6,1.8);
+  \node at (12.0,1.05) {程序 A};
+  \fill[SoftBlue] (10.4,1.8) rectangle (13.6,3.3);
+  \node at (12.0,2.55) {程序 B};
+  \fill[SoftAmber!45] (10.4,3.3) rectangle (13.6,4.5);
+  \node at (12.0,3.9) {程序 C};
+  \fill[SoftGray!55] (10.4,4.5) rectangle (13.6,6.2);
+  \node at (12.0,5.35) {合并后的大空闲区};
+  \draw[->, thick, MutedText] (9.5,3.2) -- node[above, font=\tiny]{移动} (10.3,3.2);
 \end{tikzpicture}
 \end{center}
 
-\subsubsection{动态分区分配}
+左图固定分区的浪费发生在分区内部，程序 B 用不完的那半块仍然属于它；中图动态分区的空闲块夹在程序之间，总量也许够，但无法满足一次连续的大请求；右图通过移动程序把空闲块合并到一端。紧凑需要动态重定位，否则程序移动后指令里的地址就错了。
 
-\begin{mydef}{动态分区分配}{dynamic-partition}
-根据进程的实际需要，从空闲内存中选择一块\textbf{不小于请求大小}的连续空间；若空闲块更大，通常将剩余部分继续保留为空闲块。初始时整个用户区是一个大空闲块；随着进程的装入和退出，内存中会出现多个大小不等的空闲块和已分配块。
-\end{mydef}
+\subsubsection{空闲链的查找算法}
 
-\begin{conclusion}{动态分区分配算法}{partition-algorithms}
-在动态分区中，空闲块通常组织为\textbf{空闲分区链（Free List）}。当新进程请求大小为 $n$ 的内存时，OS 需要从空闲链中选择一个合适的空闲块。常用算法：
+动态分区通常把空闲块串成空闲链。新请求到来时，按某种规则挑一块：
 
-\begin{tablebox}{动态分区分配算法对比}
+\begin{tablebox}{常见空闲分区分配算法}
 \centering
-\small
-\begin{tabularx}{\linewidth}{|p{0.26\linewidth}|p{0.25\linewidth}|X|}
+\begin{tabularx}{\linewidth}{|p{0.18\linewidth}|p{0.34\linewidth}|X|}
 \hline
-算法 & 策略 & 特点 \\
+算法 & 选择规则 & 特点 \\
 \hline
-\textbf{首次适应（FF）} & 从低地址开始，选第一个 & 简单快速，低地址端易产生小碎片；\\
-First Fit & $\ge n$ 的空闲块 & 高地址端保留大空闲块 \\
+首次适应 FF & 从链头（低地址）开始，选第一个足够大的块 & 查找快；低地址端容易积累小碎片，高地址端保留大块 \\
 \hline
-\textbf{最佳适应（BF）} & 选所有 $\ge n$ 的空闲块中 & 本次分配后的剩余块最小，但每次通常需遍历全链；\\
-Best Fit & \textbf{最小}的那个 & 会产生许多难以利用的微小碎片 \\
+邻近适应 NF & 从上次分配位置继续向后找 & 不必每次从头扫描，空闲区分布较均匀；大块可能被较快消耗 \\
 \hline
-\textbf{最坏适应（WF）} & 选所有 $\ge n$ 的空闲块中 & 剩余空闲块仍较大，可继续分配；\\
-Worst Fit & \textbf{最大}的那个 & 但大空闲块被迅速消耗，仍需遍历全链 \\
+最佳适应 BF & 选所有足够大的块中最小的一块 & 本次剩余最小，但会留下大量难以利用的微小碎片，而且通常要遍历全链 \\
 \hline
-\textbf{邻近适应（NF）} & 从\textbf{上次分配的位置} & 类似 FF 但不用每次从链头开始；\\
-Next Fit & 继续搜索第一个 $\ge n$ 的块 & 空闲分布更均匀，但会更快消耗大块 \\
+最坏适应 WF & 选最大的一块 & 剩余块仍然较大，短期内还能继续分配；大块很快被耗尽 \\
 \hline
 \end{tabularx}
 \end{tablebox}
-\end{conclusion}
 
-\begin{attention}
-\textbf{408 常考：首次适应 vs 最佳适应。}
-\textbf{首次适应（FF）通常查找开销较小}——按地址有序并从表头开始时，找到第一个足够大的空闲块即可停止。最佳适应（BF）选择本次分配后剩余量最小的块，但通常需要检查更多候选块，也可能产生难以利用的小碎片。二者的总体效果依赖请求序列和空闲表组织，不能笼统断言某一种在所有场景下“综合性能最好”。
-\end{attention}
+没有一种算法在所有请求序列下都最好。考试里常比较“首次适应”和“最佳适应”：前者通常查找开销小，后者本次浪费小但碎片更碎。判断时要看题目强调的是查找时间、剩余空间还是碎片形态，不能只背一句“最佳适应最好”。
 
-\subsubsection{碎片问题与紧凑}
+\subsection{分页：把地址切成页号和页内偏移}
 
-\begin{conclusion}{外部碎片与内部碎片}{fragmentation}
-\begin{itemize}
-    \item \textbf{外部碎片（External Fragmentation）}：空闲内存总量足够，但由于不连续，无法满足一个连续分配的请求。动态分区会产生外部碎片。
-    \item \textbf{内部碎片（Internal Fragmentation）}：分配给进程的空间比进程实际需要的稍大（通常因按固定大小单元分配），浪费的是已分配区域内部的空间。固定分区和分页（最后一页）会产生内部碎片。
-\end{itemize}
-
-\textbf{解决外部碎片的方法：}
-\begin{enumerate}
-    \item \textbf{紧凑（Compaction）}：通过移动已在内存中的进程，将空闲块合并成一个大连续块。需要\textbf{动态重定位}支持（进程移动后基址寄存器更新）。
-    \item \textbf{离散分配}：允许进程分散在内存的不连续区域（分页、分段），从根本上消除外部碎片。
-\end{enumerate}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 常考辨析：内部碎片 vs 外部碎片。}
-\begin{itemize}
-    \item 固定分区产生\textbf{内部碎片}（无外部碎片）；
-    \item 动态分区产生\textbf{外部碎片}（无内部碎片，除非分配策略浪费）；
-    \item 分页系统产生\textbf{内部碎片}（最后一页的页内碎片）；
-    \item 分段系统产生\textbf{外部碎片}（段长可变，类似动态分区）。
-\end{itemize}
-\end{attention}
-
-\subsection{离散分配——分页存储管理}
-
-\begin{mydef}{分页存储管理}{paging}
-分页（Paging）将进程的逻辑地址空间划分为若干\textbf{大小相等}的块，称为\textbf{页（Page）}；将物理内存也划分为同样大小的块，称为\textbf{页框（Page Frame）}或\textbf{物理块}。页面和页框的大小通常为 4 KB（$2^{12}$ B）。
-
-进程的页面离散地装入内存中\textbf{任意空闲}的页框，通过\textbf{页表（Page Table）}记录页号与页框号的映射关系。
-\end{mydef}
+连续分配要求整块空间，外部碎片很难避免。分页换了一个思路：把逻辑地址空间切成大小相等的\textbf{页}（Page），把物理内存切成同样大小的\textbf{页框}（Page Frame，也叫物理块）。进程的页可以离散地装进任意空闲页框，页与页之间不需要连续，于是外部碎片消失；代价是最后一页可能装不满，产生内部碎片。
 
 \subsubsection{地址结构}
 
-\begin{formula}{分页地址结构}{paging-addr-struct}
-给定页面大小 $P = 2^{p}$，逻辑地址 $A$（$m$ 位）被拆分为两部分：
-
+设页面大小为 $2^k$ 字节。逻辑地址 $A$ 的低 $k$ 位就是页内偏移 $d$，高位是页号 $p$：
 \[
-\boxed{\text{逻辑地址} = (\text{页号 } p_n,\; \text{页内偏移 } d)}
+p=\left\lfloor \frac{A}{2^k}\right\rfloor,\qquad
+d=A\bmod 2^k,\qquad
+A=(p\ll k)\;|\;d.
 \]
-
-\begin{itemize}
-    \item \textbf{页号} $p_n = \lfloor A / P \rfloor$ （高位部分，$m-p$ 位）
-    \item \textbf{页内偏移} $d = A \bmod P$ （低位部分，$p$ 位）
-\end{itemize}
-
-物理地址同样由\textbf{页框号} $f_n$（页表中查得）和\textbf{页内偏移} $d$ 拼接而成：
-
+物理地址由页框号 $f$ 和同一个偏移拼成：
 \[
-\boxed{\text{物理地址} = f_n \times P + d}
+\text{物理地址}=(f\ll k)\;|\;d=f\cdot 2^k+d.
 \]
+注意偏移在翻译前后\textbf{原样保留}，变的只有前面的页号。实际系统通常把页面大小取成 2 的幂，这样硬件可以直接按位切分，不必做除法。
 
-实际硬件中，页内偏移 $d$ 在地址变换前后\textbf{保持不变}——仅页号替换为页框号。
-\end{formula}
+例如页面大小 4 KB（$k=12$），逻辑地址 \texttt{0x12345} 的页号是 \texttt{0x12}，偏移是 \texttt{0x345}。若页表把页 \texttt{0x12} 映射到页框 \texttt{0x7}，物理地址就是 \texttt{0x7345}。计算时先把地址写成二进制或十六进制，再按 12 位一组切开，比做十进制除法更不容易错。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % 逻辑地址：页号 + 偏移
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftBlue] (pn) at (0,0) {页号 $p_n$};
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftBlue] (d) at (1.9,0) {偏移 $d$};
-  \node[font=\scriptsize, text=TealDark] at (0.95,1.15) {逻辑地址};
+  % 逻辑地址
+  \draw (0,4.2) rectangle (2.8,4.9) node[midway]{页号 $p$（20 位）};
+  \draw (2.8,4.2) rectangle (4.4,4.9) node[midway]{偏移 $d$（12 位）};
+  \node[font=\scriptsize\bfseries] at (2.2,5.25) {逻辑地址 $A$};
+  % PTBR
+  \node[draw, fill=SoftGray, minimum width=2.0cm, minimum height=0.55cm] (ptbr) at (-1.3,3.1) {PTBR};
+  \draw[->] (ptbr.east) -- (0,3.1);
   % 页表
-  \node[draw,rectangle,minimum width=3.0cm,minimum height=0.7cm,fill=SoftGray] (pt) at (0,-1.7) {页表：$p_n \to f_n$};
-  % 物理地址：页框号 + 偏移（不变）
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftAmber] (f) at (0,-3.4) {页框号 $f_n$};
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftAmber] (d2) at (1.9,-3.4) {偏移 $d$};
-  \node[font=\scriptsize, text=TealDark] at (0.95,-4.5) {物理地址};
-  % 箭头
-  \draw[->] (pn.south) -- (pt.north);
-  \draw[->] (pt.south) -- (f.north);
-  \draw[->,dashed] (d.south) -- (d2.north);
+  \draw (0,0.4) rectangle (2.6,3.4);
+  \foreach \y in {2.9,2.4,1.9,1.4,0.9} \draw (0,\y) -- (2.6,\y);
+  \node at (1.3,3.15) {页表};
+  \node at (1.3,2.65) {0};
+  \node at (1.3,2.15) {1};
+  \node at (1.3,1.65) {$\vdots$};
+  \fill[SoftAmber] (0,0.9) rectangle (2.6,1.4);
+  \node at (1.3,1.15) {$p$};
+  \node at (1.3,0.65) {$\vdots$};
+  \draw[->, thick] (1.4,4.15) -- node[right, font=\tiny]{按 $p$ 索引} (1.4,3.45);
+  % 物理地址
+  \draw (3.2,-1.3) rectangle (5.2,-0.6) node[midway]{页框号 $f$};
+  \draw (5.2,-1.3) rectangle (6.4,-0.6) node[midway]{偏移 $d$};
+  \node[font=\scriptsize\bfseries] at (4.8,-1.75) {物理地址};
+  \draw[->, thick] (2.65,1.15) -- node[above, font=\tiny]{取页框号 $f$} (4.2,1.15) -- (4.2,-0.55);
+  \draw[->, dashed, TealDark] (3.6,4.15) -- (5.8,4.15) -- node[right, font=\tiny]{偏移不变} (5.8,-0.55);
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-\textbf{408 计算核心：页面大小 = $2^p$ 时，逻辑地址低 $p$ 位为页内偏移，其余高位为页号。}
-例如页面大小 4 KB（$p=12$），逻辑地址为 32 位，则页号占高 20 位（$2^{20}$ 个页），页内偏移占低 12 位（$0\sim4095$）。
+图中页表项地址由 PTBR 加上“页号 $\times$ 页表项大小”得到；取出页框号后，把它和原来的偏移拼起来。页表本身存放在内存里，所以不查 TLB 时，一次数据访问至少要访问内存两次：一次读页表项，一次读数据。
 
-\textbf{常考题型：} 给出页面大小和逻辑地址，求页号和页内偏移 $\to$ 逻辑地址除以页面大小。
-\end{attention}
+页面大小是一个权衡。页大，页表项少、页表小，TLB 能覆盖更大的地址范围，但最后一页的内部碎片更大，换入换出一次搬的数据也更多；页小则相反。408 题目一般直接给出页面大小，实际系统常见 4 KB，也有 2 MB、1 GB 的大页。
 
-\subsubsection{页表与地址变换}
-
-\begin{mydef}{页表}{page-table}
-每个进程拥有一张\textbf{页表}，存放在内存中。页表项（PTE，Page Table Entry）通常包含：
-\begin{itemize}
-    \item \textbf{页框号（Frame Number）}：该页映射到哪个物理页框；
-    \item \textbf{有效位（Valid/Present Bit）}：该页是否在内存中（$1$ = 在内存，$0$ = 不在，即缺页）；
-    \item \textbf{保护位（Protection Bits）}：读/写/执行权限；
-    \item \textbf{引用位（Reference/Accessed Bit）}：该页是否被访问过（用于页面置换）；
-    \item \textbf{修改位（Dirty/Modified Bit）}：该页是否被修改过（换出时决定是否写回磁盘）。
-\end{itemize}
-
-\textbf{页表寄存器（PTBR，Page Table Base Register）}指向当前进程页表的起始物理地址。
-\end{mydef}
-
-\begin{formula}{分页地址变换过程}{paging-addr-trans}
-CPU 发出逻辑地址 $A$，MMU 执行以下变换：
-
-\begin{enumerate}
-    \item 从 $A$ 中提取页号 $p$ 和页内偏移 $d$；
-    \item 以 $p$ 为索引，在页表中找到对应的页表项（$\text{PTBR} + p \times \text{PTE 大小}$）；
-    \item 检查有效位：若 $=0$，触发\textbf{缺页中断}；
-    \item 取出页框号 $f$，与偏移 $d$ 拼接：$\text{物理地址} = f \times \text{页面大小} + d$。
-\end{enumerate}
-
-\[
-\boxed{\text{物理地址} = (\text{页框号} \ll p)\;|\;\text{页内偏移}}
-\]
-
-其中 $\ll p$ 表示左移 $p$ 位（即乘 $2^p$），$|$ 表示拼接。
-\end{formula}
-
-\begin{attention}
-\textbf{408 综合题中的地址变换：} 分页系统的每次数据/指令访问都需要至少\textbf{两次访存}——第一次访问页表（读 PTE），第二次访问实际数据。这是分页的主要性能开销。TLB 正是为了解决这一问题引入的（见下文）。
-\end{attention}
-
-\subsubsection{TLB（快表）}
-
-\begin{mydef}{TLB}{os-tlb}
-\textbf{TLB（Translation Lookaside Buffer，快表/地址变换后备缓冲器）}是一个\textbf{高速、小容量}的硬件 Cache，缓存最近使用的页表项。TLB 位于 MMU 内部，采用\textbf{全相联或组相联}映射，访问速度接近 CPU 寄存器。
-
-每次地址变换时，首先在 TLB 中查找页号（并行比较）；若命中（TLB Hit）则直接获取页框号，无需访问内存中的页表；若缺失（TLB Miss）则需访问内存页表，并将新 PTE 装入 TLB。
-\end{mydef}
-
-\begin{formula}{引入 TLB 后的有效访存时间}{tlb-eat}
-设：
-\begin{itemize}
-    \item 一次内存访问的时间为 $t_{\text{mem}}$
-    \item TLB 查找时间为 $t_{\text{TLB}}$（通常远小于 $t_{\text{mem}}$，可嵌入访存流水线）
-    \item TLB 命中率为 $h$
-\end{itemize}
-
-\textbf{TLB 命中时的访存时间：} $t_{\text{TLB}} + t_{\text{mem}}$（TLB 查找 + 一次访存）。
-
-\textbf{TLB 缺失时的访存时间：} $t_{\text{TLB}} + 2 \times t_{\text{mem}}$（TLB 查找 + 访问页表 + 访问数据）。
-
-\textbf{有效访存时间（EAT，Effective Access Time）：}
-\[
-\boxed{\text{EAT} = h \times (t_{\text{TLB}} + t_{\text{mem}}) + (1-h) \times (t_{\text{TLB}} + 2t_{\text{mem}})}
-\]
-
-若 $t_{\text{TLB}}$ 可忽略：
-\[
-\boxed{\text{EAT} \approx h \times t_{\text{mem}} + (1-h) \times 2t_{\text{mem}} = (2-h) \times t_{\text{mem}}}
-\]
-
-当 TLB 命中率很高（$\ge 99\%$）时，EAT 仅略大于一次访存时间，性能损耗极小。
-\end{formula}
-
-\begin{attention}
-\textbf{408 高频计算：TLB + 页表 + Cache 综合题。}
-典型考题流程：CPU 发出逻辑地址 $\to$ \textcircled{1} TLB 查找（命中/缺失）$\to$ \textcircled{2} （若缺失）访问页表 $\to$ \textcircled{3} 得到物理地址 $\to$ \textcircled{4} 访问 Cache（命中/缺失）$\to$ \textcircled{5} （若缺失）访问主存。\textbf{关键：理解每一步的先后依赖关系和各自的命中率。}
-\end{attention}
-
-\subsubsection{多级页表}
-
-\begin{formula}{二级页表与多级页表}{multi-level-pagetable}
-现代 64 位系统的虚拟地址空间极大（实现常使用其中一部分有效位，例如 48 位），若为整个空间配置稠密单级页表，页表会占用不可接受的巨量内存，工程上通常采用多级页表等稀疏组织方式。这里的问题是空间代价不现实，而不是数学意义上的“不能编码”。
-
-\textbf{二级页表的地址变换：}
-\[
-\boxed{\text{逻辑地址} = (\text{一级页号 } p_1,\; \text{二级页号 } p_2,\; \text{页内偏移 } d)}
-\]
-\begin{enumerate}
-    \item 以 $p_1$ 为索引，查\textbf{一级页表（页目录）}，得到二级页表的基址；
-    \item 以 $p_2$ 为索引，查\textbf{二级页表}，得到页框号；
-    \item 拼接页框号和 $d$，得到物理地址。
-\end{enumerate}
-
-\textbf{多级页表的优势：}
-\begin{itemize}
-    \item \textbf{节省内存}：只将实际使用的页表部分保留在内存中。未使用的页表项对应的二级页表不需要分配。
-    \item \textbf{页表本身可以离散存放}：二级页表不需要连续的物理内存。
-\end{itemize}
-
-\textbf{多级页表的代价：}
-\begin{itemize}
-    \item 地址变换需要更多次访存（$k$ 级页表需要 $k$ 次内存访问取 PTE + 1 次访问数据）。TLB 命中可消除这一开销。
-\end{itemize}
-\end{formula}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % 逻辑地址：p1 | p2 | d
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftBlue] (p1) at (-4.0,0) {$p_1$};
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftBlue] (p2) at (-0.5,0) {$p_2$};
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftBlue] (d) at (1.5,0) {偏移 $d$};
-  \node[font=\scriptsize, text=TealDark] at (-1.25,1.15) {逻辑地址};
-  % 页目录（一级页表） + 二级页表
-  \node[draw,rectangle,minimum width=2.5cm,minimum height=1.1cm,fill=SoftGray,align=center] (dir) at (-4.0,-2.0) {页目录（一级页表）\\ 页目录项 $\to$ 二级页表基址};
-  \node[draw,rectangle,minimum width=2.5cm,minimum height=1.1cm,fill=SoftGray,align=center] (pt) at (-0.5,-2.0) {二级页表\\ 页表项 $\to$ 页框号 $f$};
-  % 物理地址：页框号 f | 偏移 d（不变）
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftAmber] (f) at (-0.5,-4.0) {页框号 $f$};
-  \node[draw,rectangle,minimum width=1.5cm,minimum height=0.7cm,fill=SoftAmber] (d2) at (1.5,-4.0) {偏移 $d$};
-  \node[font=\scriptsize, text=TealDark] at (0.5,-5.1) {物理地址};
-  % 箭头
-  \draw[->] (p1.south) -- node[above]{$p_1$ 索引} (dir.north);
-  \draw[->] (p2.south) -- node[above]{$p_2$ 索引} (pt.north);
-  \draw[->,dashed] (d.south) -- node[above]{偏移} (d2.north);
-  \draw[->] (dir.east) -- node[above]{基址} (pt.west);
-  \draw[->] (pt.south) -- (f.north);
-\end{tikzpicture}
-\end{center}
-
-\begin{attention}
-\textbf{408 重点：二级页表的地址变换计算。}
-以 32 位逻辑地址、页面大小 4 KB 为例。典型划分：一级页号 10 位（$2^{10}$ 个页目录项），二级页号 10 位（$2^{10}$ 个页表项），页内偏移 12 位（4 KB）。每级页表恰好占一个页面（$2^{10} \times 4\text{ B/PTE} = 4\text{ KB}$）。考察方式：给定多级页表结构，计算各级页号、访存次数、访问的物理地址。
-\end{attention}
-
-\subsection{离散分配——分段存储管理}
-
-\begin{mydef}{分段存储管理}{segmentation}
-分段（Segmentation）按程序的\textbf{自然逻辑单元}（如代码段、数据段、堆栈段）来划分地址空间。每个段有不同的\textbf{段名}和\textbf{段长}（可变），有独立的逻辑意义和访问权限。
-
-每个进程拥有一张\textbf{段表（Segment Table）}，每项包含：
-\begin{itemize}
-    \item \textbf{段基址（Base）}：该段在物理内存中的起始地址；
-    \item \textbf{段界限（Limit）}：该段的长度；
-    \item \textbf{保护位}：读/写/执行权限。
-\end{itemize}
-\end{mydef}
-
-\begin{formula}{分段地址变换}{seg-addr-trans}
-逻辑地址由\textbf{段号} $s$ 和\textbf{段内偏移} $d$ 组成：
-\[
-\boxed{\text{逻辑地址} = (\text{段号 } s,\; \text{段内偏移 } d)}
-\]
-
-地址变换过程：
-\begin{enumerate}
-    \item 以段号 $s$ 为索引，查段表得到段基址 $b$ 和段界限 $l$；
-    \item 检查 $d < l$（越界检查），否则触发\textbf{段越界中断}；
-    \item $\text{物理地址} = b + d$。
-\end{enumerate}
-
-\[
-\boxed{\text{物理地址} = \text{段基址} + \text{段内偏移}}
-\]
-\end{formula}
-
-\begin{attention}
-\textbf{408 辨析：分段地址变换 vs 分页地址变换。}
-分页中，页内偏移直接拼接在页框号后（二者位宽固定）；分段中，段内偏移与段基址是\textbf{相加}关系。分段必须显式检查 $d < \text{段长}$；分页不需要对页内偏移做同类的段长比较，但仍要检查页号/PTE 是否属于进程的有效地址空间以及访问权限。
-\end{attention}
-
-\begin{conclusion}{分页与分段的对比}{paging-vs-seg}
-\begin{tablebox}{分页 vs 分段}
+\begin{tablebox}{页面大小的取舍}
 \centering
-\begin{tabularx}{\linewidth}{|p{0.23\linewidth}|X|X|}
+\begin{tabularx}{\linewidth}{|p{0.18\linewidth}|X|X|}
 \hline
-维度 & 分页 & 分段 \\
+ & 页面较大 & 页面较小 \\
 \hline
-划分依据 & 物理单位（固定大小） & 逻辑单位（可变大小）\\
-地址空间 & 一维（连续的逻辑地址） & 二维（段号 $+$ 段内偏移）\\
-程序员可见性 & 不可见（透明） & 可见（程序员划分段）\\
-共享与保护 & 按页（不方便，一页可能包含多种数据） & 按段（方便，段有逻辑意义）\\
-碎片 & 内部碎片（最后一页） & 外部碎片（段长可变）\\
-地址变换 & 拼接（页框号 $\parallel$ 偏移） & 加法（段基址 $+$ 偏移）\\
-地址合法性检查 & 检查页号/PTE 有效性与权限；无段长式偏移比较 & 检查段号、$d<\text{段长}$ 与权限\\
+页表 & 页表项少，页表占内存少 & 页表项多，页表占内存多 \\
+\hline
+TLB & 同样项数能覆盖更大范围 & 覆盖范围小，TLB 缺失更频繁 \\
+\hline
+碎片 & 最后一页的内部碎片大 & 内部碎片小 \\
+\hline
+I/O & 一次换入换出数据多，传输时间长 & 传输时间短，但缺页次数可能更多 \\
 \hline
 \end{tabularx}
 \end{tablebox}
-\end{conclusion}
 
-\subsection{段页式存储管理}
+\subsubsection{页表与页表项}
 
-\begin{mydef}{段页式存储管理}{segmented-paging}
-段页式存储管理将分页和分段结合：先将用户程序按逻辑划分为若干\textbf{段}，每段再划分为若干\textbf{页}；物理内存按\textbf{页框}划分。
-
-逻辑地址变为三维结构：
-\[
-\boxed{\text{逻辑地址} = (\text{段号 } s,\; \text{页号 } p,\; \text{页内偏移 } d)}
-\]
-
-每个进程有一张\textbf{段表}，每段有一张\textbf{页表}。段表项指向该段的页表起始地址和页表长度。
-\end{mydef}
-
-\begin{formula}{段页式地址变换过程}{seg-paging-addr-trans}
-\begin{enumerate}
-    \item 以段号 $s$ 为索引查段表，得到该段的页表基址和页表长度；
-    \item 检查页号 $p$ 是否小于页表长度（越界检查）；
-    \item 以 $p$ 为索引查该段的页表，得到页框号 $f$；
-    \item 物理地址 $= f \times \text{页面大小} + d$。
-\end{enumerate}
-
-\textbf{访存次数：} 段页式一次访存需要\textbf{三次}访存——段表 + 页表 + 数据。同样需要 TLB 来减少开销。
-\end{formula}
-
-\begin{attention}
-\textbf{408 考点：段页式的优势。} 
-段页式兼具分段和分页的优点——既按逻辑单元分段（便于共享和保护），又通过分页消除外部碎片。但增加了地址变换的复杂度和访存次数（三次访存）。Linux/x86 实际采用的是段页式（虽然 Linux 将段基址设为 0，实质上退化为纯分页模型）。
-\end{attention}
-
-\subsection{虚拟内存}
-
-\subsubsection{局部性原理}
-
-\begin{mydef}{局部性原理}{locality-principle}
-局部性原理（Principle of Locality）是虚拟内存系统得以工作的理论基础，由 Denning 系统阐述：
-\begin{itemize}
-    \item \textbf{时间局部性（Temporal Locality）}：如果某个指令/数据被访问，那么在不久的将来它很可能再次被访问。典型例子：循环中的指令和变量。
-    \item \textbf{空间局部性（Spatial Locality）}：如果某个存储单元被访问，那么其附近的存储单元也很可能很快被访问。典型例子：数组的顺序访问、指令的顺序执行。
-\end{itemize}
-
-\textbf{局部性是 Cache 和虚拟内存设计的基石。} 正是因为程序具有局部性，我们才可以将进程的\textbf{部分页面}装入内存而正常运行——大部分访存都落在当前活跃的页面集合（工作集）中。
-\end{mydef}
-
-\begin{attention}
-\textbf{408 常考辨析：时间局部性 vs 空间局部性。}
-\begin{itemize}
-    \item 循环中的求和变量 $\to$ \textbf{时间局部性}（反复访问同一变量）；
-    \item 遍历数组 \texttt{a[0..N-1]} $\to$ \textbf{空间局部性}（依次访问相邻元素）；
-    \item 循环体中的指令 $\to$ \textbf{时间局部性}（反复执行同一条指令）\textbf{+ 空间局部性}（指令顺序存放）。
-\end{itemize}
-\end{attention}
-
-\subsubsection{虚拟内存的概念}
-
-\begin{mydef}{虚拟内存}{virtual-memory}
-虚拟内存（Virtual Memory）是一种内存管理技术，它允许进程在\textbf{不需要全部装入物理内存}的情况下运行。程序被划分为页面，仅有当前需要的页面驻留在物理内存中，其余页面存放在磁盘（交换区/Swap）上。当访问不在内存的页面时，由 OS 将其调入。
-
-\textbf{核心特征：}
-\begin{enumerate}
-    \item \textbf{离散性}：进程在内存中不必连续存放（分页/分段的基础）；
-    \item \textbf{多次性}：进程分多次装入内存（而非一次性全部装入）；
-    \item \textbf{对换性}：进程的页面可在内存和磁盘之间换入换出；
-    \item \textbf{虚拟性}：从逻辑上扩充内存容量，使进程可用的逻辑地址空间远大于物理内存。
-\end{enumerate}
-\end{mydef}
-
-\begin{attention}
-\textbf{408 考点：虚拟内存的最大容量}由\textbf{地址结构}（CPU 寻址位数）决定，与实际物理内存大小无关。例如 32 位系统，最大虚拟地址空间为 $2^{32}=4\text{ GB}$。虚拟内存的\textbf{实际容量}受 $\min(\text{CPU 寻址范围},\; \text{内存容量} + \text{外存交换区容量})$ 制约。
-\end{attention}
-
-\subsubsection{请求分页}
-
-\begin{mydef}{请求分页系统}{demand-paging}
-请求分页（Demand Paging）是最基本的虚拟内存实现方式。基本思想：
-\begin{itemize}
-    \item 进程开始时，仅将少量必要的页面装入内存（甚至可以先不装入任何页面——纯粹按需调页）；
-    \item 当 CPU 访问的页面不在内存时（页表项有效位 $= 0$），触发\textbf{缺页中断（Page Fault）}；
-    \item OS 缺页中断处理程序从磁盘中调入缺失的页面，更新页表，然后重新执行导致缺页的指令。
-\end{itemize}
-\end{mydef}
-
-\begin{conclusion}{缺页中断处理流程}{page-fault-handler}
-缺页中断是一种特殊的\textbf{异常（Fault）}，其处理流程如下：
-\begin{enumerate}
-    \item 硬件检测到缺页（页表项有效位 $=0$），触发缺页异常，陷入内核；
-    \item OS 保存现场（寄存器、程序计数器等）；
-    \item OS 判断该逻辑地址是否合法（属于该进程的地址空间）。若非法$\to$终止进程；若合法$\to$继续：
-    \item 从空闲页框中分配一个（若无空闲$\to$执行页面置换算法，选出换出页面）；
-    \item 若换出页面被修改过（Dirty 位 $=1$），将其写回磁盘；
-    \item 从磁盘将缺失的页面读入分配到的页框；
-    \item 更新页表（设置页框号、有效位 $=1$），更新 TLB；
-    \item 恢复现场，重新执行导致缺页的指令。
-\end{enumerate}
-\end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, node distance=0.72cm, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=3.6cm, minimum height=0.55cm] (a) {访问页面不在内存（有效位 = 0）};
-\node[draw, rectangle, fill=SoftAmber, minimum width=3.6cm, minimum height=0.55cm, below of=a] (b) {触发缺页中断，陷入内核，保存现场};
-\node[draw, rectangle, fill=SoftBlue, minimum width=3.6cm, minimum height=0.55cm, below of=b] (c) {检查地址合法性：非法则终止进程};
-\node[draw, rectangle, fill=SoftBlue, minimum width=3.6cm, minimum height=0.55cm, below of=c] (d) {分配空闲页框；无空闲则按算法置换};
-\node[draw, rectangle, fill=SoftTeal, minimum width=3.6cm, minimum height=0.55cm, below of=d] (e) {从磁盘读入页面（被置换脏页先写回）};
-\node[draw, rectangle, fill=SoftGray, minimum width=3.6cm, minimum height=0.55cm, below of=e] (f) {更新页表与 TLB，恢复现场};
-\node[draw, rectangle, fill=SoftGray, minimum width=3.6cm, minimum height=0.55cm, below of=f] (g) {重新执行导致缺页的指令};
-\draw[->] (a) -- (b); \draw[->] (b) -- (c); \draw[->] (c) -- (d); \draw[->] (d) -- (e); \draw[->] (e) -- (f); \draw[->] (f) -- (g);
-\end{tikzpicture}
-\end{center}
-
-\begin{attention}
-\textbf{408 常考：缺页中断与普通中断的区别。}
-\begin{itemize}
-    \item 缺页中断在\textbf{指令执行过程中}产生（属于异常/Fault），而非下一条指令开始前（属于中断）；
-    \item 缺页中断处理完成后，需要\textbf{重新执行}导致缺页的那条指令（而不是执行下一条）；
-    \item 一条指令可能导致\textbf{多次}缺页（如跨页的指令本身、多个操作数各自跨页等）。
-\end{itemize}
-\end{attention}
-
-\subsubsection{页面置换算法}
-
-\begin{mydef}{页面置换算法}{page-replacement-algorithms}
-当缺页发生且无空闲页框时，OS 需要选择一个已在内存中的页面换出（Evict）。置换算法的目标是使\textbf{缺页率（Page Fault Rate）}最低。选择哪个页面换出由页面置换算法决定。
-\end{mydef}
-
-\begin{formula}{有效访问时间（含缺页处理）}{eat-with-pagefault}
-设：
-\begin{itemize}
-    \item $t_{\text{mem}}$：一次内存访问时间
-    \item $t_{\text{pf}}$：缺页处理时间（主要是磁盘 I/O，通常为 ms 级）
-    \item $p$：缺页率（Page Fault Rate）
-    \item $t_{\text{TLB}}$ 忽略不计
-\end{itemize}
-
-若 $t_{\text{pf}}$ 表示从检测缺页到调页完成、但\textbf{不含重新执行后的那次内存访问}，则
-\[
-\boxed{\text{EAT} = (1-p)t_{\text{mem}} + p(t_{\text{pf}}+t_{\text{mem}})
-=t_{\text{mem}}+p\,t_{\text{pf}}}
-\]
-若题目把重新执行和最终访存也包含在 $t_{\text{pf}}$ 中，才写成
-$(1-p)t_{\text{mem}}+p\,t_{\text{pf}}$。计算前必须先辨明题目对“缺页处理时间”的定义。
-由于 $t_{\text{pf}} \gg t_{\text{mem}}$（数量级差 $10^5 \sim 10^6$），即使缺页率很低，也会显著影响性能。例如：$t_{\text{mem}} = 100\text{ ns}$，$t_{\text{pf}} = 8\text{ ms}$，缺页率 $p = 0.001\%$ 时：
-\[
-\text{EAT} \approx 100\text{ ns} + 0.00001 \times 8\text{ ms} \approx 180\text{ ns}
-\]
-性能下降近一倍。
-\end{formula}
-
-% --- OPT ---
-\begin{conclusion}{最优页面置换算法 OPT}{opt-algorithm}
-\textbf{OPT（Optimal Page Replacement，最佳置换算法）}：选择\textbf{在未来最长时间内不再被访问}的页面换出。
-
-OPT 是所有算法中缺页率最低的，但它是\textbf{不可实现的}（需要预知未来的访问序列）。OPT 仅作为理论上的\textbf{性能标尺}，用于衡量其他算法的优劣。
-
-\boxed{\textbf{例}} 内存可容纳 3 个页面，访问序列：$7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1$。OPT 置换过程：共 9 次缺页（\textbf{Belady 异常不会在 OPT 中发生}）。
-\end{conclusion}
-
-% --- FIFO ---
-\begin{conclusion}{先进先出置换算法 FIFO}{fifo-algorithm}
-\textbf{FIFO（First-In First-Out）}：维护一个 FIFO 队列，选择\textbf{最早进入内存}的页面换出。
-
-\begin{itemize}
-    \item \textbf{优点}：实现简单（只需一个循环队列）。
-    \item \textbf{缺点}：完全忽略了页面的访问频率和使用情况；可能置换出频繁使用的页面。
-    \item \textbf{Belady 异常（Belady's Anomaly）}：对于 FIFO，增加物理页框数有时反而导致\textbf{缺页次数增加}。
-\end{itemize}
-
-\boxed{\textbf{例（Belady 异常）}} 访问序列：$1,2,3,4,1,2,5,1,2,3,4,5$。3 个页框时缺页 9 次，4 个页框时缺页 10 次。\textbf{LRU 和 OPT 不会出现 Belady 异常}（它们属于栈类算法）。
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频考点：Belady 异常。} 
-OPT 和 LRU 是\textbf{栈类算法（Stack Algorithm）}——$n$ 个页框时的驻留集始终是 $n+1$ 个页框时驻留集的子集，因此不会出现 Belady 异常。FIFO 是最典型的会出现 Belady 异常的算法。基本 CLOCK/Second-Chance 不是栈类算法，理论上也可能出现 Belady 异常，不能因为它近似 LRU 就断言一定不会出现。
-\end{attention}
-
-% --- LRU ---
-\begin{conclusion}{最近最久未使用置换算法 LRU}{lru-algorithm}
-\textbf{LRU（Least Recently Used）}：选择\textbf{最近最久未被访问}的页面换出。基于「过去不常使用的页面未来也不太可能被使用」的局部性原理。
-
-\textbf{LRU 实现方式：}
-\begin{enumerate}
-    \item \textbf{计数器法}：为每个页表项关联一个时间戳（逻辑时钟）。每次页面被访问时，将当前时钟值写入该 PTE。置换时选择时间戳最小的页面。
-    \item \textbf{栈法}：维护一个按访问时间排序的页面号栈。每次访问将页面移至栈顶；置换时选择栈底页面。
-\end{enumerate}
-
-\begin{itemize}
-    \item \textbf{优点}：性能接近 OPT，是实际可实现的算法中效果最好的。
-    \item \textbf{缺点}：每次访存都需更新计数器或调整栈，纯硬件支持成本高（TLB 可辅助）。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频计算：LRU 置换过程与缺页次数统计。} 
-考题通常给出内存容量（页框数）和页面访问序列，要求模拟 LRU 置换过程，统计缺页次数。技巧：维护一个 LRU 栈（或访问顺序表），每次访问后将当前页面移到队尾（最近被访问的一端），队头即为最久未使用的页面。
-
-\textbf{注意区分「LRU 栈」和「FIFO 队列」：} FIFO 中页面进入顺序不变（仅在置换时才变化）；LRU 中每次\textbf{访问命中}都会改变页面的顺序。
-\end{attention}
-
-% --- CLOCK ---
-\begin{conclusion}{CLOCK（Second-Chance）置换算法}{clock-algorithm}
-\textbf{CLOCK 算法}又称 Second-Chance（第二次机会）算法，是 LRU 的一种\textbf{近似实现}。它利用 PTE 中的\textbf{访问位（Reference/Accessed Bit）}，避免维护精确的访问时间顺序。NRU（Not Recently Used）通常按访问位和修改位把页面分组后选择牺牲页，是相关但不同的算法，不能把 NRU 当作 CLOCK 的别名。
-
-\textbf{基本 CLOCK 算法：}
-\begin{enumerate}
-    \item 将所有驻留页面组织成\textbf{环形链表}（类似时钟面盘），维护一个指针（时钟指针）；
-    \item 发生缺页需置换时：
-    \begin{itemize}
-        \item 检查当前指针所指页面的访问位；
-        \item 若访问位 $=0$：选择该页换出，指针前进一位，结束；
-        \item 若访问位 $=1$：将访问位清 $0$（「给第二次机会」），指针前进一位，重新检查。
-    \end{itemize}
-    \item 如果遍历一圈全为 $1$，则所有访问位都被清 $0$，第二轮必定找到 $0$。
-\end{enumerate}
-
-\textbf{直观理解：} CLOCK 就像给每个页面「一次免死金牌」。如果最近被访问过（访问位 $=1$），则暂时放过（清 $0$），除非一轮下来仍无其他候选。
-\end{conclusion}
+每个进程有一张页表，页表基址寄存器 PTBR 指向它在内存中的起始位置。进程切换时，操作系统把 PTBR 换成新进程的页表基址，地址空间就跟着换了。页表项（PTE，Page Table Entry）通常包含：
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 环形页框，每个页框标注其访问位（访问位=1 最近被访问，被指针清 0 后视为“第二次机会”）
-\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F0) at (30:2.5cm) {\scriptsize $P0$\\[1pt]\scriptsize $b=0$};
-\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F1) at (90:2.5cm) {\scriptsize $P1$\\[1pt]\scriptsize $b=1$};
-\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F2) at (150:2.5cm) {\scriptsize $P2$\\[1pt]\scriptsize $b=1$};
-\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F3) at (210:2.5cm) {\scriptsize $P3$\\[1pt]\scriptsize $b=0$};
-\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F4) at (270:2.5cm) {\scriptsize $P4$\\[1pt]\scriptsize $b=1$};
-\node[draw, rectangle, minimum width=1.05cm, minimum height=0.95cm, rounded corners=1pt, fill=SoftBlue, align=center] (F5) at (330:2.5cm) {\scriptsize $P5$\\[1pt]\scriptsize $b=0$};
-% 环形链（顺时针）
-\draw[->] (F0) -- (F1);
-\draw[->] (F1) -- (F2);
-\draw[->] (F2) -- (F3);
-\draw[->] (F3) -- (F4);
-\draw[->] (F4) -- (F5);
-\draw[->] (F5) -- (F0);
-% 时钟指针（指向当前候选页框）
-\node[circle, fill=Amber, minimum size=0.3cm, inner sep=0pt] at (0,0) {};
-\draw[->, very thick, Amber] (0,0) -- (F0);
-\node[text=Amber, font=\scriptsize] at (105:3.7) {时钟指针};
-% 顺时针方向标注
-\draw[->, gray, dashed, thick] (75:3.35) arc[start angle=75, end angle=25, radius=3.35];
-\node[text=gray, font=\scriptsize] at (55:3.95) {顺时针};
-\node[font=\scriptsize, MutedText] at (0,-3.4) {指针指向候选页框 $P0$（$b=0$ 则置换；$b=1$ 则清 $0$ 后前移）};
+  \draw (0,0) rectangle (5.6,0.8) node[midway]{页框号（20 位）};
+  \draw (5.6,0) rectangle (6.4,0.8) node[midway]{V};
+  \draw (6.4,0) rectangle (7.6,0.8) node[midway]{R/W};
+  \draw (7.6,0) rectangle (8.8,0.8) node[midway]{U/S};
+  \draw (8.8,0) rectangle (9.8,0.8) node[midway]{A};
+  \draw (9.8,0) rectangle (10.8,0.8) node[midway]{D};
+  \node[below, font=\tiny, align=center] at (6.0,-0.15) {有效位};
+  \node[below, font=\tiny, align=center] at (7.0,-0.15) {读/写};
+  \node[below, font=\tiny, align=center] at (8.2,-0.15) {用户/内核};
+  \node[below, font=\tiny, align=center] at (9.3,-0.15) {访问位};
+  \node[below, font=\tiny, align=center] at (10.3,-0.15) {修改位};
 \end{tikzpicture}
 \end{center}
 
-% --- Improved CLOCK ---
-\begin{conclusion}{改进型 CLOCK 算法}{improved-clock}
-\textbf{改进型 CLOCK（Enhanced Second-Chance）}增加了\textbf{修改位（Dirty/Modified Bit）}的考量。选择换出页面时，优先选择\textbf{既未访问也未修改}的页面（避免写回磁盘的开销）。
+图中的字段宽度只是示意，具体位数由系统决定。几个位的作用要分清：
 
-考虑（访问位 $A$，修改位 $M$）组合，优先级从高到低：
-\begin{tablebox}{改进型 CLOCK 置换优先级}
+\begin{itemize}
+  \item \textbf{有效位 V}：该页当前是否在内存。$V=0$ 时访问该页会触发缺页异常；它也可能表示这个页号根本没有映射，处理程序要区分“合法但不在内存”和“非法地址”。
+  \item \textbf{页框号}：该页所在的物理页框。多级页表里，中间层页表项存放的是下一级页表的页框号。
+  \item \textbf{保护位}：读、写、执行权限，以及用户态/内核态权限。越权访问同样由 MMU 当场发现。
+  \item \textbf{访问位 A}：该页最近是否被访问过，供 CLOCK 等置换算法使用。
+  \item \textbf{修改位 D}（脏位）：该页装入后是否被写过。换出时若 $D=1$，必须先写回磁盘，否则修改会丢失；$D=0$ 的页可以直接丢弃。
+\end{itemize}
+
+地址变换的过程可以写成：从逻辑地址取出页号 $p$；用 $\text{PTBR}+p\times \text{PTE 大小}$ 找到页表项；检查有效位和权限；取出页框号 $f$；最后拼成 $f\cdot 2^k+d$。如果页表有多级，中间层只负责找到下一级页表的基址，最后一级才给出真正的页框号。
+
+页表本身也要占内存。32 位系统、4 KB 页、4 B 页表项时，页表有 $2^{20}$ 项，共 $2^{20}\times 4\text{ B}=4\text{ MB}$。这还只是一个进程；如果每个进程都配一张完整的 4 MB 页表，内存很快会被页表吃光。更麻烦的是，单级页表要求这 4 MB 在物理内存中连续存放。多级页表就是为这两个问题设计的。
+
+\subsubsection{多级页表}
+
+把 32 位逻辑地址切成“一级页号 10 位、二级页号 10 位、页内偏移 12 位”。一级页表叫页目录，有 $2^{10}=1024$ 项，每项 4 B，正好 4 KB；每个页目录项指向一张二级页表，二级页表也有 1024 项，正好 4 KB。一个二级页表覆盖 $2^{10}$ 个页，即 $2^{10}\times 4\text{ KB}=4\text{ MB}$ 的虚拟地址范围。
+
+关键在“按需建立”：进程没有用到的 4 MB 区域，根本不需要分配对应的二级页表，页目录项的有效位保持 0 即可。假设一个进程只用了三个相距很远的 4 MB 区域，那么页目录 4 KB 加三张二级页表，共 16 KB；若用单级页表，则要 4 MB，后者约是前者的 256 倍（图中只画两个区域作示意）。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 逻辑地址
+  \draw (0,5.6) rectangle (2.2,6.3) node[midway]{$p_1$（10 位）};
+  \draw (2.2,5.6) rectangle (4.4,6.3) node[midway]{$p_2$（10 位）};
+  \draw (4.4,5.6) rectangle (6.2,6.3) node[midway]{$d$（12 位）};
+  \node[font=\scriptsize\bfseries] at (3.1,6.65) {32 位逻辑地址};
+  % 页目录
+  \draw (0,1.2) rectangle (2.8,4.8);
+  \foreach \y in {4.2,3.6,3.0,2.4,1.8} \draw (0,\y) -- (2.8,\y);
+  \node at (1.4,4.5) {页目录};
+  \node at (1.4,3.9) {项 0};
+  \fill[SoftTeal] (0,3.0) rectangle (2.8,3.6);
+  \node at (1.4,3.3) {项 1};
+  \fill[SoftBlue] (0,2.4) rectangle (2.8,3.0);
+  \node at (1.4,2.7) {项 2};
+  \node at (1.4,2.1) {$\vdots$};
+  \node at (1.4,1.5) {项 1023};
+  \node[left, font=\tiny, align=right] at (-0.1,1.5) {1024 项\\共 4 KB};
+  % 二级页表 A
+  \draw (4.6,3.3) rectangle (7.0,4.9);
+  \foreach \y in {4.3,3.8} \draw (4.6,\y) -- (7.0,\y);
+  \node at (5.8,4.6) {二级页表 A};
+  \node at (5.8,4.05) {$\cdots$};
+  \node at (5.8,3.55) {PTE $\to f$};
+  % 二级页表 B
+  \draw (4.6,0.7) rectangle (7.0,2.3);
+  \foreach \y in {1.7,1.2} \draw (4.6,\y) -- (7.0,\y);
+  \node at (5.8,2.0) {二级页表 B};
+  \node at (5.8,1.45) {$\cdots$};
+  \node at (5.8,0.95) {PTE $\to f$};
+  % 未分配
+  \draw[dashed, MutedText] (4.6,-0.5) rectangle (7.0,0.3);
+  \node[MutedText] at (5.8,-0.1) {未用：不建二级表};
+  % 箭头
+  \draw[->, thick] (1.4,5.55) -- node[right, font=\tiny]{$p_1$} (1.4,4.85);
+  \draw[->, thick] (2.85,3.3) -- node[above, font=\tiny]{基址} (4.55,4.1);
+  \draw[->, thick] (2.85,2.7) -- node[below, font=\tiny]{基址} (4.55,1.5);
+  \draw[->, thick] (7.05,3.55) -- node[above, font=\tiny]{$f$} (8.3,3.55);
+  \draw[->, thick] (7.05,0.95) -- node[below, font=\tiny]{$f$} (8.3,0.95);
+  \node[draw, fill=SoftAmber, minimum width=1.3cm, minimum height=0.5cm] at (9.1,3.55) {页框};
+  \node[draw, fill=SoftAmber, minimum width=1.3cm, minimum height=0.5cm] at (9.1,0.95) {页框};
+  \node[font=\tiny, align=center] at (8.3,5.4) {一个二级表\\覆盖 4 MB};
+\end{tikzpicture}
+\end{center}
+
+图中只画了页目录的几项。项 1 和项 2 指向两张二级页表，其他项可以是空的；空项不占二级页表的内存。查找时先由 $p_1$ 找二级表基址，再由 $p_2$ 找页框号，最后拼上偏移 $d$。
+
+多级页表的代价是访存次数。二级页表且 TLB 缺失时，要读页目录项、读二级页表项、再读数据，共 3 次内存访问；$L$ 级页表则是 $L+1$ 次。TLB 命中时这些访问都可以省掉，所以现代系统一边增加页表级数，一边把 TLB 做得更大、支持大页。
+
+64 位系统的虚拟地址空间更大，常采用 4 级或 5 级页表，原理相同：每一级用若干位索引，最后一级给出页框号。408 题目以 32 位、二级页表为主，把位数拆分和访存次数算清楚即可。
+
+\subsection{TLB：把常用的页表项放到手边}
+
+页表放在内存里，每次访存都先读页表，等于把速度拖慢一倍。程序访问又具有局部性：一段时间内反复用的往往只是少数几个页。于是 MMU 里放一个小而快的\textbf{TLB}（Translation Lookaside Buffer，快表），缓存最近用过的页表项。
+
+TLB 通常采用全相联或组相联映射。全相联时，页号要和所有 TLB 表项并行比较；组相联时先按页号低位选组，再在组内比较。表项里除了页号（或虚拟页号）和页框号，还常带有效位、权限位和 ASID（地址空间标识）。ASID 用来区分不同进程的地址空间，避免每次进程切换都把整个 TLB 清空；如果没有 ASID，切换进程后旧表项可能把新进程的页号翻译错，必须刷新。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, rounded corners, fill=SoftGray, minimum width=2.2cm, minimum height=1.2cm, align=center] (cpu) at (1.1,1.4) {CPU\\逻辑地址 $p\,|\,d$};
+  \node[draw, rounded corners, fill=SoftTeal, minimum width=2.4cm, minimum height=1.1cm, align=center] (tlb) at (4.6,2.8) {TLB\\按 $p$ 并行比较};
+  \node[draw, rounded corners, fill=SoftBlue, minimum width=2.4cm, minimum height=1.1cm, align=center] (pt) at (4.6,0.2) {页表（$L$ 级）\\$p\to f$};
+  \node[draw, rounded corners, fill=SoftAmber, minimum width=2.2cm, minimum height=1.2cm, align=center] (pa) at (7.9,1.4) {物理地址\\$f\,|\,d$};
+  \node[draw, rounded corners, fill=SoftGray, minimum width=2.2cm, minimum height=1.2cm, align=center] (mem) at (10.9,1.4) {Cache\\主存};
+  \draw[->, thick] (cpu.east) -- node[above, font=\tiny]{查} (tlb.west);
+  \draw[->, thick] (tlb.east) -- node[above, font=\tiny]{命中} (pa.north west);
+  \draw[->, thick] (tlb.south) -- node[right, font=\tiny]{缺失} (pt.north);
+  \draw[->, thick] (pt.east) -- node[below, font=\tiny]{取 $f$} (pa.south west);
+  \draw[->, dashed, TealDark] (pt.north east) -- node[right, font=\tiny]{装入} (tlb.south east);
+  \draw[->, thick] (pa.east) -- node[above, font=\tiny]{访存} (mem.west);
+  \node[font=\scriptsize, align=left, text=MutedText] at (5.8,-0.8) {命中：$t_{\rm TLB}+t_{\rm mem}$；\\缺失：$t_{\rm TLB}+(L+1)t_{\rm mem}$};
+\end{tikzpicture}
+\end{center}
+
+图里命中路径直接拿页框号，缺失路径才去读页表，读完再把表项装进 TLB。偏移 $d$ 不参与 TLB 比较，命中后原样拼到页框号后面。若把 Cache 也算进来，地址翻译完成后才能用物理地址访问物理 Cache；408 题目通常按这个顺序处理。
+
+设 TLB 命中率为 $h$，TLB 查找时间为 $t_{\rm TLB}$，一次内存访问时间为 $t_{\rm mem}$，页表为 $L$ 级。命中时只需一次数据访存，缺失时要读 $L$ 级页表再取数据：
+\[
+\boxed{\mathrm{EAT}=h\,(t_{\rm TLB}+t_{\rm mem})+(1-h)\bigl(t_{\rm TLB}+(L+1)t_{\rm mem}\bigr)}.
+\]
+若 $t_{\rm TLB}$ 很小可以忽略，则
+\[
+\mathrm{EAT}=t_{\rm mem}+(1-h)\,L\,t_{\rm mem}.
+\]
+单级页表 $L=1$，退化成熟悉的 $(2-h)t_{\rm mem}$。例如 $h=0.95$、$t_{\rm TLB}=1\text{ ns}$、$t_{\rm mem}=100\text{ ns}$、二级页表 $L=2$，则
+\[
+\mathrm{EAT}=0.95\times101+0.05\times301=95.95+15.05=111\text{ ns}.
+\]
+命中率从 95\% 再提高一点，缺失路径省下的是两次内存访问，收益很明显；这也是 TLB 必须做得又快又大的原因。TLB 能覆盖的地址范围叫 TLB reach，约等于“表项数 $\times$ 页面大小”，所以大页能显著扩大覆盖范围。
+
+\subsection{分段与段页式}
+
+分页按固定大小切分，程序员看不见页的边界；分段则按程序的逻辑结构切分。代码、数据、栈各自成段，每段长度可以不同，段号加段内偏移构成二维地址。程序员知道段的存在，链接器和编译器也按段组织内容。
+
+每个进程有一张段表，段表项包含\textbf{段基址}、\textbf{段长}（界限）和保护位。地址变换时，先以段号 $s$ 查段表，得到基址 $b$ 和段长 $l$；然后检查偏移 $d<l$，越界就产生异常；通过后计算
+\[
+\text{物理地址}=b+d.
+\]
+注意这里是\textbf{相加}，不是像分页那样把页框号拼在偏移前面。分段必须显式比较 $d$ 和 $l$，因为段长可变，偏移字段没有固定宽度来保证不越界。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 逻辑地址
+  \draw (0,5.2) rectangle (1.6,5.8) node[midway]{段号 $s$};
+  \draw (1.6,5.2) rectangle (4.2,5.8) node[midway]{段内偏移 $d$};
+  \node[font=\scriptsize\bfseries] at (2.1,6.15) {逻辑地址};
+  % 段表
+  \draw (0,1.5) rectangle (4.4,4.7);
+  \draw (1.2,4.2) -- (1.2,1.5);
+  \draw (2.7,4.2) -- (2.7,1.5);
+  \draw (0,4.2) -- (4.4,4.2);
+  \node at (0.6,4.45) {段号};
+  \node at (1.95,4.45) {基址};
+  \node at (3.55,4.45) {段长};
+  \node at (0.6,3.85) {0};
+  \node at (1.95,3.85) {\texttt{0x4000}};
+  \node at (3.55,3.85) {\texttt{0x1000}};
+  \fill[SoftAmber] (0,3.0) rectangle (4.4,3.5);
+  \node at (0.6,3.25) {1};
+  \node at (1.95,3.25) {\texttt{0x8000}};
+  \node at (3.55,3.25) {\texttt{0x0800}};
+  \node at (0.6,2.55) {2};
+  \node at (1.95,2.55) {\texttt{0xC000}};
+  \node at (3.55,2.55) {\texttt{0x2000}};
+  \node at (2.2,1.9) {$\cdots$};
+  \node[left, font=\tiny, align=right] at (-0.1,4.45) {段表\\（STBR）};
+  % 物理内存
+  \draw (7.2,0.6) rectangle (9.8,5.0);
+  \fill[SoftGray] (7.2,4.2) rectangle (9.8,5.0);
+  \node at (8.5,4.6) {操作系统/其他};
+  \fill[SoftBlue] (7.2,3.2) rectangle (9.8,4.2);
+  \node at (8.5,3.7) {段 0（代码）};
+  \fill[SoftTeal] (7.2,2.0) rectangle (9.8,3.2);
+  \node at (8.5,2.6) {段 1（数据）};
+  \fill[SoftAmber!55] (7.2,0.6) rectangle (9.8,2.0);
+  \node at (8.5,1.3) {段 2（栈）};
+  \node[font=\tiny, text=MutedText] at (8.5,0.35) {物理内存};
+  % 箭头
+  \draw[->, thick] (2.0,5.15) -- node[right, font=\tiny]{$s$} (2.0,4.75);
+  \draw[->, thick] (4.45,3.25) -- node[above, font=\tiny]{基址 $b$} (7.15,2.6);
+  \draw[->, dashed, Burgundy] (4.45,3.45) -- node[above, font=\tiny]{检查 $d<l$} (7.15,3.0);
+  \node[draw, rounded corners, fill=SoftAmber, align=center, font=\tiny] at (5.8,1.0) {若 $d\ge l$\\越界异常};
+  \draw[->, Burgundy] (4.45,2.8) -- (4.45,1.2) -- (5.25,1.2);
+\end{tikzpicture}
+\end{center}
+
+图中的段 1 基址是 \texttt{0x8000}、段长是 \texttt{0x800}。逻辑地址 $(1,\texttt{0x300})$ 合法，物理地址是 \texttt{0x8300}；若偏移是 \texttt{0x900}，因为超过了段长，直接产生越界异常，不会去算加法。
+
+分段的好处是共享和保护自然。两个进程可以各自在段表里指向同一个代码段，只读权限放在段表项里；分页要做到同样的事情，得让多个页表项指向同一批页框，而且一页里可能混着代码和数据，权限不好给。分段的麻烦是外部碎片：段长可变，段与段之间会留下不连续的空闲区，紧凑可以缓解，但需要动态重定位。
+
+\begin{tablebox}{分页与分段的主要区别}
+\centering
+\begin{tabularx}{\linewidth}{|p{0.16\linewidth}|X|X|}
+\hline
+维度 & 分页 & 分段 \\
+\hline
+划分依据 & 物理单位，大小固定，由系统决定 & 逻辑单位，大小可变，由程序/编译器决定 \\
+\hline
+地址结构 & 一维：页号 $+$ 页内偏移 & 二维：段号 $+$ 段内偏移 \\
+\hline
+程序员可见性 & 透明，程序员看不到页边界 & 可见，程序员按逻辑模块划分 \\
+\hline
+碎片 & 内部碎片（最后一页） & 外部碎片（段间空闲区） \\
+\hline
+地址变换 & 页框号与偏移拼接 & 段基址与偏移相加，并检查 $d<l$ \\
+\hline
+共享与保护 & 按页，粒度细但一页可能混杂内容 & 按段，逻辑意义清楚，便于共享和保护 \\
+\hline
+\end{tabularx}
+\end{tablebox}
+
+段页式把两者结合起来：先按逻辑把程序分段，每段再分页；物理内存按页框分配。逻辑地址变成
+\[
+(\text{段号 }s,\ \text{页号 }p,\ \text{页内偏移 }d).
+\]
+每个进程一张段表，每个段一张页表。段表项记录该段页表的基址和页表长度（该段有多少页）。变换时先查段表，检查 $p$ 是否小于页表长度，再查页表得到页框号，最后拼上偏移。没有 TLB 时要访问段表、页表、数据三次内存；有 TLB 命中则只需一次。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw (0,4.4) rectangle (1.6,5.0) node[midway]{$s$};
+  \draw (1.6,4.4) rectangle (3.4,5.0) node[midway]{$p$};
+  \draw (3.4,4.4) rectangle (5.0,5.0) node[midway]{$d$};
+  \node[font=\scriptsize\bfseries] at (2.5,5.35) {段页式逻辑地址};
+  \node[draw, rounded corners, fill=SoftBlue, minimum width=2.4cm, minimum height=1.1cm, align=center] (seg) at (1.2,1.7) {段表\\基址 $+$ 页表长度};
+  \node[draw, rounded corners, fill=SoftTeal, minimum width=2.4cm, minimum height=1.1cm, align=center] (pt) at (5.0,1.7) {该段的页表\\$p\to f$};
+  \node[draw, rounded corners, fill=SoftAmber, minimum width=2.0cm, minimum height=1.0cm, align=center] (pa) at (8.5,1.7) {物理地址\\$f\,|\,d$};
+  \draw[->, thick] (1.2,4.35) -- node[right, font=\tiny]{$s$} (1.2,2.3);
+  \draw[->, thick] (2.45,1.7) -- node[above, font=\tiny]{页表基址} (3.75,1.7);
+  \draw[->, thick] (5.0,4.35) -- node[right, font=\tiny]{$p$} (5.0,2.3);
+  \draw[->, thick] (6.25,1.7) -- node[above, font=\tiny]{$f$} (7.45,1.7);
+  \draw[->, dashed, TealDark] (3.4,4.35) -- node[right, font=\tiny]{$d$ 不变} (8.0,2.25);
+  \node[font=\tiny, align=left, text=MutedText] at (4.6,0.55) {先检查 $p<$ 页表长度；\\无 TLB 时共 3 次访存};
+\end{tikzpicture}
+\end{center}
+
+图中先由段号 $s$ 找到该段的页表基址，检查页号 $p$ 没有超过页表长度，再由 $p$ 找到页框号 $f$，偏移 $d$ 原样拼在最后。段页式既有分段的逻辑结构，又有分页没有外部碎片的优点；代价是地址变换更复杂，页表也更多。Linux 在 x86 上虽然保留了段寄存器，但把段基址设为 0、段限设为整个地址空间，实际上退化成以分页为主的模型；理解段页式的目的，是为了看懂硬件为什么同时提供段表和页表两套机制。
+
+\subsection{虚拟内存与请求分页}
+
+前面的分页仍然有一个前提：进程的页要全部在内存里。程序一大，或者并发进程一多，物理内存就不够。虚拟内存把这个前提去掉：进程的页只有一部分在内存，其余放在磁盘的交换区；访问到不在内存的页时，再由操作系统调入。这样每个进程都能看到一个很大的地址空间，而物理内存只装当前活跃的部分。这也带来四个常考特征：离散性、多次性、对换性和虚拟性——页面可以离散存放，作业可以分多次装入，页面可以在内存与外存之间换入换出，最终在逻辑上扩充了内存。
+
+\subsubsection{局部性原理}
+
+虚拟内存能工作，靠的是程序访问的局部性。时间局部性是指刚访问过的指令或数据很可能再次被访问，例如循环里的计数器和循环体；空间局部性是指刚访问过的地址附近的单元很可能被访问，例如顺序扫描数组、顺序执行指令。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw[->] (0,0) -- (9.2,0) node[right]{时间};
+  \draw[->] (0,0) -- (0,5.0) node[above]{地址};
+  % 第一次迭代
+  \foreach \x/\y in {0.7/1.0,1.5/1.8,2.3/2.6,3.1/3.4}
+    \fill[Teal] (\x,\y) circle (2.2pt);
+  % 第二次迭代
+  \foreach \x/\y in {4.1/1.0,4.8/1.8,5.5/2.6,6.2/3.4}
+    \fill[Burgundy] (\x,\y) circle (2.2pt);
+  % 第三次迭代
+  \foreach \x/\y in {7.0/1.0,7.5/1.8,8.0/2.6,8.5/3.4}
+    \fill[Amber] (\x,\y) circle (2.2pt);
+  % 同一地址的水平虚线
+  \draw[dashed, MutedText] (0.7,1.0) -- (8.5,1.0);
+  \draw[dashed, MutedText] (1.5,1.8) -- (8.0,1.8);
+  \draw[dashed, MutedText] (2.3,2.6) -- (7.5,2.6);
+  \draw[dashed, MutedText] (3.1,3.4) -- (7.0,3.4);
+  % 迭代标注
+  \node[font=\scriptsize, Teal] at (1.9,4.0) {第 1 次迭代};
+  \node[font=\scriptsize, Burgundy] at (5.15,4.0) {第 2 次迭代};
+  \node[font=\scriptsize, Amber] at (7.75,4.0) {第 3 次迭代};
+  % 说明
+  \node[font=\scriptsize, align=left, text=MutedText] at (3.0,4.7) {同一地址在不同时刻重复出现：时间局部性};
+  \node[font=\scriptsize, align=left, text=MutedText] at (7.9,1.45) {一次迭代内\\地址连续：\\空间局部性};
+\end{tikzpicture}
+\end{center}
+
+图中每一轮循环都从低地址扫到高地址，所以同一条水平虚线上的点对应“同一个地址被反复访问”，这是时间局部性；每一轮内部点沿对角线上升，说明相邻地址连续被访问，这是空间局部性。局部性不是保证，只是统计规律；如果程序真的随机访问整个大数组，虚拟内存的效果会明显变差。
+
+\subsubsection{虚拟地址空间与交换区}
+
+每个进程有一个虚拟地址空间，页表项的有效位决定某一页当前在不在内存。有效位为 1 的页映射到某个物理页框；有效位为 0 的页可能还在磁盘交换区，也可能根本没有分配。访问前者会触发缺页，访问后者则是非法地址，处理方式不同。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 虚拟地址空间
+  \node[font=\scriptsize\bfseries] at (1.2,6.35) {进程的虚拟地址空间};
+  \draw (0,1.0) rectangle (2.4,6.0);
+  \foreach \y in {5.0,4.0,3.0,2.0} \draw (0,\y) -- (2.4,\y);
+  \node[fill=SoftBlue] at (1.2,5.5) {V0（在内存）};
+  \node[fill=SoftGray!60] at (1.2,4.5) {V1（在交换区）};
+  \node[fill=SoftBlue] at (1.2,3.5) {V2（在内存）};
+  \node[fill=SoftGray!60] at (1.2,2.5) {V3（在交换区）};
+  \node[fill=SoftBlue] at (1.2,1.5) {V4（在内存）};
+  % 页表
+  \node[font=\scriptsize\bfseries] at (5.0,6.35) {页表};
+  \draw (3.8,1.0) rectangle (6.2,6.0);
+  \foreach \y in {5.0,4.0,3.0,2.0} \draw (3.8,\y) -- (6.2,\y);
+  \node at (5.0,5.5) {V0: $V=1,f=0$};
+  \node at (5.0,4.5) {V1: $V=0$};
+  \node at (5.0,3.5) {V2: $V=1,f=1$};
+  \node at (5.0,2.5) {V3: $V=0$};
+  \node at (5.0,1.5) {V4: $V=1,f=3$};
+  % 物理内存
+  \node[font=\scriptsize\bfseries] at (8.8,6.35) {物理内存};
+  \draw (7.6,2.2) rectangle (10.0,6.0);
+  \foreach \y in {3.2,4.2,5.2} \draw (7.6,\y) -- (10.0,\y);
+  \node[fill=SoftAmber] at (8.8,5.7) {页框 0};
+  \node[fill=SoftAmber] at (8.8,4.7) {页框 1};
+  \node at (8.8,3.7) {页框 2};
+  \node[fill=SoftAmber] at (8.8,2.7) {页框 3};
+  % 交换区
+  \node[font=\scriptsize\bfseries] at (8.8,1.75) {磁盘交换区};
+  \draw (7.6,0.6) rectangle (10.0,1.55);
+  \node at (8.8,1.05) {V1, V3, $\cdots$};
+  % 箭头
+  \draw[->, thick] (6.25,5.5) -- (7.55,5.7);
+  \draw[->, thick] (6.25,3.5) -- (7.55,4.7);
+  \draw[->, thick] (6.25,1.5) -- (7.55,2.7);
+  \draw[->, dashed, MutedText] (6.25,4.5) -- (7.55,1.05);
+  \draw[->, dashed, MutedText] (6.25,2.5) -- (7.55,1.05);
+\end{tikzpicture}
+\end{center}
+
+进程看到的是左边连续的 V0 到 V4，实际只有 V0、V2、V4 在物理页框里，V1、V3 在磁盘上。页表是两边之间的桥：有效位为 1 的项给出页框号，有效位为 0 的项把访问引向缺页处理程序。
+
+虚拟内存的\textbf{最大容量}由 CPU 的地址位数决定：32 位地址最多表示 $2^{32}$ 字节，也就是 4 GB，不可能再大。\textbf{实际可用容量}还要受物理内存和交换区总量的限制，通常写成
+\[
+\min\bigl(2^{m},\ \text{物理内存}+\text{交换区}\bigr),
+\]
+其中 $m$ 是虚拟地址位数。考试里常把“最大容量”和“实际容量”分开问：前者只看地址结构，后者才看内存和外存。
+
+\subsubsection{请求分页与缺页处理}
+
+请求分页（Demand Paging）是最常见的实现：进程启动时只装入少数页，甚至一页也不装；访问到不在内存的页时，由缺页异常把页调入。也可用预调页（Prepaging），在缺页时顺便把相邻页也读进来，利用空间局部性减少后续缺页；但如果预读的页根本不用，就浪费了 I/O。
+
+缺页处理和普通中断有几个关键区别。缺页是在指令执行过程中同步产生的异常（Fault），不是外设异步发来的中断；处理完成后要\textbf{重新执行}触发缺页的那条指令，而不是执行下一条；一条指令可能缺页多次，例如取指跨页、多个操作数分处不同的页。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, node distance=0.7cm]
+  \node[draw, rounded corners, fill=SoftGray, minimum width=5.4cm, minimum height=0.6cm, align=center] (s0) at (0,9.6) {CPU 发出逻辑地址，查 TLB / 页表};
+  \node[draw, rounded corners, fill=SoftAmber, minimum width=2.4cm, minimum height=0.7cm, align=center] (d1) at (0,8.55) {有效?};
+  \node[draw, rounded corners, fill=SoftTeal, minimum width=3.2cm, minimum height=0.6cm, align=center] (hit) at (4.2,8.55) {有效：拼物理地址访存};
+  \node[draw, rounded corners, fill=SoftGray, minimum width=5.0cm, minimum height=0.6cm, align=center] (s1) at (0,7.35) {缺页异常：保存现场，进入内核};
+  \node[draw, rounded corners, fill=SoftAmber, minimum width=2.2cm, minimum height=0.7cm, align=center] (d2) at (0,6.35) {合法?};
+  \node[draw, rounded corners, fill=SoftGray, minimum width=3.4cm, minimum height=0.6cm, align=center] (bad) at (4.2,6.35) {终止进程（非法地址）};
+  \node[draw, rounded corners, fill=SoftBlue, minimum width=6.2cm, minimum height=0.7cm, align=center] (s2) at (0,5.15) {有空闲页框？无则选牺牲页，脏页写回};
+  \node[draw, rounded corners, fill=SoftBlue, minimum width=5.4cm, minimum height=0.6cm, align=center] (s3) at (0,3.95) {从外存读入缺失页};
+  \node[draw, rounded corners, fill=SoftBlue, minimum width=5.4cm, minimum height=0.6cm, align=center] (s4) at (0,2.75) {更新页表项与 TLB};
+  \node[draw, rounded corners, fill=SoftGray, minimum width=6.2cm, minimum height=0.6cm, align=center] (s5) at (0,1.55) {恢复现场，重新执行同一条指令};
+  % 主流程
+  \draw[->, thick] (s0) -- (d1);
+  \draw[->, thick] (d1.east) -- node[above, font=\tiny]{是} (hit.west);
+  \draw[->, thick] (d1.south) -- node[right, font=\tiny]{否} (s1.north);
+  \draw[->, thick] (s1) -- (d2);
+  \draw[->, thick] (d2.east) -- node[above, font=\tiny]{否} (bad.west);
+  \draw[->, thick] (d2.south) -- node[right, font=\tiny]{是} (s2.north);
+  \draw[->, thick] (s2) -- (s3);
+  \draw[->, thick] (s3) -- (s4);
+  \draw[->, thick] (s4) -- (s5);
+  % 重试回路
+  \draw[->, dashed, TealDark] (s5.west) -- (-3.2,1.55) -- (-3.2,9.6) -- (s0.west);
+  \node[font=\tiny, text=TealDark, align=center] at (-3.55,5.5) {重试};
+\end{tikzpicture}
+\end{center}
+
+流程图里最容易记错的是最后一步：缺页处理完不是“接着执行下一条”，而是回到同一条指令重新访存。另一个容易忽略的是牺牲页：如果没有空闲页框，要先按置换算法选一页；这页如果被修改过（脏位为 1），必须先写回磁盘，否则直接覆盖会丢数据。
+
+设缺页率为 $p$，一次正常访存时间为 $t_{\rm mem}$。若 $t_{\rm pf}$ 从本次访存开始计时，一直算到页面就绪、并包含重启后的那次成功访存（即把一次缺页的全过程都算进去），则
+\[
+\boxed{\mathrm{EAT}=(1-p)\,t_{\rm mem}+p\,t_{\rm pf}}.
+\]
+若 $t_{\rm pf}$ 从本次访存开始计时，只算到页面就绪（包含首次访存和异常处理，但不含重启后的那次访存），则
+\[
+\mathrm{EAT}=t_{\rm mem}+p\,t_{\rm pf}.
+\]
+两个公式看起来差 $p\,t_{\rm mem}$，原因是两种口径下的 $t_{\rm pf}$ 本身就相差一次访存；做题时不要把同一个数套进两个公式。由于磁盘 I/O 比内存访问慢几个数量级，$p$ 稍有上升，EAT 就会明显变差。例如 $t_{\rm mem}=100\text{ ns}$、按第二种口径取 $t_{\rm pf}=8\text{ ms}$、$p=0.001\%=10^{-5}$，则
+\[
+\mathrm{EAT}=100+10^{-5}\times 8\times10^{6}=100+80=180\text{ ns},
+\]
+几乎翻了一倍。这也是页面置换算法值得反复优化的原因。
+
+\subsection{页面置换算法}
+
+物理页框有限，缺页时如果没有空闲页框，就要从内存中选一页换出。选谁，直接影响缺页率。描述这类问题通常给一个\textbf{页面访问串}（引用串）和页框数，按顺序模拟每次访问，统计缺页次数。
+
+\subsubsection{OPT：知道未来时的下界}
+
+最优置换算法（OPT，Optimal）选择“未来最长时间内不再被访问”的页换出；如果某页以后不再用，就优先淘汰它。OPT 的缺页次数是所有算法中最少的，但需要预知未来，无法实现，只作为理论下界，用来衡量其他算法离最优有多远。
+
+\subsubsection{FIFO 与 Belady 异常}
+
+先进先出（FIFO）把驻留页排成一个队列，淘汰最早进入内存的页。实现只需要一个循环队列，非常简单；问题是它完全不看页面最近有没有被访问，可能把正在频繁使用的页换走。
+
+FIFO 还有一个反直觉的现象：\textbf{增加页框数，缺页次数反而可能增加}，称为 Belady 异常。原因是增加页框改变了淘汰次序，可能把即将访问的页提前换出。下面这组数据来自访问串
+\[
+2,4,1,3,2,3,4,5,2,4,1,3,5,
+\]
+用 FIFO 模拟：
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=9.2cm, height=5.6cm,
+  xlabel={页框数}, ylabel={缺页次数},
+  xtick={3,4,5}, ymin=0, ymax=12,
+  axis lines=left,
+  legend style={font=\scriptsize, at={(0.02,0.02)}, anchor=south west},
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+]
+\addplot[thick, Teal, mark=*] coordinates {(3,9) (4,10) (5,5)};
+\addplot[thick, Burgundy, mark=square*] coordinates {(3,11) (4,8) (5,5)};
+\legend{FIFO, LRU}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+FIFO 从 3 个页框增加到 4 个，缺页次数从 9 次变成 10 次，确实出现了 Belady 异常；LRU 则是 $11\to8\to5$，页框越多缺页越少。LRU 和 OPT 属于\textbf{栈类算法}：$n$ 个页框时的驻留集始终包含于 $n+1$ 个页框时的驻留集，所以缺页数不会随页框增加而上升。FIFO 不具备这个性质；基本 CLOCK 也不是栈类算法，理论上同样不能保证单调。
+
+\subsubsection{LRU：用过去预测未来}
+
+最近最久未使用（LRU，Least Recently Used）选择“最长时间没有被访问”的页换出。它基于局部性：过去很久不用的页，未来短时间内的可能性也较低。实现方式有两种：
+
+\begin{itemize}
+  \item \textbf{时间戳法}：每个页表项配一个计数器，页面每被访问一次就把当前时钟值写进去；置换时选时间戳最小的页。
+  \item \textbf{栈法}：维护一个按访问时间排序的栈，每次访问（包括命中）都把该页移到栈顶；栈底就是最久未使用的页。
+\end{itemize}
+
+LRU 的关键是\textbf{命中也要更新次序}。FIFO 只在页面进入内存时排队，命中不改变队列；LRU 只要访问就刷新“最近使用时间”，这是两者最容易被混淆的地方。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 列宽 1.4cm，共 7 列
+  \foreach \i in {0,...,7} \draw (\i*1.4,1.4) -- (\i*1.4,4.0);
+  \foreach \j in {1.4,2.2,3.0,3.5,4.0} \draw (0,\j) -- (9.8,\j);
+  % 命中列着色
+  \foreach \i in {2,4,6} {
+    \fill[SoftTeal, opacity=0.45] (\i*1.4,1.4) rectangle (\i*1.4+1.4,3.5);
+  }
+  % 缺页列着色
+  \foreach \i in {0,1,3,5} {
+    \fill[SoftAmber, opacity=0.35] (\i*1.4,1.4) rectangle (\i*1.4+1.4,3.5);
+  }
+  % 状态行
+  \foreach \i/\s in {0/F,1/F,2/H,3/F,4/H,5/F,6/H} {
+    \node[font=\tiny, text=TealDark] at (\i*1.4+0.7,3.75) {\s};
+  }
+  % 访问序列
+  \foreach \i/\v in {0/2,1/3,2/2,3/1,4/2,5/5,6/2} {
+    \node[font=\scriptsize\bfseries] at (\i*1.4+0.7,0.25) {\v};
+  }
+  % 帧内容
+  \foreach \i/\a/\b/\c in {0/2/-/-,1/2/3/-,2/2/3/-,3/2/3/1,4/2/3/1,5/2/5/1,6/2/5/1} {
+    \node at (\i*1.4+0.7,3.25) {\a};
+    \node at (\i*1.4+0.7,2.7) {\b};
+    \node at (\i*1.4+0.7,1.85) {\c};
+  }
+  % 重新描边，避免颜色盖住网格
+  \foreach \i in {0,...,7} \draw (\i*1.4,1.4) -- (\i*1.4,4.0);
+  \foreach \j in {1.4,2.2,3.0,3.5,4.0} \draw (0,\j) -- (9.8,\j);
+  \node[font=\tiny, align=center] at (5.3,-0.25) {访问序列（页框数 3，LRU）};
+  \node[font=\tiny, text=TealDark, align=left] at (0.2,4.45) {F = 缺页，H = 命中};
+  \draw[->, thick, Burgundy] (7.9,0.45) -- (7.9,1.8);
+  \node[right, font=\tiny, text=Burgundy, align=left] at (8.0,1.1) {第 6 次访问 5 时\\淘汰最久未用的 3};
+\end{tikzpicture}
+\end{center}
+
+这张图把每次访问后的三个页框内容列出来。前两次是缺页装入，第 3 次访问 2 命中，但 LRU 会把 2 的“最近使用时间”刷新；第 6 次访问 5 时，3 已经是最久未用的页，于是被换出。命中列用浅色标出，可以看到 LRU 的命中也会改变后续的淘汰顺序。
+
+LRU 的性能接近 OPT，但精确实现代价高：每次访存都要更新时间戳或调整栈，纯硬件做起来很贵。实际系统常用 CLOCK 来近似。
+
+\subsubsection{CLOCK 与改进型 CLOCK}
+
+CLOCK 算法把驻留页组织成环形队列，每个页表项有一个访问位 $A$，页面被访问时由硬件置 1。发生置换时，指针从当前位置开始扫描：
+
+\begin{enumerate}
+  \item 若当前页的 $A=1$，说明它最近被访问过，给它“第二次机会”：把 $A$ 清 0，指针前移；
+  \item 若当前页的 $A=0$，说明它最近没被访问，选它换出，指针停在它的下一个位置。
+\end{enumerate}
+
+最坏情况下指针会扫过一整圈，把所有 $A$ 都清 0；第二轮一定能找到 $A=0$ 的页。CLOCK 不需要记录精确的访问时间，只需要一个访问位和一个指针，开销比 LRU 小得多。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, circle, minimum size=1.35cm, fill=SoftTeal, align=center] (p0) at (90:2.5) {P0\\{\tiny A=1}};
+  \node[draw, circle, minimum size=1.35cm, fill=SoftTeal, align=center] (p1) at (30:2.5) {P1\\{\tiny A=1}};
+  \node[draw, circle, minimum size=1.35cm, fill=SoftAmber, align=center] (p2) at (330:2.5) {P2\\{\tiny A=0}};
+  \node[draw, circle, minimum size=1.35cm, fill=SoftBlue, align=center] (p3) at (270:2.5) {P3\\{\tiny A=1}};
+  \node[draw, circle, minimum size=1.35cm, fill=SoftBlue, align=center] (p4) at (210:2.5) {P4\\{\tiny A=0}};
+  \node[draw, circle, minimum size=1.35cm, fill=SoftBlue, align=center] (p5) at (150:2.5) {P5\\{\tiny A=1}};
+  % 环
+  \draw[->, thick] (p0) to[bend left=12] (p1);
+  \draw[->, thick] (p1) to[bend left=12] (p2);
+  \draw[->, thick] (p2) to[bend left=12] (p3);
+  \draw[->, thick] (p3) to[bend left=12] (p4);
+  \draw[->, thick] (p4) to[bend left=12] (p5);
+  \draw[->, thick] (p5) to[bend left=12] (p0);
+  % 指针
+  \draw[->, very thick, Burgundy] (0,0) -- (p0);
+  \node[font=\tiny, text=Burgundy] at (0.55,1.55) {指针};
+  % 扫描说明
+  \node[font=\tiny, align=left, text=MutedText] at (0,-3.35) {扫描：P0($A=1$) 清 0 跳过 $\to$ P1($A=1$) 清 0 跳过 $\to$ P2($A=0$) 选中};
+\end{tikzpicture}
+\end{center}
+
+图中指针指向 P0。P0 和 P1 的访问位都是 1，先把它们清 0 并跳过；到 P2 时 $A=0$，P2 被换出。等下一次扫描再经过 P0、P1 时，它们的 $A$ 已经是 0，不会无限给机会。
+
+基本的 CLOCK 只看访问位，换出时可能选中一个脏页，还要写回磁盘。\textbf{改进型 CLOCK}（Enhanced Second-Chance）把访问位 $A$ 和修改位 $M$ 组合起来，优先淘汰“最近没访问、也没修改”的页：
+
+\begin{tablebox}{改进型 CLOCK 的优先顺序}
 \centering
 \begin{tabular}{|c|c|c|l|}
 \hline
 优先级 & $A$ & $M$ & 含义 \\
 \hline
-第一（最优选） & $0$ & $0$ & 最近未访问，未修改——直接丢弃 \\
-第二 & $0$ & $1$ & 最近未访问，但被修改——需写回磁盘 \\
-第三 & $1$ & $0$ & 最近访问过，未修改——可能很快再被访问 \\
-第四（最后选） & $1$ & $1$ & 最近访问过且修改过——最不该淘汰 \\
+1（最先淘汰） & 0 & 0 & 最近没访问，也没修改，可直接丢弃 \\
+\hline
+2 & 0 & 1 & 最近没访问，但修改过，需要写回 \\
+\hline
+3 & 1 & 0 & 最近访问过，未修改 \\
+\hline
+4（最后考虑） & 1 & 1 & 最近访问过且修改过，最不该淘汰 \\
 \hline
 \end{tabular}
 \end{tablebox}
 
-\textbf{扫描过程：}
-\begin{enumerate}
-    \item \textbf{第一轮扫描}：寻找 $(A=0, M=0)$ 的页面，不修改任何访问位。找到即换出。
-    \item \textbf{第二轮扫描}：寻找 $(A=0, M=1)$ 的页面，同时将遇到的页面的 $A$ 清 $0$。找到即换出。
-    \item \textbf{第三轮扫描}：重复第一轮（此时所有 $A$ 已被清 $0$，必能找到）。
-    \item （若仍无，重复第二轮，此时必有 $(0,1)$ 被找到。）
-\end{enumerate}
+扫描规则要记清：第一轮找 $(0,0)$，\textbf{不修改}任何标志位；找不到时第二轮找 $(0,1)$，并把扫过的页的 $A$ 清 0；如果还没找到，此时所有 $A$ 都已是 0，再从头找 $(0,0)$ 或 $(0,1)$ 即可。第一轮不改 $A$，是为了不破坏“最近访问过”的信息；第二轮清 $A$，是为了让下一轮能继续推进。
 
-\textbf{优势：}减少了对磁盘的写操作（只有修改过的页面才需要写回磁盘），使页面置换的 I/O 开销尽可能小。
-\end{conclusion}
+把几种算法放在一起比较：
 
-\begin{attention}
-\textbf{408 高频考点：CLOCK 与改进 CLOCK 的置换过程模拟。}
-考试通常给出各页面的 $A$ 和 $M$ 位的当前值，以及时钟指针位置，要求找出下一个被换出的页面及扫描过程中各标志位的变化。\textbf{重点掌握：}改进 CLOCK 中，第一轮不看 $M$，只找 $(0,0)$；第二轮不仅找 $(0,1)$，还\textbf{顺便清 $A$}。
-\end{attention}
-
-\begin{conclusion}{页面置换算法对比（同串同框）}{replacement-compare}
-以访问串 $1,2,3,4,2,1,5,6,2,1,2,3,7,6,3,2,1,2,3,6$、4 个页框为例，四种算法的缺页次数对比：
-\begin{tablebox}{四种页面置换算法缺页次数（4 页框）}
+\begin{tablebox}{页面置换算法对比}
 \centering
-\begin{tabular}{|c|c|c|l|}
+\begin{tabularx}{\linewidth}{|p{0.14\linewidth}|p{0.22\linewidth}|p{0.16\linewidth}|X|}
 \hline
-算法 & 缺页次数 & 缺页率 & 说明 \\
+算法 & 淘汰依据 & Belady 异常 & 特点 \\
 \hline
-OPT & 8 & 40\% & 不可实现，理论最优标尺 \\
-FIFO & 14 & 70\% & 可能出现 Belady 异常 \\
-LRU & 10 & 50\% & 栈算法，近似 OPT \\
-CLOCK & 14 & 70\% & 用访问位近似 LRU \\
+OPT & 未来最久不用 & 不会 & 理论最优，不可实现 \\
 \hline
-\end{tabular}
+FIFO & 最早进入 & 可能 & 实现最简单，可能淘汰活跃页 \\
+\hline
+LRU & 最久未访问 & 不会 & 性能接近 OPT，精确实现开销大 \\
+\hline
+CLOCK & 访问位 $A=0$ & 理论可能 & 用环形扫描近似 LRU，开销小 \\
+\hline
+改进 CLOCK & $(A,M)$ 组合 & 理论可能 & 优先淘汰干净页，减少写回 \\
+\hline
+\end{tabularx}
 \end{tablebox}
-\textbf{结论：} (1) 缺页数 \textbf{OPT $\leqslant$ LRU $\leqslant$ FIFO、CLOCK}——LRU 明显优于 FIFO/CLOCK；(2) \textbf{OPT 与 LRU 是栈算法}，页框数增多时缺页数只减不增；FIFO 与基本 CLOCK 不是栈算法，理论上可能出现 Belady 异常。
-\end{conclusion}
 
-\subsection{页面分配策略与抖动}
+\subsection{页面分配、工作集与抖动}
 
-\subsubsection{页面分配策略}
+页面置换只回答“缺页时换谁”，还有一个前置问题：每个进程应该分到多少页框？分得太少，进程频繁缺页；分得太多，其他进程又不够用。
 
-\begin{conclusion}{页面分配策略}{page-allocation-strategies}
-OS 在多个进程之间分配物理页框时，有三种基本策略：
+常见的分配策略有三种：
 
-\begin{tablebox}{页面分配策略对比}
+\begin{tablebox}{页面分配与置换范围的组合}
 \centering
-\begin{tabular}{|l|p{6cm}|p{3cm}|}
+\begin{tabularx}{\linewidth}{|p{0.24\linewidth}|X|}
 \hline
-策略 & 含义 & 特点 \\
+策略 & 含义与特点 \\
 \hline
-\textbf{固定分配 + 局部置换} & 每个进程固定数量的页框；缺页时仅从自身页面中选择换出 & 分配数确定后不变 \\
+固定分配 $+$ 局部置换 & 每个进程分到固定数量的页框，缺页时只从自己的页里换。隔离性好，但页框数难以适应程序阶段变化 \\
 \hline
-\textbf{可变分配 + 全局置换} & 不预先限制各进程的页框数；缺页时从\textbf{所有进程}的页面中选一个换出（可从别的进程「抢」页框） & 灵活，但一个进程的行为可能影响其他进程 \\
+可变分配 $+$ 全局置换 & 不固定每个进程的页框数，缺页时可从所有进程的页中选牺牲页。灵活，但一个进程可能抢走另一个进程正在用的页 \\
 \hline
-\textbf{可变分配 + 局部置换} & 动态调整各进程页框数；缺页时仅从自身页面中置换，但 OS 会定期评估并调整分配数 & 最常用；平衡灵活性和隔离性 \\
+可变分配 $+$ 局部置换 & 缺页时先从自己这里换，操作系统定期根据缺页情况调整页框数。兼顾灵活性和隔离性，实际系统常用 \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{tablebox}
 
-\textbf{引入/调入页面的时机：}
-\begin{itemize}
-    \item \textbf{请求调页（Demand Paging）}：仅在访问缺页时才调入（最常用）。
-    \item \textbf{预调页（Prepaging）}：在缺页发生时，除调入缺失页面外，也调入其相邻的若干页面（利用空间局部性，减少后续缺页）。
-\end{itemize}
-\end{conclusion}
+“固定分配 $+$ 全局置换”通常不单独列出：既然允许从全局抢页框，分给每个进程的数量就不可能真正固定。调入页面的时机则有请求调页和预调页两种，前者只在缺页时调入，后者顺便多读几页。每个进程分到的页框数还有一个下限：至少要能同时容纳一条指令及其操作数所在的页面，具体由指令集决定，跨页取指或多个跨页操作数会抬高这个下限；上限则是该进程的页面总数。
 
-\subsubsection{抖动与工作集}
+\subsubsection{工作集}
 
-\begin{mydef}{抖动}{thrashing}
-\textbf{抖动（Thrashing）}是指系统中频繁发生缺页，以至于进程花费在页面换入换出上的时间超过了实际执行计算的时间，CPU 利用率急剧下降的现象。
-
-\textbf{抖动产生的原因：} 并发进程过多，每个进程分配的物理页框数少于其\textbf{工作集（Working Set）}所需的最小页数。进程不断缺页，从其他进程抢页面，引发连锁反应。
-
-\textbf{抖动的特征：}
-\begin{itemize}
-    \item CPU 利用率骤降（因为进程都在等待磁盘 I/O）；
-    \item 磁盘忙于处理页面换入换出；
-    \item 系统吞吐量极低。
-\end{itemize}
-\end{mydef}
-
-\begin{conclusion}{工作集模型}{working-set-model}
-\textbf{工作集（Working Set）}由 Denning 提出，定义为：
-
+工作集（Working Set）描述进程在最近一段时间内实际用到的页面集合：
 \[
-\boxed{W(t, \Delta) = \{\text{进程在时间区间 } [t-\Delta, t] \text{ 内访问过的页面集合}\}}
+W(t,\Delta)=\{\text{进程在时间区间 }(t-\Delta,\,t]\text{ 内访问过的页面}\}.
 \]
-
-其中 $\Delta$ 称为\textbf{工作集窗口（Window Size）}。工作集的大小 $|W(t, \Delta)|$ 随程序执行的阶段不同而变化。
-
-\textbf{工作集模型的应用：}
-\begin{enumerate}
-    \item \textbf{防止抖动}：OS 监视每个进程的工作集大小，确保分配的页框数 $\ge$ 工作集大小。如果所有进程的工作集之和超过物理内存总量，则需要挂起（Suspend）某些进程。
-    \item \textbf{页面置换决策}：优先保留工作集内的页面，换出不在工作集中的页面。
-\end{enumerate}
-
-\textbf{页框数的确定：}
-\begin{itemize}
-    \item \textbf{最少页框数}：由硬件（指令集结构）决定——保证一条指令能正常执行所需的最少页面数（如跨页指令 + 跨页操作数，最多可能需要 6 个页面）。
-    \item \textbf{最大页框数}：进程的\textbf{全部页面数}。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频考点：抖动与工作集。}
-\begin{itemize}
-    \item 抖动可以通过\textbf{工作集模型}或\textbf{缺页频率（PFF，Page Fault Frequency）}策略来预防。
-    \item PFF 策略：若进程缺页率太高 $\to$ 增加其页框数；若缺页率太低 $\to$ 减少其页框数。
-    \item 408 常考判断：「系统频繁换页，CPU 利用率低」$\to$ 系统发生了抖动，应\textbf{减少并发进程数}，而不是增加。
-\end{itemize}
-\end{attention}
-
-\subsection{408 高频考点速查}
-
-\begin{conclusion}{内存管理 — 408 常考点总结}{mem-keypoints}
-\begin{enumerate}
-    \item \textbf{地址变换计算}：给定逻辑地址和页面大小 $\to$ 求页号、页内偏移；查页表 $\to$ 求物理地址，是常见计算题。
-    \item \textbf{TLB + 页表 + Cache 综合}：理解 TLB 命中/缺失后的访存流程，计算不同命中率下的有效访存时间。
-    \item \textbf{多级页表}：给定多级页表结构和逻辑地址，求各级索引和最终物理地址；计算多级页表节省的内存量。
-    \item \textbf{页面置换算法}：OPT、FIFO（注意 Belady 异常）、LRU、CLOCK、改进 CLOCK 的置换过程模拟和缺页次数统计。\textbf{高频计算题}。
-    \item \textbf{分段 vs 分页 vs 段页式}：地址变换方式的区别（拼接 vs 加法）、碎片类型、访存次数。
-    \item \textbf{碎片问题}：固定分区（内部碎片）、动态分区（外部碎片 + 紧凑）、分页（内部碎片）、分段（外部碎片）。
-    \item \textbf{抖动与工作集}：抖动的现象、原因和解决方案。
-\end{enumerate}
-\end{conclusion}
-
-\newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（真题风格·选择题）} 在缺页处理过程中，操作系统执行的操作可能是
-\begin{center}
-\begin{tabular}{ll}
-(A) 修改页表 & (B) 磁盘I/O \\[6pt]
-(C) 分配页框 & (D) 以上都是
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 缺页中断处理：确定页在外存位置$\to$分配页框$\to$磁盘I/O读入$\to$修改页表（有效位=1）。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 在一个请求分页系统中，采用LRU页面置换算法时，假设一个作业的页面走向为$1,2,3,4,2,1,5,6,2,1,2,3,7,6,3,2,1,2,3,6$。当分配给该作业的物理块数为4时，缺页次数是
-\begin{center}
-\begin{tabular}{ll}
-(A) 8 & (B) 10 \\[6pt]
-(C) 12 & (D) 14
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} LRU 淘汰最久未使用的页。4 个页框逐步模拟，缺页发生在第 1、2、3、4、7、8、12、13、14、17 次访问，对应缺页页号为
-$1,2,3,4,5,6,3,7,6,1$，共 10 次，缺页率为 $10/20=50\%$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 在请求分页系统中，页面分配策略与页面置换策略不能组合使用的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 可变分配, 全局置换 & (B) 可变分配, 局部置换 \\[6pt]
-(C) 固定分配, 全局置换 & (D) 固定分配, 局部置换
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 固定分配时页框数固定，若全局置换意味着可从其他进程"抢"页框——这与固定分配矛盾。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 某系统采用改进型CLOCK置换算法，页表项中A为访问位，M为修改位。将页面分为四类：(0,0) (0,1) (1,0) (1,1)，淘汰页面的优先次序为
-\begin{center}
-\begin{tabular}{ll}
-(A) (0,0),(0,1),(1,0),(1,1) & (B) (0,0),(1,0),(0,1),(1,1) \\[6pt]
-(C) (0,0),(1,1),(1,0),(0,1) & (D) (0,1),(1,0),(0,0),(1,1)
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 改进CLOCK：优先淘汰未访问未修改(0,0)，其次未访问已修改(0,1)，再次访问未修改(1,0)，最后访问已修改(1,1)。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 下列关于虚拟存储器的叙述中，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 虚拟存储器的容量等于主存与辅存的容量之和 \\[4pt]
-(B) 虚拟存储器是基于局部性原理实现的 \\[4pt]
-(C) 虚拟存储器只能基于分页存储管理实现 \\[4pt]
-(D) 引入虚拟存储器后，进程的地址空间受物理内存大小限制
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 虚拟存储器基于局部性原理（时间/空间局部性）。容量受CPU地址位数限制，而非主存+辅存。可分页/分段/段页式实现。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（计算题）} 某分页系统页面大小为4 KB，进程的页表如下（页号从0开始）：
+$\Delta$ 是窗口大小。窗口越大，集合越稳定，但可能把已经不再使用的页也算进来；窗口越小，越能反映当前阶段，但波动更大。
 
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-页号 & 0 & 1 & 2 & 3 \\
-\hline
-页框号 & 5 & 10 & 2 & 7 \\
-\hline
-\end{tabular}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 访问序列
+  \foreach \i/\v in {0/2,1/3,2/1,3/4,4/2,5/3,6/5,7/1,8/2,9/4,10/3,11/5} {
+    \draw (\i*0.8,0.6) rectangle ++(0.8,0.8);
+    \node at (\i*0.8+0.4,1.0) {\v};
+  }
+  % 窗口 1：时刻 1..4（下标 1..4）
+  \draw[Teal, thick] (0,1.55) -- (0,1.95) -- (3.2,1.95) -- (3.2,1.55);
+  \node[Teal, font=\scriptsize, align=center] at (1.6,2.2) {$W(4,4)=\{1,2,3,4\}$};
+  % 窗口 2：时刻 5..8
+  \draw[Burgundy, thick] (3.2,2.35) -- (3.2,2.75) -- (6.4,2.75) -- (6.4,2.35);
+  \node[Burgundy, font=\scriptsize, align=center] at (4.8,3.0) {$W(8,4)=\{1,2,3,5\}$};
+  % 窗口 3：时刻 9..12
+  \draw[Amber, thick] (6.4,3.15) -- (6.4,3.55) -- (9.6,3.55) -- (9.6,3.15);
+  \node[Amber, font=\scriptsize, align=center] at (8.0,3.8) {$W(12,4)=\{2,3,4,5\}$};
+  \node[font=\tiny, text=MutedText] at (5.4,0.2) {时间};
+\end{tikzpicture}
 \end{center}
 
-分别计算逻辑地址 5000 和 15000 对应的物理地址。
+图中窗口 $\Delta=4$ 随时间滑动。时刻 1--4 内访问过 2、3、1、4，工作集是 $\{1,2,3,4\}$；滑到时刻 5--8 后变成 $\{1,2,3,5\}$；再滑到时刻 9--12 又变成 $\{2,3,4,5\}$。工作集变化说明进程在不同阶段需要的页不同，操作系统不能一次性把页框数定死。
 
-\ifshowsolutions\par\noindent\textbf{解析：}
-页面大小$=4096$ B。$5000\div 4096=1$（页号$=1$），偏移$=5000-4096=904$。页框号$=10$，物理地址$=10\times 4096+904=41864$。
+\subsubsection{抖动}
 
-$15000\div 4096=3$（页号$=3$），偏移$=15000-3\times 4096=2712$。页框号$=7$，物理地址$=7\times 4096+2712=31384$。\else \answerarea \fi
+如果分配给进程的页框数小于它当前工作集的大小，进程刚换入一页，很快又要换出另一页，缺页接连不断。此时进程大部分时间在等磁盘，真正执行指令的时间很少，CPU 利用率反而下降，这种现象叫\textbf{抖动}（Thrashing）。
 
-\end{enumerate}
+抖动的典型表现是：缺页率很高、磁盘忙于换入换出、CPU 利用率低。此时\textbf{增加并发进程数会加重抖动}，因为每个进程分到的页框更少；正确的做法是减少并发度，或者按工作集模型、缺页频率（PFF）策略给进程增配页框。
 
-\subsection{真题风格与综合训练}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=9.2cm, height=5.4cm,
+  xlabel={多道程序度（并发进程数）}, ylabel={CPU 利用率},
+  xmin=0, xmax=11, ymin=0, ymax=100,
+  xtick=\empty, ytick={0,25,50,75,100},
+  axis lines=left,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+]
+\addplot[thick, Teal, smooth] coordinates {(1,8) (2,30) (3,55) (4,76) (5,90) (6,95) (7,88) (8,62) (9,32) (10,12)};
+\draw[dashed, MutedText] (axis cs:6,0) -- (axis cs:6,95);
+\node[font=\tiny, text=MutedText, anchor=south west] at (axis cs:6.1,10) {拐点};
+\node[font=\scriptsize, text=Burgundy, anchor=south] at (axis cs:8.3,68) {抖动区};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
-\begin{enumerate}[resume]
+曲线是示意：并发度较低时，增加进程能让 CPU 更忙；超过某个点后，页框被摊薄，缺页换入换出占满磁盘，CPU 利用率急剧下降。实际系统的拐点取决于工作集大小、页框总数和磁盘速度，不是一个固定数字。
 
-\item \textbf{（真题风格·综合题）} 某请求分页系统，进程 P 共有 7 页，分配给 P 的物理块为 3 块，页面访问串为
-\[
-1,2,3,4,2,1,5,6,2,1,\quad 2,3,7,6,3,2,1,2,3,6\,.
-\]
+防止抖动可以从两头入手：一是给每个进程足够的页框，至少覆盖当前工作集；二是控制并发度，当所有进程的工作集之和超过物理页框总数时，挂起部分进程。PFF 策略则直接看缺页率：高于上界就增配页框，低于下界就适当减少，把缺页率拉回可接受范围。
+
+\subsection{做内存管理题的顺序}
+
+地址转换题和置换题看起来公式很多，其实可以按固定顺序拆：
+
 \begin{enumerate}
-    \item[(1)] 采用FIFO页面置换算法，缺页率是多少？
-    \item[(2)] 采用LRU页面置换算法，缺页率是多少？
-    \item[(3)] 本例中出现Belady异常了吗？解释原因。
+  \item \textbf{先看页面大小}，把它写成 $2^k$，确定页内偏移占 $k$ 位；逻辑地址总位数减去 $k$ 就是页号位数。
+  \item \textbf{再看页表级数}。单级页表缺失时访存 2 次，二级 3 次，$L$ 级 $L+1$ 次；TLB 命中则只算 1 次数据访存。
+  \item \textbf{把地址拆成各级索引和偏移}，按“页目录 $\to$ 二级页表 $\to$ 页框”的顺序查，别忘了检查有效位和权限。
+  \item \textbf{置换题先画帧表}，逐次访问、逐次更新；FIFO 只在装入时排队，LRU 命中也要刷新次序，CLOCK 看访问位和指针。
+  \item \textbf{最后核对单位}：页面大小是字节还是 KB，地址是十六进制还是十进制，缺页率是百分数还是小数。单位错一步，后面全错。
 \end{enumerate}
 
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) FIFO（3 块）的缺页页号依次为
-$1,2,3,4,1,5,6,2,1,3,7,6,2,1,3,6$，共 16 次，缺页率为 $16/20=80\%$。
-
-(2) LRU（3 块）的缺页页号依次为
-$1,2,3,4,1,5,6,2,1,3,7,6,2,1,6$，共 15 次，缺页率为 $15/20=75\%$。
-
-(3) 仅给出 3 块时的结果，不能据此判断是否发生 Belady 异常。作为对照，对同一访问串用 FIFO 配置 4 块时缺页 14 次，少于 3 块时的 16 次，因此从 3 块增加到 4 块时\textbf{没有}出现 Belady 异常。FIFO 是出现 Belady 异常的典型算法，但并非每个访问串、每次增加页框都会出现；LRU 和 OPT 属于栈算法，不会出现该异常。\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·综合题）} 某计算机系统主存按字节编址，逻辑地址和物理地址均为32位，页面大小4 KB，页表项大小4 B。
-\begin{enumerate}
-    \item[(1)] 若使用一级页表，页表最大占多少内存？
-    \item[(2)] 若使用二级页表，将32位逻辑地址划分为：一级页号10位、二级页号10位、页内偏移12位。此时每个进程的页表最多占多少内存（假设仅将需要的页表调入）？
-    \item[(3)] TLB初始为空，访问逻辑地址0x12345时TLB缺失，访问页表后TLB加载该表项。之后访问逻辑地址0x1234A是否需要再次访问页表？
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) 页面数$=2^{32}/2^{12}=2^{20}=1\text{M}$页。页表大小$=1\text{M}\times 4\text{ B}=4\text{ MB}$（每进程）。
-
-(2) 二级页表：一级$2^{10}=1\text{K}$项，共 $4\text{ KB}$；最多需要 $2^{10}$ 张二级页表，每张$2^{10}$项、大小为 $4\text{ KB}$，合计 $4\text{ MB}$。因此所有二级页表都调入时的最大空间为 $4\text{ MB}+4\text{ KB}$；地址空间稀疏时只调入实际需要的二级页表，实际占用可低于该上限。
-
-(3) 0x12345: 页号$=0x12$。0x1234A: 页号同为$0x12$（同一页），TLB命中$\to$无需访问页表。\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·综合题）} 某系统采用请求分页存储管理，页面大小4 KB，TLB采用全相联映射。CPU执行指令\texttt{mov eax, [ebx]}（读内存操作数），逻辑地址为\$0x08048000\$。
-\begin{enumerate}
-    \item[(1)] 该逻辑地址的页号和页内偏移各是多少？
-    \item[(2)] 若TLB命中，访存过程共需几次内存访问？
-    \item[(3)] 若TLB缺失且页表在内存中，访存过程共需几次内存访问？
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) 4 KB$=2^{12}$, 页号$=0x08048$, 偏移$=0x000$。
-
-(2) TLB命中：TLB获取页框号$\to$拼接物理地址$\to$访问内存取数据。共\textbf{1次访存}。
-
-(3) TLB缺失：访问内存页表(1次)$\to$获取页框号$\to$访问内存取数据(1次)。共\textbf{2次访存}。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item OSTEP 第18-22章「分页」和「TLB」——地址变换的完整硬件实现和TLB设计。
-    \item 陈海波《现代操作系统：原理与实现》第5章「内存管理」——多级页表和ARM64地址变换。
+  \item OSTEP 第 18--22 章“分页、TLB、交换”，看地址变换和缺页处理的完整硬件流程。
+  \item 陈海波《现代操作系统：原理与实现》第 5 章“内存管理”，看多级页表、大页和 ARM64 地址变换。
 \end{itemize}
+
+\newpage
+\input{os/exercises/chap3.tex}

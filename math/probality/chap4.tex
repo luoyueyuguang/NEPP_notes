@@ -1,869 +1,660 @@
 \section{随机变量的数字特征}
-\subsection{随机变量的期望与方差}
-\begin{mydef}{随机变量的数学期望}{expectation of random variable}
-    \begin{enumerate}
-        \item 离散型随机变量 \\
-        设离散型随机变量\(X\)的概率分布为
-        \[
-        P(X=x_i)=p_i,\quad i=1,2,\ldots,
-        \]
-        则\(X\)的数学期望为
-        \[
-        E(X)=\sum_i x_i p_i,
-        \]
-        其中级数绝对收敛；若只有有限个可能取值，求和自然退化为有限和。
 
+分布函数或密度函数把随机变量描述得很完整，但完整不等于好用。面对两个投资方案、两批零件的尺寸，我们通常只想知道“平均有多少”“波动有多大”“两个量是否同向变化”。这些数就是数字特征：它们丢掉分布的细节，把最要紧的几条信息压缩成几个实数，便于比较，也便于代入后续公式。
 
-        \item 连续型随机变量 \\
-        设随机变量\(X\)的概率密度函数为\(f(x)\),
-        则\(X\)的数学期望为
-        \[
-        E(X) = \int_{-\infty}^{+\infty} x f(x) \mathrm{dx}
-        \]
-        其中积分\(\int_{-\infty}^{+\infty} x f(x) \mathrm{dx}\)绝对收敛
-    \end{enumerate}
-    \(E(X)\)是一个实数且完全由\(X\)的概率分布来确定
-\end{mydef}
+\subsection{期望：以概率加权的平均}
 
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.82\linewidth, height=5.2cm,
-  xlabel={$x$}, ylabel={$p_i$},
-  xmin=0.4, xmax=5.6, ymin=0, ymax=0.38,
-  xtick={1,2,3,4,5}, ytick={0,0.1,0.2,0.3},
-  font=\footnotesize,
-  ybar, bar width=10pt,
-]
-\addplot[fill=blue!38,draw=blue!60!black]
-  coordinates {(1,0.1)(2,0.25)(3,0.3)(4,0.2)(5,0.15)};
-\draw[dashed,red!70!black,thick] (axis cs:3.05,0) -- (axis cs:3.05,0.34);
-\node[font=\scriptsize,red!70!black] at (axis cs:3.05,0.37){重心 $E(X)=3.05$};
-\end{axis}
-\end{tikzpicture}
-\par\vspace{3pt}
-{\footnotesize\itshape 期望 $E(X)=\sum_i x_i p_i$ 是以概率 $p_i$ 为权重的加权平均：把柱子的“质量”放到取值 $x_i$ 上，$E(X)=1\cdot0.1+2\cdot0.25+3\cdot0.3+4\cdot0.2+5\cdot0.15=3.05$，即分布“质量”的平衡点（重心）。}
-\end{center}
-
-\begin{conclusion}{随机变量的数学期望的性质}{expectation of random variable properties}
-    \begin{enumerate}
-        \item \(C\)为常数，\(E(C) = C\)
-        \item \(C\)为常数，\(E(CX) = CE(X)\)
-        \item \(E(X \pm Y) = E(X) \pm E(Y)\)
-        \item 若\(X,Y\)相互独立，\(E(XY) = E(X)E(Y)\)
-    \end{enumerate}
-
-\end{conclusion}
-\begin{mydef}{随机变量函数的数学期望}{expectation of random variable function}
-    \begin{enumerate}
-        \item \(Y = g(X)\)为随机变量\(X\)的函数\\
-        设\(X\)是离散型随机变量，\(g(x)\)是一个连续函数，则\(Y = g(X)\)的数学期望为
-        \[
-        E(Y)=E(g(X))=\sum_i g(x_i)p_i
-        \]
-        设\(X\)为连续型随机变量，\(f(x)\)为随机变量\(X\)的概率密度函数，\(Y = g(X)\)的数学期望为
-        \[
-        E(Y) = E(g(X)) = \int_{-\infty}^{+\infty} g(x) f(x) \mathrm{dx}
-        \]
-        其中积分\(\int_{-\infty}^{+\infty} g(x) f(x) \mathrm{dx}\)绝对收敛
-        \item \(Z=g(X, Y)\)为\((X, Y)\)的随机变量函数 \\
-        \((X, Y)\)为二维离散型随机变量，\(g(x, y)\)是一个连续函数，则\(Z=g(X, Y)\)的数学期望为
-        \[
-        E(Z) = E(g(X, Y)) = \sum_{i=1}^{n} \sum_{j=1}^{m} g(x_{i}, y_{j}) p_{i, j}
-        \]
-        其中无穷级数\(\sum_{j=1}^{m} g(x_{i}, y_{j}) p_{i, j}\)收敛 \\
-        \((X, Y)\)为二维连续型随机变量，\(g(x, y)\)是一个连续函数，则\(Z=g(X, Y)\)的数学期望为
-        \[
-        E(Z) = E(g(X, Y)) = \int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} g(x, y) f(x, y) \mathrm{dx} \mathrm{dy}
-        \]
-        其中积分\(\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} g(x, y) f(x, y) \mathrm{dx} \mathrm{dy}\)绝对收敛
-    \end{enumerate}
-\end{mydef}
-
-\noindent\textbf{拓展（蒙特卡洛与优化）:} 由大数定律，$E[f(X)]$ 可用样本均值 $\widehat{E}_N=\dfrac{1}{N}\sum_{i=1}^{N}f(x_i)$ 近似，误差以 $s/\sqrt{N}$ 量级衰减（$s$ 为 $\sqrt{D(f(X))}$）。这是计算机处理高维积分、概率度量和期望估值的通用手段，其误差只取决于方差而不随维数增长，因而能应对“维数灾难”。同时期望天然是优化目标——统计学习中的经验风险最小化，就是把真实期望 $E[\mathrm{loss}]$ 换成训练集上的样本均值来最小化。
-
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.82\linewidth, height=5.2cm,
-  xlabel={样本数 $N$}, ylabel={蒙特卡洛估计},
-  xmin=0, xmax=250, ymin=0.2, ymax=0.8,
-  xtick={0,50,100,150,200,250}, ytick={0.2,0.4,0.5,0.6,0.8},
-  legend pos=north east, font=\footnotesize,
-  domain=1:250, samples=200, axis lines=left,
-]
-\addplot[red!70,thick,dashed] {0.5};
-\addlegendentry{目标 $E[f(X)]=\tfrac12$}
-\addplot[blue!70!black,thick] {0.5 + 0.2887/sqrt(x)};
-\addlegendentry{$+s/\sqrt{N}$}
-\addplot[blue!45,thick] {0.5 - 0.2887/sqrt(x)};
-\addlegendentry{$-s/\sqrt{N}$}
-\end{axis}
-\end{tikzpicture}
-\end{center}
-\centerline{\footnotesize 以 $X\sim U(0,1)$、$f(x)=x$ 为例：$\widehat{E}_N$ 随 $N$ 增大以量级 $s/\sqrt{N}$ 收敛到 $E[f(X)]=1/2$（$s=\sqrt{D(X)}\approx0.2887$），收敛率与问题维数无关。}
-
-\begin{mydef}{方差与标准差}{variance and standard deviation}
-    \begin{enumerate}
-        \item 方差 \\
-        设随机变量\(X\)的数学期望为\(E(X)\),
-        则\(X\)的方差为
-        \[
-        D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
-        \]
-        \item 标准差 \\
-        方差的算术平方根为标准差或均方差
-        \[
-        \sigma(X) = \sqrt{D(X)}
-        \]
-        记作\(\sigma(X)\)
-    \end{enumerate}
-    当\(D(X)>0\)时，称\(X^{*} = \frac{X - E[X]}{\sigma(X)}\)为随机变量\(X\)的标准化随机变量\\
-    \(E(X^*) = 0\),
-    \(D(X^*) = 1\)
-\end{mydef}
-
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.82\linewidth, height=5.2cm,
-  xlabel={$x$}, ylabel={$f(x)$},
-  xmin=-4, xmax=4, ymin=0, ymax=0.8,
-  xtick={-2,0,2}, ytick={0,0.2,0.4,0.6,0.8},
-  domain=-4:4, samples=200,
-  legend pos=north east, font=\footnotesize,
-]
-\addplot[blue,thick] {0.5694*exp(-x^2/(2*0.49))};
-\addlegendentry{$\sigma=0.7$（方差小）}
-\addplot[red,thick] {0.2216*exp(-x^2/(2*3.24))};
-\addlegendentry{$\sigma=1.8$（方差大）}
-\draw[dashed,gray!55] (axis cs:0,0) -- (axis cs:0,0.58);
-\node[font=\scriptsize,gray] at (axis cs:0,0.62){$\mu$};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-
-\begin{formula}{方差公式}{variance formula}
+先看一个离散的例子。某抽奖活动每次的奖金 $X$（元）只能取 $0,1,2,5$ 这五个值，概率依次是 $0.2,0.3,0.4,0.1$。抽一次平均能拿多少？把每个取值乘以它出现的概率再相加：
 \[
-D(X) = E[(X - E[X])^2] = E(X^2) - E(X)^2
+E(X)=0\times0.2+1\times0.3+2\times0.4+5\times0.1=1.6 .
 \]
-\end{formula}
+$1.6$ 不是某次真能拿到的金额（取值里根本没有 $1.6$），而是大量重复抽奖后平均每次的收益。重复 $n$ 次，平均奖金会随 $n$ 增大向 $1.6$ 靠拢。
 
-\begin{conclusion}{方差性质}{variance properties}
-    \begin{enumerate}
-        \item \(C\)为常数，\(D(C) = 0\), \(D(X) = 0\)的充分必要条件是\(X\)以概率\(1\)取
-        常数\(C\),即\(P(X = C) = 1, C = E(X)\)
-        \item \(C\)为常数，\(D(CX) = C^2D(X)\)
-        \item \(C\)为常数，\(D(X + C) = D(X)\)
-        \item \(D(X \pm Y) = D(X) + D(Y) \pm 2\mathrm{Cov}(X, Y)\) \\
-        若\(X,Y\)相互独立，\(D(X \pm Y) = D(X) + D(Y)\)
-    \end{enumerate}
-\end{conclusion}
+一般地，若离散型随机变量 $X$ 的分布律为 $P(X=x_i)=p_i$，且
+\[
+\sum_i |x_i|p_i<\infty ,
+\]
+则称
+\[
+E(X)=\sum_i x_i p_i
+\]
+为 $X$ 的数学期望。连续型随机变量把分布律换成密度、求和换成积分。只要绝对矩有限，即
+\[
+\int_{-\infty}^{+\infty}|x|f(x)\,\mathrm{d}x<\infty ,
+\]
+就定义
+\[
+E(X)=\int_{-\infty}^{+\infty}x f(x)\,\mathrm{d}x .
+\]
+两个定义都要求绝对收敛，这不是技术上的洁癖。若级数只是条件收敛，重新排列求和次序会得到不同的值，而“平均”不应该取决于我们把取值按什么顺序排列；绝对收敛才能保证 $E(X)$ 由分布本身唯一确定。
 
-\begin{tablebox}{常见随机变量的数学期望与方差}
-    \scalebox{1.15}{
-    \begin{tabular}{|c|c|c|c|c|}
-        \hline
-        分布 & 符号 & 期望 & 方差 & 标准差 \\
-        \hline
-        \(0-1\)分布 & \(X \sim B(1, p)\) & \(p\) & \(p(1 - p)\) & \(\sqrt{p(1 - p)}\) \\
-        \hline
-        二项分布
-        & \(X \sim B(n, p)\) & \(np\) & \(np(1 - p)\) & \(\sqrt{np(1 - p)}\) \\
-        \hline
-        泊松分布 & \(X \sim P(\lambda)\) & \(\lambda\) & \(\lambda\) & \(\sqrt{\lambda}\) \\
-        \hline
-        几何分布 & \(X \sim G(p)\) & \(\frac{1}{p}\) & \(\frac{1 - p}{p^2}\) & \(\sqrt{\frac{1 - p}{p^2}}\) \\
-        \hline
-        均匀分布 & \(X \sim U(a, b)\) & \(\frac{a + b}{2}\) & \(\frac{(b - a)^2}{12}\) & \(\frac{b - a}{\sqrt{12}}\) \\
-        \hline
-        指数分布 & \(X \sim E(\lambda)\) & \(\frac{1}{\lambda}\) & \(\frac{1}{\lambda^2}\) & \(\frac{1}{\lambda}\) \\
-        \hline
-        正态分布 & \(X \sim N(\mu, \sigma^2)\) & \(\mu\) & \(\sigma^2\) & \(\sigma\) \\
-        \hline
-    \end{tabular}
-    }
+期望也可能不存在。柯西分布的密度为 $f(x)=\dfrac{1}{\pi(1+x^2)}$，它关于原点对称，但
+\[
+\int_{-\infty}^{+\infty}|x|f(x)\,\mathrm{d}x=\frac{2}{\pi}\int_0^{+\infty}\frac{x}{1+x^2}\,\mathrm{d}x=+\infty ,
+\]
+正负两侧的“面积矩”都发散，谈不上相抵后的位置，所以柯西分布没有期望。对称性只能说明“如果期望存在，它等于 $0$”，不能保证存在。
 
-\end{tablebox}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.80\linewidth,height=5.4cm,
+  ybar,bar width=15pt,
+  xmin=-0.7,xmax=5.7,ymin=-0.14,ymax=0.46,
+  xtick={0,1,2,5},ytick={0,0.1,0.2,0.3,0.4},
+  xlabel={$x$},ylabel={$p_i$},
+  axis lines=left,
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+]
+\addplot[fill=blue!30,draw=blue!60!black] coordinates {(0,0.2)(1,0.3)(2,0.4)(5,0.1)};
+\draw[gray!70] (axis cs:-0.7,0) -- (axis cs:5.7,0);
+\fill[red!70!black] (axis cs:1.6,0) -- (axis cs:1.49,-0.10) -- (axis cs:1.71,-0.10) -- cycle;
+\draw[dashed,red!70!black,thick] (axis cs:1.6,0) -- (axis cs:1.6,0.45);
+\node[font=\scriptsize,red!70!black,anchor=south] at (axis cs:1.6,0.45){$E(X)=1.6$};
+\node[font=\scriptsize,anchor=west] at (axis cs:1.80,-0.075){支点};
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 柱子高度是概率，柱子的“质量”落在取值 $x_i$ 上。$E(X)=1.6$ 是这组质量的重心：支点放在 $1.6$，左右力矩恰好相等，
+$0.2\times1.6+0.3\times0.6=0.4\times0.4+0.1\times3.4=0.5$。最可能的取值是 $2$，但期望并不是众数——它由全部取值和概率共同决定。}
+\end{center}
+
+期望最重要的性质是线性性。对任意常数 $a,b,c$，
+\[
+E(aX+bY+c)=aE(X)+bE(Y)+c .
+\]
+这条性质不要求 $X,Y$ 独立，甚至不要求它们有联合密度：只要三个期望都存在，就把联合分布按行、按列求和，常数项按总概率 $1$ 提出来即可。
+
+乘积则不能随便拆。$E(XY)=E(X)E(Y)$ 需要额外条件，最常用的是 $X,Y$ 相互独立：独立时 $p_{ij}=p_{i\cdot}p_{\cdot j}$，双重和可以拆成两个和的乘积。没有独立性时等式一般不成立。例如 $X$ 等可能取 $\pm1$，令 $Y=X$，则 $E(XY)=E(X^2)=1$，而 $E(X)E(Y)=0$。
+
+已知 $X$ 的分布求 $g(X)$ 的期望时，不必先写出 $g(X)$ 的分布，直接按 $X$ 的分布加权即可：
+\[
+E[g(X)]=\sum_i g(x_i)p_i
+\quad\text{或}\quad
+E[g(X)]=\int_{-\infty}^{+\infty}g(x)f(x)\,\mathrm{d}x ,
+\]
+当然仍要求相应的和或积分绝对收敛。比如 $X$ 的密度为 $f(x)=2x\ (0<x<1)$，取 $g(x)=x^2$，直接算得
+\[
+E(X^2)=\int_0^1 x^2\cdot2x\,\mathrm{d}x=\frac12 ,
+\]
+而 $(E X)^2=\left(\frac23\right)^2=\frac49$。两者不相等，差值 $\frac12-\frac49=\frac1{18}$ 正是下一节的方差。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  name=dens,
+  width=6.4cm,height=4.6cm,
+  xmin=-0.04,xmax=1.08,ymin=0,ymax=2.3,
+  xtick={0,0.5,1},ytick={0,1,2},
+  xlabel={$x$},ylabel={$f(x)$},
+  title={密度 $f(x)=2x$},
+  title style={font=\scriptsize},
+  axis lines=left,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+]
+\addplot[blue!60!black,thick,domain=0:1,samples=60] {2*x};
+\end{axis}
+\begin{axis}[
+  at={(7.2cm,0)},anchor=south west,
+  width=6.4cm,height=4.6cm,
+  xmin=-0.04,xmax=1.08,ymin=0,ymax=2.3,
+  xtick={0,0.5,1},ytick={0,1,2},
+  xlabel={$x$},ylabel={$g(x)f(x)$},
+  title={被积函数 $g(x)f(x)=2x^3$},
+  title style={font=\scriptsize},
+  axis lines=left,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+]
+\addplot[fill=red!18,draw=red!65!black,domain=0:1,samples=60] {2*x^3} \closedcycle;
+\node[font=\scriptsize,red!65!black] at (axis cs:0.62,0.55){面积 $=\frac12$};
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 左图是 $X$ 的密度，右图把每个 $x$ 上的密度乘以 $g(x)=x^2$。右图曲线下的面积就是 $E[g(X)]=\int_0^1 2x^3\,\mathrm{d}x=\frac12$。求 $E[g(X)]$ 只需在 $x$ 轴上按密度加权，不需要先求 $g(X)$ 的密度。}
+\end{center}
+
+连续型期望常用对称性和换元。设 $Z\sim N(0,1)$，密度 $\varphi(z)=\frac{1}{\sqrt{2\pi}}\mathrm{e}^{-z^2/2}$。被积函数 $z\varphi(z)$ 是奇函数，故 $E(Z)=0$。二阶矩用分部积分，注意 $z\varphi(z)=-\varphi'(z)$：
+\[
+E(Z^2)=\int_{-\infty}^{+\infty}z^2\varphi(z)\,\mathrm{d}z
+=-\int_{-\infty}^{+\infty}z\,\mathrm{d}\varphi(z)
+=\int_{-\infty}^{+\infty}\varphi(z)\,\mathrm{d}z=1 .
+\]
+若 $X=\mu+\sigma Z$，由线性性立刻得到 $E(X)=\mu$；方差将在下一节由 $D(X)=\sigma^2D(Z)$ 得到。
+
+\subsection{方差：平均偏离有多远}
+
+期望只说明中心位置。两个方案的年化收益期望都是 $5\%$，一个每年在 $4\%$ 到 $6\%$ 之间小幅摆动，另一个可能一年赚 $20\%$、下一年亏 $10\%$，风险显然不同。刻画这种波动，最常用的是“偏离期望的平方的平均”：
+\[
+D(X)=E\bigl[(X-E(X))^2\bigr].
+\]
+它恒不为负；单位是 $X$ 的单位的平方（元$^2$、米$^2$），所以实际报告时常开方，称
+\[
+\sigma(X)=\sqrt{D(X)}
+\]
+为标准差，单位和 $X$ 一致。
+
+方差还有一条更省事的计算公式。把平方展开：
+\[
+D(X)=E\bigl[X^2-2X\,E(X)+(E X)^2\bigr]
+=E(X^2)-2(E X)^2+(E X)^2
+=E(X^2)-(E X)^2 .
+\]
+实际计算几乎都用右边：先算 $E(X^2)$ 和 $E(X)$，再相减。要注意 $E(X^2)\ge(E X)^2$ 恒成立，差额就是方差。
+
+方差还是“用常数逼近 $X$”时的最小均方误差。对任意实数 $c$，
+\[
+E[(X-c)^2]=E\bigl[(X-E X)+(E X-c)\bigr]^2
+=D(X)+(E X-c)^2\ge D(X),
+\]
+等号仅在 $c=E(X)$ 时成立。所以期望是均方意义下最靠近 $X$ 的常数，方差是这个最近距离的平方。这条恒等式也是后面“条件期望是最优预测”的雏形。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth,height=5.4cm,
+  xmin=-4,xmax=4,ymin=0,ymax=0.72,
+  xtick={-2,-1,0,1,2},ytick={0,0.2,0.4,0.6},
+  xlabel={$x$},ylabel={密度},
+  axis lines=left,
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+  legend style={font=\scriptsize,draw=none,fill=none,at={(0.98,0.98)},anchor=north east},
+]
+\addplot[blue!65!black,thick,domain=-4:4,samples=200] {0.5694*exp(-x^2/(2*0.49))};
+\addlegendentry{$\sigma=0.7$}
+\addplot[red!65!black,thick,domain=-4:4,samples=200] {0.2216*exp(-x^2/(2*3.24))};
+\addlegendentry{$\sigma=1.8$}
+\draw[dashed,blue!55] (axis cs:-0.7,0) -- (axis cs:-0.7,0.36);
+\draw[dashed,blue!55] (axis cs:0.7,0) -- (axis cs:0.7,0.36);
+\draw[dashed,red!55] (axis cs:-1.8,0) -- (axis cs:-1.8,0.13);
+\draw[dashed,red!55] (axis cs:1.8,0) -- (axis cs:1.8,0.13);
+
+
+\draw[dashed,gray!60] (axis cs:0,0) -- (axis cs:0,0.60);
+\node[font=\scriptsize,gray!70!black,anchor=south] at (axis cs:0,0.60){$\mu$};
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 两条正态密度都以 $0$ 为期望。蓝色 $\sigma=0.7$，红色 $\sigma=1.8$：峰值 $1/(\sigma\sqrt{2\pi})$ 与 $\sigma$ 成反比，$\sigma$ 越大曲线越矮越胖。对正态分布，约有 $68.3\%$ 的概率落在 $\mu\pm\sigma$ 内（图中虚线之间），所以 $\sigma$ 直接给出了“典型波动范围”的尺度。}
+\end{center}
+
+方差的基本性质都可由定义推出：
+\begin{itemize}
+  \item $D(C)=0$（常数没有波动）；反之 $D(X)=0$ 的充要条件是 $P(X=E X)=1$。因为 $(X-EX)^2$ 非负，非负随机变量期望为零只能说明它几乎处处为零。
+  \item $D(aX+b)=a^2D(X)$。平移不改变相对位置，乘 $a$ 把每个偏差放大 $|a|$ 倍，平方后放大 $a^2$ 倍。
+  \item 一般情形下 $D(X\pm Y)=D(X)+D(Y)\pm2\Cov(X,Y)$，其中 $\Cov$ 是下一节的协方差。只有 $X,Y$ 不相关时才能直接相加。
+\end{itemize}
+
+若 $\sigma(X)>0$，把 $X$ 平移再缩放，得到标准化随机变量
+\[
+X^*=\frac{X-E(X)}{\sigma(X)},
+\qquad E(X^*)=0,\quad D(X^*)=1 .
+\]
+不同量纲的随机变量经过这一步可以放在同一把尺子上比较，$X^*$ 的取值称为 $z$ 分数。
+
+方差还给出一个不依赖分布形状的概率界。对任意 $\varepsilon>0$，
+\[
+P\bigl(|X-E X|\ge\varepsilon\bigr)
+\le \frac{D(X)}{\varepsilon^2},
+\]
+因为事件 $\{|X-EX|\ge\varepsilon\}$ 上 $(X-EX)^2\ge\varepsilon^2$，两边取期望即得。这个界通常偏松（例如正态分布在 $2\sigma$ 外的真实概率约 $0.046$，界给出 $0.25$），但它的价值在于不需要知道分布。
+
+常见分布的期望与方差列在下表，几何分布按“首次成功所需的试验次数”（取值 $1,2,\dots$）定义。
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+分布 & 记号 & 期望 & 方差 \\
+\midrule
+$0$-$1$ 分布 & $B(1,p)$ & $p$ & $p(1-p)$ \\
+二项分布 & $B(n,p)$ & $np$ & $np(1-p)$ \\
+泊松分布 & $P(\lambda)$ & $\lambda$ & $\lambda$ \\
+几何分布 & $G(p)$ & $1/p$ & $(1-p)/p^2$ \\
+均匀分布 & $U(a,b)$ & $(a+b)/2$ & $(b-a)^2/12$ \\
+指数分布 & $E(\lambda)$ & $1/\lambda$ & $1/\lambda^2$ \\
+正态分布 & $N(\mu,\sigma^2)$ & $\mu$ & $\sigma^2$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+这些结果最好按定义推一遍再记。例如指数分布 $f(x)=\lambda\mathrm{e}^{-\lambda x}\ (x>0)$，
+\[
+E(X)=\int_0^{\infty}x\lambda\mathrm{e}^{-\lambda x}\,\mathrm{d}x=\frac1\lambda,
+\qquad
+E(X^2)=\int_0^{\infty}x^2\lambda\mathrm{e}^{-\lambda x}\,\mathrm{d}x=\frac{2}{\lambda^2},
+\]
+故 $D(X)=\frac{2}{\lambda^2}-\frac{1}{\lambda^2}=\frac{1}{\lambda^2}$。指数分布的期望和标准差相等，都是 $1/\lambda$，这是它区别于其他连续分布的一个标志。
 
 \subsection{协方差与相关系数}
-\begin{mydef}{协方差}{covariance}
-设\(X,Y\)是二维随机变量，如果\(E[(X-E(X))(Y-E(Y))]\)存在，则称它为
-随机变量\(X\)与\(Y\)的协方差,记作
+
+两个随机变量放在一起时，各自的期望、方差还不够。$D(X+Y)$ 展开会出现交叉项
 \[
-\mathrm{Cov}(X, Y) = E[(X - E[X])(Y - E[Y])] = E(XY) - E(X)E(Y) 
+D(X+Y)=D(X)+D(Y)+2E\bigl[(X-E X)(Y-E Y)\bigr],
 \]
-\end{mydef}
-
-\begin{formula}{协方差公式}{covariance formula}
-\begin{enumerate}
-    \item \[
-        \mathrm{Cov}(X, Y) = E[(X - E[X])(Y - E[Y])] = E(XY) - E(X)E(Y)
-    \]
-    \item \[
-        D(X \pm Y) = D(X) + D(Y) \pm 2\mathrm{Cov}(X, Y)
-    \]
-\end{enumerate}
-\end{formula}
-
-\begin{conclusion}{协方差的性质}{covariance properties}
-    \begin{enumerate}
-        \item \(\mathrm{Cov}(X, Y) = \mathrm{Cov}(Y, X)\)
-        \item \(\mathrm{Cov}(X, X) = D(X)\)
-        \item \(\mathrm{Cov}(aX, bY) = a b \mathrm{Cov}(X, Y)\)
-        \item \(\mathrm{Cov}(X + Y, Z) = \mathrm{Cov}(X, Z) + \mathrm{Cov}(Y, Z)\)
-        \item 若\(X\)与\(Y\)相互独立，则\(\mathrm{Cov}(X, Y) = 0\)；但\(\mathrm{Cov}(X, Y) = 0\)仅表示\(X\)与\(Y\)不相关(uncorrelated)，并不意味着独立.
-    \end{enumerate}
-\end{conclusion}
+中间这一项刻画 $X,Y$ 是同向偏离还是反向偏离，称为协方差：
+\[
+\Cov(X,Y)=E\bigl[(X-E X)(Y-E Y)\bigr].
+\]
+展开平方同样得到常用的计算公式
+\[
+\Cov(X,Y)=E(XY)-E(X)E(Y).
+\]
+协方差的符号有直接含义：若 $X$ 高于均值时 $Y$ 也倾向于高于均值，乘积多为正，协方差为正；若一个高时另一个偏低，乘积多为负，协方差为负。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=5.2cm,
-  xmin=-2.6, xmax=2.6, ymin=-2.6, ymax=2.6,
-  axis lines=center, font=\footnotesize,
-  xlabel={$x$}, ylabel={$y$},
-  xtick=\empty, ytick=\empty,
+  name=covpos,
+  width=6.8cm,height=5.3cm,
+  xmin=-2.6,xmax=2.6,ymin=-2.6,ymax=2.6,
+  xtick=\empty,ytick=\empty,
+  xlabel={$x$},ylabel={$y$},
+  title={$\Cov(X,Y)>0$},
+  title style={font=\scriptsize},
+  axis lines=middle,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
 ]
-\fill[blue!10] (0,0) rectangle (2.4,2.4);
-\fill[blue!10] (-2.4,-2.4) rectangle (0,0);
-\fill[red!10] (-2.4,0) rectangle (0,2.4);
-\fill[red!10] (0,-2.4) rectangle (2.4,0);
-\node[font=\footnotesize,blue!60!black] at (1.5,1.5){$+$};
-\node[font=\footnotesize,blue!60!black] at (-1.5,-1.5){$+$};
-\node[font=\footnotesize,red!60!black] at (-1.5,1.5){$-$};
-\node[font=\footnotesize,red!60!black] at (1.5,-1.5){$-$};
-\draw[fill=black] (axis cs:0,0) circle (1.2pt);
-\node[font=\scriptsize,anchor=north] at (axis cs:0,-0.15){$(\mu_x,\mu_y)$};
-\draw[dashed,gray!60] (axis cs:1.1,0) -- (axis cs:1.1,1.4);
-\draw[dashed,gray!60] (axis cs:0,1.4) -- (axis cs:1.1,1.4);
-\node[circle,fill=black,inner sep=1.5pt] at (axis cs:1.1,1.4){};
-\node[font=\tiny,blue!60!black] at (axis cs:0.52,0.22){$x-\mu_x$};
-\node[font=\tiny,blue!60!black] at (axis cs:0.12,0.72){$y-\mu_y$};
-\node[font=\tiny,blue!60!black] at (axis cs:1.72,1.15){$(+)(+)=+$};
+\fill[blue!9] (axis cs:0,0) rectangle (axis cs:2.6,2.6);
+\fill[blue!9] (axis cs:-2.6,-2.6) rectangle (axis cs:0,0);
+\fill[red!9] (axis cs:-2.6,0) rectangle (axis cs:0,2.6);
+\fill[red!9] (axis cs:0,-2.6) rectangle (axis cs:2.6,0);
+\node[font=\scriptsize,blue!65!black] at (axis cs:2.15,2.16){$+$};
+\node[font=\scriptsize,red!65!black] at (axis cs:-2.15,2.16){$-$};
+\node[font=\scriptsize,blue!65!black] at (axis cs:-2.15,-2.17){$+$};
+\node[font=\scriptsize,red!65!black] at (axis cs:2.15,-2.17){$-$};
+\addplot[only marks,mark=*,mark size=1.4pt,blue!70!black] coordinates {
+(0.03,0.46) (1.36,1.05) (1.22,0.96) (-0.51,-0.07) (-0.30,-0.71) (-0.53,-1.25)
+(0.57,0.69) (-0.06,-0.40) (-1.85,-2.00) (1.57,1.09) (-0.10,-0.71)
+(-0.14,-0.10) (0.46,0.27)};
+\addplot[only marks,mark=*,mark size=1.4pt,red!70!black] coordinates {
+(0.75,-0.38) (0.68,-0.21) (-0.38,0.15)};
+\end{axis}
+\begin{axis}[
+  at={(7.6cm,0)},anchor=south west,
+  width=6.8cm,height=5.3cm,
+  xmin=-2.6,xmax=2.6,ymin=-2.6,ymax=2.6,
+  xtick=\empty,ytick=\empty,
+  xlabel={$x$},ylabel={$y$},
+  title={$\Cov(X,Y)<0$},
+  title style={font=\scriptsize},
+  axis lines=middle,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+]
+\fill[blue!9] (axis cs:0,0) rectangle (axis cs:2.6,2.6);
+\fill[blue!9] (axis cs:-2.6,-2.6) rectangle (axis cs:0,0);
+\fill[red!9] (axis cs:-2.6,0) rectangle (axis cs:0,2.6);
+\fill[red!9] (axis cs:0,-2.6) rectangle (axis cs:2.6,0);
+\node[font=\scriptsize,blue!65!black] at (axis cs:2.15,2.16){$+$};
+\node[font=\scriptsize,red!65!black] at (axis cs:-2.15,2.16){$-$};
+\node[font=\scriptsize,blue!65!black] at (axis cs:-2.15,-2.17){$+$};
+\node[font=\scriptsize,red!65!black] at (axis cs:2.15,-2.17){$-$};
+\addplot[only marks,mark=*,mark size=1.4pt,blue!70!black] coordinates {
+(-0.81,-0.01) (0.72,0.12) (0.35,0.03) (0.25,0.11)};
+\addplot[only marks,mark=*,mark size=1.4pt,red!70!black] coordinates {
+(-0.74,0.91) (0.38,-0.72) (-0.30,0.69) (0.54,-0.13) (1.04,-0.67) (-0.21,0.68)
+(1.10,-1.87) (-1.28,1.27) (-0.66,0.43) (-0.84,1.12) (-1.73,1.24) (0.13,-0.12)};
 \end{axis}
 \end{tikzpicture}
-\par\vspace{3pt}
-{\footnotesize\itshape $\mathrm{Cov}(X,Y)=E[(X-\mu_X)(Y-\mu_Y)]$：以均值点 $(\mu_X,\mu_Y)$ 为原点，第一、三象限 $(x-\mu_X)$ 与 $(y-\mu_Y)$ 同号、乘积为正（$X,Y$ 同向变化），第二、四象限异号、乘积为负（反向变化），故 $\mathrm{Cov}$ 的符号反映 $X,Y$ 同向还是反向。}
+\par\vspace{2pt}
+{\footnotesize\itshape 把坐标轴交点近似看作均值点，看每个点的两个偏差同号还是异号。左图 $13$ 个点落在第一、三象限（乘积为正），只有 $3$ 个落在第二、四象限，协方差为正；右图 $12$ 个点落在第二、四象限，协方差为负。符号来自“哪类象限的点更多、离原点更远”，而不是每个点都同号。}
 \end{center}
 
-\begin{mydef}{相关系数}{correlation coefficient}
-    如果\(X, Y\)的方差都存在且不为零，
-    则
-    \[
-    \rho(X, Y) = \frac{\mathrm{Cov}(X, Y)}{\sqrt{D(X)D(Y)}}
-    \]
-    为随机变量\(X\)与\(Y\)的相关系数.
-\end{mydef}
+协方差是双线性运算：
+\[
+\Cov(aX+b,\,cY+d)=ac\,\Cov(X,Y),\qquad
+\Cov(X+Y,Z)=\Cov(X,Z)+\Cov(Y,Z),
+\]
+并且 $\Cov(X,X)=D(X)$、$\Cov(X,Y)=\Cov(Y,X)$。于是
+\[
+D(X\pm Y)=D(X)+D(Y)\pm2\Cov(X,Y),
+\]
+这就是“方差可加”需要不相关的原因。
 
-\begin{conclusion}{相关系数的性质}{correlation coefficient properties}
-\begin{enumerate}
-    \item \(|\rho(X, Y)| \leq 1\)
-        \item \(\rho(X, Y) = 1\)的充分必要条件是存在常数\(a>0,b\)，使得
-        \(P(Y=aX+b)=1\)。若写成 $|\rho(X,Y)|=1$，则条件为存在 $a\neq0,b$ 使该关系几乎处处成立。
-\end{enumerate}
-\end{conclusion}
+协方差带量纲：把 $X$ 从“米”改成“厘米”，协方差会放大 $100$ 倍。为了得到与量纲无关的指标，除以两个标准差：
+\[
+\rho_{XY}=\frac{\Cov(X,Y)}{\sqrt{D(X)D(Y)}}.
+\]
+前提是 $D(X)>0$、$D(Y)>0$。
 
-\begin{conclusion}{$X$与$Y$不相关的结论}{conclusion of X and Y are uncorrelated}
-    若\(\rho(X, Y) = 0\quad(\text{即}\mathrm{Cov(X, Y) = 0})\),则\(X\)与\(Y\)不相关.
-    \begin{enumerate}
-        \item 若随机变量\(X\)与\(Y\)独立，则\(X\)与\(Y\)一定不相关，若\(X\)与\(Y\)不相关，则\(X\)与\(Y\)不一定独立
-        \item 若\((X, Y)\)服从二维正态分布，则\(X\)与\(Y\)独立的充要条件是\(X\)与\(Y\)不相关
-        \item 若\(X\)与\(Y\)服从\(0-1\)分布，则\(X\)与\(Y\)独立的充要条件是\(X\)与\(Y\)不相关
-    \end{enumerate}
-    \[ 
-    \begin{aligned}
-        &X\text{与}Y\text{不相关} \\
-        &\iff \mathrm{Cov}(X, Y) = 0 \\
-        &\iff E(XY) = E(X)E(Y) \\
-        &\iff D(X +Y) = D(X) + D(Y) \\
-     \end{aligned}
-    \]
-\end{conclusion}
+由柯西--施瓦茨不等式，$|\rho_{XY}|\le1$。证明只需注意对任意实数 $t$，
+\[
+E\bigl[(t(X-E X)-(Y-E Y))^2\bigr]
+=t^2D(X)-2t\Cov(X,Y)+D(Y)\ge0,
+\]
+这个关于 $t$ 的二次式非负，判别式不大于零，即 $\Cov^2\le D(X)D(Y)$。
 
-\subsection{随机变量的矩}
-\begin{mydef}{随机变量的矩}{moment of random variable}
-    设 \((X,Y)\) 是二维随机变量，以下期望均在相应绝对矩存在时定义：
-    \(E(X^k)\) 称为 \(X\) 的 \(k\) 阶原点矩，
-    \(E[(X-E X)^k]\) 称为 \(X\) 的 \(k\) 阶中心矩；
-    \(E(X^kY^l)\) 称为 \((X,Y)\) 的 \((k,l)\) 阶混合原点矩，
-    \(E[(X-E X)^k(Y-E Y)^l]\) 称为 \((X,Y)\) 的 \((k,l)\) 阶混合中心矩（总阶数为 \(k+l\)）。
-\end{mydef}
+等号成立时有更强的结论：$|\rho_{XY}|=1$ 当且仅当存在常数 $a\ne0,b$，使
+\[
+P(Y=aX+b)=1 .
+\]
+此时 $a=\rho_{XY}\dfrac{\sigma(Y)}{\sigma(X)}$，$b=E(Y)-aE(X)$，且 $\rho_{XY}=1$ 对应 $a>0$，$\rho_{XY}=-1$ 对应 $a<0$。也就是说，相关系数达到 $\pm1$ 等价于两个变量以概率 $1$ 落在一条不垂直于 $x$ 轴的直线上。$|\rho|<1$ 时只能说线性关系不完美，不能说不相关之外的任何事。
 
-\begin{mydef}{矩母函数}{moment generating function}
-    \textbf{拓展阅读：}矩母函数不作为考研数学一主线要求；相关习题可作为分布与数字特征的补充训练。\\
-    若随机变量 \(X\) 的指数矩在 \(t=0\) 的某个邻域内有限，则称
-    \[
-    M_X(t)=E(e^{tX})
-    \]
-    为 \(X\) 的矩母函数。离散型和连续型情形分别为
-    \[
-    M_X(t)=\sum_x e^{tx}p_X(x),
-    \qquad
-    M_X(t)=\int_{-\infty}^{\infty}e^{tx}f_X(x)\,\mathrm{d}x.
-    \]
-    在相应阶矩存在且可交换求导与期望时，矩可由矩母函数的导数得到，例如
-    \[
-    E(X^k)=M_X^{(k)}(0).
-    \]
-\end{mydef}
+相关系数对平移缩放不变，但会受缩放方向影响：
+\[
+\rho(aX+b,\,cY+d)=\operatorname{sgn}(ac)\,\rho(X,Y).
+\]
+所以 $\rho$ 只反映线性关系的方向和紧密度，与单位无关。
 
-\begin{tablebox}{矩母函数}
-    \centering
-    \begin{tabularx}{\linewidth}{|c|>{\centering\arraybackslash}X|}
-        \hline
-        原分布 & 矩母函数 \\
-        \hline
-        0-1分布 & \(M_X(t) = 1 - p + p\mathrm{e}^t\) \\
-        \hline
-        二项分布 & \(M_X(t) = (1 - p + pe^t)^n\) \\
-        \hline
-        几何分布（从 1 开始计数） & \(M_X(t) = \frac{pe^t}{1 - (1 - p)e^{t}},\ (1-p)e^t<1\) \\
-        \hline
-        泊松分布 & \(M_X(t) = \mathrm{e}^{\lambda(e^t - 1)}\) \\
-        \hline
-        均匀分布 & \(M_X(t) = \frac{e^{tb}-e^{ta}}{t(b-a)}\ (t\ne0),\quad M_X(0)=1\) \\
-        \hline
-        指数分布
-        & \(M_X(t) = \frac{\lambda}{\lambda - t}, (t < \lambda)\) \\
-        \hline
-        正态分布 & \(M_X(t) = \mathrm{e}^{\frac{\sigma^2 t^2}{2} + \mu t}\) \\
-        \hline
-    \end{tabularx}
-\end{tablebox}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  at={(0,4.8cm)},anchor=south west,
+  width=6.0cm,height=4.4cm,
+  xmin=-2.4,xmax=2.4,ymin=-2.4,ymax=2.4,
+  xtick=\empty,ytick=\empty,
+  title={(a) $\rho\approx0.90$},
+  title style={font=\scriptsize},
+  axis lines=left,tick label style={font=\scriptsize},
+]
+\addplot[only marks,mark=*,mark size=1.3pt,blue!65!black] coordinates {
+(0.34,1.24) (-0.88,-1.63) (0.60,0.31) (-0.10,0.22) (0.49,1.18) (-0.52,-0.31)
+(1.09,0.70) (0.61,0.71) (-0.18,-0.18) (0.63,0.51) (1.26,0.87) (1.79,1.88)
+(-1.57,-1.36) (0.88,0.80) (0.47,0.34) (-0.09,-0.67) (-1.01,-1.18) (1.26,1.74)
+(-1.26,-1.28) (0.57,-0.11) (1.30,1.84) (-1.60,-1.28) (-0.30,0.66) (-1.31,-1.22)
+(0.24,0.02) (1.51,0.79)};
+\end{axis}
+\begin{axis}[
+  at={(7cm,4.8cm)},anchor=south west,
+  width=6.0cm,height=4.4cm,
+  xmin=-2.8,xmax=3.0,ymin=-3.2,ymax=2.8,
+  xtick=\empty,ytick=\empty,
+  title={(b) $\rho\approx-0.91$},
+  title style={font=\scriptsize},
+  axis lines=left,tick label style={font=\scriptsize},
+]
+\addplot[only marks,mark=*,mark size=1.3pt,red!65!black] coordinates {
+(1.32,-1.48) (2.57,-2.95) (-0.82,0.53) (-0.65,0.57) (0.60,-0.45) (-0.83,0.64)
+(-0.27,-0.61) (-0.35,0.30) (0.19,-0.08) (1.09,-0.55) (0.02,0.24) (0.92,-1.16)
+(-0.42,0.07) (0.33,0.59) (-2.14,2.37) (-1.45,2.20) (0.80,0.20) (-0.59,0.19)
+(0.58,-0.38) (0.54,-0.31) (1.32,-1.00) (0.81,-0.53) (1.02,-0.88) (-0.11,0.18)
+(-0.70,-0.01) (-0.73,0.62)};
+\end{axis}
+\begin{axis}[
+  at={(0,0)},anchor=south west,
+  width=6.0cm,height=4.4cm,
+  xmin=-2.2,xmax=2.2,ymin=-2.2,ymax=2.2,
+  xtick=\empty,ytick=\empty,
+  title={(c) $\rho\approx0$，无线性趋势},
+  title style={font=\scriptsize},
+  axis lines=left,tick label style={font=\scriptsize},
+]
+\addplot[only marks,mark=*,mark size=1.3pt,gray!70!black] coordinates {
+(-0.75,-1.41) (0.13,-0.04) (-0.47,-1.74) (0.62,1.85) (0.82,-1.41) (0.31,0.47)
+(0.32,0.54) (0.09,-1.50) (-0.45,0.12) (-0.16,0.88) (-0.50,0.28) (0.39,0.27)
+(0.01,0.88) (0.58,0.22) (-1.33,-0.04) (0.89,-0.00) (-0.76,0.38) (-0.73,-1.18)
+(-0.20,0.67) (-0.56,-0.71) (0.29,-1.10) (-0.57,0.16) (-1.07,1.38) (-0.85,0.69)
+(1.31,-0.29) (0.04,0.63)};
+\end{axis}
+\begin{axis}[
+  at={(7cm,0)},anchor=south west,
+  width=6.0cm,height=4.4cm,
+  xmin=-2.6,xmax=2.6,ymin=-2.2,ymax=3.8,
+  xtick=\empty,ytick=\empty,
+  title={(d) $\rho\approx0$，但 $Y=X^2-1$},
+  title style={font=\scriptsize},
+  axis lines=left,tick label style={font=\scriptsize},
+]
+\addplot[only marks,mark=*,mark size=1.3pt,purple!65!black] coordinates {
+(-1.90,2.13) (1.90,2.13) (-0.20,-1.44) (-0.65,-1.06) (0.50,-1.23) (0.80,-0.84)
+(0.65,-1.06) (-0.35,-1.36) (0.20,-1.44) (0.35,-1.36) (0.95,-0.58) (-2.20,3.36)
+(-1.60,1.08) (-0.50,-1.23) (2.20,3.36) (1.30,0.21) (1.60,1.08) (-0.80,-0.84)
+(1.10,-0.27) (-0.95,-0.58) (-1.10,-0.27) (-1.30,0.21)};
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape (a)(b) 是斜率相反、紧密程度相近的两团点，$|\rho|$ 接近 $1$，符号分别为正、负。(c) 是没有线性趋势的云，$\rho\approx0$。(d) 中点严格满足 $Y=X^2-1$，$X$ 与 $Y$ 有确定性的依赖关系，但左半支和右半支的线性趋势相互抵消，相关系数仍为 $0$。所以 $\rho=0$ 只说明“没有线性关系”，不能说明“没有关系”。}
+\end{center}
 
-\subsection{条件期望}
-\noindent\textbf{拓展阅读：}条件期望及其方差分解不作为考研数学一主线要求。
-\begin{formula}{条件期望的定义}{conditional expectation definition}
-    离散型情形，在 \(P(Y=y)>0\) 时，
-    \[
-        E(X\mid Y=y)=\sum_i x_iP(X=x_i\mid Y=y).
-    \]
-    连续型情形，在条件密度 \(f_{X\mid Y}(x\mid y)\) 存在时，
-    \[
-        E(X\mid Y=y)=\int_{-\infty}^{\infty}x f_{X\mid Y}(x\mid y)\,\mathrm{d}x.
-    \]
-    交换 \(X,Y\) 即得 \(E(Y\mid X=x)\) 的相应公式。
-\end{formula}
+把上面的结论串起来。$X,Y$ 相互独立时 $E(XY)=E(X)E(Y)$，故 $\Cov(X,Y)=0$，即独立一定不相关；反过来不成立，(d) 就是反例。不相关指的是
+\[
+\rho_{XY}=0
+\iff \Cov(X,Y)=0
+\iff E(XY)=E(X)E(Y)
+\iff D(X\pm Y)=D(X)+D(Y).
+\]
+有三类常见情形可以让“不相关”升级为“独立”：
+\begin{itemize}
+  \item $(X,Y)$ 服从二维正态分布时，$\rho_{XY}=0$ 与独立等价。二维正态的联合密度只由两个边际分布和 $\rho$ 决定，$\rho=0$ 时联合密度恰好等于两个边际密度之积。
+  \item $X,Y$ 都只取 $0,1$ 两个值时，独立与不相关等价。$2\times2$ 列联表只有三个自由参数，协方差为零恰好把第四个格子也定死。
+  \item 一般情形下，不相关只排除线性关系，不能排除 $Y=X^2$ 这类非线性依赖。
+\end{itemize}
 
-\begin{formula}{重期望公式}{reduction expectation formula}
-    \[
-        E(X)=E\bigl[E(X\mid Y)\bigr]
-    \]
-\end{formula}
+相关系数还有一个预测含义。若用 $Y$ 的线性函数 $a+bY$ 去逼近 $X$，使均方误差 $E[(X-a-bY)^2]$ 最小，解为
+\[
+b=\rho_{XY}\frac{\sigma(X)}{\sigma(Y)},\qquad a=E(X)-bE(Y),
+\]
+最小误差为 $D(X)(1-\rho_{XY}^2)$。所以 $\rho^2$ 是“$X$ 的方差中能被 $Y$ 的线性关系解释的比例”，$\rho$ 的绝对值越接近 $1$，线性预测越准。
 
-\begin{conclusion}{条件期望的一些性质}{conditional expectation property}
-    \begin{enumerate}
-        \item \(D(X)=E[D(X\mid Y)]+D[E(X\mid Y)]\)；
-        \item \(E[f(Y)\mid Y]=f(Y)\)；
-        \item \(E[g(X)Y\mid X]=g(X)E(Y\mid X)\)；
-        \item \(E(XY)=E\{X E(Y\mid X)\}\)；
-        \item \(\Cov[X,E(Y\mid X)]=\Cov(X,Y)\)。
-    \end{enumerate}
-\end{conclusion}
+\subsection{矩}
 
-\subsection{一些技巧}
-\begin{conclusion}{对形如$f(x) = A\mathrm{e}^{-(ax^2 + bx + c)}$的处理}{some trick about one}
-    当\(a>0\)时，配方得
-    \[
-    -(ax^2+bx+c)=-a\left(x+\frac{b}{2a}\right)^2+\frac{b^2}{4a}-c.
-    \]
-    因而若它是全实轴上的正态密度，则
-    \[
-        \mu=-\frac{b}{2a},\qquad \sigma^2=\frac{1}{2a},
-    \]
-    且规范化常数必须满足
-    \[
-        A\exp\left(\frac{b^2}{4a}-c\right)
-        =\frac{1}{\sqrt{2\pi}\sigma}=\sqrt{\frac{a}{\pi}}.
-    \]
-    配方产生的常数因子不能直接并入指数后忽略。
-\end{conclusion}
+期望和方差只是两个特例。把幂次推广，就得到矩：
+\[
+\alpha_k=E(X^k)\quad\text{（$k$ 阶原点矩）},\qquad
+\mu_k=E\bigl[(X-E X)^k\bigr]\quad\text{（$k$ 阶中心矩）}.
+\]
+一阶原点矩就是期望，二阶中心矩就是方差。两个变量的混合矩为 $E(X^kY^l)$（混合原点矩）与 $E[(X-EX)^k(Y-EY)^l]$（混合中心矩），协方差是 $(1,1)$ 阶混合中心矩。
 
+更高阶的矩描述分布形状。标准化三阶中心矩
+\[
+\gamma_1=\frac{\mu_3}{\sigma^3}
+\]
+称为偏度，衡量分布不对称的方向：$\gamma_1>0$ 时右尾更长，$\gamma_1<0$ 时左尾更长，对称分布（如正态）偏度为 $0$。标准化四阶中心矩 $\beta_2=\mu_4/\sigma^4$ 称为峰度，正态分布 $\beta_2=3$；常把 $\beta_2-3$ 称为超额峰度，用来比较尾部的厚薄。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth,height=5.2cm,
+  xmin=-0.03,xmax=1.03,ymin=0,ymax=2.05,
+  xtick={0,0.2,0.4,0.6,0.8,1},ytick={0,0.5,1,1.5,2},
+  xlabel={$x$},ylabel={密度},
+  axis lines=left,
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+  legend style={font=\scriptsize,draw=none,fill=none,at={(0.5,1.02)},anchor=south},
+  legend columns=3,
+]
+\addplot[blue!65!black,thick,domain=0:1,samples=120] {12*x*(1-x)^2};
+\addlegendentry{$\beta(2,3)$ 右偏}
+\addplot[black,thick,domain=0:1,samples=120] {30*x^2*(1-x)^2};
+\addlegendentry{$\beta(3,3)$ 对称}
+\addplot[red!65!black,thick,domain=0:1,samples=120] {12*x^2*(1-x)};
+\addlegendentry{$\beta(3,2)$ 左偏}
+\draw[dashed,gray!65] (axis cs:0.4,0) -- (axis cs:0.4,1.55);
+\draw[dashed,gray!65] (axis cs:0.5,0) -- (axis cs:0.5,1.9);
+\draw[dashed,gray!65] (axis cs:0.6,0) -- (axis cs:0.6,1.55);
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 三条 Beta 密度的方差都在 $0.034$ 到 $0.036$ 之间，形状却明显不同：蓝色长尾在右，偏度为正；红色长尾在左，偏度为负；黑色关于 $0.5$ 对称。虚线标出各自的期望 $0.4,0.5,0.6$。只看期望和方差，分不出这三条曲线——数字特征是对分布的摘要，不是分布本身。}
+\end{center}
+
+矩不一定能唯一确定分布。即使所有阶矩都存在，也可能有另一个分布具有完全相同的各阶矩（对数正态分布就是经典例子）。但对本书涉及的常见分布，前两阶矩已经能提供大部分可用信息；二维正态更是只由 $\mu_X,\mu_Y,\sigma_X^2,\sigma_Y^2,\rho$ 五个参数完全确定。
+
+作为拓展，定义矩母函数
+\[
+M_X(t)=E(\mathrm{e}^{tX}),
+\]
+要求它在 $t=0$ 的某个邻域内有限。此时可以在期望号下求导，得到
+\[
+E(X^k)=M_X^{(k)}(0).
+\]
+例如泊松分布 $X\sim P(\lambda)$ 的矩母函数为 $M_X(t)=\exp\{\lambda(\mathrm{e}^t-1)\}$，求导得 $M_X'(0)=\lambda$，$M_X''(0)=\lambda+\lambda^2$，于是 $E(X)=\lambda$，$D(X)=\lambda$。不是所有分布都有矩母函数，柯西分布连期望都没有，自然更谈不上。
+
+最后记一个计算正态型积分的固定手法。对 $a>0$，配方：
+\[
+-(ax^2+bx+c)=-a\left(x+\frac{b}{2a}\right)^2+\frac{b^2}{4a}-c .
+\]
+利用 $\int_{-\infty}^{+\infty}\mathrm{e}^{-au^2}\,\mathrm{d}u=\sqrt{\pi/a}$，得
+\[
+\int_{-\infty}^{+\infty}\mathrm{e}^{-(ax^2+bx+c)}\,\mathrm{d}x
+=\sqrt{\frac{\pi}{a}}\,
+\exp\left(\frac{b^2}{4a}-c\right).
+\]
+若 $A\mathrm{e}^{-(ax^2+bx+c)}$ 是某个正态分布的密度，则必有
+\[
+\mu=-\frac{b}{2a},\qquad \sigma^2=\frac{1}{2a},
+\]
+且规范化常数满足 $A\exp\left(\frac{b^2}{4a}-c\right)=\sqrt{\frac{a}{\pi}}$。配方时产生的常数因子必须一起算进去，直接把它当成 $1$ 是最常见的错误。
+
+\subsection{条件期望与方差分解}
+
+已知 $Y=y$ 后，$X$ 的分布会更新为条件分布。条件分布的均值就是条件期望：
+\[
+E(X\mid Y=y)=
+\begin{cases}
+\displaystyle\sum_i x_i\,P(X=x_i\mid Y=y), & \text{离散型},\\[6pt]
+\displaystyle\int_{-\infty}^{+\infty}x\,f_{X\mid Y}(x\mid y)\,\mathrm{d}x, & \text{连续型}.
+\end{cases}
+\]
+离散情形要求 $P(Y=y)>0$；连续情形要求条件密度存在。对每个固定的 $y$，$E(X\mid Y=y)$ 是一个数；让 $y$ 变化，得到随机变量 $E(X\mid Y)$，它是 $Y$ 的函数。
+
+看一个两阶段模型。先抽 $Y\sim U(0,1)$，再在给定 $Y=y$ 时抽 $X\sim U(0,2y)$。条件密度为
+\[
+f_{X\mid Y}(x\mid y)=\frac{1}{2y},\qquad 0<x<2y,
+\]
+区间中点就是条件期望：
+\[
+E(X\mid Y=y)=\frac{0+2y}{2}=y,
+\qquad\text{即 } E(X\mid Y)=Y .
+\]
+再由重期望公式，$E(X)=E(Y)=\frac12$。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.80\linewidth,height=5.8cm,
+  xmin=-0.02,xmax=1.05,ymin=-0.05,ymax=2.15,
+  xtick={0,0.25,0.5,0.75,1},ytick={0,0.5,1,1.5,2},
+  xlabel={$Y$},ylabel={$X$},
+  axis lines=left,
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+  legend pos=north west,
+  legend style={font=\scriptsize,draw=none,fill=white,fill opacity=0.85,text opacity=1},
+]
+\addplot[only marks,mark=*,mark size=1.2pt,blue!60!black,opacity=0.85] coordinates {
+(0.22,0.32) (0.39,0.34) (0.74,0.54) (0.61,0.80) (0.03,0.01) (0.05,0.00)
+(0.45,0.54) (0.87,0.93) (0.91,1.58) (0.37,0.30) (0.89,1.40) (0.93,0.03)
+(0.41,0.02) (0.75,0.89) (0.37,0.17) (0.15,0.02) (0.58,0.15) (0.09,0.06)
+(0.66,0.45) (0.81,0.91) (0.92,1.63) (0.45,0.33) (0.12,0.04) (0.90,1.04)
+(0.87,0.00) (0.97,0.74) (0.59,0.38) (0.67,0.52) (0.37,0.04) (0.18,0.20)
+(0.29,0.36) (0.72,1.08) (0.32,0.62) (0.69,0.49) (0.50,0.66) (0.45,0.40)
+(0.97,0.42) (0.17,0.30) (0.49,0.73) (0.16,0.30) (0.94,1.54) (0.49,0.90)
+(0.33,0.09) (0.17,0.01) (0.59,0.24) (0.40,0.33) (0.13,0.17) (0.03,0.03)
+(0.39,0.40) (0.58,0.89) (0.52,0.07) (0.90,1.22) (0.91,0.09) (0.94,0.47)
+(0.80,1.16) (0.48,0.65) (0.52,0.42) (0.40,0.23) (0.40,0.66) (0.04,0.02)
+(0.80,0.05) (0.25,0.12) (0.03,0.00) (0.47,0.76)};
+\addlegendentry{样本}
+\draw[dashed,gray!65,thick,domain=0:1] plot (\x,{2*\x});
+\addplot[red!70!black,very thick,domain=0:1] {\x};
+\addlegendentry{$E(X\mid Y=y)=y$}
+\draw[very thick,blue!65!black] (axis cs:0.5,0) -- (axis cs:0.5,1);
+\fill[red!70!black] (axis cs:0.5,0.5) circle (2.2pt);
+\node[font=\scriptsize,gray!70!black,anchor=west] at (axis cs:0.72,1.72){$x=2y$};
+
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 点是 $64$ 次抽样的 $(Y,X)$，全部落在三角形 $0<X<2Y$ 内。竖线是 $Y=0.5$ 处的切片：此时 $X$ 在 $(0,1)$ 上均匀分布，条件均值在区间中点 $0.5$。把每条切片的中点连起来得到红线 $E(X\mid Y=y)=y$；条件期望随 $Y$ 变化，不是一条水平线。}
+\end{center}
+
+条件期望的核心公式是重期望公式（全期望公式）：
+\[
+E(X)=E\bigl[E(X\mid Y)\bigr].
+\]
+离散情形验证如下：
+\[
+E\bigl[E(X\mid Y)\bigr]
+=\sum_y P(Y=y)\sum_x x\,P(X=x\mid Y=y)
+=\sum_{x,y}x\,P(X=x,Y=y)
+=E(X).
+\]
+用白话讲：先按 $Y$ 分组，在每组内求平均，再按各组的概率把组平均加权汇总，得到的就是总平均。
+
+同样的思路把方差拆成两部分。利用
+\[
+D(X\mid Y)=E(X^2\mid Y)-\bigl[E(X\mid Y)\bigr]^2,
+\]
+对两边取期望，再由重期望公式 $E(X^2)=E[E(X^2\mid Y)]$，得
+\[
+D(X)=E\bigl[D(X\mid Y)\bigr]+D\bigl[E(X\mid Y)\bigr].
+\]
+右边第一项是“组内方差的平均”，即已知 $Y$ 后 $X$ 还剩的随机性；第二项是“组均值的方差”，即 $Y$ 的变化带来的均值移动。两项合起来正好是总方差。
+
+回到前面的两阶段模型。给定 $Y=y$ 时 $X\sim U(0,2y)$，故
+\[
+D(X\mid Y=y)=\frac{(2y)^2}{12}=\frac{y^2}{3},
+\qquad E\bigl[D(X\mid Y)\bigr]=\frac13E(Y^2)=\frac19 .
+\]
+又 $E(X\mid Y)=Y\sim U(0,1)$，所以
+\[
+D\bigl[E(X\mid Y)\bigr]=D(Y)=\frac1{12}.
+\]
+于是
+\[
+D(X)=\frac19+\frac1{12}=\frac{7}{36}.
+\]
+可以直接验证：$E(X^2)=E[E(X^2\mid Y)]=E\left[\frac{y^2}{3}+y^2\right]=\frac43E(Y^2)=\frac49$，减去 $(E X)^2=\frac14$，同样得 $\frac{7}{36}$。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth,height=5.4cm,
+  xmin=-2.8,xmax=2.8,ymin=0.45,ymax=3.62,
+  xtick={-2,-1,0,1,2},ytick={1,2,3},
+  yticklabels={{组 1},{组 2},{组 3}},
+  xlabel={$x$},ylabel={},
+  axis lines=left,
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+]
+\addplot[only marks,mark=*,mark size=1.2pt,blue!60!black,opacity=0.75] coordinates {
+(-1.76,1.13) (-1.75,1.11) (-1.99,0.97) (-2.17,1.0) (-2.36,1.06) (-2.09,0.86) (-2.07,1.02)
+(-2.36,0.93) (-2.36,1.12) (-1.60,0.86) (-1.88,1.06) (-2.21,1.12) (-2.05,0.91) (-1.62,1.13)};
+\addplot[only marks,mark=*,mark size=1.2pt,teal!70!black,opacity=0.75] coordinates {
+(0.52,1.92) (-0.67,1.94) (0.29,2.1) (-0.70,2.0) (0.00,2.0) (-0.09,1.92) (-0.42,1.84)
+(-0.25,2.14) (0.43,1.87) (-0.26,2.11) (-0.49,1.96) (0.28,2.14) (-0.07,1.97) (0.42,2.14)};
+\addplot[only marks,mark=*,mark size=1.2pt,orange!80!black,opacity=0.8] coordinates {
+(2.11,2.96) (1.48,3.1) (2.48,2.96) (2.35,3.07) (2.37,3.04) (1.93,3.14) (1.44,3.16)
+(2.28,3.07) (1.21,3.1) (2.38,2.89) (2.27,3.07) (1.75,3.11) (2.60,2.97) (1.39,3.02)};
+\addplot[only marks,mark=diamond*,mark size=2.4pt,black] coordinates {(-2.019,1)(-0.072,2)(2.003,3)};
+\draw[very thick,blue!70!black] (axis cs:-2.274,1.30) -- (axis cs:-1.764,1.30);
+\draw[very thick,teal!70!black] (axis cs:-0.470,2.30) -- (axis cs:0.326,2.30);
+\draw[very thick,orange!80!black] (axis cs:1.555,3.30) -- (axis cs:2.451,3.30);
+\draw[dashed,red!70!black] (axis cs:-0.0295,0.55) -- (axis cs:-0.0295,3.60);
+\node[font=\scriptsize,red!70!black,anchor=south] at (axis cs:-0.03,3.58){总体均值};
+\draw[<->,red!60!black] (axis cs:-2.019,1.42) -- (axis cs:-0.0295,1.42);
+\draw[<->,red!60!black] (axis cs:-0.072,2.42) -- (axis cs:-0.0295,2.42);
+\draw[<->,red!60!black] (axis cs:2.003,3.42) -- (axis cs:-0.0295,3.42);
+\node[font=\scriptsize,red!60!black,anchor=west] at (axis cs:0.55,3.30){组均值偏离};
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 把 $42$ 个样本按组分开，粗线段是各组均值加减一个组内标准差，红箭头是组均值到总体均值的距离。这组数据的平均组内方差为 $0.141$，组均值的方差为 $2.697$，两项相加 $2.839$，正好等于全部 $42$ 个点直接算出的方差。组与组隔得越远，第二项占比越大。}
+\end{center}
+
+条件期望还有几条常用性质，都可以由“已知 $Y$ 时把 $Y$ 的函数当常数”来理解：
+\[
+E[g(Y)\mid Y]=g(Y),\qquad
+E[g(Y)X\mid Y]=g(Y)E(X\mid Y),
+\]
+\[
+E(XY)=E\bigl[XE(Y\mid X)\bigr],\qquad
+\Cov\bigl(X,E(Y\mid X)\bigr)=\Cov(X,Y).
+\]
+最后一条说明：用 $E(Y\mid X)$ 代替 $Y$ 去和 $X$ 算协方差，结果不变，因为 $Y-E(Y\mid X)$ 与 $X$ 在条件意义下正交。
+
+条件期望还是均方误差意义下的最优预测。对任意函数 $h$，
+\[
+E\bigl[(X-h(Y))^2\mid Y\bigr]
+=D(X\mid Y)+\bigl[E(X\mid Y)-h(Y)\bigr]^2,
+\]
+两边取期望，第一项与 $h$ 无关，故最小值在 $h(Y)=E(X\mid Y)$ 时取到。这解释了为什么“已知信息后取条件期望”不是某种技巧，而是最小化平方误差的必然结果；线性回归中的最小二乘直线，则是在只允许 $h$ 为线性函数时的特例。
+
+数字特征像分布的摘要：期望定中心，方差定范围，协方差与相关系数判断两个量如何共同变化；条件期望则把“已经知道的信息”纳入平均。它们不能替代分布，但在比较、估计和建模时，往往几个数就够用。
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item 设随机变量$X$的分布律为
-\[
-\begin{array}{c|cccc}
-X & -1 & 0 & 1 & 2 \\
-\hline
-P & 0.2 & 0.3 & 0.3 & 0.2
-\end{array}
-\]
-\begin{enumerate}
-    \item[(1)] 求$E(X)$和$D(X)$；
-    \item[(2)] 求$E(3X-2)$和$D(3X-2)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1)
-\[
-E(X)=-0.2+0+0.3+0.4=0.5.
-\]
-\[
-E(X^2)=0.2+0+0.3+4\times0.2=1.3.
-\]
-\[
-D(X)=E(X^2)-[E(X)]^2=1.3-0.5^2=1.3-0.25=1.05.
-\]
-
-(2) 由期望与方差的运算性质：
-\[
-E(3X-2)=3E(X)-2=3\times 0.5-2=1.5-2=-0.5.
-\]
-\[
-D(3X-2)=3^2D(X)=9\times 1.05=9.45.
-\]
-
-\textbf{评注：}计算$E(X^2)$时，先平方后取期望，与$[E(X)]^2$区别开来。方差公式$D(X)=E(X^2)-[E(X)]^2$是计算方差最常用的方法。
-
-\vspace{0.4cm}
-
-\else \answerarea \fi%
-\item 设二维随机变量$(X,Y)$的联合分布律为
-\[
-\begin{array}{c|cc}
-X\setminus Y & 0 & 1 \\
-\hline
-0 & 0.1 & 0.2 \\
-1 & 0.3 & 0.4
-\end{array}
-\]
-\begin{enumerate}
-    \item[(1)] 求$X,Y$的边缘分布及$E(X),E(Y),D(X),D(Y)$；
-    \item[(2)] 求$\mathrm{Cov}(X,Y)$和相关系数$\rho_{XY}$；
-    \item[(3)] 写出$(X,Y)$的协方差矩阵。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $X$的边缘分布：$P(X=0)=0.1+0.2=0.3$，$P(X=1)=0.3+0.4=0.7$。
-\[
-E(X)=0\times 0.3+1\times 0.7=0.7,\quad E(X^2)=0^2\times 0.3+1^2\times 0.7=0.7,
-\]
-\[
-D(X)=E(X^2)-[E(X)]^2=0.7-0.49=0.21.
-\]
-
-$Y$的边缘分布：$P(Y=0)=0.1+0.3=0.4$，$P(Y=1)=0.2+0.4=0.6$。
-\[
-E(Y)=0\times 0.4+1\times 0.6=0.6,\quad E(Y^2)=0^2\times 0.4+1^2\times 0.6=0.6,
-\]
-\[
-D(Y)=E(Y^2)-[E(Y)]^2=0.6-0.36=0.24.
-\]
-
-(2)
-\[
-E(XY)=0\cdot 0\cdot 0.1+0\cdot 1\cdot 0.2+1\cdot 0\cdot 0.3+1\cdot 1\cdot 0.4=0.4.
-\]
-\[
-\mathrm{Cov}(X,Y)=E(XY)-E(X)E(Y)=0.4-0.7\times 0.6=0.4-0.42=-0.02.
-\]
-\[
-\rho_{XY}=\frac{\mathrm{Cov}(X,Y)}{\sqrt{D(X)D(Y)}}=\frac{-0.02}{\sqrt{0.21\times 0.24}}=\frac{-0.02}{\sqrt{0.0504}}\approx\frac{-0.02}{0.2245}\approx -0.0891.
-\]
-
-(3) $(X,Y)$的协方差矩阵为
-\[
-\Sigma=\begin{pmatrix}
-D(X) & \mathrm{Cov}(X,Y)\\
-\mathrm{Cov}(Y,X) & D(Y)
-\end{pmatrix}
-=\begin{pmatrix}
-0.21 & -0.02\\
--0.02 & 0.24
-\end{pmatrix}.
-\]
-
-\textbf{评注：}协方差矩阵是对称矩阵，对角线元素为各分量的方差，非对角线元素为协方差。当$\rho_{XY}$接近$0$时，只能说$X$与$Y$的线性相关程度较弱；不能把随机变量称为“接近线性无关”，也不能据此推出接近独立。
-
-\vspace{0.4cm}
-
-\else \answerarea \fi%
-\item 设随机变量$X$的概率密度为
-\[
-f(x)=\begin{cases}
-\dfrac{3}{2}x^2, & -1\leq x\leq 1,\\[6pt]
-0, & \text{其他}.
-\end{cases}
-\]
-\begin{enumerate}
-    \item[(1)] 求$E(X)$和$D(X)$；
-    \item[(2)] 求$P\bigl(|X|\leq\frac{1}{2}\bigr)$；
-    \item[(3)] 令$Y=2X+1$，求$E(Y)$和$D(Y)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 注意到被积函数的奇偶性：
-\[
-E(X)=\int_{-1}^{1}x\cdot\frac{3}{2}x^2\,\mathrm{d}x=\frac{3}{2}\int_{-1}^{1}x^3\,\mathrm{d}x=0\quad(\text{奇函数在对称区间上积分为零}).
-\]
-\[
-E(X^2)=\int_{-1}^{1}x^2\cdot\frac{3}{2}x^2\,\mathrm{d}x=\frac{3}{2}\int_{-1}^{1}x^4\,\mathrm{d}x=\frac{3}{2}\cdot 2\cdot\frac{1}{5}=\frac{3}{5}=0.6.
-\]
-\[
-D(X)=E(X^2)-[E(X)]^2=\frac{3}{5}-0=\frac{3}{5}=0.6.
-\]
-
-(2) 
-\[
-P\Bigl(|X|\leq\frac{1}{2}\Bigr)=\int_{-1/2}^{1/2}\frac{3}{2}x^2\,\mathrm{d}x=\frac{3}{2}\cdot 2\int_{0}^{1/2}x^2\,\mathrm{d}x=3\cdot\Bigl[\frac{x^3}{3}\Bigr]_{0}^{1/2}=3\cdot\frac{1}{24}=\frac{1}{8}=0.125.
-\]
-
-(3) 
-\[
-E(Y)=E(2X+1)=2E(X)+1=2\times 0+1=1.
-\]
-\[
-D(Y)=D(2X+1)=2^2D(X)=4\times\frac{3}{5}=\frac{12}{5}=2.4.
-\]
-
-\textbf{评注：}利用对称区间上奇函数的积分为零可大幅简化计算。$D(X+c)=D(X)$，常数平移不改变方差。
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{综合提高题}
-
-\begin{enumerate}[resume]
-
-\item 设随机变量$X\sim U(0,2)$，令$Y=X^2$。
-\begin{enumerate}
-    \item[(1)] 求$Y$的概率密度$f_Y(y)$；
-    \item[(2)] 分别用$X$的分布和$Y$的分布求$E(Y)$和$D(Y)$，验证两种方法结果一致。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $X\sim U(0,2)$，密度$f_X(x)=\frac{1}{2}\;(0<x<2)$。
-$Y=X^2$的值域为$(0,4)$。对$0<y<4$：
-\[
-F_Y(y)=P(X^2\leq y)=P(0<X\leq\sqrt{y})=\frac{\sqrt{y}}{2},
-\]
-\[
-f_Y(y)=F_Y'(y)=\frac{1}{4\sqrt{y}},\quad 0<y<4.
-\]
-
-(2) \textbf{方法一（利用$X$的分布）：}
-\[
-E(Y)=E(X^2)=\int_{0}^{2}x^2\cdot\frac{1}{2}\,\mathrm{d}x=\frac{1}{2}\cdot\frac{8}{3}=\frac{4}{3}.
-\]
-\[
-E(Y^2)=E(X^4)=\int_{0}^{2}x^4\cdot\frac{1}{2}\,\mathrm{d}x=\frac{1}{2}\cdot\frac{32}{5}=\frac{16}{5}.
-\]
-\[
-D(Y)=E(Y^2)-[E(Y)]^2=\frac{16}{5}-\frac{16}{9}=\frac{144-80}{45}=\frac{64}{45}.
-\]
-
-\textbf{方法二（利用$Y$的密度）：}
-\[
-E(Y)=\int_{0}^{4}y\cdot\frac{1}{4\sqrt{y}}\,\mathrm{d}y=\frac{1}{4}\int_{0}^{4}\sqrt{y}\,\mathrm{d}y=\frac{1}{4}\cdot\frac{2}{3}\cdot 8=\frac{4}{3}.
-\]
-\[
-E(Y^2)=\int_{0}^{4}y^2\cdot\frac{1}{4\sqrt{y}}\,\mathrm{d}y=\frac{1}{4}\int_{0}^{4}y^{3/2}\,\mathrm{d}y=\frac{1}{4}\cdot\frac{2}{5}\cdot 32=\frac{16}{5}.
-\]
-\[
-D(Y)=\frac{16}{5}-\frac{16}{9}=\frac{64}{45}.
-\]
-两种方法结果一致。$\checkmark$
-
-\textbf{评注：}求随机变量函数的期望时，不需要先求函数的分布，直接用原分布的公式$E[g(X)]=\int g(x)f_X(x)\,\mathrm{d}x$即可，这是本题的核心考点。
-
-\vspace{0.4cm}
-
-\else \answerarea \fi%
-\item 设随机变量$X$的期望$E(X)=\mu$，方差$D(X)=\sigma^2$。利用切比雪夫不等式证明：对任意$\varepsilon>0$，
-\[
-P(|X-\mu|<\varepsilon)\geq 1-\frac{\sigma^2}{\varepsilon^2}.
-\]
-若$\sigma^2=4$，欲使$P(|X-\mu|<\varepsilon)\geq 0.95$，$\varepsilon$至少应取多少？
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-由切比雪夫不等式，对任意$\varepsilon>0$：
-\[
-P(|X-\mu|\geq\varepsilon)\leq\frac{D(X)}{\varepsilon^2}=\frac{\sigma^2}{\varepsilon^2}.
-\]
-因此
-\[
-P(|X-\mu|<\varepsilon)=1-P(|X-\mu|\geq\varepsilon)\geq 1-\frac{\sigma^2}{\varepsilon^2}.
-\]
-证毕。
-
-当$\sigma^2=4$时，要求$1-\dfrac{4}{\varepsilon^2}\geq 0.95$，即
-\[
-\frac{4}{\varepsilon^2}\leq 0.05\Longrightarrow\varepsilon^2\geq\frac{4}{0.05}=80\Longrightarrow\varepsilon\geq\sqrt{80}=4\sqrt{5}\approx 8.944.
-\]
-故$\varepsilon$至少取$4\sqrt{5}$。
-
-\textbf{评注：}切比雪夫不等式给出的是概率的一个上（下）界估计，不依赖于具体分布，因此估计通常比较保守。实际概率往往比切比雪夫界给出的更优。
-
-\vspace{0.4cm}
-
-\else \answerarea \fi%
-\item 设随机变量$X\sim B(n,p)$。
-\begin{enumerate}
-    \item[(1)] 求$X$的矩母函数$M_X(t)$；
-    \item[(2)] 利用矩母函数求$E(X)$和$D(X)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $X\sim B(n,p)$，分布律为$P(X=k)=\binom{n}{k}p^k(1-p)^{n-k},\;k=0,1,\ldots,n$。
-\[
-\begin{aligned}
-M_X(t)
-&=E(e^{tX})
-=\sum_{k=0}^{n}e^{tk}\binom{n}{k}p^k(1-p)^{n-k}\\
-&=\sum_{k=0}^{n}\binom{n}{k}(pe^t)^k(1-p)^{n-k}
-=(1-p+pe^t)^n.
-\end{aligned}
-\]
-
-(2) 对矩母函数求导：
-\[
-M_X'(t)=n(1-p+pe^t)^{n-1}\cdot pe^t.
-\]
-\[
-E(X)=M_X'(0)=n\cdot 1^{n-1}\cdot p=np.
-\]
-
-\[
-M_X''(t)=n(n-1)(1-p+pe^t)^{n-2}\cdot (pe^t)^2+n(1-p+pe^t)^{n-1}\cdot pe^t.
-\]
-\[
-E(X^2)=M_X''(0)=n(n-1)p^2+np.
-\]
-\[
-D(X)=E(X^2)-[E(X)]^2=n(n-1)p^2+np-n^2p^2=np(1-p).
-\]
-
-\textbf{评注：}矩母函数的核心性质：$E(X^k)=M_X^{(k)}(0)$。二项分布的矩母函数形式$(1-p+pe^t)^n$体现了$n$个独立$0-1$分布随机变量之和的矩母函数等于各自矩母函数之积。
-
-\vspace{0.4cm}
-
-\else \answerarea \fi%
-\item 设随机变量$X$与$Y$相互独立，均服从参数为$\lambda$的指数分布$E(\lambda)$。令$U=\max(X,Y)$，$V=\min(X,Y)$。
-\begin{enumerate}
-    \item[(1)] 求$U$和$V$的概率密度；
-    \item[(2)] 求$E(U)$和$E(V)$；
-    \item[(3)] 验证$E(U)+E(V)=E(X)+E(Y)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-$X,Y\sim E(\lambda)$，密度$f(t)=\lambda e^{-\lambda t}\;(t>0)$，分布函数$F(t)=1-e^{-\lambda t}\;(t>0)$。
-
-(1) \textbf{求$V=\min(X,Y)$的分布：}
-\[
-F_V(v)=P(V\leq v)=1-P(X>v)P(Y>v)=1-e^{-\lambda v}\cdot e^{-\lambda v}=1-e^{-2\lambda v},\quad v>0.
-\]
-\[
-f_V(v)=F_V'(v)=2\lambda e^{-2\lambda v},\quad v>0.
-\]
-即$V\sim E(2\lambda)$。
-
-\textbf{求$U=\max(X,Y)$的分布：}
-\[
-F_U(u)=P(U\leq u)=P(X\leq u)P(Y\leq u)=(1-e^{-\lambda u})^2,\quad u>0.
-\]
-\[
-f_U(u)=F_U'(u)=2(1-e^{-\lambda u})\cdot\lambda e^{-\lambda u}=2\lambda(e^{-\lambda u}-e^{-2\lambda u}),\quad u>0.
-\]
-
-(2) 
-\[
-E(V)=\frac{1}{2\lambda}\quad (\text{指数分布$E(2\lambda)$的期望}).
-\]
-\[
-E(U)=\int_{0}^{\infty}u\cdot 2\lambda(e^{-\lambda u}-e^{-2\lambda u})\,\mathrm{d}u
-=2\lambda\Bigl(\int_{0}^{\infty}ue^{-\lambda u}\,\mathrm{d}u-\int_{0}^{\infty}ue^{-2\lambda u}\,\mathrm{d}u\Bigr).
-\]
-利用$\int_{0}^{\infty}ue^{-au}\,\mathrm{d}u=\frac{1}{a^2}$：
-\[
-E(U)=2\lambda\Bigl(\frac{1}{\lambda^2}-\frac{1}{4\lambda^2}\Bigr)=2\lambda\cdot\frac{3}{4\lambda^2}=\frac{3}{2\lambda}.
-\]
-
-(3) 
-\[
-E(U)+E(V)=\frac{3}{2\lambda}+\frac{1}{2\lambda}=\frac{2}{\lambda}=\frac{1}{\lambda}+\frac{1}{\lambda}=E(X)+E(Y).
-\]
-验证完毕。$\checkmark$
-
-\textbf{评注：}$\max(X,Y)+\min(X,Y)=X+Y$恒成立（无论是否独立），两边取期望即得$E(U)+E(V)=E(X)+E(Y)$，这是更简洁的证明。
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item（\boxed{\textbf{真题风格}}）设二维随机变量$(X,Y)$的联合概率密度为
-\[
-f(x,y)=\begin{cases}
-2, & 0<x<y<1,\\
-0, & \text{其他}.
-\end{cases}
-\]
-\begin{enumerate}
-    \item[(1)] 求边缘密度$f_X(x)$和$f_Y(y)$；
-    \item[(2)] 求$E(X),E(Y),D(X),D(Y)$；
-    \item[(3)] 求$\mathrm{Cov}(X,Y)$和$\rho_{XY}$；
-    \item[(4)] 判断$X$与$Y$是否独立、是否不相关。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-先验证规范性：$\displaystyle\int_{0}^{1}\int_{x}^{1}2\,\mathrm{d}y\,\mathrm{d}x=\int_{0}^{1}2(1-x)\,\mathrm{d}x=2\Bigl(1-\frac{1}{2}\Bigr)=1$。$\checkmark$
-
-(1) 边缘密度：
-\[
-f_X(x)=\int_{x}^{1}2\,\mathrm{d}y=2(1-x),\quad 0<x<1.
-\]
-\[
-f_Y(y)=\int_{0}^{y}2\,\mathrm{d}x=2y,\quad 0<y<1.
-\]
-
-(2) 期望与方差：
-\[
-E(X)=\int_{0}^{1}x\cdot 2(1-x)\,\mathrm{d}x=2\int_{0}^{1}(x-x^2)\,\mathrm{d}x=2\Bigl(\frac{1}{2}-\frac{1}{3}\Bigr)=\frac{1}{3}.
-\]
-\[
-E(X^2)=\int_{0}^{1}x^2\cdot 2(1-x)\,\mathrm{d}x=2\int_{0}^{1}(x^2-x^3)\,\mathrm{d}x=2\Bigl(\frac{1}{3}-\frac{1}{4}\Bigr)=\frac{1}{6}.
-\]
-\[
-D(X)=E(X^2)-[E(X)]^2=\frac{1}{6}-\frac{1}{9}=\frac{3-2}{18}=\frac{1}{18}.
-\]
-\[
-E(Y)=\int_{0}^{1}y\cdot 2y\,\mathrm{d}y=2\int_{0}^{1}y^2\,\mathrm{d}y=\frac{2}{3}.
-\]
-\[
-E(Y^2)=\int_{0}^{1}y^2\cdot 2y\,\mathrm{d}y=2\int_{0}^{1}y^3\,\mathrm{d}y=\frac{2}{4}=\frac{1}{2}.
-\]
-\[
-D(Y)=E(Y^2)-[E(Y)]^2=\frac{1}{2}-\frac{4}{9}=\frac{9-8}{18}=\frac{1}{18}.
-\]
-
-(3) 协方差与相关系数：
-\[
-\begin{aligned}
-E(XY)
-&=2\int_0^1\int_x^1xy\,\mathrm{d}y\,\mathrm{d}x\\
-&=\int_0^1(x-x^3)\,\mathrm{d}x=\frac14.
-\end{aligned}
-\]
-\[
-\Cov(X,Y)=\frac14-\frac13\cdot\frac23=\frac1{36}.
-\]
-\[
-\rho_{XY}=\frac{1/36}{\sqrt{(1/18)(1/18)}}=\frac12.
-\]
-
-(4) $f_X(x)\cdot f_Y(y)=2(1-x)\cdot 2y=4y(1-x)\neq 2=f(x,y)$（除全平面外），且支撑集$\{0<x<y<1\}$非矩形区域，故$X$与$Y$不独立。
-
-$\rho_{XY}=\frac{1}{2}\neq 0$，故$X$与$Y$相关，从而$X$与$Y$不独立。
-
-\textbf{评注：}本题是考研经典题型。这里联合密度在整个非直积三角区域$\{0<x<y<1\}$上为正，因此$X$与$Y$不独立；不能脱离密度的具体支撑和正值范围，把“定义在三角形区域上”本身当作无条件判据。这里$\rho=1/2$表明存在中等程度的正线性相关。
-
-\vspace{0.4cm}
-
-\item（\boxed{\textbf{真题风格}}）设$X_1,X_2,\ldots,X_n$独立同分布，均服从参数为$\lambda$的泊松分布$P(\lambda)$。令$\displaystyle\bar{X}_n=\frac{1}{n}\sum_{i=1}^{n}X_i$。
-\begin{enumerate}
-    \item[(1)] 求$E(\bar{X}_n)$和$D(\bar{X}_n)$；
-    \item[(2)] 用切比雪夫不等式证明：对任意$\varepsilon>0$，$\displaystyle\lim_{n\to\infty}P(|\bar{X}_n-\lambda|\geq\varepsilon)=0$；
-    \item[(3)] 当$\lambda=2$，$n=100$时，用切比雪夫不等式估计$P(|\bar{X}_n-2|\geq 0.3)$的上界。
-
-\end{enumerate}
-\else \answerarea \fi%
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 由$X_i\sim P(\lambda)$，$E(X_i)=\lambda$，$D(X_i)=\lambda$。
-\[
-E(\bar{X}_n)=E\Bigl(\frac{1}{n}\sum_{i=1}^{n}X_i\Bigr)=\frac{1}{n}\sum_{i=1}^{n}E(X_i)=\frac{1}{n}\cdot n\lambda=\lambda.
-\]
-由独立性：
-\[
-D(\bar{X}_n)=D\Bigl(\frac{1}{n}\sum_{i=1}^{n}X_i\Bigr)=\frac{1}{n^2}\sum_{i=1}^{n}D(X_i)=\frac{1}{n^2}\cdot n\lambda=\frac{\lambda}{n}.
-\]
-
-(2) 由切比雪夫不等式：
-\[
-P(|\bar{X}_n-\lambda|\geq\varepsilon)\leq\frac{D(\bar{X}_n)}{\varepsilon^2}=\frac{\lambda}{n\varepsilon^2}.
-\]
-当$n\to\infty$时，$\frac{\lambda}{n\varepsilon^2}\to 0$，故
-\[
-\lim_{n\to\infty}P(|\bar{X}_n-\lambda|\geq\varepsilon)=0.
-\]
-这表明$\bar{X}_n$依概率收敛于$\lambda$，即$\bar{X}_n\xrightarrow{P}\lambda$。
-
-(3) 当$\lambda=2$，$n=100$时，由切比雪夫不等式：
-\[
-P(|\bar{X}_n-2|\geq 0.3)\leq\frac{D(\bar{X}_n)}{0.3^2}=\frac{2/100}{0.09}=\frac{0.02}{0.09}=\frac{2}{9}\approx 0.2222.
-\]
-即$P(|\bar{X}_n-2|\geq 0.3)\leq\frac{2}{9}$。
-
-\textbf{评注：}本题体现了切比雪夫不等式在大数定律证明中的核心作用。注意$D(\bar{X}_n)=\frac{\lambda}{n}$随$n$增大而趋于$0$，说明样本均值越来越集中在总体均值附近。
-
-\vspace{0.4cm}
-
-\else \answerarea \fi%
-\item 设随机变量$X\sim N(0,1)$，令$Y=|X|$。
-\begin{enumerate}
-    \item[(1)] 求$Y$的概率密度；
-    \item[(2)] 求$E(Y)$和$D(Y)$；
-    \item[(3)] 求$\mathrm{Cov}(X,Y)$，并判断$X$与$Y$是否不相关、是否独立。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $X\sim N(0,1)$，密度$\varphi(x)=\frac{1}{\sqrt{2\pi}}e^{-x^2/2}$，分布函数$\Phi(x)$。
-对$y>0$：
-\[
-F_Y(y)=P(|X|\leq y)=P(-y\leq X\leq y)=\Phi(y)-\Phi(-y)=2\Phi(y)-1.
-\]
-\[
-f_Y(y)=F_Y'(y)=2\varphi(y)=\sqrt{\frac{2}{\pi}}\,e^{-y^2/2},\quad y>0.
-\]
-此即半正态分布（Half-normal distribution）。
-
-(2) 
-\[
-E(Y)=\int_{0}^{\infty}y\cdot\sqrt{\frac{2}{\pi}}e^{-y^2/2}\,\mathrm{d}y
-=\sqrt{\frac{2}{\pi}}\int_{0}^{\infty}ye^{-y^2/2}\,\mathrm{d}y
-=\sqrt{\frac{2}{\pi}}\Bigl[-e^{-y^2/2}\Bigr]_{0}^{\infty}
-=\sqrt{\frac{2}{\pi}}.
-\]
-\[
-E(Y^2)=E(|X|^2)=E(X^2)=1\quad(\text{因为}D(X)=E(X^2)-[E(X)]^2=1-0=1).
-\]
-\[
-D(Y)=E(Y^2)-[E(Y)]^2=1-\frac{2}{\pi}.
-\]
-
-(3)
-\[
-\mathrm{Cov}(X,Y)=E(XY)-E(X)E(Y)=E(X|X|)-0\cdot E(Y)=E(X|X|).
-\]
-被积函数$x|x|\varphi(x)=\frac{x|x|}{\sqrt{2\pi}}e^{-x^2/2}$是奇函数（因为$x|x|$是奇函数），在对称区间$\mathbb{R}$上积分为零：
-\[
-E(X|X|)=\int_{-\infty}^{\infty}x|x|\varphi(x)\,\mathrm{d}x=0.
-\]
-故$\mathrm{Cov}(X,Y)=0$，从而$\rho_{XY}=0$，$X$与$Y$不相关。
-
-但$Y=|X|$是$X$的确定性函数，显然$X$与$Y$不独立（$Y$完全由$X$决定）。
-
-\textbf{评注：}不相关$\nRightarrow$独立！本题是一个经典反例：$X\sim N(0,1)$与$|X|$的相关系数为零（因$X|X|$的期望为零），但两者存在严格的函数关系，绝不独立。这再次说明相关系数只衡量\textbf{线性}相关程度。
-
-\else \answerarea \fi%
-\end{enumerate}
-
+\input{probality/exercises/chap4.tex}

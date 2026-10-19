@@ -1,350 +1,441 @@
 \section{计算机网络体系结构}
 
-\subsection{计算机网络的概念与分类}
+在浏览器地址栏输入一个网址，回车，几十毫秒后页面出现。这段时间里，浏览器只负责组织 HTTP 请求，操作系统里的 TCP 负责分段、编号和重传，网卡把比特变成电信号或光信号，交换机按 MAC 地址转发帧，路由器按 IP 地址选路。没有任何一个部件理解整个过程，但每一层都把自己的事情做完，把结果交给下一层。这种“各管一段、上下衔接”的组织方式就是分层。本章要建立的，就是这套分工的语言：协议、服务、封装、PDU，以及衡量网络快慢的几个基本指标。
 
-\begin{mydef}{计算机网络}{cn-def}
-计算机网络是将分布在不同地理位置、具有独立功能的计算机系统，通过通信设备和线路连接起来，以网络协议实现资源共享和数据通信的系统。
-\end{mydef}
+按覆盖范围，网络分为广域网 WAN、城域网 MAN、局域网 LAN 和个域网 PAN；按交换方式，分为电路交换、报文交换和分组交换。408 的题目主要在这两个维度上展开，其中交换方式会直接影响时延的计算。
 
-\begin{conclusion}{计算机网络的分类}{cn-class}
-\begin{itemize}
-    \item \textbf{按覆盖范围}：广域网 WAN、城域网 MAN、局域网 LAN、个域网 PAN。
-    \item \textbf{按传输技术}：广播式网络 vs 点对点网络。
-    \item \textbf{按拓扑结构}：星形、总线形、环形、树形、网状。
-    \item \textbf{按交换技术}：电路交换、报文交换、分组交换。
-\end{itemize}
-\textbf{408 中主要使用按覆盖范围的分类。}
-\end{conclusion}
+\subsection{分层：一次网页访问拆开来看}
 
-\subsection{电路交换、报文交换与分组交换}
+假设主机 A 通过一个交换机和一个路由器访问主机 B。A 的应用层生成一条 HTTP 请求；传输层给它加上源端口、目的端口和序号，交给网络层；网络层加上源 IP、目的 IP，交给数据链路层；数据链路层加上帧头和帧尾，交给物理层；物理层把比特逐个送上介质。
 
-\begin{conclusion}{三种交换技术的对比}{switching}
-\begin{tablebox}{交换技术对比}
-\centering
-\small
-\begin{tabularx}{\linewidth}{|p{2.3cm}|X|X|X|}
-\hline
- & 电路交换 & 报文交换 & 分组交换 \\
-\hline
-建立连接 & 需要 & 不需要 & 不需要（虚电路需要）\\
-传输单位 & 比特流 & 整个报文 & 分组（包）\\
-存储转发 & 否 & 是 & 是 \\
-主要时延特征 & 建立阶段有连接建立时延；建立后无逐跳存储转发，但仍有发送与传播时延 & 每一跳收完整个报文后再转发，缓冲需求和等待时延大 & 逐分组存储转发，可在多链路间流水传输 \\
-灵活性 & 差（专用线路）& 好 & 好 \\
-典型应用 & 传统电话 & 电报 & 互联网（IP）\\
-\hline
-\end{tabularx}
-\end{tablebox}
-
-\textbf{分组交换的优点：} (1) 线路利用率高（统计复用）；(2) 不同速率/格式的终端可互通；(3) 优先级。
-
-\textbf{分组交换的缺点：} (1) 额外开销（首部）；(2) 存储转发引入排队时延，不适合实时通信。
-
-\textbf{408 常考：}给定场景，判断应使用哪种交换方式。
-\end{conclusion}
+中间设备并不是七层全做。交换机收到帧后，只看目的 MAC 地址，查表转发，根本不拆开 IP 首部；路由器收到帧后，剥掉帧头，取出 IP 分组，查路由表决定下一跳，再给分组套上新的帧头转发出去。也就是说，交换机工作在数据链路层，路由器工作到网络层，它们各自只理解自己那一层及以下的内容。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, scale=0.9]
-  % 时间轴
-  \draw[->,thick] (-0.3,0) -- (6.7,0) node[right]{$t$};
-  \foreach \u in {0,...,5} \draw (\u*1.2,-0.05) -- (\u*1.2,0.05) node[below,font=\scriptsize]{$\u$};
-  % 行标签
-  \node[left,font=\scriptsize] at (-0.18,3){链路1（A$\to$R1）};
-  \node[left,font=\scriptsize] at (-0.18,2){链路2（R1$\to$R2）};
-  \node[left,font=\scriptsize] at (-0.18,1){链路3（R2$\to$B）};
-  % 3 个分组流水：每个分组占 1 个发送时延单元，逐链路右移
-  % 行 y 用 4-\hop：hop=1（链路1，A->R1）在最上一行，hop=3（链路3，R2->B）在最下一行
-  \foreach \pkt/\col in {1/Teal!50,2/Navy!30,3/Amber!45}{
-    \foreach \hop in {1,2,3}{
-      \pgfmathsetmacro{\x}{(\pkt-1+\hop-1)*1.2}
-      \pgfmathsetmacro{\y}{4-\hop}
-      \fill[\col,draw=black!30] (\x,{\y-0.3}) rectangle (\x+1.2,{\y+0.3});
-      \ifnum\hop=1
-        \node[font=\scriptsize] at (\x+0.6,{\y+0.5}) {P\pkt};
-      \fi
-    }
+\begin{tikzpicture}[>=stealth,font=\scriptsize,
+  layer/.style={draw,rounded corners=2pt,minimum width=2.7cm,minimum height=0.62cm,align=center}]
+  % 主机 A
+  \node[layer,fill=SoftTeal] (aA) at (2.3,6.0) {应用层};
+  \node[layer,fill=SoftTeal] (tA) at (2.3,5.1) {传输层};
+  \node[layer,fill=SoftBlue] (nA) at (2.3,4.2) {网络层};
+  \node[layer,fill=SoftAmber] (lA) at (2.3,3.3) {数据链路层};
+  \node[layer,fill=SoftGray] (pA) at (2.3,2.4) {物理层};
+  % 路由器
+  \node[layer,fill=SoftBlue] (nR) at (7.5,4.2) {网络层};
+  \node[layer,fill=SoftAmber] (lR) at (7.5,3.3) {数据链路层};
+  \node[layer,fill=SoftGray] (pR) at (7.5,2.4) {物理层};
+  % 主机 B
+  \node[layer,fill=SoftTeal] (aB) at (12.7,6.0) {应用层};
+  \node[layer,fill=SoftTeal] (tB) at (12.7,5.1) {传输层};
+  \node[layer,fill=SoftBlue] (nB) at (12.7,4.2) {网络层};
+  \node[layer,fill=SoftAmber] (lB) at (12.7,3.3) {数据链路层};
+  \node[layer,fill=SoftGray] (pB) at (12.7,2.4) {物理层};
+  % 对等层协议
+  \draw[<->,dashed,Navy!60] (aA.east) -- (aB.west)
+    node[midway,above,black!70]{应用层协议（HTTP）};
+  \draw[<->,dashed,Navy!60] (tA.east) -- (tB.west)
+    node[midway,above,black!70]{传输层协议（TCP/UDP）};
+  \draw[<->,dashed,Navy!60] (nA.east) -- (nR.west)
+    node[midway,above,black!70]{IP};
+  \draw[<->,dashed,Navy!60] (nR.east) -- (nB.west)
+    node[midway,above,black!70]{IP};
+  \draw[<->,dashed,Amber!80!black] (lA.east) -- (lR.west)
+    node[midway,above,black!70]{帧};
+  \draw[<->,dashed,Amber!80!black] (lR.east) -- (lB.west)
+    node[midway,above,black!70]{帧};
+  \draw[<->,Teal!80!black] (pA.east) -- (pR.west)
+    node[midway,above,black!70]{比特};
+  \draw[<->,Teal!80!black] (pR.east) -- (pB.west)
+    node[midway,above,black!70]{比特};
+  % 层间服务
+  \foreach \u/\v in {aA/tA,tA/nA,nA/lA,lA/pA,aB/tB,tB/nB,nB/lB,lB/pB,nR/lR,lR/pR}{
+    \draw[<->,Teal!70] (\u.south) -- (\v.north);
   }
-  \node[font=\scriptsize,black!70] at (3.4,-1.0){分组交换的存储转发：总时延 $\approx$ (分组数$+$链路数$-1)\times$ 发送时延};
-\end{tikzpicture}
+  % SAP 与说明
+  \fill[Teal!80!black] (2.3,5.55) circle (1.6pt);
+  \node[black!70,anchor=west] at (3.85,5.55){SAP};
+  \node[rotate=90,black!60] at (0.52,4.2){服务（垂直）};
+  \node[font=\scriptsize,black!70] at (2.3,1.55){主机 A};
+  \node[font=\scriptsize,black!70,align=center] at (7.5,1.55){路由器\\（只到网络层）};
+  \node[font=\scriptsize,black!70] at (12.7,1.55){主机 B};
+\end{tikzpicture}\\[2pt]
+{\small\color{MutedText} 图 1-1\quad 分层协议栈：水平虚线是对等层之间的协议，竖直箭头是相邻层之间的服务}
 \end{center}
 
-\subsection{计算机网络的性能指标}
+图中横向的虚线只画在对等层之间：A 的应用层和 B 的应用层谈 HTTP，A 的传输层和 B 的传输层谈 TCP，依此类推。纵向的箭头表示下层向上层提供服务。二者方向不同，不能混着说。路由器只有下三层，所以它的应用层和传输层是空的；IP 分组在路由器上被拆到网络层，查完路由表再重新封装，这也是“路由器工作在网络层”的具体含义。
 
-\begin{formula}{网络性能指标}{cn-metrics}
+第 $n$ 层向上层提供服务的逻辑接口叫\textbf{服务访问点}（SAP，Service Access Point）。在 408 的语境下常记：数据链路层的 SAP 是 MAC 地址，网络层的 SAP 是 IP 地址，传输层的 SAP 是端口号。SAP 是层间交往的“门牌号”，上层把数据送到这个门牌号，下层就知道该交给哪个实体。
+
+分层不是免费的：每层都要加首部，层间调用也要花时间。但它带来的独立性很值钱。IPv4 升级到 IPv6，应用层的 HTTP 不用改；以太网从 10 Mb/s 升到 100 Gb/s，IP 也不用改。只要下层向上提供的服务不变，上层的实现就可以不动。所谓\textbf{网络体系结构}，就是分层方式和各层协议的集合；它是抽象定义，不是具体实现，同一种体系结构可以有多种实现。
+
+协议是通信双方必须遵守的规则，包含三个要素：
 \begin{itemize}
-    \item \textbf{速率（Data Rate）}：每秒传输的比特数（bps）。$1\text{K}=10^3$，$1\text{M}=10^6$（通信领域，非 $2^{10}$）。
-    \item \textbf{带宽（Bandwidth）}：信道允许通过的频率范围（Hz），或网络通信线路所能传送数据的能力（bps）。
-    \item \textbf{吞吐量（Throughput）}：单位时间内实际通过网络的数据量。
-    \item \textbf{时延（Delay/Latency）}：$d_{\text{总}} = d_{\text{发送}} + d_{\text{传播}} + d_{\text{处理}} + d_{\text{排队}}$
-    \begin{itemize}
-        \item \textbf{发送时延}：$\dfrac{\text{数据帧长度}}{\text{发送速率}}$（与传输距离无关）
-        \item \textbf{传播时延}：$\dfrac{\text{信道长度}}{\text{电磁波传播速率}}$（与发送速率无关）
-    \end{itemize}
-    \item \textbf{时延带宽积}：$d_{\text{传播}} \times \text{带宽}$ = 链路中最多容纳的比特数。
-    \item \textbf{往返时间 RTT}：数据从发送端发出到收到确认的时间。
-    \item \textbf{利用率}：信道利用率 = 有数据通过时间 / 总时间。利用率趋近 1 时时延急剧增大（排队论）。
+  \item \textbf{语法}：数据和控制信息长什么样。例如 HTTP 请求行由方法、URL、版本三段组成，字段之间用空格分隔。
+  \item \textbf{语义}：每个字段是什么意思、收到后要做什么。例如状态码 404 表示资源不存在，TCP 的 SYN 表示请求建立连接。
+  \item \textbf{时序}：事件谁先谁后、什么时候重发。例如 TCP 三次握手的报文顺序，以及超时计时器的设置。
+\end{itemize}
+
+\begin{attention}
+语法管“长什么样”，语义管“是什么意思、做什么”，时序管“什么时候做”。408 喜欢把这三者和“服务、接口、协议”混在一起出选择题；判断时先问：这句话描述的是格式、含义，还是顺序？
+\end{attention}
+
+\subsection{封装：首部是怎样一层层加上的}
+
+仍以上面的 HTTP 请求为例。假设应用层交给 TCP 的数据是 $1000$ B。TCP 加上 $20$ B 首部（源端口、目的端口、序号、确认号等），得到 $1020$ B 的报文段；IP 再加上 $20$ B 首部（源 IP、目的 IP、协议号、生存时间等），得到 $1040$ B 的分组；以太网加上 $14$ B 帧首部（目的 MAC、源 MAC、类型）和 $4$ B 尾部 FCS，得到 $1058$ B 的帧。首部开销是 $58$ B，约占原数据的 $5.8\%$。数据越短，首部占比越大，这也是小包效率低的原因之一。
+
+这个过程叫\textbf{封装}（encapsulation）：本层把上层交下来的 PDU 当作自己的服务数据单元（SDU），在前面加上本层首部（有时还在后面加尾部），形成本层的 PDU。首部里的地址、序号、长度、校验等控制信息，只对本层有意义；上层数据对下层来说只是一串字节，下层不关心它的内容。接收方的过程相反，叫\textbf{解封装}：每层检查并去掉本层首部，把剩下的数据交给上一层。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\scriptsize,
+  hdr/.style={draw,fill=SoftAmber,minimum height=0.9cm,align=center},
+  dat/.style={draw,fill=SoftBlue,minimum height=0.9cm,align=center}]
+  % 应用层
+  \node[dat,minimum width=5.0cm] at (6.9,0) {应用数据（1000 B）};
+  \node[anchor=east,black!70] at (-1.25,0) {应用层};
+  \node[anchor=west,black!70] at (10.9,0) {报文（1000 B）};
+  % 传输层
+  \node[hdr,minimum width=1.8cm] at (3.5,-1.15) {TCP\\20 B};
+  \node[dat,minimum width=5.0cm] at (6.9,-1.15) {应用数据};
+  \node[anchor=east,black!70] at (-1.25,-1.15) {传输层};
+  \node[anchor=west,black!70] at (10.9,-1.15) {报文段（1020 B）};
+  % 网络层
+  \node[hdr,minimum width=1.8cm] at (1.7,-2.3) {IP\\20 B};
+  \node[hdr,minimum width=1.8cm] at (3.5,-2.3) {TCP\\20 B};
+  \node[dat,minimum width=5.0cm] at (6.9,-2.3) {应用数据};
+  \node[anchor=east,black!70] at (-1.25,-2.3) {网络层};
+  \node[anchor=west,black!70] at (10.9,-2.3) {分组（1040 B）};
+  % 链路层
+  \node[hdr,minimum width=1.8cm] at (-0.1,-3.45) {以太网\\14 B};
+  \node[hdr,minimum width=1.8cm] at (1.7,-3.45) {IP\\20 B};
+  \node[hdr,minimum width=1.8cm] at (3.5,-3.45) {TCP\\20 B};
+  \node[dat,minimum width=5.0cm] at (6.9,-3.45) {应用数据};
+  \node[hdr,minimum width=1.2cm] at (10.0,-3.45) {FCS\\4 B};
+  \node[anchor=east,black!70] at (-1.25,-3.45) {链路层};
+  \node[anchor=west,black!70] at (10.9,-3.45) {帧（1058 B）};
+\end{tikzpicture}\\[2pt]
+{\small\color{MutedText} 图 1-2\quad 封装：上层 PDU 整体成为下层 SDU，逐层加首部；链路层还多一个尾部 FCS}
+\end{center}
+
+从下往上看，每一行都比上一行多一个首部；从上往下看就是接收方的解封装。注意链路层是唯一通常既有首部又有尾部的层：FCS 放在帧尾，用来做差错检测。图中没有画前导码，以太网帧的 $14$ B 首部也不包含前导码。
+
+各层 PDU 的名称要能对号入座：应用层叫\textbf{报文}（message），传输层 TCP 叫\textbf{报文段}（segment）、UDP 叫\textbf{用户数据报}（user datagram），网络层叫\textbf{分组}或\textbf{数据报}（packet/datagram），数据链路层叫\textbf{帧}（frame），物理层是\textbf{比特}（bit）。408 的选择题经常用“报文段/分组/帧”来定位层，看到名字就要能反应出它属于哪一层。
+
+封装也不等于“把数据复制一遍”。实际实现中，协议栈往往在缓冲区头部预留空间，逐层向前移动指针填写首部，避免整块数据的搬移；但概念上，仍然是“上层 PDU 加本层控制信息”这个模型。
+
+\subsection{三种交换方式：电路、报文、分组}
+
+两台主机之间往往隔着多个交换结点。数据以什么单位、按什么方式通过这些结点，直接决定了时延和线路利用率。
+
+\textbf{电路交换}先建立一条端到端的通路（拨号、信令），建立后双方独占这条通路，数据像流水一样连续通过，中间结点不做存储转发。传统电话网是典型例子。设建立时间为 $s$，报文长为 $M$ bit，链路速率为 $R$，共 $k$ 段链路，每段传播时延为 $d_{\mathrm{prop}}$，忽略处理时延，则
+\[
+T_{\mathrm{c}} = s + \frac{M}{R} + k\,d_{\mathrm{prop}}.
+\]
+建立时间可能很长；但一旦建立，数据在中间结点没有“收完再发”的等待。
+
+\textbf{报文交换}把整个报文作为一个单位。结点必须收完整个报文、做完校验，才能把它转发到下一跳。因此每个结点都需要能缓存整个报文的缓冲区，长报文会长时间占用链路。总时延为
+\[
+T_{\mathrm{m}} = k\frac{M}{R} + k\,d_{\mathrm{prop}},
+\]
+因为报文在 $k$ 段链路上各被完整发送了一次。
+
+\textbf{分组交换}把报文切成若干等长分组，每个分组独立地存储转发。关键变化是流水线：第 1 个分组在第 2 条链路上传输时，第 2 个分组已经在第 1 条链路上传输，不必等整个报文传完。设报文长 $M$ bit，分成 $n$ 个长为 $L=M/n$ 的分组，链路数仍为 $k$，则第 1 个分组到达终点需要 $k(L/R+d_{\mathrm{prop}})$；此后每隔 $L/R$ 到达一个分组，共 $n$ 个，所以
+\[
+T_{\mathrm{p}} = k\left(\frac{L}{R}+d_{\mathrm{prop}}\right) + (n-1)\frac{L}{R}
+= \frac{(n+k-1)L}{R} + k\,d_{\mathrm{prop}}.
+\]
+当 $n$ 很大、$L$ 很小时，$T_{\mathrm{p}} \approx M/R + k d_{\mathrm{prop}}$，与电路交换在数据传输阶段所需的时间基本相同，只多了 $(k-1)L/R$ 的流水线填充；而报文交换是 $kM/R$，差距随链路数 $k$ 线性扩大。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\scriptsize,y=1cm]
+  % 三个面板的链路行
+  % (a) 电路交换
+  \node[anchor=west,black!70] at (0.55,8.45){（a）电路交换};
+  \node[anchor=east,black!60] at (0.55,8.0){链路 1};
+  \node[anchor=east,black!60] at (0.55,7.6){链路 2};
+  \node[anchor=east,black!60] at (0.55,7.2){链路 3};
+  \draw[fill=SoftAmber,draw=Amber!80!black,dashed] (1.0,7.78) rectangle (1.9,8.22);
+  \node at (1.45,8.0){建立};
+  \foreach \y/\s in {8.0/1.0,7.6/1.5,7.2/2.0}{
+    \draw[fill=SoftBlue,draw=Navy!60] ({\s+1.0},\y-0.22) rectangle ({\s+4.0},\y+0.22);
+  }
+  \draw[dashed,black!45] (4.0,8.0) -- (4.5,7.6);
+  \draw[dashed,black!45] (4.5,7.6) -- (5.0,7.2);
+  \draw[dashed,black!60] (6.5,7.0) -- (6.5,8.35);
+  \node[anchor=south,black!70] at (6.5,8.35){B 收到};
+  \node[anchor=west,black!70] at (6.8,7.65){$T=5.5$};
+
+  % (b) 报文交换
+  \node[anchor=west,black!70] at (0.55,5.75){（b）报文交换};
+  \foreach \y/\s in {5.3/0.0,4.95/3.5,4.6/7.0}{
+    \draw[fill=SoftGray,draw=black!50] ({\s+1.0},\y-0.22) rectangle ({\s+4.0},\y+0.22);
+  }
+  \draw[dashed,black!45] (4.0,5.3) -- (4.5,4.95);
+  \draw[dashed,black!45] (7.5,4.95) -- (8.0,4.6);
+  \draw[dashed,black!60] (11.5,4.4) -- (11.5,5.65);
+  \node[anchor=south,black!70] at (11.5,5.65){B 收到};
+  \node[anchor=west,black!70] at (11.8,4.95){$T=10.5$};
+
+  % (c) 分组交换
+  \node[anchor=west,black!70] at (0.55,3.05){（c）分组交换};
+  \foreach \i/\col in {1/Teal!45,2/Navy!25,3/Amber!45}{
+    \pgfmathsetmacro{\a}{\i-1}
+    \draw[fill=\col,draw=black!40] ({1.0+\a},2.38) rectangle ({2.0+\a},2.82);
+    \draw[fill=\col,draw=black!40] ({1.5+\a},2.03) rectangle ({2.5+\a},2.47);
+    \draw[fill=\col,draw=black!40] ({3.0+\a},1.68) rectangle ({4.0+\a},2.12);
+  }
+  \foreach \i in {1,2,3}{
+    \pgfmathsetmacro{\a}{\i-1}
+    \draw[dashed,black!45] ({1.0+\a},2.38) -- ({1.5+\a},2.47);
+    \draw[dashed,black!45] ({2.5+\a},2.03) -- ({3.0+\a},2.12);
+  }
+  \draw[dashed,black!60] (7.5,1.45) -- (7.5,2.95);
+  \node[anchor=south,black!70] at (7.5,2.95){B 收到};
+  \node[anchor=west,black!70] at (7.8,2.25){$T=6.5$};
+
+  % 时间轴
+  \draw[->,thick] (0.7,1.15) -- (12.4,1.15) node[right]{时间};
+  \foreach \t in {0,2,...,12}{
+    \draw ({1.0+0.9*\t},1.15) -- ({1.0+0.9*\t},1.05);
+    \node[below,black!60] at ({1.0+0.9*\t},1.05){\t};
+  }
+\end{tikzpicture}\\[2pt]
+{\small\color{MutedText} 图 1-3\quad 三种交换方式的时空图（$M/R=3$，$d_{\mathrm{prop}}=0.5$，$k=3$，$n=3$；纵轴为链路，横轴为时间）}
+\end{center}
+
+图里每一条斜向右下的虚线表示“一个比特从一条链路走到下一条链路”的传播过程。电路交换在建立后是一条连续的水流，三条链路上的蓝色块互相重叠，说明不同链路上的比特在同时前进；报文交换必须等整个报文收完才转发，所以三个灰色块首尾相接、互不重叠；分组交换把报文切成三块，第 2、3 块依次跟进，形成阶梯状，总时延从 $10.5$ 降到 $6.5$。这里的数值只是为了比较，单位统一取 $M/R$。
+
+\begin{center}
+\begin{tabularx}{\linewidth}{|p{1.7cm}|p{2.1cm}|p{2.1cm}|p{4.2cm}|X|}
+\hline
+交换方式 & 传输单位 & 存储转发 & 总时延（$k$ 段链路） & 典型场景 \\
+\hline
+电路交换 & 比特流 & 否 & $s+\frac{M}{R}+k d_{\mathrm{prop}}$ & 传统电话、实时语音 \\
+\hline
+报文交换 & 整个报文 & 是 & $k\frac{M}{R}+k d_{\mathrm{prop}}$ & 电报、早期文件传输 \\
+\hline
+分组交换 & 分组 & 是 & $\frac{(n+k-1)L}{R}+k d_{\mathrm{prop}}$ & Internet、绝大多数数据网络 \\
+\hline
+\end{tabularx}
+\end{center}
+
+分组交换的代价是每个分组都要带首部，开销随分组数增加；结点排队还会带来排队时延和时延抖动，所以实时语音不一定适合分组交换。它的好处是线路可以统计复用，多个用户共享链路，空闲时不会像电路交换那样浪费带宽。
+
+还要区分“分组交换”和“服务类型”。分组交换是交换方式；在网络层，它既可以提供无连接的\textbf{数据报服务}（IP），也可以提供面向连接的\textbf{虚电路服务}（X.25、帧中继）。虚电路不是电路交换：它仍然是分组交换，分组仍然要在结点存储转发，只是沿着预先建立的逻辑路径走，省去了每个分组的独立选路。
+
+\subsection{带宽、时延与“管道”}
+
+“带宽”这个词有两种用法。模拟通信里，带宽指信道能通过的频率范围，单位是 Hz；数字通信里，带宽指链路能达到的最高数据率，单位是 b/s。408 题目说“链路带宽为 100 Mb/s”通常指后者，说“电话线带宽为 3 kHz”指前者。看到单位就能判断说的是哪一种。
+
+速率的进位是十进制：$1$ kb/s $=10^3$ b/s，$1$ Mb/s $=10^6$ b/s，$1$ Gb/s $=10^9$ b/s。存储容量却常用二进制：$1$ KB $=2^{10}$ B $=1024$ B。题目里“一个 1 MB 的文件在 1 Mb/s 的链路上传输”不是简单的 $1/1=1$ 秒，必须先把字节换成比特，再按十进制速率计算。
+
+\begin{formula}{时延与两个常用乘积}{delay-formulas}
+\begin{itemize}
+  \item 发送时延：$d_{\mathrm{trans}}=\dfrac{L}{R}$，$L$ 为数据长度（bit），$R$ 为发送速率（b/s）。
+  \item 传播时延：$d_{\mathrm{prop}}=\dfrac{D}{v}$，$D$ 为链路长度（m），$v$ 为信号在介质中的传播速率（m/s）。
+  \item 结点总时延：$d=d_{\mathrm{proc}}+d_{\mathrm{queue}}+d_{\mathrm{trans}}+d_{\mathrm{prop}}$。
+  \item 时延带宽积：$R\,d_{\mathrm{prop}}$，单位是 bit，表示链路“管道”中最多能容纳的比特数。
+  \item 利用率 $U$ 与空载时延 $D_0$ 的排队论近似：$D=\dfrac{D_0}{1-U}$。
 \end{itemize}
 \end{formula}
 
-\begin{attention}
-\textbf{408 高频计算：发送时延 vs 传播时延。} 发送时延 = 数据量/带宽（瓶颈在发送速率）；传播时延 = 距离/光速（瓶颈在物理距离）。两者影响的变因完全不同，选择题经常混合考察。
-\end{attention}
+处理时延 $d_{\mathrm{proc}}$ 是结点检查首部、查表、做差错检测的时间；排队时延 $d_{\mathrm{queue}}$ 取决于队列长度和当前负载，是最不确定的一项。考试里如果题目没有特别说明，通常忽略这两项，只算发送和传播。
+
+这里最重要的是两个“与什么有关”。发送时延由数据量 $L$ 和发送速率 $R$ 决定，与距离无关；传播时延由距离 $D$ 和传播速率 $v$ 决定，与发送速率无关。把带宽从 100 Mb/s 提高到 1 Gb/s，只能缩短发送时延，不能改变信号在光纤里跑 1000 km 的时间。反过来，链路拉长也不会让网卡把数据推上介质的速度变慢。
+
+举个具体的数：$1000$ B $=8000$ bit 的数据在 $100$ Mb/s 的链路上发送，
+\[
+d_{\mathrm{trans}}=\frac{8000}{10^8}=80\ \mu\mathrm{s}.
+\]
+若链路长 $1000$ km，信号速率为 $2\times10^8$ m/s，则
+\[
+d_{\mathrm{prop}}=\frac{10^6}{2\times10^8}=5\ \mathrm{ms}.
+\]
+传播时延是发送时延的 $60$ 多倍。长距离链路上，决定“快不快”的往往不是带宽，而是光跑得不够快。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, scale=1.0]
-  \draw[thick] (0,0) -- (10,0);
-  \node[left,font=\bfseries] at (0,0){A};
-  \node[right,font=\bfseries] at (10,0){B};
-  % 帧在发送端：发送时延 = 把整帧推上链路的时间
-  \fill[Teal!45,draw=black!35] (0.15,-0.22) rectangle (1.95,0.22) node[midway,font=\scriptsize]{帧};
-  % 发送时延
-  \draw[<->] (0.15,-0.5) -- (1.95,-0.5) node[midway,below,font=\scriptsize]{发送时延 $d_{tx}$};
-  % 传播时延：帧沿链路传到 B
-  \draw[<->] (1.95,-0.5) -- (9.85,-0.5) node[midway,below,font=\scriptsize]{传播时延 $d_{prop}$};
-  \node[font=\scriptsize,align=center] at (5.9,0.9){帧沿链路传播\\到接收端 B};
-\end{tikzpicture}
+\begin{tikzpicture}[>=stealth,font=\scriptsize,x=0.95cm,y=0.95cm]
+  % (a) 时空图
+  \draw[->] (0,0) -- (10.8,0) node[right]{距离};
+  \draw[->] (0,0) -- (0,3.9) node[above]{时间};
+  \draw[dashed,black!35] (10,0) -- (10,3.6);
+  \node[below] at (0,0) {A};
+  \node[below] at (10,0) {B};
+  \fill[SoftTeal] (0,0) -- (10,1.2) -- (10,3.2) -- (0,2.0) -- cycle;
+  \draw[Teal!80!black] (0,0) -- (10,1.2);
+  \draw[Teal!80!black] (0,2.0) -- (10,3.2);
+  \node[black!70,rotate=7] at (5.2,0.35) {第一个比特};
+  \node[black!70,rotate=7] at (5.2,2.85) {最后一个比特};
+  \draw[<->,Navy!70] (-0.15,0) -- (-0.15,2.0);
+  \node[left,align=right,black!70] at (-0.28,1.0) {发送时延\\$L/R$};
+  \draw[<->,Amber!80!black] (10.15,0) -- (10.15,1.2);
+  \node[right,align=left,black!70] at (10.3,0.6) {传播时延\\$D/v$};
+  \node[right,align=left,black!70] at (10.3,2.55) {总时延\\$L/R+D/v$};
+  \node[anchor=west,black!70] at (0.2,3.45) {（a）一帧数据的时空图};
+
+  % (b) 四项时延
+  \def\by{-2.1}
+  \draw[fill=SoftGray,draw=black!40] (0,\by) rectangle (0.6,{\by+0.5});
+  \draw[fill=SoftAmber,draw=black!40] (0.6,\by) rectangle (2.0,{\by+0.5});
+  \draw[fill=SoftBlue,draw=black!40] (2.0,\by) rectangle (4.0,{\by+0.5});
+  \draw[fill=SoftTeal,draw=black!40] (4.0,\by) rectangle (5.0,{\by+0.5});
+  \node at (0.3,{\by+0.25}){\tiny 1};
+  \node at (1.3,{\by+0.25}){\tiny 2};
+  \node at (3.0,{\by+0.25}){\tiny 3};
+  \node at (4.5,{\by+0.25}){\tiny 4};
+  \draw[<->] (0,\by-0.25) -- (5.0,\by-0.25) node[midway,below]{总时延};
+  \node[anchor=west,black!70] at (0.2,{\by+0.75}) {（b）一个结点上的四项时延（宽度示意）};
+  \node[anchor=west,black!70] at (0.2,{\by-0.75}) {1 处理\quad 2 排队\quad 3 发送\quad 4 传播};
+\end{tikzpicture}\\[2pt]
+{\small\color{MutedText} 图 1-4\quad 时延分解：（a）发送时延是把整帧推上链路的时间，传播时延是第一个比特在路上走的时间；（b）处理、排队、发送、传播四项}
 \end{center}
 
-\subsection{OSI 参考模型（7层）}
+图（a）中，横轴是距离，纵轴是时间。数据在发送端从 $t=0$ 开始逐比特推上链路，用 $L/R$ 推完；第一个比特以速度 $v$ 斜向右上传播，经过 $D/v$ 到达接收端；最后一个比特再晚 $L/R$ 到达。两条斜线之间的水平宽度是帧长，垂直宽度是发送时延。图（b）把一个结点的四项时延拼在一起，其中处理和排队随负载变化，宽度只是示意。
 
-\begin{mydef}{OSI 七层模型}{osi-model}
-国际标准化组织（ISO）提出的开放系统互连参考模型：
+把链路想成一根管子，可以更直观地理解时延带宽积：管子的长度是传播时延 $d_{\mathrm{prop}}$，截面积是带宽 $R$，管子的“体积”就是 $R\,d_{\mathrm{prop}}$ 个比特。它表示链路最多能容纳多少比特在途。若发送端持续发送，第一个比特到达接收端的那一刻，链路上正好有 $R\,d_{\mathrm{prop}}$ 个比特；如果数据不够长，实际在途的比特数会小于这个容量。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\scriptsize]
+  \fill[SoftBlue] (1.5,0) rectangle (11.5,1.4);
+  \draw[Navy!60,thick] (1.5,0) -- (11.5,0);
+  \draw[Navy!60,thick] (1.5,1.4) -- (11.5,1.4);
+  \draw[Navy!60,thick,fill=SoftBlue] (1.5,0.7) ellipse (0.35 and 0.7);
+  \draw[Navy!60,thick,fill=SoftBlue] (11.5,0.7) ellipse (0.35 and 0.7);
+  \foreach \x in {2.2,2.9,...,11.0}{
+    \fill[Teal!80!black] (\x,0.35) circle (1.2pt);
+    \fill[Teal!80!black] (\x,1.15) circle (1.2pt);
+  }
+  \foreach \x in {2.55,3.25,...,10.65}{
+    \fill[Teal!80!black] (\x,0.75) circle (1.2pt);
+  }
+  \draw[<->] (1.5,-0.35) -- (11.5,-0.35)
+    node[midway,below]{传播时延 $d_{\mathrm{prop}}=D/v$（管子长度）};
+  \draw[<->] (0.95,0) -- (0.95,1.4)
+    node[midway,left,rotate=90]{带宽 $R$（截面积）};
+  \node[anchor=south,black!70] at (6.5,1.55){在途比特数 $=R\,d_{\mathrm{prop}}$};
+  \node[anchor=west,align=left,black!70] at (11.9,0.7){容量\\$R\,d_{\mathrm{prop}}$ bit};
+\end{tikzpicture}\\[2pt]
+{\small\color{MutedText} 图 1-5\quad 链路管道：长度是传播时延，截面积是带宽，体积就是在途比特数}
+\end{center}
+
+用刚才的数：$100$ Mb/s 的链路，单向传播时延 $5$ ms，时延带宽积为
 \[
-\text{应用层} \to \text{表示层} \to \text{会话层} \to \text{传输层} \to \text{网络层} \to \text{数据链路层} \to \text{物理层}
+100\times10^6 \times 5\times10^{-3}=5\times10^5\ \mathrm{bit},
 \]
-记忆口诀：\textbf{All People Seem To Need Data Processing}（从高到低）。
-\end{mydef}
+也就是 $500$ kbit，约 $62.5$ kB。这条链路“装满”时，有 $500$ kbit 的数据正在路上，还没有到达接收端。
 
-\begin{tablebox}{OSI 各层功能}
+\textbf{往返时间}（RTT）是从发送端发出数据到收到确认的时间，包含往返的传播、发送、处理和排队。除非题目明确忽略其他项，不能只按 $2D/v$ 计算。RTT 在后面的可靠传输和拥塞控制里会反复出现。
+
+\textbf{吞吐量}是单位时间内实际通过网络的数据量，受瓶颈链路限制：端到端吞吐量约为 $\min(R_1,R_2,\ldots,R_k)$。它可能远小于带宽，因为协议首部、确认、重传和等待都会占时间。\textbf{信道利用率} $U$ 是有数据通过的时间占总时间的比例；排队论给出的近似 $D=D_0/(1-U)$ 说明，利用率接近 $1$ 时分母趋近 $0$，时延会急剧上升。这就是网络“跑满”时体验明显变差的原因。
+
+\subsection{OSI 七层与 TCP/IP 四层}
+
+OSI 七层模型是 ISO 在 20 世纪 80 年代提出的参考模型，是法律上的国际标准，但实际部署并不成功。TCP/IP 是互联网真正使用的协议族，是事实标准。408 教学采用五层模型：把 OSI 的上三层合并为应用层，下两层保留，既保留了分层的清晰性，又贴近实际协议。
+
+七层从下往上依次是：
+\begin{itemize}
+  \item \textbf{物理层}：在传输介质上传输比特，规定接口的机械、电气、功能、规程特性。它不关心比特的含义，只关心“0 和 1 能不能可靠地送出去”。
+  \item \textbf{数据链路层}：把比特流组织成帧，处理相邻结点之间的差错控制、流量控制和介质访问控制。它关心“这一跳”。
+  \item \textbf{网络层}：把分组从源主机送到目的主机，负责路由选择、分组转发、拥塞控制和网际互连。它关心“走哪条路”。
+  \item \textbf{传输层}：为两台主机的进程提供端到端通信，负责复用与分用、可靠传输和流量控制。它关心“哪个进程”。
+  \item \textbf{会话层}：建立、管理和终止会话，在数据流中插入同步点，使长传输中断后可以从同步点继续。
+  \item \textbf{表示层}：做数据格式转换、加密解密和压缩，解决不同主机表示方法不一致的问题。
+  \item \textbf{应用层}：直接为用户应用提供网络服务。
+\end{itemize}
+
+网络层提供的是主机到主机的逻辑通信，传输层提供的是进程到进程的通信，数据链路层只负责相邻结点之间。三者范围不同，这是选择题的常见考点。
+
+TCP/IP 四层把 OSI 的物理层和数据链路层合并为\textbf{网络接口层}，把会话层、表示层、应用层合并为\textbf{应用层}，中间保留\textbf{网际层}和\textbf{传输层}。网络接口层不规定具体协议，实际使用以太网、PPP、Wi-Fi 等；网际层的核心是 IP，辅以 ICMP、ARP、IGMP 和路由协议；传输层是 TCP 和 UDP；应用层是 HTTP、DNS、SMTP、FTP、DHCP 等。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,font=\scriptsize,
+  lyr/.style={draw,rounded corners=2pt,minimum width=3.0cm,minimum height=0.55cm,align=center}]
+  % 连接线先画，节点后画会盖住端点
+  \foreach \y in {7.4,6.5,5.6,4.7,3.8,2.9,2.0}{
+    \draw[densely dashed,black!35] (3.9,\y) -- (5.6,\y);
+  }
+  \foreach \y in {7.4,6.5,5.6,4.7,3.8,2.9,2.0}{
+    \draw[densely dashed,black!35] (9.2,\y) -- (11.1,\y);
+  }
+  % OSI
+  \node[lyr,fill=SoftTeal] (o7) at (2.4,7.4) {应用层};
+  \node[lyr,fill=SoftTeal] (o6) at (2.4,6.5) {表示层};
+  \node[lyr,fill=SoftTeal] (o5) at (2.4,5.6) {会话层};
+  \node[lyr,fill=SoftBlue] (o4) at (2.4,4.7) {传输层};
+  \node[lyr,fill=SoftGray] (o3) at (2.4,3.8) {网络层};
+  \node[lyr,fill=SoftAmber] (o2) at (2.4,2.9) {数据链路层};
+  \node[lyr,fill=SoftGray] (o1) at (2.4,2.0) {物理层};
+  % TCP/IP
+  \node[lyr,fill=SoftTeal,minimum height=2.4cm,minimum width=3.6cm] (t4) at (7.4,6.5) {应用层};
+  \node[lyr,fill=SoftBlue,minimum width=3.6cm] (t3) at (7.4,4.7) {传输层};
+  \node[lyr,fill=SoftGray,minimum width=3.6cm] (t2) at (7.4,3.8) {网际层};
+  \node[lyr,fill=SoftAmber,minimum height=1.5cm,minimum width=3.6cm] (t1) at (7.4,2.45) {网络接口层};
+  % 五层
+  \node[lyr,fill=SoftTeal,minimum height=2.4cm] (f5) at (12.6,6.5) {应用层};
+  \node[lyr,fill=SoftBlue] (f4) at (12.6,4.7) {传输层};
+  \node[lyr,fill=SoftGray] (f3) at (12.6,3.8) {网络层};
+  \node[lyr,fill=SoftAmber] (f2) at (12.6,2.9) {数据链路层};
+  \node[lyr,fill=SoftGray] (f1) at (12.6,2.0) {物理层};
+  % 列标题
+  \node[black!70] at (2.4,8.2) {OSI 七层};
+  \node[black!70] at (7.4,8.2) {TCP/IP 四层};
+  \node[black!70] at (12.6,8.2) {五层（408）};
+\end{tikzpicture}\\[2pt]
+{\small\color{MutedText} 图 1-6\quad OSI 七层、TCP/IP 四层与五层模型的对应关系}
+\end{center}
+
+图中虚线只表示功能上的对应，不表示协议完全相同。OSI 的会话层、表示层在 TCP/IP 中没有独立对应，功能并入应用层；TCP/IP 的网络接口层相当于 OSI 的物理层加数据链路层，但 TCP/IP 不规定这一层用什么协议。五层模型只是把 OSI 的上三层合并、下两层保留，所以它既不是 OSI，也不是 TCP/IP，而是 408 的教学约定。
+
+\begin{tablebox}{五层模型的分工（408 采用）}
 \centering
-\begin{tabularx}{\linewidth}{|c|X|p{0.25\linewidth}|}
+\small
+\begin{tabularx}{\linewidth}{|p{1.35cm}|X|p{2.35cm}|p{3.0cm}|}
 \hline
-层次 & 功能 & 数据单元 \\
+层次 & 主要职责 & 数据单元 & 典型协议 / 设备 \\
 \hline
-物理层 & 比特传输，定义机械/电气/功能/规程特性 & 比特（bit）\\
-数据链路层 & 相邻结点间可靠传输，成帧、差错控制、流量控制 & 帧（Frame）\\
-网络层 & 路由选择、拥塞控制、网际互连 & 分组/数据报（Packet）\\
-传输层 & 端到端可靠/不可靠传输，复用与分用 & 报文段/用户数据报 \\
-会话层 & 会话管理、同步 & — \\
-表示层 & 数据格式转换、加密解密、压缩 & — \\
-应用层 & 为应用程序提供网络服务 & 报文（Message）\\
+物理层 & 在介质上传输比特；规定接口的机械、电气、功能、规程特性 & 比特 & 中继器、集线器 \\
+\hline
+数据链路层 & 相邻结点间的成帧、差错控制、流量控制、介质访问控制 & 帧 & Ethernet、PPP；网桥、交换机 \\
+\hline
+网络层 & 路由选择、分组转发、拥塞控制、网际互连 & 分组 / 数据报 & IP、ICMP、ARP、OSPF；路由器 \\
+\hline
+传输层 & 进程到进程通信、复用与分用、可靠传输、流量控制 & 报文段 / 用户数据报 & TCP、UDP；网关 \\
+\hline
+应用层 & 为用户应用提供网络服务 & 报文 & HTTP、DNS、SMTP、FTP、DHCP、BGP \\
 \hline
 \end{tabularx}
 \end{tablebox}
 
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize,
-  lbox/.style={draw,rounded corners=2pt,minimum width=4.6cm,minimum height=0.74cm}]
-  % 7 层（自上而下 应用→物理），横排盒子互不重叠
-  \node[lbox,fill=SoftTeal] (a)  at (4.0,7.2){应用层};
-  \node[lbox,fill=SoftTeal] (pr) at (4.0,6.3){表示层};
-  \node[lbox,fill=SoftTeal] (se) at (4.0,5.4){会话层};
-  \node[lbox,fill=SoftBlue] (tr) at (4.0,4.5){传输层};
-  \node[lbox,fill=SoftGray] (ne) at (4.0,3.6){网络层};
-  \node[lbox,fill=SoftAmber] (dl) at (4.0,2.7){数据链路层};
-  \node[lbox,fill=SoftGray] (ph) at (4.0,1.8){物理层};
-  % 各层 PDU 名称（右侧）
-  \node[right,font=\scriptsize] at (6.4,7.2){报文 (Message)};
-  \node[right,font=\scriptsize] at (6.4,6.3){报文};
-  \node[right,font=\scriptsize] at (6.4,5.4){报文};
-  \node[right,font=\scriptsize] at (6.4,4.5){报文段 / 用户数据报};
-  \node[right,font=\scriptsize] at (6.4,3.6){分组 (Packet)};
-  \node[right,font=\scriptsize] at (6.4,2.7){帧 (Frame)};
-  \node[right,font=\scriptsize] at (6.4,1.8){比特 (Bit)};
-  % 相邻层之间向下的封装/服务方向
-  \draw[->,gray!65] (a.south) -- (pr.north);
-  \draw[->,gray!65] (pr.south) -- (se.north);
-  \draw[->,gray!65] (se.south) -- (tr.north);
-  \draw[->,gray!65] (tr.south) -- (ne.north);
-  \draw[->,gray!65] (ne.south) -- (dl.north);
-  \draw[->,gray!65] (dl.south) -- (ph.north);
-  % 高层（应用/表示/会话）与底层（传输及以下）分组说明
-  \node[align=center,font=\scriptsize,black!70] at (4.0,0.75){发送方数据自应用层向下逐层封装（每层加首部）；接收方逐层向上解封装（每层去首部）。\\（高层 应用/表示/会话 的 PDU 通称「报文」，具体到 传输 及以下才分别称 报文段/分组/帧/比特。）};
-\end{tikzpicture}
-\end{center}
+表中的设备对应关系要记牢：中继器和集线器在物理层，只放大和转发信号，不识别帧；网桥和二层交换机在数据链路层，按 MAC 地址转发帧，能隔离冲突域但不隔离广播域；路由器和三层交换机在网络层，按 IP 地址选路，能隔离广播域；网关在传输层及以上，做协议转换。
 
-\subsection{TCP/IP 模型（4层）}
+协议分类还有两个容易混的细节。ARP 解决 IP 地址到 MAC 地址的映射，408 通常把它归入网络层；BGP 虽然做路由选择，但它运行在 TCP 之上（端口 179），属于应用层。OSPF 直接封装在 IP 分组里（协议号 89），属于网络层。看到“路由协议”不要一律归到网络层，要看它被谁承载。
 
-\begin{conclusion}{TCP/IP 四层模型}{tcpip-model}
-TCP/IP 是事实上的工业标准，而非法律上的国际标准（OSI 是法律标准但未流行）。
+\subsection{协议、服务与 SAP}
 
-\begin{tablebox}{OSI 与 TCP/IP 对应关系}
-\centering
-\begin{tabular}{|c|c|l|}
-\hline
-OSI & TCP/IP & 典型协议 \\
-\hline
-应用层、表示层、会话层 & 应用层 & HTTP, DNS, SMTP, FTP \\
-传输层 & 传输层 & TCP, UDP \\
-网络层 & 网际层 & IP, ICMP, ARP, OSPF, BGP \\
-数据链路层、物理层 & 网络接口层 & Ethernet, PPP \\
-\hline
-\end{tabular}
-\end{tablebox}
+协议和服务是分层体系里最容易说反的一对概念。协议是\textbf{水平}的：它只规定对等层之间如何通信，A 的 TCP 和 B 的 TCP 按 TCP 协议交换报文段，A 的 HTTP 和 B 的 HTTP 按 HTTP 协议交换请求和响应。服务是\textbf{垂直}的：下层通过层间接口向上层提供功能，上层只管调用，不关心下层怎么实现。
 
-\textbf{五层参考模型（教学用，408采用）：} 物理层 $\to$ 数据链路层 $\to$ 网络层 $\to$ 传输层 $\to$ 应用层。
-\end{conclusion}
+这个区别的实际意义是：第 $n$ 层协议的实现可以换，只要它向上提供的服务不变，第 $n+1$ 层就不受影响。例如，底层从以太网换成 Wi-Fi，IP 层看到的仍然是一个能发送和接收分组的接口，IP 协议本身不需要改。
 
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize,
-  lbox/.style={draw, rounded corners=2pt, minimum width=4.4cm, minimum height=0.72cm}]
-  % 从上到下：应用层 → 物理层
-  \node[lbox, fill=SoftTeal] (app) at (4.3,4.4) {应用层};
-  \node[lbox, fill=SoftBlue] (tra) at (4.3,3.4) {传输层};
-  \node[lbox, fill=SoftGray] (net) at (4.3,2.4) {网络层};
-  \node[lbox, fill=SoftAmber] (dll) at (4.3,1.4) {数据链路层};
-  \node[lbox, fill=SoftGray] (phy) at (4.3,0.4) {物理层};
-  \draw[->] (app) -- (tra);
-  \draw[->] (tra) -- (net);
-  \draw[->] (net) -- (dll);
-  \draw[->] (dll) -- (phy);
-  % 数据单元（左侧）
-  \node[left, align=right] at (1.85,4.4) {报文};
-  \node[left, align=right] at (1.85,3.4) {报文段/用户数据报};
-  \node[left, align=right] at (1.85,2.4) {分组/数据报};
-  \node[left, align=right] at (1.85,1.4) {帧};
-  \node[left, align=right] at (1.85,0.4) {比特};
-  \node[align=center, font=\scriptsize, black!70] at (4.3,5.3) {五层参考模型（408 采用）};
-  \node[align=center, font=\scriptsize, black!70] at (7.0,2.4) {左侧：各层 PDU 名称\\相邻层之间为服务（垂直）\\对等层之间为协议（水平）};
-\end{tikzpicture}
-\end{center}
+SAP 是服务访问点，是相邻层之间交换信息的逻辑接口。数据链路层的 SAP 是 MAC 地址，网络层的 SAP 是 IP 地址，传输层的 SAP 是端口号。上层把数据送到 SAP，下层就知道该交给哪个实体；这就像寄信时写清楚门牌号，邮递员不需要知道屋里的人是谁。
 
-\subsection{协议与服务}
-
-\begin{mydef}{协议三要素}{protocol-triple}
-网络协议（Protocol）是为进行数据交换而建立的规则，由三个要素组成：
-\begin{enumerate}
-    \item \textbf{语法（Syntax）}：数据与控制信息的结构或格式；
-    \item \textbf{语义（Semantics）}：每种控制信息的含义以及应完成的动作；
-    \item \textbf{同步/时序（Timing）}：事件实现顺序的详细说明。
-\end{enumerate}
-\end{mydef}
-
-\begin{conclusion}{协议与服务的关系}{protocol-service}
+服务原语描述上层和下层如何交互，常见的有四类：
 \begin{itemize}
-    \item \textbf{协议是「水平的」}：控制两个对等实体之间的通信规则。
-    \item \textbf{服务是「垂直的」}：下层通过层间接口向上层提供功能。
-    \item 第 $n$ 层实体向第 $n+1$ 层提供服务（Service），使用的对等协议在第 $n$ 层。
-    \item \textbf{SAP（服务访问点）}：相邻层间交换信息的逻辑接口。数据链路层的 SAP 是 MAC 地址，网络层是 IP 地址，传输层是端口号。
+  \item \textbf{请求}（request）：服务用户要求服务提供者做某件事，方向是上层到下层的。
+  \item \textbf{指示}（indication）：服务提供者通知服务用户有事件发生，方向是下层到上层的。
+  \item \textbf{响应}（response）：服务用户对指示做出答复，方向是上层到下层的。
+  \item \textbf{确认}（confirm）：服务提供者报告请求的结果，方向是下层到上层的。
 \end{itemize}
-\end{conclusion}
+有确认的服务四类原语都会出现；无确认的服务通常只有请求和指示。注意“请求”是上层发出的，“指示”才是下层通知上层，二者方向相反，选择题常在这里设陷阱。
 
-\subsection{408 高频考点速查}
+服务还分为面向连接和无连接两类。面向连接服务在数据交换前建立连接、交换后释放连接，数据按顺序传送；无连接服务每个报文独立选路，不保证顺序。TCP 提供面向连接的传输服务，UDP 提供无连接的传输服务；IP 在网络层提供无连接的数据报服务，虚电路则在网络层提供面向连接的服务。面向连接不等于可靠：连接只是建立了路径和状态，可靠性还要靠确认、重传和序号来保证，这两件事要分开看。
 
-\begin{conclusion}{体系结构 — 408常考点}{cn1-keypoints}
-\begin{enumerate}
-    \item \textbf{发送时延 vs 传播时延}：计算公式、影响因素。
-    \item \textbf{OSI 7层 vs TCP/IP 4层 vs 五层模型}：各层名称、功能、典型协议、数据单元名称。
-    \item \textbf{协议三要素}：语法、语义、时序。
-    \item \textbf{分组交换 vs 电路交换}：各自时延构成、适用场景。
-    \item \textbf{各层中间设备}：物理层（中继器/集线器）、数据链路层（网桥/交换机）、网络层（路由器）、传输层及以上（网关）。
-\end{enumerate}
-\end{conclusion}
+\subsection{本章在 408 中的位置}
 
-\newpage
-\section{习题}
+本章很少单独出大题，但它是后面五章的共同语言。选择题常考：分层职责、PDU 名称、设备所在层、协议三要素、发送时延与传播时延的辨析；计算题常考：分组交换总时延、时延带宽积、有效数据率、利用率和时延。把 $d_{\mathrm{trans}}=L/R$ 和 $d_{\mathrm{prop}}=D/v$ 的自变量记牢，后面学停等协议、滑动窗口和拥塞控制时会反复用到。
 
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（真题风格·选择题）} 在OSI参考模型中，自下而上第一个提供端到端服务的层次是
-\begin{center}
-\begin{tabular}{ll}
-(A) 数据链路层 & (B) 传输层 \\[6pt]
-(C) 会话层 & (D) 应用层
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 传输层是第一个端到端的层次——网络层及以下都是逐跳（hop-by-hop）。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 下列选项中，不属于网络体系结构所描述的内容的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 网络的层次 & (B) 每一层使用的协议 \\[6pt]
-(C) 协议的内部实现细节 & (D) 每一层必须完成的功能
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 网络体系结构只定义层次划分和各层功能/协议接口，不规定协议的内部实现细节。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} TCP/IP参考模型的网络层（网际层）提供的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 无连接不可靠的数据报服务 & (B) 无连接可靠的数据报服务 \\[6pt]
-(C) 面向连接不可靠的虚电路服务 & (D) 面向连接可靠的虚电路服务
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} IP协议提供无连接、不可靠的尽力而为（best-effort）数据报服务。可靠传输由传输层TCP保证。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 假设OSI参考模型的应用层欲发送400 B的数据（无拆分）。除物理层和应用层外，其他各层在封装PDU时均引入20 B的额外开销，则应用层的数据传输效率约为
-\begin{center}
-\begin{tabular}{ll}
-(A) 80\% & (B) 83\% \\[6pt]
-(C) 87\% & (D) 91\%
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 共5层开销（表示层、会话层、传输层、网络层、数据链路层），每层20B，共$5\times 20=100$B。总发送量$=400+100=500$B。效率$=400/500=80\%$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（计算题）} 收发两端之间的传输距离为1000 km，信号在媒体上的传播速率为$2\times 10^8$ m/s。数据长度为$10^7$ bit，数据发送速率为100 kb/s。求发送时延和传播时延。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-发送时延$=10^7/10^5=100$ s。传播时延$=10^6/(2\times 10^8)=0.005$ s$=5$ ms。\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·选择题）} 主机甲通过1个路由器（存储转发方式）与主机乙互连，两段链路的数据传输速率均为10 Mbps。主机甲分别用报文交换和分组大小为10 kb的分组交换向主机乙发送1个大小为8 Mb的报文。若忽略链路传播时延、分组首部开销和拆装时间，则两种交换方式完成该报文传输所需的总时间分别为
-\begin{center}
-\begin{tabular}{ll}
-(A) 800 ms, 1600 ms & (B) 801 ms, 1600 ms \\[6pt]
-(C) 1600 ms, 800 ms & (D) 1600 ms, 801 ms
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-报文交换：甲发完$8\text{ Mb}/10\text{ Mbps}=800$ ms；路由器再发800 ms到乙。总$=1600$ ms。
-
-分组交换：$8\text{ Mb}/10\text{ kb}=800$个分组。甲发完所有分组$=800\times(10\text{ kb}/10\text{ Mbps})=800$ ms。第一个分组到达乙：甲发完第一个分组（1 ms）$+$路由器转发第一个分组（1 ms）$=2$ ms。最后一个分组到达乙$=800+1=801$ ms（最后一个分组甲发完时，路由器在1 ms前已完成倒数第二个分组的转发，可立即转发最后一个）。
-
-总时间$=800+1=801$ ms。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·综合题）} 画出TCP/IP四层模型与OSI七层模型的对应关系，并标注各层典型协议和数据单元名称。
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-\begin{center}
-\begin{tabular}{|c|c|l|l|}
-\hline
-OSI & TCP/IP & 典型协议 & PDU \\
-\hline
-应用层、表示层、会话层 & 应用层 & HTTP, DNS, SMTP & 报文 \\
-传输层 & 传输层 & TCP, UDP & 报文段/数据报 \\
-网络层 & 网际层 & IP, ICMP, ARP & 数据报/分组 \\
-数据链路层、物理层 & 网络接口层 & Ethernet & 帧/比特 \\
-\hline
-\end{tabular}
-\end{center}\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item Kurose \& Ross《计算机网络：自顶向下方法》第1章——生动直观的分组交换vs电路交换定量分析。
-    \item 谢希仁《计算机网络》第1章——国内标准术语体系。
+    \item Kurose \& Ross《计算机网络：自顶向下方法》第 1 章——分组交换与电路交换的定量比较。
+    \item 谢希仁《计算机网络》第 1 章——国内教材的术语体系，与 408 的表述最接近。
 \end{itemize}
+
+\newpage
+\input{cn/exercises/chap1.tex}

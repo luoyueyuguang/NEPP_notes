@@ -1,0 +1,475 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 下列叙述中正确的是
+\begin{center}
+\begin{tabular}{@{}p{7.5cm}p{7.5cm}@{}}
+(A) 含 6 个顶点的简单无向图，其邻接矩阵中 1 的个数等于边数的 2 倍 & (B) 用邻接表存储无向图时，边结点个数等于图的边数 \\[6pt]
+(C) 有向图邻接矩阵中第 $i$ 行非零元素的个数等于顶点 $i$ 的入度 & (D) 对稀疏图而言，邻接矩阵比邻接表更省存储空间
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 逐项判断。
+
+(A) 无向边 $(u,v)$ 在邻接矩阵中同时置 $A[u][v]=A[v][u]=1$，一条边贡献两个 1；简单图无自环，对角线上全为 0。故 1 的总个数为 $2e$，正确。
+
+(B) 无向图的每条边要在两个端点的链表中各存一个边结点，边结点数为 $2e$，错误。
+
+(C) 第 $i$ 行记录的是从 $v_i$ 出发的弧，非零元素个数是出度；入度要看第 $i$ 列，错误。
+
+(D) 邻接矩阵的空间固定为 $O(n^2)$，与边数无关；邻接表为 $O(n+e)$。稀疏图 $e\ll n^2$，邻接表更省，错误。
+
+\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 无向图 $G$ 的 7 个顶点的邻接表如下（每个链表中邻接点按编号递增排列）：
+\[
+1:2,3;\quad 2:1,4,5;\quad 3:1,6,7;\quad 4:2,7;\quad 5:2,6;\quad 6:3,5;\quad 7:3,4.
+\]
+从顶点 1 出发分别进行 BFS 和 DFS，访问一个顶点后按邻接表次序考察其邻接点。写出 BFS 访问序列和 DFS 访问序列。
+
+\begin{center}
+\begin{tikzpicture}[font=\small, thick]
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (v1) at (-0.4,1.0) {1};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (v2) at (-4.2,-0.4) {2};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (v3) at (4.2,0.2) {3};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (v4) at (-3.0,1.6) {4};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (v5) at (-2.0,-2.4) {5};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (v6) at (2.0,-2.4) {6};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (v7) at (1.4,2.6) {7};
+\draw (v1) -- (v2);
+\draw (v1) -- (v3);
+\draw (v2) -- (v4);
+\draw (v2) -- (v5);
+\draw (v3) -- (v6);
+\draw (v3) -- (v7);
+\draw (v4) -- (v7);
+\draw (v5) -- (v6);
+\end{tikzpicture}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} BFS 用一个队列，顶点出队时才把它的未访问邻接点入队：
+
+\begin{center}
+\small
+\begin{tabular}{|c|c|c|}
+\hline
+出队顶点 & 新入队顶点 & 队列内容（队头在左）\\
+\hline
+1 & 2, 3 & 2, 3 \\
+2 & 4, 5 & 3, 4, 5 \\
+3 & 6, 7 & 4, 5, 6, 7 \\
+4 & 无（2、7 已访问） & 5, 6, 7 \\
+5 & 无（2、6 已访问） & 6, 7 \\
+6 & 无（3、5 已访问） & 7 \\
+7 & 无（3、4 已访问） & 空 \\
+\hline
+\end{tabular}
+\end{center}
+
+入队次序就是访问次序，故 BFS 序列为 $1,2,3,4,5,6,7$。这也说明各顶点到 1 的边数分别为 $0,1,1,2,2,2,2$。
+
+DFS 是递归走到头再回溯，逐步展开：
+\[
+1\to2\to4\to7\to3\to6\to5.
+\]
+核对：从 4 出发时邻接点为 2（已访问）、7，故转 7；7 的邻接点为 3（未访问）、4（已访问），转 3；3 的邻接点为 1、6、7，其中 1 已访问，转 6；6 的邻接点为 3、5，转 5；5 的邻接点 2、6 均已访问，逐层回溯，全部顶点访问完毕。
+
+\boxed{\textbf{答案：}\text{BFS 序列}\ 1,2,3,4,5,6,7\text{；DFS 序列}\ 1,2,4,7,3,6,5}\else \answerarea[10] \fi
+
+\item \textbf{（单项选择题）} 关于图的遍历，下列说法正确的是
+\begin{center}
+\begin{tabular}{@{}p{7.5cm}p{7.5cm}@{}}
+(A) 同一个图从同一顶点出发，进行 DFS 得到的访问序列是唯一的 & (B) 对无向图进行 DFS 时，遇到的非树边一定连接某个顶点与它的祖先 \\[6pt]
+(C) 对连通图进行 BFS，所得 BFS 生成树中任意两顶点间的路径，就是原图中这两点间的最短路径 & (D) 用邻接矩阵存储图时，BFS 的时间复杂度为 $O(n+e)$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错。访问序列取决于“先考察哪个邻接点”。同一个图若用邻接表存储，链表中结点的先后次序可以不同（例如把 1 的链表由 $2,3$ 改成 $3,2$），从 1 出发的 DFS 序列就会改变。只有起点与邻接点扫描次序都固定时，序列才确定。
+
+(B) 对。无向图的 DFS 中只有树边和回边，没有横叉边。理由：设边 $(u,v)$ 不是树边且 $u$ 先被访问。若扫描 $u$ 的邻接表时 $v$ 未访问，$(u,v)$ 就会成为树边，矛盾，故那时 $v$ 已访问。若 $v$ 不是 $u$ 的祖先，则 $v$ 所在的 DFS 子树先于 $u$ 结束；但 $v$ 的子树结束前必然扫描到边 $(v,u)$，那时 $u$ 尚未被发现，$(v,u)$ 又会成为树边，仍矛盾。所以 $v$ 只能是 $u$ 的祖先。
+
+(C) 错。BFS 生成树只保证“根到每个顶点的路径”边数最少；两个非根顶点之间的树路径可能绕经根，比原图中的最短路更长。
+
+(D) 错。邻接矩阵每访问一个顶点都要扫描整行 $n$ 个元素，总代价 $O(n^2)$；$O(n+e)$ 是邻接表下的复杂度。
+
+\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 带权无向图 $G$ 如下图所示，边上的数字为权值。用 Prim 算法从顶点 A 开始构造最小生成树，每步选连接“树内”与“树外”的最小权边（本题每步的最小权边唯一）。写出依次加入的边、各步的权值以及最小生成树的总权值。
+
+\begin{center}
+\begin{tikzpicture}[font=\small, thick, >=stealth]
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (A) at (0,0) {A};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (B) at (2.6,1.5) {B};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (C) at (1.4,-1.8) {C};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (D) at (4.6,0.2) {D};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (E) at (6.4,-1.6) {E};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (F) at (8.2,0.4) {F};
+\draw (A) -- node[above left] {4} (B);
+\draw (A) -- node[left] {3} (C);
+\draw (B) -- node[left] {1} (C);
+\draw (B) -- node[above] {2} (D);
+\draw (C) -- node[below right] {4} (D);
+\draw (C) -- node[below] {6} (E);
+\draw (D) -- node[below right] {5} (E);
+\draw (D) -- node[above] {7} (F);
+\draw (E) -- node[right] {2} (F);
+\end{tikzpicture}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 设 \texttt{lowcost}$[v]$ 为顶点 $v$ 到当前生成树的最小边权，初始时取 A 到各顶点的边权（无边的记 $\infty$）。下表后五列是每步加入新边后、树外各顶点的 lowcost 值，“—”表示该顶点已在树中。
+
+\begin{center}
+\small
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+步骤 & 加入的边 & 权 & $B$ & $C$ & $D$ & $E$ & $F$ \\
+\hline
+初始 & — & — & 4 & 3 & $\infty$ & $\infty$ & $\infty$ \\
+1 & $(A,C)$ & 3 & $\min(4,1)=1$ & — & $\min(\infty,4)=4$ & 6 & $\infty$ \\
+2 & $(C,B)$ & 1 & — & — & $\min(4,2)=2$ & 6 & $\infty$ \\
+3 & $(B,D)$ & 2 & — & — & — & $\min(6,5)=5$ & $\min(\infty,7)=7$ \\
+4 & $(D,E)$ & 5 & — & — & — & — & $\min(7,2)=2$ \\
+5 & $(E,F)$ & 2 & — & — & — & — & — \\
+\hline
+\end{tabular}
+\end{center}
+
+第 1 步：树内只有 A，lowcost 最小的顶点是 C（3），加入边 $(A,C)$。C 入树后，B 经 C 的边权为 1，比原来的 4 小，更新为 1；D 经 C 的边权为 4，比 5 小，更新为 4；E 经 C 为 6。
+
+第 2 步：最小的是 B（1），加入 $(C,B)$。B 入树后，D 经 B 为 2，更新为 2。
+
+第 3 步：最小的是 D（2），加入 $(B,D)$。D 入树后，E 经 D 为 5，F 为 7。
+
+第 4 步：最小的是 E（5），加入 $(D,E)$。E 入树后，F 经 E 为 2，更新为 2。
+
+第 5 步：只剩 F，加入 $(E,F)$，权 2。
+
+生成树总权 $3+1+2+5+2=13$。由于每步最小权边唯一，$G$ 的最小生成树唯一，就是这个结果。
+
+\boxed{\textbf{答案：}(A,C),(C,B),(B,D),(D,E),(E,F)\text{，总权值}\ 13}\else \answerarea[10] \fi
+
+\item \textbf{（填空题）} 带权有向图 $G$ 如下图所示，边上数字为权值，所有边权均为正。用 Dijkstra 算法求顶点 1 到其余各顶点的最短路径。
+\begin{enumerate}
+\item[(1)] 写出顶点被依次确定（加入集合 $S$）的次序；
+\item[(2)] 写出算法结束时 $d_2,d_3,d_4,d_5$ 的值；
+\item[(3)] 写出从 1 到 5 的最短路径。
+\end{enumerate}
+
+\begin{center}
+\begin{tikzpicture}[font=\small, thick, >=stealth]
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n1) at (0,0) {1};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n2) at (2.6,1.5) {2};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n3) at (2.6,-1.5) {3};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n4) at (5.2,0.9) {4};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n5) at (7.6,0) {5};
+\draw[->] (n1) -- node[above left] {4} (n2);
+\draw[->] (n1) -- node[below left] {2} (n3);
+\draw[->] (n2) -- node[right] {1} (n3);
+\draw[->] (n2) -- node[above] {5} (n4);
+\draw[->] (n3) -- node[below right] {8} (n4);
+\draw[->] (n3) -- node[below] {10} (n5);
+\draw[->] (n4) -- node[above right] {2} (n5);
+\end{tikzpicture}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 初始 $S=\{1\}$，$d_2=4$，$d_3=2$，$d_4=d_5=\infty$。每轮从未确定的顶点中取 $d$ 最小者加入 $S$，并用它松弛出边。
+
+\begin{center}
+\small
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+步骤 & $S$ & $d_2$ & $d_3$ & $d_4$ & $d_5$ \\
+\hline
+初始 & $\{1\}$ & 4 & 2 & $\infty$ & $\infty$ \\
+选 3 & $\{1,3\}$ & 4 & \textbf{2} & $2+8=10$ & $2+10=12$ \\
+选 2 & $\{1,2,3\}$ & \textbf{4} & — & $\min(10,4+5)=9$ & 12 \\
+选 4 & $\{1,2,3,4\}$ & — & — & \textbf{9} & $\min(12,9+2)=11$ \\
+选 5 & 全部 & — & — & — & \textbf{11} \\
+\hline
+\end{tabular}
+\end{center}
+
+第 1 轮 $d_3=2$ 最小，先确定 3。这里容易出错：不能因为 $1\to2\to3$ 存在就认为 2 该先确定，Dijkstra 每一步只比较当前 $d$ 值，而 $d_3=2<d_2=4$。
+
+确定 3 后用 $3\to4$（权 8）和 $3\to5$（权 10）松弛，得 $d_4=10$、$d_5=12$。第 2 轮取 2（4），用 $2\to4$（权 5）得 $4+5=9<10$，更新 $d_4=9$；$2\to3$ 的权 1 只给出 $4+1=5>2$，不更新。第 3 轮取 4（9），用 $4\to5$（权 2）得 $9+2=11<12$，更新 $d_5=11$。最后确定 5。
+
+从 $d_5=11$ 反推来源：$d_5$ 由 4 更新，$d_4$ 由 2 更新，$d_2$ 直接来自 1，故最短路径为 $1\to2\to4\to5$，长度 $4+5+2=11$。注意 $1\to3\to5$ 的长度是 $2+10=12$，是本题的主要干扰项。
+
+\boxed{\textbf{答案：}\text{次序}\ 3,2,4,5\text{；}d_2=4,\ d_3=2,\ d_4=9,\ d_5=11\text{；路径}\ 1\to2\to4\to5}\else \answerarea[10] \fi
+
+\item \textbf{（单项选择题）} 有向图 $G$ 如下图所示。下列序列中，不可能是 $G$ 的拓扑序列的是
+\begin{center}
+\begin{tikzpicture}[font=\small, thick, >=stealth]
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n1) at (0,1.5) {1};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n2) at (2.4,2.8) {2};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n3) at (2.4,0.2) {3};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n4) at (4.8,1.5) {4};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n5) at (7.2,1.5) {5};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (n6) at (4.8,-1.4) {6};
+\draw[->] (n1) -- (n2);
+\draw[->] (n1) -- (n3);
+\draw[->] (n2) -- (n4);
+\draw[->] (n3) -- (n4);
+\draw[->] (n4) -- (n5);
+\draw[->] (n3) -- (n6);
+\draw[->] (n6) -- (n5);
+\end{tikzpicture}
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) $1,2,3,4,6,5$ & (B) $1,3,2,6,4,5$ \\[4pt]
+(C) $1,2,3,6,4,5$ & (D) $1,3,2,4,5,6$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 拓扑序列必须让每条弧的起点排在终点之前，本题的先后约束为
+\[
+1<2,\quad 1<3,\quad 2<4,\quad 3<4,\quad 4<5,\quad 3<6,\quad 6<5.
+\]
+其中关键约束是 $4<5$ 和 $6<5$，即 5 必须排在 4 和 6 之后。
+
+(A) $1,2,3,4,6,5$：$2<4$、$3<4$、$4<5$、$3<6$、$6<5$ 全部满足，合法。
+
+(B) $1,3,2,6,4,5$：$1<3$、$1<2$、$3<6$、$6<5$、$3<4$、$2<4$ 全部满足，合法。
+
+(C) $1,2,3,6,4,5$：6 在 4 之前不违反任何弧（6 与 4 之间没有边），$4<5$、$6<5$ 也满足，合法。
+
+(D) $1,3,2,4,5,6$：5 排在 6 之前，违反 $6<5$，不是拓扑序列。
+
+\boxed{\textbf{答案：}(D)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格·单项选择题）} 无向图 $G$ 如下图所示，边上的数字为权值。关于 $G$ 的最小生成树，下列说法正确的是
+\begin{center}
+\begin{tikzpicture}[font=\small, thick, >=stealth]
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (A) at (0,1.8) {A};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (B) at (2.0,1.8) {B};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (C) at (1.0,-0.2) {C};
+\node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (D) at (3.8,0.4) {D};
+\draw (A) -- node[above] {1} (B);
+\draw (A) -- node[left] {1} (C);
+\draw (B) -- node[right] {1} (C);
+\draw (B) -- node[above right] {1} (D);
+\draw (C) -- node[below right] {2} (D);
+\end{tikzpicture}
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) 只有 1 棵，权值为 3 & (B) 有 2 棵，权值均为 3 \\[4pt]
+(C) 有 3 棵，权值均为 3 & (D) 有 3 棵，权值不全相同
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 4 个顶点的生成树恰有 3 条边。权为 1 的边有 4 条：$AB,AC,BC,BD$；权为 2 的边只有 $CD$。
+
+按 Kruskal 的扫描顺序看：由 $A,B,C$ 组成的三角形中，三条边的权都为 1，第三条被考察时必然与已选的两条成环，只能丢掉，所以这一步有 $C_3^2=3$ 种取法。剩下要把 $D$ 接入，而 $D$ 只有两条关联边：$BD$ 权 1、$CD$ 权 2。若用 $CD$，总权为 $1+1+2=4$；若用 $BD$，总权为 $1+1+1=3$，最小生成树当然取 $BD$。
+
+因此三棵最小生成树分别是
+\[
+\{AB,AC,BD\},\qquad \{AB,BC,BD\},\qquad \{AC,BC,BD\},
+\]
+权值都是 3。最小生成树的“边集”可以不唯一，但“总权值”一定唯一（否则与最小性矛盾）。
+
+\boxed{\textbf{答案：}(C)}\else \answerarea[6] \fi
+
+\item \textbf{（真题风格·单项选择题）} 下列关于最短路径算法的叙述中，正确的是
+\begin{center}
+\begin{tabular}{@{}p{7.5cm}p{7.5cm}@{}}
+(A) 图中存在负权边时，Dijkstra 算法可能过早确定某个顶点，得到比真实最短距离大的结果 & (B) 只要图中不存在负权回路，Dijkstra 算法求出的结果就一定正确 \\[6pt]
+(C) Floyd 算法不能用于含有负权边的图 & (D) 求每对顶点之间的最短路径，只能对每个顶点各调用一次 Dijkstra 算法
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 正确。Dijkstra 每轮把当前 $d$ 最小的顶点加入 $S$，并认为它的最短距离已经确定。有负权边时，后加入的顶点可能通过负权边把更短的路径“送回来”，但该顶点已不再被松弛。
+
+反例：$1\to3$ 权 2，$1\to2$ 权 3，$2\to3$ 权 $-2$。源点为 1，初始 $d_3=2<d_2=3$，故先确定 3，$d_3$ 固定为 2。之后确定 2 时发现 $3+(-2)=1<2$，本应把 3 的距离改成 1，但 3 已在 $S$ 中，算法不再更新，输出 2，而真实最短距离是 1。
+
+(B) 错误，反例同上：图中没有负权回路，但 Dijkstra 依然出错。Dijkstra 的正确性依赖“所有边权非负”。
+
+(C) 错误。Floyd 允许负权边，只要不存在负权回路即可。它的递推式是
+\[
+D^{(k)}[i][j]=\min\bigl\{D^{(k-1)}[i][j],\ D^{(k-1)}[i][k]+D^{(k-1)}[k][j]\bigr\},
+\]
+只依赖上一轮矩阵，负权边不会破坏该式的正确性；只有负权回路会让“最短路径”没有下界，算法才失效。
+
+(D) 错误。求全部点对最短路径可以用 Floyd，时间 $O(n^3)$；也可以做 $n$ 次 Dijkstra（邻接矩阵下 $O(n^3)$），但不是“只能”。
+
+补充区分：Dijkstra 的 $d[v]$ 是“源点到 $v$ 的累计路径长度”，Prim 的 $\mathit{lowcost}[v]$ 是“$v$ 到当前树集合的单条边权最小值”。两者代码框架几乎一样，但松弛的语义不同。
+
+\boxed{\textbf{答案：}(A)}\else \answerarea[6] \fi
+
+\item \textbf{（综合应用题）} 有向图采用邻接表存储，类型定义如下（\texttt{MaxV} 为最大顶点数）：
+\begin{lstlisting}[language=C]
+#define MaxV 100
+typedef struct ArcNode {
+    int adjvex;                 // 弧头顶点下标
+    struct ArcNode *next;       // 下一条出边
+} ArcNode;
+typedef struct {
+    char data;
+    ArcNode *first;
+} VNode;
+typedef struct {
+    VNode adjlist[MaxV];
+    int n, e;
+} ALGraph;
+\end{lstlisting}
+设计一个算法，判断 $G$ 中是否存在回路。要求：
+\begin{enumerate}
+\item[(1)] 说明算法思路；
+\item[(2)] 给出 C 语言实现；
+\item[(3)] 分析时间复杂度；
+\item[(4)] 说明若改用拓扑排序判定回路，复杂度是多少，两种做法在“能否给出一条具体回路”上有何差别。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) \textbf{思路：} 对每个尚未访问的顶点做 DFS。用一个数组 \texttt{onpath} 标记“当前递归路径上”的顶点。搜索 $v$ 的出边时，若邻接点 $u$ 尚未访问，则递归；若 $u$ 已访问且仍在 \texttt{onpath} 中，说明从 $u$ 沿树边能走到 $v$，而 $v$ 又有弧指向 $u$，构成回路，立即返回成功。$v$ 的所有出边处理完后，把 \texttt{onpath}$[v]$ 置 0 再回溯。
+
+关键点：必须用 \texttt{onpath} 而不是只用 \texttt{visited} 判断。\texttt{visited}$[u]=1$ 只说明 $u$ 被访问过，$u$ 可能位于另一棵已结束的 DFS 子树中，此时 $v\to u$ 不构成回路；只有 $u$ 还在当前递归栈上，才有“后代指回祖先”的弧。
+
+(2) \textbf{代码：}
+\begin{lstlisting}[language=C]
+int visited[MaxV], onpath[MaxV];
+
+int DFS_Cycle(ALGraph *G, int v) {
+    visited[v] = 1;
+    onpath[v]  = 1;                    // v 进入当前路径
+    for (ArcNode *p = G->adjlist[v].first; p; p = p->next) {
+        int u = p->adjvex;
+        if (!visited[u]) {
+            if (DFS_Cycle(G, u)) return 1;
+        } else if (onpath[u]) {        // 指向当前路径上的祖先
+            return 1;
+        }
+    }
+    onpath[v] = 0;                     // 回溯，v 离开当前路径
+    return 0;
+}
+
+int HasCycle(ALGraph *G) {
+    for (int i = 0; i < G->n; i++) { visited[i] = 0; onpath[i] = 0; }
+    for (int i = 0; i < G->n; i++)
+        if (!visited[i] && DFS_Cycle(G, i)) return 1;
+    return 0;
+}
+\end{lstlisting}
+
+外层循环不可省略：有向图可能不连通，从一个顶点出发只能覆盖它可达的部分，必须对所有未访问顶点重新启动 DFS。若图中有自环 $v\to v$，扫描到该弧时 $u=v$，\texttt{onpath}$[v]=1$，同样返回 1，处理正确。
+
+(3) \textbf{复杂度：} 每个顶点至多被访问一次，每条弧恰好被扫描一次（弧尾出表时），故时间为 $O(n+e)$。辅助数组 \texttt{visited}、\texttt{onpath} 各 $O(n)$，递归栈深至多 $n$，空间为 $O(n)$。若用邻接矩阵存储，扫描每个顶点的整行，时间变为 $O(n^2)$。
+
+(4) \textbf{与拓扑排序比较：} 基于入度的拓扑排序同样只需 $O(n+e)$：统计入度 $O(e)$，每个顶点进出栈各一次，每条弧使终点入度减 1 一次。若最终输出的顶点数小于 $n$，则存在回路。
+
+差别在于：拓扑排序只能判定“有/无回路”，输出序列缺少的顶点集合虽然都在环上或环的下游，但不能直接给出一条环；本算法在发现 \texttt{onpath}$[u]=1$ 时，只要沿递归栈从 $u$ 到 $v$ 回溯，就能输出一条具体回路。
+
+\boxed{\textbf{答案：}\text{DFS 加“当前路径”标记，时间}\ O(n+e)\text{；拓扑排序判定同样}\ O(n+e)}\else \answerarea[14] \fi
+
+\item \textbf{（综合应用题）} 下图是一个 AOE 网，顶点 $1\sim6$ 表示事件，有向边表示活动，边上的字母为活动名、括号内为持续时间（单位：天）。设源点为 1，汇点为 6。
+\begin{center}
+\begin{tikzpicture}[font=\small, thick, >=stealth]
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (n1) at (0,0) {1};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (n2) at (2.8,1.7) {2};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (n3) at (2.8,-1.7) {3};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (n4) at (5.6,0) {4};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (n5) at (8.2,1.7) {5};
+\node[draw,circle,minimum size=0.72cm,fill=SoftTeal] (n6) at (11,0) {6};
+\draw[->] (n1) -- node[above left] {$a(5)$} (n2);
+\draw[->] (n1) -- node[below left] {$b(4)$} (n3);
+\draw[->] (n2) -- node[below left] {$c(2)$} (n4);
+\draw[->] (n3) -- node[below] {$d(3)$} (n4);
+\draw[->] (n2) -- node[above] {$e(1)$} (n5);
+\draw[->] (n4) -- node[below right] {$f(6)$} (n5);
+\draw[->] (n5) -- node[above right] {$g(2)$} (n6);
+\end{tikzpicture}
+\end{center}
+\begin{enumerate}
+\item[(1)] 求各事件的最早发生时间 $ve$ 和最迟发生时间 $vl$；
+\item[(2)] 求各活动的最早开始时间 $e$、最迟开始时间 $l$ 及时间余量 $l-e$，指出关键活动；
+\item[(3)] 写出全部关键路径及工程工期；
+\item[(4)] 若单独把活动 $a$ 缩短 1 天，工期是否改变？若单独把活动 $f$ 缩短 1 天呢？说明理由。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 按拓扑序 $1,2,3,4,5,6$ 正推 $ve$：
+\begin{align*}
+ve(1)&=0,\\
+ve(2)&=ve(1)+5=5,\\
+ve(3)&=ve(1)+4=4,\\
+ve(4)&=\max\{ve(2)+2,\ ve(3)+3\}=\max\{7,7\}=7,\\
+ve(5)&=\max\{ve(2)+1,\ ve(4)+6\}=\max\{6,13\}=13,\\
+ve(6)&=ve(5)+2=15.
+\end{align*}
+按逆拓扑序 $6,5,4,3,2,1$ 倒推 $vl$（汇点 $vl(6)=ve(6)=15$）：
+\begin{align*}
+vl(6)&=15,\\
+vl(5)&=vl(6)-2=13,\\
+vl(4)&=vl(5)-6=7,\\
+vl(3)&=vl(4)-3=4,\\
+vl(2)&=\min\{vl(4)-2,\ vl(5)-1\}=\min\{5,12\}=5,\\
+vl(1)&=\min\{vl(2)-5,\ vl(3)-4\}=\min\{0,0\}=0.
+\end{align*}
+
+\begin{center}
+\small
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+事件 & 1 & 2 & 3 & 4 & 5 & 6 \\
+\hline
+$ve$ & 0 & 5 & 4 & 7 & 13 & 15 \\
+\hline
+$vl$ & 0 & 5 & 4 & 7 & 13 & 15 \\
+\hline
+\end{tabular}
+\end{center}
+
+(2) 活动 $a_i=\langle v_j,v_k\rangle$ 的 $e(i)=ve(j)$，$l(i)=vl(k)-w(i)$：
+\begin{center}
+\small
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+活动 & 弧 & 持续时间 & $e$ & $l$ & $l-e$ \\
+\hline
+$a$ & $1\to2$ & 5 & 0 & $5-5=0$ & 0 \\
+\hline
+$b$ & $1\to3$ & 4 & 0 & $4-4=0$ & 0 \\
+\hline
+$c$ & $2\to4$ & 2 & 5 & $7-2=5$ & 0 \\
+\hline
+$d$ & $3\to4$ & 3 & 4 & $7-3=4$ & 0 \\
+\hline
+$e$ & $2\to5$ & 1 & 5 & $13-1=12$ & 7 \\
+\hline
+$f$ & $4\to5$ & 6 & 7 & $13-6=7$ & 0 \\
+\hline
+$g$ & $5\to6$ & 2 & 13 & $15-2=13$ & 0 \\
+\hline
+\end{tabular}
+\end{center}
+时间余量为 0 的是 $a,b,c,d,f,g$，它们都是关键活动；只有 $e$ 有 7 天余量。注意：本例中所有事件的 $vl=ve$（每个事件都在某条关键路径上），但活动 $e$ 并不关键——事件没有余量不代表它的每条入边、出边都在关键路径上。这是本题最容易看错的地方。
+
+(3) 由关键活动组成的从源点到汇点的路径有两条：
+\[
+1\to2\to4\to5\to6 \quad(5+2+6+2=15),\qquad
+1\to3\to4\to5\to6 \quad(4+3+6+2=15).
+\]
+两条路径的公共部分是 $4\to5\to6$。工程工期等于汇点的 $ve$，即 15 天。
+
+(4) 把 $a$ 从 5 缩短为 4 后，路径 $1\to2\to4\to5\to6$ 的长度变为 $4+2+6+2=14$，但另一条关键路径 $1\to3\to4\to5\to6$ 不含 $a$，长度仍为 $4+3+6+2=15$。所以工期仍是 15 天，缩短 $a$ 无效。这也说明：并非任意缩短一个关键活动都能缩短工期，只有缩短“所有关键路径的公共部分”才一定有效。
+
+把 $f$ 从 6 缩短为 5 后，两条关键路径的长度都变成 $5+2+5+2=14$ 和 $4+3+5+2=14$，工期变为 14 天，缩短有效。
+
+\boxed{\begin{array}{l}
+\textbf{答案：}ve=vl=(0,5,4,7,13,15)\text{，工期 15 天；}\\[3pt]
+\text{关键路径}\ 1\to2\to4\to5\to6\ \text{与}\ 1\to3\to4\to5\to6\text{；}\\[3pt]
+\text{缩短}\ a\text{ 工期不变，缩短}\ f\text{ 工期变为 14 天}
+\end{array}}\else \answerarea[16] \fi
+
+\end{enumerate}

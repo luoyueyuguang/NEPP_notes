@@ -1,329 +1,495 @@
 \section{文件管理}
 
-\subsection{文件系统的基本概念}
+在终端里敲下 \texttt{cat /home/u/report.txt}，内核实际做的事可以压缩成一句话：把路径逐段翻译成 inode 号，再顺着 inode 里的块指针把数据读出来。用户看到的是名字，磁盘上存的是块号，中间隔着目录、inode、空闲空间管理和磁盘调度几层。这一章就沿着这条链路走一遍。
 
-\begin{mydef}{文件与文件系统}{file-system}
-\textbf{文件}是具有符号名的一组相关信息的集合，是外存中数据组织的基本单位。\textbf{文件系统}是 OS 中负责文件存储、检索、保护和共享的子系统。
-\end{mydef}
+\subsection{路径名、目录项与 inode}
 
-\begin{conclusion}{文件的逻辑结构}{file-logical-struct}
-\begin{itemize}
-    \item \textbf{无结构文件（流式文件）}：以字节流为单位（如 UNIX/DOS 文件），灵活性最高。
-    \item \textbf{有结构文件（记录式文件）}：由若干记录组成。分为定长记录和变长记录。
-\end{itemize}
-\end{conclusion}
+文件系统对外只暴露名字。用户给出 \texttt{/home/u/report.txt}，内核不能直接拿这个名字去磁盘上找数据，因为磁盘不认识字符串。它需要一张“名字到文件实体”的表，这张表就是目录。
 
-\subsection{文件的物理结构（文件的分配方式）}
+目录本身也是一个文件，只不过它的数据块里存放的不是用户数据，而是一项挨着一项的\textbf{目录项}（directory entry）。在 UNIX 类文件系统中，一个目录项通常只有两项核心内容：文件名和 inode 号。inode 号是文件实体的编号，真正的属性和数据块位置都放在 inode 里。老式文件系统（如 FAT）则把文件名、属性、起始簇号、大小等全部塞进目录项，这样的目录项就是一个完整的 FCB（文件控制块）。
 
-\begin{conclusion}{三种文件物理结构}{file-physical}
-\begin{tablebox}{文件分配方式对比}
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  box/.style={draw=RuleGray, rounded corners=1pt, align=left,
+              inner sep=4pt, minimum height=1.05cm, text width=3.0cm}]
+\node[box, fill=SoftGray] (root) at (0,0) {\textbf{根目录块}\\ \texttt{home} $\to$ 10\\ \texttt{usr} $\to$ 11};
+\node[box, fill=SoftTeal] (i10) at (4.0,0) {\textbf{inode 10}\\ 类型：目录\\ 数据块：7};
+\node[box, fill=SoftBlue] (home) at (8.0,0) {\textbf{home 目录块（块 7）}\\ \texttt{u} $\to$ 20};
+\node[box, fill=SoftTeal] (i20) at (12.0,0) {\textbf{inode 20}\\ 类型：目录\\ 数据块：9};
+\node[box, fill=SoftBlue] (u) at (12.0,-2.2) {\textbf{u 目录块（块 9）}\\ \texttt{report.txt} $\to$ 30};
+\node[box, fill=SoftTeal] (i30) at (8.0,-2.2) {\textbf{inode 30}\\ 类型：普通文件\\ 大小：12 KiB};
+\node[box, fill=SoftAmber] (data) at (4.0,-2.2) {\textbf{数据块}\\ 40, 41, 42};
+\draw[->] (root) -- node[above,font=\tiny]{(1)} (i10);
+\draw[->] (i10) -- node[above,font=\tiny]{(2)} (home);
+\draw[->] (home) -- node[above,font=\tiny]{(3)} (i20);
+\draw[->] (i20) -- node[right,font=\tiny]{(4)} (u);
+\draw[->] (u) -- node[above,font=\tiny]{(5)} (i30);
+\draw[->] (i30) -- node[above,font=\tiny]{(6)} (data);
+\end{tikzpicture}
+\end{center}
+
+图里 (1)(3)(5) 是查目录项，(2)(4) 是取 inode 中记录的数据块号，(6) 是沿 inode 的块指针读数据。每一段路径分量都要经历“读目录块找名字、读 inode 取下一跳”这两步。注意目录项中并没有文件大小、权限和数据块号，这些信息只在 inode 里；把文件名与 inode 分开，才可能让多个目录项指向同一个 inode，也就是后面要说的硬链接。实际系统还会缓存最近用过的目录项（dentry cache），否则每次打开文件都要从根目录一路读盘。
+
+\subsubsection{目录结构}
+
+最早的文件系统只有\textbf{单级目录}：整个磁盘一张目录表，所有文件平铺在里面。实现简单，但文件名不能重复，文件一多查找就退化成线性扫描，也无法让不同用户拥有各自的同名文件。
+
+\textbf{两级目录}把目录分成主文件目录（MFD）和用户文件目录（UFD）：MFD 记录用户名和该用户目录的位置，UFD 存放这个用户的文件。不同用户可以有同名文件，隔离性也更好，但用户仍然只能把自己的文件平铺在一起，不能按项目再分层。
+
+\textbf{树形目录}是现在最常见的结构。目录可以包含子目录，整个文件系统是一棵树，于是有了绝对路径和相对路径：绝对路径从根目录开始，相对路径从当前工作目录（current working directory）开始。树形结构不会出现环，删除目录时可以安全地递归回收；代价是共享一个文件不那么自然，因为一个文件在树中只能有一个父目录。
+
+\textbf{无环图目录}允许一个文件出现在多个父目录下。UNIX 用硬链接实现文件共享：多个目录项指向同一个 inode，文件本身只有一份。硬链接不能跨文件系统，因为 inode 号只在本文件系统内唯一；它通常也不允许指向目录，因为那会制造环，让路径解析和引用计数陷入死循环。软链接则是另一种独立文件：它有自己的 inode，数据块里存目标路径，因此可以跨文件系统，也可以指向目录；目标删除后软链接仍然存在，但解析会失败，成为悬空链接。为了让共享安全，inode 中要维护链接计数：每增加一个目录项加一，删除一个目录项减一，减到零且没有进程打开时才真正释放数据块。
+
+\begin{attention}
+\textbf{FCB 与 inode 的分工。} FCB 是“文件控制块”的统称，传统实现里它包含文件名和全部属性。UNIX 把文件名拿出来放进目录项，把其余属性放进 inode。这样目录项很小，目录块能装下更多项；更重要的是，文件名可以换、可以有两个名字，而文件实体只有一个 inode。
+\end{attention}
+
+\subsection{inode 与文件系统的磁盘布局}
+
+inode（索引节点）是定长的记录，集中放在磁盘的 inode 表里。给一个 inode 号（从 1 开始编号），内核用“表起始地址 + (编号 $-1$) $\times$ 记录长度”就能算出它的位置，不需要沿链查找。一个典型的 128 字节 inode 包含文件类型与权限、链接计数、属主和属组、文件大小、三个时间戳，以及 15 个块指针；文件名不在其中。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\node[draw=RuleGray, fill=SoftGray, minimum width=1.2cm, minimum height=1.5cm, align=center] (boot) at (0.6,0) {引导块};
+\node[draw=RuleGray, fill=SoftBlue, minimum width=2.2cm, minimum height=1.5cm, align=center] (sb) at (2.4,0) {超级块};
+\node[draw=RuleGray, fill=SoftTeal, minimum width=2.4cm, minimum height=1.5cm, align=center] (ib) at (4.7,0) {inode 位图};
+\node[draw=RuleGray, fill=SoftTeal, minimum width=2.4cm, minimum height=1.5cm, align=center] (bb) at (7.1,0) {块位图};
+\node[draw=RuleGray, fill=SoftAmber, minimum width=3.4cm, minimum height=1.5cm, align=center] (it) at (10.0,0) {inode 表};
+\node[draw=RuleGray, fill=SoftGray, minimum width=3.4cm, minimum height=1.5cm, align=center] (data) at (13.4,0) {数据区};
+\node[font=\tiny, text=MutedText, align=center, text width=2.0cm] at (0.6,-1.35) {启动代码\\（可以没有）};
+\node[font=\tiny, text=MutedText, align=center, text width=2.1cm] at (2.4,-1.35) {块大小、inode 总数、\\空闲块数、根 inode 号};
+\node[font=\tiny, text=MutedText, align=center, text width=2.2cm] at (4.7,-1.35) {每个 inode\\占一位};
+\node[font=\tiny, text=MutedText, align=center, text width=2.2cm] at (7.1,-1.35) {每个盘块\\占一位};
+\node[font=\tiny, text=MutedText, align=center, text width=3.0cm] at (10.0,-1.35) {定长 inode 记录\\按编号直接定位};
+\node[font=\tiny, text=MutedText, align=center, text width=3.0cm] at (13.4,-1.35) {目录块和\\文件数据块};
+\end{tikzpicture}
+\end{center}
+
+图中从左到右是文件系统在一个分区里的典型布局。超级块是总入口；两个位图分别记录 inode 和数据块谁被占用；inode 表是定长记录的数组；数据区里既有普通文件的数据块，也有目录的数据块。inode 号只在同一个文件系统内有意义，这也是硬链接不能跨文件系统的原因。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\draw[thick, fill=SoftGray] (0,0) rectangle (11,4.4);
+\draw (0,3.3) -- (11,3.3);
+\draw (0,2.2) -- (11,2.2);
+\draw (0,1.1) -- (11,1.1);
+\draw (4.4,3.3) -- (4.4,4.4);
+\draw (7.4,3.3) -- (7.4,4.4);
+\node at (2.2,3.85) {类型与权限（2 B）};
+\node at (5.9,3.85) {链接计数（2 B）};
+\node at (9.2,3.85) {属主/属组（4 B）};
+\node at (2.5,2.75) {文件大小（4 B）};
+\node at (8.2,2.75) {访问/修改/状态改变时间（12 B）};
+\node at (5.5,1.65) {15 个块指针：12 直接 + 一级 + 二级 + 三级（$15\times4=60$ B）};
+\node at (5.5,0.55) {块计数、标志、ACL 等（44 B）};
+\node[font=\small\bfseries, Navy] at (5.5,4.85) {磁盘 inode（典型 128 B）};
+\draw[<->] (11.2,0) -- (11.2,4.4) node[midway,right,font=\tiny]{128 B};
+\node[draw, dashed, fill=SoftBlue, align=left, text width=4.6cm, inner sep=3pt] (de) at (2.6,-1.2) {\textbf{目录项（在目录块中）}\\ \texttt{report.txt} $\to$ 30};
+\draw[->, dashed] (de.north) -- (2.2,0);
+\node[align=left, text width=5.2cm, font=\tiny, MutedText] at (8.4,-1.2) {文件名不在 inode 里；\\同一个 inode 可以有多个名字。};
+\end{tikzpicture}
+\end{center}
+
+图上半部分是 inode 的字段划分，下半部分用虚线说明“目录项在 inode 之外”。链接计数记录有多少个目录项指向这个 inode；文件大小和块指针告诉内核数据在哪里。时间戳的具体个数和含义随系统而异，408 只需要知道 inode 保存的是“除文件名以外的文件属性”。
+
+打开文件时，内核把 inode 从磁盘读入内存，再在系统打开文件表中登记偏移量、打开模式等信息，进程的文件描述符表指向打开文件表项。多个进程可以共享同一个内存 inode，但各自可以有独立的读写位置。
+
+\subsection{数据块怎么放：连续、链接与索引}
+
+inode 里的块指针最终要回答一个问题：文件的第 $i$ 个逻辑块，落在磁盘的哪个物理块上？按回答方式的不同，文件物理结构分为连续分配、链接分配和索引分配三大类。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+
+% ===== 连续分配 =====
+\node[anchor=west, font=\small\bfseries, Navy] at (-0.2,8.35) {连续分配};
+\node[anchor=west, font=\tiny, MutedText] at (2.8,8.35) {目录项记录起始块号和长度，逻辑块 $i$ 直接算出物理块号};
+\foreach \b in {0,...,11} {
+  \node[draw=RuleGray, fill=SoftGray, minimum width=0.72cm, minimum height=0.5cm, font=\tiny] (c\b) at (\b*0.8,7.0) {\b};
+}
+\foreach \b in {2,3,4,5} {
+  \node[draw=RuleGray, fill=Teal!35, minimum width=0.72cm, minimum height=0.5cm, font=\tiny] at (c\b) {\b};
+}
+\foreach \b in {8,9,10} {
+  \node[draw=RuleGray, fill=Amber!45, minimum width=0.72cm, minimum height=0.5cm, font=\tiny] at (c\b) {\b};
+}
+\node[anchor=west, font=\tiny, MutedText] at (0,6.25) {青色是文件 A（块 2--5），黄色是文件 B（块 8--10）；块 0、1、6、7、11 虽空闲，却被已分配块隔开，凑不出连续空间——这就是外部碎片};
+
+% ===== 链接分配 =====
+\node[anchor=west, font=\small\bfseries, Navy] at (-0.2,5.35) {链接分配（隐式）};
+\foreach \b in {0,...,11} {
+  \node[draw=RuleGray, fill=SoftGray, minimum width=0.72cm, minimum height=0.5cm, font=\tiny] (l\b) at (\b*0.8,4.0) {\b};
+}
+\foreach \b in {2,7,4,9} {
+  \node[draw=RuleGray, fill=Teal!35, minimum width=0.72cm, minimum height=0.5cm, font=\tiny] at (l\b) {\b};
+}
+\draw[->, Teal, thick] (l2.north) to[out=75,in=105,looseness=1.1] (l7.north);
+\draw[->, Teal, thick] (l7.north) to[out=75,in=105,looseness=0.8] (l4.north);
+\draw[->, Teal, thick] (l4.north) to[out=75,in=105,looseness=1.1] (l9.north);
+\node[anchor=west, font=\tiny, MutedText] at (0,3.15) {每块尾部留出几个字节存下一块号，目录项只记第一块；访问第 $i$ 块要从第一块起逐块读};
+
+% ===== 索引分配 =====
+\node[anchor=west, font=\small\bfseries, Navy] at (-0.2,1.85) {索引分配};
+\node[anchor=west, font=\tiny, MutedText] at (2.6,1.85) {索引块集中存放数据块号，目录项指向索引块};
+\foreach \b in {0,...,11} {
+  \node[draw=RuleGray, fill=SoftGray, minimum width=0.72cm, minimum height=0.5cm, font=\tiny] (i\b) at (\b*0.8,0.6) {\b};
+}
+\foreach \b in {2,7,4,9} {
+  \node[draw=RuleGray, fill=Teal!35, minimum width=0.72cm, minimum height=0.5cm, font=\tiny] at (i\b) {\b};
+}
+\node[draw=RuleGray, fill=SoftAmber, minimum width=5.4cm, minimum height=0.8cm, align=center] (idx) at (5.0,-1.05) {\textbf{索引块（盘块 1）}\quad 2\quad 7\quad 4\quad 9};
+\node[draw=RuleGray, fill=SoftGray, minimum width=2.1cm, minimum height=0.5cm, align=center, font=\tiny] (de) at (0.95,-1.05) {目录项：索引块 1};
+\draw[->] (de.east) -- (idx.west);
+\draw[->] (idx.north) -- (i2.south);
+\draw[->] (idx.north) -- (i4.south);
+\draw[->] (idx.north) -- (i7.south);
+\draw[->] (idx.north) -- (i9.south);
+\end{tikzpicture}
+\end{center}
+
+三幅图共用同一条编号的盘块行，方便对比同一组数据块在不同结构下的组织方式。连续分配把“块号”变成算术：已知起点和长度，第 $i$ 块就是起点加 $i$，随机访问最快；但文件一旦变长，后面若被别的文件占住，就只能整体搬家，多次分配回收后还会留下外部碎片。链接分配把块分散开，每块尾部用指针串成链，没有外部碎片，文件也能随时长出新块；代价是随机访问要沿着链走，访问第 $i$ 块一般需要 $i+1$ 次读盘，而且指针坏了会断链。索引分配把指针集中到一个索引块里，目录项只记索引块号，要读第 $i$ 块时先读索引块、再读数据块，随机访问只需要两次读盘。
+
+显式链接（FAT）是链接分配的一种变体：它把分散在各数据块尾部的指针集中到一张文件分配表（File Allocation Table）里，表项的下标是盘块号，表项的值是下一块号。目录项仍然只记起始块号，但沿着链走变成查内存中的表，不再每走一步读一次盘。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\node[font=\small\bfseries, Navy] at (5.4,0.9) {FAT 表（每个盘块一项）};
+\draw (0,0) grid[xstep=1.2,ystep=-0.9] (13.2,-1.8);
+\node at (0.6,-0.45) {块号};
+\node at (1.8,-0.45) {0};
+\node at (3.0,-0.45) {1};
+\node at (4.2,-0.45) {2};
+\node at (5.4,-0.45) {3};
+\node at (6.6,-0.45) {4};
+\node at (7.8,-0.45) {5};
+\node at (9.0,-0.45) {6};
+\node at (10.2,-0.45) {7};
+\node at (11.4,-0.45) {8};
+\node at (12.6,-0.45) {9};
+\node at (0.6,-1.35) {表项};
+\node at (1.8,-1.35) {空闲};
+\node at (3.0,-1.35) {空闲};
+\node[fill=SoftBlue] at (4.2,-1.35) {7};
+\node[fill=SoftTeal] at (5.4,-1.35) {5};
+\node[fill=SoftBlue] at (6.6,-1.35) {9};
+\node[fill=SoftTeal] at (7.8,-1.35) {8};
+\node at (9.0,-1.35) {空闲};
+\node[fill=SoftBlue] at (10.2,-1.35) {4};
+\node[fill=SoftTeal] at (11.4,-1.35) {结束};
+\node[fill=SoftBlue] at (12.6,-1.35) {结束};
+\node[anchor=west, font=\tiny, MutedText] at (0,-2.1) {文件 A 的目录项记起始块 2：};
+\node[draw, fill=SoftBlue, minimum width=0.8cm] (a2) at (4.2,-2.6) {2};
+\node[draw, fill=SoftBlue, minimum width=0.8cm] (a7) at (6.0,-2.6) {7};
+\node[draw, fill=SoftBlue, minimum width=0.8cm] (a4) at (7.8,-2.6) {4};
+\node[draw, fill=SoftBlue, minimum width=0.8cm] (a9) at (9.6,-2.6) {9};
+\draw[->] (a2) -- (a7); \draw[->] (a7) -- (a4); \draw[->] (a4) -- (a9);
+\draw[->] (a9) -- (10.1,-2.6);
+\node[anchor=west, font=\tiny, MutedText] at (10.2,-2.6) {结束};
+\end{tikzpicture}
+\end{center}
+
+图里文件 A 的链是 $2\to7\to4\to9$，文件 B 的链是 $3\to5\to8$。目录项只保存起始块号，剩下全由 FAT 表项接力。FAT 若常驻内存，走链只是内存查表，随机访问的代价从“多次读盘”降为“多次访存”；但 FAT 本身要占内存，表项位数还限制了单个分区的最大块数——$n$ 位表项最多表示 $2^n$ 个盘块，这也是 FAT12、FAT16、FAT32 名字的由来。
+
+\begin{tablebox}{三种物理结构的对比}
 \centering
 \small
-\begin{tabularx}{\linewidth}{|p{0.20\linewidth}|X|X|X|p{0.15\linewidth}|}
+\begin{tabularx}{\linewidth}{|p{0.15\linewidth}|X|X|X|}
 \hline
-分配方式 & 实现 & 优点 & 缺点 & FAT \\
+结构 & 目录项/入口 & 随机访问 & 主要代价 \\
 \hline
-连续分配 & 每个文件占连续盘块 & 顺序访问快 & 有外部碎片，难扩展 & — \\
-链接分配（隐式）& 每块含下一块指针 & 无外部碎片 & 随机访问慢 & — \\
-链接分配（显式/FAT）& FAT 集中存指针 & FAT 在内存时，遍历比隐式链接快；无外部碎片 & 定位第 $i$ 块仍需沿链逐项查找；FAT 占内存 & FAT12/16/32 \\
-索引分配 & 索引块集中存放数据块号 & 支持直接访问；多级索引可支持大文件 & 索引块有空间开销 & UNIX i-node \\
+连续分配 & 起始块号、长度 & 直接计算，最快 & 外部碎片；文件增长可能整体搬移 \\
+\hline
+隐式链接 & 第一块块号 & 沿链逐块读，最慢 & 指针占块内空间；断链会丢失后续数据 \\
+\hline
+显式链接（FAT） & 第一块块号 & 查 FAT，内存命中时较快 & FAT 占内存；表项位数限制分区大小 \\
+\hline
+索引分配 & 索引块块号 & 先读索引块，再读数据块 & 索引块本身占空间；大文件要多级索引 \\
 \hline
 \end{tabularx}
 \end{tablebox}
 
-\textbf{UNIX i-node 混合索引：}
-\begin{itemize}
-    \item 直接块（通常 10-12 个）：存文件数据块号，小文件直接访问。
-    \item 一级间接块：存指向数据块的指针（指向一个块，该块中存数据块号）。
-    \item 二级间接块：存指向一级间接块的指针。
-    \item 三级间接块：存指向二级间接块的指针。
-\end{itemize}
-\textbf{408 常考：}给定块大小和指针大小，计算 i-node 支持的最大文件大小。
-\end{conclusion}
+\subsubsection{混合索引与最大文件长度}
+
+单级索引的索引块只能装 $q=B/P$ 个块号（$B$ 是盘块大小，$P$ 是块号占用的字节数），文件最大也就 $q$ 个数据块。要支持大文件，可以给索引块再建索引，形成多级索引；UNIX 的做法是把直接指针和不同级别的间接指针混在 inode 里，称为\textbf{混合索引}。
+
+设 inode 有 $n_0$ 个直接指针、1 个一级间接指针、1 个二级间接指针和 1 个三级间接指针，且 $q=B/P$，则该 inode 能寻址的数据块总数为
+\[
+N_{\max}=n_0+q+q^2+q^3,
+\]
+最大文件长度为
+\[
+L_{\max}=N_{\max}B.
+\]
+其中 $q$ 个块由一级间接覆盖，$q^2$ 个块由二级间接覆盖，$q^3$ 个块由三级间接覆盖。以 $B=4$ KiB、$P=4$ B、$n_0=12$ 为例，$q=1024$：
+\[
+L_{\max}=(12+1024+1024^2+1024^3)\times 4\text{ KiB}
+=48\text{ KiB}+4\text{ MiB}+4\text{ GiB}+4\text{ TiB}.
+\]
+最后一项占绝对主导，所以常说这种配置支持约 4 TiB 的文件。若某本教材采用 10 个直接指针，只需把第一项换成 $40$ KiB，后面三项不变。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% ===== 连续分配 =====
-\node[anchor=west, text=Burgundy] at (0,3.2) {\textbf{连续分配}};
-\foreach \i/\x in {0/2.6,1/3.7,2/4.8,3/5.9} {
-  \node[draw, rectangle, minimum width=0.95cm, minimum height=0.55cm, fill=SoftBlue] (c\i) at (\x,3.2) {块\i};
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  ptr/.style={draw=RuleGray, fill=SoftGray, minimum width=2.5cm, minimum height=0.55cm, align=center},
+  idx/.style={draw=RuleGray, fill=SoftTeal, minimum width=2.5cm, minimum height=0.55cm, align=center},
+  dat/.style={draw=RuleGray, fill=SoftBlue, minimum width=2.5cm, minimum height=0.55cm, align=center}]
+\node[font=\small\bfseries, Navy] at (0,8.0) {inode 30};
+\node[ptr, fill=SoftAmber] (d) at (0,7.2) {直接指针 $\times 12$};
+\node[ptr, fill=SoftAmber] (i1) at (0,5.9) {一级间接指针};
+\node[ptr, fill=SoftAmber] (i2) at (0,4.6) {二级间接指针};
+\node[ptr, fill=SoftAmber] (i3) at (0,3.3) {三级间接指针};
+\node[dat] (dd) at (4.6,7.2) {数据块 0--11};
+\node[idx] (b1) at (4.6,5.9) {索引块：$q$ 个块号};
+\node[dat] (d1) at (8.8,5.9) {数据块 12--$11+q$};
+\node[idx] (b2a) at (4.2,4.6) {一级索引块};
+\node[idx] (b2b) at (8.0,4.6) {二级索引块 $\times q$};
+\node[dat] (d2) at (12.2,4.6) {数据块 $\cdots$};
+\node[idx] (b3a) at (3.8,3.3) {一级索引块};
+\node[idx] (b3b) at (7.0,3.3) {二级索引块 $\times q$};
+\node[idx] (b3c) at (10.2,3.3) {三级索引块 $\times q^2$};
+\node[dat] (d3) at (13.3,3.3) {数据块 $\cdots$};
+\draw[->] (d.east) -- (dd.west);
+\draw[->] (i1.east) -- (b1.west);
+\draw[->] (b1.east) -- (d1.west);
+\draw[->] (i2.east) -- (b2a.west);
+\draw[->] (b2a.east) -- node[above,font=\tiny]{$\times q$} (b2b.west);
+\draw[->] (b2b.east) -- (d2.west);
+\draw[->] (i3.east) -- (b3a.west);
+\draw[->] (b3a.east) -- node[above,font=\tiny]{$\times q$} (b3b.west);
+\draw[->] (b3b.east) -- node[above,font=\tiny]{$\times q$} (b3c.west);
+\draw[->] (b3c.east) -- (d3.west);
+\node[anchor=west, font=\tiny, MutedText] at (0,2.3) {直接指针覆盖小文件；级数越深，能覆盖的块越多，但访问一个数据块要读的索引块也越多};
+\end{tikzpicture}
+\end{center}
+
+图里每一层向右都乘一个 $q$。给定逻辑块号 $x$，先判断它落在哪一段：$0\le x<n_0$ 走直接指针；接下来 $q$ 个块走一级间接；再接下来 $q^2$ 个块走二级间接；最后 $q^3$ 个块走三级间接。判断出层级后，沿路径把相应的索引块读进来，最后读数据块。若 inode 已在内存、各级索引块都不在内存，访问二级间接区的一个块需要先读二级索引块、再读一级索引块、最后读数据块，共三次磁盘访问；三级间接区则要四次。
+
+\subsection{空闲空间管理}
+
+文件被删除、被截短，或者磁盘刚格式化时，都会出现大量空闲盘块。文件系统必须记住哪些块能用，并且尽量让分配和回收都快。常见做法有四类。
+
+\textbf{空闲表法}把连续的空闲区记成“起始块号、长度”的表项，分配时用首次适应、最佳适应等算法找一段够长的空闲区。它适合连续分配，回收时还能把相邻空闲区合并；缺点是空闲区一多，表就会变长，查找也变慢。
+
+\textbf{空闲链表法}把空闲盘块或空闲盘区串成链表。分配时从链头摘一块，回收时挂回链头。它不需要额外的表，但每走一步都可能读盘，空闲块分散时效率不高。
+
+\textbf{位示图法}为每个盘块分配一位：$1$ 表示已分配，$0$ 表示空闲（也可以反过来，做题时以题面约定为准）。位示图非常紧凑，而且能直接按块号定位。设字长为 $w$，盘块号、字号、位号都从 $0$ 开始，则盘块号 $b$ 与字号 $i$、位号 $j$ 的关系是
+\[
+i=\left\lfloor \frac{b}{w}\right\rfloor,\qquad
+j=b\bmod w,\qquad
+b=i\,w+j.
+\]
+$N$ 个盘块需要 $N$ 位，即 $N/8$ 字节。分配时从当前字号开始找第一个 $0$ 位，回收时把对应位清 $0$。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\node[anchor=east, font=\tiny, MutedText] at (-0.25,0.35) {位号};
+\foreach \c in {0,...,7} {
+  \node[font=\tiny, MutedText] at (\c*0.62,0.35) {\c};
 }
-\draw[decorate, decoration={brace, amplitude=3pt, mirror}, thick]
-  ([yshift=-0.35cm]c0.south) -- ([yshift=-0.35cm]c3.south);
-\node[anchor=west, align=left] at (7.2,3.2) {\scriptsize 文件占用连续盘块\\[1pt]顺序访问快};
-% ===== 链接分配 =====
-\node[anchor=west, text=Burgundy] at (0,1.0) {\textbf{链接分配}};
-\foreach \i/\x in {0/2.6,1/4.1,2/5.6,3/7.1} {
-  \node[draw, rectangle, minimum width=1.2cm, minimum height=0.55cm, fill=SoftTeal] (l\i) at (\x,1.0) {块\i};
+\foreach \row in {0,1,2,3} {
+  \node[anchor=east, font=\tiny] at (-0.25,-\row*0.55) {字 \row};
 }
-\draw[->] (l0) -- (l1);
-\draw[->] (l1) -- (l2);
-\draw[->] (l2) -- (l3);
-\node[anchor=west, align=left] at (8.6,1.0) {\scriptsize 每块含指向下一\\[1pt]块的指针（隐式）};
-% ===== 索引分配 =====
-\node[anchor=west, text=Burgundy] at (0,-1.2) {\textbf{索引分配}};
-\node[draw, rectangle, minimum width=1.4cm, minimum height=0.65cm, fill=SoftAmber] (idx) at (2.6,-1.2) {索引块};
-\node[draw, rectangle, minimum width=0.95cm, minimum height=0.55cm, fill=SoftAmber!55] (d0) at (4.6,-0.45) {块0};
-\node[draw, rectangle, minimum width=0.95cm, minimum height=0.55cm, fill=SoftAmber!55] (d1) at (4.6,-1.2) {块1};
-\node[draw, rectangle, minimum width=0.95cm, minimum height=0.55cm, fill=SoftAmber!55] (d2) at (4.6,-1.95) {块2};
-\draw[->] (idx.east) -- (d0.west);
-\draw[->] (idx.east) -- (d1.west);
-\draw[->] (idx.east) -- (d2.west);
-\node[anchor=west, align=left] at (6.4,-1.2) {\scriptsize 索引块集中存数据\\[1pt]块号，支持直接访问};
+\foreach \col/\v in {0/1,1/1,2/0,3/1,4/0,5/0,6/1,7/1} {
+  \node[draw=RuleGray, fill=SoftGray, minimum width=0.52cm, minimum height=0.42cm, font=\tiny] at (\col*0.62,0) {\v};
+}
+\foreach \col/\v in {0/0,1/1,2/1,3/0,4/0,5/0,6/1,7/0} {
+  \node[draw=RuleGray, fill=SoftGray, minimum width=0.52cm, minimum height=0.42cm, font=\tiny] at (\col*0.62,-0.55) {\v};
+}
+\foreach \col/\v in {0/1,1/1,2/1,3/1,4/0,5/0,6/0,7/1} {
+  \node[draw=RuleGray, fill=SoftGray, minimum width=0.52cm, minimum height=0.42cm, font=\tiny] at (\col*0.62,-1.10) {\v};
+}
+\foreach \col/\v in {0/0,1/1,2/0,3/0,4/1,5/1,6/1,7/0} {
+  \node[draw=RuleGray, fill=SoftGray, minimum width=0.52cm, minimum height=0.42cm, font=\tiny] at (\col*0.62,-1.65) {\v};
+}
+\node[draw=RuleGray, fill=SoftAmber, minimum width=0.52cm, minimum height=0.42cm, font=\tiny] at (5*0.62,-2*0.55) {0};
+\node[font=\tiny, Teal, align=left, anchor=west] at (4.55,-2.1) {字号 2、位号 5 的 $0$ 位\\对应盘块 $2\times8+5=21$};
+\draw[->, Teal] (5*0.62,-2*0.55-0.21) -- (5*0.62,-1.95) -- (4.5,-1.95);
+\node[anchor=west, font=\tiny, MutedText] at (-0.2,1.0) {这里用 8 位字长画示意图；实际字长通常为 32 或 64 位};
+\node[anchor=west, font=\tiny, MutedText] at (-0.2,-2.65) {约定 $1=$ 已分配、$0=$ 空闲：分配就是找第一个 $0$，回收就是把对应位置 $0$};
 \end{tikzpicture}
 \end{center}
+
+图里每一行是一个字，格子里是位值。给定盘块号 $b$，用除法和取余就能找到它落在哪一位；反过来，分配时扫到第一个 $0$ 位也能立刻算出盘块号。位示图的优点是空间小、定位快，缺点是整张图可能很大，不过按 408 的算法通常只要求会换算，不要求考虑它是否常驻内存。
+
+\textbf{成组链接法}是 UNIX 采用的折中方案。它把空闲块按固定上限 $N$（经典实现中 $N=100$）分成组，超级块里维护一个空闲块号栈，存放当前组的空闲块号；栈底那一项不是普通块号，而是下一组“组长块”的块号。组长块本身也是一个空闲块，它的数据区里记录下一组的块数以及最多 $N$ 个块号，其中最后一项又指向再下一组的组长块。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.6cm] (e1) at (-8.0,3.0) {直接块$\times$10};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.6cm] (e2) at (-8.0,1.2) {一级间接};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.6cm] (e3) at (-8.0,-0.6) {二级间接};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.6cm] (e4) at (-8.0,-2.4) {三级间接};
-\node[font=\scriptsize, text=Navy] at (-8.0,3.7) {\textbf{i-node（索引节点）}};
-\node[draw, rectangle, fill=SoftBlue, minimum width=2.6cm, minimum height=0.6cm] (d1) at (3.5,3.0) {数据块};
-\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (s1) at (-2.4,1.2) {一级间接块};
-\node[draw, rectangle, fill=SoftBlue, minimum width=2.6cm, minimum height=0.6cm] (d2) at (3.5,1.2) {数据块};
-\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (b2) at (-5.0,-0.6) {二级间接块};
-\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (s2) at (-0.8,-0.6) {一级间接块};
-\node[draw, rectangle, fill=SoftBlue, minimum width=2.6cm, minimum height=0.6cm] (d3) at (3.5,-0.6) {数据块};
-\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (t3) at (-5.6,-2.4) {三级间接块};
-\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (b3) at (-2.8,-2.4) {二级间接块};
-\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.6cm] (s3) at (0.0,-2.4) {一级间接块};
-\node[draw, rectangle, fill=SoftBlue, minimum width=2.6cm, minimum height=0.6cm] (d4) at (3.5,-2.4) {数据块};
-\draw[->] (e1.east) -- (d1.west);
-\draw[->] (e2.east) -- (s1.west);
-\draw[->] (s1.east) -- (d2.west);
-\draw[->] (e3.east) -- (b2.west);
-\draw[->] (b2.east) -- (s2.west);
-\draw[->] (s2.east) -- (d3.west);
-\draw[->] (e4.east) -- (t3.west);
-\draw[->] (t3.east) -- (b3.west);
-\draw[->] (b3.east) -- (s3.west);
-\draw[->] (s3.east) -- (d4.west);
-\node[font=\scriptsize, MutedText] at (-0.9,-3.5) {直接块数决定小文件无需间接层；文件越大，间接层越多，可支持的文件上限越大};
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  slot/.style={draw=RuleGray, fill=SoftGray, minimum width=2.8cm, minimum height=0.5cm, align=center}]
+\path (-3.0,0);
+\node[font=\small\bfseries, Navy] at (0,4.0) {超级块中的空闲块号栈};
+\node[slot, fill=SoftBlue] (s1) at (0,3.2) {栈顶：$b_1$};
+\node[slot] (s2) at (0,2.55) {$b_2$};
+\node[slot] (s3) at (0,1.9) {$\cdots$};
+\node[slot, fill=SoftAmber] (s4) at (0,1.25) {栈底：$L_1$};
+\draw[->, Teal, thick] (-2.5,3.5) -- (s1.west);
+\node[font=\tiny, Teal] at (-2.3,3.8) {分配};
+\draw[->, Burgundy, thick] (s4.west) -- (-2.5,0.95);
+\node[font=\tiny, Burgundy] at (-2.3,0.6) {回收};
+\draw[->] (s4.east) -- (3.2,1.25);
+\node[draw=RuleGray, fill=SoftAmber, minimum width=4.8cm, minimum height=1.5cm, align=left, font=\tiny, inner sep=4pt] (g1) at (5.8,1.25) {\textbf{组长块 $L_1$}\\ 下一组的块数；若干空闲块号；\\ 最后一项 $L_2$ 指向再下一组};
+\node[draw=RuleGray, fill=SoftGray, minimum width=4.8cm, minimum height=0.9cm, align=left, font=\tiny, inner sep=4pt] (g2) at (5.8,-0.9) {\textbf{组长块 $L_2$}\\ $\cdots$};
+\draw[->] (g1.south) -- (g2.north);
+\node[anchor=west, font=\tiny, MutedText, text width=14.5cm] at (-2.5,-2.0) {栈空时，把 $L_1$ 中记录的下一组信息读回栈，$L_1$ 本身也作为空闲块分配出去；栈满再回收时，把整个栈写进刚回收的块，该块成为新的栈底。};
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-\textbf{408 重点辨析：FCB（文件控制块）与 i-node。} FCB 包含文件名和索引指针等信息。UNIX 将文件名和索引指针分离：目录项只存文件名和 i-node 号，i-node 存除文件名外的所有信息。这样做的好处是支持文件硬链接（多个目录项指向同一 i-node）。
-\end{attention}
+图中 $L_1$ 既在栈里，又是下一组组长块的块号；真正读它的时候，它已经要被分配出去了。分配走“弹栈”，回收走“压栈”，只有在栈空或栈满时才做一次磁盘读写，所以成组链接把空闲表/链表的磁盘操作集中成了批处理，既省内存又减少 I/O。
 
-\subsection{目录结构}
+\subsection{磁盘调度}
 
-\begin{conclusion}{目录结构演化}{directory-struct}
-\begin{itemize}
-    \item \textbf{单级目录}：所有文件在一个目录下。不允许重名，查找慢。
-    \item \textbf{两级目录}：主文件目录（MFD）+ 用户文件目录（UFD）。不同用户可有同名文件。
-    \item \textbf{树形目录（多级目录）}：目录以树形组织。使用\textbf{绝对路径}（/a/b/file）和\textbf{相对路径}（当前目录为基准）。
-    \item \textbf{无环图目录}：允许一个文件或目录出现在多个父目录下（共享）。需引入引用计数防止删除正在使用的文件。
-\end{itemize}
-\end{conclusion}
+磁盘的物理地址由柱面号、磁头号、扇区号三部分组成。读一个块要先把磁头移到目标柱面（寻道），再等目标扇区转到磁头下（旋转延迟），最后把数据传出来（传输时间）。平均访问时间可以写成
+\[
+T_a=T_s+\frac{1}{2r}+\frac{b}{rN},
+\]
+其中 $T_s$ 是平均寻道时间，$r$ 是转速（转/秒），$N$ 是一条磁道的字节数，$b$ 是要传输的字节数。$1/(2r)$ 是平均旋转延迟：目标扇区随机落在圆周上，平均要等半圈。若题目给的是每分钟转速 $R$，则平均旋转延迟为 $30/R$ 秒，即 $30000/R$ 毫秒。
+
+三项中寻道时间通常最大，所以磁盘调度算法主要优化寻道顺序。请求队列是动态到达的，调度器要在“当前磁头位置”和“尚未服务的请求”之间做选择。
+
+\textbf{FCFS} 按请求到达顺序服务，最公平也最简单。请求分散时，磁头会在盘面两端来回长距离移动，总寻道距离很大。
+
+\textbf{SSTF}（最短寻道时间优先）每次选离当前磁头最近的请求。它的总寻道距离通常比 FCFS 小很多，但只顾眼前：如果新请求不断在磁头附近到达，远端请求可能长期得不到服务，发生饥饿。
+
+\textbf{SCAN}（电梯算法）让磁头沿一个方向一路服务，到达磁盘端点后再折返。它不会饥饿，但刚被磁头越过的请求要等磁头走到端点、再折返回来，等待时间较长。\textbf{C-SCAN} 只在一个方向服务，到达端点后快速返回起点，返回途中不服务请求；这样各柱面的等待时间更均匀，代价是返回段白跑一趟。\textbf{LOOK} 和 \textbf{C-LOOK} 是它们的实用版本：磁头到最远的一个请求就折返，不必走到物理端点。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=1.8cm, minimum height=0.55cm] (root) at (0,0) {/};
-\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.5cm] (prog) at (-2.4,-1.1) {Program};
-\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.5cm] (doc) at (0.8,-1.1) {Document};
-\node[draw, rectangle, fill=SoftTeal, minimum width=2.0cm, minimum height=0.5cm] (java) at (-3.2,-2.3) {Java-Prog};
-\node[draw, rectangle, fill=SoftAmber, minimum width=2.0cm, minimum height=0.5cm] (f1) at (-1.2,-2.3) {f1.java};
-\node[draw, rectangle, fill=SoftAmber, minimum width=2.0cm, minimum height=0.5cm] (fdoc) at (0.8,-2.3) {报告.pdf};
-\draw[->] (root) -- (prog);
-\draw[->] (root) -- (doc);
-\draw[->] (prog) -- (java);
-\draw[->] (prog) -- (f1);
-\draw[->] (doc) -- (fdoc);
-\node[font=\scriptsize, black!60] at (-0.6,-3.25) {绝对路径 /Program/f1.java；相对路径（当前在 /Program）：f1.java};
+\begin{tabular}{@{}c@{\hspace{6pt}}c@{}}
+\begin{tikzpicture}
+\begin{axis}[
+  width=6.5cm, height=3.9cm,
+  xmin=0, xmax=9, ymin=0, ymax=210,
+  xtick={0,2,4,6,8}, ytick={0,50,100,150,199},
+  tick label style={font=\tiny},
+  label style={font=\tiny},
+  title style={font=\scriptsize\bfseries},
+  title={FCFS（总寻道 610）},
+  xlabel={服务次序}, ylabel={柱面号},
+  grid=major, grid style={RuleGray!55},
+  axis lines=left,
+]
+\addplot[Teal, thick, mark=*, mark size=1.1pt] coordinates {
+  (0,60) (1,100) (2,20) (3,140) (4,50) (5,90) (6,160) (7,30) (8,70)
+};
+\end{axis}
 \end{tikzpicture}
+&
+\begin{tikzpicture}
+\begin{axis}[
+  width=6.5cm, height=3.9cm,
+  xmin=0, xmax=9, ymin=0, ymax=210,
+  xtick={0,2,4,6,8}, ytick={0,50,100,150,199},
+  tick label style={font=\tiny},
+  label style={font=\tiny},
+  title style={font=\scriptsize\bfseries},
+  title={SSTF（总寻道 200）},
+  xlabel={服务次序}, ylabel={柱面号},
+  grid=major, grid style={RuleGray!55},
+  axis lines=left,
+]
+\addplot[Teal, thick, mark=*, mark size=1.1pt] coordinates {
+  (0,60) (1,70) (2,50) (3,30) (4,20) (5,90) (6,100) (7,140) (8,160)
+};
+\end{axis}
+\end{tikzpicture}
+\\[4pt]
+\begin{tikzpicture}
+\begin{axis}[
+  width=6.5cm, height=3.9cm,
+  xmin=0, xmax=9.6, ymin=0, ymax=210,
+  xtick={0,2,4,6,8}, ytick={0,50,100,150,199},
+  tick label style={font=\tiny},
+  label style={font=\tiny},
+  title style={font=\scriptsize\bfseries},
+  title={SCAN（总寻道 318）},
+  xlabel={服务次序}, ylabel={柱面号},
+  grid=major, grid style={RuleGray!55},
+  axis lines=left,
+]
+\addplot[Teal, thick, mark=*, mark size=1.1pt] coordinates {
+  (0,60) (1,70) (2,90) (3,100) (4,140) (5,160) (6,199) (7,50) (8,30) (9,20)
+};
+\node[font=\tiny, MutedText] at (axis cs:6.5,178) {折返};
+\end{axis}
+\end{tikzpicture}
+&
+\begin{tikzpicture}
+\begin{axis}[
+  width=6.5cm, height=3.9cm,
+  xmin=0, xmax=10.6, ymin=0, ymax=210,
+  xtick={0,2,4,6,8,10}, ytick={0,50,100,150,199},
+  tick label style={font=\tiny},
+  label style={font=\tiny},
+  title style={font=\scriptsize\bfseries},
+  title={C-SCAN（总寻道 388）},
+  xlabel={服务次序}, ylabel={柱面号},
+  grid=major, grid style={RuleGray!55},
+  axis lines=left,
+]
+\addplot[Teal, thick, mark=*, mark size=1.1pt] coordinates {
+  (0,60) (1,70) (2,90) (3,100) (4,140) (5,160) (6,199)
+};
+\addplot[MutedText, thick, dashed, mark=none] coordinates {(6,199) (7,0)};
+\addplot[Teal, thick, mark=*, mark size=1.1pt] coordinates {(7,0) (8,20) (9,30) (10,50)};
+\node[font=\tiny, MutedText] at (axis cs:7.1,105) {快速返回};
+\end{axis}
+\end{tikzpicture}
+\end{tabular}
 \end{center}
 
-\subsection{文件存储空间管理}
-
-\begin{conclusion}{外存空闲空间管理方法}{free-space}
-\begin{itemize}
-    \item \textbf{空闲表法}：类似内存动态分区，维护空闲盘块表。分配用首次适应等算法。
-    \item \textbf{空闲链表法}：所有空闲盘块连成链表。分配/回收效率低（需 I/O）。
-    \item \textbf{位示图（Bitmap）}：每位对应一个盘块（0=空闲，1=已分配）。$m$ 个盘块需 $m$ bit。\textbf{408 常考：}给定盘块号，计算在位示图中的行列号。
-    \item \textbf{成组链接法（UNIX 采用）}：空闲盘块分组管理，每组第一块存下一组空闲块的块号和块数。兼顾效率和空间。
-\end{itemize}
-\end{conclusion}
-
-\subsection{文件共享与保护}
-
-\begin{conclusion}{文件共享}{file-sharing}
-\begin{itemize}
-    \item \textbf{硬链接（Hard Link）}：多个目录项指向同一 i-node。无法跨文件系统，不能链接目录（防止循环）。
-    \item \textbf{软链接（Symbolic Link）}：独立文件，存放目标文件路径。可跨文件系统、可链接目录。删除原文件后软链接失效（悬空链接）。
-\end{itemize}
-\end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=1.6cm, minimum height=0.7cm] (ino) at (0,0) {i-node};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.9cm, minimum height=0.5cm] (dirA) at (-2.0,1.3) {目录项A};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.9cm, minimum height=0.5cm] (dirB) at (2.0,1.3) {目录项B};
-\draw[->] (dirA) -- (ino);
-\draw[->] (dirB) -- (ino);
-\node[font=\scriptsize, black!70] at (0,2.1) {硬链接：多个目录项指向同一 i-node};
-\node[font=\scriptsize, black!60] at (0,0.78) {（引用计数；不能跨文件系统）};
-\node[draw, rectangle, fill=SoftAmber, minimum width=2.2cm, minimum height=0.5cm] (link) at (-0.6,-1.5) {软链接（独立文件）};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.2cm, minimum height=0.5cm] (data) at (3.6,-1.5) {目标文件};
-\draw[->] (link.east) -- node[above,font=\scriptsize]{存放路径} (data.west);
-\node[font=\scriptsize, black!70] at (1.4,-2.5) {软链接：可跨文件系统，目标删除后悬空};
-\end{tikzpicture}
-\end{center}
-
-\subsection{磁盘调度算法}
-
-\begin{conclusion}{磁盘访问时间与调度}{disk-scheduling}
-磁盘访问时间 $T = T_s$（寻道时间）+ $T_r$（旋转延迟）+ $T_t$（传输时间）。
-
-\textbf{寻道时间远大于后两者}，因此调度算法以优化寻道为目标。
+四幅图的纵轴是柱面号，横轴是服务次序，折线每往下或往上走一段，磁头就寻道一次；总寻道距离就是各段竖直线段长度之和（C-SCAN 的虚线返回段也计入）。这里用磁头初始在 60 号柱面、请求为 $100,20,140,50,90,160,30,70$ 的一组数据做示例：FCFS 按到达顺序走，折线来回穿插；SSTF 每次挑最近的，折线局部很密、总距离最短；SCAN 先向大号柱面扫到端点 199 再折返；C-SCAN 到 199 后直接回到 0，再从 0 向大号方向服务。注意图中请求与习题中的请求不是同一组，不要把这里的总距离当成某道题的答案。
 
 \begin{tablebox}{磁盘调度算法对比}
 \centering
-\begin{tabularx}{\linewidth}{|l|X|X|X|}
+\small
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|X|X|}
 \hline
-算法 & 策略 & 优点 & 缺点 \\
+算法 & 选择规则 & 优点 & 缺点/注意 \\
 \hline
-FCFS & 按请求顺序 & 公平 & 性能差 \\
-SSTF & 最短寻道优先 & 性能好 & 饥饿 \\
-SCAN（电梯算法）& 磁头单向移动，到端点折返 & 无饥饿 & 端点附近不公平 \\
-C-SCAN & 单向服务，到端点跳回起点 & 等待时间均匀 & — \\
-LOOK/C-LOOK & 类似 SCAN/C-SCAN，但到最远请求即折返 & 更实用 & — \\
+FCFS & 按到达顺序 & 公平、实现简单 & 寻道距离大 \\
+\hline
+SSTF & 每次选最近的请求 & 平均寻道距离小 & 可能饥饿；不一定全局最优 \\
+\hline
+SCAN & 单向服务到端点后折返 & 不会饥饿，像电梯 & 刚越过的请求等待久；端点附近不公平 \\
+\hline
+C-SCAN & 只在一个方向服务，到端点快速返回 & 等待时间更均匀 & 返回段空走，寻道距离可能更大 \\
+\hline
+LOOK/C-LOOK & 到最远请求就折返 & 比 SCAN 少走空路，实际常用 & 要区分“端点”和“最远请求”的题目约定 \\
 \hline
 \end{tabularx}
 \end{tablebox}
 
-\textbf{408 常考：}给定磁盘请求序列和当前磁头位置/方向，用 SSTF/SCAN/C-SCAN 画出磁头移动轨迹，计算总寻道长度和平均寻道长度。
-\end{conclusion}
+做题时先明确三件事：磁头初始位置、初始移动方向、以及“到端点折返”还是“到最远请求折返”。总寻道距离只与相邻两次服务位置的差有关，第一次从初始位置算起；平均寻道距离再除以请求个数。C-SCAN 的返回段是否计入，题目通常会说明，若没有说明就按“磁头实际移动的距离”计入。
 
-\subsection{408 高频考点速查}
+\subsection{把这一章串起来}
 
-\begin{conclusion}{文件管理 — 408常考点}{os4-keypoints}
-\begin{enumerate}
-    \item \textbf{i-node 混合索引}：最大文件长度计算。
-    \item \textbf{位示图}：盘块号 $\leftrightarrow$ 字号/位号的换算（$b=n\times\text{字长}+m$）。
-    \item \textbf{磁盘调度}：SSTF/SCAN/C-SCAN 的磁头移动序列和总寻道长度。
-    \item \textbf{硬链接 vs 软链接}：引用计数、跨文件系统、删除行为。
-    \item \textbf{FAT 文件系统}：FAT 表大小计算（给定盘块数和 FAT 表项位数）。
-\end{enumerate}
-\end{conclusion}
+\begin{tablebox}{文件管理考点与常见陷阱}
+\centering
+\small
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|X|}
+\hline
+问题 & 关键结论 & 容易错的地方 \\
+\hline
+路径怎么变成盘块号 & 目录项存“名字 $\to$ inode 号”，inode 存属性和块指针 & 目录项不存文件大小、权限；硬链接共享 inode，软链接是独立文件 \\
+\hline
+inode 最大文件 & $q=B/P$，块数 $n_0+q+q^2+q^3$，再乘 $B$ & 直接指针个数按题目给；间接层数看逻辑块号落在哪个区间 \\
+\hline
+三种分配方式 & 连续随机访问快但有外部碎片；链接无碎片但随机慢；索引用索引块换随机访问 & 隐式链接访问第 $i$ 块要 $i+1$ 次读盘；FAT 是显式链接 \\
+\hline
+位示图 & $b=i\,w+j$，$i=\lfloor b/w\rfloor$，$j=b\bmod w$ & 字号、位号从 0 开始；位示图字节数为 $N/8$ \\
+\hline
+成组链接 & 栈空读组长块，栈满把栈写进新回收块 & 组长块本身也是空闲块，最终会被分配 \\
+\hline
+磁盘调度 & 总寻道 $=\sum|\text{相邻位置差}|$，从初始位置算起 & SSTF 会饥饿；SCAN 到端点，LOOK 到最远请求；C-SCAN 返回段是否计入看题面 \\
+\hline
+\end{tabularx}
+\end{tablebox}
+
+这一章的主线其实只有一条：名字要经过目录找到 inode，inode 要通过块指针找到数据块，而块指针的组织方式、空闲块的记录方式、磁盘响应的顺序，决定了这条链路有多快、能支持多大的文件、以及多个请求下是否公平。把这条主线记住，零散的定义和公式就不容易混。
 
 \newpage
-\section{习题}
+\input{os/exercises/chap4.tex}
 
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（真题风格·选择题）} 某文件系统的根目录 \texttt{/} 下有子目录 \texttt{Program} 和 \texttt{Document}；\texttt{Program} 下有子目录 \texttt{Java-Prog} 以及文件 \texttt{f1.java}。当前工作目录为 \texttt{/Program}，则文件 \texttt{f1.java} 的绝对路径名为
-\begin{center}
-\begin{tabular}{ll}
-(A) \texttt{/Program/f1.java} & (B) \texttt{/Document/Program/f1.java} \\[6pt]
-(C) \texttt{Program/f1.java} & (D) \texttt{/Java-Prog/f1.java}
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} f1.java在Program目录下，全路径\texttt{/Program/f1.java}。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 在磁盘调度算法中，通常称为"电梯算法"的是
-\begin{center}
-\begin{tabular}{ll}
-(A) FCFS & (B) SSTF \\[6pt]
-(C) SCAN & (D) C-SCAN
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} SCAN算法磁头像电梯一样单向移动直到端点折返，故称电梯算法。答案(C)。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 假设磁盘有300个磁道（0-299），磁头当前在120号磁道并向磁道号减小的方向移动。请求序列为：90, 70, 150, 60, 80, 20。用SCAN算法（LOOK变体），磁头移动的总磁道数为
-\begin{center}
-\begin{tabular}{ll}
-(A) 140 & (B) 200 \\[6pt]
-(C) 230 & (D) 280
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} LOOK 向减小方向服务至最小请求 20 后折返：$120\to90\to80\to70\to60\to20\to150$。总移动距离为 $30+10+10+10+40+130=230$ 个磁道。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 在文件系统中，文件控制块（FCB）的作用是
-\begin{center}
-\begin{tabular}{ll}
-(A) 存放文件的数据内容 & (B) 存放文件的属性信息 \\[6pt]
-(C) 存放文件的目录结构 & (D) 存放文件的访问权限列表
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} FCB存放文件的属性信息（文件名、大小、创建时间、物理位置等）。目录由FCB组成。UNIX将文件名从FCB分离到目录项，FCB变为i-node。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（基础题）} 下列选项中，属于文件系统的基本功能的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 文件按名存取 & (B) 进程调度 \\[6pt]
-(C) 处理机分配 & (D) 虚拟内存地址变换
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：}文件目录把文件名映射到 FCB/i-node，实现按名存取；其余选项属于处理机或内存管理。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（计算题）} 某磁盘有8000个柱面（0--7999），磁头当前在150号柱面并向柱面号增大的方向移动。请求序列为：86, 147, 913, 1774, 948, 1509, 1022, 1750, 130。分别用 SSTF 和 LOOK 算法，计算磁头移动的总柱面数。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-SSTF：从 150 开始，访问顺序为 $150\to147\to130\to86\to913\to948\to1022\to1509\to1750\to1774$，各段移动量依次为 3、17、44、827、35、74、487、241、24，总移动量为 1752 个柱面。
-
-LOOK：先向增大方向依次访问 $913,948,1022,1509,1750,1774$，从 150 到 1774 共移动 1624 个柱面；再折返依次访问 $147,130,86$，从 1774 到 86 共移动 1688 个柱面。因此总移动量为 $1624+1688=3312$ 个柱面。\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·综合题）} 某UNIX文件系统i-node包含8个直接块指针、1个一级间接块指针、1个二级间接块指针。盘块大小为4 KB，每个指针占4字节。
-\begin{enumerate}
-    \item[(1)] 该文件系统支持的最大文件大小是多少？
-    \item[(2)] 访问文件偏移量 5 MiB 处的数据，需要访问几次磁盘？
-    \item[(3)] 若文件系统改用FAT32管理磁盘空间，FAT表项32位，磁盘总容量为4 GB，盘块大小4 KB。FAT表需占用多少存储空间？
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) 直接块：$8\times 4\text{ KiB}=32\text{ KiB}$。一级间接：每块可存$4\text{ KiB}/4\text{ B}=1024$个指针，共$1024\times 4\text{ KiB}=4\text{ MiB}$。二级间接：$1024^2\times 4\text{ KiB}=4\text{ GiB}$。最大文件大小为 $4\text{ GiB}+4\text{ MiB}+32\text{ KiB}=4{,}299{,}194{,}368$ B，约 $4.00394\text{ GiB}$。
-
-(2) 5 MiB 已超过直接块和一级间接区合计的 $32\text{ KiB}+4\text{ MiB}$，位于二级间接区。若相关块均未缓存，需要读取二级间接根块、其指向的下一级索引块和目标数据块，共 3 次磁盘 I/O。
-
-(3) 盘块数$=4\text{ GB}/4\text{ KB}=1\text{M}$块。FAT表项32位=4 B，FAT大小$=1\text{M}\times 4\text{ B}=4\text{ MB}$。\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·综合题）} 某系统采用位示图法管理磁盘空闲空间。磁盘共有$2^{24}$个盘块，字长为32位。
-\begin{enumerate}
-    \item[(1)] 位示图需要多少个字？
-    \item[(2)] 给出盘块号$b$到位示图中字号$i$和位号$j$的换算公式；
-    \item[(3)] 若盘块号500000在位示图中对应字号为15625，验证(2)中公式的正确性。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) $2^{24}\div 32=2^{24}\div 2^{5}=2^{19}=524288$个字。
-
-(2) $i=\lfloor b/32\rfloor,\ j=b\bmod 32$。
-
-(3) $500000\div 32=15625$（字号$i=15625$），$500000\bmod 32=0$（位号$j=0$）。验证：$15625\times 32+0=500000$。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item OSTEP 第39-40章——文件系统实现与i-node详解。
-    \item 陈海波《现代操作系统：原理与实现》第7章——Ext4与F2FS文件系统。
+    \item OSTEP 第 39--40 章——文件系统实现与 inode 详解。
+    \item 陈海波《现代操作系统：原理与实现》第 7 章——Ext4 与 F2FS 文件系统。
 \end{itemize}

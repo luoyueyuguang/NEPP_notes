@@ -1,809 +1,368 @@
-\section{一些技巧}
-\subsection{如何画图}
-\begin{enumerate}
-  \item 二重积分 \\
-  对称性+取特殊点 \\
-  \item 平面 \\
-    三点式画图法：\\
-    画出在$x$轴,$y$轴,$z$轴的截距。\\
-    \begin{tikzpicture}
-      \begin{axis}[
-          axis lines=center,
-          xlabel=$x$, ylabel=$y$, zlabel=$z$,
-          xmin=0, xmax=1.2,
-          ymin=0, ymax=1.2,
-          zmin=0, zmax=1.2,
-          xtick={0,1},
-          ytick={0,1},
-          ztick={0,1},
-          ticklabel style={font=\small},
-          view={120}{30},
-          clip=false,
-          width=8cm,
-          height=8cm
-        ]
-        % 绘制平面 x+y+z=1 使用fill between技术
-        \addplot3 [fill=blue!30, opacity=0.7, draw=blue] coordinates {
-          (1,0,0) (0,1,0) (0,0,1) (1,0,0)
-        };
+\section{计算的变形技巧}
 
-        % 标记截距点
-        \node[circle,fill=red,inner sep=1.5pt,label={above
-        right:$(1,0,0)$}] at (axis cs:1,0,0) {};
-        \node[circle,fill=red,inner sep=1.5pt,label={above
-        left:$(0,1,0)$}] at (axis cs:0,1,0) {};
-        \node[circle,fill=red,inner
-        sep=1.5pt,label={above:$(0,0,1)$}] at (axis cs:0,0,1) {};
+这一章不引入新定理，只整理计算题里反复出现的变形。绝大多数算不出来的时候，并不是缺一个公式，而是式子还停在不好算的形状：极限里两个无穷小相减，积分里根号套着平方，级数里通项是一串分式。下面按极限、积分、级数三条线走，每条给出一个最小例子和一张图，图用来提示变形前后到底变了什么。
 
-        % % 添加坐标轴标签
-        % \node at (axis cs:1.3,0,0) {$x$};
-        % \node at (axis cs:0,1.3,0) {$y$};
-        % \node at (axis cs:0,0,1.3) {$z$};
-        \node at (axis cs:0,0,0) [below left] {$O$};
-      \end{axis}
-    \end{tikzpicture} \\
-  \item 柱面 \\
-    只含两个变量,在另外一个轴上平行。\\
-    % 第一个柱面: x² + y² = 1
-    \boxed{\text{例1：}x^2+y^2=1}\\
-    \\
-    \begin{tikzpicture}
-      \begin{axis}[
-          axis lines=center,
-          xlabel=$x$, ylabel=$y$, zlabel=$z$,
-          xmin=-5, xmax=5,
-          ymin=-5, ymax=5,
-          zmin=-3, zmax=3,  % 减小z轴范围
-          xtick={-1,0,1},
-          ytick={-1,0,1},
-          ztick={-1,0,1},
-          view={120}{30},
-          width=10cm,            % 减小画布尺寸
-          height=10cm,
-          ticklabel style={font=\small},
-          clip=false,
-        ]
-        % 优化后的圆柱面绘制 - 大幅减少采样点
-        \addplot3[
-          mesh,
-          draw=blue!60,
-          fill=blue!20,
-          fill opacity=0.5,
-          % samples=20,        % 减少采样点
-          % samples y=10,      % 减少垂直采样
-          domain=0:360,      % 角度范围
-          y domain=-1.2:1.2, % 高度范围
-          z buffer=sort
-        ] ({cos(x)}, {sin(x)}, {y});
+\subsection{极限：先比较阶，再动笔}
 
-        % 添加坐标轴标签
-        \node[fill=white, inner sep=1pt] at (axis cs:1.5,0,0) {$x$};
-        \node[fill=white, inner sep=1pt] at (axis cs:0,1.5,0) {$y$};
-        \node[fill=white, inner sep=1pt] at (axis cs:0,0,1.5) {$z$};
-
-        % 原点标记
-        % \node at (axis cs:0,0,0) [below left] {$O$};
-      \end{axis}
-    \end{tikzpicture}
-    \\
-    \newpage
-    % 第二个柱面: y² = x
-    \boxed{\text{例2：}y^2=x}\\
-    \\
-    \begin{tikzpicture}
-      \begin{axis}[
-          axis lines=center,
-          xlabel=$x$, ylabel=$y$, zlabel=$z$,
-          xmin=0, xmax=2.5,
-          ymin=-2.5, ymax=2.5,
-          zmin=-2.5, zmax=2.5,
-          xtick={0,1,2},
-          ytick={-1,0,1},
-          ztick={-1,0,1},
-          view={120}{30},
-          width=8cm,
-          height=8cm,
-          title style={font=\small}
-        ]
-        % 高效绘制抛物线柱面
-        \foreach \z in {-1.5,-1.4,...,1.5} {
-          \addplot3[
-            thick,
-            blue!60,
-            samples=10,
-            domain=0:1.2
-          ] ({\x}, {sqrt(\x)}, {\z});
-          \addplot3[
-            thick,
-            blue!60,
-            samples=10,
-            domain=0:1.2,
-          ] ({\x}, {-sqrt(\x)}, {\z});
-        }
-
-        % 添加坐标轴标签
-        \node at (axis cs:2.5,0,0) [right] {$x$};
-        \node at (axis cs:0,1.5,0) [above] {$y$};
-        \node at (axis cs:0,0,1.5) [above] {$z$};
-        \node at (axis cs:0,0,0) [below left] {$O$};
-      \end{axis}
-    \end{tikzpicture} \\
-    \\
-    % 第三个柱面: z = 1 - x²
-    \boxed{\text{例3：}z=1-x^2}\\
-    \\
-    \begin{tikzpicture}
-      \begin{axis}[
-          axis lines=center,
-          xlabel=$x$, ylabel=$y$, zlabel=$z$,
-          xmin=-1.5, xmax=1.5,
-          ymin=-2, ymax=2,
-          zmin=-1.5, zmax=1.5,
-          xtick={-1,0,1},
-          ytick={-2,-1,0,1,2},
-          ztick={-1,0,1},
-          view={120}{30},
-          width=10cm,
-          height=8cm,
-          title style={font=\small, yshift=2ex}
-        ]
-        % 高效绘制抛物柱面 - 使用线框模式
-        \addplot3[
-          mesh,
-          samples=25,
-          samples y=15,
-          domain=-1.5:1.5,
-          y domain=-2:2,
-          % colormap={cool}{},
-          draw=blue,
-          line width=0.4pt
-        ] {1 - x^2};
-
-        % 添加关键曲线
-        \addplot3[
-          very thick,
-          red,
-          samples=50,
-          domain=-1.5:1.5,
-        ] (x, 0, {1 - x^2});
-
-        % 添加坐标轴标签
-        \node at (axis cs:1.6,0,0) [above] {$x$};
-        \node at (axis cs:0,2.2,0) [right] {$y$};
-        \node at (axis cs:0,0,1.6) [left] {$z$};
-        \node at (axis cs:0,0,0) [below left] {$O$};
-
-        % 标记顶点和特征点
-        \node[circle,fill=red,inner sep=1.5pt] at (axis cs:0,0,1) {};
-        \node[below right] at (axis cs:0,0,1) {$(0,0,1)$};
-
-        \node[circle,fill=green,inner sep=1.5pt] at (axis cs:1,0,0) {};
-        \node[above left] at (axis cs:1,0,0) {$(1,0,0)$};
-
-        \node[circle,fill=green,inner sep=1.5pt] at (axis cs:-1,0,0) {};
-        \node[above right] at (axis cs:-1,0,0) {$(-1,0,0)$};
-
-        % % 添加方程标签
-        % \node[fill=white, inner sep=2pt, rounded corners] at (axis
-        % cs:0,-1.5,1.2)
-        %     {$z = 1 - x^2$};
-      \end{axis}
-    \end{tikzpicture}
-  \item 旋转曲面 \\
-    含两个曲面的平方和，旋转轴为另一变量对应的轴 \\
-    \boxed{\text{例1：}z=x^2+y^2} \\
-    先关注$z=y^{2}$,然后绕$z$轴旋转 \\
-    \\
-    %画出z=y^{2}， x=0的图像
-    \begin{tikzpicture}
-      \begin{axis}[
-          axis lines=center,
-          xlabel=$x$, ylabel=$y$, zlabel=$z$,
-          xmin=-0.5, xmax=0.5,
-          ymin=-1.5, ymax=1.5,
-          zmin=-0.5, zmax=2.5,
-          xtick={0},
-          ytick={-1,0,1},
-          ztick={0,1,2},
-          view={120}{30},
-          width=8cm,
-          height=8cm,
-          title style={font=\small},
-          title={Step 1: 先关注$z=y^{2}$}
-        ]
-        % 绘制抛物线曲线 (x=0, z=y^2)
-        \addplot3[
-          thick,
-          red,
-          samples=20,
-          domain=-1.5:1.5,
-        ] (0, x, {x^2});
-
-        % 标记关键点
-        \node[circle,fill=blue,inner sep=1.5pt,label={above
-        left:$(0,0,0)$}] at (axis cs:0,0,0) {};
-        \node[circle,fill=blue,inner
-        sep=1.5pt,label={above:$(0,1,1)$}] at (axis cs:0,1,1) {};
-        \node[circle,fill=blue,inner
-        sep=1.5pt,label={below:$(0,-1,1)$}] at (axis cs:0,-1,1) {};
-        \node[circle,fill=blue,inner
-        sep=1.5pt,label={left:$(0,0,0)$}] at (axis cs:0,0,0) {};
-
-        % 添加坐标轴标签
-        \node at (axis cs:0.5,0,0) [right] {$x$};
-        \node at (axis cs:0,1.6,0) [above] {$y$};
-        \node at (axis cs:0,0,2.6) [left] {$z$};
-
-        % 添加平面指示
-        \draw[blue!30, fill=blue!10, opacity=0.5] (axis cs:0,-1.5,0)
-        -- (axis cs:0,1.5,0) -- (axis cs:0,1.5,2.5) -- (axis
-        cs:0,-1.5,2.5) -- cycle;
-        \node[blue!80] at (axis cs:0,0.5,2) {$x=0$};
-
-      \end{axis}
-    \end{tikzpicture} \\
-    之后绕$z$轴旋转，即可得到$z=x^2+y^2$的图像 \\
-    %椭圆抛物面
-    % \begin{tikzpicture}
-    % \begin{axis}[tick label style={font=\tiny},view={120}{30},
-    % axis lines =center, mark=none, axis on top, xmax=1.5, ymax=1.5,
-    % zmax=0.8, width=8cm, height=8cm]
-    % \addplot3 [colormap/winter, surf, z buffer=sort,
-    % samples=30,domain=0:1, y domain=0:2*pi,]
-    % ({x* cos(deg(y))},{x* sin(deg(y))},0.5*x^2);
-
-    %   \node at (axis cs: 1.0,0,0) {$x$};
-    %   \node at (axis cs: 0,1.0,0) {$y$};
-    %   \node at (axis cs: 0,0,0.8) {$z$};
-    % \end{axis}
-    % \end{tikzpicture}
-    \begin{tikzpicture}
-      \begin{axis}[
-          axis lines=center,
-          xlabel=$x$, ylabel=$y$, zlabel=$z$,
-          xmin=-2, xmax=2, ymin=-2, ymax=2, zmin=0, zmax=4.5,
-          view={120}{30},
-          % colormap={viridis}{},
-          width=8cm, height=8cm,
-          title={Step 2:绕$z$轴旋转得到 $z = x^2 + y^2$},
-          title style={font=\small}
-        ]
-
-        % 原始抛物线
-        \addplot3[very thick, red, samples=20, domain=-2:2]
-        (0, x, {x^2});
-
-        \addplot3[very thick, red, samples=20, domain=-2:2]
-        (y, 0, {y^2});
-        %画一条从(-1,0,4)到(1,0,4)的线段
-        \draw[very thick, red] (axis cs:-2,0,4) -- (axis cs:2,0,4);
-
-        % 添加坐标轴标签
-        \node at (axis cs:2.3,0,0) [right] {$x$};
-        \node at (axis cs:0,2.3,0) [above] {$y$};
-        \node at (axis cs:0,0,4.8) [left] {$z$};
-
-        % 标记关键点和轨迹
-        \node[circle,fill=blue,inner sep=1.5pt] at (axis cs:0,1,1) {};
-        \addplot3[thick, blue, samples=20, domain=0:360]
-        ({cos(x)}, {sin(x)}, 1);
-
-        \node[circle,fill=green,inner sep=1.5pt] at (axis cs:0,1.5,2.25) {};
-        \addplot3[thick, green, samples=20, domain=0:360]
-        ({1.5 * cos(x)}, {1.5 * sin(x)}, 2.25);
-
-        \node[circle,fill=red,inner sep=1.5pt] at (axis cs:0,2,4) {};
-        \addplot3[thick, red, samples=20, domain=0:360]
-        ({2*cos(x)}, {2*sin(x)}, 4);
-
-        % % 添加旋转说明
-        % \draw[->, thick, green] (axis cs:0,1,1) to [bend right]
-        %     node[midway, above, sloped] {rotate} (axis cs:0.7,0.7,1);
-      \end{axis}
-    \end{tikzpicture}
-
-    \boxed{\text{例2：}x^2+y^2+z^2=a^2} \\
-    %先关注x^2+z^2=a^2
-    \begin{tikzpicture}
-      \begin{axis}[
-          axis lines=center,
-          xlabel=$x$, ylabel=$y$, zlabel=$z$,
-          xmin=-3, xmax=3, ymin=-3, ymax=3, zmin=-3,zmax=3,
-          view={120}{30},
-          title={Step 1:关注$x^2+y^2=a^2$,示例中$a$为$2$},
-          title style={font=\small}
-        ]
-
-        \addplot3[thick, red, samples=20, domain=0:360]
-        ({2*cos(x)}, 0, {2*sin(x)});
-
-      \end{axis}
-    \end{tikzpicture} \\
-
-    %画出x^2+y^2+z^2=2^2,即一个网格球面
-    \begin{tikzpicture}
-        \begin{axis}[
-            axis lines=center,
-            xlabel=$x$, ylabel=$y$, zlabel=$z$,
-            xmin=-3, xmax=3, ymin=-3, ymax=3, zmin=-3,zmax=3,
-            xtick={-2,-1,0,1,2},
-            ytick={-2,-1,0,1,2},
-            ztick={-2,-1,0,1,2},
-            view={120}{30},      % 方位角45°, 仰角30°
-            % width=10cm, 
-            % height=10cm,
-            title={Step 2:绕$z$轴旋转得到球面},
-            title style={font=\small},
-        ]
-            % ===== 绘制球面 =====
-            \addplot3[
-                surf,
-                % thick,
-                red,
-                opacity=0.8,    % 半透明效果
-                samples=30,     % 经度方向采样点
-                samples y=30,   % 纬度方向采样点
-                domain=0:360,   % 经度范围 (0° 到 360°)
-                y domain=0:180, % 纬度范围 (0° 到 180°)
-                z buffer=sort
-            ] ({2*sin(y)*cos(x)}, {2*sin(y)*sin(x)}, {2*cos(y)});
-            
-            % ===== 标记关键点 =====
-            \node[circle,fill=red,inner sep=1.5pt,label={above right:$(2,0,0)$}] at (axis cs:2,0,0) {};
-            \node[circle,fill=red,inner sep=1.5pt,label={above left:$(-2,0,0)$}] at (axis cs:-2,0,0) {};
-            \node[circle,fill=red,inner sep=1.5pt,label={left:$(0,2,0)$}] at (axis cs:0,2,0) {};
-            \node[circle,fill=red,inner sep=1.5pt,label={right:$(0,-2,0)$}] at (axis cs:0,-2,0) {};
-            \node[circle,fill=red,inner sep=1.5pt,label={above:$(0,0,2)$}] at (axis cs:0,0,2) {};
-            \node[circle,fill=red,inner sep=1.5pt,label={below:$(0,0,-2)$}] at (axis cs:0,0,-2) {};
-        \end{axis}
-    \end{tikzpicture}
-
-  \item 一般二次曲面 \\
-    其画图方法为寻找平方和，找到平方和后化简将其当作旋转曲面对待，画出草图，再纠结具体形状 \\
-    \boxed{z=\frac{x^2}{3}+\frac{y^2}{4}}\\
-    如旋转曲面画法，当成$z=x^2+y^2$的旋转曲面，绕$z$轴旋转即可 \\
-    最后因为是椭圆，图会扁不少\\
-    \boxed{
-      \frac{z^2}{2} - \frac{x^2}{3} - \frac{y^2}{4} = 0
-    }
-    \\
-    化为\\
-    \boxed{
-      \frac{z^2}{2} - (\frac{1}{3}x^2 + \frac{1}{4}y^2) = 0
-    }
-    \\
-    计算(使用例1的方法计算) \\
-    \boxed{
-      \frac{z^2}{2} - \frac{1}{4}y^2 = 0;
-    }\\
-    然后绕$z$轴旋转，即可。
-
-  \item 其他二次曲面 \\
-    \boxed{z=xy} \\
-    马鞍面，可以直接记 \\
-    %画出z=xy
-    \begin{tikzpicture}
-      \begin{axis}[
-        axis lines=center,
-        xlabel=$x$, ylabel=$y$, zlabel=$z$,
-        xmin=-3, xmax=3, ymin=-3, ymax=3, zmin=-3,zmax=3,
-        view={60}{30},
-        title={$z=xy$},
-        title style={font=\small},
-        grid=major,
-        grid style={dashed, gray!30}
-      ]
-        \addplot3[
-        surf,
-        opacity=0.85,   % 半透明效果
-        samples=35,     % x方向采样点
-        samples y=35,   % y方向采样点
-        domain=-2:2,    % x范围
-        y domain=-2:2,  % y范围
-        % shader=interp   % 平滑着色
-    ] {x*y};
-      \end{axis}
-    \end{tikzpicture}
-
-
-\end{enumerate}
-
-\subsection{对于某些情况的处理}
-\begin{conclusion}{对于绝对值的处理}{process of abs}
-\end{conclusion}
-
-
-\section{综合习题}
-
-\subsection{基础过关题}
-
-\textbf{1.}（极限与积分综合）设 $f(x)$ 连续可导，$f(0)=0$，$f'(0)=2$。令
+先看一个凭直觉容易算错的极限：
 \[
-F(x)=\int_{0}^{x} t f(x^{2}-t^{2})\,\mathrm{d}t.
+    \lim_{x\to0}\frac{x-\sin x}{x^{3}}.
 \]
-\begin{enumerate}[label=(\arabic*)]
-\item 求 $F'(x)$；
-\item 求极限 $\displaystyle\lim_{x\to 0}\frac{F(x)}{x^{4}}$。
-\end{enumerate}
+把 $\sin x$ 换成 $x$，分子变成 $0$，似乎极限是 $0$。这个做法错在：$x$ 与 $\sin x$ 等价，只说明二者的比值趋于 $1$，而这里做的是减法。两个一阶无穷小相减，一阶部分正好抵消，剩下的是更高阶的项。由 $\sin x=x-\dfrac{x^{3}}{6}+o(x^{3})$ 得
+\[
+    x-\sin x=\frac{x^{3}}{6}+o(x^{3}),
+    \qquad
+    \lim_{x\to0}\frac{x-\sin x}{x^{3}}=\frac{1}{6}.
+\]
+所以等价替换的边界很清楚：分子分母的\textbf{整体乘除因子}可以替换，加减结构里的单项不能。遇到加减，就展开到“第一个不再抵消的阶”；展开几阶不是固定的，取决于抵消后还剩哪一项。
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 作变量代换 $u=x^{2}-t^{2}$，则 $\mathrm{d}u=-2t\,\mathrm{d}t$，$t\,\mathrm{d}t=-\frac{1}{2}\mathrm{d}u$。
-当 $t=0$ 时 $u=x^{2}$；$t=x$ 时 $u=0$。于是
-\[
-F(x)=\int_{x^{2}}^{0} f(u)\cdot\Bigl(-\frac{1}{2}\Bigr)\mathrm{d}u
-     =\frac{1}{2}\int_{0}^{x^{2}} f(u)\,\mathrm{d}u.
-\]
-由变上限积分求导公式，
-\[
-F'(x)=\frac{1}{2}f(x^{2})\cdot 2x = xf(x^{2}).
-\]
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.84\linewidth,height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=0,xmax=1.6,ymin=0,ymax=1.7,
+  domain=0:1.6,samples=200,font=\footnotesize,
+  legend style={font=\scriptsize,at={(0.02,0.98)},anchor=north west}]
+\addplot[gray!70,thick,dashed]{x};
+\addlegendentry{$y=x$}
+\addplot[blue,thick]{sin(deg(x))};
+\addlegendentry{$y=\sin x$}
+\addplot[red!70!black,thick]{x-sin(deg(x))};
+\addlegendentry{$x-\sin x$}
+\addplot[green!50!black,thick,dotted,line width=1.2pt]{x^3/6};
+\addlegendentry{$x^{3}/6$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 图中上方的两条曲线分别是 $x$ 与 $\sin x$，它们的竖直间距就是被减掉的 $x-\sin x$；这个差与虚线 $x^{3}/6$ 在整个区间上几乎重合，说明差的首项是三阶，而不是零。}}
 
-(2) 由 $f(0)=0$，$f'(0)=2$ 知 $f(u)=2u+o(u)$（$u\to 0$）。故
-\[
-\int_{0}^{x^{2}} f(u)\,\mathrm{d}u
-=\int_{0}^{x^{2}} \bigl[2u+o(u)\bigr]\mathrm{d}u
-=x^{4}+o(x^{4}),
-\]
-从而 $F(x)=\frac{1}{2}x^{4}+o(x^{4})$。因此
-\[
-\lim_{x\to 0}\frac{F(x)}{x^{4}}=\frac{1}{2}.
-\]
+同一种“先合并、再比较”的思路，在别的形状里换个名字出现：
+\begin{itemize}
+    \item 根式差先乘共轭：$\sqrt{1+x}-1=\dfrac{x}{\sqrt{1+x}+1}\sim\dfrac{x}{2}$，$\sqrt{x^{2}+x}-x=\dfrac{x}{\sqrt{x^{2}+x}+x}\to\dfrac12$（$x\to+\infty$）。
+    \item 分式差先通分。$\dfrac{1}{x}-\dfrac{1}{\sin x}$ 通分后是 $\dfrac{\sin x-x}{x\sin x}$，分子用泰勒展开，分母用等价无穷小。
+    \item 指数差先提公因子。$e^{x}-e^{\sin x}=e^{\sin x}\bigl(e^{x-\sin x}-1\bigr)\sim e^{\sin x}(x-\sin x)$，因为 $e^{u}-1\sim u$。把一个因子提到外面，剩下的差就能用上一条。
+\end{itemize}
+这几步的共同目标只有一个：把“相减”变成“相乘”，让等价替换重新合法。
 
+\subsection{幂指函数：取对数，把指数拉下来}
 
-\else \answerarea \fi%
-\textbf{2.}（导数与积分综合）设 $f(x)$ 可导，且满足积分方程
+$u(x)^{v(x)}$ 既不是幂函数也不是指数函数，求导、求极限都没有直接公式。只要底数在极限点附近为正，就把它写成指数：
 \[
-\int_{0}^{x} (x-t)f'(t)\,\mathrm{d}t = f(x)-\sin x,
+    u^{v}=\exp\bigl(v\ln u\bigr),\qquad u>0.
 \]
-以及 $f(0)=0$。求 $f(x)$ 的表达式。
+这样极限落到 $\lim v\ln u$ 上，$1^{\infty}$、$0^{0}$、$\infty^{0}$ 都被翻译成 $0\cdot\infty$ 型的乘积。
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-记 $I(x)=\displaystyle\int_{0}^{x}(x-t)f'(t)\,\mathrm{d}t$，则原方程为 $I(x)=f(x)-\sin x$。
+最常遇到的是 $1^{\infty}$：$u\to1$，$v\to\infty$。此时令 $u=1+(u-1)$，由 $\ln(1+t)\sim t$ 得 $\ln u\sim u-1$，于是
+\[
+    \lim u^{v}=\exp\Bigl(\lim v\,(u-1)\Bigr).
+\]
+这条式子省掉了每次重写对数的步骤，但用之前要确认两件事：$u\to1$、$v\to\infty$，且 $u$ 在去心邻域内为正。
 
-求导得
+例如 $\lim\limits_{x\to0}(\cos x)^{1/x^{2}}$ 是 $1^{\infty}$ 型，$u-1=\cos x-1\sim-\dfrac{x^{2}}{2}$，所以
 \[
-I'(x)=\frac{\mathrm{d}}{\mathrm{d}x}\Bigl[x\int_{0}^{x}f'(t)\,\mathrm{d}t-\int_{0}^{x}tf'(t)\,\mathrm{d}t\Bigr]
-     =\int_{0}^{x}f'(t)\,\mathrm{d}t + xf'(x) - xf'(x)
-     =f(x)-f(0)=f(x).
+    \lim_{x\to0}(\cos x)^{1/x^{2}}
+    =\exp\left(\lim_{x\to0}\frac{\cos x-1}{x^{2}}\right)
+    =e^{-1/2}.
 \]
-另一方面，对原方程两边求导：$I'(x)=f'(x)-\cos x$。于是
-\[
-f(x)=f'(x)-\cos x\quad\Longrightarrow\quad f'(x)-f(x)=\cos x.
-\]
+如果指数不是 $1/x^{2}$ 而是 $1/x$，同样的算法会得到 $e^{0}=1$：主导项本来就是 $0$，这时若还想估计趋近速度，才需要把 $u-1$ 展到更高阶。
 
-这是一阶线性微分方程，积分因子为 $e^{-x}$：
-\[
-\bigl(e^{-x}f(x)\bigr)' = e^{-x}\cos x.
-\]
-积分得
-\[
-e^{-x}f(x)=\int_{0}^{x} e^{-t}\cos t\,\mathrm{d}t
-          =\frac{e^{-x}}{2}(\sin x-\cos x)+\frac{1}{2}.
-\]
-故
-\[
-f(x)=\frac{1}{2}(\sin x-\cos x)+\frac{1}{2}e^{x}.
-\]
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth,height=5.2cm,
+  xlabel={$u$}, ylabel={$(1+u)^{1/u}$},
+  xmin=-0.68,xmax=2.6,ymin=1.4,ymax=5.2,
+  xtick={-0.5,0,0.5,1,1.5,2,2.5},
+  ytick={2,3,4,5},font=\footnotesize]
+\addplot[blue,thick,domain=0.02:2.5,samples=150]{(1+x)^(1/x)};
+\addplot[blue,thick,domain=-0.6:-0.02,samples=150]{(1+x)^(1/x)};
+\addplot[red!70!black,dashed,domain=-0.68:2.6]{2.71828};
+\addplot[only marks,mark=o,mark size=2pt,blue] coordinates {(0,2.71828)};
+\node[font=\scriptsize,red!70!black,anchor=south east] at (axis cs:2.55,2.72){$e$};
+\node[font=\scriptsize,blue,anchor=west] at (axis cs:0.35,4.7){空心点：$u=0$ 处无定义};
+\draw[->,blue!70,thin] (axis cs:0.34,4.62) -- (axis cs:0.06,2.82);
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 底数越过 $1$ 时，$(1+u)^{1/u}$ 从两侧都向 $e$ 靠拢：左侧 $u<0$ 时底数小于 $1$、指数为负，右侧底数大于 $1$、指数为正。$u=0$ 处函数没有定义，空心点只是标出极限位置。}}
 
+\subsection{积分换元：改三样东西}
 
-\else \answerarea \fi%
-\textbf{3.}（极限与定积分综合）求极限
+定积分换元公式是
 \[
-\lim_{n\to\infty}\frac{1}{n^{2}}\sum_{k=1}^{n}\sqrt{n^{2}-k^{2}}.
+    \int_{a}^{b}f(x)\,\mathrm{d}x
+    =\int_{\alpha}^{\beta}f\bigl(\varphi(t)\bigr)\varphi'(t)\,\mathrm{d}t,
 \]
+其中 $\varphi$ 在 $[\alpha,\beta]$ 上连续可导、$\varphi(\alpha)=a$、$\varphi(\beta)=b$，并且 $t$ 在区间上变化时 $\varphi(t)$ 恰好走遍 $[a,b]$。使用时同时改三处：被积函数里的 $x$ 换成 $\varphi(t)$、$\mathrm{d}x$ 换成 $\varphi'(t)\mathrm{d}t$、上下限换成 $t$ 的范围。定积分换元\textbf{不必回代}，因为上下限已经跟着换了；不定积分则必须把 $t$ 换回 $x$，否则答案里留着另一个变量。
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-将和式改写为 Riemann 和的形式：
-\[
-\frac{1}{n^{2}}\sum_{k=1}^{n}\sqrt{n^{2}-k^{2}}
-=\frac{1}{n}\sum_{k=1}^{n}\sqrt{1-\Bigl(\frac{k}{n}\Bigr)^{2}}.
-\]
-取分割 $0<\frac{1}{n}<\frac{2}{n}<\cdots<\frac{n}{n}=1$，被积函数 $f(x)=\sqrt{1-x^{2}}$，则
-\[
-\lim_{n\to\infty}\frac{1}{n}\sum_{k=1}^{n}\sqrt{1-\Bigl(\frac{k}{n}\Bigr)^{2}}
-=\int_{0}^{1}\sqrt{1-x^{2}}\,\mathrm{d}x.
-\]
-该定积分为单位圆的四分之一面积，故
-\[
-\int_{0}^{1}\sqrt{1-x^{2}}\,\mathrm{d}x = \frac{\pi}{4}.
-\]
+根式里出现平方时，三角代换能把根号整个消掉：
 
+\begin{center}
+{\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{ccc}
+\toprule
+根式 & 代换 & 消根号用的恒等式 \\
+\midrule
+$\sqrt{a^{2}-x^{2}}$ & $x=a\sin t$ & $1-\sin^{2}t=\cos^{2}t$ \\
+$\sqrt{a^{2}+x^{2}}$ & $x=a\tan t$ & $1+\tan^{2}t=\sec^{2}t$ \\
+$\sqrt{x^{2}-a^{2}}$ & $x=a\sec t$ & $\sec^{2}t-1=\tan^{2}t$ \\
+\bottomrule
+\end{tabular}}
+\end{center}
 
-\else \answerarea \fi%
-\subsection{综合提高题}
+以 $\int_{0}^{a}\sqrt{a^{2}-x^{2}}\,\mathrm{d}x$ 为例。令 $x=a\sin t$，则 $\mathrm{d}x=a\cos t\,\mathrm{d}t$，$x:0\to a$ 对应 $t:0\to\dfrac{\pi}{2}$，根式与 $\cos t$ 抵消：
+\[
+    \int_{0}^{a}\sqrt{a^{2}-x^{2}}\,\mathrm{d}x
+    =\int_{0}^{\pi/2}a^{2}\cos^{2}t\,\mathrm{d}t
+    =a^{2}\cdot\frac{\pi}{4}
+    =\frac{\pi a^{2}}{4}.
+\]
+结果正好是半径为 $a$ 的四分之一圆面积，这也说明代换没有算错。
 
-\textbf{4.}（微分方程与级数综合）用幂级数方法求解初值问题
-\[
-y''+xy'+y=0,\qquad y(0)=1,\; y'(0)=0.
-\]
-将解写成幂级数形式，写出前5项，并指出该级数的收敛半径。
+\begin{center}
+\begin{tikzpicture}[scale=2.6]
+\fill[blue!12] (0,0) -- (1,0) arc (0:90:1) -- cycle;
+\draw[->] (-0.12,0)--(1.3,0) node[right]{$x$};
+\draw[->] (0,-0.12)--(0,1.3) node[above]{$y$};
+\draw[thick,blue!60!black] (1,0) arc (0:90:1);
+\draw[dashed,gray!70] (0.6,0.8)--(0.6,0) node[below,font=\scriptsize]{$x$};
+\draw[dashed,gray!70] (0.6,0.8)--(0,0.8) node[left,font=\scriptsize]{$y$};
+\draw[thick,red!70!black] (0,0)--(0.6,0.8);
+\draw[red!70!black] (0,0.3) arc (90:53.13:0.3);
+\node[font=\scriptsize,red!70!black] at (0.12,0.44){$t$};
+\fill[red!70!black] (0.6,0.8) circle (1.2pt);
+\node[font=\scriptsize,anchor=south west] at (0.63,0.82){$(x,y)$};
+\node[font=\scriptsize,anchor=west] at (0.04,1.06){$x^{2}+y^{2}=a^{2}$};
+\node[font=\scriptsize,anchor=west] at (1.03,0.06){$a$};
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 积分区域是 $x$ 轴上方的四分之一圆。代换 $x=a\sin t$ 只是换了一种方式描述这条圆弧：$t$ 从 $0$ 到 $\frac{\pi}{2}$ 时，点沿圆弧从 $(a,0)$ 走到 $(0,a)$，所以积分限随之变成 $[0,\frac{\pi}{2}]$。}}
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-设 $y=\displaystyle\sum_{n=0}^{\infty} a_{n}x^{n}$，则
+还有一类常用的倒代换：被积函数含 $\dfrac{1}{x}$、$\dfrac{1}{x^{2}}$ 或 $\sqrt{x^{2}\pm a^{2}}$ 时，令 $x=\dfrac{1}{t}$ 往往能把 $x\to\infty$ 的积分拉回 $t\to0$，把 $x\to0$ 的瑕点推到无穷。例如
 \[
-y'=\sum_{n=1}^{\infty} na_{n}x^{n-1},\qquad
-y''=\sum_{n=2}^{\infty} n(n-1)a_{n}x^{n-2}.
+    \int\frac{\mathrm{d}x}{x\sqrt{x^{2}-1}},
 \]
-代入方程：
-\[
-\sum_{n=2}^{\infty} n(n-1)a_{n}x^{n-2}
-+x\sum_{n=1}^{\infty} na_{n}x^{n-1}
-+\sum_{n=0}^{\infty} a_{n}x^{n}=0.
-\]
-将第一项指标平移：令 $m=n-2$，得 $\sum_{m=0}^{\infty}(m+2)(m+1)a_{m+2}x^{m}$。
-各项统一为 $x^{n}$ 的幂：
-\[
-\sum_{n=0}^{\infty}\bigl[(n+2)(n+1)a_{n+2}+na_{n}+a_{n}\bigr]x^{n}=0,
-\]
-其中 $na_{n}$ 项仅从 $n=1$ 开始，但当 $n=0$ 时该项自然为零。比较系数得递推公式
-\[
-(n+2)(n+1)a_{n+2}+(n+1)a_{n}=0
-\;\Longrightarrow\;
-a_{n+2}=-\frac{a_{n}}{n+2}\quad (n=0,1,2,\ldots).
-\]
+令 $x=\dfrac{1}{t}$ 后根式变成 $\dfrac{\sqrt{1-t^{2}}}{|t|}$，与 $\mathrm{d}x=-\dfrac{\mathrm{d}t}{t^{2}}$ 一约，只剩 $\arccos$ 型。
 
-初始条件：$a_{0}=y(0)=1$，$a_{1}=y'(0)=0$。由 $a_{1}=0$ 知所有奇次项均为零。逐次计算偶次项：
-\[
-a_{2}=-\frac{a_{0}}{2}=-\frac{1}{2},\quad
-a_{4}=-\frac{a_{2}}{4}=\frac{1}{8},\quad
-a_{6}=-\frac{a_{4}}{6}=-\frac{1}{48},\quad
-a_{8}=-\frac{a_{6}}{8}=\frac{1}{384}.
-\]
-故
-\[
-y(x)=1-\frac{x^{2}}{2}+\frac{x^{4}}{8}-\frac{x^{6}}{48}+\frac{x^{8}}{384}-\cdots
-     =e^{-x^{2}/2}.
-\]
-（事实上，直接验证可知 $y=e^{-x^{2}/2}$ 满足原方程。）该级数为指数函数的幂级数，收敛半径 $R=+\infty$。
+\subsection{区间再现：把 $x$ 换成 $a+b-x$}
 
+对任意在 $[a,b]$ 上可积的 $f$，作代换 $u=a+b-x$ 得
+\[
+    \int_{a}^{b}f(x)\,\mathrm{d}x
+    =\int_{a}^{b}f(a+b-x)\,\mathrm{d}x .
+\]
+推导只有一行：$\mathrm{d}x=-\mathrm{d}u$，上下限互换后负号抵消。它的用处不在于算出某个新积分，而在于同一个积分被写成两种样子，相加或相减后能消掉难处理的部分。
 
-\else \answerarea \fi%
-\textbf{5.}（多元函数与曲线积分综合）验证曲线积分
+看
 \[
-I=\int_{L} (3x^{2}y+e^{y})\,\mathrm{d}x+(x^{3}+xe^{y}-2y)\,\mathrm{d}y
+    I=\int_{0}^{\pi/2}\frac{\sin x}{\sin x+\cos x}\,\mathrm{d}x .
 \]
-在全平面上与路径无关，并求从原点 $O(0,0)$ 到点 $A(1,1)$ 的积分值。
+直接找原函数并不容易，但把 $x$ 换成 $\dfrac{\pi}{2}-x$ 后，$\sin$ 与 $\cos$ 互换：
+\[
+    I=\int_{0}^{\pi/2}\frac{\cos x}{\cos x+\sin x}\,\mathrm{d}x .
+\]
+两式相加，被积函数在每一点都等于 $1$：
+\[
+    2I=\int_{0}^{\pi/2}1\,\mathrm{d}x=\frac{\pi}{2},
+    \qquad I=\frac{\pi}{4}.
+\]
+判断能不能用这一招，看 $f(x)+f(a+b-x)$ 是否比 $f(x)$ 简单：这里恰好是 $1$。在 $[0,\pi]$ 上 $\sin(\pi-x)=\sin x$，所以只含 $\sin x$ 的函数在代换后不变；如果被积函数外面还乘着 $x$，代换会让因子变成 $\pi-x$，两者相加得常数 $\pi$，这条思路就是处理 $\int_{0}^{\pi}xf(\sin x)\,\mathrm{d}x$ 的入口。
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-记 $P=3x^{2}y+e^{y}$，$Q=x^{3}+xe^{y}-2y$。则
-\[
-\frac{\partial P}{\partial y}=3x^{2}+e^{y},\qquad
-\frac{\partial Q}{\partial x}=3x^{2}+e^{y}.
-\]
-由于 $\frac{\partial P}{\partial y}=\frac{\partial Q}{\partial x}$ 在全平面恒成立，积分与路径无关。
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.7\linewidth,height=5.2cm,
+  xlabel={$x$}, ylabel={},
+  xmin=0,xmax=90,ymin=0,ymax=1.05,
+  xtick={0,30,60,90},
+  xticklabels={$0$,$\frac{\pi}{6}$,$\frac{\pi}{3}$,$\frac{\pi}{2}$},
+  ytick={0,0.5,1},font=\footnotesize,
+  legend pos=outer north east,
+  legend style={font=\scriptsize}]
+\addplot[blue,thick,domain=0:90,samples=200]{sin(x)/(sin(x)+cos(x))};
+\addlegendentry{$\frac{\sin x}{\sin x+\cos x}$}
+\addplot[red!70!black,thick,dashed,domain=0:90,samples=200]{cos(x)/(sin(x)+cos(x))};
+\addlegendentry{$\frac{\cos x}{\sin x+\cos x}$}
+\addplot[gray!65,dotted,domain=0:90]{0.5};
+\addlegendentry{$y=\frac12$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 两条曲线关于水平线 $y=\frac12$ 互为镜像：把 $x$ 换成 $\frac{\pi}{2}-x$，蓝线就变成红线。因此它们与 $x$ 轴围出的面积相等；而在每个 $x$ 处两函数值之和为 $1$，两块面积加起来是矩形的面积 $\frac{\pi}{2}$。}}
 
-求势函数 $u(x,y)$ 使 $\mathrm{d}u=P\mathrm{d}x+Q\mathrm{d}y$。由 $\frac{\partial u}{\partial x}=P$ 得
-\[
-u(x,y)=\int (3x^{2}y+e^{y})\,\mathrm{d}x = x^{3}y+xe^{y}+\varphi(y).
-\]
-代入 $\frac{\partial u}{\partial y}=Q$：
-\[
-x^{3}+xe^{y}+\varphi'(y)=x^{3}+xe^{y}-2y\;\Longrightarrow\; \varphi'(y)=-2y,
-\]
-故 $\varphi(y)=-y^{2}+C$。取 $C=0$ 得 $u(x,y)=x^{3}y+xe^{y}-y^{2}$。于是
-\[
-I=u(1,1)-u(0,0)=(1+e-1)-0=e.
-\]
+\subsection{对称区间：奇偶性先砍一半}
 
+区间关于原点对称时，$[a,b]=[-a,a]$，上式中的 $a+b-x$ 就是 $-x$，于是
+\[
+    \int_{-a}^{a}f(x)\,\mathrm{d}x
+    =\int_{-a}^{a}f(-x)\,\mathrm{d}x .
+\]
+两式相加，被积函数变成 $f(x)+f(-x)$。于是奇函数（$f(-x)=-f(x)$）的积分为 $0$，偶函数（$f(-x)=f(x)$）的积分为 $2\int_{0}^{a}f(x)\,\mathrm{d}x$。这不是新公式，而是区间再现的直接推论，但用起来最快：先看奇偶，能砍就砍，剩下的再换元。
 
-\else \answerarea \fi%
-\textbf{6.}（积分与级数综合）将函数
-\[
-f(x)=\int_{0}^{x} \frac{\ln(1+t)}{t}\,\mathrm{d}t
-\]
-展开为 $x$ 的幂级数，并求常数项级数 $\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n^{2}}$ 的和。
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.46\linewidth,height=4.6cm,
+  xlabel={$x$},
+  xmin=-1.2,xmax=1.2,ymin=0,ymax=1.15,
+  xtick={-1,0,1},ytick={0,0.5,1},font=\footnotesize,
+  title={偶函数 $f(x)=x^{2}$},title style={font=\small}]
+\addplot[fill=blue!25,draw=blue,thick,domain=-1:1,samples=100]{x^2}\closedcycle;
+\end{axis}
+\end{tikzpicture}
+\hspace{0.4em}
+\begin{tikzpicture}
+\begin{axis}[width=0.46\linewidth,height=4.6cm,
+  xlabel={$x$},
+  xmin=-1.2,xmax=1.2,ymin=-1.15,ymax=1.15,
+  xtick={-1,0,1},ytick={-1,0,1},font=\footnotesize,
+  title={奇函数 $f(x)=x^{3}$},title style={font=\small}]
+\addplot[fill=red!25,draw=red!70!black,thick,domain=-1:0,samples=60]{x^3}\closedcycle;
+\addplot[fill=blue!25,draw=blue,thick,domain=0:1,samples=60]{x^3}\closedcycle;
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 左图：偶函数左右两半形状相同，整个积分是右半的两倍。右图：奇函数的右半与左半关于原点中心对称，蓝色与红色两块面积相等、符号相反，相加为零。}}
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-由对数函数的幂级数展开式 $\ln(1+t)=\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}t^{n}$（$|t|<1$），有
-\[
-\frac{\ln(1+t)}{t}=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}t^{n-1},\quad |t|<1.
-\]
-逐项积分（幂级数在其收敛区间内可逐项积分）：
-\[
-f(x)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}\cdot\frac{x^{n}}{n}
-     =\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n^{2}}x^{n},\quad |x|\leq 1.
-\]
-（当 $x=1$ 时级数为交错级数，由 Leibniz 判别法知其收敛；$x=-1$ 时类似。）
+\subsection{级数：先算部分和，再谈收敛}
 
-令 $x=1$，则
-\[
-f(1)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n^{2}}.
-\]
-另一方面，
-\[
-\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n^{2}}
-=\sum_{n=1}^{\infty}\frac{1}{n^{2}}-2\sum_{n=1}^{\infty}\frac{1}{(2n)^{2}}
-=\frac{\pi^{2}}{6}-\frac{2}{4}\cdot\frac{\pi^{2}}{6}
-=\frac{\pi^{2}}{12}.
-\]
-（也可由 $f(1)=\int_{0}^{1}\frac{\ln(1+t)}{t}\mathrm{d}t$ 及二重积分或 dilog 函数得知其值为 $\frac{\pi^{2}}{12}$。）
+级数 $\sum a_{n}$ 收敛，定义就是部分和 $S_{N}=a_{1}+a_{2}+\cdots+a_{N}$ 有极限。所以只要能把 $S_{N}$ 写成关于 $N$ 的显式式子，收敛性和和都一并解决。能裂项的通项属于这一类。
 
+以 $\sum_{n=1}^{\infty}\frac{1}{n(n+1)}$ 为例。通项拆成
+\[
+    \frac{1}{n(n+1)}=\frac{1}{n}-\frac{1}{n+1},
+\]
+部分和里相邻两项首尾相消：
+\[
+    S_{N}=\left(1-\frac12\right)+\left(\frac12-\frac13\right)+\cdots+
+    \left(\frac1N-\frac1{N+1}\right)
+    =1-\frac{1}{N+1}.
+\]
+令 $N\to\infty$ 得和为 $1$。一般的 $\dfrac{1}{n(n+k)}=\dfrac{1}{k}\left(\dfrac{1}{n}-\dfrac{1}{n+k}\right)$ 同理，只是每隔 $k$ 项才相消。
 
-\else \answerarea \fi%
-\textbf{7.}（多元极值与重积分综合）设 $a,b,c>0$。在椭球面
-\[
-\frac{x^{2}}{a^{2}}+\frac{y^{2}}{b^{2}}+\frac{z^{2}}{c^{2}}=1
-\]
-的第一卦限部分上求一点 $P(x_{0},y_{0},z_{0})$，使得过该点的切平面与三个坐标平面所围成的四面体体积最小，并求该最小体积。
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth,height=5.2cm,
+  xlabel={$N$}, ylabel={$S_{N}$},
+  xmin=0,xmax=21,ymin=0,ymax=1.08,
+  xtick={1,5,10,15,20},ytick={0,0.5,0.75,1},font=\footnotesize]
+\addplot[only marks,mark=*,mark size=1.6pt,blue,
+  samples at={1,2,...,20}]{1-1/(x+1)};
+\addplot[red!70!black,dashed,domain=0:21]{1};
+\node[font=\scriptsize,red!70!black,anchor=south east] at (axis cs:20.8,1.0){$1$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 部分和是单调上升的，且每一步与 $1$ 的缺口恰好等于被丢掉的那一项 $\frac{1}{N+1}$。缺口随 $N$ 趋于 $0$，所以部分和收敛到 $1$。这条“缺口就是尾项”的观察，是裂项级数求和的核心。}}
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-椭球面在点 $P(x_{0},y_{0},z_{0})$ 处的切平面方程为
-\[
-\frac{x_{0}x}{a^{2}}+\frac{y_{0}y}{b^{2}}+\frac{z_{0}z}{c^{2}}=1.
-\]
-切平面在三个坐标轴上的截距分别为
-\[
-X=\frac{a^{2}}{x_{0}},\quad Y=\frac{b^{2}}{y_{0}},\quad Z=\frac{c^{2}}{z_{0}}.
-\]
-四面体体积为
-\[
-V=\frac{1}{6}XYZ=\frac{a^{2}b^{2}c^{2}}{6x_{0}y_{0}z_{0}}.
-\]
-要使 $V$ 最小，需使乘积 $x_{0}y_{0}z_{0}$ 最大。点 $P$ 在椭球面上，满足约束
-\[
-\frac{x_{0}^{2}}{a^{2}}+\frac{y_{0}^{2}}{b^{2}}+\frac{z_{0}^{2}}{c^{2}}=1,\quad x_{0},y_{0},z_{0}>0.
-\]
+\subsection{判敛：把通项定到 $n^{-p}$}
 
-由 AM--GM 不等式：
+不是每个级数都能裂项。判敛时通常只关心通项衰减得够不够快，标准尺子是 $p$-级数
 \[
-1=\frac{x_{0}^{2}}{a^{2}}+\frac{y_{0}^{2}}{b^{2}}+\frac{z_{0}^{2}}{c^{2}}
-  \geq 3\sqrt[3]{\frac{x_{0}^{2}y_{0}^{2}z_{0}^{2}}{a^{2}b^{2}c^{2}}},
+    \sum_{n=1}^{\infty}\frac{1}{n^{p}}
+    \quad\text{当且仅当 } p>1 \text{ 时收敛}.
 \]
-等号成立当且仅当 $\frac{x_{0}}{a}=\frac{y_{0}}{b}=\frac{z_{0}}{c}$。代入椭球面方程得
-\[
-3\Bigl(\frac{x_{0}}{a}\Bigr)^{2}=1\;\Longrightarrow\;
-\frac{x_{0}}{a}=\frac{y_{0}}{b}=\frac{z_{0}}{c}=\frac{1}{\sqrt{3}}.
-\]
-故所求点为 $P\!\left(\frac{a}{\sqrt{3}},\frac{b}{\sqrt{3}},\frac{c}{\sqrt{3}}\right)$，此时
-\[
-x_{0}y_{0}z_{0}=\frac{abc}{3\sqrt{3}},
-\]
-最小体积为
-\[
-V_{\min}= \frac{a^{2}b^{2}c^{2}}{6}\cdot\frac{3\sqrt{3}}{abc}
-        =\frac{\sqrt{3}}{2}\,abc.
-\]
+做法是给通项定阶：若 $a_{n}>0$ 且 $a_{n}\sim\dfrac{c}{n^{p}}$（$c>0$），则由极限比较判别法，$\sum a_{n}$ 与 $\sum n^{-p}$ 同敛散。定阶靠等价无穷小或泰勒展开，例如 $n$ 很大时 $\sin\dfrac1n\sim\dfrac1n$、$1-\cos\dfrac1n\sim\dfrac{1}{2n^{2}}$、$\dfrac{1}{n}-\ln\left(1+\dfrac1n\right)\sim\dfrac{1}{2n^{2}}$。含参数的级数先把参数带进这个估计，再让 $p$ 与 $1$ 比较。
 
+遇到阶乘、$n$ 次幂、$a^{n}$ 时，比值判别法比定阶更省事：若 $\lim\left|\dfrac{a_{n+1}}{a_{n}}\right|=q$，则 $q<1$ 收敛、$q>1$ 发散、$q=1$ 失效。$q=1$ 时必须回到比较判别法，这也是最容易漏判的情形。
 
-\else \answerarea \fi%
-\subsection{真题风格与综合训练}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.82\linewidth,height=5.4cm,
+  xlabel={$N$}, ylabel={$S_{N}$},
+  xmin=0,xmax=31,ymin=0,ymax=6,
+  xtick={1,10,20,30},ytick={0,2,4,6},font=\footnotesize,
+  legend style={font=\scriptsize,at={(0.02,0.98)},anchor=north west}]
+\addplot[blue,thick,mark=*,mark size=0.8pt] coordinates {
+(1,1.0000) (2,1.5743) (3,1.9896) (4,2.3195) (5,2.5954) (6,2.8339) (7,3.0447) (8,3.2342) (9,3.4066) (10,3.5651) (11,3.7120) (12,3.8489) (13,3.9774) (14,4.0985) (15,4.2131) (16,4.3219) (17,4.4256) (18,4.5246) (19,4.6195) (20,4.7105) (21,4.7980) (22,4.8824) (23,4.9638) (24,5.0425) (25,5.1186) (26,5.1924) (27,5.2640) (28,5.3335) (29,5.4012) (30,5.4670)};
+\addlegendentry{$p=0.8$}
+\addplot[red!70!black,thick,mark=*,mark size=0.8pt] coordinates {
+(1,1.0000) (2,1.5000) (3,1.8333) (4,2.0833) (5,2.2833) (6,2.4500) (7,2.5929) (8,2.7179) (9,2.8290) (10,2.9290) (11,3.0199) (12,3.1032) (13,3.1801) (14,3.2516) (15,3.3182) (16,3.3807) (17,3.4396) (18,3.4951) (19,3.5477) (20,3.5977) (21,3.6454) (22,3.6908) (23,3.7343) (24,3.7760) (25,3.8160) (26,3.8544) (27,3.8915) (28,3.9272) (29,3.9617) (30,3.9950)};
+\addlegendentry{$p=1$}
+\addplot[green!50!black,thick,mark=*,mark size=0.8pt] coordinates {
+(1,1.0000) (2,1.3536) (3,1.5460) (4,1.6710) (5,1.7604) (6,1.8285) (7,1.8825) (8,1.9267) (9,1.9637) (10,1.9953) (11,2.0227) (12,2.0468) (13,2.0681) (14,2.0872) (15,2.1044) (16,2.1201) (17,2.1343) (18,2.1474) (19,2.1595) (20,2.1707) (21,2.1811) (22,2.1908) (23,2.1998) (24,2.2083) (25,2.2163) (26,2.2239) (27,2.2310) (28,2.2378) (29,2.2442) (30,2.2502)};
+\addlegendentry{$p=1.5$}
+\addplot[gray!60!black,thick,mark=*,mark size=0.8pt] coordinates {
+(1,1.0000) (2,1.2500) (3,1.3611) (4,1.4236) (5,1.4636) (6,1.4914) (7,1.5118) (8,1.5274) (9,1.5398) (10,1.5498) (11,1.5580) (12,1.5650) (13,1.5709) (14,1.5760) (15,1.5804) (16,1.5843) (17,1.5878) (18,1.5909) (19,1.5937) (20,1.5962) (21,1.5984) (22,1.6005) (23,1.6024) (24,1.6041) (25,1.6057) (26,1.6072) (27,1.6086) (28,1.6098) (29,1.6110) (30,1.6122)};
+\addlegendentry{$p=2$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 四条曲线分别是 $\sum n^{-p}$ 的部分和。$p=2$ 与 $p=1.5$ 很快变平，说明级数收敛；$p=1$ 的部分和仍在缓慢上升（约按 $\ln N$ 增长），$p=0.8$ 上升得更快。$p=1$ 正好是分界线。}}
 
-\textbf{8.}（\boxed{\textbf{真题风格}}，极限与积分与级数综合）设 $F(x)=\displaystyle\int_{0}^{x} e^{-t^{2}}\,\mathrm{d}t$。
-\begin{enumerate}[label=(\arabic*)]
-\item 将 $F(x)$ 展开为 $x$ 的幂级数，并求其收敛域；
-\item 求极限 $\displaystyle\lim_{x\to 0}\frac{F(x)-x+\frac{x^{3}}{3}}{x^{5}}$。
-\end{enumerate}
+\subsection{幂级数：半径管内部，端点单独判}
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 由指数函数的幂级数展开 $e^{u}=\displaystyle\sum_{n=0}^{\infty}\frac{u^{n}}{n!}$（$|u|<\infty$），令 $u=-t^{2}$ 得
+幂级数 $\sum a_{n}x^{n}$ 的收敛域由一个半径决定：在 $|x|<R$ 内绝对收敛，在 $|x|>R$ 内发散，两个端点 $x=\pm R$ 则要代进去当数项级数另外判断。半径常用比值法求：
 \[
-e^{-t^{2}}=\sum_{n=0}^{\infty}\frac{(-1)^{n}}{n!}t^{2n},
+    R=\lim_{n\to\infty}\left|\frac{a_{n}}{a_{n+1}}\right|
+    \qquad(\text{若该极限存在}).
 \]
-收敛半径为 $+\infty$。逐项积分：
-\[
-F(x)=\int_{0}^{x}\sum_{n=0}^{\infty}\frac{(-1)^{n}}{n!}t^{2n}\,\mathrm{d}t
-     =\sum_{n=0}^{\infty}\frac{(-1)^{n}}{n!}\cdot\frac{x^{2n+1}}{2n+1}
-     =x-\frac{x^{3}}{3}+\frac{x^{5}}{10}-\frac{x^{7}}{42}+\cdots.
-\]
-由于幂级数逐项积分后收敛半径不变，收敛域为 $(-\infty,+\infty)$（即 $R=+\infty$）。
+系数缺项或含 $x^{2n}$ 时，直接把整个通项代入比值判别法，解出 $|x|$ 的范围更稳。
 
-(2) 由 (1) 中的展开式，
+在收敛区间内部，幂级数可以逐项求导、逐项积分，半径不变。这是求和函数的主要工具：先求导把系数里的 $n$ 消掉，凑成等比级数，再积分回去。以
 \[
-F(x)-x+\frac{x^{3}}{3}
-=\frac{x^{5}}{10}-\frac{x^{7}}{42}+\cdots
-=\frac{x^{5}}{10}+o(x^{5})\quad (x\to 0).
+    S(x)=\sum_{n=1}^{\infty}\frac{x^{n}}{n}
 \]
-因此
+为例，$|x|<1$ 时逐项求导得
 \[
-\lim_{x\to 0}\frac{F(x)-x+\frac{x^{3}}{3}}{x^{5}}
-=\lim_{x\to 0}\frac{\frac{x^{5}}{10}+o(x^{5})}{x^{5}}
-=\frac{1}{10}.
+    S'(x)=\sum_{n=1}^{\infty}x^{n-1}=\frac{1}{1-x},
 \]
+由 $S(0)=0$ 积分得 $S(x)=-\ln(1-x)$。端点上这个等式不能直接求导得到，要单独看：$x=1$ 时是调和级数，发散；$x=-1$ 时是交错级数 $\sum\dfrac{(-1)^{n}}{n}$，通项单调递减趋于零，由 Leibniz 判别法收敛，和为 $-\ln2$。所以收敛域是 $[-1,1)$，和函数在 $x=-1$ 处仍然连续。
 
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.84\linewidth,height=5.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-1.08,xmax=1.35,ymin=-1.0,ymax=2.7,
+  xtick={-1,0,1},ytick={-1,0,1,2},font=\footnotesize,
+  legend style={font=\scriptsize,at={(0.02,0.98)},anchor=north west}]
+\addplot[gray!55,thick,mark=*,mark size=0.8pt] coordinates {
+(-0.9,-0.7380) (-0.8,-0.6507) (-0.7,-0.5693) (-0.6,-0.4920) (-0.5,-0.4167) (-0.4,-0.3413) (-0.3,-0.2640) (-0.2,-0.1827) (-0.1,-0.0953) (0,0) (0.1,0.1053) (0.2,0.2227) (0.3,0.3540) (0.4,0.5013) (0.5,0.6667) (0.6,0.8520) (0.7,1.0593) (0.8,1.2907) (0.9,1.5480)};
+\addlegendentry{$S_{3}$}
+\addplot[green!45!black,thick,mark=*,mark size=0.8pt] coordinates {
+(-0.9,-0.6718) (-0.8,-0.6001) (-0.7,-0.5351) (-0.6,-0.4714) (-0.5,-0.4058) (-0.4,-0.3365) (-0.3,-0.2624) (-0.2,-0.1823) (-0.1,-0.0953) (0,0) (0.1,0.1054) (0.2,0.2231) (0.3,0.3567) (0.4,0.5107) (0.5,0.6923) (0.6,0.9117) (0.7,1.1843) (0.8,1.5323) (0.9,1.9870)};
+\addlegendentry{$S_{7}$}
+\addplot[blue,thick,mark=*,mark size=0.8pt] coordinates {
+(-0.9,-0.6412) (-0.8,-0.5878) (-0.7,-0.5306) (-0.6,-0.4700) (-0.5,-0.4055) (-0.4,-0.3365) (-0.3,-0.2624) (-0.2,-0.1823) (-0.1,-0.0953) (0,0) (0.1,0.1054) (0.2,0.2231) (0.3,0.3567) (0.4,0.5108) (0.5,0.6931) (0.6,0.9163) (0.7,1.2040) (0.8,1.6093) (0.9,2.2926)};
+\addlegendentry{$S_{30}$}
+\addplot[red!70!black,thick,dashed,domain=-0.98:0.98,samples=150]{-ln(1-x)};
+\addlegendentry{$-\ln(1-x)$}
+\draw[dashed,gray!70] (axis cs:1,-1.0)--(axis cs:1,2.7);
+\node[font=\scriptsize,gray!60!black,anchor=west] at (axis cs:1.02,2.0){$x=1$};
+\addplot[only marks,mark=*,mark size=1.8pt,red!70!black] coordinates {(-1,-0.6931)};
+\node[font=\scriptsize,anchor=west] at (axis cs:-0.92,-0.78){$-\ln2$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 三条实线是部分和 $S_{3},S_{7},S_{30}$，虚线是极限函数 $-\ln(1-x)$。项数增加时曲线向虚线靠拢；越靠近 $x=1$，需要的项数越多，而函数本身在 $x=1$ 处发散。左端点 $x=-1$ 处级数收敛到 $-\ln2$（图中圆点），说明和函数在这一点仍然连续。}}
 
-\else \answerarea \fi%
-\textbf{9.}（\boxed{\textbf{真题风格}}，曲线积分与微分方程综合）设 $f(x)$ 具有二阶连续导数，且对平面上任意一条分段光滑的简单闭曲线 $L$，均有
-\[
-\oint_{L} \bigl[e^{x}f'(x)+y^{2}\bigr]\,\mathrm{d}y
-          +\bigl[-y\,e^{x}f(x)\bigr]\,\mathrm{d}x = 0.
-\]
-已知 $f(0)=0$，$f'(0)=1$，求 $f(x)$ 的表达式。
+\subsection{和式极限：夹逼还是凑定积分}
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-记 $P=-y\,e^{x}f(x)$，$Q=e^{x}f'(x)+y^{2}$。由题设，对任意闭曲线 $L$ 积分恒为零，根据 Green 公式的逆定理（或曲线积分与路径无关的充要条件），在全平面上应有
-\[
-\frac{\partial Q}{\partial x}=\frac{\partial P}{\partial y}.
-\]
-计算偏导数：
-\[
-\frac{\partial Q}{\partial x}=e^{x}f'(x)+e^{x}f''(x),\qquad
-\frac{\partial P}{\partial y}=-e^{x}f(x).
-\]
-令两者相等：
-\[
-e^{x}\bigl[f''(x)+f'(x)\bigr]=-e^{x}f(x)
-\;\Longrightarrow\;
-f''(x)+f'(x)+f(x)=0.
-\]
+$n$ 项和的极限有两种常见归宿。
 
-这是二阶常系数齐次线性微分方程，特征方程为 $r^{2}+r+1=0$，解得
+第一种是凑定积分。若和式能写成 $\displaystyle\frac{1}{n}\sum_{k=1}^{n}f\left(\frac{k}{n}\right)$，它就是 $f$ 在 $[0,1]$ 上的 Riemann 和，极限等于 $\int_{0}^{1}f(x)\,\mathrm{d}x$。例如
 \[
-r=\frac{-1\pm i\sqrt{3}}{2}.
+    \lim_{n\to\infty}\frac{1}{n}\sum_{k=1}^{n}\sqrt{1+\frac{k}{n}}
+    =\int_{0}^{1}\sqrt{1+x}\,\mathrm{d}x
+    =\frac{2}{3}\bigl(2\sqrt{2}-1\bigr).
 \]
-故通解为
-\[
-f(x)=e^{-x/2}\Bigl(C_{1}\cos\frac{\sqrt{3}}{2}x+C_{2}\sin\frac{\sqrt{3}}{2}x\Bigr).
-\]
+关键是把 $1/n$ 提到外面，剩下的部分必须\textbf{只}通过 $k/n$ 依赖于 $k$。
 
-由初始条件：$f(0)=C_{1}=0$；求导得
-\[
-f'(x)=-\frac{1}{2}e^{-x/2}\Bigl(C_{2}\sin\frac{\sqrt{3}}{2}x\Bigr)
-      +e^{-x/2}\cdot\frac{\sqrt{3}}{2}C_{2}\cos\frac{\sqrt{3}}{2}x,
-\]
-故 $f'(0)=\frac{\sqrt{3}}{2}C_{2}=1$，$C_{2}=\frac{2}{\sqrt{3}}$。因此
-\[
-f(x)=\frac{2}{\sqrt{3}}e^{-x/2}\sin\frac{\sqrt{3}}{2}x.
-\]
+第二种是夹逼。分母里带 $k$ 的和式往往凑不成 Riemann 和，这时把分母放缩成只含 $n$ 的量，使求和可以进行，再让两端趋于同一个值。放缩的方向要一致：分母放大，分式变小；分母缩小，分式变大。上下界之差趋于零，中间的和就被夹住了。
 
+\begin{center}
+\begin{tikzpicture}[x=8.4cm,y=4.6cm]
+\foreach \k in {0,...,7}{
+  \fill[blue!18] (\k/8,0) rectangle ({(\k+1)/8},{(\k/8)^2});
+  \draw[blue!55] (\k/8,0) rectangle ({(\k+1)/8},{(\k/8)^2});
+}
+\draw[->] (-0.04,0)--(1.14,0) node[right]{$x$};
+\draw[->] (0,-0.04)--(0,1.16) node[above]{$y$};
+\draw[thick,red!70!black,domain=0:1,samples=100] plot (\x,{\x*\x});
+\node[red!70!black,font=\scriptsize,anchor=west] at (0.06,0.9){$y=x^{2}$};
+\draw[dashed,gray] (1,0)--(1,1);
+\node[font=\scriptsize,anchor=south] at (1,1.02) {$x=1$};
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-4em\relax}{\centering\footnotesize 把 $[0,1]$ 分成 $n$ 份，用左端点函数值作高，得到下和。矩形比曲线低出来的那一小块总面积不超过 $\frac{1}{n}$；换成右端点则得到上和。两者之差随 $n\to\infty$ 趋于零，所以和式被夹向同一个定积分。}}
 
-\else \answerarea \fi%
-\textbf{10.}（\boxed{\textbf{真题风格}}，极限与积分与级数综合）设 $a_{n}=\displaystyle\int_{0}^{1} x^{n}(1-x)^{n}\,\mathrm{d}x$，$n=0,1,2,\ldots$。
-\begin{enumerate}[label=(\arabic*)]
-\item 求 $a_{n}$ 的表达式（用 $n$ 表示）；
-\item 求极限 $\displaystyle\lim_{n\to\infty}\sqrt{n}\cdot 4^{n}a_{n}$；
-\item 求幂级数 $\displaystyle\sum_{n=0}^{\infty} a_{n}x^{n}$ 的收敛半径。
-\end{enumerate}
+三条线的变形有一个共同点：都不改变计算对象，只是换一个更容易比较、更容易求和、更容易求原函数的坐标。拿到题先判断它属于哪一类，再决定往哪个方向变，比背公式有效得多。
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 作变量代换 $t=1-x$ 或直接利用 Beta 函数：
-\[
-a_{n}=\int_{0}^{1} x^{n}(1-x)^{n}\,\mathrm{d}x
-     =B(n+1,n+1)
-     =\frac{\Gamma(n+1)\,\Gamma(n+1)}{\Gamma(2n+2)}
-     =\frac{(n!)^{2}}{(2n+1)!}.
-\]
-
-(2) 利用 Stirling 公式 $n!\sim\sqrt{2\pi n}\bigl(\frac{n}{e}\bigr)^{n}$（$n\to\infty$）：
-\[
-\begin{aligned}
-a_{n}&\sim\frac{2\pi n\left(\frac{n}{e}\right)^{2n}}
-               {\sqrt{2\pi(2n+1)}\left(\frac{2n+1}{e}\right)^{2n+1}}
-      \sim\frac{\sqrt{\pi n}\left(\frac{n}{e}\right)^{2n}}
-               {2^{2n}\sqrt{n}\left(\frac{n}{e}\right)^{2n}\cdot\frac{2}{e}}
-      =\frac{\sqrt{\pi}}{2^{2n+1}\sqrt{n}}.
-\end{aligned}
-\]
-（详细：$(2n+1)!\sim(2n)(2n)!\sim 2n\cdot\sqrt{4\pi n}\bigl(\frac{2n}{e}\bigr)^{2n}
-      =2^{2n+1}\sqrt{\pi}\,n^{2n+\frac{1}{2}}e^{-2n}$，与分子 $(n!)^{2}\sim 2\pi n^{2n+1}e^{-2n}$ 相除即得。）
-
-因此
-\[
-4^{n}a_{n}=2^{2n}a_{n}\sim\frac{\sqrt{\pi}}{2\sqrt{n}},
-\qquad
-\sqrt{n}\cdot 4^{n}a_{n}\to\frac{\sqrt{\pi}}{2}\quad (n\to\infty).
-\]
-
-(3) 幂级数的收敛半径 $R$ 满足
-\[
-\frac{1}{R}=\lim_{n\to\infty}\left|\frac{a_{n+1}}{a_{n}}\right|.
-\]
-计算：
-\[
-\frac{a_{n+1}}{a_{n}}
-=\frac{[(n+1)!]^{2}}{(2n+3)!}\cdot\frac{(2n+1)!}{(n!)^{2}}
-=\frac{(n+1)^{2}}{(2n+3)(2n+2)}
-\longrightarrow \frac{1}{4}\quad (n\to\infty).
-\]
-故 $R=4$，即幂级数的收敛半径为 $4$。
-
-\else \answerarea \fi%
+\input{calculus/exercises/chapt.tex}

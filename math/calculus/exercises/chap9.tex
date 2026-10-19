@@ -1,0 +1,579 @@
+\section{习题}
+
+\subsection{本章速览}
+
+\begin{itemize}
+  \item \textbf{重积分的含义}：二重积分 $\iint_D f\,\mathrm{d}\sigma$ 是“分割、近似、求和、取极限”；当 $f\ge0$ 时表示以 $D$ 为底、$z=f(x,y)$ 为顶的曲顶柱体体积。三重积分 $\iiint_\Omega f\,\mathrm{d}V$ 同理，$f=1$ 时就是体积（二重积分中 $f=1$ 时是面积）。
+  \item \textbf{化累次积分}：先画区域再定限。$X$ 型区域写成 $a\le x\le b,\ \varphi_1(x)\le y\le\varphi_2(x)$；$Y$ 型区域写成 $c\le y\le d,\ \psi_1(y)\le x\le\psi_2(y)$。交换积分次序的本质是换一种方式描述同一区域，边界曲线要重新解出。
+  \item \textbf{三种常用坐标}：极坐标 $x=r\cos\theta,\ y=r\sin\theta$，$\mathrm{d}\sigma=r\,\mathrm{d}r\,\mathrm{d}\theta$；柱坐标在极坐标基础上加 $z$，$\mathrm{d}V=r\,\mathrm{d}r\,\mathrm{d}\theta\,\mathrm{d}z$；球坐标 $x=\rho\sin\varphi\cos\theta,\ y=\rho\sin\varphi\sin\theta,\ z=\rho\cos\varphi$，$\mathrm{d}V=\rho^2\sin\varphi\,\mathrm{d}\rho\,\mathrm{d}\varphi\,\mathrm{d}\theta$，其中 $\varphi$ 是与 $z$ 轴正向的夹角。
+  \item \textbf{对称性}：区域关于 $x$ 轴对称时，若 $f$ 关于 $y$ 为奇函数则积分为 $0$，为偶函数则等于上半区域积分的 $2$ 倍；关于 $y$ 轴、原点、坐标平面有类似结论。若区域与被积函数在 $x,y,z$ 轮换下不变，则各变量平方的积分相等，常用来化简第一类曲面积分。
+  \item \textbf{两类曲线积分与两类曲面积分}：第一类（对弧长 $\mathrm{d}s$、对面积 $\mathrm{d}S$）与方向、侧无关，用参数化或投影计算；第二类（对坐标）与方向、侧有关，反向或换侧要变号。第二类曲面积分 $\iint_\Sigma P\,\mathrm{d}y\mathrm{d}z+Q\,\mathrm{d}z\mathrm{d}x+R\,\mathrm{d}x\mathrm{d}y$ 就是通量 $\iint_\Sigma \mathbf F\cdot\mathbf n\,\mathrm{d}S$。
+  \item \textbf{三大公式的适用条件}：Green 公式要求 $L$ 是区域 $D$ 的正向边界、$P,Q$ 在 $D$ 上有连续一阶偏导；Gauss 公式要求 $\Sigma$ 是封闭曲面且取外侧、$P,Q,R$ 在围成区域内有一阶连续偏导；Stokes 公式要求 $\Gamma$ 的正向与曲面所取侧符合右手法则。遇到被积函数在区域内有奇点（如分母为零）时，不能直接套公式，要先挖去奇点。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 判断下列说法是否正确（二重积分按 Riemann 积分理解），正确的说明理由，错误的举出反例。
+\begin{enumerate}
+  \item[(1)] 若 $f(x,y)$ 在区域 $D$ 上的二重积分存在，则 $f$ 在 $D$ 上的两个累次积分都存在且相等；
+  \item[(2)] 若 $D$ 关于 $x$ 轴对称，且 $f(x,-y)=-f(x,y)$，则 $\displaystyle\iint_D f(x,y)\,\mathrm{d}\sigma=0$；
+  \item[(3)] 第一类曲面积分 $\displaystyle\iint_\Sigma f(x,y,z)\,\mathrm{d}S$ 的值与曲面 $\Sigma$ 所取的侧无关；
+  \item[(4)] 第二类曲线积分 $\displaystyle\int_L P\,\mathrm{d}x+Q\,\mathrm{d}y$ 在曲线 $L$ 反向时变号；
+  \item[(5)] 若 $f$ 连续，则 $\displaystyle\int_0^1\mathrm{d}x\int_x^{\sqrt x}f(x,y)\,\mathrm{d}y
+  =\int_0^1\mathrm{d}y\int_{y^2}^{y}f(x,y)\,\mathrm{d}x$。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 第 (1) 问考查“二重积分存在”与“累次积分存在”不是一回事；第 (2) 问用对称点配对；第 (3)(4) 问抓住两类积分对方向、侧的不同依赖。
+
+(1) 错误。取 $D=[0,1]\times[0,1]$，定义
+\[
+f(x,y)=\begin{cases}
+1, & x=\dfrac12,\ y\in\mathbb{Q},\\[4pt]
+0, & \text{其他情形}.
+\end{cases}
+\]
+$f$ 的不连续点都落在竖线段 $x=\frac12$ 上，该集合面积为 $0$，所以 $f$ 在 $D$ 上可积，且 $\iint_D f\,\mathrm{d}\sigma=0$。但当 $x=\frac12$ 时，内层积分
+\[
+\int_0^1 f\!\left(\frac12,y\right)\mathrm{d}y
+\]
+恰好是 Dirichlet 函数在 $[0,1]$ 上的积分，它不存在，因此累次积分不存在。可见二重积分存在并不保证累次积分存在；只有当 $f$ 连续（或满足更强的可积条件）时，才能放心地写成累次积分。
+
+(2) 正确。设 $D^+=\{(x,y)\in D:y\ge0\}$。将 $D^+$ 与它关于 $x$ 轴的对称部分配对：点 $(x,y)$ 与 $(x,-y)$ 处的函数值互为相反数，而两块面积元素相同，所以
+\[
+\iint_D f\,\mathrm{d}\sigma
+=\iint_{D^+}\bigl[f(x,y)+f(x,-y)\bigr]\mathrm{d}\sigma
+=\iint_{D^+}0\,\mathrm{d}\sigma=0.
+\]
+（这里要求 $f$ 在 $D$ 上可积，例如连续。）
+
+(3) 正确。第一类曲面积分的面积元 $\Delta S_i$ 恒为正，与法向量指向哪一侧无关；换侧只改变法向量，不改变 $\mathrm{d}S$。第二类曲面积分才与侧有关。
+
+(4) 正确。第二类曲线积分是向量场沿有向曲线的积分 $\int_L\mathbf F\cdot\mathrm{d}\mathbf r$。曲线反向时切向量 $\mathrm{d}\mathbf r$ 反向，故积分变号；第一类曲线积分用弧长元 $\mathrm{d}s>0$，反向不变号。
+
+(5) 正确。原累次积分对应的区域为
+\[
+D=\{(x,y)\mid 0\le x\le1,\ x\le y\le\sqrt x\},
+\]
+它由直线 $y=x$ 与曲线 $y=\sqrt x$ 围成，两线交于 $(0,0)$ 和 $(1,1)$。对固定的 $y\in[0,1]$，由 $x\le y$ 与 $y\le\sqrt x$（即 $x\ge y^2$）得 $y^2\le x\le y$。因此
+\[
+\int_0^1\mathrm{d}x\int_x^{\sqrt x}f(x,y)\,\mathrm{d}y
+=\int_0^1\mathrm{d}y\int_{y^2}^{y}f(x,y)\,\mathrm{d}x.
+\]
+$f$ 连续保证两个累次积分都存在，且都等于 $D$ 上的二重积分。
+
+\boxed{\text{答案：(1) 错误；(2) 正确；(3) 正确；(4) 正确；(5) 正确。}}
+
+\else \answerarea[10] \fi%
+
+\textbf{2.} 计算 $\displaystyle I=\iint_D \arctan\frac{y}{x}\,\mathrm{d}x\mathrm{d}y$，其中
+\[
+D=\{(x,y)\mid 1\le x^2+y^2\le4,\ x\ge0,\ y\ge0\}.
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 区域是圆环在第一象限的部分，被积函数只与极角有关，用极坐标最自然。注意在 $D$ 内（除边界 $x=0$ 外）有 $x>0$，可直接取主值 $\arctan\frac yx=\theta$。
+
+令 $x=r\cos\theta,\ y=r\sin\theta$。由 $1\le r^2\le4$ 得 $1\le r\le2$；由 $x\ge0,\ y\ge0$ 得 $0\le\theta\le\frac{\pi}{2}$。于是
+\[
+I=\int_0^{\pi/2}\!\!\mathrm{d}\theta\int_1^2 \theta\, r\,\mathrm{d}r
+=\left(\int_0^{\pi/2}\theta\,\mathrm{d}\theta\right)
+\left(\int_1^2 r\,\mathrm{d}r\right).
+\]
+分别计算：
+\[
+\int_0^{\pi/2}\theta\,\mathrm{d}\theta
+=\frac{1}{2}\left(\frac{\pi}{2}\right)^2=\frac{\pi^2}{8},
+\qquad
+\int_1^2 r\,\mathrm{d}r=\frac{2^2-1^2}{2}=\frac32.
+\]
+故
+\[
+I=\frac{\pi^2}{8}\cdot\frac32=\frac{3\pi^2}{16}.
+\]
+\boxed{\text{答案：}\dfrac{3\pi^2}{16}}
+
+\else \answerarea[8] \fi%
+
+\textbf{3.} 计算 $\displaystyle I=\iiint_\Omega (x^2+y^2+z^2)\,\mathrm{d}V$，其中 $\Omega$ 为球体 $x^2+y^2+z^2\le 2z$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 先配方看清几何形状，再用球坐标。球坐标中 $x^2+y^2+z^2=\rho^2$，边界条件 $\rho^2\le2\rho\cos\varphi$ 可解出 $\rho$ 的上限。
+
+配方得
+\[
+x^2+y^2+(z-1)^2\le1,
+\]
+即 $\Omega$ 是以 $(0,0,1)$ 为球心、半径为 $1$ 的球体。
+
+采用球坐标
+\[
+x=\rho\sin\varphi\cos\theta,\quad
+y=\rho\sin\varphi\sin\theta,\quad
+z=\rho\cos\varphi,
+\]
+则 $x^2+y^2+z^2=\rho^2$，且
+\[
+\rho^2\le 2\rho\cos\varphi
+\iff 0\le\rho\le 2\cos\varphi.
+\]
+由于 $\rho\ge0$，需 $\cos\varphi\ge0$，故 $0\le\varphi\le\frac{\pi}{2}$；又 $\theta\in[0,2\pi]$。体积元为 $\mathrm{d}V=\rho^2\sin\varphi\,\mathrm{d}\rho\,\mathrm{d}\varphi\,\mathrm{d}\theta$，于是
+\[
+\begin{aligned}
+I
+&=\int_0^{2\pi}\mathrm{d}\theta\int_0^{\pi/2}\sin\varphi\,\mathrm{d}\varphi
+\int_0^{2\cos\varphi}\rho^2\cdot\rho^2\,\mathrm{d}\rho\\
+&=2\pi\int_0^{\pi/2}\sin\varphi\cdot
+\frac{(2\cos\varphi)^5}{5}\,\mathrm{d}\varphi\\
+&=\frac{64\pi}{5}\int_0^{\pi/2}\cos^5\varphi\sin\varphi\,\mathrm{d}\varphi.
+\end{aligned}
+\]
+而
+\[
+\int_0^{\pi/2}\cos^5\varphi\sin\varphi\,\mathrm{d}\varphi
+=\left[-\frac{\cos^6\varphi}{6}\right]_0^{\pi/2}
+=\frac16.
+\]
+所以
+\[
+I=\frac{64\pi}{5}\cdot\frac16=\frac{32\pi}{15}.
+\]
+\boxed{\text{答案：}\dfrac{32\pi}{15}}
+
+\else \answerarea[10] \fi%
+
+\textbf{4.} 计算 $\displaystyle I=\int_L y\,\mathrm{d}s$，其中 $L$ 为上半圆周 $x^2+y^2=a^2\ (y\ge0)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 第一类曲线积分与方向无关，直接参数化，把 $\mathrm{d}s$ 写成 $\sqrt{x'^2+y'^2}\,\mathrm{d}t$。
+
+令
+\[
+x=a\cos t,\qquad y=a\sin t,\qquad 0\le t\le\pi.
+\]
+则
+\[
+\mathrm{d}s=\sqrt{(-a\sin t)^2+(a\cos t)^2}\,\mathrm{d}t=a\,\mathrm{d}t,
+\]
+所以
+\[
+I=\int_0^\pi a\sin t\cdot a\,\mathrm{d}t
+=a^2\int_0^\pi\sin t\,\mathrm{d}t
+=a^2\bigl[-\cos t\bigr]_0^\pi=2a^2.
+\]
+（也可用形心公式验证：上半圆弧的形心纵坐标为 $\bar y=\frac{2a}{\pi}$，弧长为 $\pi a$，故 $I=\bar y\cdot\pi a=2a^2$。）
+
+\boxed{\text{答案：}2a^2}
+
+\else \answerarea[8] \fi%
+
+\textbf{5.} 计算 $\displaystyle I=\iint_\Sigma (x^2+y^2)\,\mathrm{d}S$，其中 $\Sigma$ 为球面 $x^2+y^2+z^2=R^2$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 直接参数化会出现根式，但球面在坐标变量轮换 $x\to y\to z\to x$ 下不变，三个坐标平方的曲面积分相等，可先用 $x^2+y^2+z^2=R^2$ 整体求和。
+
+球面 $\Sigma$ 在变量轮换 $x\to y\to z\to x$ 下不变，面积元 $\mathrm{d}S$ 也不变，因此
+\[
+\iint_\Sigma x^2\,\mathrm{d}S
+=\iint_\Sigma y^2\,\mathrm{d}S
+=\iint_\Sigma z^2\,\mathrm{d}S.
+\]
+记公共值为 $J$，则
+\[
+3J=\iint_\Sigma (x^2+y^2+z^2)\,\mathrm{d}S
+=\iint_\Sigma R^2\,\mathrm{d}S
+=R^2\cdot 4\pi R^2=4\pi R^4,
+\]
+故 $J=\frac{4\pi R^4}{3}$。于是
+\[
+I=\iint_\Sigma (x^2+y^2)\,\mathrm{d}S
+=2J=\frac{8\pi R^4}{3}.
+\]
+\boxed{\text{答案：}\dfrac{8\pi R^4}{3}}
+
+\else \answerarea[8] \fi%
+
+\subsection{综合提高题}
+
+\textbf{6.} 设 $f$ 在 $[-1,1]$ 上连续，$D=\{(x,y)\mid |x|+|y|\le1\}$。
+\begin{enumerate}
+  \item[(1)] 计算 $\displaystyle I=\iint_D f(x+y)\,\mathrm{d}x\mathrm{d}y$，结果用 $f$ 的一元定积分表示；
+  \item[(2)] 取 $f(t)=e^{|t|}$，求 $I$ 的值。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 被积函数是 $x+y$ 的一元函数，区域是以四条直线围成的菱形。令 $u=x+y$ 把被积函数简化，再配一个 $v=x-y$ 使变换可逆；关键是把菱形边界翻译成 $u,v$ 的简单不等式。
+
+(1) 作变换
+\[
+u=x+y,\qquad v=x-y,
+\]
+则
+\[
+x=\frac{u+v}{2},\qquad y=\frac{u-v}{2},
+\]
+雅可比行列式为
+\[
+\frac{\partial(x,y)}{\partial(u,v)}
+=\begin{vmatrix}
+\dfrac12 & \dfrac12\\[6pt]
+\dfrac12 & -\dfrac12
+\end{vmatrix}
+=-\frac14-\frac14=-\frac12,
+\]
+故 $\left|\dfrac{\partial(x,y)}{\partial(u,v)}\right|=\dfrac12$。
+
+再看区域。由 $|x|+|y|\le1$ 得
+\[
+\frac{|u+v|}{2}+\frac{|u-v|}{2}\le1
+\iff |u+v|+|u-v|\le2.
+\]
+对任意实数 $u,v$ 有恒等式
+\[
+|u+v|+|u-v|=2\max\{|u|,|v|\}.
+\]
+（若 $|u|\ge|v|$，则 $(u+v)(u-v)=u^2-v^2\ge0$，两项同号，故左边 $=|(u+v)+(u-v)|=2|u|$；$|v|>|u|$ 时同理。）于是区域化为
+\[
+D'=\{(u,v)\mid |u|\le1,\ |v|\le1\},
+\]
+即一个正方形。因此
+\[
+\begin{aligned}
+I
+&=\iint_{D'} f(u)\left|\frac{\partial(x,y)}{\partial(u,v)}\right|\mathrm{d}u\mathrm{d}v\\
+&=\frac12\int_{-1}^{1}\!\!\int_{-1}^{1} f(u)\,\mathrm{d}v\,\mathrm{d}u
+=\frac12\int_{-1}^{1} f(u)\cdot 2\,\mathrm{d}u\\
+&=\int_{-1}^{1} f(u)\,\mathrm{d}u.
+\end{aligned}
+\]
+这里的关键是：雅可比为 $\frac12$，而 $v$ 的积分区间长度为 $2$，两个因子恰好抵消。
+
+(2) 当 $f(t)=e^{|t|}$ 时，
+\[
+I=\int_{-1}^{1}e^{|u|}\,\mathrm{d}u
+=2\int_0^1 e^u\,\mathrm{d}u
+=2(e-1).
+\]
+
+\boxed{\text{答案：(1) $\displaystyle\int_{-1}^{1}f(u)\,\mathrm{d}u$；(2) $2(e-1)$。}}
+
+\else \answerarea[10] \fi%
+
+\textbf{7.} 计算 $\displaystyle I=\oint_L \bigl(e^{x^2}-y\bigr)\mathrm{d}x+\bigl(x-\ln(1+y^2)\bigr)\mathrm{d}y$，其中 $L$ 为椭圆 $\dfrac{x^2}{4}+y^2=1$，取正向。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} $e^{x^2}$ 与 $\ln(1+y^2)$ 的原函数都不是初等函数，沿着椭圆直接参数化会积不出来。被积函数在整平面上光滑，且 $\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}$ 是常数，适合用 Green 公式把曲线积分化成椭圆面积的倍数。
+
+令
+\[
+P=e^{x^2}-y,\qquad Q=x-\ln(1+y^2).
+\]
+$P,Q$ 在全平面有连续的一阶偏导数，满足 Green 公式的条件。计算
+\[
+\frac{\partial Q}{\partial x}=1,\qquad
+\frac{\partial P}{\partial y}=-1,
+\]
+故
+\[
+\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}=1-(-1)=2.
+\]
+设 $L$ 围成的区域为 $D$，即 $\frac{x^2}{4}+y^2\le1$。由 Green 公式（$L$ 取正向），
+\[
+I=\iint_D\left(\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}\right)\mathrm{d}x\mathrm{d}y
+=\iint_D 2\,\mathrm{d}x\mathrm{d}y
+=2\,|D|.
+\]
+椭圆 $\frac{x^2}{a^2}+\frac{y^2}{b^2}=1$ 的面积为 $\pi ab$，这里 $a=2,\ b=1$，所以 $|D|=2\pi$。于是
+\[
+I=2\cdot 2\pi=4\pi.
+\]
+\boxed{\text{答案：}4\pi}
+
+\else \answerarea[8] \fi%
+
+\textbf{8.} 设 $\Sigma$ 为抛物面 $z=1-x^2-y^2$ 位于 $z\ge0$ 部分的上侧，计算
+\[
+I=\iint_\Sigma x\,\mathrm{d}y\mathrm{d}z+y\,\mathrm{d}z\mathrm{d}x+\mathrm{d}x\mathrm{d}y.
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} $\Sigma$ 不是封闭曲面，不能直接用 Gauss 公式。补上平面 $z=0$ 上的圆盘，使 $\Sigma$ 与圆盘一起围成封闭区域；补的那块曲面上的通量要单独算，最后减掉。
+
+设
+\[
+\mathbf F=(P,Q,R)=(x,y,1),
+\]
+则题中积分为 $\iint_\Sigma \mathbf F\cdot\mathbf n\,\mathrm{d}S$。
+
+补上圆盘
+\[
+\Sigma_0=\{(x,y,z)\mid x^2+y^2\le1,\ z=0\},
+\]
+取下侧（法向量 $(0,0,-1)$），则 $\Sigma\cup\Sigma_0$ 是闭区域
+\[
+\Omega=\{(x,y,z)\mid x^2+y^2\le1,\ 0\le z\le1-x^2-y^2\}
+\]
+的整个边界，且所取法向量都是 $\Omega$ 的外法向。
+
+计算散度：
+\[
+\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}
+=1+1+0=2.
+\]
+用柱坐标计算 $\Omega$ 的体积：
+\[
+|\Omega|=\int_0^{2\pi}\!\!\mathrm{d}\theta\int_0^1 r\,\mathrm{d}r\int_0^{1-r^2}\mathrm{d}z
+=2\pi\int_0^1 r(1-r^2)\,\mathrm{d}r
+=2\pi\left(\frac12-\frac14\right)=\frac{\pi}{2}.
+\]
+由 Gauss 公式，
+\[
+\iint_\Sigma \mathbf F\cdot\mathbf n\,\mathrm{d}S
++\iint_{\Sigma_0}\mathbf F\cdot\mathbf n\,\mathrm{d}S
+=\iiint_\Omega 2\,\mathrm{d}V
+=2\cdot\frac{\pi}{2}=\pi.
+\]
+再算圆盘上的通量。在 $\Sigma_0$ 上 $z=0$，$\mathbf n=(0,0,-1)$，故
+\[
+\mathbf F\cdot\mathbf n=(x,y,1)\cdot(0,0,-1)=-1,
+\]
+于是
+\[
+\iint_{\Sigma_0}\mathbf F\cdot\mathbf n\,\mathrm{d}S
+=-\iint_{\Sigma_0}\mathrm{d}S
+=-|\Sigma_0|
+=-\pi.
+\]
+代回得
+\[
+I-\pi=\pi\quad\Longrightarrow\quad I=2\pi.
+\]
+\boxed{\text{答案：}2\pi}
+
+\else \answerarea[10] \fi%
+
+\textbf{9.} 设 $\Gamma$ 为球面 $x^2+y^2+z^2=R^2$ 与平面 $x+y+z=0$ 的交线，其正向与平面法向量 $\mathbf n=\dfrac{1}{\sqrt3}(1,1,1)$ 成右手系。计算
+\[
+I=\oint_\Gamma z\,\mathrm{d}x+x\,\mathrm{d}y+y\,\mathrm{d}z.
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 曲线是空间闭曲线，且恰好是平面截球面所得的大圆，直接参数化可以算但较繁；用 Stokes 公式把曲线积分化为平面圆盘上的曲面积分，只要算出旋度和圆盘面积。
+
+令
+\[
+\mathbf F=(P,Q,R)=(z,x,y).
+\]
+计算旋度：
+\[
+\operatorname{curl}\mathbf F
+=\left(
+\frac{\partial R}{\partial y}-\frac{\partial Q}{\partial z},
+\frac{\partial P}{\partial z}-\frac{\partial R}{\partial x},
+\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}
+\right)
+=(1-0,\ 1-0,\ 1-0)=(1,1,1).
+\]
+
+取 $S$ 为平面 $x+y+z=0$ 上被 $\Gamma$ 围成的圆盘。因为该平面经过球心 $(0,0,0)$，所以截得的是大圆，$\Gamma$ 的半径为 $R$，圆盘 $S$ 的半径为 $R$，面积为
+\[
+|S|=\pi R^2.
+\]
+$S$ 的单位法向量为
+\[
+\mathbf n=\frac{1}{\sqrt3}(1,1,1),
+\]
+题设 $\Gamma$ 的正向与 $\mathbf n$ 成右手系，正好符合 Stokes 公式的定向要求。于是
+\[
+\begin{aligned}
+I
+&=\iint_S \operatorname{curl}\mathbf F\cdot\mathbf n\,\mathrm{d}S\\
+&=\iint_S (1,1,1)\cdot\frac{1}{\sqrt3}(1,1,1)\,\mathrm{d}S\\
+&=\iint_S \frac{3}{\sqrt3}\,\mathrm{d}S
+=\sqrt3\,|S|
+=\sqrt3\,\pi R^2.
+\end{aligned}
+\]
+\boxed{\text{答案：}\sqrt3\,\pi R^2}
+
+\else \answerarea[10] \fi%
+
+\subsection{真题风格与综合训练}
+
+\textbf{10.}（真题风格·填空）求锥面 $z=\sqrt{x^2+y^2}$ 被柱面 $x^2+y^2=2x$ 所截下部分的面积。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 曲面由 $z=f(x,y)$ 给出，用投影法：面积元 $\mathrm{d}S=\sqrt{1+f_x^2+f_y^2}\,\mathrm{d}x\mathrm{d}y$，投影区域由两张曲面的交线在 $xy$ 平面上的投影决定。
+
+曲面为
+\[
+z=\sqrt{x^2+y^2},\qquad (x,y)\in D,
+\]
+其中 $D$ 是柱面 $x^2+y^2=2x$ 在 $xy$ 平面内围成的区域，即
+\[
+(x-1)^2+y^2\le1.
+\]
+在 $D$ 内（除原点外）有
+\[
+z_x=\frac{x}{\sqrt{x^2+y^2}},\qquad
+z_y=\frac{y}{\sqrt{x^2+y^2}},
+\]
+故
+\[
+\sqrt{1+z_x^2+z_y^2}
+=\sqrt{1+\frac{x^2+y^2}{x^2+y^2}}
+=\sqrt2.
+\]
+原点只是一个点，不影响积分值。因此
+\[
+A=\iint_D \sqrt2\,\mathrm{d}x\mathrm{d}y
+=\sqrt2\,|D|.
+\]
+$D$ 是半径为 $1$ 的圆盘，$|D|=\pi$，所以
+\[
+A=\sqrt2\,\pi.
+\]
+\boxed{\text{答案：}\sqrt2\,\pi}
+
+\else \answerarea[8] \fi%
+
+\textbf{11.}（真题风格·选择）设 $\Sigma$ 为上半球面 $z=\sqrt{a^2-x^2-y^2}$，则
+\[
+\iint_\Sigma z\,\mathrm{d}S=(\quad)
+\]
+\[
+\mathrm{(A)}\ \pi a^3
+\qquad
+\mathrm{(B)}\ \frac{\pi a^3}{2}
+\qquad
+\mathrm{(C)}\ \frac{2\pi a^3}{3}
+\qquad
+\mathrm{(D)}\ 2\pi a^3
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 上半球面的 $\mathrm{d}S$ 含根式 $\frac{a}{z}$，与 $z$ 相乘后根式消失，剩下的就是圆盘面积。注意这是第一类曲面积分，投影到 $xy$ 平面时不要漏掉 $\mathrm{d}S$ 的系数。
+
+设
+\[
+z=\sqrt{a^2-x^2-y^2},\qquad (x,y)\in D:\ x^2+y^2\le a^2.
+\]
+则
+\[
+z_x=-\frac{x}{z},\qquad z_y=-\frac{y}{z},
+\]
+从而
+\[
+\sqrt{1+z_x^2+z_y^2}
+=\sqrt{1+\frac{x^2+y^2}{z^2}}
+=\sqrt{\frac{z^2+x^2+y^2}{z^2}}
+=\sqrt{\frac{a^2}{z^2}}
+=\frac{a}{z},
+\]
+这里 $z>0$（上半球面，边界 $z=0$ 是一条圆周，不影响积分）。于是
+\[
+\mathrm{d}S=\frac{a}{z}\,\mathrm{d}x\mathrm{d}y,
+\]
+所以
+\[
+z\,\mathrm{d}S=a\,\mathrm{d}x\mathrm{d}y.
+\]
+因此
+\[
+\iint_\Sigma z\,\mathrm{d}S
+=\iint_D a\,\mathrm{d}x\mathrm{d}y
+=a\cdot |D|
+=a\cdot\pi a^2
+=\pi a^3.
+\]
+选 (A)。若误用 $\mathrm{d}S=\mathrm{d}x\mathrm{d}y$，会得到 $\iint_D z\,\mathrm{d}x\mathrm{d}y=\frac{2\pi a^3}{3}$，这正是干扰项 (C)。
+
+\boxed{\text{答案：(A)}}
+
+\else \answerarea[8] \fi%
+
+\textbf{12.}（真题风格·解答）设
+\[
+\mathbf F(x,y,z)=\frac{(x,y,z)}{(x^2+y^2+z^2)^{3/2}},
+\qquad (x,y,z)\ne(0,0,0).
+\]
+\begin{enumerate}
+  \item[(1)] 证明：在不含原点的区域内，$\operatorname{div}\mathbf F=0$；
+  \item[(2)] 设 $\Sigma$ 是不经过原点、且所围区域 $\Omega$ 不含原点的光滑闭曲面，取外侧，求通量 $\displaystyle\iint_\Sigma \mathbf F\cdot\mathbf n\,\mathrm{d}S$；
+  \item[(3)] 若 $\Sigma$ 是球面 $x^2+y^2+z^2=R^2$ 的外侧，求该通量；
+  \item[(4)] 若 $\Sigma$ 是球面 $(x-2R)^2+y^2+z^2=R^2$ 的外侧，求该通量。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 这是“奇点”型通量问题。原点处 $\mathbf F$ 无定义，所以先算散度；只要原点不在封闭曲面内部，就可以直接用 Gauss 公式；原点在内部时则要挖去一个小球，通量由奇点决定。
+
+记 $r=\sqrt{x^2+y^2+z^2}$，则
+\[
+\mathbf F=\left(\frac{x}{r^3},\frac{y}{r^3},\frac{z}{r^3}\right).
+\]
+
+(1) 当 $(x,y,z)\ne(0,0,0)$ 时，
+\[
+\frac{\partial}{\partial x}\left(\frac{x}{r^3}\right)
+=\frac{1}{r^3}-\frac{3x^2}{r^5},
+\]
+同理
+\[
+\frac{\partial}{\partial y}\left(\frac{y}{r^3}\right)
+=\frac{1}{r^3}-\frac{3y^2}{r^5},\qquad
+\frac{\partial}{\partial z}\left(\frac{z}{r^3}\right)
+=\frac{1}{r^3}-\frac{3z^2}{r^5}.
+\]
+三式相加：
+\[
+\operatorname{div}\mathbf F
+=\frac{3}{r^3}-\frac{3(x^2+y^2+z^2)}{r^5}
+=\frac{3}{r^3}-\frac{3r^2}{r^5}
+=0.
+\]
+
+(2) 因为 $\Omega$ 不含原点，$\mathbf F$ 在 $\Omega$ 上有连续的一阶偏导数，满足 Gauss 公式的条件。由 (1)，
+\[
+\iint_\Sigma \mathbf F\cdot\mathbf n\,\mathrm{d}S
+=\iiint_\Omega \operatorname{div}\mathbf F\,\mathrm{d}V
+=\iiint_\Omega 0\,\mathrm{d}V=0.
+\]
+
+(3) 在球面 $x^2+y^2+z^2=R^2$ 上，$r=R$，外法向量为
+\[
+\mathbf n=\frac{(x,y,z)}{R}.
+\]
+于是
+\[
+\mathbf F\cdot\mathbf n
+=\frac{(x,y,z)}{R^3}\cdot\frac{(x,y,z)}{R}
+=\frac{x^2+y^2+z^2}{R^4}
+=\frac{R^2}{R^4}
+=\frac{1}{R^2}.
+\]
+所以
+\[
+\iint_\Sigma \mathbf F\cdot\mathbf n\,\mathrm{d}S
+=\frac{1}{R^2}\cdot 4\pi R^2
+=4\pi.
+\]
+
+(4) 球面 $(x-2R)^2+y^2+z^2=R^2$ 的球心为 $(2R,0,0)$，它到原点的距离为 $2R>R$，故原点在该球面外部，也就在它围成的球体外部。由 (2) 知通量为 $0$。
+
+评注：若原点位于封闭曲面内部，可先用半径为 $\varepsilon$ 的小球面把原点挖去，在剩下的区域内用 Gauss 公式，再令 $\varepsilon\to0$，得到通量恒为 $4\pi$，与曲面的形状无关。
+
+\boxed{\text{答案：(2) $0$；(3) $4\pi$；(4) $0$。}}
+
+\else \answerarea[10] \fi%

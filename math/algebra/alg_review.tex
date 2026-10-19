@@ -2,887 +2,806 @@
 
 \section{线性代数综合复习}
 
-本章将线性代数七章内容融会贯通，通过跨章节综合题、提高题和证明题，帮助读者建立完整的知识体系。主体题目服务于考研数学一主线综合训练；少量使用 Cayley--Hamilton 定理、广义特征值或 Sylvester 不等式的题目标为“拓展”，不纳入主线备考要求。
+\subsection{本章速览}
 
-线性代数诸概念环环相扣，其主线关系如下图所示：
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rounded corners, fill=blue!8, minimum width=2.0cm, minimum height=0.7cm] (det) at (0,3.3) {行列式};
-\node[draw, rounded corners, fill=blue!8, minimum width=2.0cm, minimum height=0.7cm] (mat) at (0,1.7) {矩阵};
-\node[draw, rounded corners, fill=blue!8, minimum width=2.0cm, minimum height=0.7cm] (vec) at (-3.6,0) {向量组};
-\node[draw, rounded corners, fill=blue!8, minimum width=2.8cm, minimum height=0.7cm] (sys) at (0,0) {线性方程组};
-\node[draw, rounded corners, fill=blue!8, minimum width=2.2cm, minimum height=0.7cm] (eig) at (3.7,0) {特征值/二次型};
-\node[draw, rounded corners, fill=blue!8, minimum width=3.0cm, minimum height=0.7cm] (rank) at (0,-1.8) {秩与解的结构};
-\draw[->] (det) -- node[right,font=\tiny] {可逆} (mat);
-\draw[->] (mat) -- node[above,font=\tiny] {线性变换} (eig);
-\draw[->] (mat) -- node[left,font=\tiny] {行变换} (sys);
-\draw[->] (vec) -- node[above,font=\tiny] {线性表出} (sys);
-\draw[->] (sys) -- node[right,font=\tiny] {秩判定} (rank);
-\draw[->] (vec) -- node[left,font=\tiny] {秩} (rank);
-\end{tikzpicture}
-\end{center}
-
-行列式的绝对值反映了二阶（三阶）行列式作为有向面积（体积）的几何意义。以 \(\boldsymbol{a}=(2,1)\)，\(\boldsymbol{b}=(1,3)\) 为例，\(\det=2\cdot3-1\cdot1=5\)：
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  axis lines=center,
-  width=0.76\linewidth, height=6.2cm,
-  xlabel={$x_1$}, ylabel={$x_2$},
-  xmin=-0.6, xmax=3.9, ymin=-0.6, ymax=4.6,
-  xtick={1,2,3}, ytick={1,2,3,4},
-  font=\footnotesize,
-]
-\draw[blue,thick,fill=blue!12] (axis cs:0,0) -- (axis cs:2,1) -- (axis cs:3,4) -- (axis cs:1,3) -- cycle;
-\draw[->,thick,red] (axis cs:0,0) -- (axis cs:2,1);
-\draw[->,thick,green!50!black] (axis cs:0,0) -- (axis cs:1,3);
-\node[red,anchor=south east] at (axis cs:2,1) {$\boldsymbol{a}=(2,1)$};
-\node[green!50!black,anchor=south east] at (axis cs:1,3) {$\boldsymbol{b}=(1,3)$};
-\node[black] at (axis cs:2.55,2.35) {面积 $=\left|\det\right|=5$};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-
-\subsection{基础综合题}
-
-\begin{enumerate}
-
-\item \textbf{（行列式+矩阵）} 设 \(A = \begin{pmatrix} 1 & 2 & 1 \\ 2 & 5 & 2 \\ 1 & 2 & 3 \end{pmatrix}\)，\(B\) 为 \(3\) 阶方阵且 \(|B| = 2\)，计算 \(|2A^*B^{-1}A^{\mathsf{T}}|\)。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-先求 \(|A|\)：
-\[
-|A| = \begin{vmatrix}
-1 & 2 & 1 \\
-2 & 5 & 2 \\
-1 & 2 & 3
-\end{vmatrix}
-\xrightarrow{r_2-2r_1,\ r_3-r_1}
-\begin{vmatrix}
-1 & 2 & 1 \\
-0 & 1 & 0 \\
-0 & 0 & 2
-\end{vmatrix} = 1 \cdot 1 \cdot 2 = 2.
-\]
-
-利用行列式性质：
-\[
-|A^*| = |A|^{n-1} = 4,\quad
-|A^{\mathsf{T}}| = |A| = 2,\quad
-|B^{-1}| = |B|^{-1} = \frac{1}{2}.
-\]
-
-故
-\[
-|2A^*B^{-1}A^{\mathsf{T}}|
-= 2^3 \cdot |A^*| \cdot |B^{-1}| \cdot |A^{\mathsf{T}}|
-= 8 \cdot 4 \cdot \frac{1}{2} \cdot 2 = 32.
-\]
-
-\else \answerarea \fi%
-\item \textbf{（行列式+矩阵）} 设 \(n\) 阶矩阵 \(A\) 满足 \(A^2 - 3A + 2I = O\)。求 \(|A - I|\) 与 \(|A + I|\) 的所有可能取值。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-由 \(A^2 - 3A + 2I = O\) 得
-\[
-(A - I)(A - 2I) = O.
-\]
-
-取行列式：\(|A - I| \cdot |A - 2I| = 0\)。
-
-设 \(\lambda\) 为 \(A\) 的任一特征值，则由 \((A - I)(A - 2I) = O\) 代入得 \((\lambda - 1)(\lambda - 2) = 0\)，故 \(\lambda \in \{1, 2\}\)。
-\(A - I\) 的特征值为 \(\lambda - 1 \in \{0, 1\}\)。因此
 \begin{itemize}
-    \item 若 \(A\) 有特征值 \(1\)，则 \(|A - I| = 0\)；
-    \item 若 \(A\) 没有特征值 \(1\)，则 \(A-I\) 可逆。由 \((A-I)(A-2I)=O\) 两边左乘 \((A-I)^{-1}\)，得 \(A=2I\)，此时 \(|A-I|=|I|=1\)。
+  \item \textbf{行列式。} \(|A|\) 可按任一行（列）展开；\(|kA|=k^n|A|\)，\(|AB|=|A||B|\)，\(|A^{\mathsf T}|=|A|\)。伴随矩阵满足 \(AA^*=|A|I\)，从而 \(|A^*|=|A|^{n-1}\)。\(A\) 可逆当且仅当 \(|A|\ne0\)。
+  \item \textbf{矩阵的秩。} 初等行（列）变换不改变秩，且 \(r(A)=r(A^{\mathsf T})=\) 行秩 \(=\) 列秩。常用估计：\(r(AB)\le\min\{r(A),r(B)\}\)，\(r(A+B)\le r(A)+r(B)\)。
+  \item \textbf{向量组。} 向量组线性相关当且仅当对应的齐次方程组有非零解；极大无关组所含向量的个数就是秩。\(\boldsymbol{\beta}\) 可由 \(\boldsymbol{\alpha}_1,\dots,\boldsymbol{\alpha}_s\) 线性表示，当且仅当 \(r(\boldsymbol{\alpha}_1,\dots,\boldsymbol{\alpha}_s)=r(\boldsymbol{\alpha}_1,\dots,\boldsymbol{\alpha}_s,\boldsymbol{\beta})\)。
+  \item \textbf{线性方程组。} \(A\boldsymbol{x}=\boldsymbol{b}\) 有解当且仅当 \(r(A)=r(A\mid\boldsymbol{b})\)；有解时，若 \(r(A)=n\) 则解唯一，若 \(r(A)<n\) 则有无穷多解。通解为“一个特解 \(+\) 齐次方程组的基础解系”。
+  \item \textbf{特征值与对角化。} 特征值是 \(|\lambda I-A|=0\) 的根；不同特征值对应的特征向量线性无关。\(n\) 阶矩阵可对角化，当且仅当它有 \(n\) 个线性无关的特征向量，也等价于每个特征值的几何重数等于代数重数。实对称矩阵一定可以正交对角化。
+  \item \textbf{二次型。} 二次型写成 \(f=\boldsymbol{x}^{\mathsf T}A\boldsymbol{x}\)，其中 \(A\) 为实对称矩阵。正交变换不改变特征值，配方法不改变惯性指数。\(A\) 正定当且仅当各阶顺序主子式全大于零，也当且仅当全部特征值大于零。
 \end{itemize}
 
-\(A + I\) 的特征值为 \(\lambda + 1 \in \{2, 3\}\)。设 \(A\) 的特征值中恰有 \(k\) 个为 \(1\)，\(n-k\) 个为 \(2\)，则
+\subsection{基础过关题}
+
+\textbf{1.} 计算四阶行列式
 \[
-|A + I| = 2^k \cdot 3^{n-k},\quad k = 0, 1, \ldots, n.
+D_4=\begin{vmatrix}
+2&1&0&0\\
+1&2&1&0\\
+0&1&2&1\\
+0&0&1&2
+\end{vmatrix}.
 \]
-故 \(|A + I|\) 的所有可能取值为 \(\{2^k \cdot 3^{n-k} \mid k = 0, 1, \ldots, n\}\)。
-
-\boxed{\text{注}} 此题将矩阵方程与特征值理论结合，核心在于将矩阵方程转化为特征值的约束条件。
-
-\else \answerarea \fi%
-\item \textbf{（向量+方程组）} 设 \(\boldsymbol{\alpha}_1 = (1, 2, -1, 0)^{\mathsf{T}}\)，\(\boldsymbol{\alpha}_2 = (2, 5, a, 1)^{\mathsf{T}}\)，\(\boldsymbol{\alpha}_3 = (1, 1, -4, b)^{\mathsf{T}}\)，\(\boldsymbol{\beta} = (3, 8, 0, c)^{\mathsf{T}}\)。问 \(a, b, c\) 取何值时，
-
-\begin{enumerate}[label=(\roman*)]
-    \item \(\boldsymbol{\beta}\) 可由 \(\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3\) 唯一线性表示？
-    \item \(\boldsymbol{\beta}\) 可由 \(\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3\) 线性表示但表示法不唯一？
-    \item \(\boldsymbol{\beta}\) 不能由 \(\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3\) 线性表示？
-\end{enumerate}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-该问题等价于非齐次线性方程组
+\boxed{\text{解}}
+\textbf{思路：} 这是三对角行列式，按第一行展开后会出现同形状的低阶行列式，因此建立递推关系。
+
+设 \(D_n\) 为对角线全为 \(2\)、次对角线全为 \(1\) 的 \(n\) 阶三对角行列式。按第一行展开：
 \[
-x_1\boldsymbol{\alpha}_1 + x_2\boldsymbol{\alpha}_2 + x_3\boldsymbol{\alpha}_3 = \boldsymbol{\beta}
+D_n=2D_{n-1}-1\cdot\begin{vmatrix}
+1&1&0&\cdots&0\\
+0&2&1&\cdots&0\\
+0&1&2&\cdots&0\\
+\vdots&&&\ddots&\vdots\\
+0&0&\cdots&1&2
+\end{vmatrix}
+=2D_{n-1}-D_{n-2}\quad(n\ge3).
 \]
-的解的存在性与唯一性问题。写出增广矩阵并作初等行变换：
+其中第二个行列式按第一列展开后正好是 \(D_{n-2}\)。初始值
 \[
-(A \mid \boldsymbol{\beta}) =
+D_1=2,\qquad D_2=\begin{vmatrix}2&1\\1&2\end{vmatrix}=3.
+\]
+于是
+\[
+D_3=2D_2-D_1=2\cdot3-2=4,\qquad
+D_4=2D_3-D_2=2\cdot4-3=5.
+\]
+\boxed{\text{答案：}\ D_4=5}
+\else \answerarea[8] \fi%
+
+\textbf{2.} 设
+\[
+A=\begin{pmatrix}1&2&0\\0&1&3\\2&0&1\end{pmatrix},
+\]
+\(B\) 为三阶方阵且 \(|B|=2\)。求 \(\bigl|(2A^*)^{-1}B^{\mathsf T}A\bigr|\)。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 先把待求行列式拆成若干个行列式的乘积，再用 \(|A^*|=|A|^{n-1}\) 以及行列式的数乘性质。
+
+先求 \(|A|\)。按第一行展开：
+\[
+|A|=1\cdot\begin{vmatrix}1&3\\0&1\end{vmatrix}
+-2\cdot\begin{vmatrix}0&3\\2&1\end{vmatrix}
++0
+=1-2\cdot(-6)=13.
+\]
+因此 \(A\) 可逆，且
+\[
+|A^*|=|A|^{3-1}=13^2=169.
+\]
+由行列式的数乘性质，
+\[
+|2A^*|=2^3|A^*|=8\cdot169=1352,
+\qquad
+\bigl|(2A^*)^{-1}\bigr|=\frac1{1352}.
+\]
+再利用 \(|B^{\mathsf T}|=|B|=2\)，\(|A|=13\)，得
+\[
+\bigl|(2A^*)^{-1}B^{\mathsf T}A\bigr|
+=\frac1{1352}\cdot2\cdot13
+=\frac{26}{1352}
+=\frac1{52}.
+\]
+\boxed{\text{答案：}\ \dfrac1{52}}
+\else \answerarea[8] \fi%
+
+\textbf{3.} 求向量组
+\[
+\boldsymbol{\alpha}_1=\begin{pmatrix}1\\1\\0\\2\end{pmatrix},\quad
+\boldsymbol{\alpha}_2=\begin{pmatrix}2\\0\\1\\1\end{pmatrix},\quad
+\boldsymbol{\alpha}_3=\begin{pmatrix}1\\-1\\1\\-1\end{pmatrix},\quad
+\boldsymbol{\alpha}_4=\begin{pmatrix}0\\2\\-1\\1\end{pmatrix}
+\]
+的秩和一个极大无关组，并把其余向量用该极大无关组线性表示。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 以向量为列作矩阵，作初等行变换化为行最简形；主元所在列对应的原向量构成极大无关组，非主元列给出线性表示的系数。
+
+以 \(\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_3,\boldsymbol{\alpha}_4\) 为列作矩阵并行变换：
+\[
 \begin{pmatrix}
-1 & 2 & 1 & 3 \\
-2 & 5 & 1 & 8 \\
--1 & a & -4 & 0 \\
-0 & 1 & b & c
+1&2&1&0\\
+1&0&-1&2\\
+0&1&1&-1\\
+2&1&-1&1
+\end{pmatrix}
+\xrightarrow{r_2-r_1,\ r_4-2r_1}
+\begin{pmatrix}
+1&2&1&0\\
+0&-2&-2&2\\
+0&1&1&-1\\
+0&-3&-3&1
+\end{pmatrix}
+\]
+\[
+\xrightarrow{r_2\div(-2)}
+\begin{pmatrix}
+1&2&1&0\\
+0&1&1&-1\\
+0&1&1&-1\\
+0&-3&-3&1
+\end{pmatrix}
+\xrightarrow{r_3-r_2,\ r_4+3r_2}
+\begin{pmatrix}
+1&2&1&0\\
+0&1&1&-1\\
+0&0&0&0\\
+0&0&0&-2
+\end{pmatrix}.
+\]
+再交换并消元，得行最简形
+\[
+\begin{pmatrix}
+1&0&-1&0\\
+0&1&1&0\\
+0&0&0&1\\
+0&0&0&0
+\end{pmatrix}.
+\]
+主元位于第 \(1,2,4\) 列，故
+\[
+r(\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_3,\boldsymbol{\alpha}_4)=3,
+\]
+且 \(\{\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_4\}\) 是一个极大无关组。第三列等于“\(-1\) 倍第一列加 \(1\) 倍第二列”，即
+\[
+\boldsymbol{\alpha}_3=-\boldsymbol{\alpha}_1+\boldsymbol{\alpha}_2.
+\]
+\boxed{\text{答案：}\ \text{秩为 }3\text{；极大无关组 }\{\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_4\}\text{；}\boldsymbol{\alpha}_3=\boldsymbol{\alpha}_2-\boldsymbol{\alpha}_1\text{。}}
+\else \answerarea[8] \fi%
+
+\textbf{4.} 求非齐次线性方程组
+\[
+\begin{cases}
+x_1+2x_2-x_3+x_4=1,\\
+2x_1+4x_2-3x_3+2x_4=2,\\
+3x_1+6x_2-4x_3+3x_4=3
+\end{cases}
+\]
+的通解。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 对增广矩阵作初等行变换，先判断秩，再保留主元变量、把自由未知量留在参数中。
+
+\[
+(A\mid\boldsymbol{b})=
+\begin{pmatrix}
+1&2&-1&1&1\\
+2&4&-3&2&2\\
+3&6&-4&3&3
+\end{pmatrix}
+\xrightarrow{r_2-2r_1,\ r_3-3r_1}
+\begin{pmatrix}
+1&2&-1&1&1\\
+0&0&-1&0&0\\
+0&0&-1&0&0
+\end{pmatrix}
+\]
+\[
+\xrightarrow{r_3-r_2}
+\begin{pmatrix}
+1&2&-1&1&1\\
+0&0&-1&0&0\\
+0&0&0&0&0
+\end{pmatrix}
+\xrightarrow{r_1+r_2,\ r_2\div(-1)}
+\begin{pmatrix}
+1&2&0&1&1\\
+0&0&1&0&0\\
+0&0&0&0&0
+\end{pmatrix}.
+\]
+于是 \(r(A)=r(A\mid\boldsymbol{b})=2<4\)，方程组有无穷多解，且
+\[
+x_3=0,\qquad x_1+2x_2+x_4=1.
+\]
+令 \(x_2=s,\ x_4=t\)，则 \(x_1=1-2s-t\)。写成向量形式：
+\[
+\begin{pmatrix}x_1\\x_2\\x_3\\x_4\end{pmatrix}
+=
+\begin{pmatrix}1\\0\\0\\0\end{pmatrix}
++s\begin{pmatrix}-2\\1\\0\\0\end{pmatrix}
++t\begin{pmatrix}-1\\0\\0\\1\end{pmatrix},
+\quad s,t\in\mathbb R.
+\]
+\boxed{\text{答案：}\ \boldsymbol{x}=(1,0,0,0)^{\mathsf T}+s(-2,1,0,0)^{\mathsf T}+t(-1,0,0,1)^{\mathsf T},\ s,t\in\mathbb R.}
+\else \answerarea[8] \fi%
+
+\subsection{综合提高题}
+
+\textbf{5.} 设
+\[
+\begin{cases}
+x_1+2x_2+x_3=3,\\
+2x_1+x_2-x_3=3,\\
+-x_1+ax_3=b.
+\end{cases}
+\]
+讨论 \(a,b\) 取何值时，方程组有唯一解、有无穷多解、无解；有解时求出通解。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 系数矩阵含参数，先化为阶梯形，由最后一个主元是否为零分类；再结合最后一行的右端判断相容性。
+
+对增广矩阵作行变换：
+\[
+(A\mid\boldsymbol{b})=
+\begin{pmatrix}
+1&2&1&3\\
+2&1&-1&3\\
+-1&0&a&b
 \end{pmatrix}
 \xrightarrow{r_2-2r_1,\ r_3+r_1}
 \begin{pmatrix}
-1 & 2 & 1 & 3 \\
-0 & 1 & -1 & 2 \\
-0 & a+2 & -3 & 3 \\
-0 & 1 & b & c
+1&2&1&3\\
+0&-3&-3&-3\\
+0&2&a+1&b+3
 \end{pmatrix}
 \]
 \[
-\xrightarrow{r_3-(a+2)r_2,\ r_4-r_2}
+\xrightarrow{r_2\div(-3)}
 \begin{pmatrix}
-1 & 2 & 1 & 3 \\
-0 & 1 & -1 & 2 \\
-0 & 0 & a-1 & -2a-1 \\
-0 & 0 & b+1 & c-2
+1&2&1&3\\
+0&1&1&1\\
+0&2&a+1&b+3
+\end{pmatrix}
+\xrightarrow{r_3-2r_2}
+\begin{pmatrix}
+1&2&1&3\\
+0&1&1&1\\
+0&0&a-1&b+1
 \end{pmatrix}.
 \]
+系数行列式 \(|A|=3(1-a)\)，与第三行主元 \(a-1\) 的讨论一致。
 
-分类讨论：
-\begin{enumerate}[label=(\roman*)]
-    \item 当 \(a \neq 1\) 时，前三行系数矩阵满秩（秩 \(=3\)）。此时还需第四行与前三行相容：将第三行消去第四行的 \(b+1\) 位置，得
-    \[
-    \begin{pmatrix}
-    1 & 2 & 1 & 3 \\
-    0 & 1 & -1 & 2 \\
-    0 & 0 & a-1 & -2a-1 \\
-    0 & 0 & 0 & c-2 - \frac{(b+1)(-2a-1)}{a-1}
-    \end{pmatrix}.
-    \]
-    故当且仅当 \(c-2 = \dfrac{(b+1)(-2a-1)}{a-1}\) 时方程组有唯一解；否则无解。
-    \item 当 \(a = 1\) 时，第三行化为 \((0, 0, 0, -3)\)，矛盾！故此时无论 \(b,c\) 为何值，均无解。
+\textbf{(1)} 当 \(a\ne1\) 时，\(r(A)=r(A\mid\boldsymbol{b})=3\)，方程组有唯一解。由第三行
+\[
+x_3=\frac{b+1}{a-1},
+\]
+代回第二行：
+\[
+x_2=1-x_3=\frac{a-b-2}{a-1},
+\]
+再代回第一行：
+\[
+x_1=3-2x_2-x_3
+=\frac{3(a-1)-2(a-b-2)-(b+1)}{a-1}
+=\frac{a+b}{a-1}.
+\]
 
-\end{enumerate}
-\else \answerarea \fi%
+\textbf{(2)} 当 \(a=1\) 时，第三行变为 \((0,0,0,b+1)\)。
+\begin{itemize}
+  \item 若 \(b\ne-1\)，则 \(r(A)=2\)，\(r(A\mid\boldsymbol{b})=3\)，方程组无解；
+  \item 若 \(b=-1\)，则 \(r(A)=r(A\mid\boldsymbol{b})=2<3\)，方程组有无穷多解。
+\end{itemize}
+此时前两行为
+\[
+x_1+2x_2+x_3=3,\qquad x_2+x_3=1.
+\]
+令 \(x_3=t\)，则 \(x_2=1-t\)，\(x_1=3-2(1-t)-t=1+t\)，即
+\[
+\boldsymbol{x}=(1,1,0)^{\mathsf T}+t(1,-1,1)^{\mathsf T},\quad t\in\mathbb R.
+\]
+\textbf{答案：}$a\ne1$ 时唯一解 $\bigl(\frac{a+b}{a-1},\frac{a-b-2}{a-1},\frac{b+1}{a-1}\bigr)^{\mathsf T}$；$a=1,\ b=-1$ 时无穷多解 $(1,1,0)^{\mathsf T}+t(1,-1,1)^{\mathsf T}$；$a=1,\ b\ne-1$ 时无解。
+\else \answerarea[10] \fi%
 
-综上：(i) \(a \neq 1\) 且满足相容条件时唯一表示；(ii) 不可能出现无穷多解，因为所有相容情形均有 \(a\neq1\)，此时系数矩阵秩为 \(3\)；(iii) 其余情况均不可表示。需要注意，\(a=1\) 时方程组恒不相容，而向量组本身是否相关还取决于 \(b\)：仅当 \(b=-1\) 时系数矩阵秩降为 \(2\)。
-
-\item \textbf{（向量+方程组）} 已知 \(A\) 为 \(m \times n\) 实矩阵，\(\boldsymbol{0}\ne\boldsymbol{b} \in \mathbb{R}^m\)。若 \(A\boldsymbol{x} = \boldsymbol{0}\) 的基础解系为 \(\boldsymbol{\xi}_1, \boldsymbol{\xi}_2\)，\(\boldsymbol{\eta}_0\) 为 \(A\boldsymbol{x} = \boldsymbol{b}\) 的一个特解。证明：
-
-\begin{enumerate}[label=(\roman*)]
-    \item \(\boldsymbol{\eta}_0,\ \boldsymbol{\eta}_0 + \boldsymbol{\xi}_1,\ \boldsymbol{\eta}_0 + \boldsymbol{\xi}_2\) 线性无关；
-    \item \(A\boldsymbol{x} = \boldsymbol{b}\) 的任意 \(4\) 个解必线性相关。
-\end{enumerate}
+\textbf{6.} 设 \(\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_3\) 是 \(\mathbb R^3\) 的一组基，令
+\[
+\boldsymbol{\beta}_1=\boldsymbol{\alpha}_1+\boldsymbol{\alpha}_2,\quad
+\boldsymbol{\beta}_2=\boldsymbol{\alpha}_2+\boldsymbol{\alpha}_3,\quad
+\boldsymbol{\beta}_3=\boldsymbol{\alpha}_3+k\boldsymbol{\alpha}_1.
+\]
+讨论 \(k\) 取何值时 \(\boldsymbol{\beta}_1,\boldsymbol{\beta}_2,\boldsymbol{\beta}_3\) 线性相关或线性无关；线性相关时，求其秩、一个极大无关组以及它们之间的线性关系。
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(i) 设
+\boxed{\text{解}}
+\textbf{思路：} 把 \(\boldsymbol{\beta}\) 组用基 \(\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_3\) 的坐标表示，问题转化为一个三阶坐标矩阵是否可逆。
+
+在基 \(\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_3\) 下，
 \[
-k_0\boldsymbol{\eta}_0 + k_1(\boldsymbol{\eta}_0 + \boldsymbol{\xi}_1) + k_2(\boldsymbol{\eta}_0 + \boldsymbol{\xi}_2) = \boldsymbol{0},
+\boldsymbol{\beta}_1=(1,1,0)^{\mathsf T},\quad
+\boldsymbol{\beta}_2=(0,1,1)^{\mathsf T},\quad
+\boldsymbol{\beta}_3=(k,0,1)^{\mathsf T}.
 \]
-整理得
+以它们为列作矩阵
 \[
-(k_0+k_1+k_2)\boldsymbol{\eta}_0 + k_1\boldsymbol{\xi}_1 + k_2\boldsymbol{\xi}_2 = \boldsymbol{0}. \tag{1}
-\]
-
-在 (1) 两端左乘 \(A\)，利用 \(A\boldsymbol{\eta}_0 = \boldsymbol{b}\)，\(A\boldsymbol{\xi}_1 = A\boldsymbol{\xi}_2 = \boldsymbol{0}\) 得
-\[
-(k_0+k_1+k_2)\boldsymbol{b} = \boldsymbol{0}.
-\]
-因为题设给出 \(\boldsymbol{b} \neq \boldsymbol{0}\)，故
-\[
-k_0 + k_1 + k_2 = 0.
-\]
-
-代回 (1)：\(k_1\boldsymbol{\xi}_1 + k_2\boldsymbol{\xi}_2 = \boldsymbol{0}\)。由基础解系中向量的线性无关性知 \(k_1 = k_2 = 0\)，进而 \(k_0 = 0\)。故三向量线性无关。
-
-(ii) \(A\boldsymbol{x} = \boldsymbol{b}\) 的通解为
-\[
-\boldsymbol{\eta}_0+c_1\boldsymbol{\xi}_1+c_2\boldsymbol{\xi}_2.
-\]
-因此每个解都属于线性子空间
-\(\operatorname{span}\{\boldsymbol{\eta}_0,\boldsymbol{\xi}_1,\boldsymbol{\xi}_2\}\)，其维数至多为 \(3\)，故任意 \(4\) 个解必线性相关。
-
-\boxed{\text{注}} “解集是二维仿射子空间”不能推出任意三个解线性相关；当该仿射平面不经过原点时，其中完全可能存在三个线性无关向量。(i) 正是一个例子。
-
-\else \answerarea \fi%
-\item \textbf{（特征值+二次型）} 设三阶实对称矩阵 \(A\) 的特征值为 \(\lambda_1 = 2\)，\(\lambda_2 = \lambda_3 = -1\)，且对应于 \(\lambda_1 = 2\) 的特征向量为 \(\boldsymbol{p}_1 = (1, 1, 1)^{\mathsf{T}}\)。
-
-\begin{enumerate}[label=(\roman*)]
-    \item 求矩阵 \(A\)；
-    \item 写出二次型 \(f(\boldsymbol{x}) = \boldsymbol{x}^{\mathsf{T}} A \boldsymbol{x}\) 在正交变换下的标准形。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(i) 实对称矩阵属于不同特征值的特征向量正交，因此 \(\lambda_2 = \lambda_3 = -1\) 对应的特征向量均与 \(\boldsymbol{p}_1 = (1,1,1)^{\mathsf{T}}\) 正交。求解 \(x_1+x_2+x_3 = 0\)，取基础解系：
-\[
-\boldsymbol{p}_2 = (1, -1, 0)^{\mathsf{T}},\quad \boldsymbol{p}_3 = (1, 0, -1)^{\mathsf{T}}.
-\]
-
-对 \(\boldsymbol{p}_2, \boldsymbol{p}_3\) 进行 Schmidt 正交化：
-\[
-\boldsymbol{q}_2 = \boldsymbol{p}_2 = (1, -1, 0)^{\mathsf{T}},
-\]
-\[
-\boldsymbol{q}_3 = \boldsymbol{p}_3 - \frac{\boldsymbol{p}_3 \cdot \boldsymbol{q}_2}{\|\boldsymbol{q}_2\|^2}\boldsymbol{q}_2
-= (1, 0, -1)^{\mathsf{T}} - \frac{1}{2}(1, -1, 0)^{\mathsf{T}}
-= \left(\frac{1}{2}, \frac{1}{2}, -1\right)^{\mathsf{T}}.
-\]
-
-单位化：
-\[
-\boldsymbol{e}_1 = \frac{1}{\sqrt{3}}(1, 1, 1)^{\mathsf{T}},\quad
-\boldsymbol{e}_2 = \frac{1}{\sqrt{2}}(1, -1, 0)^{\mathsf{T}},\quad
-\boldsymbol{e}_3 = \frac{1}{\sqrt{6}}(1, 1, -2)^{\mathsf{T}}.
-\]
-
-正交矩阵 \(Q = (\boldsymbol{e}_1, \boldsymbol{e}_2, \boldsymbol{e}_3)\)，则
-\[
-A = Q \begin{pmatrix} 2 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \end{pmatrix} Q^{\mathsf{T}}.
-\]
-
-计算：
-\begin{align*}
-A &= 2\boldsymbol{e}_1\boldsymbol{e}_1^{\mathsf{T}} - \boldsymbol{e}_2\boldsymbol{e}_2^{\mathsf{T}} - \boldsymbol{e}_3\boldsymbol{e}_3^{\mathsf{T}} \\[4pt]
-  &= \frac{2}{3}\begin{pmatrix}1\\1\\1\end{pmatrix}(1,1,1)
-     - \frac{1}{2}\begin{pmatrix}1\\-1\\0\end{pmatrix}(1,-1,0)
-     - \frac{1}{6}\begin{pmatrix}1\\1\\-2\end{pmatrix}(1,1,-2) \\[4pt]
-  &= \begin{pmatrix}
-     0 & 1 & 1 \\ 1 & 0 & 1 \\ 1 & 1 & 0
-     \end{pmatrix}.
-\end{align*}
-
-(ii) 在正交变换 \(\boldsymbol{x} = Q\boldsymbol{y}\) 下：
-\[
-f = \boldsymbol{x}^{\mathsf{T}} A \boldsymbol{x}
-  = \boldsymbol{y}^{\mathsf{T}} (Q^{\mathsf{T}} A Q) \boldsymbol{y}
-  = 2y_1^2 - y_2^2 - y_3^2.
-\]
-
-\else \answerarea \fi%
-\item \textbf{（特征值+二次型）} 判断二次型 \(f(x_1, x_2, x_3) = 2x_1^2 + 2x_2^2 + 3x_3^2 + 2x_1x_2 + 2x_1x_3 + 2x_2x_3\) 的正定性，并写出其规范形。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-二次型矩阵为
-\[
-A = \begin{pmatrix}
-2 & 1 & 1 \\
-1 & 2 & 1 \\
-1 & 1 & 3
+C=\begin{pmatrix}
+1&0&k\\
+1&1&0\\
+0&1&1
 \end{pmatrix}.
 \]
-
-计算顺序主子式：
+计算行列式（按第一行展开）：
 \[
-\Delta_1 = 2 > 0,\quad
-\Delta_2 = \begin{vmatrix} 2 & 1 \\ 1 & 2 \end{vmatrix} = 3 > 0,
+|C|=1\cdot\begin{vmatrix}1&0\\1&1\end{vmatrix}
+-0+k\cdot\begin{vmatrix}1&1\\0&1\end{vmatrix}
+=1+k.
 \]
+因为 \(\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_3\) 线性无关，所以 \(\boldsymbol{\beta}\) 组的线性相关性等价于 \(|C|=0\)。
+
+\textbf{(1)} 当 \(k\ne-1\) 时，\(|C|\ne0\)，\(\boldsymbol{\beta}_1,\boldsymbol{\beta}_2,\boldsymbol{\beta}_3\) 线性无关，秩为 \(3\)。
+
+\textbf{(2)} 当 \(k=-1\) 时，
 \[
-\Delta_3 = |A| = 2\begin{vmatrix} 2 & 1 \\ 1 & 3 \end{vmatrix}
-- 1\begin{vmatrix} 1 & 1 \\ 1 & 3 \end{vmatrix}
-+ 1\begin{vmatrix} 1 & 2 \\ 1 & 1 \end{vmatrix}
-= 2 \cdot 5 - 2 + (-1) = 7 > 0.
+\boldsymbol{\beta}_3=\boldsymbol{\alpha}_3-\boldsymbol{\alpha}_1.
 \]
-
-所有顺序主子式均大于零，故 \(A\) 正定，即二次型正定。正定二次型的规范形为
+而
 \[
-f = z_1^2 + z_2^2 + z_3^2.
-\]
-
-\boxed{\text{注}} 另法：对 \(A\) 作合同变换（配方法）：
-\begin{align*}
-f &= 2x_1^2 + 2x_2^2 + 3x_3^2 + 2x_1x_2 + 2x_1x_3 + 2x_2x_3 \\
-  &= 2\left(x_1 + \frac{1}{2}x_2 + \frac{1}{2}x_3\right)^2
-     + \frac{3}{2}\left(x_2 + \frac{1}{3}x_3\right)^2
-     + \frac{7}{3}x_3^2 > 0 \ (\boldsymbol{x} \neq \boldsymbol{0}).
-\end{align*}
-同样证得正定性。
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{提高综合题}
-
-\begin{enumerate}
-
-\item \textbf{（分块矩阵+行列式）} 设 \(A, B\) 均为 \(n\) 阶方阵，证明：
-\[
-\begin{vmatrix} A & B \\ B & A \end{vmatrix} = |A + B| \cdot |A - B|.
-\]
-当 \(A = \begin{pmatrix} 3 & 1 \\ 2 & 4 \end{pmatrix}\)，\(B = \begin{pmatrix} 1 & 2 \\ 3 & 1 \end{pmatrix}\) 时，计算分块行列式的值。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-利用分块矩阵的初等变换（打洞法）：
-\[
-\begin{aligned}
-&\begin{pmatrix} I & I \\ O & I \end{pmatrix}
-\begin{pmatrix} A & B \\ B & A \end{pmatrix}
-=\begin{pmatrix} A+B & A+B \\ B & A \end{pmatrix},\\
-&\begin{pmatrix} A+B & A+B \\ B & A \end{pmatrix}
-\begin{pmatrix} I & -I \\ O & I \end{pmatrix}
-=\begin{pmatrix} A+B & O \\ B & A-B \end{pmatrix}.
-\end{aligned}
-\]
-
-两边取行列式。初等块变换矩阵 \(\begin{pmatrix} I & I \\ O & I \end{pmatrix}\) 和 \(\begin{pmatrix} I & -I \\ O & I \end{pmatrix}\) 的行列式均为 \(1\)（分块上三角矩阵，对角块均为 \(I\)），故
-\[
-\begin{vmatrix} A & B \\ B & A \end{vmatrix}
-= \begin{vmatrix} A+B & O \\ B & A-B \end{vmatrix}
-= |A+B| \cdot |A-B|.
-\]
-
-计算具体数值：
-\[
-A+B = \begin{pmatrix} 4 & 3 \\ 5 & 5 \end{pmatrix},\ |A+B| = 20 - 15 = 5,
-\]
-\[
-A-B = \begin{pmatrix} 2 & -1 \\ -1 & 3 \end{pmatrix},\ |A-B| = 6 - 1 = 5.
+\boldsymbol{\beta}_2-\boldsymbol{\beta}_1
+=(\boldsymbol{\alpha}_2+\boldsymbol{\alpha}_3)-(\boldsymbol{\alpha}_1+\boldsymbol{\alpha}_2)
+=\boldsymbol{\alpha}_3-\boldsymbol{\alpha}_1
+=\boldsymbol{\beta}_3,
 \]
 故
 \[
-\begin{vmatrix} A & B \\ B & A \end{vmatrix} = 5 \times 5 = 25.
+\boldsymbol{\beta}_1-\boldsymbol{\beta}_2+\boldsymbol{\beta}_3=\boldsymbol{0}.
 \]
+此时 \(\boldsymbol{\beta}_1,\boldsymbol{\beta}_2\) 仍线性无关（它们在基下的坐标 \((1,1,0)^{\mathsf T}\)、\((0,1,1)^{\mathsf T}\) 不成比例），故秩为 \(2\)，\(\{\boldsymbol{\beta}_1,\boldsymbol{\beta}_2\}\) 是极大无关组。
+\textbf{答案：}$k\ne-1$ 时线性无关，秩 $3$；$k=-1$ 时线性相关，秩 $2$，极大无关组 $\{\boldsymbol{\beta}_1,\boldsymbol{\beta}_2\}$，关系 $\boldsymbol{\beta}_1-\boldsymbol{\beta}_2+\boldsymbol{\beta}_3=\boldsymbol{0}$。
+\else \answerarea[8] \fi%
 
-\boxed{\text{注}} 「打洞法」是处理分块矩阵行列式的高频技巧，其本质是通过可逆行（列）变换将分块矩阵化为分块上（下）三角形式。
-
-\else \answerarea \fi%
-\item \textbf{（拓展：秩方程与 Sylvester 不等式）} 设 \(A\) 为 \(m \times n\) 矩阵，\(B\) 为 \(n \times s\) 矩阵。证明：
+\textbf{7.} 设
 \[
-\operatorname{rank}(AB) = \operatorname{rank}(B) - \dim(\ker A \cap \operatorname{col}(B)).
-\]
-并由此推出 \(\operatorname{rank}(AB) \geq \operatorname{rank}(A) + \operatorname{rank}(B) - n\)（Sylvester 不等式）。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-考虑线性映射 \(B: \mathbb{R}^s \to \mathbb{R}^n\)，\(A: \mathbb{R}^n \to \mathbb{R}^m\)。考察 \(A\) 在 \(\operatorname{col}(B)\) 上的限制 \(A|_{\operatorname{col}(B)}: \operatorname{col}(B) \to \mathbb{R}^m\)。
-
-由秩—零化度定理：
-\[
-\dim(\operatorname{col}(B)) = \dim(A(\operatorname{col}(B))) + \dim(\ker A \cap \operatorname{col}(B)).
-\]
-
-而 \(\dim(\operatorname{col}(B)) = \operatorname{rank}(B)\)，\(A(\operatorname{col}(B)) = \operatorname{col}(AB)\)，故 \(\dim(A(\operatorname{col}(B))) = \operatorname{rank}(AB)\)。因此
-\[
-\operatorname{rank}(B) = \operatorname{rank}(AB) + \dim(\ker A \cap \operatorname{col}(B)),
-\]
-即
-\[
-\operatorname{rank}(AB) = \operatorname{rank}(B) - \dim(\ker A \cap \operatorname{col}(B)).
-\]
-
-对于 Sylvester 不等式：由 \(\ker A \cap \operatorname{col}(B) \subseteq \ker A\) 知
-\[
-\dim(\ker A \cap \operatorname{col}(B)) \leq \dim(\ker A) = n - \operatorname{rank}(A).
-\]
-代入上式：
-\[
-\operatorname{rank}(AB) \geq \operatorname{rank}(B) - (n - \operatorname{rank}(A)) = \operatorname{rank}(A) + \operatorname{rank}(B) - n.
-\]
-
-等号成立当且仅当 \(\ker A \subseteq \operatorname{col}(B)\)。
-
-\boxed{\text{注}} Sylvester 不等式是线性代数中最重要的秩不等式之一，与 Frobenius 不等式 \(\operatorname{rank}(AB) + \operatorname{rank}(BC) \leq \operatorname{rank}(B) + \operatorname{rank}(ABC)\) 并列。
-
-\else \answerarea \fi%
-\item \textbf{（含参方程组+特征值）} 设 \(A = \begin{pmatrix} 1 & a & 1 \\ a & 1 & -1 \\ 1 & -1 & 1 \end{pmatrix}\)，\(\boldsymbol{b} = \begin{pmatrix} 1 \\ 1 \\ -1 \end{pmatrix}\)。
-
-\begin{enumerate}[label=(\roman*)]
-    \item 讨论 \(a\) 取何值时，方程组 \(A\boldsymbol{x} = \boldsymbol{b}\) 有唯一解、无穷多解、无解；
-    \item 求 \(A\) 的特征值与 \(a\) 的关系，并讨论 \(A\) 何时可对角化。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(i) 写出增广矩阵并作行变换：
-\[
-(A \mid \boldsymbol{b}) = \begin{pmatrix}
-1 & a & 1 & 1 \\
-a & 1 & -1 & 1 \\
-1 & -1 & 1 & -1
-\end{pmatrix}
-\xrightarrow{r_3 \leftrightarrow r_1}
-\begin{pmatrix}
-1 & -1 & 1 & -1 \\
-a & 1 & -1 & 1 \\
-1 & a & 1 & 1
-\end{pmatrix}
-\]
-\[
-\xrightarrow{r_2-ar_1,\ r_3-r_1}
-\begin{pmatrix}
-1 & -1 & 1 & -1 \\
-0 & a+1 & -a-1 & a+1 \\
-0 & a+1 & 0 & 2
-\end{pmatrix}
-\xrightarrow{r_3-r_2}
-\begin{pmatrix}
-1 & -1 & 1 & -1 \\
-0 & a+1 & -a-1 & a+1 \\
-0 & 0 & a+1 & 1-a
+A=\begin{pmatrix}
+1&2&2\\
+2&1&2\\
+2&2&1
 \end{pmatrix}.
 \]
-
-讨论：
 \begin{itemize}
-    \item 当 \(a \neq -1\) 时：\(\operatorname{rank}(A) = 3 = \operatorname{rank}(A \mid \boldsymbol{b})\)，有唯一解：
-    \[
-    \begin{aligned}
-    x_3&=\frac{1-a}{a+1},\\
-    x_2&=1+x_3=\frac{2}{a+1},\\
-    x_1&=-1+x_2-x_3=0.
-    \end{aligned}
-    \]
-    \item 当 \(a = -1\) 时：
-    \[
-    (A \mid \boldsymbol{b}) \to \begin{pmatrix}
-    1 & -1 & 1 & -1 \\
-    0 & 0 & 0 & 0 \\
-    0 & 0 & 0 & 2
-    \end{pmatrix},
-    \]
-    \(\operatorname{rank}(A) = 1\)，\(\operatorname{rank}(A \mid \boldsymbol{b}) = 2\)，无解。
+  \item[(i)] 求 \(A\) 的特征值与特征向量；
+  \item[(ii)] 求正交矩阵 \(Q\)，使 \(Q^{\mathsf T}AQ\) 为对角矩阵；
+  \item[(iii)] 求 \(A^n\)（\(n\) 为正整数）。
 \end{itemize}
 
-(ii) 计算特征多项式。由于 \(A\) 是实对称矩阵，总是可对角化的。
-\[
-|A - \lambda I| = \begin{vmatrix}
-1-\lambda & a & 1 \\
-a & 1-\lambda & -1 \\
-1 & -1 & 1-\lambda
-\end{vmatrix}
-= -(\lambda-1-a)\bigl[\lambda^2+(a-2)\lambda-(a+1)\bigr].
-\]
-
-特征值为
-\[
-\lambda_1 = 1+a,\quad
-\lambda_{2,3} = \frac{2-a \pm \sqrt{a^2+8}}{2}.
-\]
-
-对一切 \(a \in \mathbb{R}\)，三个特征值均为实数；其中
-\(\lambda_2\ne\lambda_3\)，而 \(\lambda_1\) 与另一个特征值重合当且仅当
-\(a=\pm1\)。无论特征值是否有重根，实对称矩阵均正交相似于对角阵，故 \(A\) 对一切实数 \(a\) 均可对角化。
-
-\boxed{\text{注}} 当 \(a=-1\) 时，特征值为 \(0,0,3\)，故
-\(\operatorname{rank}(A)=1\)，与方程组讨论中的秩骤降一致；但增广矩阵秩为 \(2\)，所以非齐次方程组无解。
-
-\else \answerarea \fi%
-\item \textbf{（矩阵多项式+对角化）} 设 \(A = \begin{pmatrix} 1 & -3 & 3 \\ 3 & -5 & 3 \\ 6 & -6 & 4 \end{pmatrix}\)。
-
-\begin{enumerate}[label=(\roman*)]
-    \item 求 \(A\) 的特征值与特征向量，判断 \(A\) 是否可对角化；
-    \item 计算 \(A^{100}\)。
-\end{enumerate}
-
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(i) 计算特征多项式：
-\begin{align*}
-|A-\lambda I| &= \begin{vmatrix}
-1-\lambda & -3 & 3 \\
-3 & -5-\lambda & 3 \\
-6 & -6 & 4-\lambda
-\end{vmatrix}
-\xrightarrow{r_3-2r_2}
+\boxed{\text{解}}
+\textbf{思路：} 先由特征多项式求特征值；实对称矩阵的不同特征值特征向量自动正交，同一特征值内部用 Schmidt 方法正交化，再单位化得到 \(Q\)。最后用 \(A=Q\Lambda Q^{\mathsf T}\) 计算 \(A^n\)。
+
+\textbf{(i)} 计算特征多项式。把第二、三行加到第一行，可提出公因子 \(\lambda-5\)：
+\[
+|\lambda I-A|=
 \begin{vmatrix}
-1-\lambda & -3 & 3 \\
-3 & -5-\lambda & 3 \\
-0 & 4+2\lambda & -2-\lambda
-\end{vmatrix} \\[4pt]
-&= (2+\lambda)\begin{vmatrix}
-1-\lambda & -3 & 3 \\
-3 & -5-\lambda & 3 \\
-0 & 2 & -1
-\end{vmatrix}.
-\end{align*}
-
-按第三行展开：
-\[
-|A-\lambda I| = (2+\lambda)\left[-2\begin{vmatrix} 1-\lambda & 3 \\ 3 & 3 \end{vmatrix} + (-1)\begin{vmatrix} 1-\lambda & -3 \\ 3 & -5-\lambda \end{vmatrix}\right]
+\lambda-1&-2&-2\\
+-2&\lambda-1&-2\\
+-2&-2&\lambda-1
+\end{vmatrix}
+\xrightarrow{r_1+r_2+r_3}
+\begin{vmatrix}
+\lambda-5&\lambda-5&\lambda-5\\
+-2&\lambda-1&-2\\
+-2&-2&\lambda-1
+\end{vmatrix}
 \]
 \[
-= (2+\lambda)\big[-2(3(1-\lambda)-9) - ((1-\lambda)(-5-\lambda) - (-9))\big]
+=(\lambda-5)\begin{vmatrix}
+1&1&1\\
+-2&\lambda-1&-2\\
+-2&-2&\lambda-1
+\end{vmatrix}
+=(\lambda-5)(\lambda+1)^2.
 \]
+故特征值为 \(\lambda_1=5\)，\(\lambda_2=\lambda_3=-1\)。
+
+当 \(\lambda=5\) 时，解 \((5I-A)\boldsymbol{x}=\boldsymbol{0}\)：
 \[
-= (2+\lambda)\big[-2(-3\lambda-6) - (\lambda^2+4\lambda+4)\big]
-= (2+\lambda)(6\lambda+12 - \lambda^2 - 4\lambda - 4)
+5I-A=\begin{pmatrix}
+4&-2&-2\\
+-2&4&-2\\
+-2&-2&4
+\end{pmatrix}
+\longrightarrow
+\begin{pmatrix}
+1&0&-1\\
+0&1&-1\\
+0&0&0
+\end{pmatrix},
 \]
+得特征向量 \(\boldsymbol{p}_1=(1,1,1)^{\mathsf T}\)。
+
+当 \(\lambda=-1\) 时，
 \[
-= (2+\lambda)(-\lambda^2 + 2\lambda + 8) = -(\lambda+2)^2(\lambda-4).
+A+I=\begin{pmatrix}
+2&2&2\\
+2&2&2\\
+2&2&2
+\end{pmatrix},
 \]
-
-故特征值为 \(\lambda_1 = 4\)（单根），\(\lambda_2 = \lambda_3 = -2\)（二重根）。
-
-求 \(\lambda_1 = 4\) 的特征向量：解 \((A-4I)\boldsymbol{x} = \boldsymbol{0}\)，
+即 \(x_1+x_2+x_3=0\)，基础解系可取
 \[
-A-4I = \begin{pmatrix} -3 & -3 & 3 \\ 3 & -9 & 3 \\ 6 & -6 & 0 \end{pmatrix}
-\to \begin{pmatrix} 1 & 1 & -1 \\ 0 & -12 & 6 \\ 0 & -12 & 6 \end{pmatrix}
-\to \begin{pmatrix} 1 & 1 & -1 \\ 0 & 2 & -1 \\ 0 & 0 & 0 \end{pmatrix},
+\boldsymbol{p}_2=(1,-1,0)^{\mathsf T},\qquad
+\boldsymbol{p}_3=(1,0,-1)^{\mathsf T}.
 \]
-得 \(\boldsymbol{p}_1 = (1, 1, 2)^{\mathsf{T}}\)。
 
-求 \(\lambda = -2\) 的特征向量：解 \((A+2I)\boldsymbol{x} = \boldsymbol{0}\)，
+\textbf{(ii)} 先单位化 \(\boldsymbol{p}_1\)：
 \[
-A+2I = \begin{pmatrix} 3 & -3 & 3 \\ 3 & -3 & 3 \\ 6 & -6 & 6 \end{pmatrix}
-\to \begin{pmatrix} 1 & -1 & 1 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{pmatrix},
+\boldsymbol{q}_1=\frac1{\sqrt3}(1,1,1)^{\mathsf T}.
 \]
-基础解系：\(\boldsymbol{p}_2 = (1, 1, 0)^{\mathsf{T}}\)，\(\boldsymbol{p}_3 = (-1, 0, 1)^{\mathsf{T}}\)。
-
-三个特征向量线性无关，故 \(A\) 可对角化。
-
-(ii) 令 \(P = (\boldsymbol{p}_1, \boldsymbol{p}_2, \boldsymbol{p}_3)\)，则 \(A = P \cdot \operatorname{diag}(4, -2, -2) \cdot P^{-1}\)。
-
-求 \(P^{-1}\)：
+对 \(\lambda=-1\) 的特征子空间作 Schmidt 正交化。取
 \[
-\det P = \begin{vmatrix} 1 & 1 & -1 \\ 1 & 1 & 0 \\ 2 & 0 & 1 \end{vmatrix} = 2.
+\boldsymbol{q}_2=\frac1{\sqrt2}(1,-1,0)^{\mathsf T},
 \]
-伴随矩阵法求逆：
+再令
 \[
-P^{-1} = \frac{1}{2}\begin{pmatrix}
-1 & -1 & 1 \\
--1 & 3 & -1 \\
--2 & 2 & 0
-\end{pmatrix}.
+\widetilde{\boldsymbol{q}}_3=(1,0,-1)^{\mathsf T}
+-\frac{(1,0,-1)^{\mathsf T}\cdot(1,-1,0)^{\mathsf T}}{2}(1,-1,0)^{\mathsf T}
+=\left(\frac12,\frac12,-1\right)^{\mathsf T},
 \]
-
-令 \(\alpha = 4^{100}\)，\(\beta = (-2)^{100} = 2^{100}\)，则
+单位化得
 \[
-\begin{aligned}
-A^{100}
-&=P\operatorname{diag}(\alpha,\beta,\beta)P^{-1}\\
-&= \frac{1}{2}\begin{pmatrix}
-\alpha+\beta & -\alpha+\beta & \alpha-\beta \\
-\alpha-\beta & -\alpha+3\beta & \alpha-\beta \\
-2(\alpha-\beta) & 2(-\alpha+\beta) & 2\alpha
-\end{pmatrix}.
-\end{aligned}
+\boldsymbol{q}_3=\frac1{\sqrt6}(1,1,-2)^{\mathsf T}.
 \]
-其中 \(\alpha = 4^{100} = 2^{200}\)，\(\beta = 2^{100}\)。
-
-\boxed{\text{注}} 此题综合了特征值计算、对角化判定和高次幂计算，是考研的经典综合题型。
-
-\else \answerarea \fi%
-\item \textbf{（二次型标准形+正交变换+特征值）} 已知二次型
+于是
 \[
-f(x_1, x_2, x_3) = x_1^2 + x_2^2 + x_3^2 - 4x_1x_2 - 4x_1x_3 + 2x_2x_3.
+Q=(\boldsymbol{q}_1,\boldsymbol{q}_2,\boldsymbol{q}_3)
+=\begin{pmatrix}
+\frac1{\sqrt3}&\frac1{\sqrt2}&\frac1{\sqrt6}\\[4pt]
+\frac1{\sqrt3}&-\frac1{\sqrt2}&\frac1{\sqrt6}\\[4pt]
+\frac1{\sqrt3}&0&-\frac2{\sqrt6}
+\end{pmatrix},
+\]
+且
+\[
+Q^{\mathsf T}AQ=\operatorname{diag}(5,-1,-1).
 \]
 
-\begin{enumerate}[label=(\roman*)]
-    \item 用配方法将 \(f\) 化为标准形，并写出所作的可逆线性变换；
-    \item 指出 \(f = 1\) 表示何种二次曲面。
-\end{enumerate}
+\textbf{(iii)} 由 \(A=Q\operatorname{diag}(5,-1,-1)Q^{\mathsf T}\)，
+\[
+A^n=5^n\boldsymbol{q}_1\boldsymbol{q}_1^{\mathsf T}
++(-1)^n\bigl(\boldsymbol{q}_2\boldsymbol{q}_2^{\mathsf T}
++\boldsymbol{q}_3\boldsymbol{q}_3^{\mathsf T}\bigr).
+\]
+注意
+\[
+\boldsymbol{q}_1\boldsymbol{q}_1^{\mathsf T}=\frac13J,\qquad
+\boldsymbol{q}_2\boldsymbol{q}_2^{\mathsf T}+\boldsymbol{q}_3\boldsymbol{q}_3^{\mathsf T}
+=I-\frac13J,
+\]
+其中 \(J\) 为三阶全 \(1\) 矩阵。故
+\[
+A^n=\frac{5^n}{3}J+(-1)^n\left(I-\frac13J\right).
+\]
+逐元素写为
+\[
+(A^n)_{ii}=\frac{5^n+2(-1)^n}{3},\qquad
+(A^n)_{ij}=\frac{5^n-(-1)^n}{3}\quad(i\ne j).
+\]
+\textbf{答案：}特征值 $5,-1,-1$；$\boldsymbol{p}_1=(1,1,1)^{\mathsf T}$，$\lambda=-1$ 对应 $(1,-1,0)^{\mathsf T},(1,0,-1)^{\mathsf T}$；$Q$ 如上，$Q^{\mathsf T}AQ=\operatorname{diag}(5,-1,-1)$；$A^n=\frac{5^n}{3}J+(-1)^n(I-\frac13J)$。
+\else \answerarea[10] \fi%
+
+\textbf{8.} 已知二次型
+\[
+f(x_1,x_2,x_3)=2x_1^2+5x_2^2+5x_3^2+4x_1x_2-4x_1x_3-8x_2x_3.
+\]
+\begin{itemize}
+  \item[(i)] 写出 \(f\) 的矩阵 \(A\)，并求 \(A\) 的特征值；
+  \item[(ii)] 求正交变换 \(\boldsymbol{x}=Q\boldsymbol{y}\)，把 \(f\) 化为标准形；
+  \item[(iii)] 判断 \(f\) 是否正定，并指出曲面 \(f=1\) 的类型。
+\end{itemize}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(i) 配方法：
-\begin{align*}
-f &= x_1^2 - 4x_1x_2 - 4x_1x_3 + x_2^2 + 2x_2x_3 + x_3^2 \\
-  &= (x_1 - 2x_2 - 2x_3)^2 - (2x_2+2x_3)^2 + x_2^2 + 2x_2x_3 + x_3^2 \\
-  &= (x_1 - 2x_2 - 2x_3)^2 - 4x_2^2 - 8x_2x_3 - 4x_3^2 + x_2^2 + 2x_2x_3 + x_3^2 \\
-  &= (x_1 - 2x_2 - 2x_3)^2 - 3x_2^2 - 6x_2x_3 - 3x_3^2 \\
-  &= (x_1 - 2x_2 - 2x_3)^2 - 3(x_2 + x_3)^2.
-\end{align*}
+\boxed{\text{解}}
+\textbf{思路：} 二次型矩阵的对角元是平方项系数，非对角元是交叉项系数的一半。求出特征值与正交特征向量后，正交变换下的标准形系数就是特征值；正定性看特征值的符号。
 
-令
+\textbf{(i)} 二次型矩阵为
+\[
+A=\begin{pmatrix}
+2&2&-2\\
+2&5&-4\\
+-2&-4&5
+\end{pmatrix}.
+\]
+注意
+\[
+A-I=\begin{pmatrix}
+1&2&-2\\
+2&4&-4\\
+-2&-4&4
+\end{pmatrix},
+\]
+三行都是 \((1,2,-2)\) 的倍数，故 \(r(A-I)=1\)，\(\dim\ker(A-I)=2\)。因此 \(\lambda=1\) 至少是二重特征值。又
+\[
+\operatorname{tr}A=2+5+5=12,
+\]
+所以第三个特征值为 \(12-1-1=10\)。故特征值为
+\[
+\lambda_1=10,\qquad \lambda_2=\lambda_3=1.
+\]
+
+\textbf{(ii)} 当 \(\lambda=10\) 时，直接验证
+\[
+A(1,2,-2)^{\mathsf T}=(10,20,-20)^{\mathsf T},
+\]
+故可取
+\[
+\boldsymbol{q}_1=\frac13(1,2,-2)^{\mathsf T}.
+\]
+当 \(\lambda=1\) 时，由 \(A-I\) 得方程
+\[
+x_1+2x_2-2x_3=0,
+\]
+基础解系可取 \((2,-1,0)^{\mathsf T}\)、\((2,0,1)^{\mathsf T}\)。正交化并单位化：
+\[
+\boldsymbol{q}_2=\frac1{\sqrt5}(2,-1,0)^{\mathsf T},
+\]
+\[
+\widetilde{\boldsymbol{q}}_3=(2,0,1)^{\mathsf T}
+-\frac{(2,0,1)^{\mathsf T}\cdot(2,-1,0)^{\mathsf T}}{5}(2,-1,0)^{\mathsf T}
+=\left(\frac25,\frac45,1\right)^{\mathsf T}
+\;\Longrightarrow\;
+\boldsymbol{q}_3=\frac1{3\sqrt5}(2,4,5)^{\mathsf T}.
+\]
+令 \(Q=(\boldsymbol{q}_1,\boldsymbol{q}_2,\boldsymbol{q}_3)\)，则 \(Q\) 为正交矩阵，且
+\[
+Q^{\mathsf T}AQ=\operatorname{diag}(10,1,1).
+\]
+在正交变换 \(\boldsymbol{x}=Q\boldsymbol{y}\) 下，
+\[
+f=10y_1^2+y_2^2+y_3^2.
+\]
+
+\textbf{(iii)} 三个特征值 \(10,1,1\) 全大于零，故 \(A\) 正定，二次型 \(f\) 正定。曲面 \(f=1\) 即
+\[
+\frac{y_1^2}{1/10}+y_2^2+y_3^2=1,
+\]
+它是旋转椭球面，三个半轴长分别为 \(\frac1{\sqrt{10}},1,1\)，半轴方向分别为 \(\boldsymbol{q}_1,\boldsymbol{q}_2,\boldsymbol{q}_3\)。
+
+\textbf{答案：}
+
+\[
+A=\begin{pmatrix}2&2&-2\\2&5&-4\\-2&-4&5\end{pmatrix},
+\qquad \lambda_1=10,\quad \lambda_2=\lambda_3=1.
+\]
+取 $Q=(\boldsymbol{q}_1,\boldsymbol{q}_2,\boldsymbol{q}_3)$ 如上，则 $f=10y_1^2+y_2^2+y_3^2$；$f$ 正定，$f=1$ 为旋转椭球面。
+\else \answerarea[10] \fi%
+
+\textbf{9.} 设
+\[
+A=\begin{pmatrix}
+1&1&1&1\\
+1&2&3&4\\
+1&3&5&7\\
+1&4&7&10
+\end{pmatrix},\qquad
+\boldsymbol{b}=\begin{pmatrix}1\\2\\c\\d\end{pmatrix}.
+\]
+讨论 \(c,d\) 取何值时方程组 \(A\boldsymbol{x}=\boldsymbol{b}\) 有解；有解时求通解。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 先观察 \(A\) 各行之间的线性关系，直接得到 \(r(A)\) 以及增广矩阵相容的条件，不必盲目作大量消元。
+
+记 \(A\) 的第 \(i\) 行为 \(\boldsymbol{r}_i^{\mathsf T}\)。容易验证
+\[
+\boldsymbol{r}_3=2\boldsymbol{r}_2-\boldsymbol{r}_1,\qquad
+\boldsymbol{r}_4=3\boldsymbol{r}_2-2\boldsymbol{r}_1.
+\]
+而 \(\boldsymbol{r}_1=(1,1,1,1)^{\mathsf T}\) 与 \(\boldsymbol{r}_2=(1,2,3,4)^{\mathsf T}\) 不成比例，故 \(r(A)=2\)。
+
+方程组有解当且仅当增广矩阵的秩也为 \(2\)，即右端也满足同样的线性关系：
+\[
+c=2\cdot2-1=3,\qquad d=3\cdot2-2\cdot1=4.
+\]
+因此当 \(c\ne3\) 或 \(d\ne4\) 时，\(r(A\mid\boldsymbol{b})=3>r(A)\)，方程组无解。
+
+当 \(c=3,\ d=4\) 时，方程组等价于前两个方程
 \[
 \begin{cases}
-y_1 = x_1 - 2x_2 - 2x_3, \\
-y_2 = x_2 + x_3, \\
-y_3 = x_3,
+x_1+x_2+x_3+x_4=1,\\
+x_1+2x_2+3x_3+4x_4=2.
 \end{cases}
-\quad \text{即} \quad
-\begin{pmatrix} y_1 \\ y_2 \\ y_3 \end{pmatrix} =
-\begin{pmatrix}
-1 & -2 & -2 \\
-0 & 1 & 1 \\
-0 & 0 & 1
-\end{pmatrix}
-\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix}.
 \]
-
-变换矩阵可逆，在此变换下：
+两式相减得
 \[
-f = y_1^2 - 3y_2^2.
+x_2+2x_3+3x_4=1.
 \]
+令 \(x_3=s,\ x_4=t\)，则
+\[
+x_2=1-2s-3t,\qquad
+x_1=1-x_2-x_3-x_4=s+2t.
+\]
+所以
+\[
+\boldsymbol{x}=
+\begin{pmatrix}0\\1\\0\\0\end{pmatrix}
++s\begin{pmatrix}1\\-2\\1\\0\end{pmatrix}
++t\begin{pmatrix}2\\-3\\0\\1\end{pmatrix},
+\quad s,t\in\mathbb R.
+\]
+\textbf{答案：}当且仅当 $c=3,\ d=4$ 时有解；此时通解为 $\boldsymbol{x}=(0,1,0,0)^{\mathsf T}+s(1,-2,1,0)^{\mathsf T}+t(2,-3,0,1)^{\mathsf T}$。
+\else \answerarea[10] \fi%
 
-(ii) \(f = 1\) 即 \(y_1^2 - 3y_2^2 = 1\)，这是 \(y_1y_2\) 平面上的双曲线沿 \(y_3\) 轴平移而成的双曲柱面。由于二次型的秩为 \(2\)（一个零特征值），正惯性指数为 \(1\)，负惯性指数为 \(1\)，故该曲面为双曲柱面。
+\subsection{真题风格与综合训练}
 
-\boxed{\text{注}} 配方法是化二次型为标准形的基本方法。虽然本题也可用正交变换法，但配方法在仅需标准形而无需正交变换时更简捷。
-
-\else \answerarea \fi%
-\item \textbf{（\(A^2 = A\) 型证明+对角化+秩）} 设 \(A\) 为 \(n\) 阶方阵且 \(A^2 = A\)（幂等矩阵）。证明：
-
-\begin{enumerate}[label=(\roman*)]
-    \item \(A\) 的特征值只能为 \(0\) 或 \(1\)；
-    \item \(A\) 可对角化，且 \(\operatorname{rank}(A) = \operatorname{tr}(A)\)；
-    \item \(I - A\) 与 \(A\) 有相同的性质，且 \(\operatorname{rank}(A) + \operatorname{rank}(I - A) = n\)。
-\end{enumerate}
+\textbf{10.} 设 \(A\) 为 \(m\times n\) 实矩阵。证明：
+\begin{itemize}
+  \item[(i)] \(\ker(A^{\mathsf T}A)=\ker(A)\)，从而 \(r(A^{\mathsf T}A)=r(A)\)；
+  \item[(ii)] 对任意 \(\boldsymbol{b}\in\mathbb R^m\)，方程组 \(A^{\mathsf T}A\boldsymbol{x}=A^{\mathsf T}\boldsymbol{b}\) 必有解；
+  \item[(iii)] 该方程组的解唯一当且仅当 \(r(A)=n\)。
+\end{itemize}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(i) 设 \(\lambda\) 为 \(A\) 的特征值，\(\boldsymbol{x} \neq \boldsymbol{0}\) 为对应特征向量，则
-\[
-A\boldsymbol{x} = \lambda \boldsymbol{x} \;\Longrightarrow\; A^2\boldsymbol{x} = A(\lambda \boldsymbol{x}) = \lambda^2 \boldsymbol{x}.
-\]
-由 \(A^2 = A\) 得 \(\lambda^2 \boldsymbol{x} = \lambda \boldsymbol{x}\)，即 \((\lambda^2 - \lambda)\boldsymbol{x} = \boldsymbol{0}\)。因 \(\boldsymbol{x} \neq \boldsymbol{0}\)，\(\lambda^2 - \lambda = 0\)，故 \(\lambda \in \{0, 1\}\)。
+\boxed{\text{解}}
+\textbf{思路：} 核心是利用实向量的长度平方 \(\boldsymbol{x}^{\mathsf T}A^{\mathsf T}A\boldsymbol{x}=\|A\boldsymbol{x}\|^2\)，把矩阵等式转化为向量长度为零；再用秩—零化度定理和列空间包含关系处理存在性与唯一性。
 
-(ii) 由 \(A^2 = A\) 知 \(A(I - A) = O\)，故 \(\operatorname{col}(I - A) \subseteq \ker A\)。又对任意 \(\boldsymbol{x} \in \mathbb{R}^n\)：
+\textbf{(i)} 若 \(A\boldsymbol{x}=\boldsymbol{0}\)，则显然 \(A^{\mathsf T}A\boldsymbol{x}=\boldsymbol{0}\)，故
 \[
-\boldsymbol{x} = A\boldsymbol{x} + (I - A)\boldsymbol{x},
+\ker(A)\subseteq\ker(A^{\mathsf T}A).
 \]
-其中 \(A\boldsymbol{x} \in \operatorname{col}(A)\)，\((I - A)\boldsymbol{x} \in \operatorname{col}(I - A) \subseteq \ker A\)。因此
+反过来，设 \(A^{\mathsf T}A\boldsymbol{x}=\boldsymbol{0}\)。两边左乘 \(\boldsymbol{x}^{\mathsf T}\)：
 \[
-\mathbb{R}^n = \operatorname{col}(A) + \ker A.
+0=\boldsymbol{x}^{\mathsf T}A^{\mathsf T}A\boldsymbol{x}
+=(A\boldsymbol{x})^{\mathsf T}(A\boldsymbol{x})
+=\|A\boldsymbol{x}\|^2.
 \]
-
-若 \(\boldsymbol{y} \in \operatorname{col}(A) \cap \ker A\)，则 \(\boldsymbol{y} = A\boldsymbol{z}\) 且 \(A\boldsymbol{y} = \boldsymbol{0}\)。而 \(A\boldsymbol{y} = A^2\boldsymbol{z} = A\boldsymbol{z} = \boldsymbol{y}\)，故 \(\boldsymbol{y} = \boldsymbol{0}\)。因此
+实向量长度为零只有零向量，故 \(A\boldsymbol{x}=\boldsymbol{0}\)，即 \(\boldsymbol{x}\in\ker(A)\)。于是
 \[
-\mathbb{R}^n = \operatorname{col}(A) \oplus \ker A.
+\ker(A^{\mathsf T}A)=\ker(A).
 \]
-
-\(\operatorname{col}(A)\) 中每个非零向量均为特征值 \(1\) 的特征向量，\(\ker A\) 中每个非零向量均为特征值 \(0\) 的特征向量。取两组基合并即得 \(n\) 个线性无关的特征向量，故 \(A\) 可对角化。
-
-从而存在可逆矩阵 \(P\) 使
+\(A^{\mathsf T}A\) 与 \(A\) 都有 \(n\) 列，由秩—零化度定理，
 \[
-A = P\begin{pmatrix} I_r & 0 \\ 0 & 0 \end{pmatrix} P^{-1},
-\]
-其中 \(r = \operatorname{rank}(A)\)。特征值 \(1\) 的代数重数（=几何重数）为 \(r\)，故
-\[
-\operatorname{rank}(A) = r = \text{（特征值 \(1\) 的个数）} = \operatorname{tr}(A).
+r(A^{\mathsf T}A)=n-\dim\ker(A^{\mathsf T}A)
+=n-\dim\ker(A)=r(A).
 \]
 
-(iii) 由 \((I - A)^2 = I - 2A + A^2 = I - 2A + A = I - A\)，故 \(I - A\) 也是幂等矩阵，特征值也只能为 \(0\) 或 \(1\)。
-
-由直和分解：\(\operatorname{col}(I - A) = \ker A\)，且 \(\operatorname{col}(A) \cap \operatorname{col}(I - A) = \{\boldsymbol{0}\}\)，故
+\textbf{(ii)} 显然
 \[
-\operatorname{rank}(A) + \operatorname{rank}(I - A) = \dim(\operatorname{col}(A)) + \dim(\operatorname{col}(I - A)) = n.
+\operatorname{col}(A^{\mathsf T}A)\subseteq\operatorname{col}(A^{\mathsf T}),
 \]
+因为 \(A^{\mathsf T}A\boldsymbol{x}=A^{\mathsf T}(A\boldsymbol{x})\)。由 (i)，
+\[
+\dim\operatorname{col}(A^{\mathsf T}A)=r(A^{\mathsf T}A)=r(A)=r(A^{\mathsf T})
+=\dim\operatorname{col}(A^{\mathsf T}).
+\]
+包含关系加上维数相等，故
+\[
+\operatorname{col}(A^{\mathsf T}A)=\operatorname{col}(A^{\mathsf T}).
+\]
+而 \(A^{\mathsf T}\boldsymbol{b}\in\operatorname{col}(A^{\mathsf T})\)，所以 \(A^{\mathsf T}\boldsymbol{b}\in\operatorname{col}(A^{\mathsf T}A)\)，即存在 \(\boldsymbol{x}\) 使 \(A^{\mathsf T}A\boldsymbol{x}=A^{\mathsf T}\boldsymbol{b}\)。
 
-\boxed{\text{注}} 幂等矩阵描述沿某个补空间到其像空间的投影，其秩等于迹，且与 \(I-A\) 互补。这组结论适合作为矩阵方程、秩与特征值关系的综合提高训练。
+\textbf{(iii)} 若方程组有解 \(\boldsymbol{x}_0\)，则其全部解为
+\[
+\boldsymbol{x}_0+\ker(A^{\mathsf T}A)=\boldsymbol{x}_0+\ker(A).
+\]
+因此解唯一当且仅当 \(\ker(A)=\{\boldsymbol{0}\}\)，即 \(\dim\ker(A)=0\)。由秩—零化度定理，
+\[
+\dim\ker(A)=n-r(A),
+\]
+故解唯一当且仅当 \(r(A)=n\)。
+\boxed{\text{答案：}\ \text{证明如上。}}
+\else \answerarea[10] \fi%
 
-\else \answerarea \fi%
-\item \textbf{（拓展：Cayley--Hamilton + \(A^n\) + 特征值）} 设 \(A = \begin{pmatrix} 2 & 1 \\ -1 & 0 \end{pmatrix}\)。
-
-\begin{enumerate}[label=(\roman*)]
-    \item 用 Cayley-Hamilton 定理求 \(A^n\)（\(n \geq 1\)）；
-    \item 利用 \(A^n\) 的表达式，验证 \(A^n\) 的特征值等于 \(A\) 的特征值的 \(n\) 次幂。
-\end{enumerate}
+\textbf{11.} 设 \(A\) 为 \(n\) 阶实方阵，且 \(A^2=I\)。证明：
+\begin{itemize}
+  \item[(i)] \(A\) 的特征值只能是 \(1\) 或 \(-1\)；
+  \item[(ii)] \(A\) 可对角化，且 \(\mathbb R^n=\ker(A-I)\oplus\ker(A+I)\)；
+  \item[(iii)] \(r(A-I)+r(A+I)=n\)。
+\end{itemize}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(i) 特征多项式：
+\boxed{\text{解}}
+\textbf{思路：} 由 \(A^2-I=(A-I)(A+I)=0\) 得到两个子空间；对任意向量作分解 \(\boldsymbol{x}=\frac{\boldsymbol{x}+A\boldsymbol{x}}2+\frac{\boldsymbol{x}-A\boldsymbol{x}}2\)，证明这两个子空间直和且张成整个空间。
+
+\textbf{(i)} 设 \(\lambda\) 为 \(A\) 的特征值，\(\boldsymbol{x}\ne\boldsymbol{0}\) 为对应特征向量。由 \(A\boldsymbol{x}=\lambda\boldsymbol{x}\) 得
 \[
-|\lambda I - A| = \begin{vmatrix}
-\lambda - 2 & -1 \\ 1 & \lambda
-\end{vmatrix}
-= \lambda(\lambda - 2) + 1 = \lambda^2 - 2\lambda + 1 = (\lambda - 1)^2.
+A^2\boldsymbol{x}=\lambda^2\boldsymbol{x}.
 \]
-
-由 Cayley-Hamilton 定理：\((A - I)^2 = O\)，即 \(A^2 = 2A - I\)。
-
-由此递推：
-\begin{align*}
-A^3 &= A \cdot A^2 = A(2A - I) = 2A^2 - A = 2(2A - I) - A = 3A - 2I, \\
-A^4 &= A \cdot A^3 = A(3A - 2I) = 3A^2 - 2A = 3(2A - I) - 2A = 4A - 3I.
-\end{align*}
-
-由数学归纳法可得通式：
+又 \(A^2=I\)，故 \(A^2\boldsymbol{x}=\boldsymbol{x}\)，于是
 \[
-A^n = nA - (n-1)I,\quad n \geq 1.
+(\lambda^2-1)\boldsymbol{x}=\boldsymbol{0}.
 \]
+因 \(\boldsymbol{x}\ne\boldsymbol{0}\)，所以 \(\lambda^2=1\)，即 \(\lambda=\pm1\)。
 
-验证 \(n=1\)：\(1 \cdot A - 0 \cdot I = A\)，成立。
-设 \(n=k\) 成立，则
+\textbf{(ii)} 对任意 \(\boldsymbol{x}\in\mathbb R^n\)，令
 \[
-\begin{aligned}
-A^{k+1}
-&=A\cdot A^k=A\bigl(kA-(k-1)I\bigr)\\
-&=kA^2-(k-1)A
-=k(2A-I)-(k-1)A\\
-&=(k+1)A-kI.
-\end{aligned}
+\boldsymbol{u}=\frac{\boldsymbol{x}+A\boldsymbol{x}}2,\qquad
+\boldsymbol{v}=\frac{\boldsymbol{x}-A\boldsymbol{x}}2.
 \]
-归纳成立。
-
-代入 \(A = \begin{pmatrix} 2 & 1 \\ -1 & 0 \end{pmatrix}\)：
+则 \(\boldsymbol{x}=\boldsymbol{u}+\boldsymbol{v}\)，且
 \[
-A^n = \begin{pmatrix} 2n & n \\ -n & 0 \end{pmatrix} - \begin{pmatrix} n-1 & 0 \\ 0 & n-1 \end{pmatrix}
-= \begin{pmatrix} n+1 & n \\ -n & -n+1 \end{pmatrix}.
+A\boldsymbol{u}=\frac{A\boldsymbol{x}+A^2\boldsymbol{x}}2
+=\frac{A\boldsymbol{x}+\boldsymbol{x}}2=\boldsymbol{u},
+\qquad
+A\boldsymbol{v}=\frac{A\boldsymbol{x}-A^2\boldsymbol{x}}2
+=\frac{A\boldsymbol{x}-\boldsymbol{x}}2=-\boldsymbol{v}.
 \]
-
-(ii) \(A\) 的特征值为 \(\lambda = 1\)（二重根）。\(A^n\) 的特征多项式：
-\begin{align*}
-|\mu I - A^n| &= \begin{vmatrix}
-\mu - (n+1) & -n \\ n & \mu + n - 1
-\end{vmatrix} \\
-&= (\mu - n - 1)(\mu + n - 1) + n^2 \\
-&= \mu^2 - 2\mu - (n^2-1) + n^2 = \mu^2 - 2\mu + 1 = (\mu - 1)^2.
-\end{align*}
-
-故 \(A^n\) 的特征值仍为 \(1 = 1^n\)，符合「特征值的 \(n\) 次幂」原理。
-
-\boxed{\text{注}} Cayley-Hamilton 定理将矩阵高次幂转化为多项式低次表示，是计算 \(A^n\) 的又一重要工具。对于特征值有重根的情况，C-H 定理尤其方便。
-
-\else \answerarea \fi%
-\item \textbf{（拓展：正定矩阵同时对角化）} 设 \(A, B\) 均为 \(n\) 阶实对称矩阵，\(A\) 正定。证明存在可逆矩阵 \(P\) 使得
+所以 \(\boldsymbol{u}\in\ker(A-I)\)，\(\boldsymbol{v}\in\ker(A+I)\)，从而
 \[
-P^{\mathsf{T}} A P = I,\quad P^{\mathsf{T}} B P = \operatorname{diag}(\mu_1, \mu_2, \ldots, \mu_n),
+\mathbb R^n=\ker(A-I)+\ker(A+I).
 \]
-其中 \(\mu_1, \ldots, \mu_n\) 为 \(A^{-1}B\) 的特征值。进一步，若 \(B\) 也正定，问 \(\mu_i\) 满足什么条件？
+若 \(\boldsymbol{y}\in\ker(A-I)\cap\ker(A+I)\)，则同时有 \(A\boldsymbol{y}=\boldsymbol{y}\) 与 \(A\boldsymbol{y}=-\boldsymbol{y}\)，故 \(\boldsymbol{y}=\boldsymbol{0}\)。因此和为直和：
+\[
+\mathbb R^n=\ker(A-I)\oplus\ker(A+I).
+\]
+在 \(\ker(A-I)\) 中取一组基，在 \(\ker(A+I)\) 中取一组基，合并后得到 \(n\) 个线性无关的特征向量，故 \(A\) 可对角化。
+
+\textbf{(iii)} 在直和分解下，\(A-I\) 在 \(\ker(A-I)\) 上为零，在 \(\ker(A+I)\) 上等于 \(-2I\)。因此
+\[
+r(A-I)=\dim\ker(A+I).
+\]
+同理，\(A+I\) 在 \(\ker(A-I)\) 上等于 \(2I\)，在 \(\ker(A+I)\) 上为零，故
+\[
+r(A+I)=\dim\ker(A-I).
+\]
+两式相加并用直和分解的维数关系：
+\[
+r(A-I)+r(A+I)=\dim\ker(A+I)+\dim\ker(A-I)=n.
+\]
+\boxed{\text{答案：}\ \text{证明如上。}}
+\else \answerarea[10] \fi%
+
+\textbf{12.} 设 \(A\) 为 \(n\) 阶实对称矩阵，其特征值为
+\[
+\lambda_1\ge\lambda_2\ge\cdots\ge\lambda_n,
+\]
+对应的标准正交特征向量为 \(\boldsymbol{q}_1,\boldsymbol{q}_2,\dots,\boldsymbol{q}_n\)。证明：
+\begin{itemize}
+  \item[(i)] 对任意非零向量 \(\boldsymbol{x}\in\mathbb R^n\)，
+  \[
+  \lambda_n\le\frac{\boldsymbol{x}^{\mathsf T}A\boldsymbol{x}}{\boldsymbol{x}^{\mathsf T}\boldsymbol{x}}\le\lambda_1;
+  \]
+  \item[(ii)] 上式的最大值 \(\lambda_1\) 在 \(\boldsymbol{x}=\boldsymbol{q}_1\) 处取到，最小值 \(\lambda_n\) 在 \(\boldsymbol{x}=\boldsymbol{q}_n\) 处取到；
+  \item[(iii)] \(A\) 正定当且仅当 \(\lambda_n>0\)。
+\end{itemize}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-由于 \(A\) 正定，存在可逆矩阵 \(C\) 使得 \(C^{\mathsf{T}} A C = I\)（取 \(C = A^{-1/2}\)）。令 \(B_1 = C^{\mathsf{T}} B C\)，则 \(B_1\) 仍为实对称矩阵。
+\boxed{\text{解}}
+\textbf{思路：} 实对称矩阵有标准正交特征基，把 \(\boldsymbol{x}\) 在这组基下展开，二次型就变成以特征值为系数的加权平方和；再用加权平均夹逼。
 
-由实对称矩阵的正交对角化，存在正交矩阵 \(Q\) 使得
+\textbf{(i)} 由于 \(\boldsymbol{q}_1,\dots,\boldsymbol{q}_n\) 构成 \(\mathbb R^n\) 的标准正交基，可设
 \[
-Q^{\mathsf{T}} B_1 Q = \operatorname{diag}(\mu_1, \mu_2, \ldots, \mu_n).
+\boldsymbol{x}=\sum_{i=1}^n y_i\boldsymbol{q}_i.
+\]
+则
+\[
+\boldsymbol{x}^{\mathsf T}\boldsymbol{x}=\sum_{i=1}^n y_i^2,\qquad
+A\boldsymbol{x}=\sum_{i=1}^n \lambda_i y_i\boldsymbol{q}_i,
+\]
+从而
+\[
+\boldsymbol{x}^{\mathsf T}A\boldsymbol{x}
+=\sum_{i=1}^n \lambda_i y_i^2.
+\]
+因为 \(\boldsymbol{x}\ne\boldsymbol{0}\)，所以 \(\sum y_i^2>0\)。由 \(\lambda_n\le\lambda_i\le\lambda_1\)，
+\[
+\lambda_n\sum_{i=1}^n y_i^2
+\le\sum_{i=1}^n\lambda_i y_i^2
+\le\lambda_1\sum_{i=1}^n y_i^2.
+\]
+两边同除以 \(\boldsymbol{x}^{\mathsf T}\boldsymbol{x}=\sum y_i^2>0\)，得
+\[
+\lambda_n\le\frac{\boldsymbol{x}^{\mathsf T}A\boldsymbol{x}}{\boldsymbol{x}^{\mathsf T}\boldsymbol{x}}\le\lambda_1.
 \]
 
-令 \(P = C Q\)，则
+\textbf{(ii)} 取 \(\boldsymbol{x}=\boldsymbol{q}_1\)，则
 \[
-P^{\mathsf{T}} A P = Q^{\mathsf{T}} (C^{\mathsf{T}} A C) Q = Q^{\mathsf{T}} I Q = I,
+\frac{\boldsymbol{q}_1^{\mathsf T}A\boldsymbol{q}_1}{\boldsymbol{q}_1^{\mathsf T}\boldsymbol{q}_1}
+=\frac{\lambda_1}{\|\boldsymbol{q}_1\|^2}=\lambda_1,
 \]
+故最大值 \(\lambda_1\) 可以取到。取 \(\boldsymbol{x}=\boldsymbol{q}_n\) 同理得最小值 \(\lambda_n\)。
+
+更一般地，上界取等号时
 \[
-P^{\mathsf{T}} B P = Q^{\mathsf{T}} (C^{\mathsf{T}} B C) Q = Q^{\mathsf{T}} B_1 Q = \operatorname{diag}(\mu_1, \ldots, \mu_n).
+\sum_{i=1}^n(\lambda_1-\lambda_i)y_i^2=0.
 \]
+每一项都非负，故凡是 \(\lambda_i<\lambda_1\) 的指标都有 \(y_i=0\)，即 \(\boldsymbol{x}\) 属于 \(\lambda_1\) 的特征子空间；当 \(\lambda_1\) 为单重特征值时就是 \(\boldsymbol{x}=\boldsymbol{q}_1\)。下界取等号的情形同理。
 
-下证 \(\mu_i\) 为 \(A^{-1}B\) 的特征值。由合同关系 \(P^{\mathsf{T}}BP = \Lambda\) 且 \(P^{\mathsf{T}}AP = I\)，设 \(\boldsymbol{e}_i\) 为标准单位向量，则
+\textbf{(iii)} 若 \(A\) 正定，则对任意 \(\boldsymbol{x}\ne\boldsymbol{0}\) 有 \(\boldsymbol{x}^{\mathsf T}A\boldsymbol{x}>0\)。取 \(\boldsymbol{x}=\boldsymbol{q}_n\)，得
 \[
-B(P\boldsymbol{e}_i) = \mu_i A(P\boldsymbol{e}_i).
+\lambda_n=\boldsymbol{q}_n^{\mathsf T}A\boldsymbol{q}_n>0.
 \]
-两边左乘 \(A^{-1}\)：\(A^{-1}B(P\boldsymbol{e}_i) = \mu_i (P\boldsymbol{e}_i)\)，故 \(\mu_i\) 是 \(A^{-1}B\) 的特征值。
-
-若 \(B\) 也正定，则 \(B_1 = C^{\mathsf{T}} B C\) 合同于 \(B\)（因 \(C\) 可逆），故 \(B_1\) 也正定。正定矩阵的特征值全大于零，故 \(\mu_i > 0\) 对所有 \(i = 1, \ldots, n\)。
-
-\boxed{\text{注}} 同时对角化（又称广义特征值问题）是多元统计分析中的核心理论工具。\(A^{-1}B\) 的实特征值与正定性是此类问题的关键结论。
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{证明题专项}
-
-\begin{enumerate}
-
-\item \textbf{（拓展：Sylvester 不等式应用）} 设 \(A\) 为 \(m \times n\) 矩阵，\(B\) 为 \(n \times p\) 矩阵。证明：
-
-\begin{enumerate}[label=(\roman*)]
-    \item \(\operatorname{rank}(AB) \geq \operatorname{rank}(A) + \operatorname{rank}(B) - n\)；
-    \item 利用 (i) 证明：若 \(A\) 列满秩，则 \(\operatorname{rank}(AB) = \operatorname{rank}(B)\)。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(i) 方法一（几何法）：将矩阵视为线性映射。\(B: \mathbb{R}^p \to \mathbb{R}^n\)，\(A: \mathbb{R}^n \to \mathbb{R}^m\)。考察限制映射 \(A|_{\operatorname{col}(B)}: \operatorname{col}(B) \to \mathbb{R}^m\)。
-
-由秩—零化度定理：
+反过来，若 \(\lambda_n>0\)，则所有 \(\lambda_i\ge\lambda_n>0\)。对任意 \(\boldsymbol{x}\ne\boldsymbol{0}\)，
 \[
-\dim(\operatorname{col}(B)) = \dim(A(\operatorname{col}(B))) + \dim(\ker A \cap \operatorname{col}(B)).
+\boldsymbol{x}^{\mathsf T}A\boldsymbol{x}
+=\sum_{i=1}^n\lambda_i y_i^2
+\ge\lambda_n\sum_{i=1}^n y_i^2
+=\lambda_n\|\boldsymbol{x}\|^2>0,
 \]
-即 \(\operatorname{rank}(B) = \operatorname{rank}(AB) + \dim(\ker A \cap \operatorname{col}(B))\)。
-
-而 \(\dim(\ker A \cap \operatorname{col}(B)) \leq \dim(\ker A) = n - \operatorname{rank}(A)\)，故
-\[
-\operatorname{rank}(B) \leq \operatorname{rank}(AB) + n - \operatorname{rank}(A),
-\]
-即 \(\operatorname{rank}(AB) \geq \operatorname{rank}(A) + \operatorname{rank}(B) - n\)。
-
-(ii) 若 \(A\) 列满秩，则 \(\operatorname{rank}(A) = n\)。由 (i)：
-\[
-\operatorname{rank}(AB) \geq n + \operatorname{rank}(B) - n = \operatorname{rank}(B).
-\]
-又因为 \(\operatorname{rank}(AB) \leq \min\{\operatorname{rank}(A), \operatorname{rank}(B)\} = \operatorname{rank}(B)\)，故 \(\operatorname{rank}(AB) = \operatorname{rank}(B)\)。
-
-\else \answerarea \fi%
-\item \textbf{（\(\operatorname{rank}(A) = \operatorname{rank}(A^{\mathsf{T}}A)\) 证明）} 设 \(A\) 为 \(m \times n\) 实矩阵。证明：
-
-\begin{enumerate}[label=(\roman*)]
-    \item \(\operatorname{rank}(A^{\mathsf{T}}A) = \operatorname{rank}(A)\)；
-    \item \(\ker(A^{\mathsf{T}}A) = \ker(A)\)；
-    \item 对任意 \(\boldsymbol{x} \in \mathbb{R}^n\)，\(A\boldsymbol{x} = \boldsymbol{0} \iff A^{\mathsf{T}}A\boldsymbol{x} = \boldsymbol{0}\)。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(i) 先证 \(\ker(A^{\mathsf{T}}A) \subseteq \ker(A)\)。设 \(\boldsymbol{x} \in \ker(A^{\mathsf{T}}A)\)，即 \(A^{\mathsf{T}}A\boldsymbol{x} = \boldsymbol{0}\)。两边左乘 \(\boldsymbol{x}^{\mathsf{T}}\)：
-\[
-\boldsymbol{x}^{\mathsf{T}} A^{\mathsf{T}} A \boldsymbol{x} = 0 \;\Longrightarrow\; \|A\boldsymbol{x}\|^2 = 0 \;\Longrightarrow\; A\boldsymbol{x} = \boldsymbol{0}.
-\]
-故 \(\boldsymbol{x} \in \ker(A)\)。
-
-反包含 \(\ker(A) \subseteq \ker(A^{\mathsf{T}}A)\) 显然（若 \(A\boldsymbol{x} = \boldsymbol{0}\)，则 \(A^{\mathsf{T}}A\boldsymbol{x} = A^{\mathsf{T}}\boldsymbol{0} = \boldsymbol{0}\)）。
-
-因此 \(\ker(A^{\mathsf{T}}A) = \ker(A)\)。由秩—零化度定理（两矩阵均有 \(n\) 列）：
-\[
-\operatorname{rank}(A^{\mathsf{T}}A) = n - \dim(\ker(A^{\mathsf{T}}A)) = n - \dim(\ker(A)) = \operatorname{rank}(A).
-\]
-
-(ii) 已在上一步中证明，两者零空间相等。
-
-(iii) 由 (ii) 中零空间相等直接得到。注意实矩阵情形下，\(A\boldsymbol{x} = \boldsymbol{0} \iff \|A\boldsymbol{x}\|^2 = \boldsymbol{x}^{\mathsf{T}}A^{\mathsf{T}}A\boldsymbol{x} = 0\) 是核心技巧，利用了实向量范数的正定性。
-
-\boxed{\text{注}} \(A^{\mathsf{T}}A\) 与 \(A\) 同秩是线性代数中最重要的秩等式之一，广泛应用于最小二乘法、广义逆和奇异值分解中。
-
-\else \answerarea \fi%
-\item \textbf{（相似性与对角化证明）} 设 \(A, B\) 均为 \(n\) 阶方阵，且 \(A \sim B\)（相似）。证明：
-
-\begin{enumerate}[label=(\roman*)]
-    \item 若 \(A\) 可逆，则 \(B\) 也可逆，且 \(A^{-1} \sim B^{-1}\)；
-    \item 若 \(A\) 可对角化，则 \(B\) 也可对角化；
-    \item \(A^{\mathsf{T}} \sim B^{\mathsf{T}}\)。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-由 \(A \sim B\)，存在可逆矩阵 \(P\) 使得 \(B = P^{-1}AP\)。
-
-(i) 若 \(A\) 可逆，则 \(|B| = |P^{-1}AP| = |P^{-1}||A||P| = |A| \neq 0\)，故 \(B\) 可逆。
-
-又 \(B^{-1} = (P^{-1}AP)^{-1} = P^{-1}A^{-1}P\)，故 \(A^{-1} \sim B^{-1}\)。
-
-(ii) 若 \(A\) 可对角化，存在可逆矩阵 \(Q\) 使得 \(Q^{-1}AQ = \Lambda\)（对角阵）。则
-\[
-\Lambda = Q^{-1}AQ = Q^{-1}(PBP^{-1})Q = (Q^{-1}P)B(P^{-1}Q) = (P^{-1}Q)^{-1}B(P^{-1}Q),
-\]
-故 \(B\) 也可对角化（相似于同一个对角阵 \(\Lambda\)）。
-
-(iii) \(B^{\mathsf{T}} = (P^{-1}AP)^{\mathsf{T}} = P^{\mathsf{T}}A^{\mathsf{T}}(P^{-1})^{\mathsf{T}} = P^{\mathsf{T}}A^{\mathsf{T}}(P^{\mathsf{T}})^{-1}\)。令 \(R = (P^{\mathsf{T}})^{-1}\)，则
-\[
-B^{\mathsf{T}} = R^{-1}A^{\mathsf{T}}R,
-\]
-故 \(A^{\mathsf{T}} \sim B^{\mathsf{T}}\)。
-
-\boxed{\text{注}} 相似关系保持矩阵的大部分重要性质：特征值、行列式、迹、秩、可逆性、可对角化性等。但相似不保持对称性（除非相似变换矩阵是正交矩阵）。
-
-\else \answerarea \fi%
-\item \textbf{（正定性证明）} 设 \(A\) 为 \(n\) 阶正定矩阵，\(S\) 为 \(n \times m\) 列满秩矩阵（\(m \leq n\)）。证明 \(S^{\mathsf{T}} A S\) 为正定矩阵。并给出反例说明若 \(S\) 不列满秩，结论不成立。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-对称性：\((S^{\mathsf{T}} A S)^{\mathsf{T}} = S^{\mathsf{T}} A^{\mathsf{T}} S = S^{\mathsf{T}} A S\)（\(A\) 对称），故 \(S^{\mathsf{T}} A S\) 为对称矩阵。
-
-正定性：任取非零向量 \(\boldsymbol{x} \in \mathbb{R}^m\)，\(\boldsymbol{x} \neq \boldsymbol{0}\)。由于 \(S\) 列满秩，\(S\boldsymbol{x} \neq \boldsymbol{0}\)。又 \(A\) 正定，故
-\[
-\boldsymbol{x}^{\mathsf{T}} (S^{\mathsf{T}} A S) \boldsymbol{x}
-= (S\boldsymbol{x})^{\mathsf{T}} A (S\boldsymbol{x}) > 0.
-\]
-因此 \(S^{\mathsf{T}} A S\) 正定。
-
-反例：取 \(A = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}\)（正定），\(S = \begin{pmatrix} 1 & 2 \\ 0 & 0 \end{pmatrix}\)（不列满秩）。则
-\[
-S^{\mathsf{T}}AS = \begin{pmatrix} 1 & 0 \\ 2 & 0 \end{pmatrix} \begin{pmatrix} 1 & 2 \\ 0 & 0 \end{pmatrix} = \begin{pmatrix} 1 & 2 \\ 2 & 4 \end{pmatrix}.
-\]
-对 \(\boldsymbol{x} = (2, -1)^{\mathsf{T}} \neq \boldsymbol{0}\)：
-\[
-\boldsymbol{x}^{\mathsf{T}}(S^{\mathsf{T}}AS)\boldsymbol{x} = \begin{pmatrix} 2 & -1 \end{pmatrix}\begin{pmatrix} 1 & 2 \\ 2 & 4 \end{pmatrix}\begin{pmatrix} 2 \\ -1 \end{pmatrix} = 4 - 4 = 0,
-\]
-故 \(S^{\mathsf{T}}AS\) 仅为半正定，不正定。
-
-\boxed{\text{注}} 此题揭示了「二次型经线性变换后保持正定性」的充要条件是变换矩阵列满秩，这一结论在约束优化和多元统计中极为重要。
-
-\else \answerarea \fi%
-\end{enumerate}
+故 \(A\) 正定。
+\boxed{\text{答案：}\ \text{证明如上。}}
+\else \answerarea[10] \fi%

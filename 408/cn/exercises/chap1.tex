@@ -1,0 +1,176 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 下列关于网络协议与服务的叙述中，正确的是
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}XX@{}}
+(A) 协议是相邻层之间的垂直约定，服务是对等层之间的水平约定 & (B) 第 $n$ 层通过服务访问点（SAP）向第 $n+1$ 层提供服务，对等层之间则遵循第 $n$ 层协议 \\[4pt]
+(C)「请求」原语由服务提供者发往服务用户 & (D) 第 $n$ 层实体向第 $n-1$ 层实体提供服务
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 协议是\emph{同一层次}的对等实体之间的水平约定，服务是\emph{相邻层}之间通过接口提供的垂直关系，所以 (A) 把两者说反了。服务的提供方向是自下而上：第 $n$ 层实体通过 SAP 为第 $n+1$ 层提供服务，故 (B) 正确、(D) 把方向弄反。服务原语中「请求」由服务用户（上层）发往服务提供者（下层），「指示」才是提供者通知用户，故 (C) 错。\boxed{\text{答案：(B)}}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 在 OSI 参考模型中，下列哪一组的全部功能都由数据链路层完成？
+\begin{center}
+\begin{tabular}{ll}
+(A) 成帧、差错控制、介质访问控制 & (B) 路由选择、拥塞控制、网际互连 \\[4pt]
+(C) 数据格式转换、加密解密、数据压缩 & (D) 会话建立、同步、断点续传
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 逐组对照各层职责：(A) 成帧（把比特流划分成帧并加首尾）、差错控制（用 FCS 校验并可重传）、介质访问控制（决定共享介质的使用权）都属于数据链路层，正确。(B) 中的三项都是网络层的典型功能：路由选择与拥塞控制由网络层完成，网际互连也是网络层互连。(C) 是表示层的三项典型功能（表示层负责格式转换、加密与压缩）。(D) 中的会话管理与同步属于会话层，断点续传由应用层实现。另外注意：数据链路层也有流量控制，但它是\emph{相邻结点之间}的链路级流控，与传输层端到端的流控不是一回事。\boxed{\text{答案：(A)}}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（填空题）} 主机甲向主机乙发送 $10^{8}$ bit 的数据。链路带宽为 $1$ Gbps，甲乙相距 $2000$ km，信号在介质中的传播速率为 $2\times 10^{8}$ m/s，忽略处理时延与排队时延。
+（1）发送时延为\underline{\hspace{2.2cm}} s；
+（2）传播时延为\underline{\hspace{2.2cm}} s；
+（3）二者中占主导地位的是\underline{\hspace{2.2cm}}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 发送时延只由「数据量 $\div$ 发送速率」决定：$10^{8}\ \text{bit}\div 10^{9}\ \text{bps}=0.1$ s，与链路多长无关。传播时延只由「距离 $\div$ 电磁波速度」决定：$2000\ \text{km}=2\times10^{6}$ m，$2\times10^{6}\div(2\times10^{8})=0.01$ s，与发送速率无关。$0.1\ \text{s}\gg 0.01\ \text{s}$，所以本题中发送时延占主导。这也说明「带宽越大时延越小」不成立：加大带宽只能压缩发送时延，传播时延一分不减。\boxed{\text{答案：（1）0.1 s；（2）0.01 s；（3）发送时延}}\else \answerarea[4] \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 主机甲与主机乙相距 $1000$ km，链路带宽 $10$ Mbps，信号传播速率 $2\times10^{8}$ m/s，忽略处理时延与排队时延。甲向乙发送一个长度为 $5000$ bit 的分组，从甲发出该分组的第一个比特算起，到乙完整收到该分组所需的时间是
+\begin{center}
+\begin{tabular}{ll}
+(A) $0.5$ ms & (B) $5.0$ ms \\[4pt]
+(C) $5.5$ ms & (D) $50.5$ ms
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 两段时延串联相加。发送时延 $=5000\ \text{bit}\div 10^{7}\ \text{bps}=5\times10^{-4}\ \text{s}=0.5$ ms；传播时延 $=10^{6}\ \text{m}\div(2\times10^{8}\ \text{m/s})=5\times10^{-3}\ \text{s}=5$ ms；总时延 $=0.5+5=5.5$ ms。(A) 只算了发送时延，(B) 只算了传播时延，(D) 是把距离多算了一个数量级（按 $10^{7}$ m 算出的传播时延 $50$ ms）。(C) 正确。\boxed{\text{答案：(C)}}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（填空题）} 应用层产生 $1000$ B 的数据，自上而下依次经过传输层（加 $20$ B 首部）、网络层（加 $20$ B 首部）、数据链路层（加 $18$ B 首部与 $4$ B 尾部），物理层不再增加开销。以数据链路层帧长为分母计算传输效率。
+（1）数据为 $1000$ B 时，效率约为\underline{\hspace{2.2cm}}；
+（2）数据增大到 $9000$ B（各层开销不变）时，效率约为\underline{\hspace{2.2cm}}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 封装是逐层加控制信息，每层都要把上层交下来的整个 PDU 当作数据，再在前面加首部（链路层还要在末尾加尾部）。总开销 $=20+20+18+4=62$ B。
+（1）帧长 $=1000+62=1062$ B，效率 $=1000/1062\approx0.9416\approx94.2\%$。
+（2）帧长 $=9000+62=9062$ B，效率 $=9000/9062\approx0.9932\approx99.3\%$。
+可见开销字节数固定时，数据越长，开销占比越小、效率越高；这也解释了为什么大文件传输时首部开销可以忽略，而小分组（如语音）必须重视首部占比。比值是无量纲的，用 B 或 bit 计算都一样。\boxed{\text{答案：（1）约 94.2\%；（2）约 99.3\%}}\else \answerarea[4] \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 下列关于 TCP/IP 模型的叙述中，错误的是
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}XX@{}}
+(A) 应用层对应 OSI 的应用层、表示层和会话层 & (B) 网络接口层对应 OSI 的数据链路层和物理层 \\[4pt]
+(C) 网际层提供无连接、不可靠的数据报服务 & (D) 与 OSI 一样，TCP/IP 严格区分服务、接口和协议
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 正确：TCP/IP 把 OSI 高三个层次的功能合并为一个应用层。(B) 正确：TCP/IP 的网络接口层（又称网络接入层）并不规定具体协议，对应 OSI 的下两层。(C) 正确：网际层的核心协议 IP 提供尽力而为（best-effort）的无连接不可靠数据报服务，可靠性由传输层的 TCP 负责。(D) 错误：OSI 的一个重要贡献是明确区分了服务、接口与协议三个概念，而 TCP/IP 最初是「先有协议、后有模型」，并未严格区分这三者。\boxed{\text{答案：(D)}}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[start=7]
+
+\item \textbf{（单项选择题）} 主机甲经一台路由器（存储转发）与主机乙相连，两段链路的数据传输速率均为 $10$ Mbps。甲分别用报文交换和分组交换向乙发送一个 $2\times10^{6}$ bit 的报文，分组长度为 $2000$ bit。忽略链路传播时延、排队与处理时延，也忽略分组首部开销与拆装时间。两种方式完成该报文传输所需的时间分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) $200$ ms，$200$ ms & (B) $400$ ms，$200.2$ ms \\[4pt]
+(C) $400$ ms，$200$ ms & (D) $400$ ms，$400.2$ ms
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} \textbf{思路：} 先统一口径——「完成传输」指乙收到报文的最后一个比特；中间有一台路由器即两段链路，报文要在两段链路上各发送一次。
+\textbf{报文交换：} 整个报文必须收完才能转发。第一段用时 $2\times10^{6}/10^{7}=0.2$ s $=200$ ms，路由器收完后再用 $200$ ms 发往乙，共 $400$ ms（存储转发不重叠）。
+\textbf{分组交换：} 分组数 $N=2\times10^{6}/2000=1000$；每组发送时延 $T_d=2000/10^{7}=2\times10^{-4}$ s $=0.2$ ms。第一个分组到达乙需 $2T_d$（两段各发一次），之后每 $T_d$ 到达一个分组，最后一个分组到达时刻为 $(N+1)T_d=1001\times0.2=200.2$ ms。一般结论：$N$ 个分组经 $k$ 段链路流水，忽略传播时延则为 $(N+k-1)T_d$，此处 $k=2$。
+对比可见：报文交换把整份报文在两段链路上串行发送，总时延为 $2\times200$ ms；分组交换让各分组在两段链路上流水，只有第一个分组需要走完两段、其余分组随后陆续到达，故总时延降为 $200.2$ ms，节省的正是 $(N-1)T_d$ 这部分重叠。\boxed{\text{答案：(B)}}\else \answerarea[6] \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 主机甲与主机乙之间经过一台二层交换机（不做路由）和一台路由器。数据从甲的应用层发出、由乙的应用层接收。下列叙述中正确的是
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}XX@{}}
+(A) 每经过一台路由器，数据链路层首部与尾部都要重新封装 & (B) 每经过一台中间设备，网络层首部都要重新封装 \\[4pt]
+(C) 传输层首部在每一跳都会被重新封装 & (D) 物理层在转发时依据帧尾部的 FCS 决定是否丢弃该帧
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 路由器每换一段链路，就要按该链路的链路层协议重新封装帧（换源/目的 MAC、重算 FCS），故 (A) 正确。二层交换机只在本链路内按 MAC 表转发，通常不改写源/目的 MAC，也不重算 FCS；它不拆到网络层。(B) 错：二层交换机只工作到数据链路层，不修改也不检查网络层首部；只有路由器才拆到网络层并改写首部（如 TTL 减 1、重算首部校验和）。(C) 错：传输层首部由源端系统生成、目的端系统解析，属于端到端信息，中间结点不重新封装（NAT 改写地址属于特例，不在本题讨论范围）。(D) 错：FCS 是数据链路层的帧尾字段，由数据链路层在收帧时校验；物理层只透明地传送比特流，不看帧结构。\boxed{\text{答案：(A)}}\else \answerarea[5] \fi
+
+\vspace{8pt}
+
+\item \textbf{（综合应用题）} 主机甲与主机乙相距 $2000$ km，链路带宽为 $100$ Mbps，信号传播速率为 $2\times10^{8}$ m/s。甲采用停止-等待协议向乙发送数据，每个数据帧长 $1000$ B（$1$ B $=8$ bit），确认帧长度可忽略；忽略处理时延与排队时延。
+\begin{enumerate}
+    \item[(1)] 求单程传播时延 $\tau$ 与往返时间 RTT；
+    \item[(2)] 求一个数据帧的发送时延 $T_d$；
+    \item[(3)] 求停止-等待协议下按有效数据计算的平均吞吐量与信道利用率；
+    \item[(4)] 若改用滑动窗口协议连续发送，为使链路不因等待确认而空闲，发送窗口至少应有多少个帧？（写明计数口径）
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) $\tau=2\times10^{6}\ \text{m}\div(2\times10^{8}\ \text{m/s})=10$ ms，故 $\text{RTT}=2\tau=20$ ms。这里的 RTT 只含往返两次传播（题设已忽略确认帧的发送时延）；若题目直接给出 RTT，则一律直接采用题给值，不要再另行叠加发送时延或传播时延。
+
+(2) $T_d=\dfrac{1000\times8\ \text{bit}}{100\times10^{6}\ \text{bps}}=\dfrac{8000}{10^{8}}=8\times10^{-5}\ \text{s}=0.08$ ms。
+
+(3) 停止-等待的一个周期为「发一帧 $+$ 等一个往返」：$T_d+\text{RTT}=0.08+20=20.08$ ms。平均吞吐量以有效数据计为
+\[
+\frac{8000\ \text{bit}}{20.08\times10^{-3}\ \text{s}}\approx3.98\times10^{5}\ \text{bps}\approx398\ \text{kbps},
+\]
+信道利用率
+\[
+U=\frac{T_d}{T_d+\text{RTT}}=\frac{0.08}{20.08}\approx3.98\times10^{-3}\approx0.4\%.
+\]
+利用率如此低的原因是「管道」很粗（$100$ Mbps）而往返很长：一帧只用了 $0.08$ ms 就发完，却要空等 $20$ ms。
+
+(4) \textbf{计数口径：} 时延带宽积 $=100\times10^{6}\ \text{bps}\times0.02\ \text{s}=2\times10^{6}$ bit $=2$ Mbit，折合 $2\times10^{6}/8000=250$ 个帧——这是「一个往返期间链路上最多能容纳的帧数」。设窗口为 $W$ 帧，未计满时利用率 $U=\dfrac{W T_d}{T_d+\text{RTT}}$，要求 $U\ge1$，即 $W\ge\dfrac{T_d+\text{RTT}}{T_d}=1+\dfrac{\text{RTT}}{T_d}=1+250=251$。多出的 $1$ 帧对应「最后一帧自身的发送时延」：若只取 $250$，第 $250$ 帧发完后首个 ACK 还差 $0.08$ ms 才到，链路会出现一次 $T_d$ 的空闲。故严格最小窗口为 $251$ 帧（若把窗口定义为「已发出但未收到确认的帧数不超过 $W$」的同一口径，结论一致）。
+
+\[
+\boxed{\begin{array}{l}
+\text{（1）}\tau=10\ \text{ms},\ \text{RTT}=20\ \text{ms};\qquad \text{（2）}T_d=0.08\ \text{ms}\\[3pt]
+\text{（3）吞吐量}\approx3.98\times10^{5}\ \text{bps（约 }398\ \text{kbps），利用率}\approx0.4\%\\[3pt]
+\text{（4）}W_{\min}=251\ \text{帧}
+\end{array}}
+\]
+\else \answerarea[12] \fi
+
+\vspace{8pt}
+
+\item \textbf{（综合应用题）} 主机甲经两台路由器 R1、R2 与主机乙相连，三段链路速率均为 $10$ Mbps，每段链路的传播时延均为 $2$ ms。甲把数据拆成 $500$ 个分组，每个分组长 $1000$ bit，其中首部占 $40$ bit。忽略处理时延、排队时延与确认开销。
+\begin{enumerate}
+    \item[(1)] 求这批分组携带的有效数据总比特数；
+    \item[(2)] 求从甲发出第一个比特到乙收到最后一个比特所需的时间（写出流水计数口径）；
+    \item[(3)] 以有效数据计算平均吞吐量（保留三位有效数字）；
+    \item[(4)] 求首部开销占总传输比特的比例，并说明它与 (3) 中吞吐量的关系。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 每个分组的有效数据 $=1000-40=960$ bit，$500$ 个分组共 $500\times960=4.8\times10^{5}$ bit。
+
+(2) \textbf{计数口径：} 每段链路都做存储转发，$500$ 个分组在三段链路上形成流水；发送时延只计最后一个分组走完全部 $3$ 段的时间，传播时延则每段都要算一次。
+\[
+T_d=\frac{1000\ \text{bit}}{10^{7}\ \text{bps}}=10^{-4}\ \text{s}=0.1\ \text{ms},
+\]
+传输部分 $=(N+k-1)T_d=(500+3-1)\times0.1=502\times0.1=50.2$ ms；传播部分 $=3\times2=6$ ms。合计 $T=50.2+6=56.2$ ms。
+验证：最后一个分组在第 $1$ 段发完的时刻为 $500T_d=50$ ms，到 R1 需再 $2$ ms；在 R2 再转发一次，最后一段发完为 $50.2+4=54.2$ ms，再经 $2$ ms 传播到达乙，即 $56.2$ ms。
+
+(3) 平均吞吐量（按有效数据）
+\[
+\frac{4.8\times10^{5}\ \text{bit}}{56.2\times10^{-3}\ \text{s}}\approx8.54\times10^{6}\ \text{bps}\approx8.54\ \text{Mbps}.
+\]
+它低于链路速率 $10$ Mbps，原因有两个：三段链路的发送过程在头尾无法完全重叠（$(N+k-1)$ 而非 $N$ 个 $T_d$，本题此项损失约 $0.6$ ms），以及每段还要加上传播时延 $6$ ms。
+
+(4) 首部占比 $=\dfrac{40}{1000}=4\%$。若只看「发送时间」这一段，名义发送速率 $10$ Mbps 中有效数据的份额即 $96\%$；但 (3) 的口径还包含传播时延，所以 $8.54$ Mbps 小于 $10\times96\%=9.6$ Mbps。若把有效数据速率写成 $\dfrac{500\times960}{500\times1000}\times\dfrac{500\times1000}{56.2\ \text{ms}}$，可清楚看到首部开销与传播时延是两笔独立的损失。
+
+\[
+\boxed{\begin{array}{l}
+\text{（1）}4.8\times10^{5}\ \text{bit};\qquad \text{（2）}56.2\ \text{ms}\\[3pt]
+\text{（3）}\approx8.54\ \text{Mbps};\qquad \text{（4）}4\%\text{（有效速率再打 }96\text{ 折）}
+\end{array}}
+\]
+\else \answerarea[12] \fi
+
+\end{enumerate}

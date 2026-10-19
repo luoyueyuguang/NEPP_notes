@@ -1,336 +1,523 @@
 \section{物理层}
 
-\subsection{物理层的基本概念}
+物理层在协议栈的最底下。它从数据链路层接过一串比特，把这些比特变成电信号、光信号或电磁波送进介质，再在另一端还原成同样的比特。至于这些比特组成什么帧、帧头里的地址是什么意思，物理层不解释。
 
 \begin{mydef}{物理层}{physical-layer}
-物理层是 OSI 的最底层，为数据链路层提供透明的比特流传输。它规定：
-\begin{itemize}
-    \item \textbf{机械特性}：连接器的形状、尺寸、引脚数和排列；
-    \item \textbf{电气特性}：信号电平范围、传输速率、传输距离；
-    \item \textbf{功能特性}：每个引脚信号的物理意义；
-    \item \textbf{规程特性}：信号的工作时序。
-\end{itemize}
-物理层传输的是比特流，不关心比特的含义（帧结构、地址等由上层处理）。
+物理层为数据链路层提供比特流传输服务：发送端把比特映射成适合介质传输的信号，接收端把信号还原成比特。它不识别帧边界，也不检查比特的含义。
 \end{mydef}
 
-\begin{attention}
-\textbf{408 辨析：} 物理层传输的是「比特」（bit），数据链路层传输的是「帧」（Frame）。集线器（Hub）工作在物理层，只转发比特不识别帧结构。交换机（Switch）工作在数据链路层，能识别 MAC 地址并转发帧。
-\end{attention}
+物理层的接口标准通常从四个方面规定，考试里称为机械特性、电气特性、功能特性和规程特性。拿常见的 RJ-45 网口和 RS-232 串口对照，就很容易分清这四项。
 
-\subsection{数据通信基础}
-
-\begin{conclusion}{数据通信系统模型}{comm-model}
-\[
-\text{信源} \to \text{发送器} \to \boxed{\text{信道}} \to \text{接收器} \to \text{信宿}
-\]
-\vspace{-8pt}
-\begin{itemize}
-    \item \textbf{信源/信宿}：产生/接收数据的设备。
-    \item \textbf{发送/接收器}：编码/解码（调制解调器 Modem 即为典型的发送+接收器）。
-    \item \textbf{信道}：信号的传输介质。分为有线（双绞线、同轴电缆、光纤）和无线（电磁波）。
-\end{itemize}
-\end{conclusion}
-
-\begin{formula}{通信的基本术语}{comm-terms}
-\begin{itemize}
-    \item \textbf{数据 vs 信号}：数据是传送信息的实体，信号是数据的电气/电磁表现。
-    \item \textbf{模拟信号 vs 数字信号}：连续变化 vs 离散取值。
-    \item \textbf{基带传输}：直接传输数字信号（不经过调制）。
-    \item \textbf{频带传输}：将数字信号调制为模拟信号后传输。
-    \item \textbf{单工/半双工/全双工}：单向/双向交替/双向同时。
-    \item \textbf{码元（Symbol）}：用一个固定时长的信号波形表示一个 $k$ 进制数字，代表 $k$ 种不同离散值。
-\end{itemize}
-\end{formula}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[left,align=right] at (0.0,2.6){单工};
-  \node[left,align=right] at (0.0,1.5){半双工};
-  \node[left,align=right] at (0.0,0.4){全双工};
-  % 单工：只能单向
-  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (A1) at (3.4,2.6){A};
-  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (B1) at (6.4,2.6){B};
-  \draw[->,thick,Teal] (A1) -- (B1);
-  % 半双工：双向交替（单一箭头，互斥）
-  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (A2) at (3.4,1.5){A};
-  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (B2) at (6.4,1.5){B};
-  \draw[<->,thick,Amber] (A2) -- (B2);
-  % 全双工：双向同时（两条并行的反向箭头）
-  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (A3) at (3.4,0.4){A};
-  \node[draw,fill=SoftGray,minimum width=1.4cm,minimum height=0.65cm] (B3) at (6.4,0.4){B};
-  \draw[->,thick,Burgundy] ([yshift=0.13cm]A3.east) -- ([yshift=0.13cm]B3.west);
-  \draw[->,thick,Burgundy] ([yshift=-0.13cm]B3.west) -- ([yshift=-0.13cm]A3.east);
-  \node[align=center,font=\scriptsize,black!70] at (4.9,-0.5){单工：只能单向（如广播）；半双工：双向交替（如对讲机）；全双工：双向同时（如电话）};
-\end{tikzpicture}
-\end{center}
-
-\subsection{奈奎斯特（Nyquist）准则与香农（Shannon）定理}
-
-\begin{conclusion}{奈奎斯特准则（无噪声信道）}{nyquist}
-在理想低通（无噪声）信道中，极限码元传输速率：
-\[
-B_{\text{max}} = 2W\;\text{（Baud）}
-\]
-其中 $W$ 为信道带宽（Hz）。若每个码元携带 $\log_2 V$ 比特（$V$ 为离散电平数），则极限数据率：
-\[
-C_{\text{max}} = 2W \log_2 V\;\text{（bps）}
-\]
-\textbf{奈奎斯特准则给出的是无噪声下的符号率上限。}
-\end{conclusion}
-
-\begin{conclusion}{香农定理（有噪声信道）}{shannon}
-带宽受限且有高斯白噪声的信道中，极限数据率：
-\[
-C = W \log_2\!\left(1 + \frac{S}{N}\right)\;\text{（bps）}
-\]
-其中 $S/N$ 为信噪比（信号功率与噪声功率之比）。通常使用分贝（dB）表示：
-\[
-\text{信噪比(dB)} = 10\log_{10}\!\left(\frac{S}{N}\right)
-\]
-
-\textbf{香农定理给出的是信息传输速率的上限，无论使用何种编码方式都无法超越。}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 综合计算高频：} 给定带宽和信噪比，先由奈奎斯特准则算符号率上限，再由香农定理算信息速率上限，取两者的\textbf{较小值}作为题设条件下的速率上限。给定 dB 值时需先换算为 $S/N$ 比值。
-\end{attention}
-
-\subsection{编码与调制}
-
-\begin{conclusion}{数字数据的数字信号编码}{digital-encoding}
-\begin{tablebox}{常见数字编码}
+\begin{tablebox}{物理层接口的四个特性}
 \centering
-\begin{tabularx}{\linewidth}{|p{4.0cm}|X|}
+\small
+\begin{tabularx}{\linewidth}{|p{1.9cm}|p{4.5cm}|X|}
 \hline
-编码方式 & 规则 \\
+特性 & 规定什么 & 例子 \\
 \hline
-不归零编码（NRZ）& 高电平=1，低电平=0；无同步信号 \\
-归零编码（RZ）& 每个比特中间跳变回零 \\
-曼彻斯特编码 & 每个比特中间均有跳变；跳变方向与 0/1 的对应关系以题目约定为准；可自同步 \\
-差分曼彻斯特 & 每个比特中间均有跳变；比特起始处是否跳变表示数据，具体 0/1 约定以题目为准 \\
+机械特性 & 连接器的形状、尺寸、引脚数、引脚排列、插拔和锁定方式 & RJ-45 有 8 个引脚，水晶头有固定的卡扣形状 \\
+电气特性 & 电压范围、阻抗、传输速率、传输距离 & RS-232 用 $-15\sim-3$ V 表示 1，$+3\sim+15$ V 表示 0 \\
+功能特性 & 每根引脚上信号的含义 & RS-232 的 DTE 引脚 2 收数据，引脚 3 发数据 \\
+规程特性 & 各信号出现的先后顺序和握手过程 & 先发请求，收到允许后再发数据 \\
 \hline
 \end{tabularx}
 \end{tablebox}
-\textbf{曼彻斯特编码：}每个比特的中间都有跳变（既作时钟又作数据），码元速率是数据率的 2 倍。经典 10 Mb/s IEEE 802.3 以太网采用曼彻斯特编码；不能据此推断所有速率的以太网都采用该编码。
 
-\textbf{差分曼彻斯特：}抗干扰性更强，常用于令牌环网。
-\end{conclusion}
+物理层只认比特。集线器收到什么电平，就整形复制到其他端口，不会拆开帧看地址；交换机要读出 MAC 帧头，按目的地址转发，所以交换机工作在数据链路层。这个边界在后面讲设备时还会用到。
+
+\subsection{数据通信的基本量}
+
+两个人打电话，声音先被话筒变成模拟电信号，经过电话线送到对方听筒。把中间每一段拆开，就是数据通信系统的基本模型。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.9cm, y=0.85cm]
-  % 数据位
-  \foreach \i/\b in {1/1,2/0,3/1,4/0,5/1,6/0}{
-    \draw[gray!60,thick] (\i-1,2.2) rectangle (\i,2.6);
-    \node at (\i-0.5,2.4) {\b};
-  }
-  \draw[gray!60,dashed] (0,2.2) -- (6,2.2);
-  \node[left,font=\scriptsize,gray!60] at (0,2.4){数据};
-  % 曼彻斯特波形（0=高→低, 1=低→高，每位中间跳变）
-  \draw[red,thick] (0,0.1)--(0.5,0.1)--(0.5,1.1)--(1,1.1)
-    --(1.5,1.1)--(1.5,0.1)--(2,0.1)
-    --(2.5,0.1)--(2.5,1.1)--(3,1.1)
-    --(3.5,1.1)--(3.5,0.1)--(4,0.1)
-    --(4.5,0.1)--(4.5,1.1)--(5,1.1)
-    --(5.5,1.1)--(5.5,0.1)--(6,0.1);
-  \node[left,font=\scriptsize,red!70] at (0,0.6){曼彻斯特};
-  \node[font=\scriptsize,black!70] at (3,-0.5){每位中间必跳变（高$\to$低表示 0，低$\to$高表示 1，约定以题设为准）；可自同步};
+\begin{tikzpicture}[>=stealth,font=\small]
+  \node[draw,rounded corners,fill=SoftTeal,minimum width=1.5cm,minimum height=0.9cm] (src) at (0,0) {信源};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=2.0cm,minimum height=0.9cm] (tx) at (2.05,0) {发送器};
+  \node[draw,rounded corners,fill=SoftGray,minimum width=2.8cm,minimum height=0.9cm] (ch) at (4.75,0) {传输介质（信道）};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=2.0cm,minimum height=0.9cm] (rx) at (7.45,0) {接收器};
+  \node[draw,rounded corners,fill=SoftTeal,minimum width=1.5cm,minimum height=0.9cm] (dst) at (9.5,0) {信宿};
+  \draw[->,thick] (src) -- (tx);
+  \draw[->,thick] (tx) -- (ch);
+  \draw[->,thick] (ch) -- (rx);
+  \draw[->,thick] (rx) -- (dst);
+  \node[draw,rounded corners,fill=SoftAmber,minimum width=1.5cm,minimum height=0.7cm] (noise) at (4.75,1.7) {噪声源};
+  \draw[->,thick,Amber] (noise) -- (ch);
+  \node[font=\scriptsize] at (2.05,-0.95) {编码、调制};
+  \node[font=\scriptsize] at (4.75,-0.95) {传输信号};
+  \node[font=\scriptsize] at (7.45,-0.95) {解调、解码};
+  \node[font=\scriptsize] at (0,-0.95) {产生数据};
+  \node[font=\scriptsize] at (9.5,-0.95) {使用数据};
 \end{tikzpicture}
 \end{center}
 
+信源和信宿是数据的起点和终点。发送器把数据变成适合介质的信号，接收器做反变换。噪声在信道里加入，是接收端判错比特的主要原因。
+
+数据是信息的实体，信号是数据在介质上的表现形式。同一个数据可以用不同信号传：数字 1 可以是一段高电平，也可以是一段高频振荡。模拟信号的取值连续，数字信号的取值离散。数字信号仍然有波形，只是它只取有限个电平，不能把它和“比特”画等号。
+
+按信号的频谱位置，传输分两种。基带传输不搬移频谱，直接把数字波形送上介质，以太网双绞线就是这样。频带传输先把数字信号调制到高频载波上，再送上介质，电话线拨号上网、WiFi 都属于这一类。
+
+按双方能否同时发送，通信方式分三种。
+
+\begin{tablebox}{单工、半双工与全双工}
+\centering
+\small
+\begin{tabularx}{\linewidth}{|p{2.0cm}|p{5.2cm}|X|}
+\hline
+方式 & 方向 & 典型例子 \\
+\hline
+单工 & 只能固定一个方向发送 & 广播、电视 \\
+半双工 & 双方都能发，但同一时刻只能一方发 & 对讲机、共享式以太网 \\
+全双工 & 双方可以同时收发 & 电话、交换式以太网 \\
+\hline
+\end{tabularx}
+\end{tablebox}
+
+描述传输速率有两个量。码元速率也叫波特率，指每秒传多少个码元，单位是 Baud。比特率指每秒传多少比特，单位是 bit/s。一个码元是持续时间为 $T_s$ 的一个波形；如果这个波形有 $V$ 种可区分的状态，一个码元就携带 $\log_2 V$ 比特。于是
+\[
+B=\frac{1}{T_s}\ \text{(Baud)},\qquad
+R=B\log_2 V\ \text{(bit/s)}.
+\]
+比如 4 种电平，每种电平对应 2 bit，波特率和比特率就差一倍。
+
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.0]
-  % 数据位（6 bit：101010）
-  \foreach \i/\b in {1/1,2/0,3/1,4/0,5/1,6/0}{
-    \draw[gray!60,thick] (\i-1,3.2) rectangle (\i,3.9);
-    \node at (\i-0.5,3.55) {\b};
+\begin{tikzpicture}[x=1.35cm,y=0.75cm,font=\scriptsize,>=stealth]
+  \foreach \y/\lab in {0/00,1/01,2/10,3/11}{
+    \draw[gray!45,dashed] (0,\y) -- (4,\y);
+    \node[left] at (-0.08,\y) {\lab};
   }
-  % 每位边界垂直网格线
-  \foreach \x in {0,...,6} \draw[gray!30,dashed] (\x,-1.9) -- (\x,3.9);
-  \node[left,font=\scriptsize,black!70] at (0,3.55){数据};
-  % NRZ：高=1、低=0，无同步
-  \draw[Teal,thick] (0,2.6)--(1,2.6)--(1,1.8)--(2,1.8)--(2,2.6)--(3,2.6)--(3,1.8)--(4,1.8)--(4,2.6)--(5,2.6)--(5,1.8)--(6,1.8);
-  \node[left,font=\scriptsize,Teal!85!black] at (0,2.2){NRZ};
-  % RZ：每位中间回零，1 为半位高脉冲
-  \draw[Teal,thick] (0,1.5)--(0.5,1.5)--(0.5,0.7)--(1,0.7)--(2,0.7)--(2,1.5)--(2.5,1.5)--(2.5,0.7)--(3,0.7)--(4,0.7)--(4,1.5)--(4.5,1.5)--(4.5,0.7)--(5,0.7)--(6,0.7);
-  \node[left,font=\scriptsize,Teal!85!black] at (0,1.1){RZ};
-  % 曼彻斯特：每位中间必跳变（低→高=1、高→低=0，约定以题设为准）
-  \draw[Burgundy,thick] (0,-0.4)--(0.5,-0.4)--(0.5,0.4)--(1,0.4)--(1.5,0.4)--(1.5,-0.4)--(2,-0.4)--(2.5,-0.4)--(2.5,0.4)--(3,0.4)--(3.5,0.4)--(3.5,-0.4)--(4,-0.4)--(4.5,-0.4)--(4.5,0.4)--(5,0.4)--(5.5,0.4)--(5.5,-0.4)--(6,-0.4);
-  \node[left,font=\scriptsize,Burgundy!85!black] at (0,0.0){曼彻斯特};
-  % 差分曼彻斯特：每位中间必跳变，位起始处是否跳变表示 0/1（约定以题设为准）
-  \draw[Burgundy,thick] (0,-0.7)--(0.5,-0.7)--(0.5,-1.5)--(1,-1.5)--(1,-0.7)--(1.5,-0.7)--(1.5,-1.5)--(2,-1.5)--(2.5,-1.5)--(2.5,-0.7)--(3,-0.7)--(3,-1.5)--(3.5,-1.5)--(3.5,-0.7)--(4,-0.7)--(4.5,-0.7)--(4.5,-1.5)--(5,-1.5)--(5,-0.7)--(5.5,-0.7)--(5.5,-1.5)--(6,-1.5);
-  \node[left,font=\scriptsize,Burgundy!85!black] at (0,-1.1){差分曼彻斯特};
-  \node[align=center,font=\scriptsize,black!70] at (3,-2.3){NRZ/RZ 需额外同步；曼彻斯特每位中间必跳变、可自同步（码元率为数据率的 2 倍）；\\差分曼彻斯特按位起始处是否跳变表示数据、抗干扰更强。0/1 的跳变方向约定以题设为准。};
+  \draw[very thick,Teal] (0,3)--(1,3)--(1,1)--(2,1)--(2,2)--(3,2)--(3,3)--(4,3);
+  \foreach \x in {0,1,2,3,4}{\draw[gray!55] (\x,-0.25)--(\x,3.3);}
+  \foreach \i/\b in {0/11,1/01,2/10,3/11}{
+    \node[above] at ({\i+0.5},3.25) {\b};
+  }
+  \draw[<->,thick] (0,-0.55)--(1,-0.55) node[midway,below] {$T_s$};
+  \draw[<->,thick] (1,-1.05)--(1.5,-1.05) node[midway,below] {$T_b$};
+  \node at (2,-1.7) {4 种电平，每个码元带 $\log_2 4=2$ bit，故 $R=2B$};
 \end{tikzpicture}
 \end{center}
 
-\begin{conclusion}{数字调制技术}{digital-modulation}
-将数字信号调制到模拟载波上传输：
-\begin{itemize}
-    \item \textbf{调幅（ASK）}：改变振幅表示 0/1。
-    \item \textbf{调频（FSK）}：改变频率。
-    \item \textbf{调相（PSK）}：改变相位。QPSK 用 4 个相位，每码元携带 2 bit。
-    \item \textbf{QAM（正交振幅调制）}：同时改变振幅和相位，每码元携带更多比特。
-\end{itemize}
+看这张图：一个码元占 $T_s$，一个比特只占 $T_b=T_s/2$。电平种类越多，同样波特率下比特率越高，但接收端要把相邻电平分得更开，对噪声和失真也更敏感。
+
+\subsection{信道能传多快：奈奎斯特与香农}
+
+一条理想低通信道，带宽为 $W$，最多每秒传多少个码元？奈奎斯特的回答是 $2W$。带宽限制的信号最快只能以大约半个周期的间隔变化；码元再密，相邻码元的波形会拖尾重叠，接收端就分不开了。这个上限与码元取几种电平无关。
+
+\begin{conclusion}{奈奎斯特准则（理想无噪声低通信道）}{nyquist}
+\[
+B_{\max}=2W\ \text{(Baud)},\qquad
+C_{\max}=2W\log_2 V\ \text{(bit/s)}.
+\]
+其中 $W$ 是信道带宽，单位 Hz；$V$ 是一个码元可取的离散电平数。$2W$ 是码元速率上限，乘上每码元比特数才是数据率上限。
 \end{conclusion}
 
+例如 $W=6$ kHz、$V=8$，则码元速率最多 $12000$ Baud，数据率最多 $12000\times3=36$ kbps。这个结果默认信道没有噪声、接收端能完美区分 8 种电平。实际信道做不到时，电平数要降下来。
+
+有噪声时，电平不能取得太密，否则噪声会把相邻电平推到判决边界另一边。香农定理给出另一个上限：不管用什么编码、多少电平，信息速率都不能超过
+\[
+C=W\log_2\left(1+\frac{S}{N}\right)\ \text{(bit/s)}.
+\]
+$S/N$ 是信号平均功率与噪声平均功率之比，是一个没有单位的比值。题目通常给分贝值，要先换算：
+\[
+\left(\frac{S}{N}\right)_{\mathrm{dB}}=10\log_{10}\frac{S}{N},
+\qquad
+\frac{S}{N}=10^{(S/N)_{\mathrm{dB}}/10}.
+\]
+
+香农上限是存在性上限。它说明“存在某种编码可以逼近这个速率”，但不说具体怎么编。实际系统用纠错码和更高阶的调制去逼近它。
+
+两个上限同时存在时，实际速率取较小者。奈奎斯特管的是码元能排多密，香农管的是在噪声下每个码元能可靠携带多少信息。噪声大时香农先卡住，噪声小时奈奎斯特的 $2W$ 先卡住。
+
 \begin{center}
-\begin{tikzpicture}[font=\scriptsize]
-  \draw[help lines] (-2,-2) grid (2,2);
-  \draw[->,thick] (-2.4,0) -- (2.4,0) node[below,font=\scriptsize]{同相分量 $I$};
-  \draw[->,thick] (0,-2.4) -- (0,2.4) node[left,font=\scriptsize]{正交分量 $Q$};
-  \foreach \x in {-1.5,-0.5,0.5,1.5}{
-    \foreach \y in {-1.5,-0.5,0.5,1.5}{
-      \fill[Teal] (\x,\y) circle (2.2pt);
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth,height=6.4cm,
+  xlabel={信噪比 $10\log_{10}(S/N)$（dB）},
+  ylabel={速率（kbit/s）},
+  xmin=0,xmax=32,ymin=0,ymax=65,
+  grid=major,
+  legend style={font=\scriptsize,at={(0.02,0.98)},anchor=north west,draw=RuleGray},
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+]
+\addplot[Teal,very thick,domain=0:32,samples=200]
+  {6*ln(1+10^(x/10))/ln(2)};
+\addlegendentry{香农上限 $W=6$ kHz}
+\addplot[Amber,thick,dashed,domain=0:32] {12};
+\addlegendentry{奈奎斯特 $V=2$：12 kbit/s}
+\addplot[Burgundy,thick,dash dot,domain=0:32] {24};
+\addlegendentry{奈奎斯特 $V=4$：24 kbit/s}
+\addplot[Navy,thick,dotted,domain=0:32] {36};
+\addlegendentry{奈奎斯特 $V=8$：36 kbit/s}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+图中那条上升的曲线是香农上限，水平线是不同电平数下的奈奎斯特上限。以 $V=8$ 为例，信噪比低于约 18 dB 时曲线在 36 kbit/s 下方，噪声是瓶颈；高于这个值时曲线抬到 36 kbit/s 以上，$2W$ 成了瓶颈。实际能用的速率就是曲线和对应水平线中较低的那条。
+
+\begin{attention}
+三个常见错误：把分贝值直接代进香农公式；把 $2W$ 当成比特率；把采样定理的 $2f_{\max}$ 和奈奎斯特准则的 $2W$ 混为一谈。前者用于模拟信号采样，后者用于信道码元速率，虽然都挂着奈奎斯特的名字，却不是一回事。
+\end{attention}
+
+\subsection{数字数据的编码}
+
+假设要发送比特串 1011001。最直接的办法是高电平表示 1、低电平表示 0，这就是不归零编码（NRZ）。接收端按约定的时钟逐位采样。问题是，如果连续出现很多个 1，电平一直不变，接收端的时钟稍微偏一点，就可能多算或少算一位。为了让接收端能自己从信号里提取时钟，有了带跳变的编码。
+
+\begin{center}
+\begin{tikzpicture}[x=1.1cm,y=0.55cm,font=\scriptsize,>=stealth]
+  % 比特格子
+  \foreach \i/\b in {0/1,1/0,2/1,3/1,4/0,5/0,6/1}{
+    \draw[gray!60] (\i,9.15) rectangle ++(1,0.75);
+    \node at ({\i+0.5},9.52) {\b};
+  }
+  \node[left] at (-0.1,9.52) {数据};
+  \foreach \x in {0,...,7}{\draw[gray!35,dashed] (\x,0.3)--(\x,9.15);}
+
+  % NRZ
+  \node[left] at (-0.1,8.0) {NRZ};
+  \draw[very thick,Teal] (0,8.4)--(1,8.4)--(1,7.6)--(2,7.6)--(2,8.4)--(4,8.4)--(4,7.6)--(6,7.6)--(6,8.4)--(7,8.4);
+
+  % NRZ-I：遇 1 翻转，遇 0 保持
+  \node[left] at (-0.1,6.35) {NRZ-I};
+  \draw[very thick,Teal] (0,6.0)--(0,6.75)--(2,6.75)--(2,6.0)--(3,6.0)--(3,6.75)--(6,6.75)--(6,6.0)--(7,6.0);
+
+  % RZ
+  \node[left] at (-0.1,4.55) {RZ};
+  \draw[very thick,Amber] (0,4.2)--(0,5.0)--(0.5,5.0)--(0.5,4.2)--(2,4.2)--(2,5.0)--(2.5,5.0)--(2.5,4.2)--(3,4.2)--(3,5.0)--(3.5,5.0)--(3.5,4.2)--(6,4.2)--(6,5.0)--(6.5,5.0)--(6.5,4.2)--(7,4.2);
+
+  % Manchester：高到低=0，低到高=1
+  \node[left] at (-0.1,2.85) {曼彻斯特};
+  \draw[very thick,Burgundy] (0,2.5)--(0.5,2.5)--(0.5,3.3)--(1,3.3)--(1,2.5)--(1.5,2.5)--(1.5,3.3)--(2,3.3)--(2,2.5)--(2.5,2.5)--(2.5,3.3)--(3,3.3)--(3,2.5)--(3.5,2.5)--(3.5,3.3)--(4,3.3)--(4,2.5)--(4.5,2.5)--(4.5,3.3)--(5,3.3)--(5,2.5)--(5.5,2.5)--(5.5,3.3)--(6,3.3)--(6,2.5)--(6.5,2.5)--(6.5,3.3)--(7,3.3);
+
+  % 差分曼彻斯特：位起始有跳变=0，无跳变=1
+  \node[left] at (-0.1,1.15) {差分曼彻斯特};
+  \draw[very thick,Navy] (0,0.8)--(0,1.6)--(0.5,1.6)--(0.5,0.8)--(1,0.8)--(1,1.6)--(1.5,1.6)--(1.5,0.8)--(2,0.8)--(2.5,0.8)--(2.5,1.6)--(3,1.6)--(3.5,1.6)--(3.5,0.8)--(4,0.8)--(4,1.6)--(4.5,1.6)--(4.5,0.8)--(5,0.8)--(5,1.6)--(5.5,1.6)--(5.5,0.8)--(6,0.8)--(6.5,0.8)--(6.5,1.6)--(7,1.6);
+\end{tikzpicture}
+\end{center}
+
+这五行对应同一条比特串 1011001。竖虚线是比特边界，每行只改变电平，不改变码元的起止时刻。看曼彻斯特和差分曼彻斯特两行，每一位的中间都有一次跳变；NRZ 和 NRZ-I 在连续相同比特处没有跳变。
+
+不归零编码的规则最简单，一个比特周期内电平保持不变。它的频带利用率高，但长时间没有跳变，接收端无法从信号中提取时钟，而且连续相同比特会积累直流分量。NRZ-I 把数据放在“有没有跳变”上：每个比特开始时，遇到 1 就翻转，遇到 0 就保持。这样极性反接不影响译码，但连续多个 0 仍然没有跳变。
+
+归零编码（RZ）让每个比特中间回到零。一种常见约定是：1 用前半比特的高电平表示，后半比特回到零；0 在整个比特内保持零。它自带时钟信息，但脉冲变窄，占用带宽约为 NRZ 的两倍，编码效率低。
+
+曼彻斯特编码把跳变放在每个比特的正中间，这次跳变既当时钟又当数据。IEEE 802.3 的约定是“高到低表示 0，低到高表示 1”，有的教材反过来写，做题时以题干的约定为准。因为一个比特被拆成两个半比特的码元，曼彻斯特的波特率是数据率的两倍，编码效率只有 50\%。10BASE-T 以太网用的就是它。
+
+差分曼彻斯特编码也保证每个比特中间有跳变，但中间的跳变只负责同步；数据放在比特起始处有没有跳变上。常用约定是“起始处有跳变表示 0，无跳变表示 1”。它不依赖电平的绝对极性，抗干扰能力比曼彻斯特更强，令牌环网用过这种编码。
+
+\begin{tablebox}{几种数字编码的对比}
+\centering
+\small
+\begin{tabularx}{\linewidth}{|p{2.4cm}|p{2.0cm}|p{3.2cm}|X|}
+\hline
+编码 & 同步方式 & 带宽或波特率 & 主要特点 \\
+\hline
+NRZ & 需外部时钟 & 最窄 & 规则简单，长连相同比特会失步 \\
+NRZ-I & 靠跳变 & 较窄 & 遇 1 翻转、遇 0 保持，抗极性反转 \\
+RZ & 自带时钟 & 约为 NRZ 的 2 倍 & 每位中间回零，利于同步，效率低 \\
+曼彻斯特 & 自带时钟 & 波特率 $=2\times$ 数据率 & 每位中间必跳变，10BASE-T \\
+差分曼彻斯特 & 自带时钟 & 波特率 $=2\times$ 数据率 & 起始处跳变表示数据，抗干扰强 \\
+\hline
+\end{tabularx}
+\end{tablebox}
+
+还有一类做法是把 $m$ 位数据映射成 $n$ 位码字，用冗余码字保证码流中有足够的跳变。比如 4B/5B 把 4 bit 映射成 5 bit，再用 NRZI 或 MLT-3 发送；100BASE-FX 用 4B/5B 加 NRZI，100BASE-TX 用 4B/5B 加 MLT-3。它不属于上面几种“逐位波形”编码，但目的相同：让接收端容易恢复时钟。
+
+\subsection{数字数据的调制}
+
+电话线只能传 300--3400 Hz 左右的模拟信号。要把数字比特送上去，就得把比特“骑”到一个高频载波上，这叫调制；接收端把载波上的变化还原成比特，叫解调。完成这两件事的设备是调制解调器（Modem）。
+
+\begin{center}
+\begin{tikzpicture}[x=1.45cm,y=1.0cm,font=\scriptsize,>=stealth]
+  \foreach \i/\b in {0/1,1/0,2/1,3/1}{
+    \draw[gray!60] (\i,3.75) rectangle ++(1,0.5);
+    \node at ({\i+0.5},4.0) {\b};
+    \draw[gray!35,dashed] (\i,0)--(\i,3.75);
+  }
+  \draw[gray!35,dashed] (4,0)--(4,3.75);
+
+  % ASK
+  \node[left] at (-0.08,2.8) {ASK};
+  \foreach \i/\b in {0/1,1/0,2/1,3/1}{
+    \ifnum\b=1
+      \draw[thick,Teal,domain=\i:\i+1,samples=45] plot (\x,{2.8+0.42*sin(deg(2*pi*4*(\x-\i)))});
+    \else
+      \draw[thick,Teal] (\i,2.8)--(\i+1,2.8);
+    \fi
+  }
+
+  % FSK
+  \node[left] at (-0.08,1.5) {FSK};
+  \foreach \i/\b in {0/1,1/0,2/1,3/1}{
+    \ifnum\b=1 \def\f{5}\else\def\f{2}\fi
+    \draw[thick,Amber,domain=\i:\i+1,samples=55] plot (\x,{1.5+0.42*sin(deg(2*pi*\f*(\x-\i)))});
+  }
+
+  % PSK
+  \node[left] at (-0.08,0.2) {PSK};
+  \foreach \i/\b in {0/1,1/0,2/1,3/1}{
+    \ifnum\b=1 \def\ph{0}\else\def\ph{180}\fi
+    \draw[thick,Burgundy,domain=\i:\i+1,samples=45] plot (\x,{0.2+0.42*sin(deg(2*pi*4*(\x-\i)+\ph))});
+  }
+\end{tikzpicture}
+\end{center}
+
+三行发送同样的比特 1011，载波都工作在同一个频段。ASK 改变振幅，常见的形式是有载波表示 1、没有载波表示 0，也叫 OOK。FSK 改变频率：1 用高频，0 用低频。PSK 改变相位：1 和 0 的波形相位差 $180^\circ$，振幅和频率都不变。
+
+ASK 实现简单，但抗噪能力差，衰落和干扰都容易被误判成幅度变化。FSK 的抗噪能力比 ASK 好，实现也不复杂，低速调制解调器用过。PSK 用相位携带信息，抗噪能力更强。QPSK 取 4 个相位，每个码元带 2 bit；8-PSK 取 8 个相位，每个码元带 3 bit。
+
+QAM 同时改变振幅和相位，把星座点排在 $I/Q$ 平面上。16-QAM 有 16 个点，每个码元带 4 bit；64-QAM 有 64 个点，每个码元带 6 bit。阶数越高，同样带宽下数据率越高，但星座点之间越挤，噪声稍大就会判错。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % BPSK
+  \begin{scope}
+    \draw[->] (-1.6,0)--(1.6,0) node[right] {$I$};
+    \draw[->] (0,-1.2)--(0,1.2) node[above] {$Q$};
+    \fill[Teal] (-1,0) circle (2.4pt);
+    \fill[Teal] (1,0) circle (2.4pt);
+    \node[below] at (-1,-0.08) {0};
+    \node[below] at (1,-0.08) {1};
+    \node at (0,-1.65) {BPSK：1 bit/符号};
+  \end{scope}
+  % QPSK
+  \begin{scope}[shift={(4.3,0)}]
+    \draw[->] (-1.7,0)--(1.7,0) node[right] {$I$};
+    \draw[->] (0,-1.2)--(0,1.2) node[above] {$Q$};
+    \foreach \x/\y/\lab in {-0.75/0.75/00,0.75/0.75/01,-0.75/-0.75/10,0.75/-0.75/11}{
+      \fill[Teal] (\x,\y) circle (2.4pt);
+      \node[font=\tiny,shift={(0.22,0.18)}] at (\x,\y) {\lab};
     }
-  }
-  \node[align=center,font=\scriptsize,black!70] at (0,-3.0){16-QAM 星座图：4 振幅 $\times$ 4 相位 $=$ 16 个星座点，每码元携带 $\log_2 16 = 4$ bit};
+    \node at (0,-1.65) {QPSK：2 bit/符号};
+  \end{scope}
+  % 16-QAM
+  \begin{scope}[shift={(9.0,0)}]
+    \draw[->] (-2.0,0)--(2.0,0) node[right] {$I$};
+    \draw[->] (0,-1.6)--(0,1.6) node[above] {$Q$};
+    \foreach \x in {-1.5,-0.5,0.5,1.5}{
+      \foreach \y in {-1.5,-0.5,0.5,1.5}{
+        \fill[Teal] (\x,\y) circle (2.2pt);
+      }
+    }
+    \node at (0,-1.95) {16-QAM：4 bit/符号};
+  \end{scope}
 \end{tikzpicture}
 \end{center}
+
+每个点是一种可以发送的载波状态。BPSK 只有两个点，判决时只需要看 $I$ 的正负；QPSK 有四个点，每个点对应两位；16-QAM 排成 $4\times4$ 的网格，每个点对应四位。点与点之间越密，同样的噪声下越容易跨过判决边界，所以高阶 QAM 需要更好的信噪比。
+
+\subsection{模拟信号的数字化：PCM}
+
+声音、温度这类模拟量要进计算机，先得变成数字比特。电话网里用的是脉冲编码调制（PCM），分采样、量化、编码三步。
+
+采样是每隔 $T_s$ 取一个瞬时值。采样频率 $f_s=1/T_s$ 必须不低于信号最高频率 $f_{\max}$ 的两倍：
+\[
+f_s\ge 2f_{\max}.
+\]
+这叫采样定理。如果采样太慢，高频分量会折叠到低频，形成混叠，后面再怎么处理也恢复不回来。电话语音的最高频率按 4 kHz 算，所以采样频率取 8 kHz。
+
+量化是把采样值的幅度范围分成有限个等级。若量化位数是 $n$，就有 $2^n$ 个等级。采样值落到哪一级，就取哪一级的中心值。量化会带来误差，误差最大为半个量化间隔 $\Delta/2$。等级越多，误差越小，但每个样本占的比特也越多。
+
+语音的小信号出现得比大信号频繁。如果对大信号和小信号用同样的步长，小信号的相对误差会很大。A-law 和 $\mu$-law 用非均匀量化：小信号步长小，大信号步长大，相当于先对幅度做压缩再均匀量化。
+
+编码是把每个量化级编成 $n$ 位二进制码。一路 PCM 的速率是
+\[
+R=f_s\times n\ \text{(bit/s)}.
+\]
+电话语音用 8 kHz 采样、8 bit 量化，得到 $8000\times8=64$ kbps。
+
+\begin{center}
+\begin{tikzpicture}[x=1.15cm,y=0.8cm,font=\scriptsize,>=stealth]
+  \draw[->] (0,0)--(8.7,0) node[right] {$t$};
+  \draw[->] (0,0)--(0,6.4) node[above] {幅度};
+  \foreach \y/\lab in {0.5/0,1.5/1,2.5/2,3.5/3,4.5/4,5.5/5}{
+    \draw[gray!40,dashed] (0,\y)--(8.2,\y);
+    \node[left] at (-0.08,\y) {\lab};
+  }
+  \draw[thick,Teal,domain=0:8,samples=120] plot (\x,{3.2+2.0*sin(\x*45)});
+  \foreach \x/\q in {0/3.5,1/4.5,2/5.5,3/4.5,4/3.5,5/1.5,6/1.5,7/1.5,8/3.5}{
+    \draw[gray!55] (\x,0)--(\x,\q);
+    \fill[white] (\x,{3.2+2.0*sin(\x*45)}) circle (2.1pt);
+    \draw[Teal] (\x,{3.2+2.0*sin(\x*45)}) circle (2.1pt);
+    \fill[Burgundy] (\x,\q) circle (2.1pt);
+  }
+  \draw[Burgundy,thick] (0,3.5)--(1,3.5)--(1,4.5)--(2,4.5)--(2,5.5)--(3,5.5)--(3,4.5)--(4,4.5)--(4,3.5)--(5,3.5)--(5,1.5)--(8,1.5)--(8,3.5);
+  \draw[<->,Amber,thick] (5.08,1.5)--(5.08,1.79);
+  \node[Amber,above right] at (5.08,1.82) {量化误差};
+  \draw[<->,thick] (0,-0.35)--(1,-0.35) node[midway,below] {$T_s$};
+\end{tikzpicture}
+\end{center}
+
+连续曲线是原始模拟信号，空心圆是采样点，水平虚线是量化级，实心点是量化后的值，阶梯线是量化器的输出。采样点落在两级之间时，量化器取最近的一级，差出来的那一小段就是量化误差。
 
 \subsection{传输介质}
 
-\begin{conclusion}{常见传输介质}{transmission-media}
-\begin{tablebox}{有线传输介质对比}
+介质决定信号以什么形式、跑多远、受什么干扰。局域网和广域网常用的有线介质有双绞线、同轴电缆和光纤，无线介质则靠电磁波在空间传播。
+
+\begin{tablebox}{常用传输介质}
 \centering
-\begin{tabularx}{\linewidth}{|p{3.0cm}|p{3.8cm}|X|}
+\small
+\begin{tabularx}{\linewidth}{|p{2.1cm}|p{3.6cm}|X|p{3.4cm}|}
 \hline
-介质 & 典型使用范围 & 特点 \\
+介质 & 结构 & 优点 & 局限与场景 \\
 \hline
-双绞线 & 局域网接入 & 成本低、布线方便；性能取决于线缆类别，抗干扰能力相对较弱 \\
-同轴电缆 & 有线接入、传统总线网 & 屏蔽性较好，抗干扰能力通常优于非屏蔽双绞线 \\
-光纤（单模）& 长距离、高速骨干 & 芯径小、模间色散小，适合长距离高速传输 \\
-光纤（多模）& 较短距离园区/机房互连 & 芯径较大、光源与收发器成本通常较低，但存在模间色散 \\
+双绞线 & 两根绝缘铜线绞合，多对包在同一护套里 & 成本低、布线容易，绞合能抵消一部分干扰 & 距离短，典型网段 100 m；易受强电磁干扰；局域网接入 \\
+同轴电缆 & 内导体、绝缘层、金属屏蔽层、外护套 & 屏蔽好，抗干扰能力通常强于非屏蔽双绞线 & 笨重、成本较高；有线电视、早期总线以太网 \\
+光纤 & 纤芯、包层、涂覆层 & 带宽大、损耗低、抗电磁干扰、保密性好 & 接头和施工成本高，不能过度弯折；骨干网、长距离 \\
+无线 & 无线电波、微波或红外 & 无需布线，支持移动 & 受遮挡和干扰，频谱需要管理；无线局域网、移动通信 \\
 \hline
 \end{tabularx}
 \end{tablebox}
 
-\textbf{常见辨析：}光纤利用\textbf{全反射}原理传输；单模光纤只传播一个模式、模间色散小，多模光纤传播多个模式、存在模间色散。具体芯径、距离和速率取决于光纤与收发器标准，题目若给出参数应以题设为准。
-\end{conclusion}
+光纤利用全反射传输。光从折射率大的纤芯射向折射率小的包层，入射角大于临界角时，光全部反射回纤芯，不会漏到包层里。光纤的芯径和模式数决定了它的传输特性。
 
-\subsection{物理层设备}
+\begin{center}
+\begin{tikzpicture}[x=0.9cm,y=0.85cm,font=\scriptsize,>=stealth]
+  % 多模
+  \begin{scope}
+    \fill[SoftBlue] (0,-0.95) rectangle (7,0.95);
+    \fill[SoftTeal] (0,-0.55) rectangle (7,0.55);
+    \draw[RuleGray] (0,-0.95) rectangle (7,0.95);
+    \draw[Teal] (0,-0.55)--(7,-0.55);
+    \draw[Teal] (0,0.55)--(7,0.55);
+    \draw[Burgundy,thick] (0,0)--(0.8,0.55)--(2.2,-0.55)--(3.6,0.55)--(5.0,-0.55)--(6.2,0.55)--(7,0.2);
+    \draw[Amber,thick] (0,0)--(1.2,-0.55)--(2.6,0.55)--(4.0,-0.55)--(5.4,0.55)--(6.6,-0.2)--(7,-0.35);
+    \draw[->,Amber] (1.35,1.25)--(0.9,0.62);
+    \node[above] at (1.35,1.25) {全反射};
+    \node at (3.5,-1.35) {(a) 多模：多条路径，到达时间不同};
+  \end{scope}
+  % 单模
+  \begin{scope}[shift={(8.2,0)}]
+    \fill[SoftBlue] (0,-0.95) rectangle (7,0.95);
+    \fill[SoftTeal] (0,-0.18) rectangle (7,0.18);
+    \draw[RuleGray] (0,-0.95) rectangle (7,0.95);
+    \draw[Teal] (0,-0.18)--(7,-0.18);
+    \draw[Teal] (0,0.18)--(7,0.18);
+    \draw[Burgundy,thick,->] (0,0)--(7,0);
+    \node at (3.5,-1.35) {(b) 单模：近似一条路径，模间色散小};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
 
-\begin{conclusion}{中继器与集线器}{repeater-hub}
-\begin{itemize}
-    \item \textbf{中继器（Repeater）}：对衰减的信号进行放大和整形，延长网络覆盖距离。仅有两个端口，工作在物理层。
-    \item \textbf{集线器（Hub）}：多端口中继器。从一个端口收到的信号放大整形后广播到所有其他端口。所有端口共享同一冲突域。
-\end{itemize}
+多模光纤的芯径较大，典型为 50 或 62.5 $\mu$m，光可以在里面走多条路径。路径长短不同，到达终点的时间就不同，形成模间色散。距离越长、速率越高，前后脉冲重叠得越厉害，所以多模光纤适合机房内和园区内的短距离连接。单模光纤的芯径只有 8--10 $\mu$m 左右，只允许一个模式传播，模间色散很小，配合激光器可以传几十公里，用于骨干网和长距离线路。
 
-\textbf{5-4-3 规则（以太网）：}网络中最多 5 个网段，其中最多 4 个中继器/集线器，最多 3 个网段可以连接计算机。
-\end{conclusion}
+双绞线便宜、好布线，是局域网接入的主力。它的两根线绞在一起，外界干扰在两根线上感应出相近的电压，接收端取差值时就把干扰减掉了大半。同轴电缆的金属屏蔽层把内导体包起来，抗干扰能力更强，但线粗、接头麻烦，现在主要用有线电视。光纤不受电磁干扰，也不容易窃听，缺点是接头和光电转换器件贵，弯折半径不能太小。
 
-\subsection{408 高频考点速查}
+\subsection{信道复用}
 
-\begin{conclusion}{物理层 — 408常考点}{cn2-keypoints}
-\begin{enumerate}
-    \item \textbf{奈奎斯特 + 香农综合计算}：给定带宽、电平数 $V$、信噪比 dB，求最大数据率。
-    \item \textbf{曼彻斯特编码 vs 差分曼彻斯特}：波形图的手工绘制/识别，比特率和波特率的关系。
-    \item \textbf{物理层设备}：中继器/集线器不隔离冲突域。
-    \item \textbf{码元与比特的关系}：一个码元携带 $\log_2 V$ 比特。
-    \item \textbf{电路交换/报文交换/分组交换的时延计算}（与第 1 章交叉）。
-\end{enumerate}
-\end{conclusion}
+一条物理线路的带宽通常远大于一路信号需要的带宽。复用就是让多路信号共享同一条线路，同时不互相干扰。按划分资源的维度，常见的有频分、时分、波分和码分。
+
+频分复用（FDM）把线路的频带切成若干段，每路占一段，段与段之间留保护带，防止相邻信道串扰。所有用户同时发送，但各占不同频率。广播、有线电视、ADSL 都是这个思路。
+
+时分复用（TDM）把时间切成帧，每帧再切成时隙，每路固定占一个时隙，轮流发送。同步 TDM 的时隙是事先分好的，某一路没有数据时，它的时隙也空着，线路利用率不高。统计时分复用（STDM）按需分配时隙，有数据才占，代价是每个时隙要带地址或标识，接收端才能判断这一段属于哪一路。
+
+波分复用（WDM）是光纤上的频分复用。不同波长的光载波各自携带一路信号，用合波器合成一束送进光纤，末端再用分波器分开。密集波分复用（DWDM）把波长间隔做得很小，一根光纤可以同时传几十路甚至上百路。
+
+码分复用（CDMA）让所有用户在同一时间、同一频带内发送，靠相互正交的码片序列区分。每个比特用 $m$ 个码片表示，码片速率是比特率的 $m$ 倍。发送比特 1 时发自己的码片序列，发送比特 0 时发反码。接收端用自己的码片序列做内积，再除以码片数 $m$：本用户的信号得到 $+1$ 或 $-1$，其他正交用户的贡献为 0。
+
+比如四个站的码片序列取
+\[
+A=(1,1,1,1),\quad B=(1,-1,1,-1),\quad
+C=(1,1,-1,-1),\quad D=(1,-1,-1,1).
+\]
+任意两个不同序列的内积都是 0。把四路信号叠加后，接收端只要和某个站的码片序列做内积，就能把该站的数据分离出来，其他站的信号在运算中抵消。408 常给 8 位码片序列，做法一样，只是内积多算几项。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % FDM
+  \begin{scope}
+    \draw[->] (0,0)--(0,3.7) node[above] {$f$};
+    \draw[->] (0,0)--(5.3,0) node[right] {$t$};
+    \foreach \y/\lab/\col in {0.35/CH1/Teal!25,1.45/CH2/Amber!30,2.55/CH3/Burgundy!20}{
+      \fill[\col] (0.2,\y) rectangle (5.0,\y+0.7);
+      \draw[RuleGray] (0.2,\y) rectangle (5.0,\y+0.7);
+      \node[left] at (0.18,\y+0.35) {\lab};
+    }
+    \draw[<->] (0.2,1.05)--(0.2,1.45) node[midway,right] {保护带};
+    \node at (2.6,-0.5) {(a) FDM：按频率划分，各路同时};
+  \end{scope}
+
+  % TDM
+  \begin{scope}[shift={(7.0,0)}]
+    \draw[->] (0,0)--(6.4,0) node[right] {$t$};
+    \foreach \i/\u/\col in {0/A/Teal!30,1/B/Amber!30,2/C/Burgundy!25,3/A/Teal!30,4/B/Amber!30,5/C/Burgundy!25,6/A/Teal!30,7/B/Amber!30,8/C/Burgundy!25}{
+      \fill[\col] ({\i*0.65+0.2},1.35) rectangle ++(0.6,0.75);
+      \draw[RuleGray] ({\i*0.65+0.2},1.35) rectangle ++(0.6,0.75);
+      \node at ({\i*0.65+0.5},1.72) {\u};
+    }
+    \draw (0.2,1.2)--(0.2,1.08)--(2.1,1.08)--(2.1,1.2);
+    \draw (2.15,1.2)--(2.15,1.08)--(4.05,1.08)--(4.05,1.2);
+    \draw (4.1,1.2)--(4.1,1.08)--(6.0,1.08)--(6.0,1.2);
+    \node at (1.1,0.88) {帧 1};
+    \node at (3.05,0.88) {帧 2};
+    \node at (5.0,0.88) {帧 3};
+    \node at (3.2,-0.5) {(b) TDM：每路固定时隙，轮流发送};
+  \end{scope}
+
+  % STDM
+  \begin{scope}[shift={(0,-2.6)}]
+    \node[left] at (-0.1,0.35) {STDM};
+    \foreach \i/\u/\col in {0/A/Teal!30,1/C/Burgundy!25,2/B/Amber!30,3/A/Teal!30,4/C/Burgundy!25,5/B/Amber!30,6/A/Teal!30}{
+      \fill[\col] ({\i*0.65+0.9},0) rectangle ++(0.6,0.7);
+      \draw[RuleGray] ({\i*0.65+0.9},0) rectangle ++(0.6,0.7);
+      \node at ({\i*0.65+1.2},0.35) {\u};
+    }
+    \node[right] at (5.35,0.35) {按需分配，时隙不必固定给某一路};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
+
+左图 (a) 是频分复用：三路信号同时存在，各占一段频率，中间的空隙是保护带。(b) 是时分复用：三路轮流占时隙，每帧的排列固定为 A、B、C。最下面一行是统计时分复用，时隙按需分配，哪一路有数据就占一个，所以排列不再固定。
+
+
+\subsection{中继器与集线器}
+
+信号在介质里传得越远越弱，波形也会变圆。中继器把收到的信号重新整形、放大，再发出去。注意它是“再生”，不是简单地把模拟波形放大：它按判决门限重新产生 0 和 1，所以能把已经变形的信号恢复干净。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 再生
+  \begin{scope}
+    \draw[->] (0,0)--(6.0,0);
+    \draw[thick,Teal] (0.15,0)--(0.45,0)--(0.58,0.5)--(0.85,0.38)--(1.0,0.12)--(1.35,0.06)--(1.6,0)--(2.0,0);
+    \node[above] at (1.0,0.8) {衰减、变形};
+    \draw[fill=SoftAmber] (2.3,-0.65) rectangle (3.5,0.65);
+    \node at (2.9,0) {再生};
+    \draw[thick,Burgundy] (3.6,0)--(3.9,0)--(3.9,0.6)--(4.9,0.6)--(4.9,0)--(5.8,0);
+    \node[above] at (4.5,0.9) {整形后};
+    \node at (2.9,-1.1) {(a) 中继器重新产生比特};
+  \end{scope}
+
+  % 集线器
+  \begin{scope}[shift={(7.2,0)}]
+    \node[draw,circle,fill=SoftAmber,minimum size=0.75cm] (hub) at (2.0,0) {Hub};
+    \node[draw,circle,fill=SoftGray,minimum size=0.55cm] (A) at (3.10,1.10) {A};
+    \node[draw,circle,fill=SoftGray,minimum size=0.55cm] (B) at (0.90,1.10) {B};
+    \node[draw,circle,fill=SoftGray,minimum size=0.55cm] (C) at (0.90,-1.10) {C};
+    \node[draw,circle,fill=SoftGray,minimum size=0.55cm] (D) at (3.10,-1.10) {D};
+    \draw[thick] (hub) -- (A);
+    \draw[thick] (hub) -- (B);
+    \draw[thick] (hub) -- (C);
+    \draw[thick] (hub) -- (D);
+    \draw[dashed,Burgundy,thick] (0.05,-1.45) rectangle (3.95,1.45);
+    \node[Burgundy] at (2.0,-1.75) {(b) 所有端口在同一个冲突域};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
+
+图 (a) 左边是经过长线后幅度变小、边沿变缓的脉冲，经过中继器后重新变成干净的方波。(b) 中四个站都连在同一个集线器上，集线器把一个端口收到的比特复制到其他所有端口，四个站处于同一个冲突域，同一时刻只能有一个站发送。
+
+中继器只有两个端口，用来延长一个网段。集线器本质是多端口中继器：从一个端口收到的比特，整形后复制到所有其他端口。它不识别 MAC 地址，不缓存帧，也不隔离冲突域和广播域。所有端口共享同一段带宽，多个站同时发送就会冲突，所以共享式以太网要用 CSMA/CD。
+
+交换机不一样。交换机读出 MAC 帧头，按目的地址把帧只转发到对应端口，每个端口是一个独立的冲突域。交换机仍然不隔离广播域，广播帧会从所有端口发出去，除非划分了 VLAN。
+
+10 Mb/s 共享式以太网用集线器组网时，要遵守 5-4-3 规则：任意两个站之间最多经过 5 个网段、4 个中继器或集线器，其中最多 3 个网段可以连接计算机。中继器和集线器都不翻译协议，两端的数据率、编码方式必须一致。
+
+最后把几个常考数字放在一起：电话语音按 4 kHz 带宽、8 kHz 采样、8 bit 量化，PCM 速率为 $8\times8=64$ kbps；10BASE-T 用曼彻斯特编码，数据率 10 Mb/s，波特率 20 MBaud；双绞线网段典型最大长度 100 m；单模光纤芯径约 8--10 $\mu$m，多模光纤约 50 或 62.5 $\mu$m。
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（真题风格·选择题）} 在无噪声情况下，若某通信链路的带宽为3 kHz，采用4个相位、每个相位有4种振幅的QAM调制技术，则该通信链路的最大数据传输速率是
-\begin{center}
-\begin{tabular}{ll}
-(A) 12 kbps & (B) 24 kbps \\[6pt]
-(C) 48 kbps & (D) 96 kbps
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 4相位$\times$4振幅$=16$种信号状态，每码元$\log_2 16=4$ bit。奈奎斯特：$C_{\max}=2\times 3000\times 4=24$ kbps。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 若某通信链路的数据传输速率为2400 bps，采用4相位调制，则该链路的波特率是
-\begin{center}
-\begin{tabular}{ll}
-(A) 600 Baud & (B) 1200 Baud \\[6pt]
-(C) 4800 Baud & (D) 9600 Baud
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 4相位每码元$\log_2 4=2$ bit。波特率$=2400/2=1200$ Baud。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 某 10BaseT 网卡采用曼彻斯特编码，并约定码元中心由高电平跳变到低电平表示 1、由低电平跳变到高电平表示 0。连续 8 个码元中心的跳变方向依次为：低到高、低到高、高到低、高到低、低到高、高到低、高到低、低到高。该网卡收到的比特串是
-\begin{center}
-\begin{tabular}{ll}
-(A) 00110110 & (B) 10101101 \\[6pt]
-(C) 01010010 & (D) 11000101
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 按题目给定的约定逐位译码：低$\to$高为 0，高$\to$低为 1，得到 \texttt{00110110}。曼彻斯特编码的 0/1 跳变方向在不同约定中可能互换，作答时必须服从题设。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 若信道在无噪声情况下的极限数据传输速率不小于信噪比为30 dB条件下的极限数据传输速率，则信号的离散电平数至少是
-\begin{center}
-\begin{tabular}{ll}
-(A) 4 & (B) 8 \\[6pt]
-(C) 16 & (D) 32
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 30 dB$\Rightarrow S/N=10^{30/10}=1000$。香农：$C=W\log_2(1+1000)\approx W\times 10$。奈奎斯特：$C=2W\log_2 V$。需$2W\log_2 V\geq 10W\Rightarrow \log_2 V\geq 5\Rightarrow V\geq 32$。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 按本章约定，曼彻斯特编码用位中间的高到低跳变表示 1、低到高跳变表示 0。若将 1010 0110 编码，则第一个比特（最高位 1）的波形为
-\begin{center}
-\begin{tabular}{ll}
-(A) 前半高电平，后半低电平 & (B) 前半低电平，后半高电平 \\[6pt]
-(C) 整个位周期保持高电平 & (D) 整个位周期保持低电平
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 按题干约定，第一个比特 1 在位中间发生高$\to$低跳变，因此其前半为高电平、后半为低电平。不同教材可能采用相反映射，独立作答时应以题目约定为准。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·综合题）} 电话线路的带宽为3 kHz，信噪比为30 dB。
-\begin{enumerate}
-    \item[(1)] 根据香农定理，该信道的最大数据率是多少？
-    \item[(2)] 若采用QPSK（4种相位）调制，再根据奈奎斯特准则计算最大数据率；
-    \item[(3)] 两者为何不同？哪一个才是该信道的实际极限？
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) $S/N=10^{30/10}=1000$。$C=3000\times\log_2 1001\approx 3000\times 10=30$ kbps。
-(2) QPSK每码元$\log_2 4=2$ bit。奈奎斯特：$C=2\times 3000\times 2=12$ kbps。
-(3) 奈奎斯特是无噪声下的符号率上限，香农是有噪声下的信息率上限。取$\min(30,12)=12$ kbps为实际极限——码元数限制了上限。\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·综合题）} 收发两端相距1000 km，信号传播速率为$2\times 10^8$ m/s，数据发送速率为1 Gbps。发送方连续发送长度为1000 B的帧。
-\begin{enumerate}
-    \item[(1)] 若采用停止-等待协议，信道利用率是多少？
-    \item[(2)] 若要使信道利用率达到50\%，发送窗口至少应为多少？
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) $T_{\text{发送}}=1000\times 8/10^9=8\ \mu\text{s}$。$T_{\text{传播}}=10^6/(2\times 10^8)=5$ ms。RTT$=10$ ms。利用$=8/(8+10000)=0.08\%$。
-
-(2) 需$W\times T_{\text{发送}}\geq 0.5\times(\text{RTT}+T_{\text{发送}})\Rightarrow W\geq 0.5\times 10008/8\approx 626$。窗口至少626个帧。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
+\input{cn/exercises/chap2.tex}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item Kurose \& Ross 第1章——奈奎斯特与香农公式的直观解释和推导。
-    \item 谢希仁 第2章——物理层传输介质和编码技术。
+    \item Kurose \& Ross 第 1 章——奈奎斯特与香农公式的直观解释。
+    \item 谢希仁 第 2 章——物理层传输介质、编码与复用技术。
 \end{itemize}

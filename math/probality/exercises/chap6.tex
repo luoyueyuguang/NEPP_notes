@@ -1,0 +1,587 @@
+\section{习题}
+
+\subsection{本章速览}
+\begin{itemize}
+    \item 简单随机样本 $X_1,\ldots,X_n$ 相互独立且与总体同分布；样本观测值是把样本代入后得到的一列数。
+    \item 统计量是样本的函数，表达式中不能含任何未知参数；$\overline{X}$、$S^2$、样本矩、次序统计量都是统计量。
+    \item 对任意二阶矩存在的总体，$E(\overline{X})=\mu$，$D(\overline{X})=\sigma^2/n$，$E(S^2)=\sigma^2$（$S^2$ 的分母是 $n-1$）。
+    \item 正态总体下，$\overline{X}\sim N(\mu,\sigma^2/n)$，$\dfrac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1)$，且 $\overline{X}$ 与 $S^2$ 独立。
+    \item $\chi^2$ 分布具有可加性；若 $Z\sim N(0,1)$、$V\sim\chi^2(n)$ 且独立，则 $Z/\sqrt{V/n}\sim t(n)$；若 $V_1\sim\chi^2(n_1)$、$V_2\sim\chi^2(n_2)$ 独立，则 $\dfrac{V_1/n_1}{V_2/n_2}\sim F(n_1,n_2)$，且 $t^2(n)\sim F(1,n)$。
+    \item 连续型总体下，$F_{\max}(x)=[F(x)]^n$，$F_{\min}(x)=1-[1-F(x)]^n$；一般第 $k$ 个次序统计量的密度由二项分布求导得到。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} \textbf{（概念辨析题）} 设 $X_1,\ldots,X_n$（$n\geq 2$）是来自正态总体 $N(\mu,\sigma^2)$ 的简单随机样本，其中 $\mu,\sigma^2$ 均未知。下列各量中\textbf{不是}统计量的是 \underline{\qquad}。
+\begin{enumerate}[label=(\Alph*)]
+    \item $\overline{X}=\dfrac{1}{n}\sum_{i=1}^{n}X_i$
+    \item $S^2=\dfrac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2$
+    \item $\dfrac{X_1-\mu}{\sigma}$
+    \item $X_{(n)}-X_{(1)}$
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 统计量必须完全由样本决定，不能含有未知参数。
+
+(A) 只用到样本值；(B) 只用到样本值；(D) 是最大值与最小值之差，仍只用到样本值。它们都是统计量。
+
+(C) 中 $\mu$ 与 $\sigma$ 均未知，无法由样本算出，故不是统计量。
+
+\[
+\boxed{\text{答案：}(C)}
+\]
+\else \answerarea \fi%
+
+\textbf{2.} \textbf{（基本计算题）} 某次测量得到样本观测值
+\[
+2,\quad 3,\quad 5,\quad 7,\quad 8.
+\]
+求样本均值 $\overline{x}$、样本方差 $s^2$ 与样本二阶中心矩 $b_2$，并验证 $b_2=\dfrac{n-1}{n}s^2$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 先算均值，再把每个观测值与均值之差的平方求和。
+
+样本容量 $n=5$，样本均值
+\[
+\overline{x}=\frac{2+3+5+7+8}{5}=\frac{25}{5}=5.
+\]
+各离差平方为
+\[
+(2-5)^2=9,\quad (3-5)^2=4,\quad (5-5)^2=0,\quad (7-5)^2=4,\quad (8-5)^2=9,
+\]
+故离差平方和为 $9+4+0+4+9=26$。于是
+\[
+s^2=\frac{26}{5-1}=6.5,\qquad
+b_2=\frac{26}{5}=5.2.
+\]
+验证：
+\[
+\frac{n-1}{n}s^2=\frac{4}{5}\times 6.5=5.2=b_2.
+\]
+\[
+\boxed{\text{答案：}\ \overline{x}=5,\quad s^2=6.5,\quad b_2=5.2}
+\]
+\textbf{评注：} $B_2$ 的分母是 $n$，$S^2$ 的分母是 $n-1$，两者相差因子 $(n-1)/n$；不要混用。
+\else \answerarea \fi%
+
+\textbf{3.} \textbf{（抽样分布计算题）} 设总体 $X\sim N(10,4)$，$X_1,\ldots,X_9$ 是来自该总体的简单随机样本，$\overline{X}$ 与 $S^2$ 分别为样本均值与样本方差。求 $E(\overline{X})$、$D(\overline{X})$、$E(S^2)$、$D(S^2)$，并求 $P(\overline{X}>12)$（已知 $\Phi(3)=0.99865$）。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 正态总体下先写出 $\overline{X}$ 与 $\dfrac{(n-1)S^2}{\sigma^2}$ 的分布，再由 $\chi^2$ 分布的期望、方差反推。
+
+这里 $\mu=10$，$\sigma^2=4$，$\sigma=2$，$n=9$。
+
+由 $\overline{X}\sim N\!\left(\mu,\dfrac{\sigma^2}{n}\right)$，
+\[
+E(\overline{X})=10,\qquad D(\overline{X})=\frac{4}{9}.
+\]
+又 $\dfrac{(n-1)S^2}{\sigma^2}=\dfrac{8S^2}{4}=2S^2\sim\chi^2(8)$。$\chi^2(8)$ 的期望为 $8$、方差为 $16$，故
+\[
+E(2S^2)=8\ \Rightarrow\ E(S^2)=4,
+\]
+\[
+D(2S^2)=4D(S^2)=16\ \Rightarrow\ D(S^2)=4.
+\]
+这与公式 $D(S^2)=\dfrac{2\sigma^4}{n-1}=\dfrac{2\times 16}{8}=4$ 一致。
+
+最后
+\[
+P(\overline{X}>12)
+=P\!\left(\frac{\overline{X}-10}{2/3}>\frac{12-10}{2/3}\right)
+=P(Z>3),
+\quad Z\sim N(0,1).
+\]
+所以
+\[
+P(\overline{X}>12)=1-\Phi(3)=1-0.99865=0.00135.
+\]
+\[
+\boxed{\begin{gathered}
+\text{答案：}\ E(\overline{X})=10,\quad D(\overline{X})=\frac49,\quad E(S^2)=4,\quad D(S^2)=4,\\
+P(\overline{X}>12)=0.00135
+\end{gathered}}
+\]
+\textbf{评注：} 若总体不是正态分布，$E(S^2)=\sigma^2$ 仍成立，但 $D(S^2)$ 一般不再是 $\dfrac{2\sigma^4}{n-1}$。
+\else \answerarea \fi%
+
+\textbf{4.} \textbf{（$\chi^2$ 构造题）} 设 $X_1,\ldots,X_5$ 相互独立且均服从 $N(0,1)$。下列统计量中服从 $\chi^2(2)$ 分布的是 \underline{\qquad}。
+\begin{enumerate}[label=(\Alph*)]
+    \item $X_1^2+X_2^2+X_3^2+X_4^2+X_5^2$
+    \item $\dfrac{(X_1+X_2)^2}{2}+\dfrac{(X_3-X_4)^2}{2}$
+    \item $\dfrac{(X_1+X_2+X_3)^2}{3}+X_4^2+X_5^2$
+    \item $\dfrac{(X_1+X_2)^2}{4}+\dfrac{(X_3-X_4)^2}{4}$
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 先把每个括号内的线性组合标准化为 $N(0,1)$，再按“标准正态平方和”判断自由度；同时检查各项是否独立。
+
+(A) 是五个标准正态变量的平方和，服从 $\chi^2(5)$。
+
+(B) 因为
+\[
+\frac{X_1+X_2}{\sqrt2}\sim N(0,1),\qquad
+\frac{X_3-X_4}{\sqrt2}\sim N(0,1),
+\]
+且两者相互独立，所以
+\[
+\frac{(X_1+X_2)^2}{2}+\frac{(X_3-X_4)^2}{2}
+=\left(\frac{X_1+X_2}{\sqrt2}\right)^2
++\left(\frac{X_3-X_4}{\sqrt2}\right)^2
+\sim\chi^2(2).
+\]
+
+(C) $\dfrac{X_1+X_2+X_3}{\sqrt3}\sim N(0,1)$，故前一项为 $\chi^2(1)$，再加 $X_4^2,X_5^2$ 两个 $\chi^2(1)$，共 $\chi^2(3)$。
+
+(D) $\dfrac{(X_1+X_2)^2}{4}=\dfrac12\left(\dfrac{X_1+X_2}{\sqrt2}\right)^2$，带系数 $\dfrac12$，不是 $\chi^2$ 分布；同理第二项也带系数 $\dfrac12$。
+
+\[
+\boxed{\text{答案：}(B)}
+\]
+\else \answerarea \fi%
+
+\textbf{5.} \textbf{（次序统计量基础题）} 设总体 $X\sim U(0,\theta)$（$\theta>0$），$X_1,\ldots,X_5$ 是简单随机样本，$X_{(5)}=\max(X_1,\ldots,X_5)$。求 $X_{(5)}$ 的概率密度、$E(X_{(5)})$ 以及 $P\!\left(X_{(5)}\leq \dfrac{\theta}{2}\right)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 最大值不超过 $x$ 等价于每个样本都不超过 $x$，先求分布函数再求导。
+
+$U(0,\theta)$ 的分布函数与密度分别为
+\[
+F(x)=\frac{x}{\theta},\qquad f(x)=\frac{1}{\theta},\qquad 0<x<\theta.
+\]
+于是
+\[
+F_{(5)}(x)=P(X_{(5)}\leq x)=[F(x)]^5=\left(\frac{x}{\theta}\right)^5,\qquad 0<x<\theta.
+\]
+求导得
+\[
+f_{(5)}(x)=5\left(\frac{x}{\theta}\right)^4\cdot\frac{1}{\theta}
+=\frac{5x^4}{\theta^5},\qquad 0<x<\theta.
+\]
+因此
+\[
+E(X_{(5)})=\int_0^\theta x\cdot\frac{5x^4}{\theta^5}\,dx
+=\frac{5}{\theta^5}\cdot\frac{\theta^6}{6}
+=\frac56\theta.
+\]
+又
+\[
+P\!\left(X_{(5)}\leq\frac{\theta}{2}\right)
+=\left[F\!\left(\frac{\theta}{2}\right)\right]^5
+=\left(\frac12\right)^5=\frac{1}{32}.
+\]
+\[
+\boxed{\text{答案：}f_{(5)}(x)=\frac{5x^4}{\theta^5}\ (0<x<\theta),\quad E(X_{(5)})=\frac56\theta,\quad P\!\left(X_{(5)}\leq\frac{\theta}{2}\right)=\frac{1}{32}}
+\]
+\else \answerarea \fi%
+
+\newpage
+\subsection{综合提高题}
+
+\textbf{6.} \textbf{（证明题）} 设总体 $X$ 满足 $E(X)=\mu$，$D(X)=\sigma^2$（$\sigma^2>0$），$X_1,\ldots,X_n$ 是简单随机样本。记
+\[
+\overline{X}=\frac1n\sum_{i=1}^{n}X_i,\qquad
+S^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2,\qquad
+B_2=\frac1n\sum_{i=1}^{n}(X_i-\overline{X})^2.
+\]
+证明：
+\begin{enumerate}[label=(\arabic*)]
+    \item $E(S^2)=\sigma^2$；
+    \item $E(B_2)=\dfrac{n-1}{n}\sigma^2$。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 关键是把“对样本均值的离差平方和”分解成“对总体均值的离差平方和”减去“样本均值自身的波动”。整个证明只用到独立同分布与二阶矩存在，不需要正态假设。
+
+先证一个恒等式。由于 $\sum_{i=1}^{n}(X_i-\mu)=n(\overline{X}-\mu)$，
+\[
+\begin{aligned}
+\sum_{i=1}^{n}(X_i-\overline{X})^2
+&=\sum_{i=1}^{n}\bigl[(X_i-\mu)-(\overline{X}-\mu)\bigr]^2\\
+&=\sum_{i=1}^{n}(X_i-\mu)^2
+-2(\overline{X}-\mu)\sum_{i=1}^{n}(X_i-\mu)
++n(\overline{X}-\mu)^2\\
+&=\sum_{i=1}^{n}(X_i-\mu)^2-n(\overline{X}-\mu)^2.
+\end{aligned}
+\]
+两边取期望。由 $E(X_i-\mu)^2=\sigma^2$，
+\[
+E\sum_{i=1}^{n}(X_i-\mu)^2=n\sigma^2.
+\]
+又 $E(\overline{X})=\mu$，$D(\overline{X})=\dfrac{\sigma^2}{n}$，故
+\[
+E\bigl[n(\overline{X}-\mu)^2\bigr]=nD(\overline{X})=n\cdot\frac{\sigma^2}{n}=\sigma^2.
+\]
+于是
+\[
+E\sum_{i=1}^{n}(X_i-\overline{X})^2=n\sigma^2-\sigma^2=(n-1)\sigma^2.
+\]
+(1) 两边除以 $n-1$：
+\[
+E(S^2)=\frac{(n-1)\sigma^2}{n-1}=\sigma^2.
+\]
+(2) 两边除以 $n$：
+\[
+E(B_2)=\frac{(n-1)\sigma^2}{n}=\frac{n-1}{n}\sigma^2.
+\]
+\[
+\boxed{\text{答案：}E(S^2)=\sigma^2,\qquad E(B_2)=\frac{n-1}{n}\sigma^2}
+\]
+\textbf{评注：} 这说明 $S^2$ 是 $\sigma^2$ 的无偏估计，而 $B_2$ 是\textbf{有偏}的，偏小 $\sigma^2/n$。若把 $S^2$ 的分母误写成 $n$，就会得到有偏估计。
+\else \answerarea[8] \fi%
+
+\textbf{7.} \textbf{（两样本抽样分布）} 设 $X_1,\ldots,X_9$ 是来自 $N(\mu_1,\sigma^2)$ 的样本，$Y_1,\ldots,Y_7$ 是来自 $N(\mu_2,\sigma^2)$ 的样本，两样本相互独立。记
+\[
+S_X^2=\frac{1}{8}\sum_{i=1}^{9}(X_i-\overline{X})^2,\qquad
+S_Y^2=\frac{1}{6}\sum_{j=1}^{7}(Y_j-\overline{Y})^2,\qquad
+S_w^2=\frac{8S_X^2+6S_Y^2}{14}.
+\]
+\begin{enumerate}[label=(\arabic*)]
+    \item 求 $\dfrac{14S_w^2}{\sigma^2}$ 的分布；
+    \item 证明 $\dfrac{(\overline{X}-\overline{Y})-(\mu_1-\mu_2)}{S_w\sqrt{\frac19+\frac17}}\sim t(14)$；
+    \item 若去掉方差相等的条件，改设两总体方差分别为 $\sigma_1^2,\sigma_2^2$，求 $\dfrac{S_X^2}{S_Y^2}$ 的分布，并求 $E\!\left(\dfrac{S_X^2}{S_Y^2}\right)$。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 第 (1)(2) 问沿“两个 $\chi^2$ 相加，再按 $t$ 的定义作商”的路线；第 (3) 问用 $F$ 分布的定义与 $F$ 的期望公式。
+
+(1) 由正态总体样本方差的性质，
+\[
+\frac{8S_X^2}{\sigma^2}\sim\chi^2(8),\qquad
+\frac{6S_Y^2}{\sigma^2}\sim\chi^2(6),
+\]
+且两样本独立，故二者独立。由 $\chi^2$ 分布的可加性，
+\[
+\frac{14S_w^2}{\sigma^2}
+=\frac{8S_X^2+6S_Y^2}{\sigma^2}
+\sim\chi^2(8+6)=\chi^2(14).
+\]
+
+(2) 由样本均值的分布，
+\[
+\overline{X}-\overline{Y}\sim N\!\left(\mu_1-\mu_2,\ \sigma^2\left(\frac19+\frac17\right)\right).
+\]
+令
+\[
+U=\frac{(\overline{X}-\overline{Y})-(\mu_1-\mu_2)}
+{\sigma\sqrt{\frac19+\frac17}},
+\]
+则 $U\sim N(0,1)$。由 (1)，$V=\dfrac{14S_w^2}{\sigma^2}\sim\chi^2(14)$。由于两样本独立，$U$ 与 $V$ 相互独立。按 $t$ 分布的定义，
+\[
+T=\frac{U}{\sqrt{V/14}}
+=\frac{\dfrac{(\overline{X}-\overline{Y})-(\mu_1-\mu_2)}
+{\sigma\sqrt{\frac19+\frac17}}}
+{\sqrt{\dfrac{14S_w^2/\sigma^2}{14}}}
+=\frac{(\overline{X}-\overline{Y})-(\mu_1-\mu_2)}
+{S_w\sqrt{\frac19+\frac17}}
+\sim t(14).
+\]
+
+(3) 当两总体方差不一定相等时，
+\[
+\frac{8S_X^2}{\sigma_1^2}\sim\chi^2(8),\qquad
+\frac{6S_Y^2}{\sigma_2^2}\sim\chi^2(6),
+\]
+且二者独立。于是
+\[
+\frac{S_X^2/\sigma_1^2}{S_Y^2/\sigma_2^2}
+=\frac{\left(\dfrac{8S_X^2}{\sigma_1^2}\right)\Big/8}
+{\left(\dfrac{6S_Y^2}{\sigma_2^2}\right)\Big/6}
+\sim F(8,6).
+\]
+因此
+\[
+\frac{S_X^2}{S_Y^2}=\frac{\sigma_1^2}{\sigma_2^2}\cdot F(8,6).
+\]
+若 $F\sim F(8,6)$，则当第二自由度 $6>2$ 时 $E(F)=\dfrac{6}{6-2}=\dfrac32$，故
+\[
+E\!\left(\frac{S_X^2}{S_Y^2}\right)
+=\frac{\sigma_1^2}{\sigma_2^2}\cdot\frac32.
+\]
+\[
+\boxed{\text{答案：}(1)\ \frac{14S_w^2}{\sigma^2}\sim\chi^2(14);\quad
+(3)\ \frac{S_X^2}{S_Y^2}=\frac{\sigma_1^2}{\sigma_2^2}F(8,6),\
+E\!\left(\frac{S_X^2}{S_Y^2}\right)=\frac{3\sigma_1^2}{2\sigma_2^2}}
+\]
+\else \answerarea[8] \fi%
+
+\textbf{8.} \textbf{（次序统计量的分布）} 设总体 $X$ 为连续型随机变量，分布函数为 $F(x)$，密度为 $f(x)$，$X_1,\ldots,X_n$ 是简单随机样本，$X_{(1)}\leq\cdots\leq X_{(n)}$ 为次序统计量。
+\begin{enumerate}[label=(\arabic*)]
+    \item 证明第 $k$ 个次序统计量的分布函数为
+    \[
+    F_{(k)}(x)=\sum_{j=k}^{n}\binom{n}{j}[F(x)]^j[1-F(x)]^{n-j};
+    \]
+    \item 由此求 $X_{(k)}$ 的概率密度 $f_{(k)}(x)$；
+    \item 取 $n=5$、$k=2$，总体为 $U(0,1)$，求 $f_{(2)}(x)$、$E(X_{(2)})$ 与 $P\!\left(X_{(2)}>\dfrac12\right)$。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 事件“$X_{(k)}\leq x$”等价于“至少 $k$ 个样本观测值不超过 $x$”，其个数服从二项分布；对分布函数求导即得密度。
+
+(1) 固定 $x$，令 $N_x$ 为 $X_1,\ldots,X_n$ 中不超过 $x$ 的个数。每个样本不超过 $x$ 的概率为 $F(x)$，且各样本独立，故
+\[
+N_x\sim B\bigl(n,F(x)\bigr).
+\]
+而 $X_{(k)}\leq x$ 当且仅当 $N_x\geq k$，所以
+\[
+F_{(k)}(x)=P(N_x\geq k)
+=\sum_{j=k}^{n}\binom{n}{j}[F(x)]^j[1-F(x)]^{n-j}.
+\]
+
+(2) 对上式逐项求导。记 $F=F(x)$，利用 $F'=f$，
+\[
+F_{(k)}'(x)=\sum_{j=k}^{n}\binom{n}{j}
+\left[jF^{j-1}(1-F)^{n-j}-(n-j)F^{j}(1-F)^{n-j-1}\right]f.
+\]
+由
+\[
+j\binom{n}{j}=n\binom{n-1}{j-1},\qquad
+(n-j)\binom{n}{j}=n\binom{n-1}{j},
+\]
+第一项的求和从 $j=k$ 到 $n$ 可改写为 $i=j-1$ 从 $k-1$ 到 $n-1$；第二项的求和从 $j=k$ 到 $n-1$。两者相减，中间各项两两抵消，只剩 $i=k-1$ 这一项：
+\[
+F_{(k)}'(x)=n\binom{n-1}{k-1}[F(x)]^{k-1}[1-F(x)]^{n-k}f(x).
+\]
+即
+\[
+f_{(k)}(x)=\frac{n!}{(k-1)!(n-k)!}[F(x)]^{k-1}[1-F(x)]^{n-k}f(x).
+\]
+
+(3) 当 $n=5$、$k=2$、$X\sim U(0,1)$ 时，$F(x)=x$，$f(x)=1$（$0<x<1$），系数为
+\[
+\frac{5!}{1!\,3!}=20.
+\]
+所以
+\[
+f_{(2)}(x)=20x(1-x)^3,\qquad 0<x<1.
+\]
+求期望：
+\[
+E(X_{(2)})=\int_0^1 x\cdot 20x(1-x)^3\,dx
+=20\int_0^1 x^2(1-x)^3\,dx
+=20B(3,4).
+\]
+由 $B(3,4)=\dfrac{2!\,3!}{6!}=\dfrac{12}{720}=\dfrac1{60}$，得
+\[
+E(X_{(2)})=20\times\frac1{60}=\frac13.
+\]
+再求概率。$X_{(2)}>\dfrac12$ 等价于五个样本中至多有一个不超过 $\dfrac12$。令 $N\sim B\!\left(5,\dfrac12\right)$，则
+\[
+P\!\left(X_{(2)}>\frac12\right)=P(N\leq 1)
+=\left(\frac12\right)^5+5\left(\frac12\right)^5
+=\frac{6}{32}=\frac{3}{16}.
+\]
+\[
+\boxed{\begin{gathered}
+\text{答案：}\ f_{(k)}(x)=\frac{n!}{(k-1)!(n-k)!}[F(x)]^{k-1}[1-F(x)]^{n-k}f(x);\\
+f_{(2)}(x)=20x(1-x)^3,\quad E(X_{(2)})=\frac13,\quad P\!\left(X_{(2)}>\frac12\right)=\frac{3}{16}
+\end{gathered}}
+\]
+\textbf{评注：} $U(0,1)$ 下 $X_{(k)}\sim\mathrm{Beta}(k,n+1-k)$。本题 $X_{(2)}\sim\mathrm{Beta}(2,4)$，其均值 $\dfrac{2}{2+4}=\dfrac13$，与积分结果一致。
+\else \answerarea[10] \fi%
+
+\textbf{9.} \textbf{（样本方差的概率计算）} 设 $X_1,\ldots,X_{16}$ 是来自 $N(\mu,\sigma^2)$ 的简单随机样本，$S^2$ 为样本方差。
+\begin{enumerate}[label=(\arabic*)]
+    \item 用 $\chi^2(15)$ 的分布函数表示 $P(S^2\leq t\sigma^2)$，其中 $t>0$；
+    \item 已知 $\chi^2_{0.95}(15)=7.261$，$\chi^2_{0.90}(15)=8.547$，$\chi^2_{0.05}(15)=24.996$，其中 $\chi^2_{\alpha}(15)$ 表示上 $\alpha$ 分位数。确定 $P(S^2\leq 0.5\sigma^2)$ 所在的区间；
+    \item 求常数 $c$，使 $P(S^2>c\sigma^2)=0.05$。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 把关于 $S^2$ 的不等式等价变形为关于 $\dfrac{15S^2}{\sigma^2}$ 的不等式，再查 $\chi^2(15)$ 的分位数。
+
+正态总体下
+\[
+V=\frac{(16-1)S^2}{\sigma^2}=\frac{15S^2}{\sigma^2}\sim\chi^2(15).
+\]
+
+(1) 当 $t>0$ 时，
+\[
+P(S^2\leq t\sigma^2)
+=P\!\left(\frac{15S^2}{\sigma^2}\leq 15t\right)
+=F_{\chi^2(15)}(15t),
+\]
+其中 $F_{\chi^2(15)}$ 表示 $\chi^2(15)$ 的分布函数。
+
+(2) 取 $t=0.5$，则 $15t=7.5$。由分位数的含义，
+\[
+F_{\chi^2(15)}(7.261)=0.05,\qquad
+F_{\chi^2(15)}(8.547)=0.10.
+\]
+因为 $7.261<7.5<8.547$ 且分布函数单调不减，所以
+\[
+0.05<F_{\chi^2(15)}(7.5)<0.10.
+\]
+即
+\[
+0.05<P(S^2\leq0.5\sigma^2)<0.10.
+\]
+
+(3) 由
+\[
+P(S^2>c\sigma^2)
+=P(V>15c)=0.05,
+\]
+得 $15c$ 恰为 $\chi^2(15)$ 的上 $0.05$ 分位数：
+\[
+15c=\chi^2_{0.05}(15)=24.996.
+\]
+故
+\[
+c=\frac{24.996}{15}=1.6664.
+\]
+\[
+\boxed{\begin{gathered}
+\text{答案：}\ (1)\ P(S^2\leq t\sigma^2)=F_{\chi^2(15)}(15t);\\
+(2)\ 0.05<P(S^2\leq0.5\sigma^2)<0.10;\quad
+(3)\ c=1.6664
+\end{gathered}}
+\]
+\else \answerarea[8] \fi%
+
+\newpage
+\subsection{真题风格与综合训练}
+
+\textbf{10.} \textbf{（真题风格·选择题）} 设 $X_1,\ldots,X_n$（$n\geq 2$）是来自 $N(\mu,\sigma^2)$ 的简单随机样本，$\overline{X}$ 与 $S^2$ 分别为样本均值与样本方差。下列统计量中服从 $F(1,n-1)$ 分布的是 \underline{\qquad}。
+\begin{enumerate}[label=(\Alph*)]
+    \item $\dfrac{n(\overline{X}-\mu)^2}{\sigma^2}$
+    \item $\dfrac{n(\overline{X}-\mu)^2}{S^2}$
+    \item $\dfrac{(\overline{X}-\mu)^2}{S^2}$
+    \item $\dfrac{(n-1)(\overline{X}-\mu)^2}{S^2}$
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 正态总体下 $\overline{X}$ 与 $S^2$ 独立，把 $\overline{X}$ 标准化后平方得 $\chi^2(1)$，再与 $\chi^2(n-1)$ 作商。
+
+令
+\[
+U=\frac{\sqrt{n}(\overline{X}-\mu)}{\sigma}\sim N(0,1),\qquad
+V=\frac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1),
+\]
+且 $U$ 与 $V$ 相互独立。由 $F$ 分布的定义，
+\[
+\frac{U^2/1}{V/(n-1)}
+=\frac{\dfrac{n(\overline{X}-\mu)^2}{\sigma^2}}
+{\dfrac{(n-1)S^2/\sigma^2}{n-1}}
+=\frac{n(\overline{X}-\mu)^2}{S^2}\sim F(1,n-1).
+\]
+所以 (B) 正确。
+
+(A) 中 $U^2\sim\chi^2(1)$，不是 $F$ 分布；(C) 等于 $\dfrac1n\cdot\dfrac{n(\overline{X}-\mu)^2}{S^2}$，是 $F(1,n-1)$ 的 $\dfrac1n$ 倍；(D) 等于 $\dfrac{n-1}{n}\cdot\dfrac{n(\overline{X}-\mu)^2}{S^2}$，也是 $F(1,n-1)$ 的常数倍。三者均不服从 $F(1,n-1)$。
+
+\[
+\boxed{\text{答案：}(B)}
+\]
+\textbf{评注：} 也可由 $\dfrac{\sqrt{n}(\overline{X}-\mu)}{S}\sim t(n-1)$ 直接平方，利用 $t^2(n-1)\sim F(1,n-1)$ 得到同一结论。
+\else \answerarea[8] \fi%
+
+\textbf{11.} \textbf{（真题风格·填空题）} 设 $X_1,\ldots,X_{16}$ 是来自 $N(0,\sigma^2)$ 的简单随机样本，$\overline{X}$ 与 $S^2$ 分别为样本均值与样本方差。已知 $t_{0.025}(15)=2.131$。若
+\[
+P\!\left(\overline{X}^2\leq kS^2\right)=0.95,
+\]
+则 $k=$ \underline{\qquad}（保留四位小数）。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 先构造只含 $\overline{X}$ 与 $S^2$ 的 $F$ 统计量，再把 $P(\overline{X}^2\leq kS^2)=0.95$ 化成“$F$ 统计量不超过某分位数”。
+
+由于 $\overline{X}\sim N\!\left(0,\dfrac{\sigma^2}{16}\right)$，
+\[
+\frac{4\overline{X}}{\sigma}\sim N(0,1)
+\quad\Rightarrow\quad
+\frac{16\overline{X}^2}{\sigma^2}\sim\chi^2(1).
+\]
+又 $\dfrac{15S^2}{\sigma^2}\sim\chi^2(15)$，且两者独立，故
+\[
+W=\frac{16\overline{X}^2/\sigma^2}{15S^2/(15\sigma^2)}
+=\frac{16\overline{X}^2}{S^2}\sim F(1,15).
+\]
+事件 $\overline{X}^2\leq kS^2$ 等价于 $W\leq 16k$，所以
+\[
+P(W\leq 16k)=0.95.
+\]
+因此 $16k$ 是 $F(1,15)$ 的下 $0.95$ 分位数，即上 $0.05$ 分位数：
+\[
+16k=F_{0.05}(1,15).
+\]
+由 $F$ 分布与 $t$ 分布的关系，$F_{0.05}(1,15)=t_{0.025}^2(15)$，故
+\[
+k=\frac{t_{0.025}^2(15)}{16}
+=\frac{2.131^2}{16}
+=\frac{4.541161}{16}
+\approx0.2838.
+\]
+\[
+\boxed{\text{答案：}k\approx0.2838}
+\]
+\else \answerarea[8] \fi%
+
+\textbf{12.} \textbf{（真题风格·综合题）} 设 $X_1,\ldots,X_n$ 是来自参数为 $\lambda$（$\lambda>0$）的指数总体 $X$ 的简单随机样本，$X$ 的密度为
+\[
+f(x)=\lambda e^{-\lambda x},\qquad x>0.
+\]
+记 $X_{(1)}=\min(X_1,\ldots,X_n)$。
+\begin{enumerate}[label=(\arabic*)]
+    \item 求 $X_{(1)}$ 的分布函数与概率密度；
+    \item 求 $E(X_{(1)})$，并计算 $n=5$ 时 $P\!\left(X_{(1)}>\dfrac{1}{\lambda}\right)$（用 $e$ 表示，给出近似值）；
+    \item 证明 $2n\lambda X_{(1)}\sim\chi^2(2)$。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 最小值大于 $x$ 要求所有样本都大于 $x$；先算生存函数 $P(X_{(1)}>x)$，比直接算分布函数更快。
+
+(1) 指数总体的生存函数为 $P(X>x)=e^{-\lambda x}$（$x>0$）。由样本独立性，
+\[
+P(X_{(1)}>x)=P(X_1>x,\ldots,X_n>x)
+=\left(e^{-\lambda x}\right)^n=e^{-n\lambda x},\qquad x>0.
+\]
+因此
+\[
+F_{(1)}(x)=1-e^{-n\lambda x},\qquad x>0,
+\]
+求导得
+\[
+f_{(1)}(x)=n\lambda e^{-n\lambda x},\qquad x>0.
+\]
+即 $X_{(1)}\sim\mathrm{Exp}(n\lambda)$。
+
+(2) 由 $\mathrm{Exp}(n\lambda)$ 的期望，
+\[
+E(X_{(1)})=\frac{1}{n\lambda}.
+\]
+当 $n=5$ 时，
+\[
+P\!\left(X_{(1)}>\frac1\lambda\right)
+=e^{-5\lambda\cdot\frac1\lambda}=e^{-5}\approx0.006738.
+\]
+
+(3) 令 $Y=X_{(1)}$，则 $Y\sim\mathrm{Exp}(n\lambda)$。对 $y>0$，
+\[
+P(2n\lambda Y>y)
+=P\!\left(Y>\frac{y}{2n\lambda}\right)
+=e^{-n\lambda\cdot\frac{y}{2n\lambda}}
+=e^{-y/2}.
+\]
+而 $\chi^2(2)$ 的生存函数正是 $e^{-y/2}$（其密度为 $\dfrac12e^{-y/2}$），故
+\[
+2n\lambda X_{(1)}\sim\chi^2(2).
+\]
+\[
+\boxed{\begin{gathered}
+\text{答案：}\ (1)\ F_{(1)}(x)=1-e^{-n\lambda x},\quad f_{(1)}(x)=n\lambda e^{-n\lambda x}\ (x>0);\\
+(2)\ E(X_{(1)})=\frac{1}{n\lambda},\quad P\!\left(X_{(1)}>\frac1\lambda\right)=e^{-5}\approx0.0067;\\
+(3)\ 2n\lambda X_{(1)}\sim\chi^2(2)
+\end{gathered}}
+\]
+\textbf{评注：} 本题体现了次序统计量与 $\chi^2$ 分布的联系：最小值把 $n$ 个指数样本“压缩”为一个参数为 $n\lambda$ 的指数变量，而指数变量经尺度变换可化为 $\chi^2(2)$。
+\else \answerarea[8] \fi%

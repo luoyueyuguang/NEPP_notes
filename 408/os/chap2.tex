@@ -1,523 +1,722 @@
 \section{进程管理}
 
-\subsection{进程的概念}
+同一份 \texttt{ls} 程序，在三个终端里各运行一次，系统里就有三个进程。程序只是磁盘上的静态文件，进程则是它在某台机器上的一次执行：有自己的程序计数器、寄存器、栈和地址空间。操作系统管理 CPU，实际上就是管理这些进程——让谁上 CPU、什么时候换下来、多个进程怎样共享资源而不互相破坏。本章围绕这条主线展开。
 
-\begin{mydef}{进程}{process-def}
-进程（Process）是程序的一次执行实例。与程序的区别：
-\begin{itemize}
-    \item \textbf{程序是静态的}：存放在磁盘上的指令和数据集合。
-    \item \textbf{进程是动态的}：程序在 CPU 上的执行过程，包含程序计数器、寄存器、堆栈等运行时上下文。
-\end{itemize}
-一个程序可对应多个进程（如多个终端同时运行 \texttt{vim}）。
+\subsection{程序与进程}
+
+\begin{mydef}{进程与进程映像}{proc-def}
+程序（program）是存放在磁盘上的指令和数据集合，是被动的。进程（process）是程序的一次执行实例，是动态的，拥有运行现场。进程在内存中的那份实体称为\textbf{进程映像}（process image），通常包括代码段、数据段、堆、栈，以及内核中的进程控制块（PCB）。
 \end{mydef}
 
-\begin{conclusion}{进程的组成}{process-composition}
-进程由三部分组成：
-\begin{enumerate}
-    \item \textbf{程序段（Text/Code）}：存放 CPU 执行的指令。
-    \item \textbf{数据段（Data）}：全局变量、静态变量等。
-    \item \textbf{PCB（进程控制块）}：OS 管理进程的数据结构，包含 PID、进程状态、PC 值、寄存器现场、内存管理信息、打开文件列表等。
-\end{enumerate}
-\end{conclusion}
-
-\subsection{进程的状态与转换}
-
-\begin{conclusion}{三状态模型 + 五状态模型}{process-states}
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, circle, minimum size=1.1cm, fill=SoftBlue] (N) at (-1.4,2.6) {新建};
-\node[draw, circle, minimum size=1.1cm, fill=SoftTeal] (R) at (1.6,2.6) {就绪};
-\node[draw, circle, minimum size=1.1cm, fill=SoftAmber] (E) at (4.6,2.6) {运行};
-\node[draw, circle, minimum size=1.1cm, fill=SoftGray] (T) at (7.6,2.6) {终止};
-\node[draw, circle, minimum size=1.1cm, fill=SoftAmber!60] (B) at (4.6,0.1) {阻塞};
-\draw[->] (N) -- node[midway, above]{创建} (R);
-\draw[->] (R) -- node[midway, above]{调度} (E);
-\draw[->] (E) -- node[midway, above]{结束} (T);
-\draw[->] (E.south) -- node[right]{等待事件} (B);
-\draw[->] (B.west) to[out=155, in=-60] node[pos=0.4, below, yshift=-3pt]{事件发生} (R.south);
-\draw[->] (E.north) to[out=100, in=80] node[midway, above]{时间片完} (R.north);
-\end{tikzpicture}
-\end{center}
-
-\begin{tablebox}{进程状态说明}
-\centering
-\begin{tabular}{|l|l|l|}
-\hline
-状态 & 说明 & PCB 所在队列 \\
-\hline
-新建（New）& 进程正在创建 & — \\
-就绪（Ready）& 等待 CPU 调度 & 就绪队列 \\
-运行（Running）& 正在 CPU 上执行 & — \\
-阻塞（Blocked/Waiting）& 等待某事件（I/O 等）& 阻塞队列 \\
-终止（Terminated）& 执行完毕 & — \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-\begin{attention}
-\textbf{408 高频辨析：}
-\begin{itemize}
-    \item 就绪 $\to$ 运行：进程被调度程序（Scheduler）选中，获得 CPU。
-    \item 运行 $\to$ 就绪：时间片用完（分时系统），或被更高优先级进程抢占。
-    \item 运行 $\to$ 阻塞：主动等待某事件（如 \texttt{read()} 系统调用等待磁盘 I/O）。
-    \item \textbf{阻塞 $\to$ 运行从不直接发生}——必须先经过就绪状态。
-    \item \textbf{运行 $\to$ 就绪和运行 $\to$ 阻塞不能同时发生。}
-\end{itemize}
-\end{attention}
-
-\end{conclusion}
-\subsection{进程控制块（PCB）}
-
-\begin{conclusion}{PCB 的内容}{pcb-contents}
-\begin{tablebox}{PCB 主要字段}
-\centering
-\begin{tabular}{|l|l|}
-\hline
-字段类别 & 内容 \\
-\hline
-标识信息 & PID（进程 ID）、父进程 PPID、用户 ID \\
-处理机状态 & 通用寄存器、PC、PSW、栈指针 \\
-调度信息 & 进程状态、优先级、已等待时间 \\
-内存管理 & 基址/限长寄存器、页表指针 \\
-I/O 状态 & 打开文件表、I/O 请求队列 \\
-\hline
-\end{tabular}
-\end{tablebox}
-PCB 是 OS 感知进程存在的唯一标志——创建进程 = 创建 PCB；撤销进程 = 释放 PCB。
-\end{conclusion}
-
-\subsection{线程与多线程模型}
-
-\begin{mydef}{线程}{thread-def}
-线程（Thread）是处理机调度的基本单位。同一进程内的线程共享代码段、数据段、地址空间和打开文件，但每个线程拥有独立的线程 ID、程序计数器、寄存器组和栈。
-\end{mydef}
-
-\begin{conclusion}{进程与线程、用户线程与内核线程}{thread-models}
-\begin{itemize}
-    \item \textbf{进程}是资源分配和保护的基本单位；\textbf{线程}是 CPU 调度的基本单位。不同进程切换通常需要切换地址空间，同一进程内线程切换开销较小。
-    \item \textbf{用户级线程（ULT）：}由用户态线程库管理，内核不可见。创建、切换快，但在多对一模型中一个线程执行阻塞系统调用可能阻塞整个进程，且同一进程不能在多个 CPU 上真正并行。
-    \item \textbf{内核级线程（KLT）：}由内核管理和调度。一个线程阻塞不妨碍同进程其他线程运行，并可在多核上并行，但创建和切换开销较大。
-    \item 映射模型包括多对一、一对一和多对多；判断并行能力及阻塞影响时，必须先确定采用哪种映射。
-\end{itemize}
-\end{conclusion}
-
-\subsection{进程通信（IPC）}
-
-\begin{conclusion}{共享存储与消息传递}{ipc-methods}
-\begin{itemize}
-    \item \textbf{共享存储：}多个进程映射同一片物理内存，数据交换快，但互斥与同步由进程显式保证。
-    \item \textbf{消息传递：}通过 \texttt{send}/\texttt{receive} 交换消息，可分直接/间接通信以及阻塞/非阻塞通信；隔离性较好，但通常需要系统调用和数据复制。
-    \item \textbf{管道：}普通管道通常半双工，只能用于有亲缘关系的进程；命名管道可供无亲缘关系进程使用。管道读端在空管道上可能阻塞，写端在满管道上可能阻塞。
-\end{itemize}
-\end{conclusion}
+同一份程序可以对应多个进程，每个进程的代码段可以共享同一份只读页面，但数据、堆、栈和寄存器现场各自独立。图~2-1 画出了一个进程映像的典型布局：代码段在低地址，栈在高地址并向低地址增长，堆向高地址增长；PCB 不在用户地址空间里，而是放在内核区，由操作系统直接管理。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=1.8cm, minimum height=0.7cm] (p1) at (0,0) {进程P1};
-\node[draw, rectangle, fill=SoftGray, minimum width=1.8cm, minimum height=0.7cm] (p2) at (8.4,0) {进程P2};
-\node[draw, rectangle, fill=SoftTeal, minimum width=2.8cm, minimum height=0.6cm] (shm) at (4.2,1.5) {共享存储（同一物理内存）};
-\node[draw, rectangle, fill=SoftAmber, minimum width=2.8cm, minimum height=0.6cm] (msg) at (4.2,0) {消息传递（消息队列）};
-\node[draw, rectangle, fill=SoftBlue, minimum width=2.8cm, minimum height=0.6cm] (pipe) at (4.2,-1.5) {管道（半双工，有亲缘）};
-\draw[<->] (p1.north) -- (shm.west);
-\draw[<->] (p2.north) -- (shm.east);
-\draw[->] (p1.east) -- (msg.west);
-\draw[->] (msg.east) -- (p2.west);
-\draw[->] (p1.south) -- (pipe.west);
-\draw[->] (pipe.east) -- (p2.south);
-\node[font=\scriptsize, black!60] at (4.2,-2.35) {三种进程通信方式（IPC）};
+  \node[draw=Navy!45, rounded corners, fill=SoftTeal,
+        minimum width=3.6cm, minimum height=3.5cm] (pcb) at (0,0) {};
+  \node[font=\bfseries] at (0,1.38) {PCB（内核）};
+  \node[align=left, anchor=north west] at (-1.6,1.0)
+    {PID / 状态 / 优先级\\[2pt]
+     PC / 寄存器现场\\[2pt]
+     页表基址\\[2pt]
+     打开文件表\\[2pt]
+     调度与记账信息};
+
+  \draw[draw=Teal!35, rounded corners] (4.8,-1.35) rectangle (9.4,1.85);
+  \node[fill=SoftGray, draw=RuleGray, minimum width=4.0cm, minimum height=0.6cm]
+    (stk) at (7.1,1.42) {栈（局部变量、返回地址）};
+  \node[fill=SoftGray, draw=RuleGray, minimum width=4.0cm, minimum height=0.6cm]
+    (heap) at (7.1,0.65) {堆（动态分配）};
+  \node[fill=SoftGray, draw=RuleGray, minimum width=4.0cm, minimum height=0.6cm]
+    (dat) at (7.1,-0.12) {数据段（全局、静态变量）};
+  \node[fill=SoftGray, draw=RuleGray, minimum width=4.0cm, minimum height=0.6cm]
+    (txt) at (7.1,-0.89) {代码段（指令，只读）};
+  \node[anchor=south] at (7.1,1.92) {进程地址空间（用户态）};
+
+  \draw[->, dashed, Teal!75] (pcb.east) -- node[above, font=\tiny]{页表基址}
+    (4.8,0.25);
+  \draw[->, MutedText] (9.75,-1.05) -- (9.75,1.55);
+  \node[anchor=west, font=\tiny, text=MutedText] at (9.8,0.25) {地址增大};
 \end{tikzpicture}
+
+{\small\color{MutedText} 图 2-1\quad 进程映像与 PCB}
 \end{center}
 
-\subsection{进程调度}
+图里左边是内核中的 PCB，右边是用户态地址空间的四个主要区域。PCB 记录“这个进程是谁、现在什么状态、现场在哪里”，页表基址把它和右边的地址空间连起来。进程切换时，操作系统把当前 CPU 的 PC、寄存器和栈指针写回 PCB，再读出下一个进程的 PCB；如果两个进程不属于同一地址空间，还要切换页表。
 
-\begin{mydef}{三级调度}{three-level-scheduling}
-\begin{enumerate}
-    \item \textbf{高级调度（作业调度/长程调度）}：从外存后备队列选作业装入内存。频率低（分钟级）。\textbf{批处理系统有，分时/实时系统通常没有。}
-    \item \textbf{中级调度（内存调度/中程调度）}：将暂时不能运行的进程挂起到外存（挂起/激活），待条件满足再调回内存。涉及\textbf{交换（Swapping）}。
-    \item \textbf{低级调度（进程调度/短程调度）}：从就绪队列选进程分配 CPU。频率最高（毫秒级）。\textbf{任何 OS 都必须有。}
-\end{enumerate}
-\end{mydef}
+PCB 是操作系统感知进程存在的唯一标志。创建进程的本质是建立 PCB 并分配地址空间；撤销进程的本质是回收它占用的资源并删除 PCB。PCB 通常包含：进程标识（PID、父进程 PID、用户 ID）、处理机状态（通用寄存器、PC、PSW、栈指针）、调度信息（状态、优先级、等待时间）、内存管理信息（页表指针、基址/限长）、I/O 状态（打开文件表、设备、缓冲区）。
+
+\paragraph{创建与终止。} 类 UNIX 系统用 \texttt{fork()} 创建子进程：调用一次，返回两次——父进程得到子进程的 PID，子进程得到 0，两者从同一条语句继续执行。子进程先复制父进程的地址空间（写时复制），随后通常调用 \texttt{exec()} 用新程序替换整个映像。子进程先退出而父进程还没 \texttt{wait()} 时，子进程变成\textbf{僵尸}（zombie），PCB 和 PID 仍占着；父进程先退出时，子进程成为\textbf{孤儿}，由 \texttt{init} 或 \texttt{systemd} 收养。
+
+进程控制操作（创建、终止、阻塞、唤醒、挂起、激活）必须是\textbf{原语}：执行过程中不能被中断，否则 PCB 队列或资源计数可能处于半更新状态。实现上常用关中断或内核锁保证原子性。
+
+\subsection{进程状态：PCB 在队列间移动}
+
+进程并不是一直都能运行。它可能正在等 CPU，也可能在等磁盘、等键盘、等另一个进程释放信号量。把“为什么现在不能运行”区分开，就有了进程状态。图~2-2 是常见的五状态模型。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=0.7cm, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=2.1cm, minimum height=0.6cm] (job) at (0,0) {外存后备队列};
-\node[draw, rectangle, fill=SoftAmber, minimum width=2.1cm, minimum height=0.6cm] (high) at (2.5,0) {高级调度};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.1cm, minimum height=0.6cm] (mem) at (5.0,0) {内存就绪队列};
-\node[draw, rectangle, fill=SoftAmber, minimum width=2.1cm, minimum height=0.6cm] (low) at (7.5,0) {低级调度};
-\node[draw, rectangle, fill=SoftBlue, minimum width=2.1cm, minimum height=0.6cm] (cpu) at (10.0,0) {CPU};
-\draw[->] (job) -- (high);
-\draw[->] (high) -- (mem);
-\draw[->] (mem) -- (low);
-\draw[->] (low) -- (cpu);
-\node[draw, rectangle, fill=SoftGray, minimum width=2.1cm, minimum height=0.55cm] (swap) at (5.0,-1.3) {外存交换区};
-\draw[<->, dashed] (mem) -- (swap);
-\node[font=\scriptsize, black!60] at (5.0,-2.0) {中级调度：挂起 / 激活（交换）};
-\node[font=\scriptsize, black!60] at (5.0,1.25) {高级调度：把外存作业装入内存（批处理系统有）};
-\node[font=\scriptsize, black!60] at (8.75,0.75) {低级调度：从就绪队列选进程上 CPU（任何系统都有）};
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw=Navy!45, rounded corners, fill=SoftGray,
+        minimum width=1.9cm, minimum height=0.85cm] (new) at (0,3) {创建};
+  \node[draw=Teal!55, rounded corners, fill=SoftTeal,
+        minimum width=1.9cm, minimum height=0.85cm] (rdy) at (3.2,3) {就绪};
+  \node[draw=Amber!60, rounded corners, fill=SoftAmber,
+        minimum width=1.9cm, minimum height=0.85cm] (run) at (6.4,3) {运行};
+  \node[draw=Navy!40, rounded corners, fill=SoftGray,
+        minimum width=1.9cm, minimum height=0.85cm] (term) at (9.6,3) {终止};
+  \node[draw=Burgundy!45, rounded corners, fill=SoftGray,
+        minimum width=1.9cm, minimum height=0.85cm] (blk) at (6.4,1.0) {阻塞};
+
+  \draw[->] (new) -- node[above]{接纳} (rdy);
+  \draw[->] (rdy) -- node[above]{调度} (run);
+  \draw[->] (run) -- node[above]{结束} (term);
+  \draw[->] (run.north) to[bend left=32]
+    node[above]{时间片完 / 被抢占} (rdy.north);
+  \draw[->] (run) -- node[right]{等待事件（主动）} (blk);
+  \draw[->] (blk.west) -| node[pos=0.28, below]{事件发生} (rdy.south);
+
+  \node[font=\tiny, text=MutedText, align=left, anchor=west] at (7.9,1.0)
+    {阻塞态不在就绪队列中，\\不能被调度程序选中};
+  \node[font=\tiny, text=MutedText, align=left] at (0.2,0.25)
+    {不存在的边：就绪 $\to$ 阻塞，阻塞 $\to$ 运行};
 \end{tikzpicture}
+
+{\small\color{MutedText} 图 2-2\quad 五状态模型与合法转换}
 \end{center}
 
-\begin{conclusion}{进程调度时机}{scheduling-timing}
-\begin{itemize}
-    \item \textbf{主动放弃}：进程终止、进程主动阻塞（如 I/O 请求）。
-    \item \textbf{被动剥夺}：时间片用完、更高优先级进程就绪、中断返回时。
-\end{itemize}
-\textbf{不能进行调度的时刻：}中断处理中、OS 内核临界区中、原子操作过程中。
-\end{conclusion}
+每条边对应一个具体事件。创建完成后进程进入就绪态；调度程序从就绪队列选中它，才进入运行态。运行态的时间片用完，或者被更高优先级的进程抢占，退回就绪态——注意它并没有在等什么事件，只是暂时失去 CPU。运行态执行了 \texttt{read()} 之类的系统调用，或者执行 $P$ 操作发现资源不够，就主动进入阻塞态。阻塞的原因消失（磁盘中断到达、信号量被 $V$），进程回到就绪态，而不是直接回到运行态。
 
-\subsection{调度算法}
+两条“不存在的边”是考试常考点。就绪态没有 CPU，无法执行指令，所以不可能自己发起 I/O 或 $P$ 操作进入阻塞态；阻塞态不在就绪队列里，调度程序根本不会选它，所以不可能直接进入运行态。运行 $\to$ 就绪与运行 $\to$ 阻塞也是两回事：前者是被剥夺 CPU，后者是主动等待事件。
 
-\begin{conclusion}{经典调度算法}{scheduling-algorithms}
-\begin{tablebox}{调度算法对比}
+内存紧张时，操作系统还可能把整个进程换到外存，形成\textbf{就绪挂起}和\textbf{阻塞挂起}两个状态，这就是七状态模型。挂起的进程即使等待的事件发生，也要先被“激活”换回内存，才能参与调度。中级调度负责换出和换入，下一节还会提到。
+
+状态变化最终落实为 PCB 在队列之间的移动：就绪队列放着所有能运行的 PCB，每个设备（或每类事件）有一个等待队列。进程映像通常留在内存不动，除非被挂起。调度程序做的事，就是从就绪队列取下一个 PCB，恢复它的现场。
+
+\subsection{线程}
+
+一个进程里可以有多条执行流，这就是线程。进程仍然是资源分配和保护的基本单位，线程则是处理机调度的基本单位。图~2-3 左边画出了同一进程内线程共享和私有的部分，右边是三种用户线程到内核线程的映射。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 左：进程内共享/私有
+  \node[draw=Navy!35, rounded corners, fill=SoftGray!45,
+        minimum width=6.2cm, minimum height=4.2cm] (proc) at (3.1,0) {};
+  \node[font=\bfseries] at (3.1,1.82) {同一进程};
+  \node[font=\tiny, text=Teal!80!black] at (1.35,1.38) {共享};
+  \node[font=\tiny, text=Blue!60!black] at (4.62,1.38) {私有};
+  \draw[dashed, RuleGray] (3.2,-1.85) -- (3.2,1.25);
+
+  \node[draw=RuleGray, fill=SoftTeal, minimum width=2.0cm, minimum height=0.55cm]
+    at (1.35,0.88) {代码段};
+  \node[draw=RuleGray, fill=SoftTeal, minimum width=2.0cm, minimum height=0.55cm]
+    at (1.35,0.12) {数据段 / 堆};
+  \node[draw=RuleGray, fill=SoftTeal, minimum width=2.0cm, minimum height=0.55cm]
+    at (1.35,-0.64) {打开文件表};
+  \node[draw=RuleGray, fill=SoftTeal, minimum width=2.0cm, minimum height=0.55cm]
+    at (1.35,-1.40) {地址空间 / 页表};
+
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=1.65cm, minimum height=0.72cm,
+        align=center] at (4.62,0.88) {线程 1 栈\\PC / 寄存器};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=1.65cm, minimum height=0.72cm,
+        align=center] at (4.62,-0.22) {线程 2 栈\\PC / 寄存器};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=1.65cm, minimum height=0.72cm,
+        align=center] at (4.62,-1.32) {线程 3 栈\\PC / 寄存器};
+
+  % 右：映射模型
+  \node[font=\bfseries] at (9.6,1.82) {用户线程 $\to$ 内核线程};
+  \node[anchor=east, font=\tiny] at (7.55,1.32) {多对一};
+  \node[anchor=east, font=\tiny] at (7.55,0.02) {一对一};
+  \node[anchor=east, font=\tiny] at (7.55,-1.30) {多对多};
+
+  \node[circle, minimum size=0.20cm, fill=Teal!60, draw=Teal!60] (u11) at (8.2,1.52) {};
+  \node[circle, minimum size=0.20cm, fill=Teal!60, draw=Teal!60] (u12) at (8.2,1.17) {};
+  \node[circle, minimum size=0.20cm, fill=Teal!60, draw=Teal!60] (u13) at (8.2,0.82) {};
+  \node[draw=Navy!40, fill=SoftBlue, minimum width=0.95cm, minimum height=0.38cm] (k1) at (10.2,1.17) {};
+  \draw[->] (u11.east) -- (k1.west);
+  \draw[->] (u12.east) -- (k1.west);
+  \draw[->] (u13.east) -- (k1.west);
+
+  \node[circle, minimum size=0.20cm, fill=Teal!60, draw=Teal!60] (u21) at (8.2,0.28) {};
+  \node[circle, minimum size=0.20cm, fill=Teal!60, draw=Teal!60] (u22) at (8.2,-0.07) {};
+  \node[circle, minimum size=0.20cm, fill=Teal!60, draw=Teal!60] (u23) at (8.2,-0.42) {};
+  \node[draw=Navy!40, fill=SoftBlue, minimum width=0.95cm, minimum height=0.38cm] (k21) at (10.2,0.28) {};
+  \node[draw=Navy!40, fill=SoftBlue, minimum width=0.95cm, minimum height=0.38cm] (k22) at (10.2,-0.07) {};
+  \node[draw=Navy!40, fill=SoftBlue, minimum width=0.95cm, minimum height=0.38cm] (k23) at (10.2,-0.42) {};
+  \draw[->] (u21.east) -- (k21.west);
+  \draw[->] (u22.east) -- (k22.west);
+  \draw[->] (u23.east) -- (k23.west);
+
+  \node[circle, minimum size=0.20cm, fill=Teal!60, draw=Teal!60] (u31) at (8.2,-1.06) {};
+  \node[circle, minimum size=0.20cm, fill=Teal!60, draw=Teal!60] (u32) at (8.2,-1.41) {};
+  \node[circle, minimum size=0.20cm, fill=Teal!60, draw=Teal!60] (u33) at (8.2,-1.76) {};
+  \node[draw=Navy!40, fill=SoftBlue, minimum width=0.95cm, minimum height=0.38cm] (k31) at (10.2,-1.15) {};
+  \node[draw=Navy!40, fill=SoftBlue, minimum width=0.95cm, minimum height=0.38cm] (k32) at (10.2,-1.62) {};
+  \draw[->] (u31.east) -- (k31.west);
+  \draw[->] (u32.east) -- (k31.west);
+  \draw[->] (u33.east) -- (k32.west);
+\end{tikzpicture}
+
+{\small\color{MutedText} 图 2-3\quad 线程的共享/私有资源与三种映射模型}
+\end{center}
+
+左图中，代码、全局数据、堆、打开文件表和地址空间属于整个进程，三个线程共用；每个线程单独拥有栈、程序计数器和寄存器组。正因为栈和寄存器私有，线程切换时只需保存/恢复这一小部分现场；又因为地址空间共享，线程之间传数据不需要经过内核。
+
+右图是三种映射。多对一把多个用户线程映射到一个内核线程：切换在用户态完成，很快；但一个线程执行阻塞系统调用，内核看到的是整个进程阻塞，其他线程也动不了，而且同一时刻只能用一个 CPU 核。一对一把每个用户线程对应一个内核线程：一个线程阻塞不影响同进程其他线程，也能真正并行；代价是创建和切换都要陷入内核。多对多把多个用户线程复用到较少的内核线程上，兼顾并行和开销，但实现最复杂。
+
+用户级线程由线程库管理，内核不可见；内核级线程由内核调度。判断“一个线程阻塞会不会拖住整个进程”“能不能在多核上并行”时，必须先看采用的是哪种映射，不能只背“线程比进程轻”这一句话。
+
+\subsection{进程通信}
+
+进程有独立的地址空间，不能像同一进程的线程那样直接读写对方的变量。操作系统提供三种常见方式，图~2-4 画出了它们的数据通路。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw=Navy!35, rounded corners, fill=SoftGray,
+        minimum width=1.8cm, minimum height=5.3cm, align=center] (p1) at (0,0)
+    {进程\\$P_1$};
+  \node[draw=Navy!35, rounded corners, fill=SoftGray,
+        minimum width=1.8cm, minimum height=5.3cm, align=center] (p2) at (14,0)
+    {进程\\$P_2$};
+
+  \node[draw=Teal!45, rounded corners, fill=SoftTeal,
+        minimum width=5.4cm, minimum height=0.65cm] (shm) at (7.0,2.05)
+    {共享存储区（同一物理页）};
+  \draw[<->] (p1.east |- shm.west) -- node[above, font=\tiny]{映射} (shm.west);
+  \draw[<->] (shm.east) -- node[above, font=\tiny]{映射} (p2.west |- shm.east);
+  \node[font=\tiny, text=MutedText] at (7.0,2.65) {读写不经过内核，但顺序要自己同步};
+
+  \draw[draw=RuleGray, dashed, rounded corners] (2.35,-2.15) rectangle (11.65,0.95);
+  \node[anchor=north west, font=\tiny, text=MutedText] at (2.5,0.82) {内核};
+
+  \node[draw=Amber!55, rounded corners, fill=SoftAmber,
+        minimum width=4.6cm, minimum height=0.6cm] (mq) at (7.0,-0.15) {消息队列};
+  \node[draw=Amber!55, rounded corners, fill=SoftAmber,
+        minimum width=4.6cm, minimum height=0.6cm] (pipe) at (7.0,-1.35)
+    {管道缓冲区（半双工）};
+
+  \draw[->] (p1.east |- mq.west) -- node[above, font=\tiny]{send} (mq.west);
+  \draw[->] (mq.east) -- node[above, font=\tiny]{receive} (p2.west |- mq.east);
+  \draw[->] (p1.east |- pipe.west) -- node[above, font=\tiny]{write} (pipe.west);
+  \draw[->] (pipe.east) -- node[above, font=\tiny]{read} (p2.west |- pipe.east);
+
+  \node[font=\tiny, text=MutedText, align=center] at (7.0,-2.55)
+    {消息和管道数据先复制进内核缓冲区，需要系统调用};
+\end{tikzpicture}
+
+{\small\color{MutedText} 图 2-4\quad 共享存储、消息队列与管道}
+\end{center}
+
+共享存储最快，因为两个进程的页表指向同一组物理页，读写就是普通的内存访问；代价是没有任何天然的互斥，双方必须自己用信号量或互斥量保护共享数据。消息传递通过 \texttt{send}/\texttt{receive} 交换消息，数据要从发送方复制到内核、再复制到接收方，开销更大，但隔离性好，也适合跨机器通信。消息传递可以分直接通信（指定对方进程）和间接通信（通过邮箱），还可以分阻塞和非阻塞：阻塞发送要等消息被取走或放进缓冲区，非阻塞发送放得下就返回。
+
+管道是内核中的字节流缓冲区，\texttt{pipe()} 返回读端和写端两个文件描述符。普通管道是半双工的，通常只能用于有亲缘关系的进程；命名管道（FIFO）有文件名，可以让无亲缘关系的进程打开。管道为空时，读操作阻塞（只要还有写端打开）；管道满时，写操作阻塞。管道不保留消息边界，写入的多个字节可能被读端分几次读走。
+
+\subsection{处理机调度}
+
+进程数量通常多于 CPU 数量，调度决定谁先上 CPU。按发生频率和对象，调度分成三级，图~2-5 把它们和队列画在一起。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  box/.style={draw=RuleGray, rounded corners, fill=SoftGray,
+              minimum width=1.9cm, minimum height=0.6cm, align=center}]
+  \node[box] (jobq) at (0,2.2) {外存后备队列};
+  \node[box, fill=SoftAmber] (high) at (2.7,2.2) {高级调度};
+  \node[box, fill=SoftTeal] (readyq) at (5.5,2.2) {内存就绪队列};
+  \node[box, fill=SoftAmber] (low) at (8.3,2.2) {低级调度};
+  \node[box, fill=SoftBlue] (cpu) at (11.1,2.2) {CPU};
+
+  \draw[->] (jobq) -- (high);
+  \draw[->] (high) -- (readyq);
+  \draw[->] (readyq) -- (low);
+  \draw[->] (low) -- (cpu);
+
+  \node[box] (blk) at (5.5,0.2) {阻塞队列};
+  \node[box] (swapq) at (0,0.2) {外存挂起队列};
+
+  \draw[->] (cpu.south) |- node[pos=0.72, above]{等待事件} (blk.east);
+  \draw[->] (blk.north) -- node[right]{事件发生} (readyq.south);
+  \draw[<->] (readyq.west) -- node[below, pos=0.55]{中级调度：换出 / 换入} (swapq.east);
+
+  \node[font=\tiny, text=MutedText, align=center] at (2.7,1.55)
+    {作业级\\频率最低};
+  \node[font=\tiny, text=MutedText, align=center] at (8.3,1.55)
+    {进程级\\毫秒级\\任何系统都有};
+\end{tikzpicture}
+
+{\small\color{MutedText} 图 2-5\quad 三级调度与进程队列}
+\end{center}
+
+高级调度（作业调度）决定哪些外存作业被装入内存，频率最低，批处理系统才有；分时和实时系统通常没有这一级。中级调度（内存调度）在内存紧张时把进程换出到外存，条件合适再换入，对应挂起和激活。低级调度（进程调度）从就绪队列选一个进程上 CPU，频率最高，任何操作系统都必须有。图里还可以看到，阻塞队列和就绪队列不是一回事：进程等 I/O 时在阻塞队列，事件发生后 PCB 才被移到就绪队列。
+
+需要调度的情况有：进程运行结束；进程主动阻塞；时间片用完；更高优先级进程到达；中断处理结束返回时发现有更高优先级进程就绪。中断处理程序内部通常不切换进程，调度发生在中断返回之前；内核临界区或原子操作过程中也不调度，否则队列和计数器可能被破坏。
+
+\paragraph{调度指标。} 设进程 $i$ 的到达时间为 $A_i$，运行时间为 $B_i$，完成时间为 $C_i$，第一次获得 CPU 的时刻为 $F_i$。
+
+\begin{formula}{调度指标}{sched-metrics}
+\[
+T_i=C_i-A_i,\qquad W_i=T_i-B_i,\qquad
+\text{带权周转}=\frac{T_i}{B_i},\qquad
+\text{响应时间}=F_i-A_i.
+\]
+平均周转时间为 $\frac1n\sum_i T_i$，平均带权周转为 $\frac1n\sum_i T_i/B_i$。等待时间只统计进程在就绪队列中等待 CPU 的时间，不包括阻塞等待 I/O 的时间；响应时间强调“第一次被服务”有多快，适合交互系统。
+\end{formula}
+
+\paragraph{先来先服务（FCFS）。} 按到达顺序服务，非抢占。实现简单，但会出现护航效应：一个长 CPU 作业排在前面，后面的短作业和 I/O 作业都要等，CPU 和 I/O 设备可能交替空闲。
+
+\paragraph{短作业优先（SJF）。} 每次选运行时间最短的作业，非抢占。在所有作业同时可用的前提下，SJF 使平均等待时间最短；但长作业可能一直排不上，发生饥饿。实际系统无法预知运行时间，只能用历史数据做指数平均来预测。
+
+\paragraph{最短剩余时间优先（SRTF）。} SJF 的抢占版：新作业到达时，如果它的运行时间比当前进程的剩余时间还短，就抢占 CPU。它能使平均等待/周转时间更短，但调度更频繁，长作业同样可能饥饿。
+
+\paragraph{高响应比优先（HRRN）。} 非抢占，每次选响应比最大的作业：
+\[
+R=\frac{\text{等待时间}+\text{要求服务时间}}{\text{要求服务时间}}
+=1+\frac{\text{等待时间}}{\text{要求服务时间}}.
+\]
+短作业的 $R$ 天然较大，长作业等待越久 $R$ 也越大，因此兼顾了短作业优先和先来先服务，缓解饥饿。代价是每次调度都要重新计算所有等待作业的响应比。
+
+\paragraph{时间片轮转（RR）。} 就绪队列按 FIFO 排列，每个进程最多运行一个时间片 $q$，用完就放到队尾。$q$ 太大，退化为 FCFS；$q$ 太小，上下文切换的开销占比过高。RR 公平、响应快，适合分时系统，但不区分作业长短，平均周转时间不一定好。
+
+\paragraph{优先级调度。} 每个进程有优先级，可选抢占或非抢占。静态优先级实现简单，但低优先级进程可能饥饿；动态优先级可以根据等待时间调整，老化（aging）就是每等一段时间提高优先级。
+
+\paragraph{多级队列与多级反馈队列。} 多级队列把就绪进程分到几个固定队列，队列之间优先级固定，队列内部可以 RR；进程一般不跨队列，低优先级队列可能饥饿。多级反馈队列允许进程在队列之间移动：新进程进最高优先级队列，时间片用完就降级，低优先级队列的时间片更长；定期把所有进程提升回高优先级队列，防止饥饿。它不需要预知运行时间，能近似短作业优先，是通用操作系统中很常用的一类策略。
+
+图~2-6 用同一组作业比较四种策略。作业为 $P_1$（0 ms 到达，运行 6 ms）、$P_2$（1 ms 到达，运行 4 ms）、$P_3$（2 ms 到达，运行 2 ms），RR 的时间片 $q=2$ ms。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.95cm]
+  % 时间轴
+  \draw[->] (-0.2,-2.75) -- (12.4,-2.75) node[right]{时间/ms};
+  \foreach \t in {0,...,12} {
+    \draw (\t,-2.75) -- (\t,-2.83);
+  }
+  \foreach \t in {0,2,4,6,8,10,12} {
+    \node[below, font=\tiny] at (\t,-2.83) {\t};
+  }
+
+  % FCFS
+  \node[anchor=east] at (-0.15,0.5) {FCFS};
+  \fill[SoftBlue] (0,0.32) rectangle (6,0.68);
+  \node[font=\tiny] at (3,0.5) {$P_1$};
+  \fill[SoftAmber] (6,0.32) rectangle (10,0.68);
+  \node[font=\tiny] at (8,0.5) {$P_2$};
+  \fill[SoftTeal] (10,0.32) rectangle (12,0.68);
+  \node[font=\tiny] at (11,0.5) {$P_3$};
+
+  % SJF
+  \node[anchor=east] at (-0.15,-0.4) {SJF};
+  \fill[SoftBlue] (0,-0.58) rectangle (6,-0.22);
+  \node[font=\tiny] at (3,-0.4) {$P_1$};
+  \fill[SoftTeal] (6,-0.58) rectangle (8,-0.22);
+  \node[font=\tiny] at (7,-0.4) {$P_3$};
+  \fill[SoftAmber] (8,-0.58) rectangle (12,-0.22);
+  \node[font=\tiny] at (10,-0.4) {$P_2$};
+
+  % SRTF
+  \node[anchor=east] at (-0.15,-1.3) {SRTF};
+  \fill[SoftBlue] (0,-1.48) rectangle (1,-1.12);
+  \node[font=\tiny] at (0.5,-1.3) {$P_1$};
+  \fill[SoftAmber] (1,-1.48) rectangle (2,-1.12);
+  \node[font=\tiny] at (1.5,-1.3) {$P_2$};
+  \fill[SoftTeal] (2,-1.48) rectangle (4,-1.12);
+  \node[font=\tiny] at (3,-1.3) {$P_3$};
+  \fill[SoftAmber] (4,-1.48) rectangle (7,-1.12);
+  \node[font=\tiny] at (5.5,-1.3) {$P_2$};
+  \fill[SoftBlue] (7,-1.48) rectangle (12,-1.12);
+  \node[font=\tiny] at (9.5,-1.3) {$P_1$};
+
+  % RR q=2
+  \node[anchor=east] at (-0.15,-2.2) {RR, $q=2$};
+  \fill[SoftBlue] (0,-2.38) rectangle (2,-2.02);
+  \node[font=\tiny] at (1,-2.2) {$P_1$};
+  \fill[SoftAmber] (2,-2.38) rectangle (4,-2.02);
+  \node[font=\tiny] at (3,-2.2) {$P_2$};
+  \fill[SoftBlue] (4,-2.38) rectangle (6,-2.02);
+  \node[font=\tiny] at (5,-2.2) {$P_1$};
+  \fill[SoftTeal] (6,-2.38) rectangle (8,-2.02);
+  \node[font=\tiny] at (7,-2.2) {$P_3$};
+  \fill[SoftAmber] (8,-2.38) rectangle (10,-2.02);
+  \node[font=\tiny] at (9,-2.2) {$P_2$};
+  \fill[SoftBlue] (10,-2.38) rectangle (12,-2.02);
+  \node[font=\tiny] at (11,-2.2) {$P_1$};
+\end{tikzpicture}
+
+{\small\color{MutedText} 图 2-6\quad 同一组作业在 FCFS、SJF、SRTF、RR 下的甘特图}
+\end{center}
+
+横轴是时间，每一行是一种调度策略，色块表示当前运行的进程。FCFS 让 $P_3$ 一直等到 10 ms 才开始；SJF 在 $P_1$ 结束后先做较短的 $P_3$；SRTF 在 1 ms 和 2 ms 两次抢占，使 $P_3$ 在 4 ms 就完成；RR 每 2 ms 换一次，公平但把长作业切得很碎。把完成时间代入指标公式，得到表~2-1。
+
+\begin{tablebox}{表 2-1\quad 同一组作业的调度结果}
 \centering
-\resizebox{\linewidth}{!}{\begin{tabular}{|l|c|c|c|c|}
-\hline
-算法 & 抢占 & 饥饿 & 优点 & 缺点 \\
-\hline
-FCFS & 否 & 无 & 简单公平 & 护航效应 \\
-SJF/SPF & 否 & 可能 & 平均等待时间最短 & 长作业饥饿 \\
-SRTF & 是 & 可能 & 最优平均等待 & 实现复杂 \\
-HRRN & 否 & 无 & 折中方案 & — \\
-RR & 是 & 无 & 公平 & $q$ 太大$\to$FCFS, 太小$\to$开销 \\
-优先级 & 可配置 & 可能 & 灵活 & 低优先级饥饿 \\
-多级队列 & 是 & 视实现 & 分类调度 & — \\
-多级反馈队列 & 是 & 可防 & 自适应, 综合最佳 & 参数配置复杂 \\
-\hline
-\end{tabular}}
+\begin{tabular}{lcccc}
+\toprule
+策略 & 完成时间 $(C_1,C_2,C_3)$ & 平均周转/ms & 平均带权周转 & 特点 \\
+\midrule
+FCFS & $(6,10,12)$ & $8.33$ & $2.75$ & 简单，短作业吃亏 \\
+SJF  & $(6,12,8)$  & $7.67$ & $2.25$ & 需预知运行时间 \\
+SRTF & $(12,7,4)$  & $6.67$ & $1.50$ & 抢占，长作业可能饥饿 \\
+RR, $q=2$ & $(12,10,8)$ & $9.00$ & $2.42$ & 公平，切换开销大 \\
+\bottomrule
+\end{tabular}
+
+{\small 表中 $C_1,C_2,C_3$ 分别是 $P_1,P_2,P_3$ 的完成时间。}
 \end{tablebox}
 
-\textbf{关键公式：}
-\begin{itemize}
-    \item \textbf{周转时间} = 完成时间 $-$ 到达时间 = 等待时间 + 运行时间
-    \item \textbf{带权周转时间} = 周转时间 / 运行时间
-    \item \textbf{响应比} $R_p = \dfrac{\text{等待时间} + \text{要求服务时间}}{\text{要求服务时间}} = 1 + \dfrac{\text{等待时间}}{\text{要求服务时间}}$
-\end{itemize}
-\end{conclusion}
+这张表说明，平均周转最短不等于“看起来最公平”。SRTF 的平均周转最好，但 $P_1$ 被反复推迟到 12 ms；RR 每个进程都有机会，长作业的完成时间却变长了。选择算法要看系统目标：批处理追求吞吐和平均周转，分时追求响应和公平，实时追求截止时间。
 
-\begin{attention}
-\textbf{408 调度算法计算题的核心：}给定进程到达时间和运行时间表，用指定算法计算平均周转时间、平均带权周转时间。\textbf{关键陷阱}：抢占式算法（SRTF、RR）需在每个进程到达时或时间片结束时重新检查。
-\end{attention}
+计算 RR 时有一个细节：时间片用完的进程放到队尾；如果同一时刻有新进程到达，新进程入队和被抢占进程入队的先后会影响结果。题目一般会说明；没有说明时，先固定一种约定再算，不要中途改变。
 
-\subsection{进程同步与互斥}
+\subsection{同步与互斥}
 
-\begin{mydef}{临界资源与临界区}{critical-section}
-\begin{itemize}
-    \item \textbf{临界资源}：一次仅允许一个进程访问的共享资源（如打印机、共享变量）。
-    \item \textbf{临界区（Critical Section）}：进程中访问临界资源的代码段。
-    \item \textbf{互斥}：任何时刻最多一个进程进入临界区。
-    \item \textbf{同步}：多个进程按特定顺序执行（如生产者-消费者）。
-\end{itemize}
-\textbf{临界区使用原则：}空闲让进、忙则等待、有限等待、让权等待。
-\end{mydef}
+先看一个最简单的竞争例子。两个进程共享一个全局变量 \texttt{count}，都执行 \texttt{count++}。机器级上这不是一条指令，而是“读 \texttt{count} 到寄存器、加 1、写回内存”三步。如果进程 $P_1$ 读到 0 后被切换，$P_2$ 也读到 0，各自加 1 写回，最后 \texttt{count} 还是 1，一次更新丢了。这类错误取决于执行时序，称为竞态条件（race condition）。
 
-\begin{conclusion}{互斥的软硬件实现与管程}{mutual-exclusion-methods}
-\begin{itemize}
-    \item \textbf{软件方法：}Peterson 算法利用 \texttt{flag[]} 与 \texttt{turn} 实现两个进程互斥，满足互斥、空闲让进和有限等待，但依赖严格的内存读写顺序。
-    \item \textbf{硬件原子指令：}\texttt{TestAndSet}、\texttt{Swap}/\texttt{Exchange}、CAS 可构造自旋锁。等待者持续占用 CPU，适合等待很短的场景；长时间等待应阻塞让权。
-    \item \textbf{关中断：}只适合内核在单处理器上保护极短临界区，不适合用户进程，也不能单独解决多处理器之间的互斥。
-    \item \textbf{管程（Monitor）：}把共享数据和对其操作封装在一起，保证任一时刻至多一个进程在管程内活动；条件变量配合 \texttt{wait}/\texttt{signal} 实现条件同步。
-\end{itemize}
-\end{conclusion}
-
-\subsection{信号量（Semaphore）与 PV 操作}
-
-\begin{mydef}{信号量}{semaphore}
-Dijkstra 提出的同步原语：
-\begin{itemize}
-    \item \textbf{整型信号量}：一个整数变量 $S$，只能通过 P/V（或 wait/signal）操作访问。
-    \item \textbf{记录型信号量}：在整型基础上增加等待队列（进程链表），实现\textbf{让权等待}（阻塞而非忙等）。
-\end{itemize}
+访问共享资源的代码段称为\textbf{临界区}。进程进入临界区前要申请许可，离开时释放：
 
 \begin{lstlisting}[language=C]
-// P 操作（wait / down / proberen）：申请资源
-void P(semaphore *S) {
-    S->value--;
-    if (S->value < 0) block(S->queue);  // 无可用资源，阻塞
-}
-
-// V 操作（signal / up / verhogen）：释放资源
-void V(semaphore *S) {
-    S->value++;
-    if (S->value <= 0) wakeup(S->queue); // 有等待进程，唤醒
+while (1) {
+    entry_section();      // 申请进入
+    critical_section();   // 访问共享资源
+    exit_section();       // 释放
+    remainder_section();  // 其余工作
 }
 \end{lstlisting}
 
-\textbf{信号量值的含义}（记录型信号量）：
-\begin{itemize}
-    \item $S.\text{value} > 0$：表示还有 $S.\text{value}$ 个可用资源。
-    \item $S.\text{value} = 0$：无可用资源且无等待进程。
-    \item $S.\text{value} < 0$：$|S.\text{value}|$ 是阻塞队列中等待的进程数。
-\end{itemize}
-\end{mydef}
+一个好的临界区管理方案要满足四条：空闲让进（没有进程在临界区时，申请者应能进入）、忙则等待（已有进程在临界区时，其他进程必须等待）、有限等待（申请者不能无限期等待）、让权等待（进不去时应阻塞让出 CPU，而不是忙等）。前三条保证正确性，第四条是效率要求；自旋锁不满足让权等待，但仍然可以是正确的。
 
-\begin{conclusion}{经典同步问题}{sync-problems}
-\begin{enumerate}
-    \item \textbf{生产者-消费者（有界缓冲区）}：
-    \begin{lstlisting}[language=C]
-semaphore mutex = 1;       // 缓冲区互斥
-semaphore empty = N;       // 空位数
-semaphore full  = 0;       // 产品数
-    \end{lstlisting}
-    
-    \item \textbf{读者-写者问题}：读者优先 vs 写者优先 vs 公平竞争。核心是\textbf{第一个读者负责加锁，最后一个读者负责解锁}。
-    
-    \item \textbf{哲学家进餐}：5 个哲学家 5 根筷子。死锁预防方案：(1) 最多允许 4 个哲学家同时进餐；(2) 奇数号先拿左筷、偶数号先拿右筷；(3) 只有两根筷子都可用时才拿起。
-\end{enumerate}
-\end{conclusion}
+\paragraph{Peterson 算法。} 两个进程的软件互斥方案，共享 \texttt{flag[2]} 和 \texttt{turn}：
+
+\begin{lstlisting}[language=C]
+bool flag[2] = {false, false};
+int turn = 0;
+// 进程 i，另一个进程 j = 1 - i
+flag[i] = true;       // 我想进
+turn = j;             // 如果对方也想进，先让对方进
+while (flag[j] && turn == j) ;   // 忙等
+/* critical section */
+flag[i] = false;      // 我退出
+\end{lstlisting}
+
+\texttt{flag[i]} 表示进程 $i$ 想进入，\texttt{turn} 用来在双方同时想进时决定谁先进。只要对方不想进，或者 \texttt{turn} 指向自己，就可以进入；离开时把自己的 \texttt{flag} 置假。它满足互斥、空闲让进和有限等待，但等待方式是忙等，不满足让权等待。考试模型默认顺序一致性；真实多核上还需要内存屏障，这里不展开。
+
+\paragraph{硬件原子指令。} \texttt{TestAndSet} 返回锁的旧值并把锁置为 \texttt{true}，整个过程不可分割：
+
+\begin{lstlisting}[language=C]
+bool TestAndSet(bool *lock) {
+    bool old = *lock;
+    *lock = true;
+    return old;
+}
+// 加锁
+while (TestAndSet(&lock)) ;
+/* critical section */
+*lock = false;
+\end{lstlisting}
+
+\texttt{Swap} 或 \texttt{Exchange} 把 \texttt{lock} 和局部变量 \texttt{key} 交换，也能构造自旋锁。原子指令适合多核、临界区很短的场景；等待时间长时，自旋会白烧 CPU，应该阻塞。关中断是单处理器内核保护极短临界区的办法：关中断期间不会被切换，但用户进程不能用它，多处理器上关一个核的中断也挡不住其他核。
+
+\paragraph{信号量。} 信号量是一个只能通过 $P$、$V$ 操作访问的整数。记录型信号量还带一个等待队列，图~2-7 画出了 $P$、$V$ 对值和队列的影响。
+
+\begin{lstlisting}[language=C]
+// P(S)：申请一个资源
+P(S) {
+    S.value--;
+    if (S.value < 0) block(S.queue);   // 没有资源，阻塞并排队
+}
+// V(S)：释放一个资源
+V(S) {
+    S.value++;
+    if (S.value <= 0) wakeup(S.queue); // 队列里还有人，唤醒队首
+}
+\end{lstlisting}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[anchor=east] at (-0.2,2.4) {初始：};
+  \node[draw=Teal!45, rounded corners, fill=SoftTeal,
+        minimum width=1.9cm, minimum height=0.65cm] (v1) at (1.4,2.4) {$S.value=1$};
+  \node[anchor=west] at (2.7,2.4) {队列空，1 个资源可用};
+
+  \node[anchor=east] at (-0.2,0.9) {$P_1$ 执行 $P(S)$：};
+  \node[draw=Amber!45, rounded corners, fill=SoftAmber,
+        minimum width=1.9cm, minimum height=0.65cm] (v2) at (1.4,0.9) {$S.value=0$};
+  \node[anchor=west] at (2.7,0.9) {资源被 $P_1$ 占用，无等待者};
+
+  \node[anchor=east] at (-0.2,-0.6) {$P_2,P_3$ 再执行 $P(S)$：};
+  \node[draw=Burgundy!40, rounded corners, fill=Burgundy!10,
+        minimum width=1.9cm, minimum height=0.65cm] (v3) at (1.4,-0.6) {$S.value=-2$};
+  \node[draw=RuleGray, rounded corners, fill=SoftGray,
+        minimum width=0.95cm, minimum height=0.5cm] (q31) at (4.2,-0.6) {$P_2$};
+  \node[draw=RuleGray, rounded corners, fill=SoftGray,
+        minimum width=0.95cm, minimum height=0.5cm] (q32) at (5.35,-0.6) {$P_3$};
+  \node[anchor=west, font=\tiny] at (5.95,-0.6) {队首在左，2 个进程阻塞};
+
+  \node[anchor=east] at (-0.2,-2.1) {$P_1$ 执行 $V(S)$：};
+  \node[draw=Amber!45, rounded corners, fill=SoftAmber,
+        minimum width=1.9cm, minimum height=0.65cm] (v4) at (1.4,-2.1) {$S.value=-1$};
+  \node[draw=RuleGray, rounded corners, fill=SoftGray,
+        minimum width=0.95cm, minimum height=0.5cm] (q41) at (4.2,-2.1) {$P_3$};
+  \node[anchor=west, font=\tiny] at (4.85,-2.1) {唤醒 $P_2$，$P_2$ 转就绪};
+
+  \draw[->] (v1.south) -- node[right, font=\tiny]{申请} (v2.north);
+  \draw[->] (v2.south) -- node[right, font=\tiny]{继续申请} (v3.north);
+  \draw[->] (v3.south) -- node[right, font=\tiny]{释放} (v4.north);
+\end{tikzpicture}
+
+{\small\color{MutedText} 图 2-7\quad 记录型信号量的值、等待队列与 $P/V$ 的影响}
+\end{center}
+
+初值 1 表示有一个资源。$P_1$ 执行 $P$ 后值变为 0，顺利进入；$P_2$、$P_3$ 再执行 $P$，值依次变为 $-1$、$-2$，它们被阻塞并按顺序排队。此时 $|S.value|=2$ 正好是等待进程数。$P_1$ 执行 $V$ 后值从 $-2$ 变到 $-1$，仍然小于等于 0，说明队列里还有人，于是唤醒队首 $P_2$；$P_3$ 继续等待。如果 $V$ 后值变成正数，说明没有等待者，资源重新可用。
+
+因此，记录型信号量满足 $S.value>0$ 时表示可用资源数；$S.value=0$ 时没有可用资源且没有等待者；$S.value<0$ 时 $|S.value|$ 是等待队列长度。$P$ 可能阻塞，$V$ 不会阻塞；$P$、$V$ 本身必须原子执行。
+
+\paragraph{用信号量实现互斥与同步。} 互斥信号量初值为 1，进入临界区前 $P$，离开后 $V$：
+
+\begin{lstlisting}[language=C]
+semaphore mutex = 1;
+P(mutex);
+/* critical section */
+V(mutex);
+\end{lstlisting}
+
+同步信号量初值为 0，用来约束先后次序。若要求“$A$ 做完某件事后 $B$ 才能做”，就让 $A$ 在事后执行 $V(S)$，$B$ 在事前执行 $P(S)$。$B$ 先跑到 $P(S)$ 时会阻塞，直到 $A$ 发出 $V$。互斥量的 $P/V$ 通常由同一进程成对执行；同步信号量的 $P/V$ 则分属不同进程。
+
+\subsection{经典同步问题}
+
+\paragraph{生产者-消费者。} 有界缓冲区容量为 $N$，生产者放数据，消费者取数据。需要三个信号量：\texttt{empty} 表示空位数，初值 $N$；\texttt{full} 表示数据个数，初值 0；\texttt{mutex} 保护缓冲区的读写指针和内容，初值 1。
+
+\begin{lstlisting}[language=C]
+semaphore empty = N, full = 0, mutex = 1;
+
+Producer() {
+    while (1) {
+        item = produce();
+        P(empty);          // 先确认有空位
+        P(mutex);          // 再锁住缓冲区
+        put(item);
+        V(mutex);
+        V(full);           // 数据数加 1
+    }
+}
+
+Consumer() {
+    while (1) {
+        P(full);           // 先确认有数据
+        P(mutex);
+        item = get();
+        V(mutex);
+        V(empty);          // 空位数加 1
+        consume(item);
+    }
+}
+\end{lstlisting}
+
+图~2-8 画出了环形缓冲区的状态：8 个槽中已有 3 个数据，\texttt{in} 指向下一个空槽，\texttt{out} 指向最早的数据，因此 \texttt{empty}=5、\texttt{full}=3。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \foreach \i in {0,...,7} {
+    \ifnum\i<3
+      \node[draw=RuleGray, minimum width=0.72cm, minimum height=0.72cm,
+            fill=SoftAmber] (s\i) at (\i*0.85,0) {\i};
+    \else
+      \node[draw=RuleGray, minimum width=0.72cm, minimum height=0.72cm,
+            fill=SoftGray] (s\i) at (\i*0.85,0) {\i};
+    \fi
+  }
+
+  \draw[->, thick, Amber!80!black] (2.55,1.15) -- (2.55,0.42);
+  \node[above, font=\tiny, text=Amber!80!black] at (2.55,1.15) {in（放入）};
+  \draw[->, thick, Teal!80!black] (0,-0.95) -- (0,-0.42);
+  \node[below, font=\tiny, text=Teal!80!black] at (0,-0.95) {out（取出）};
+
+  \node[draw=Teal!40, rounded corners, fill=SoftTeal, font=\tiny] at (0.7,1.95)
+    {empty $=5$};
+  \node[draw=Amber!45, rounded corners, fill=SoftAmber, font=\tiny] at (3.0,1.95)
+    {full $=3$};
+  \node[draw=RuleGray, rounded corners, fill=SoftGray, font=\tiny] at (5.0,1.95)
+    {mutex $=1$};
+
+  \node[font=\tiny, text=MutedText] at (2.9,-1.75)
+    {下标 7 之后回绕到 0；橙色为已放数据的槽};
+\end{tikzpicture}
+
+{\small\color{MutedText} 图 2-8\quad 生产者-消费者的环形缓冲区}
+\end{center}
+
+这段代码的关键是 $P$ 的顺序：必须先 $P(empty)$ 或 $P(full)$，再 $P(mutex)$。如果生产者先拿到 \texttt{mutex}，再在 \texttt{empty} 上阻塞，那么缓冲区满时它占着锁睡觉；消费者要取数据也得先拿 \texttt{mutex}，于是消费者也被阻塞，双方互相等待，形成死锁。$V$ 的顺序通常先 $V(mutex)$ 再 $V(full)$ 或 $V(empty)$：先释放锁，再唤醒对方，被唤醒的进程可以立刻进入临界区，减少一次无谓的阻塞。反过来写不影响正确性，但效率略差。
+
+\paragraph{读者-写者。} 多个读者可以同时读，读者和写者不能同时访问，写者和写者也不能同时访问。用 \texttt{readcount} 记录当前读者数，\texttt{mutex} 保护 \texttt{readcount}，\texttt{rw} 保护文件：
+
+\begin{lstlisting}[language=C]
+semaphore mutex = 1, rw = 1;
+int readcount = 0;
+
+Reader() {
+    P(mutex);
+    readcount++;
+    if (readcount == 1) P(rw);   // 第一个读者锁住文件
+    V(mutex);
+    read();
+    P(mutex);
+    readcount--;
+    if (readcount == 0) V(rw);   // 最后一个读者释放文件
+    V(mutex);
+}
+
+Writer() {
+    P(rw);
+    write();
+    V(rw);
+}
+\end{lstlisting}
+
+第一个读者负责加锁，最后一个读者负责解锁，中间的读者只改 \texttt{readcount}。这样读者之间可以并行，写者必须等所有读者离开。这个版本是读者优先：只要不断有读者到达，写者可能一直等下去。写者优先需要额外的信号量，在写者到达时阻止新读者进入；实现更复杂，也可能让读者饥饿。
+
+\paragraph{管程。} 管程把共享变量和操作这些变量的过程封装在一起，保证同一时刻只有一个进程在管程内执行，互斥由编译器或运行时自动保证，不需要程序员手写 $P/V$。条件变量用于等待某个条件成立：\texttt{wait} 释放管程锁并阻塞，\texttt{signal} 唤醒一个等待者。条件变量不是信号量，它没有计数值；如果 \texttt{signal} 时没有等待者，这个信号就丢失了，不像 $V$ 操作会把值加 1。Hoare 语义下 \texttt{signal} 立即把管程交给被唤醒者；Mesa 语义下被唤醒者只是转入就绪，等当前进程退出管程后再竞争。Java 的 \texttt{synchronized} 和 \texttt{wait/notify} 就是管程风格的同步。
 
 \subsection{死锁}
 
-\begin{mydef}{死锁的四个必要条件}{deadlock-conditions}
-\begin{enumerate}
-    \item \textbf{互斥}：资源只能互斥使用。
-    \item \textbf{持有并等待}：已占有资源的进程可继续请求新资源。
-    \item \textbf{不可剥夺}：已分配的资源不能被强制剥夺。
-    \item \textbf{循环等待}：存在进程-资源的环形等待链。
-\end{enumerate}
-\textbf{四个条件缺一不可。}
-\end{mydef}
+死锁（deadlock）是指一组进程中的每个进程都在等待一个只能由组内其他进程释放的资源，没有外力介入，谁也无法继续。比如 $P_1$ 占着打印机、等扫描仪，$P_2$ 占着扫描仪、等打印机，双方都不肯先释放。
 
-\begin{conclusion}{死锁处理策略}{deadlock-strategies}
-\begin{tablebox}{死锁处理}
+死锁同时满足四个必要条件：
+
+\begin{enumerate}
+  \item \textbf{互斥}：资源一次只能被一个进程使用；
+  \item \textbf{请求并保持}：进程已经占有一些资源，又提出新的请求，且不释放已占有的资源；
+  \item \textbf{不可剥夺}：资源只能由占有者主动释放，不能被强行抢走；
+  \item \textbf{循环等待}：存在一个进程-资源的环形等待链。
+\end{enumerate}
+
+这四个条件缺一不可，但同时成立也不一定真的死锁（多实例资源下尤其如此）。图~2-9 用资源分配图画出了两种情形。圆圈表示进程，方框表示资源，方框里的点表示实例；请求边从进程指向资源，分配边从资源指向进程（图中用虚线）。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 左：单实例死锁
+  \node[circle, draw=Navy!50, fill=SoftBlue, minimum size=0.8cm] (p1) at (0,0) {$P_1$};
+  \node[circle, draw=Navy!50, fill=SoftBlue, minimum size=0.8cm] (p2) at (3,0) {$P_2$};
+  \node[draw=Amber!55, fill=SoftAmber, minimum width=1.4cm, minimum height=0.8cm] (r1) at (1.5,1.7) {};
+  \node[draw=Amber!55, fill=SoftAmber, minimum width=1.4cm, minimum height=0.8cm] (r2) at (1.5,-1.7) {};
+  \node[font=\tiny] at (1.5,1.98) {$R_1$};
+  \node[font=\tiny] at (1.5,-1.42) {$R_2$};
+  \fill (1.5,1.62) circle (1.5pt);
+  \fill (1.5,-1.78) circle (1.5pt);
+
+  \draw[->, dashed] (r1.south west) -- (p1.north);
+  \draw[->] (p1.south east) -- (r2.west);
+  \draw[->, dashed] (r2.south east) -- (p2.north);
+  \draw[->] (p2.north west) -- (r1.east);
+  \node[font=\tiny, text=MutedText, align=center] at (1.5,-2.75)
+    {单实例：环 $\Longleftrightarrow$ 死锁};
+
+  % 右：多实例有环但可化解
+  \node[circle, draw=Navy!50, fill=SoftBlue, minimum size=0.8cm] (q1) at (7,0) {$P_1$};
+  \node[circle, draw=Navy!50, fill=SoftBlue, minimum size=0.8cm] (q2) at (10,0) {$P_2$};
+  \node[draw=Amber!55, fill=SoftAmber, minimum width=1.6cm, minimum height=0.8cm] (s1) at (8.5,1.7) {};
+  \node[draw=Amber!55, fill=SoftAmber, minimum width=1.6cm, minimum height=0.8cm] (s2) at (8.5,-1.7) {};
+  \node[font=\tiny] at (8.5,1.98) {$R_1$};
+  \node[font=\tiny] at (8.5,-1.42) {$R_2$};
+  \fill (8.35,1.62) circle (1.5pt);
+  \draw (8.7,1.62) circle (1.5pt);
+
+  \draw[->, dashed] (s1.south west) -- (q1.north);
+  \draw[->] (q1.south east) -- (s2.west);
+  \draw[->, dashed] (s2.south east) -- (q2.north);
+  \draw[->] (q2.north west) -- (s1.east);
+  \node[font=\tiny, text=MutedText, align=center] at (8.5,-2.75)
+    {多实例：有环只是必要条件};
+
+  \node[font=\tiny, text=MutedText, align=center] at (5,-3.15)
+    {实线：请求边；虚线：分配边；空心点：空闲实例};
+\end{tikzpicture}
+
+{\small\color{MutedText} 图 2-9\quad 资源分配图中的环与死锁}
+\end{center}
+
+左图每类资源只有一个实例，$P_1$ 等 $R_2$、$P_2$ 等 $R_1$，环上的每个请求都指向对方已经占着的唯一实例，无法化解，所以有环就是死锁。右图 $R_1$ 有两个实例，$P_1$ 占了一个，另一个空闲；$P_2$ 请求 $R_1$ 时可以直接拿到空闲实例，运行完后释放 $R_2$，$P_1$ 就能继续。因此图里虽然有环，系统并没有死锁。
+
+判断多实例资源是否死锁，要做\textbf{资源分配图化简}：反复找一个请求能够被当前可用资源满足的进程，假设它运行完成并释放全部资源，删去它的请求边和分配边；如果最终所有进程都能被消去，就没有死锁；剩下不能消去的进程集合就是死锁进程。化简的先后顺序不影响最终结论。
+
+\paragraph{死锁处理策略。} 表~2-2 概括了四类做法。
+
+\begin{tablebox}{表 2-2\quad 死锁的四种处理策略}
 \centering
-\begin{tabular}{|l|l|l|}
-\hline
-策略 & 时机 & 方法 \\
-\hline
-预防（Prevention）& 系统设计阶段 & 破坏四个必要条件之一 \\
-避免（Avoidance）& 运行时 & 银行家算法 \\
-检测（Detection）& 运行时 & 资源分配图化简 \\
-恢复（Recovery）& 检测后 & 终止进程或剥夺资源 \\
-\hline
+\begin{tabular}{lll}
+\toprule
+策略 & 发生时机 & 典型做法 \\
+\midrule
+预防 & 设计阶段，静态 & 破坏四个必要条件之一 \\
+避免 & 每次分配前，动态 & 银行家算法，检查是否仍安全 \\
+检测 & 运行过程中 & 资源分配图化简、等待图找环 \\
+恢复 & 检测到死锁后 & 终止进程或剥夺资源 \\
+\bottomrule
 \end{tabular}
 \end{tablebox}
 
-\textbf{银行家算法（408 高频）：} $n$ 进程、$m$ 种资源类型。数据结构：Available[m]、Max[n][m]、Allocation[n][m]、Need[n][m]（Need = Max $-$ Allocation）。安全序列：存在一个进程执行序列，使每个进程均可完成而不导致死锁。\textbf{银行家算法即检测是否存在安全序列。}
-\end{conclusion}
+\paragraph{预防。} 破坏互斥：把独占设备改造成共享服务，例如打印机假脱机，但很多资源无法这样改造。破坏请求并保持：进程运行前一次申请全部资源，或者申请新资源前先释放已占有的资源；前者资源利用率低，后者可能反复申请释放。破坏不可剥夺：允许抢占资源，被抢的进程回滚到安全点；CPU 和内存容易抢占，打印机这类设备很难。破坏循环等待：给资源编号，进程只能按编号递增的顺序申请，这样不会形成环；代价是资源申请顺序受限，可能产生不必要的等待。
 
-\subsection{408 高频考点速查}
+\paragraph{避免。} 不破坏条件，而是在每次分配前判断“分配后系统是否还安全”。安全状态是指存在一个安全序列，按这个顺序每个进程都能获得它声明的最大需求并完成。安全状态一定不会死锁；不安全状态只是可能死锁，因为进程实际请求的资源可能小于它的最大需求。银行家算法就是做这个判断。
 
-\begin{conclusion}{进程管理 — 408 常考点}{os2-keypoints}
-\begin{enumerate}
-    \item \textbf{进程状态转换}：五种状态的合法转换路径，特别是阻塞$\to$运行不合法。
-    \item \textbf{进程与线程}：资源共享范围、用户级/内核级线程的阻塞和并行能力、多线程映射模型。
-    \item \textbf{进程通信与互斥实现}：共享存储、消息传递、管道，以及 Peterson、硬件原子指令和管程。
-    \item \textbf{调度算法}：给定进程表计算平均周转时间，注意抢占 vs 非抢占的差异。
-    \item \textbf{PV 操作}：生产者-消费者、读者-写者的信号量设计和代码补全。
-    \item \textbf{银行家算法}：给定 Allocation/Max/Available 表，判断系统是否安全，列出安全序列。
-    \item \textbf{死锁必要条件}：判断场景是否会导致死锁，破坏哪个条件可预防死锁。
-\end{enumerate}
-\end{conclusion}
+设系统有 $n$ 个进程、$m$ 类资源，记录：
+\[
+Available[j]\ \text{为当前可用的 }j\text{ 类资源数},\quad
+Need[i][j]=Max[i][j]-Allocation[i][j].
+\]
+安全性检查的流程如图~2-10。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw=RuleGray, rounded corners, fill=SoftGray,
+        minimum width=5.6cm, minimum height=0.62cm, align=center] (init) at (0,0)
+    {$Work\leftarrow Available$；所有 $Finish[i]\leftarrow false$};
+  \node[draw=Teal!45, rounded corners, fill=SoftTeal,
+        minimum width=5.6cm, minimum height=0.62cm, align=center] (find) at (0,-1.15)
+    {找 $Finish[i]=false$ 且 $Need_i\le Work$ 的进程};
+  \node[draw=Amber!55, rounded corners, fill=SoftAmber,
+        minimum width=2.2cm, minimum height=0.62cm, align=center] (ask) at (0,-2.35)
+    {找到？};
+  \node[draw=Teal!45, rounded corners, fill=SoftTeal,
+        minimum width=3.7cm, minimum height=0.72cm, align=center] (upd) at (4.8,-2.35)
+    {$Work\leftarrow Work+Allocation_i$\\$Finish[i]\leftarrow true$};
+  \node[draw=Amber!55, rounded corners, fill=SoftAmber,
+        minimum width=2.4cm, minimum height=0.72cm, align=center] (all) at (0,-3.7)
+    {所有 $Finish$\\都为真？};
+  \node[draw=Teal!45, rounded corners, fill=SoftTeal,
+        minimum width=2.4cm, minimum height=0.62cm] (safe) at (3.1,-4.85) {安全};
+  \node[draw=Burgundy!40, rounded corners, fill=SoftGray,
+        minimum width=2.4cm, minimum height=0.62cm] (unsafe) at (-3.1,-4.85) {不安全};
+
+  \draw[->] (init) -- (find);
+  \draw[->] (find) -- (ask);
+  \draw[->] (ask.east) -- node[above, font=\tiny]{是} (upd.west);
+  \draw[->] (upd.north) |- (find.east);
+  \draw[->] (ask.south) -- node[right, font=\tiny]{否} (all.north);
+  \draw[->] (all.west) -| node[pos=0.25, above, font=\tiny]{否} (unsafe.north);
+  \draw[->] (all.east) -| node[pos=0.25, above, font=\tiny]{是} (safe.north);
+\end{tikzpicture}
+
+{\small\color{MutedText} 图 2-10\quad 银行家算法的安全性检查}
+\end{center}
+
+从 $Work=Available$ 开始，反复找需求不超过当前可用资源的未完成进程；找到就假设它完成，把已分配给它的资源归还到 $Work$，再继续找。如果所有进程都能完成，系统安全，这个顺序就是一个安全序列；如果还有进程未完成却找不到可推进的进程，系统不安全。安全序列通常不唯一，找到一个即可。
+
+真正分配时，还要先检查请求是否合法：$Request_i\le Need_i$ 且 $Request_i\le Available$。然后做一次试分配，修改 $Available$、$Allocation_i$、$Need_i$，再跑一遍安全性检查；安全才确认分配，不安全就回滚，让进程等待。银行家算法要求每个进程预先声明最大需求，这个条件在实际系统中很难满足，所以它更多用于理论分析和批处理场景。
+
+\paragraph{检测与恢复。} 单实例资源可以用等待图：把资源结点去掉，若 $P_i$ 等待 $P_j$ 占有的资源，就画一条 $P_i\to P_j$ 的边；图中有环就是死锁。多实例资源仍用资源分配图化简。检测本身有开销：太频繁浪费 CPU，太稀疏则死锁进程长期占着资源。
+
+恢复有两种思路。终止进程：可以一次终止所有死锁进程，简单但损失大；也可以逐个终止，直到死锁解除，代价是每次都要重新检测。剥夺资源：从某些进程手中抢走资源，分配给死锁进程，被抢的进程回滚到之前的安全点。选择牺牲者时要考虑已运行时间、还需要的资源、回滚代价，并防止同一个进程反复被选中而饥饿。
+
+\paragraph{死锁、饥饿与活锁。} 死锁一定有循环等待，组内所有进程都无法推进；饥饿没有环，进程只是长期得不到资源，系统其他部分仍在运行，理论上还有机会；活锁是进程不断重试、状态一直在变，但没有实际进展，例如两个进程反复检测到冲突后同时退让。三者都可能表现为“程序不动了”，但原因和处理方式不同。
+
+\subsection{几个容易混淆的判断}
+
+\begin{itemize}
+  \item \textbf{阻塞与挂起。} 阻塞是进程在内存中等待某个事件，事件发生就转就绪；挂起是进程被换到外存，即使事件发生，也要先激活换回内存。就绪挂起的进程不参加调度。
+  \item \textbf{死锁与饥饿。} 死锁是循环等待，组内进程永远无法推进；饥饿没有循环，只是优先级或资源分配策略导致某个进程长期得不到服务。死锁必须破坏环或剥夺资源，饥饿可以用老化缓解。
+  \item \textbf{互斥与同步。} 互斥是“同一时刻只能有一个进程访问”，同步是“按某种先后次序执行”。互斥可以看作同步的一种特例；生产者-消费者既需要互斥（缓冲区），也需要同步（空位和数据个数）。
+  \item \textbf{用户级线程的阻塞。} 在多对一模型中，一个线程执行阻塞系统调用，内核按进程阻塞，整个进程都停下；一对一或多对多模型中，其他线程可能继续运行。判断这类题必须先看映射模型。
+  \item \textbf{时间片 $q$ 的取舍。} $q$ 太大，RR 退化为 FCFS；$q$ 太小，上下文切换开销占比过高。$q$ 通常取略大于一次典型交互所需的时间。
+  \item \textbf{$P/V$ 的顺序。} 互斥场景先 $P$ 资源信号量、再 $P$ 互斥量；颠倒后可能占着锁阻塞，形成死锁。$V$ 的顺序通常先释放互斥量，再唤醒等待者。
+  \item \textbf{不安全不等于死锁。} 银行家算法判定不安全，只说明按最大需求继续分配可能进入死锁；进程实际请求较小，系统仍可能顺利完成。安全状态则一定不会死锁。
+  \item \textbf{进程切换与线程切换。} 线程切换要保存/恢复寄存器和栈，但同一进程的线程共享地址空间，不需要切换页表；进程切换通常还要换页表并处理 TLB，开销更大。
+\end{itemize}
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（真题风格·选择题）} 下列选项中，不会导致创建新进程的操作是
-\begin{center}
-\begin{tabular}{ll}
-(A) 用户登录成功 & (B) 设备分配 \\[6pt]
-(C) 启动程序执行 & (D) 以上都是
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 登录成功会创建shell进程，启动程序执行会创建新进程（fork+exec），二者都会创建新进程；设备分配不创建新进程。故“不会导致创建新进程”的是设备分配。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 下列选项中，在用户态执行的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 命令解释程序（shell）& (B) 缺页处理程序 \\[6pt]
-(C) 进程调度程序 & (D) 时钟中断处理程序
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} shell在用户态执行（通过系统调用请求内核服务）。缺页处理、进程调度、时钟中断处理都是内核态。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 若系统中有$n$个进程，则就绪队列中进程的个数最多为
-\begin{center}
-\begin{tabular}{ll}
-(A) $n$ & (B) $n-1$ \\[6pt]
-(C) $n-2$ & (D) $1$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} $n$个进程中最多1个在运行（单CPU），其余$n-1$个可以都在就绪队列。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 系统中有3个不同的临界资源$R_1,R_2,R_3$，被4个进程$P_1,P_2,P_3,P_4$共享。各进程对资源的需求为：$P_1$申请$R_1$和$R_2$，$P_2$申请$R_2$和$R_3$，$P_3$申请$R_1$和$R_3$，$P_4$申请$R_2$。若系统出现死锁，则处于死锁状态的进程数至少是
-\begin{center}
-\begin{tabular}{ll}
-(A) 1 & (B) 2 \\[6pt]
-(C) 3 & (D) 4
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 资源分配图：$P_1$持有$R_1$等$R_2$，$P_2$持有$R_2$等$R_3$，$P_3$持有$R_3$等$R_1$——形成环$P_1\to P_2\to P_3\to P_1$，涉及3个进程。$P_4$只需$R_2$，可先分配不参与死锁。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 下列调度算法中，不会导致饥饿的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 短作业优先（SJF）& (B) 优先级调度 \\[6pt]
-(C) 时间片轮转（RR）& (D) 多级反馈队列
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} SJF可能使长作业饥饿，优先级调度可能使低优先级进程饥饿。普通多级反馈队列若没有周期性优先级提升等额外机制，CPU密集型进程也可能长期得不到运行；题干没有给出这类防饥饿机制。RR按就绪队列循环分配时间片，只要时间片有限且调度持续进行，每个就绪进程都会获得CPU。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·计算题）} 有4个作业J1-J4，到达时间和所需运行时间如下表。分别计算在FCFS和SJF（非抢占）调度算法下的平均周转时间和平均带权周转时间。
-
-\begin{center}
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-作业 & J1 & J2 & J3 & J4 \\
-\hline
-到达时间 & 0 & 1 & 2 & 3 \\
-运行时间 & 8 & 4 & 9 & 5 \\
-\hline
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-\textbf{FCFS：} J1完成=8，周转=8；J2完成=12，周转=11；J3完成=21，周转=19；J4完成=26，周转=23。平均周转$=(8+11+19+23)/4=15.25$。带权：$8/8=1,11/4=2.75,19/9=2.11,23/5=4.6$，平均$=2.62$。
-
-\textbf{SJF：} 0时J1到达运行8；J1完成=8时J2-J4均已到达。选最短J2(4)运行完成=12；再选J4(5)完成=17；再选J3(9)完成=26。周转：J1=8,J2=12-1=11,J4=17-3=14,J3=26-2=24。平均$=(8+11+14+24)/4=14.25$。带权：$1,2.75,2.8,2.67$，平均$=2.30$。\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（基础题）} 同一进程内的多个线程共享下列哪项内容？
-\begin{center}
-\begin{tabular}{ll}
-(A) 程序计数器 & (B) 栈 \\[6pt]
-(C) 地址空间 & (D) 寄存器组
-\end{tabular}
-\end{center}
-\ifshowsolutions\par\noindent\textbf{解析：}线程各自拥有 PC、寄存器和栈，但共享进程的地址空间。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（基础题）} 在多对一用户级线程模型中，一个线程执行阻塞系统调用后，通常会发生什么？
-\begin{center}
-\begin{tabular}{ll}
-(A) 仅该线程阻塞 & (B) 整个进程阻塞 \\[6pt]
-(C) 所有进程阻塞 & (D) 自动转为内核线程
-\end{tabular}
-\end{center}
-\ifshowsolutions\par\noindent\textbf{解析：}内核只看到一个执行实体，阻塞系统调用会使承载这些用户线程的整个进程阻塞。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·综合题）} 三个进程P1、P2、P3互斥使用一个包含$N$个单元的缓冲区。P1每次用\texttt{produce()}生成一个正整数，并用\texttt{put()}送入缓冲区某一空单元；P2每次用\texttt{getodd()}从缓冲区取一个奇数，并用\texttt{countodd()}统计奇数个数；P3每次用\texttt{geteven()}从缓冲区取一个偶数，并用\texttt{counteven()}统计偶数个数。请用信号量实现三个进程的同步与互斥，并说明所使用信号量的含义。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-\begin{lstlisting}[language=C]
-semaphore mutex = 1;     // 缓冲区互斥
-semaphore empty = N;     // 空位数
-semaphore odd  = 0;      // 奇数个数
-semaphore even = 0;      // 偶数个数
-
-P1() {  // 生产者
-    while (1) {
-        int x = produce();
-        P(empty); P(mutex);
-        put(x);
-        V(mutex);
-        if (x % 2 == 1) V(odd);
-        else            V(even);
-    }
-}
-P2() {  // 取奇数
-    while (1) {
-        P(odd); P(mutex);
-        getodd();
-        V(mutex); V(empty);
-        countodd();
-    }
-}
-// P3类似P2，将odd改为even
-\end{lstlisting}
-四个信号量：\texttt{mutex}实现缓冲区互斥访问；\texttt{empty}表示空位数（初值$N$）；\texttt{odd/even}分别表示缓冲区中奇数/偶数个数。\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·综合题）} 某系统有A、B、C三类资源，数量分别为$(10,5,7)$。当前Allocation和Max矩阵如下，判断系统是否安全，若安全给出安全序列。
-
-\[
-\begin{array}{c|ccc|ccc}
- & \text{Allocation} & & & \text{Max} & \\
- & A & B & C & A & B & C \\
-\hline
-P0 & 0 & 1 & 0 & 7 & 5 & 3 \\
-P1 & 2 & 0 & 0 & 3 & 2 & 2 \\
-P2 & 3 & 0 & 2 & 9 & 0 & 2 \\
-P3 & 2 & 1 & 1 & 2 & 2 & 2 \\
-P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
-\end{array}
-\]
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) Need = Max $-$ Allocation：
-$P0(7,4,3)$, $P1(1,2,2)$, $P2(6,0,0)$, $P3(0,1,1)$, $P4(4,3,1)$。
-
-Available = 资源总量$-$已分配量 $=(10,5,7)-(7,2,5)=(3,3,2)$。
-
-安全序列检测：Work=(3,3,2)。
-$P1$: Need$(1,2,2)\leqslant$Work$(3,3,2)\to$P1完成，Work=(5,3,2)。
-$P3$: Need$(0,1,1)\leqslant(5,3,2)\to$P3完成，Work=(7,4,3)。
-$P0$: Need$(7,4,3)\leqslant(7,4,3)\to$P0完成，Work=(7,5,3)。
-$P2$: Need$(6,0,0)\leqslant(7,5,3)\to$P2完成，Work=(10,5,5)。
-$P4$: Need$(4,3,1)\leqslant(10,5,5)\to$P4完成。
-安全序列：P1$\to$P3$\to$P0$\to$P2$\to$P4。系统安全。\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·综合题）} 面包师问题：面包店有一个最多放$N$个面包的柜台。面包师不断烤面包放入柜台，顾客不断从柜台取面包（一次取一个）。用信号量实现同步。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-\begin{lstlisting}[language=C]
-semaphore empty = N;  // 柜台上空位数
-semaphore full  = 0;  // 柜台上面包数
-semaphore mutex = 1;  // 柜台互斥
-
-Baker() {
-    while (1) {
-        make_bread();
-        P(empty); P(mutex);
-        put_bread();
-        V(mutex); V(full);
-    }
-}
-Customer() {
-    while (1) {
-        P(full); P(mutex);
-        take_bread();
-        V(mutex); V(empty);
-        eat();
-    }
-}
-\end{lstlisting}
-\texttt{empty}控制面包师不能放入超过$N$个面包；\texttt{full}控制顾客不能从空柜台取面包；\texttt{mutex}保证对柜台的互斥访问。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
-\noindent\textbf{拓展阅读：}
-\begin{itemize}
-    \item OSTEP 第26-31章「并发」——信号量、生产者-消费者、读者-写者的完整推导和代码。
-    \item 陈海波《现代操作系统：原理与实现》第3章——同步原语的ARMv8实现细节。
-\end{itemize}
+\input{os/exercises/chap2.tex}

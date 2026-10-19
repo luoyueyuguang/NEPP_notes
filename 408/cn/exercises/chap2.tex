@@ -1,0 +1,155 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（填空题）} 某无噪声低通信道的带宽为 $4$ kHz，采用 8-PSK 调制，即用 8 种不同相位表示数据。
+（1）该信道的极限码元传输速率为\underline{\hspace{2.2cm}} Baud；
+（2）该信道的极限数据传输速率为\underline{\hspace{2.2cm}} kbps。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 奈奎斯特准则只适用于理想低通信道，且带宽要用 Hz：$W=4$ kHz $=4000$ Hz。极限码元速率 $B_{\max}=2W=8000$ Baud。8-PSK 的每个码元取 8 种相位之一，携带 $\log_2 8=3$ bit，故极限数据率 $C_{\max}=8000\times3=24000$ bps $=24$ kbps。\boxed{\text{答案：}(1)\ 8000\ \text{Baud};\ (2)\ 24\ \text{kbps}}\else \answerarea[4] \fi
+
+\vspace{8pt}
+
+\item \textbf{（填空题）} 某有噪声信道的带宽为 $5$ kHz，信号平均功率与噪声平均功率之比 $S/N=255$。
+（1）按香农定理，该信道的极限数据传输速率为\underline{\hspace{2.2cm}} kbps；
+（2）该信噪比约为\underline{\hspace{2.2cm}} dB。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 香农定理为 $C=W\log_2(1+S/N)$，其中 $S/N$ 是功率比值而非分贝值。本题已直接给出 $S/N=255$，于是 $1+S/N=256=2^8$，$C=5000\times\log_2 256=5000\times8=40000$ bps $=40$ kbps。换回分贝：$10\log_{10}255\approx 10\times2.4065\approx24$ dB。若题目给的是分贝值，必须先按 $S/N=10^{\,\mathrm{dB}/10}$ 换算。\boxed{\text{答案：}(1)\ 40\ \text{kbps};\ (2)\ \text{约}\ 24\ \text{dB}}\else \answerarea[4] \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 某 10BaseT 网卡采用曼彻斯特编码，并约定比特中间的跳变「高电平到低电平」表示 0、「低电平到高电平」表示 1（与某些教材的约定相反）。现收到连续 8 个码元，其比特中间的跳变方向依次为：高$\to$低、低$\to$高、低$\to$高、高$\to$低、高$\to$低、低$\to$高、高$\to$低、低$\to$高。该网卡收到的比特串是
+\begin{center}
+\begin{tabular}{ll}
+(A) 01100101 & (B) 10011010 \\[4pt]
+(C) 01101001 & (D) 01011010
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 曼彻斯特编码在每个比特的中间必有一次跳变，该跳变既提供时钟又承载数据；本题的对应关系由题干指定：高$\to$低 $=0$，低$\to$高 $=1$。逐位译码得 0、1、1、0、0、1、0、1，即 \texttt{01100101}。选项 (B) 是把它按「高$\to$低 $=1$」的相反约定译出的结果，属于最常见的错误；其余选项是把跳变方向对应关系打乱后的产物。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 关于传输介质，下列说法正确的是
+\begin{center}
+\begin{tabular}{p{7.2cm}p{7.2cm}}
+(A) 单模光纤芯径较细，只传输一个模式，模间色散小，适合长距离传输 & (B) 多模光纤只能使用激光器作光源，传输距离比单模光纤更远 \\[4pt]
+(C) 同轴电缆的抗电磁干扰能力弱于非屏蔽双绞线 & (D) 光纤依靠全反射传输，因此可弯曲任意角度而不产生损耗
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 正确：单模光纤芯径小（典型 $8\sim10\ \mu$m），只允许一个传输模式，模间色散小，因而传输距离远、容量大。(B) 错误：多模光纤芯径大（典型 $50$ 或 $62.5\ \mu$m），存在多个模式，模间色散大，距离反而更短；其光源通常用发光二极管（LED），激光器多用于单模。(C) 错误：同轴电缆的外导体屏蔽层使其抗电磁干扰能力通常强于非屏蔽双绞线。(D) 错误：全反射是全反射原理的应用，但弯曲半径过小会破坏全反射条件并引入弯曲损耗，并非任意角度均可。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 关于信道复用，下列说法正确的是
+\begin{center}
+\begin{tabular}{p{7.2cm}p{7.2cm}}
+(A) FDM 中各子信道占用不同的时间片，适合传输突发性数据 & (B) 同步 TDM 中每个子信道固定占用一帧中的某个时隙，用户空闲时该时隙仍被保留、不能给他人使用 \\[4pt]
+(C) WDM 与 FDM 原理无关，是光纤中独有的复用方式 & (D) CDM 中不同用户占用不同频带，接收端靠带通滤波器分离各路信号
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误：FDM 按频率划分，各子信道同时占用不同频带；按时间片划分的是 TDM。(B) 正确：同步 TDM 的时隙是预先固定分配的，某路无数据时该时隙空置浪费，这也是统计时分复用（STDM）按需分配时隙的出发点。(C) 错误：WDM 本质上就是光纤上的频分复用，各信号调制到不同波长（频率）上。(D) 错误：CDM 中各用户在同一时间、同一频带内传输，靠相互正交的码型区分，接收端做相关运算而非带通滤波。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 关于编码与调制，下列说法正确的是
+\begin{center}
+\begin{tabular}{p{7.2cm}p{7.2cm}}
+(A) NRZ 编码在每个比特周期内电平都要回到零，因而具有自同步能力 & (B) 曼彻斯特编码在每个比特中间都有跳变，该跳变兼作时钟信号，其码元速率是数据率的 2 倍 \\[4pt]
+(C) 差分曼彻斯特编码用比特中间的跳变方向表示 0 和 1，抗干扰能力弱于曼彻斯特编码 & (D) QPSK 用 4 种相位表示数据，每个码元携带 4 bit
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误：每比特中间回到零的是 RZ（归零编码）；NRZ 在一个比特内保持电平不变，连续相同比特时无跳变，不能自同步。(B) 正确：曼彻斯特编码每比特中间必跳变，接收方可从中提取时钟；一个比特对应两个码元，故码元速率（波特率）是数据率的 2 倍。(C) 错误：差分曼彻斯特的比特中间跳变只用于同步，数据由「比特起始处是否跳变」表示；它是差分方式，抗干扰能力通常强于曼彻斯特编码。(D) 错误：QPSK 有 4 种相位，每码元携带 $\log_2 4=2$ bit。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 某信道带宽为 $W$，信噪比为 20 dB。若要求「无噪声条件下按奈奎斯特准则算出的极限数据速率」不低于「该信道的香农极限」，则每个码元至少应取多少个离散电平？
+\begin{center}
+\begin{tabular}{ll}
+(A) 8 & (B) 10 \\[4pt]
+(C) 11 & (D) 32
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 第一步把分贝换成比值：$S/N=10^{20/10}=100$。第二步算香农极限：$C=W\log_2(1+100)=W\log_2 101\approx6.658W$。第三步令奈奎斯特极限不小于它：$2W\log_2 V\ge 6.658W$，即 $\log_2 V\ge3.329$。第四步取整：$V\ge 2^{3.329}\approx10.05$，电平数必须是整数，故最小值是 11。用端点验算：$V=10$ 时 $2W\log_2 10=6.644W<6.658W$，不满足；$V=11$ 时 $2W\log_2 11=6.919W$，满足。题干只要求「至少」，故电平原不必是 2 的整数次幂；若额外限定 $V=2^k$，则应取 16，但本题选项按「至少」设置。\boxed{\textbf{答案：}(C)}\else \answerarea[6] \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 某电缆的总可用频带为 $108$ kHz，用 FDM 划分为 8 个等宽子信道，相邻子信道之间留 $4$ kHz 保护带（共 7 段）。每个子信道采用 4 电平基带传输，且视为无噪声信道。每个子信道能提供的最大数据传输速率是
+\begin{center}
+\begin{tabular}{ll}
+(A) 20 kbps & (B) 27 kbps \\[4pt]
+(C) 40 kbps & (D) 54 kbps
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 先扣保护带：7 段保护带共占 $7\times4=28$ kHz，剩下 $108-28=80$ kHz 给 8 个子信道，每个子信道带宽 $80/8=10$ kHz。再对单个子信道用奈奎斯特准则（无噪声、4 电平）：$C=2W\log_2 V=2\times10000\times\log_2 4=2\times10000\times2=40000$ bps $=40$ kbps。干扰项来源：忽略保护带、取 $108/8=13.5$ kHz 且保留 4 电平，得 $2\times13.5\times2=54$ kbps（D）；忽略保护带又按 2 电平算，得 $2\times13.5\times1=27$ kbps（B）；不忽略保护带但按 2 电平算（漏掉 $\log_2 4$ 这个因子），得 $2\times10\times1=20$ kbps（A）。\boxed{\textbf{答案：}(C)}\else \answerarea[6] \fi
+
+\vspace{8pt}
+
+\item \textbf{（综合应用题）} 某电话信道带宽 $W=3$ kHz，信噪比 $30$ dB，噪声为加性高斯白噪声。
+\begin{enumerate}
+    \item[(1)] 求该信道的香农极限（保留到 $0.1$ kbps），并说明该值是什么意义上的上限；
+    \item[(2)] 若只用 16-QAM 达到这一速率，需要的码元传输速率是多少 Baud？
+    \item[(3)] 判断 (2) 中的码元速率能否实现，若不能，求至少需要多少个离散电平才能逼近香农极限。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) $30$ dB 对应 $S/N=10^{30/10}=1000$，故
+\[
+C=W\log_2(1+S/N)=3000\times\log_2 1001\approx3000\times9.9672\approx29902\ \text{bps}\approx29.9\ \text{kbps}.
+\]
+它是\textbf{信息传输速率}的上限：只要噪声是高斯白噪声、带宽为 3 kHz，无论采用何种编码与调制，可靠传输速率都不可能超过它。
+
+(2) 16-QAM 每码元携带 $\log_2 16=4$ bit，故所需码元速率
+\[
+B=\frac{29902}{4}\approx7476\ \text{Baud}.
+\]
+（若把香农极限取整为 30 kbps，则 $B=7500$ Baud，结论相同。）
+
+(3) 无噪声时该带宽的奈奎斯特码元上限为 $2W=6000$ Baud。$7476>6000$，说明 16-QAM 在 3 kHz 带宽内无法达到香农极限，必须提高每码元携带的比特数。设电平数为 $V$，要求
+\[
+2\times3000\times\log_2 V\ge 29902\ \Rightarrow\ \log_2 V\ge4.984\ \Rightarrow\ V\ge2^{4.984}\approx31.6,
+\]
+故至少取 $V=32$。验算：$V=31$ 时 $6000\times\log_2 31=6000\times4.954\approx29725$ bps，不够；$V=32$ 时 $6000\times5=30000$ bps $\ge29902$ bps，满足。
+
+\boxed{\text{答案：}(1)\ 29.9\ \text{kbps};\ (2)\ 7476\ \text{Baud};\ (3)\ V\ge 32}\else \answerarea[10] \fi
+
+\vspace{8pt}
+
+\item \textbf{（综合应用题）} 某同步 TDM 系统把 12 路 $64$ kbps 的数字话音复用到一条线路上：每帧依次为 12 路各安排 1 个时隙，每时隙 8 bit；帧尾再附加 8 bit 同步码。线路采用 4 电平基带传输，视为无噪声。
+\begin{enumerate}
+    \item[(1)] 求帧长（bit）与帧重复频率（帧/秒）；
+    \item[(2)] 求线路的数据传输速率；
+    \item[(3)] 求该复用系统的信道利用率；
+    \item[(4)] 求线路所需的最小带宽。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 每路每帧 8 bit，12 路共 $12\times8=96$ bit，加 8 bit 同步码，帧长 $96+8=104$ bit。每路速率 $64$ kbps 意味着每秒传 $64000/8=8000$ 个 8 bit 样本，故帧重复频率为 $8000$ 帧/秒，帧周期 $1/8000=125\ \mu$s。
+
+(2) 线路速率 $=$ 帧长 $\times$ 帧频 $=104\times8000=832000$ bps $=832$ kbps。也可用「每帧 104 bit、每 $125\ \mu$s 一帧」复核：$104/125\ \mu\text{s}=832$ kbps。
+
+(3) 有效数据速率 $=12\times64=768$ kbps，故利用率
+\[
+\eta=\frac{768}{832}\approx0.9231\approx92.3\%.
+\]
+开销只有每帧 8 bit 同步码：$8/104\approx7.69\%$。
+
+(4) 4 电平无噪声基带传输满足 $R=2B\log_2 V=2B\times2=4B$，故
+\[
+B_{\min}=\frac{R}{4}=\frac{832000}{4}=208000\ \text{Hz}=208\ \text{kHz}.
+\]
+
+\boxed{\text{答案：}(1)\ 104\ \text{bit},\ 8000\ \text{帧/s};\ (2)\ 832\ \text{kbps};\ (3)\ 92.3\%;\ (4)\ 208\ \text{kHz}}\else \answerarea[10] \fi
+
+\end{enumerate}

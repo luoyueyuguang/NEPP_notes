@@ -1,224 +1,222 @@
 \section{查找}
 
-\subsection{查找的基本概念}
+在一百万条学籍记录里按学号找一个人，和在二十个人的通讯录里找一个名字，差别不只是快慢。前者要求你根本不能逐条翻看，后者随手扫一遍也能接受。查找这一章讨论的就是这件事：记录按什么方式摆放，给定一个关键字之后需要比较多少次才能定位；以及当记录还要频繁插入、删除时，这种摆放方式怎样维护。
 
-\begin{mydef}{查找表与关键字}{search-table}
-\textbf{查找表}（Search Table）是由同一类型的数据元素（或记录）构成的集合。对查找表常进行的操作有：
-\begin{itemize}
-    \item \textbf{查询}：查找某个「特定的」数据元素是否在表中；
-    \item \textbf{检索}：检索某个「特定的」数据元素的各种属性；
-    \item \textbf{插入/删除}：在表中插入或删除一个数据元素。
-\end{itemize}
-若只做前两类操作，称查找表为\textbf{静态查找表}（Static Search Table）；若同时涉及插入/删除操作，则称为\textbf{动态查找表}（Dynamic Search Table）。
+\subsection{从“比较几次”说起}
 
-\textbf{关键字}（Key）：数据元素中某个数据项的值，用以标识该数据元素。
-\begin{itemize}
-    \item \textbf{主关键字}（Primary Key）：能唯一标识一个数据元素的关键字。
-    \item \textbf{次关键字}（Secondary Key）：不能唯一标识数据元素的关键字。
-\end{itemize}
-\textbf{查找}：在查找表中确定一个其关键字等于给定值的数据元素（或记录）。若找到，称查找成功，返回该元素的位置；否则称查找失败（不成功），返回某种失败标志。
-\end{mydef}
+先看一个最小的例子。把 $21,35,47,58,69$ 依次放进一个数组，从头逐个比较。找 $47$ 要比较 $3$ 次（$21,35,47$）；找 $60$ 要把五个元素都比一遍才能确认不在表中，比较 $5$ 次。如果问“平均要比较几次”，就必须先说清楚对哪些查找对象平均：是对表中已有的五个元素等概率地找，还是把可能出现的任意关键字都算进来。前者叫查找成功，后者叫查找不成功，两个平均值通常不相等。
 
-\begin{formula}{平均查找长度 ASL}{asl-def}
-查找算法的主要评价指标是\textbf{平均查找长度}（Average Search Length），定义为查找过程中对关键字执行比较次数的期望值：
+\begin{mydef}{查找表、关键字与平均查找长度}{ch6-asl}
+查找表是由同一类型记录构成的集合。只做查询、检索的称为静态查找表；还要支持插入、删除的称为动态查找表。记录中用来标识它的数据项叫关键字；能唯一标识记录的是主关键字，不能唯一标识的是次关键字。
+
+平均查找长度（Average Search Length，ASL）是查找过程中关键字比较次数的期望：
 \[
-\mathrm{ASL} = \sum_{i=1}^{n} P_i \cdot C_i
+\mathrm{ASL}=\sum_{i=1}^{n}P_i\,C_i,
 \]
-其中 $P_i$ 为查找第 $i$ 个元素的概率（通常假定等概率，即 $P_i=1/n$），$C_i$ 为查找第 $i$ 个元素所需的比较次数。
-
-\textbf{ASL$_{\text{成功}}$} 与 \textbf{ASL$_{\text{不成功}}$} 是 408 考试中的两个核心计算量——前者对所有表中存在的元素的查找长度求期望；后者对表中不存在的所有「可能的」查找值求期望，通常依赖查找判定树的结构。
-\end{formula}
-
-\begin{attention}
-408 考试中，ASL$_{\text{成功}}$ 计算通常假定等概率。本文对折半查找统一采用「关键字比较次数」：失败结点代表一个查找不成功的区间，其代价等于从根到该失败结点之前访问过的数据结点数，\textbf{不把空指针判断另算一次比较}。若把根记为第 1 层，则失败代价等于其父数据结点的层次；题干另有约定时以题干为准。散列表则按实际探测到的槽位次数计数，包括最终遇到的空槽。
-\end{attention}
-
-\subsection{顺序查找与折半查找}
-
-\subsubsection{顺序查找（Sequential Search）}
-
-\begin{mydef}{顺序查找}{seq-search}
-从表的一端开始，依次将每个元素的关键字与给定值进行比较。若找到，返回位置；若遍历完毕仍未找到，则返回查找失败。又称为线性查找，是最基本的查找方法。
+其中 $n$ 是查找对象的个数，$P_i$ 是查找第 $i$ 个对象的概率，$C_i$ 是找到它所需的比较次数。
 \end{mydef}
 
-\begin{formula}{带哨兵的顺序查找}{seq-search-sentinel}
-\textbf{哨兵技巧（Sentinel）}：将待查关键字存入表头（或表尾）作为「监视哨」，使循环中只需判断关键字是否相等，不必每轮另做越界判断。它减少了循环条件中的一次判断，但关键字比较次数和 $O(n)$ 时间复杂度不变，不能笼统地说运行时间减半。
+公式里的“查找对象”在成功和失败两种口径下不是同一批东西。等概率时，成功查找取 $P_i=1/n$，分母是 $n$；失败查找要把所有可能落空的位置都算进去，分母往往不是 $n$，例如折半查找的判定树有 $n+1$ 个失败位置，散列表有 $m$ 个散列地址。题目没有明说时，先看它给的是“成功”还是“不成功”，再确定分母。
 
-以下给出在 ST[1..n] 中查找 key 的带哨兵实现（ST[0] 为哨兵）：
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=12.2cm, height=6.0cm,
+  xmin=0, xmax=100, ymin=0, ymax=52,
+  xlabel={表长 $n$}, ylabel={成功查找的比较次数},
+  grid=major, grid style={draw=RuleGray},
+  axis lines=left,
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+  legend style={draw=none, fill=none, font=\scriptsize, at={(0.02,0.98)}, anchor=north west},
+]
+\addplot[Teal,very thick,domain=1:100,samples=100] {(x+1)/2};
+\addplot[Navy,very thick,const plot,domain=1:100,samples=100] {ceil(log2(x+1))};
+\addplot[Amber,very thick,dashed,domain=1:100,samples=100] {sqrt(x)+1};
+\legend{顺序查找平均 $\frac{n+1}{2}$, 折半查找最坏 $\lceil\log_2(n+1)\rceil$, 分块最优平均 $\sqrt n+1$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+{\small\color{MutedText} 图中横轴是表长，纵轴是成功查找的比较次数。顺序查找和分块查找按等概率下的平均值画，折半查找按最坏情况画（平均还要少约一次，但增长趋势相同）。顺序查找是一条直线，表长翻倍代价也翻倍；折半查找几乎贴着横轴，表长从 $10$ 增到 $100$ 也只多出三四次比较；分块查找取每块约 $\sqrt n$ 个元素时按 $\sqrt n$ 增长，正好夹在两者之间。三条曲线的形状，比记住三个具体数字更有用。}
+
+\subsection{顺序查找：哨兵只是省掉一次边界判断}
+
+顺序查找没有任何前提：表可以无序，可以用数组，也可以用链表。从一端开始逐个比较，相等就返回位置，走完还没有相等就是失败。数组实现时，常把待查关键字先写进 $0$ 号单元，让循环从 $n$ 倒着走：
+
 \begin{lstlisting}[language=C]
 typedef struct {
-    ElemType *elem;   // 元素存储空间基址，0号单元留空
-    int TableLen;     // 表长
+    ElemType *elem;      // elem[0] 留作哨兵
+    int TableLen;
 } SSTable;
 
 int Search_Seq(SSTable ST, KeyType key) {
-    ST.elem[0].key = key;                // 设置哨兵
+    ST.elem[0].key = key;                       // 哨兵
     int i;
-    for (i = ST.TableLen; ST.elem[i].key != key; i--);
-    return i;                            // i=0 则查找失败
+    for (i = ST.TableLen; ST.elem[i].key != key; --i)
+        ;                                       // 不必判断 i >= 1
+    return i;                                   // 返回 0 表示失败
 }
 \end{lstlisting}
-\textbf{时间复杂度}：$O(n)$。\textbf{空间复杂度}：$O(1)$。
-\end{formula}
 
-\begin{conclusion}{顺序查找的 ASL 分析}{asl-seq}
-等概率下：
+循环从 $n$ 递减到 $0$，无论表里有没有这个关键字，$i=0$ 时一定会与哨兵相等而停下。这样循环条件里少了一个下标越界的判断，但关键字比较的次数并没有减少，时间复杂度仍是 $O(n)$。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+\node[draw,minimum width=1.1cm,minimum height=0.72cm,fill=SoftAmber] (s0) at (0,0) {$key$};
+\foreach \i/\v in {1/{$a_1$},2/{$a_2$},3/{$\cdots$},4/{$a_{n-1}$},5/{$a_n$}} {
+  \node[draw,minimum width=1.1cm,minimum height=0.72cm,fill=SoftTeal] (s\i) at (\i*1.2,0) {\v};
+}
+\node[font=\tiny] at (0,-0.55) {$0$};
+\node[font=\tiny] at (1.2,-0.55) {$1$};
+\node[font=\tiny] at (2.4,-0.55) {$2$};
+\node[font=\tiny] at (3.6,-0.55) {$\cdots$};
+\node[font=\tiny] at (4.8,-0.55) {$n-1$};
+\node[font=\tiny] at (6.0,-0.55) {$n$};
+\draw[->,very thick,Teal] ([yshift=0.55cm]s5.north) -- node[above,font=\scriptsize]{$i=n,n-1,\ldots,0$} ([yshift=0.55cm]s0.north);
+\node[align=left,anchor=west,font=\scriptsize] at (7.3,0.15) {先写哨兵，再从尾部倒扫；\\循环里只剩关键字比较。\\返回 $i=0$ 即查找失败。};
+\end{tikzpicture}
+\end{center}
+
+{\small\color{MutedText} 图中 $0$ 号单元存的是待查关键字本身，$1\sim n$ 才是表内元素。扫描方向从右往左，最坏会一路走到 $0$ 号单元；哨兵保证这个循环一定终止，因此不用再写 \texttt{i >= 1}。}
+
+成功查找时，第 $i$ 个元素要比较 $n-i+1$ 次，等概率平均为
 \[
-\mathrm{ASL}_{\text{成功}} = \sum_{i=1}^{n} \frac{1}{n}\cdot i = \frac{n+1}{2}
+\mathrm{ASL}_{\text{成功}}=\frac{1}{n}\sum_{i=1}^{n}(n-i+1)=\frac{n+1}{2}.
 \]
-查找不成功时（带哨兵版本哨兵在0号位置），比较次数为 $n+1$（关键值从 ST[n] 比较到 ST[0] 哨兵，但哨兵比较也算一次）。故 $\mathrm{ASL}_{\text{不成功}}=n+1$（若不计哨兵则 $=n$，以教材为准）。
+失败查找时，从 $a_n$ 一直比较到哨兵，共 $n+1$ 次；若不用哨兵，只比较 $n$ 个元素就发现越界，代价是 $n$。两种写法只差一个常数，但考试常拿这个数字设选项，写答案时要看清代码里有没有哨兵。
 
-\textbf{优点：} 对数据元素是否有序无要求；顺序表/链表均可实现；插入可在 $O(1)$ 完成（表尾追加）。
-\textbf{缺点：} $n$ 较大时效率低。
-\end{conclusion}
+如果表已经按关键字有序，失败查找可以在第一个大于待查关键字的元素处提前停下。此时 $n+1$ 个失败区间的比较次数依次是 $1,2,\ldots,n,n$，平均为 $\dfrac{n(n+3)}{2(n+1)}$；成功查找的平均次数仍是 $(n+1)/2$，因为每个元素的位置没有变。
 
-\subsubsection{折半查找（Binary Search）}
+\subsection{折半查找：判定树把比较次数画出来}
 
-\begin{mydef}{折半查找}{binary-search}
-\textbf{前提：} 线性表必须采用\textbf{顺序存储}且\textbf{按关键字有序}（递增或递减）。下列文字和代码以\textbf{递增表}为例；若表按递减顺序排列，需要将小于/大于的两个分支对调。
+折半查找要求两条：表必须顺序存储，并且按关键字有序。顺序存储是为了 $O(1)$ 取到中间位置，链表找中点本身就要走 $O(n)$，所以链表不能直接折半。下面以递增表为例，递减表把两个分支对调即可。
 
-基本思想：每次将待查区间分为两半，将中间位置的关键字与给定值比较：
-\begin{itemize}
-    \item 相等 $\to$ 查找成功；
-    \item 给定值小于中间关键字 $\to$ 在前半区间继续查找；
-    \item 给定值大于中间关键字 $\to$ 在后半区间继续查找。
-\end{itemize}
-\end{mydef}
-
-\begin{formula}{折半查找的代码实现}{binary-search-code}
 \begin{lstlisting}[language=C]
 int Binary_Search(SSTable ST, KeyType key) {
     int low = 1, high = ST.TableLen;
     while (low <= high) {
-        int mid = (low + high) / 2;
+        int mid = low + (high - low) / 2;   // 等价于 (low+high)/2，且不溢出
         if (ST.elem[mid].key == key)
-            return mid;                  // 查找成功
+            return mid;
         else if (ST.elem[mid].key > key)
-            high = mid - 1;              // 在前半区间
+            high = mid - 1;
         else
-            low = mid + 1;               // 在后半区间
+            low = mid + 1;
     }
-    return 0;                            // 查找失败
+    return 0;                                // low > high，查找失败
 }
 \end{lstlisting}
-\textbf{注意：} \texttt{mid = (low + high) / 2} 在极端情况下可能溢出（low+high 超出 int 范围），工程中推荐 \texttt{mid = low + (high - low) / 2}。408 考试中默认不会出现溢出情况。
-\end{formula}
 
-\begin{conclusion}{折半查找的判定树与 ASL}{binary-search-tree}
-折半查找的过程可以用一棵\textbf{判定树}（Decision Tree）描述：
-\begin{itemize}
-    \item 树中每个\textbf{圆形结点}对应表中一个元素（成功查找）。
-    \item 每个\textbf{方形结点}（外结点/失败结点）对应一个查找不成功的区间，总数为 $n+1$。
-    \item 判定树是一棵\textbf{平衡二叉树}——左右子树高度之差不超过 1。
-\end{itemize}
-
-对于 $n$ 个元素，判定树的高度为 $\lceil\log_2(n+1)\rceil$。
-
-\textbf{查找成功时的 ASL：} 等于判定树中所有圆形结点所在层次之和除以 $n$（根在第 1 层），即
-\[
-\mathrm{ASL}_{\text{成功}} = \frac{1}{n} \sum_{i=1}^{n} l_i
-\]
-其中 $l_i$ 为第 $i$ 个元素在判定树中的层次。
-
-\textbf{查找不成功时的 ASL：} 对 $n+1$ 个失败区间分别统计查找过程中访问的数据结点数，再除以 $n+1$。在本文「根为第 1 层且只计关键字比较」的约定下，该次数等于相应方形结点父结点的层次。若题目把空指针判断也计入，则每次失败查找需再加 1，必须按题干口径作答。
-
-等概率下，$n$ 较大时：
-\[
-\mathrm{ASL}_{\text{成功}} \approx \log_2(n+1) - 1
-\]
-\textbf{时间复杂度}：$O(\log n)$。
-\end{conclusion}
+每比较一次，待查区间缩小一半。把每次选中的 \texttt{mid} 画成一个结点，就得到折半查找的判定树：圆形结点是表中真实存在的元素，方形结点是 \texttt{low > high} 时落入的空区间。$n$ 个元素之间和两端一共有 $n+1$ 个空档，所以方形结点正好 $n+1$ 个。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, level distance=1.9cm, level 1/.style={sibling distance=3.4cm}, level 2/.style={sibling distance=2.3cm}, level 3/.style={sibling distance=1.8cm}, font=\scriptsize]
-\node[draw,circle,fill=Teal!30] {6}
-  child { node[draw,circle,fill=Teal!20] {3}
-    child { node[draw,circle,fill=Teal!10] {1}
-      child { node[draw,circle] {2} } }
-    child { node[draw,circle,fill=Teal!10] {4}
-      child { node[draw,circle] {5} } } }
-  child { node[draw,circle,fill=Teal!20] {9}
-    child { node[draw,circle,fill=Teal!10] {7}
-      child { node[draw,circle] {8} } }
-    child { node[draw,circle,fill=Teal!10] {10}
-      child { node[draw,circle] {11} } } };
-\node[align=center,font=\scriptsize,black!70] at (0,-9.0){$n=11$ 的折半查找判定树（圆形=成功结点，颜色越深层次越浅）\\第 $1/2/3/4$ 层各有 $1/2/4/4$ 个结点 $\Rightarrow$ $\mathrm{ASL}_{\text{成功}}=\dfrac{1+2\cdot2+4\cdot3+4\cdot4}{11}=\dfrac{33}{11}=3$};
+\begin{tikzpicture}[font=\scriptsize,>=stealth,
+  succ/.style={circle,draw=TealDark,fill=SoftTeal,minimum size=0.52cm,inner sep=0pt},
+  fail/.style={rectangle,draw=MutedText,fill=SoftGray,minimum size=0.24cm,inner sep=0pt}]
+\node[succ,fill=Teal!45] (d6) at (0,0) {6};
+\node[succ,fill=Teal!28] (d3) at (-2.8,-1.3) {3};
+\node[succ,fill=Teal!28] (d9) at (2.8,-1.3) {9};
+\node[succ,fill=Teal!16] (d1) at (-4.0,-2.6) {1};
+\node[succ,fill=Teal!16] (d4) at (-1.2,-2.6) {4};
+\node[succ,fill=Teal!16] (d7) at (1.2,-2.6) {7};
+\node[succ,fill=Teal!16] (d10) at (4.0,-2.6) {10};
+\node[succ,fill=Teal!8] (d2) at (-3.3,-3.9) {2};
+\node[succ,fill=Teal!8] (d5) at (-0.5,-3.9) {5};
+\node[succ,fill=Teal!8] (d8) at (1.9,-3.9) {8};
+\node[succ,fill=Teal!8] (d11) at (4.7,-3.9) {11};
+\draw (d6) -- (d3); \draw (d6) -- (d9);
+\draw (d3) -- (d1); \draw (d3) -- (d4);
+\draw (d9) -- (d7); \draw (d9) -- (d10);
+\draw (d1) -- (d2); \draw (d4) -- (d5);
+\draw (d7) -- (d8); \draw (d10) -- (d11);
+\node[fail] (f1) at (-4.7,-3.9) {};
+\node[fail] (f4) at (-1.9,-3.9) {};
+\node[fail] (f7) at (0.5,-3.9) {};
+\node[fail] (f10) at (3.3,-3.9) {};
+\draw (d1) -- (f1); \draw (d4) -- (f4);
+\draw (d7) -- (f7); \draw (d10) -- (f10);
+\foreach \x in {-3.55,-3.05} { \node[fail] at (\x,-5.1) {}; }
+\foreach \x in {-0.75,-0.25} { \node[fail] at (\x,-5.1) {}; }
+\foreach \x in {1.65,2.15}   { \node[fail] at (\x,-5.1) {}; }
+\foreach \x in {4.45,4.95}   { \node[fail] at (\x,-5.1) {}; }
+\draw (d2) -- (-3.55,-5.1); \draw (d2) -- (-3.05,-5.1);
+\draw (d5) -- (-0.75,-5.1); \draw (d5) -- (-0.25,-5.1);
+\draw (d8) -- (1.65,-5.1);  \draw (d8) -- (2.15,-5.1);
+\draw (d11) -- (4.45,-5.1); \draw (d11) -- (4.95,-5.1);
+\node[anchor=east,font=\tiny,text=MutedText] at (-5.5,0) {第 1 层};
+\node[anchor=east,font=\tiny,text=MutedText] at (-5.5,-1.3) {第 2 层};
+\node[anchor=east,font=\tiny,text=MutedText] at (-5.5,-2.6) {第 3 层};
+\node[anchor=east,font=\tiny,text=MutedText] at (-5.5,-3.9) {第 4 层};
+\node[anchor=east,font=\tiny,text=MutedText] at (-5.5,-5.1) {第 5 层};
+\node[align=center,font=\scriptsize] at (0,-6.0) {$n=11$：成功结点 $1+2+4+4$，失败结点 $4+8=12$};
 \end{tikzpicture}
 \end{center}
 
+{\small\color{MutedText} 图中圆形结点里的数字是数组下标，颜色越深层次越浅。第 $1,2,3,4$ 层分别有 $1,2,4,4$ 个成功结点；失败结点有 $4$ 个挂在第 $3$ 层结点下面、$8$ 个挂在第 $4$ 层结点下面。}
+
+成功查找的比较次数就是圆形结点所在层数，因此
+\[
+\mathrm{ASL}_{\text{成功}}=\frac{1\cdot1+2\cdot2+4\cdot3+4\cdot4}{11}=\frac{33}{11}=3.
+\]
+失败查找时，最后一个被比较的圆形结点是方形结点的父结点，按常见约定只数这些关键字比较，不再把空指针判断另算一次。于是上图中失败代价为 $3$ 的有 $4$ 个、为 $4$ 的有 $8$ 个：
+\[
+\mathrm{ASL}_{\text{不成功}}=\frac{4\cdot3+8\cdot4}{4+8}=\frac{44}{12}=\frac{11}{3}\approx3.67.
+\]
+如果题目把“判断空指针”也算一次比较，就在每个失败代价上再加 $1$，得到 $4$ 和 $5$，平均值变为 $56/12=14/3$。两种答案都有人用，关键是同一道题里口径要统一。
+
+判定树的高度是 $\lceil\log_2(n+1)\rceil$，因为一棵高度为 $h$ 的二叉树最多容纳 $2^h-1$ 个内部结点。由此最坏情况比较 $\lceil\log_2(n+1)\rceil$ 次，平均约 $\log_2(n+1)-1$ 次（$n$ 较大时），时间复杂度 $O(\log n)$。
+
 \begin{attention}
-\textbf{408 高频考点——折半查找的判定树构造：}
-\begin{itemize}
-    \item 对于偶数个元素，\texttt{mid = floor((low+high)/2)} 和 \texttt{mid = ceil((low+high)/2)} 对应的判定树\textbf{不同}——前者右子树结点数 $\geqslant$ 左子树；后者左子树结点数 $\geqslant$ 右子树。题目若未直接给出取整规则，应根据给定的比较过程或判定树判断其约定。
-    \item 判定树的后继与前驱：折半查找的判定树中，任一结点的中序前驱/后继即有序线性表中该元素的前一个/后一个元素。
-\end{itemize}
+\texttt{mid} 的取整方式会改变判定树的形状。取 $\lfloor(\text{low}+\text{high})/2\rfloor$ 时，对偶数个元素，右子树结点数不少于左子树；取 $\lceil(\text{low}+\text{high})/2\rceil$ 时反过来。题目若给出了具体的比较过程或判定树，就按过程画，不要默认某一种取整；若只问“最坏比较次数”，两种取整得到的树高相同。
 \end{attention}
 
-\subsubsection{分块查找（索引顺序查找）}
+\subsection{分块查找：索引表加块内顺序}
 
-\begin{mydef}{分块查找}{block-search}
-分块查找（Block Search / Indexed Sequential Search）在顺序查找和折半查找之间取得折中：
-\begin{itemize}
-    \item 将查找表分为若干\textbf{块}（子表），块内元素可以无序，但\textbf{块间必须有序}——即前一块中所有元素的最大关键字小于后一块中所有元素的最小关键字。
-    \item 建立\textbf{索引表}：每个索引项包含对应块的最大关键字和该块第一个元素的地址。
-\end{itemize}
-\textbf{查找过程：}
-\begin{enumerate}
-    \item 先在索引表中确定关键字可能所在的块（索引表有序，可用折半查找或顺序查找）；
-    \item 再在对应块内顺序查找。
-\end{enumerate}
-\end{mydef}
+折半查找快，但插入一个元素可能要移动半个表；顺序查找插入方便，查找又太慢。分块查找取中间路线：把记录按关键字分成若干块，块与块之间整体有序，块内可以无序；另外建一张索引表，每项记下该块的最大关键字和该块的起始地址。
 
-\begin{formula}{分块查找的 ASL}{asl-block}
-设表长为 $n$，均匀分为 $b$ 块，每块 $s$ 个元素（$n=bs$）。索引表用顺序查找，块内也用顺序查找，则等概率下：
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+\node[draw,fill=SoftAmber,minimum width=2.3cm,minimum height=0.55cm] (i1) at (-3.7,2.4) {$18\mid1$};
+\node[draw,fill=SoftAmber,minimum width=2.3cm,minimum height=0.55cm] (i2) at (0,2.4) {$45\mid7$};
+\node[draw,fill=SoftAmber,minimum width=2.3cm,minimum height=0.55cm] (i3) at (3.7,2.4) {$72\mid13$};
+\node[font=\tiny,text=MutedText] at (0,3.0) {索引表：最大关键字 $\mid$ 块起始地址};
+\node[draw,fill=SoftTeal,minimum width=3.3cm,minimum height=0.9cm,align=center] (b1) at (-3.7,0.7) {$12,18,5,9,3,16$};
+\node[draw,fill=SoftTeal,minimum width=3.3cm,minimum height=0.9cm,align=center] (b2) at (0,0.7) {$30,45,22,38,27,41$};
+\node[draw,fill=SoftTeal,minimum width=3.3cm,minimum height=0.9cm,align=center] (b3) at (3.7,0.7) {$60,72,55,68,50,64$};
+\draw[->] (i1) -- (b1);
+\draw[->] (i2) -- (b2);
+\draw[->] (i3) -- (b3);
+\node[font=\tiny,text=MutedText] at (-3.7,-0.15) {地址 $1\sim6$};
+\node[font=\tiny,text=MutedText] at (0,-0.15) {地址 $7\sim12$};
+\node[font=\tiny,text=MutedText] at (3.7,-0.15) {地址 $13\sim18$};
+\node[align=center,font=\scriptsize] at (0,-0.95) {块间有序：$18<22$，$45<50$；块内不要求有序};
+\end{tikzpicture}
+\end{center}
 
-\begin{itemize}
-    \item 索引表查找的 ASL：$(b+1)/2$
-    \item 块内查找的 ASL：$(s+1)/2$
-    \item 总 $\mathrm{ASL} = \dfrac{b+1}{2} + \dfrac{s+1}{2} = \dfrac{s^2 + 2s + n}{2s}$（代入 $b=n/s$）
-\end{itemize}
-当 $s=\sqrt{n}$ 时取得最小值 $\mathrm{ASL}_{\min} = \sqrt{n} + 1$。
+{\small\color{MutedText} 图中上方是索引表，每项存“该块最大关键字 + 块起始地址”；下方三个块内部是乱序的，但前一块的所有关键字都小于后一块。查 $38$ 时先在索引表中找到 $45$ 对应的第 $2$ 块，再在块内顺序比较。}
 
-若索引表采用折半查找：
+设表长 $n$，分成 $b$ 块，每块 $s$ 个元素，$n=bs$。索引表用顺序查找、块内也用顺序查找时，索引平均比较 $(b+1)/2$ 次，块内平均 $(s+1)/2$ 次，总代价
 \[
-\mathrm{ASL} \approx \log_2(b+1) - 1 + \frac{s+1}{2} \approx \log_2\left(\frac{n}{s}+1\right) + \frac{s}{2}
+\mathrm{ASL}=\frac{b+1}{2}+\frac{s+1}{2}
+=\frac{1}{2}\left(\frac{n}{s}+s\right)+1.
 \]
-\end{formula}
+由均值不等式，$s=\sqrt n$ 时取最小值 $\sqrt n+1$，此时块数也约为 $\sqrt n$。若索引表改用折半查找，索引部分降为约 $\log_2(b+1)-1$ 次，总代价约为
+\[
+\mathrm{ASL}\approx\log_2(b+1)-1+\frac{s+1}{2}.
+\]
+分块查找的插入、删除只影响一个块：块内重新排列，块太大就分裂，太小就与相邻块合并，索引表随之更新。它适合记录数较大、需要按块组织的索引顺序文件。
 
-\begin{conclusion}{顺序 / 折半 / 分块查找对比}{search-compare}
-\begin{tablebox}{三种查找方法对比}
-\centering
-\small
-\begin{tabularx}{\linewidth}{|l|X|X|X|}
-\hline
- & \textbf{顺序查找} & \textbf{折半查找} & \textbf{分块查找} \\
-\hline
-\textbf{前提} & 任意表 & 有序 + 顺序存储 & 块间有序、块内无序 \\
-\textbf{ASL$_{\text{成功}}$} & $\dfrac{n+1}{2}$ & $\approx\log_2(n+1)-1$ & $\approx\log_2\!\big(\tfrac{n}{s}+1\big)+\tfrac{s}{2}$ \\
-\textbf{查找过程} & 逐项比较 & 折半缩小区间 & 索引表定块，块内顺序找 \\
-\textbf{复杂度} & $O(n)$ & $O(\log n)$ & $O(\sqrt n)$（取 $s=\sqrt n$ 时） \\
-\textbf{适用} & 无序表、小表、链表 & 有序静态数组 & 索引顺序文件 \\
-\hline
-\end{tabularx}
-\end{tablebox}
-\textbf{记忆：}顺序 $O(n)$ 最慢；折半 $O(\log n)$ 最快但要求有序且顺序存储；分块折中——索引表 + 块内顺序，适合既需较快查找又需插入删除的场合。
-\end{conclusion}
+\subsection{二叉排序树}
 
-\subsection{二叉排序树（BST）}
+折半查找每次把区间砍一半，但要求连续存储；如果记录还要频繁插入、删除，数组的搬移代价很高。二叉排序树（Binary Search Tree，BST）把“比一次、丢掉一半”的思路搬到链式结构上：左子树的所有关键字小于根，右子树的所有关键字大于根，左右子树本身也都是 BST。
 
-\subsubsection{BST 的定义与查找}
+408 默认 BST 中不出现重复关键字；若题设允许相等，通常约定统一放左子树或统一放右子树。例如依次插入 $45,24,53,12,37,93$，先来的 $45$ 做根；$24<45$ 往左，$53>45$ 往右；$12<24$ 挂在 $24$ 左边，$37>24$ 挂在 $24$ 右边，$93>53$ 挂在 $53$ 右边。查找 $37$ 的路径是 $45\to24\to37$，比较三次。
 
-\begin{mydef}{二叉排序树}{bst-def}
-二叉排序树（Binary Search Tree, BST）或者是一棵空树，或者是满足以下性质的二叉树：
-\begin{enumerate}
-    \item 若左子树非空，则左子树上所有结点的关键字值均\textbf{小于}根结点的关键字值；
-    \item 若右子树非空，则右子树上所有结点的关键字值均\textbf{大于}根结点的关键字值；
-    \item 左、右子树本身也各是一棵二叉排序树。
-\end{enumerate}
-\textbf{注意：} 408 默认 BST 中\textbf{不允许等值}结点——即没有两个结点具有相同的关键字。若存在等值，按定义要么统一放在左子树，要么统一放在右子树，需看题设。
-\end{mydef}
+BST 有一个很实用的性质：对整棵树做中序遍历，得到的就是关键字的递增序列。判断一棵二叉树是不是 BST，最稳妥的办法就是检查中序序列是否严格递增；删除时能用前驱或后继替代，也是因为中序次序不能被打乱。
 
-\begin{formula}{BST 的查找算法}{bst-search-code}
+查找和插入可以写成同一套下降过程。查找走到空指针就失败；插入走到空指针就把新结点挂在那里，所以新结点一定是叶子。关键字已经存在时通常不重复插入。
+
 \begin{lstlisting}[language=C]
 typedef struct BSTNode {
     KeyType key;
@@ -226,491 +224,428 @@ typedef struct BSTNode {
 } BSTNode, *BSTree;
 
 BSTNode *BST_Search(BSTree T, KeyType key) {
-    while (T != NULL && T->key != key) {
-        if (key < T->key)
-            T = T->lchild;
-        else
-            T = T->rchild;
-    }
-    return T;   // 成功则返回结点指针，失败返回 NULL
+    while (T != NULL && T->key != key)
+        T = (key < T->key) ? T->lchild : T->rchild;
+    return T;                          // NULL 表示失败
 }
-\end{lstlisting}
-递归版同理，本质是二分查找思想在树结构上的推广。\textbf{时间复杂度}：最好 $O(1)$，最坏 $O(h)$（$h$ 为树高）。平衡时 $h=O(\log n)$，退化成单链时 $h=n$。
-\end{formula}
 
-\begin{conclusion}{BST 查找的 ASL 分析}{bst-asl}
-BST 的 ASL 取决于树的形态：
-\begin{itemize}
-    \item \textbf{最好情况}（平衡 BST，$h=\lceil\log_2(n+1)\rceil$）：$\mathrm{ASL}=O(\log n)$，与折半查找的判定树相同。
-    \item \textbf{最坏情况}（退化为单链表，$h=n$）：$\mathrm{ASL}=(n+1)/2$，退化为顺序查找。
-    \item \textbf{平均情况}：随机插入下期望树高 $O(\log n)$，$\mathrm{ASL}\approx 1.38\log_2 n$。
-\end{itemize}
-\end{conclusion}
-
-\subsubsection{BST 的插入与删除}
-
-\begin{conclusion}{BST 的插入}{bst-insert}
-新结点\textbf{一定作为叶子结点}插入。过程：若树空则直接插入为根；否则沿树查找，若关键字已存在则不插入（或按题设处理），若不存在则在查找失败的位置（空指针处）插入新结点。
-\begin{lstlisting}[language=C]
 bool BST_Insert(BSTree *T, KeyType key) {
     if (*T == NULL) {
-        *T = (BSTNode*)malloc(sizeof(BSTNode));
+        *T = (BSTNode *)malloc(sizeof(BSTNode));
         (*T)->key = key;
         (*T)->lchild = (*T)->rchild = NULL;
         return true;
     }
-    if (key == (*T)->key) return false;          // 已存在
+    if (key == (*T)->key) return false;
     if (key < (*T)->key)
         return BST_Insert(&(*T)->lchild, key);
-    else
-        return BST_Insert(&(*T)->rchild, key);
+    return BST_Insert(&(*T)->rchild, key);
 }
 \end{lstlisting}
-\textbf{时间复杂度}：$O(h)$，主要开销在查找插入位置。
-\end{conclusion}
 
-\begin{conclusion}{BST 的删除（三种情况）}{bst-delete}
-删除结点 \texttt{z}，分三种情况处理：
-
-\textbf{情况（1）：z 为叶子结点} —— 直接删除，令其父结点对应指针置为 NULL。
-
-\textbf{情况（2）：z 只有一棵子树（左或右）} —— 用 z 的唯一子树的根替代 z。
-
-\textbf{情况（3）：z 有两棵子树} —— 两种等价做法：
-\begin{itemize}
-    \item \textbf{方案 A（直接前驱替代）：} 找到 z 在中序序列中的\textbf{直接前驱}（即左子树中的最右结点 p），\textbf{将 p 的关键字复制到 z}，然后删除 p。由于 p 没有右子树（它是最右结点），删除 p 退化为情况（1）或（2）。
-    \item \textbf{方案 B（直接后继替代）：} 找到 z 在中序序列中的\textbf{直接后继}（即右子树中的最左结点 s），将 s 的关键字复制到 z，然后删除 s。s 没有左子树，退化为情况（1）或（2）。
-\end{itemize}
-408 两种方案均可，除非题目指定用哪一种。\textbf{注意：} 删除操作总是归结为删除一个至多只有一棵子树的结点。
-\end{conclusion}
+查找的代价是根到目标结点的路径长度。树越矮越快：最平衡时树高与折半判定树相同，为 $O(\log n)$；最坏时每个结点只有一个孩子，退化成单链表，$O(n)$。同样六个关键字，插入顺序不同，形态可以差很多。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% (1) 删除叶子
-\node at (-4.6,3.6){(1) 删除\textbf{叶子}结点};
-\node[draw,circle,minimum size=0.6cm] (a) at (-4.6,2.4) {30};
-\node[draw,circle,minimum size=0.6cm] (b) at (-5.7,1.2) {20};
-\draw (a) -- (b);
-\node[align=center] at (-4.6,-0.4){删除 20（无孩子）\\直接摘除，令 30\\的左孩子 $\to$ NULL};
-% (2) 删除只有一棵子树
-\node at (0,3.6){(2) 删除\textbf{只有一棵子树}};
-\node[draw,circle,minimum size=0.6cm] (c) at (0,2.4) {30};
-\node[draw,circle,minimum size=0.6cm] (d) at (0,1.2) {40};
-\node[draw,circle,minimum size=0.6cm] (e) at (0,-0.0) {45};
-\draw (c) -- (d);
-\draw (d) -- (e);
-\node[align=center] at (0,-1.6){删除 40，用其\\唯一孩子 45\\替代 40 的位置};
-% (3) 删除有两棵子树
-\node at (4.6,3.6){(3) 删除\textbf{有两棵子树}};
-\node[draw,circle,minimum size=0.6cm] (f) at (4.6,2.4) {50};
-\node[draw,circle,minimum size=0.6cm] (g) at (3.5,1.2) {30};
-\node[draw,circle,minimum size=0.6cm] (h) at (5.7,1.2) {70};
-\node[draw,circle,minimum size=0.6cm] (i) at (4.4,-0.0) {40};
-\draw (f) -- (g);
-\draw (f) -- (h);
-\draw (g) -- (i);
-\node[align=center] at (4.6,-1.6){用中序\textbf{前驱} 40 替代 50，\\再删除原 40（40 为叶子，\\退化为情况 (1)）};
+\begin{tikzpicture}[font=\scriptsize,>=stealth,
+  bst/.style={circle,draw=TealDark,fill=SoftTeal,minimum size=0.55cm,inner sep=0pt}]
+\node[bst,fill=Teal!35] (a45) at (-3.5,1.9) {45};
+\node[bst] (a24) at (-4.4,0.8) {24};
+\node[bst] (a53) at (-2.6,0.8) {53};
+\node[bst] (a12) at (-4.9,-0.3) {12};
+\node[bst] (a37) at (-3.9,-0.3) {37};
+\node[bst] (a93) at (-2.2,-0.3) {93};
+\draw (a45) -- (a24); \draw (a45) -- (a53);
+\draw (a24) -- (a12); \draw (a24) -- (a37);
+\draw (a53) -- (a93);
+\node[align=center,font=\scriptsize] at (-3.5,-1.3) {插入 $45,24,53,12,37,93$\\$1+2+2+3+3+3=14$，$\mathrm{ASL}=\dfrac{14}{6}=\dfrac{7}{3}$};
+
+\node[bst,fill=Teal!18] (b12) at (2.6,1.9) {12};
+\node[bst,fill=Teal!18] (b24) at (3.1,1.0) {24};
+\node[bst,fill=Teal!18] (b37) at (3.6,0.1) {37};
+\node[bst,fill=Teal!18] (b45) at (4.1,-0.8) {45};
+\node[bst,fill=Teal!18] (b53) at (4.6,-1.7) {53};
+\node[bst,fill=Teal!18] (b93) at (5.1,-2.6) {93};
+\draw (b12) -- (b24); \draw (b24) -- (b37); \draw (b37) -- (b45);
+\draw (b45) -- (b53); \draw (b53) -- (b93);
+\node[align=center,font=\scriptsize] at (4.0,-3.5) {插入 $12,24,37,45,53,93$\\$1+2+3+4+5+6=21$，$\mathrm{ASL}=\dfrac{21}{6}=\dfrac{7}{2}$};
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-408 常考 BST 删除后的中序遍历序列——无论用前驱替代还是后继替代，删除后其余结点的\textbf{中序相对次序不变}（因为替代结点本身就是被删结点的中序前驱或后继）。
-\end{attention}
+{\small\color{MutedText} 左边六个关键字分布得比较均匀，查找长度按层累加；右边按递增顺序插入，每个新结点都挂在最右下，整棵树退化成一条链。两棵树的结点完全相同，ASL 却从 $7/3$ 变成 $7/2$，最坏情况是 $O(n)$。}
 
-\subsection{平衡二叉树（AVL）}
+失败查找的比较次数是路径上实际比较过的内部结点个数，也就是对应外部失败结点的父结点层数，计数口径与折半查找相同；$n$ 个结点一共有 $n+1$ 个失败位置。比如在左图里查一个小于 $12$ 的数，会比较 $45,24,12$ 三次后落到 $12$ 的左空指针，失败代价为 $3$。
 
-\begin{mydef}{AVL 树的定义}{avl-def}
-\textbf{平衡二叉树}（Balanced Binary Tree），又称 AVL 树（由 Adelson-Velsky 和 Landis 提出）：
-\begin{enumerate}
-    \item 或者是一棵空树；
-    \item 或者是满足以下条件的二叉排序树：\textbf{任意结点的左、右子树高度之差（平衡因子）的绝对值不超过 1}。
-\end{enumerate}
-
-\textbf{平衡因子 $bf$} = 左子树高度 $-$ 右子树高度。AVL 中 $bf\in\{-1,0,1\}$。含有 $n$ 个结点的 AVL 树，最大高度为 $O(\log n)$，最坏情况下 $h\approx 1.44\log_2 n$。
-\end{mydef}
-
-\begin{formula}{AVL 结点的定义}{avl-struct}
-\begin{lstlisting}[language=C]
-typedef struct AVLNode {
-    KeyType key;
-    int bf;                        // 平衡因子
-    struct AVLNode *lchild, *rchild;
-} AVLNode, *AVLTree;
-\end{lstlisting}
-\end{formula}
-
-\subsubsection{AVL 的四种旋转}
-
-\begin{conclusion}{LL 型 —— 右单旋转}{avl-ll}
-\textbf{情况：} 在结点 A 的\textbf{左子树的左子树}上插入新结点导致 A 的平衡因子变为 $+2$。
-
-\textbf{调整：} 对 A 执行\textbf{右旋}（Right Rotation）——将 A 的左孩子 B 上提为根，A 成为 B 的右孩子，B 的原右子树挂为 A 的左子树。
+删除要分三种情况。被删结点是叶子，直接摘掉；只有一个孩子，让孩子顶替它的位置；有两个孩子，则用中序前驱（左子树最右结点）或中序后继（右子树最左结点）的值覆盖它，再转而删除那个前驱或后继。前驱没有右孩子，后继没有左孩子，所以“有两个孩子”的删除一定退化成前两种情况。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, level distance=1.4cm, level 1/.style={sibling distance=2.0cm}, level 2/.style={sibling distance=1.4cm}, font=\scriptsize]
-% 左图：旋转前（LL 型，A 为失衡根）
-\node[draw, circle] (A) at (0,3.0) {A};
-\node[draw, circle] (B) at (-1.0,2.0) {B};
-\node[draw, circle] (AR) at (1.0,2.0) {AR};
-\node[draw, circle] (BL) at (-1.7,1.0) {BL};
-\node[draw, circle] (BR) at (-0.3,1.0) {BR};
-\draw (A) -- (B);
-\draw (A) -- (AR);
-\draw (B) -- (BL);
-\draw (B) -- (BR);
-\node[align=center,font=\scriptsize] at (0,0.1){插入前（A 的 $bf=+1$）\\ 在 BL 中插入后 A 的 $bf=+2$，LL 型};
+\begin{tikzpicture}[font=\scriptsize,>=stealth,
+  bst/.style={circle,draw=TealDark,fill=SoftTeal,minimum size=0.55cm,inner sep=0pt}]
+% (1) 叶子
+\node[font=\scriptsize] at (-4.7,2.7) {(1) 删叶子};
+\node[bst] (c30) at (-4.7,1.7) {30};
+\node[bst,fill=Amber!35,draw=Amber] (c20) at (-5.5,0.6) {20};
+\node[bst] (c40) at (-3.9,0.6) {40};
+\draw (c30) -- (c20); \draw (c30) -- (c40);
+\node[align=center,font=\tiny] at (-4.7,-0.3) {删 $20$：直接摘除\\$30$ 的左指针置空};
 
-% 右图：右旋后（B 上提为根）
-\node[draw, circle] (B2) at (5,3.0) {B};
-\node[draw, circle] (BL2) at (4.0,2.0) {BL};
-\node[draw, circle] (A2) at (6.0,2.0) {A};
-\node[draw, circle] (BR2) at (5.0,1.0) {BR};
-\node[draw, circle] (AR2) at (7.0,1.0) {AR};
-\draw (B2) -- (BL2);
-\draw (B2) -- (A2);
-\draw (A2) -- (BR2);
-\draw (A2) -- (AR2);
-\node[align=center,font=\scriptsize] at (5,0.1){右旋后恢复平衡\\（B 为根，A 为 B 的右孩子）};
+% (2) 只有一个孩子
+\node[font=\scriptsize] at (0,2.7) {(2) 只有一个孩子};
+\node[bst] (d30) at (0,1.7) {30};
+\node[bst,fill=Amber!35,draw=Amber] (d40) at (0,0.6) {40};
+\node[bst] (d45) at (0,-0.5) {45};
+\draw (d30) -- (d40); \draw (d40) -- (d45);
+\node[align=center,font=\tiny] at (0,-1.3) {删 $40$：用唯一孩子\\$45$ 顶替};
+
+% (3) 两个孩子
+\node[font=\scriptsize] at (4.7,2.7) {(3) 两个孩子};
+\node[bst,fill=Amber!35,draw=Amber] (e60) at (4.7,1.7) {60};
+\node[bst] (e35) at (3.7,0.6) {35};
+\node[bst] (e75) at (5.7,0.6) {75};
+\node[bst] (e25) at (3.2,-0.5) {25};
+\node[bst,fill=Teal!45] (e45) at (4.2,-0.5) {45};
+\draw (e60) -- (e35); \draw (e60) -- (e75);
+\draw (e35) -- (e25); \draw (e35) -- (e45);
+\node[align=center,font=\tiny] at (4.7,-1.3) {删 $60$：中序前驱 $45$\\覆盖 $60$，再删原 $45$};
 \end{tikzpicture}
 \end{center}
-\textbf{旋转操作：}
+
+{\small\color{MutedText} 三个面板对应删除的三种情况。第三种也可用中序后继 $75$ 覆盖，得到的树形不同，但中序序列仍然是 $25,35,45,75$，两种做法都合法，除非题目指定用前驱或后继。}
+
+\subsection{AVL 树：把树高控制在 $O(\log n)$}
+
+BST 的查找代价完全取决于树高，而树高又取决于插入顺序。要让它稳定在 $O(\log n)$，就得在每次插入、删除后检查并修复失衡。AVL 树首先是一棵 BST，在此基础上再要求：任意结点的左右子树高度之差不超过 $1$。
+
+平衡因子定义为
+\[
+\mathrm{bf}=\text{左子树高度}-\text{右子树高度},
+\]
+AVL 树中每个结点的 $\mathrm{bf}\in\{-1,0,1\}$。空树高度记 $0$，只有根的树高度记 $1$。
+
+含 $n$ 个结点的 AVL 树能有多高？反过来问更好算：高度为 $h$ 的 AVL 树最少需要多少个结点。根占一个；为了让结点总数最少，左右子树高度取 $h-1$ 和 $h-2$（两者相差不超过 $1$），并且都取对应高度的最少结点形态，于是
+\[
+N(h)=N(h-1)+N(h-2)+1,\qquad N(0)=0,\ N(1)=1.
+\]
+依次得到
+\[
+\begin{array}{c|cccccc}
+h & 1 & 2 & 3 & 4 & 5 & 6\\ \hline
+N(h) & 1 & 2 & 4 & 7 & 12 & 20
+\end{array}
+\]
+这个数列比斐波那契数列每项少 $1$（$N(h)=F_{h+2}-1$），按指数增长，所以 $h=O(\log n)$，最坏约为 $1.44\log_2(n+1)$。高度为 $5$ 的 AVL 树至少要有 $12$ 个结点，而不是满二叉树的 $31$ 个。
+
+插入后失衡只可能出现在从插入点往根走的路径上。从插入点向上找到第一个 $|\mathrm{bf}|=2$ 的结点 $A$，看从 $A$ 到新结点走的两步方向，一共四种情况：
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth,
+  avl/.style={circle,draw=TealDark,fill=SoftTeal,minimum size=0.48cm,inner sep=0pt},
+  tri/.style={rectangle,draw=MutedText,fill=SoftGray,minimum width=0.5cm,minimum height=0.26cm,inner sep=0pt,font=\tiny}]
+% (a) LL
+\node[font=\scriptsize] at (-3.6,3.15) {(a) LL：右单旋};
+\node[avl] (aA) at (-5.2,1.9) {A};
+\node[avl] (aB) at (-5.9,1.0) {B};
+\node[tri] (aT3) at (-4.5,1.0) {$T_3$};
+\node[tri] (aT1) at (-6.25,0.1) {$T_1$};
+\node[tri] (aT2) at (-5.55,0.1) {$T_2$};
+\draw (aA)--(aB); \draw (aA)--(aT3); \draw (aB)--(aT1); \draw (aB)--(aT2);
+\node[avl] (bB) at (-2.7,1.9) {B};
+\node[tri] (bT1) at (-3.3,1.0) {$T_1$};
+\node[avl] (bA) at (-2.1,1.0) {A};
+\node[tri] (bT2) at (-2.35,0.1) {$T_2$};
+\node[tri] (bT3) at (-1.75,0.1) {$T_3$};
+\draw (bB)--(bT1); \draw (bB)--(bA); \draw (bA)--(bT2); \draw (bA)--(bT3);
+\draw[->,very thick,Amber] (-4.4,1.5) -- node[above,font=\tiny]{右旋} (-3.1,1.5);
+
+% (b) RR
+\node[font=\scriptsize] at (3.6,3.15) {(b) RR：左单旋};
+\node[avl] (cA) at (2.0,1.9) {A};
+\node[tri] (cT1) at (1.3,1.0) {$T_1$};
+\node[avl] (cB) at (2.7,1.0) {B};
+\node[tri] (cT2) at (2.35,0.1) {$T_2$};
+\node[tri] (cT3) at (2.95,0.1) {$T_3$};
+\draw (cA)--(cT1); \draw (cA)--(cB); \draw (cB)--(cT2); \draw (cB)--(cT3);
+\node[avl] (dB) at (4.5,1.9) {B};
+\node[avl] (dA) at (3.9,1.0) {A};
+\node[tri] (dT3) at (5.1,1.0) {$T_3$};
+\node[tri] (dT1) at (3.65,0.1) {$T_1$};
+\node[tri] (dT2) at (4.25,0.1) {$T_2$};
+\draw (dB)--(dA); \draw (dB)--(dT3); \draw (dA)--(dT1); \draw (dA)--(dT2);
+\draw[->,very thick,Amber] (3.3,1.5) -- node[above,font=\tiny]{左旋} (4.0,1.5);
+
+% (c) LR
+\node[font=\scriptsize] at (-3.6,-1.45) {(c) LR：先左旋 B，再右旋 A};
+\node[avl] (eA) at (-5.2,-2.6) {A};
+\node[avl] (eB) at (-5.9,-3.5) {B};
+\node[tri] (eT4) at (-4.5,-3.5) {$T_4$};
+\node[avl] (eC) at (-5.3,-4.4) {C};
+\node[tri] (eT1) at (-6.35,-4.4) {$T_1$};
+\node[tri] (eT2) at (-5.7,-5.3) {$T_2$};
+\node[tri] (eT3) at (-4.95,-5.3) {$T_3$};
+\draw (eA)--(eB); \draw (eA)--(eT4); \draw (eB)--(eC); \draw (eB)--(eT1);
+\draw (eC)--(eT2); \draw (eC)--(eT3);
+\node[avl] (fC) at (-2.7,-2.6) {C};
+\node[avl] (fB) at (-3.35,-3.5) {B};
+\node[avl] (fA) at (-2.05,-3.5) {A};
+\node[tri] (fT1) at (-3.7,-4.4) {$T_1$};
+\node[tri] (fT2) at (-3.0,-4.4) {$T_2$};
+\node[tri] (fT3) at (-2.4,-4.4) {$T_3$};
+\node[tri] (fT4) at (-1.7,-4.4) {$T_4$};
+\draw (fC)--(fB); \draw (fC)--(fA); \draw (fB)--(fT1); \draw (fB)--(fT2);
+\draw (fA)--(fT3); \draw (fA)--(fT4);
+\draw[->,very thick,Amber] (-4.4,-3.0) -- node[above,font=\tiny]{双旋} (-3.0,-3.0);
+
+% (d) RL
+\node[font=\scriptsize] at (3.6,-1.45) {(d) RL：先右旋 B，再左旋 A};
+\node[avl] (gA) at (2.0,-2.6) {A};
+\node[tri] (gT1) at (1.3,-3.5) {$T_1$};
+\node[avl] (gB) at (2.7,-3.5) {B};
+\node[avl] (gC) at (2.1,-4.4) {C};
+\node[tri] (gT4) at (3.4,-4.4) {$T_4$};
+\node[tri] (gT2) at (1.7,-5.3) {$T_2$};
+\node[tri] (gT3) at (2.5,-5.3) {$T_3$};
+\draw (gA)--(gT1); \draw (gA)--(gB); \draw (gB)--(gC); \draw (gB)--(gT4);
+\draw (gC)--(gT2); \draw (gC)--(gT3);
+\node[avl] (hC) at (4.5,-2.6) {C};
+\node[avl] (hA) at (3.85,-3.5) {A};
+\node[avl] (hB) at (5.15,-3.5) {B};
+\node[tri] (hT1) at (3.5,-4.4) {$T_1$};
+\node[tri] (hT2) at (4.15,-4.4) {$T_2$};
+\node[tri] (hT3) at (4.8,-4.4) {$T_3$};
+\node[tri] (hT4) at (5.5,-4.4) {$T_4$};
+\draw (hC)--(hA); \draw (hC)--(hB); \draw (hA)--(hT1); \draw (hA)--(hT2);
+\draw (hB)--(hT3); \draw (hB)--(hT4);
+\draw[->,very thick,Amber] (3.3,-3.0) -- node[above,font=\tiny]{双旋} (4.0,-3.0);
+\end{tikzpicture}
+\end{center}
+
+{\small\color{MutedText} 每个面板左边是失衡时的局部形态，右边是调整后的结果。LL 和 RR 只用一次单旋，LR 和 RL 要两次：先转孩子，再转失衡结点。判断类型时从 $A$ 沿插入方向走两步——“左左”是 LL，“左右”是 LR，依此类推。旋转不改变中序序列，只改父子关系。}
+
+以 LL 为例，右旋的代码只有三行指针操作：
+
 \begin{lstlisting}[language=C]
-// 右旋：以p为轴，将p的左孩子上提
 AVLNode *RotateRight(AVLNode *p) {
     AVLNode *L = p->lchild;
-    p->lchild = L->rchild;
+    p->lchild = L->rchild;      // L 的右子树挂到 p 的左边
     L->rchild = p;
-    return L;                        // 返回新根
+    return L;                   // L 成为新的子树根
 }
 \end{lstlisting}
-\end{conclusion}
 
-\begin{conclusion}{RR 型 —— 左单旋转}{avl-rr}
-\textbf{情况：} 在结点 A 的\textbf{右子树的右子树}上插入新结点导致 A 的平衡因子变为 $-2$。
+左旋完全对称，把 \texttt{lchild} 与 \texttt{rchild} 对调即可。LR 先对 $A$ 的左孩子左旋，再对 $A$ 右旋；RL 先对 $A$ 的右孩子右旋，再对 $A$ 左旋。
 
-\textbf{调整：} 对 A 执行\textbf{左旋}（Left Rotation）——将 A 的右孩子 B 上提为根，A 成为 B 的左孩子，B 的原左子树挂为 A 的右子树。LL 与 RR 互为镜像。
-\begin{lstlisting}[language=C]
-AVLNode *RotateLeft(AVLNode *p) {
-    AVLNode *R = p->rchild;
-    p->rchild = R->lchild;
-    R->lchild = p;
-    return R;                        // 返回新根
-}
-\end{lstlisting}
-\end{conclusion}
+插入最多做一次旋转（单旋或双旋）：调整后这棵子树的高度回到插入前的值，祖先的平衡因子不会继续变化。删除不一样，一次旋转可能让子树变矮，祖先可能接着失衡，所以删除最坏要沿路径做 $O(\log n)$ 次调整。
 
-\begin{conclusion}{LR 型 —— 先左旋后右旋}{avl-lr}
-\textbf{情况：} 在结点 A 的\textbf{左子树的右子树}（即 B 的右子树 C）上插入新结点导致 A 不平衡。
+\subsection{B-树：为磁盘访问设计的多路查找树}
 
-\textbf{调整：} 先对 B（A 的左孩子）执行\textbf{左旋}，使 B 的左子树变为 C 的左子树，C 代替 B 成为 A 的左孩子；再对 A 执行\textbf{右旋}。即「先左后右」双旋转。
-\begin{lstlisting}[language=C]
-// LR: 先左旋 L，再右旋 p
-p->lchild = RotateLeft(p->lchild);
-return RotateRight(p);
-\end{lstlisting}
-\end{conclusion}
+内存里的比较很快，磁盘的一次读写在毫秒级。二叉树每个结点只放一个关键字，$10^6$ 条记录树高约 $20$，意味着二十次磁盘访问；如果把一个结点做成一个磁盘块，放几百个关键字、几百个孩子，树高会降到三四层。B-树就是这种“多路、平衡”的查找树。
 
-\begin{conclusion}{RL 型 —— 先右旋后左旋}{avl-rl}
-\textbf{情况：} 在结点 A 的\textbf{右子树的左子树}上插入新结点导致 A 不平衡。
-
-\textbf{调整：} 先对 B（A 的右孩子）执行\textbf{右旋}，再对 A 执行\textbf{左旋}。即「先右后左」双旋转。为 LR 的镜像。
-\begin{lstlisting}[language=C]
-// RL: 先右旋 R，再左旋 p
-p->rchild = RotateRight(p->rchild);
-return RotateLeft(p);
-\end{lstlisting}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频考点——AVL 旋转小结：}
-\begin{itemize}
-    \item 从\textbf{插入位置}向上回溯，找到第一个 $|bf|=2$ 的结点（最小不平衡子树的根），以它为轴进行调整。
-    \item 判断旋转类型看「从被破坏平衡的结点出发，沿插入方向走两步」：两步都向左 $\to$ LL；先左后右 $\to$ LR；都向右 $\to$ RR；先右后左 $\to$ RL。
-    \item LR 和 RL 中，新结点插入到 C 的左子树还是右子树会影响旋转后各结点平衡因子的具体值（$0/\pm 1$），408 选择题和综合题均可能考察。
-    \item AVL 的\textbf{删除}也可能导致不平衡，调整方法类似——从被删结点的父结点开始向上检查，对每个失衡结点依据其较高子树的方向执行对应旋转（可能需要多次调整，不同于插入只需调整一次）。
-\end{itemize}
-\end{attention}
-
-\subsection{红黑树（Red-Black Tree）}
-
-\begin{mydef}{红黑树的定义}{rbtree-def}
-红黑树是一棵\textbf{每个结点都带有颜色（红/黑）}的自平衡二叉排序树，满足以下 5 条性质：
+\begin{mydef}{$m$ 阶 B-树}{ch6-btree}
+一棵 $m$ 阶 B-树满足：
 \begin{enumerate}
-    \item 每个结点是红色或黑色；
-    \item 根结点是黑色；
-    \item 每个叶结点（NULL / NIL）是黑色；
-    \item 若一个结点是红色，则它的两个子结点都是黑色（\textbf{不存在两个连续的红色结点}）；
-    \item 从任一结点到其每个叶结点的所有路径，包含\textbf{相同数目}的黑色结点（\textbf{黑高}相等）。
+  \item 每个结点最多有 $m$ 棵子树、$m-1$ 个关键字；
+  \item 除根外，每个数据结点至少有 $\lceil m/2\rceil-1$ 个关键字；若它还有孩子，则至少有 $\lceil m/2\rceil$ 棵子树；根若不是最底层，至少有 $2$ 棵子树；
+  \item 结点内关键字递增排列，$K_i$ 左侧子树的所有关键字小于 $K_i$，右侧子树的所有关键字大于 $K_i$；
+  \item 所有失败结点（最底层数据结点的空指针）都在同一层。
 \end{enumerate}
 \end{mydef}
 
+这里要先统一术语。有的教材把最底层存放关键字的结点叫“叶结点”，有的把它的空孩子叫“叶结点/失败结点”。本文把前者叫\textbf{数据结点}，后者叫\textbf{失败结点}；树高按数据结点的层数计，根为第 $1$ 层，不计失败结点层。读题时先看它是否把失败结点也算一层，必要时换算。
+
+一个数据结点的内部布局是“指针、关键字、指针、关键字……指针”：$n$ 个关键字把关键字空间切成 $n+1$ 段，正好对应 $n+1$ 个孩子指针。
+
 \begin{center}
-\begin{tikzpicture}[>=stealth, level distance=1.9cm, level 1/.style={sibling distance=3.8cm}, level 2/.style={sibling distance=2.0cm}, font=\scriptsize]
-\node[circle,minimum size=0.6cm,fill=black,text=white] (r) {10}
-  child { node[circle,minimum size=0.6cm,fill=Burgundy,text=white] {5}
-    child { node[circle,minimum size=0.6cm,fill=black,text=white] {3} }
-    child { node[circle,minimum size=0.6cm,fill=black,text=white] {7} } }
-  child { node[circle,minimum size=0.6cm,fill=Burgundy,text=white] {15}
-    child { node[circle,minimum size=0.6cm,fill=black,text=white] {12} }
-    child { node[circle,minimum size=0.6cm,fill=black,text=white] {18} } };
-\node[align=center,font=\scriptsize,black!70] at (6.7,0){\textbf{红黑树实例}\\（$\bullet$黑 \quad $\bullet$红）};
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+\node[draw,fill=SoftBlue,minimum width=1.0cm,minimum height=0.65cm] (p0) at (-3.3,0) {$P_0$};
+\node[draw,fill=SoftAmber,minimum width=1.0cm,minimum height=0.65cm] (k1) at (-2.2,0) {$K_1$};
+\node[draw,fill=SoftBlue,minimum width=1.0cm,minimum height=0.65cm] (p1) at (-1.1,0) {$P_1$};
+\node[draw,fill=SoftAmber,minimum width=1.0cm,minimum height=0.65cm] (k2) at (0,0) {$K_2$};
+\node[draw,fill=SoftBlue,minimum width=1.0cm,minimum height=0.65cm] (p2) at (1.1,0) {$P_2$};
+\node[draw,fill=SoftAmber,minimum width=1.0cm,minimum height=0.65cm] (k3) at (2.2,0) {$K_3$};
+\node[draw,fill=SoftBlue,minimum width=1.0cm,minimum height=0.65cm] (p3) at (3.3,0) {$P_3$};
+\node[draw,minimum width=1.5cm,minimum height=0.5cm] (s0) at (-3.3,-1.5) {$<K_1$};
+\node[draw,minimum width=1.5cm,minimum height=0.5cm] (s1) at (-1.1,-1.5) {$(K_1,K_2)$};
+\node[draw,minimum width=1.5cm,minimum height=0.5cm] (s2) at (1.1,-1.5) {$(K_2,K_3)$};
+\node[draw,minimum width=1.5cm,minimum height=0.5cm] (s3) at (3.3,-1.5) {$>K_3$};
+\draw[->] (p0) -- (s0); \draw[->] (p1) -- (s1);
+\draw[->] (p2) -- (s2); \draw[->] (p3) -- (s3);
+\node[font=\scriptsize] at (0,0.72) {$n$ 个关键字，$n+1$ 个孩子指针（图中 $n=3$）};
+\node[font=\scriptsize,text=MutedText] at (0,-2.25) {$K_1<K_2<K_3$；$P_i$ 指向的关键字都落在对应区间内};
 \end{tikzpicture}
 \end{center}
 
-\begin{formula}{红黑树为什么"近似平衡"}{rbtree-balance}
-由性质 4、5 可推出：红黑树任意结点到叶子的\textbf{最长路径}不超过\textbf{最短路径}的 $2$ 倍，进而树高 $h \leqslant 2\log_2(n+1)$。因此红黑树的查找、插入、删除复杂度均为 $O(\log n)$。它不像 AVL 那样要求 $\left|\text{bf}\right|\leqslant1$ 的\textbf{严格}平衡，而是用"颜色约束"维持一种\textbf{较松但足够好}的平衡——插入/删除时再做\textbf{更少的旋转}。
-\end{formula}
+{\small\color{MutedText} 图中关键字把整个关键字空间切成四段，每个指针负责一段。查找时先在结点内部确定落在哪一段（关键字有序，可以顺序比较，也可以折半），再沿对应指针下一层。结点内的比较在内存中完成，真正昂贵的是沿指针读下一层磁盘块。}
 
-\begin{attention}
-\textbf{插入修复思路（考试识图/判断用）：} 新插入结点先涂\textbf{红}（尽量不破坏性质 5）；若其父为黑则直接完成；若父为红（违反性质 4），按"叔叔结点"颜色分两种情况：
-\begin{itemize}
-    \item \textbf{叔叔为红}：父、叔变黑，祖父变红，把"复检"上移到祖父（可能向上递归调整）；
-    \item \textbf{叔叔为黑 / 无叔叔}：先旋转（LL/RR 单旋或 LR/RL 双旋，与 AVL 类似），再变色。
-\end{itemize}
-每次插入调整的旋转次数 $\leqslant 2$，删除稍复杂但同样为 $O(\log n)$。
-\end{attention}
+\textbf{查找。} 从根开始，在结点内找到第一个不小于待查关键字的位置：相等就成功；否则沿前一个指针下降。走到失败结点就说明不存在。磁盘访问次数等于树高，结点内比较次数不超过 $m$。
 
-\begin{attention}
-\textbf{408 高频考点——红黑树：}
-\begin{itemize}
-    \item \textbf{性质判断}：给定一棵树判断是否红黑树——逐条核对 5 条性质，\textbf{性质 4（无连续红）与性质 5（黑高相等）最常挖坑}；
-    \item \textbf{红黑树 vs AVL}：AVL 严格平衡（左右子树高度差 $\leqslant1$）、更"高瘦"、查找更快、但插入删除旋转更多；红黑树近似平衡、更"矮胖"、插入删除旋转更少。二者查找均为 $O(\log n)$，仅常数不同；
-    \item \textbf{复杂度}：红黑树查找/插入/删除均为 $O(\log n)$，最坏树高 $2\log_2(n+1)$；
-    \item \textbf{应用}：C++ STL 的 \texttt{map/set}、Java \texttt{TreeMap} 底层多采用红黑树；查找频繁、插入删除少的场合更偏好 AVL。
-\end{itemize}
-\end{attention}
-
-\subsection{B-树与B+树}
-
-\subsubsection{B-树}
-
-\begin{mydef}{$m$ 阶 B-树}{btree-def}
-一棵 $m$ 阶（order）B-树，或者为空树，或者是满足以下性质的\textbf{平衡多路查找树}：
-\begin{enumerate}
-    \item 每个结点至多有 $m$ 棵子树（即至多 $m-1$ 个关键字）。
-    \item \textbf{除根结点外}，每个非终端结点至少有 $\lceil m/2\rceil$ 棵子树（即至少 $\lceil m/2\rceil - 1$ 个关键字）。根结点若非叶结点，则至少有 2 棵子树。
-    \item 每个结点中的关键字\textbf{有序排列}：$K_1 < K_2 < \cdots < K_n$；对每个关键字 $K_i$，其左侧指针 $P_{i-1}$ 所指子树中所有关键字均 $< K_i$，右侧指针 $P_i$ 所指子树中所有关键字均 $> K_i$。
-    \item 所有\textbf{叶结点}（失败结点/外结点）出现在同一层，且不带信息（可视为空指针）。
-\end{enumerate}
-
-\textbf{本文术语约定：} 为避免「叶结点」的双重含义，存放关键字的结点统称\textbf{数据结点}，最底层存放关键字的结点称\textbf{最底层数据结点}；其空子树指针指向的概念结点称\textbf{外部失败结点}。B-树高度 $h$ 统一记为数据结点的层数（根为第 1 层），不计外部失败结点层。若题干采用边数或把外部结点计层，需先换算口径。
-\end{mydef}
+\textbf{插入。} 新关键字总是先插入最底层数据结点。若插入后关键字数不超过 $m-1$，直接完成；若达到 $m$ 个，就把结点分裂：取第 $\lceil m/2\rceil$ 个关键字上升给父结点，左右两半各成一个结点（$m$ 为偶数时取第 $m/2$ 或 $m/2+1$ 个都能保持合法，本文统一取前者，题目另行指定时按题目）。父结点可能因此也达到 $m$ 个，继续分裂，最坏一直传到根；根分裂时产生新根，树高加 $1$。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw,rectangle,minimum width=2.0cm,minimum height=0.7cm,fill=Navy!12] (root) at (0,0) {$20\mid50$};
-\node[draw,rectangle,minimum width=1.7cm,minimum height=0.7cm,fill=Teal!12] (c1) at (-3.3,-1.9) {$10\mid15$};
-\node[draw,rectangle,minimum width=1.7cm,minimum height=0.7cm,fill=Teal!12] (c2) at (0,-1.9) {$30\mid40$};
-\node[draw,rectangle,minimum width=1.7cm,minimum height=0.7cm,fill=Teal!12] (c3) at (3.3,-1.9) {$60\mid70$};
-\draw[->] (root) -- (c1);
-\draw[->] (root) -- (c2);
-\draw[->] (root) -- (c3);
-\node[align=center,font=\scriptsize,black!70] at (0,-3.2){一棵 3 阶 B-树：根结点含 $[20,50]$，三个孩子含 $[10,15]$、$[30,40]$、$[60,70]$\\数据结点关键字有序（如 $10<15$），各子树被相应关键字分隔；下层外部失败结点都在同一层};
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+\node[draw,fill=SoftBlue,minimum width=1.2cm,minimum height=0.6cm] (r1) at (-3.5,1.9) {$50$};
+\node[draw,fill=SoftAmber,draw=Burgundy,minimum width=3.9cm,minimum height=0.65cm] (l1) at (-4.6,0.3) {$10,20,25,30,40$};
+\node[draw,fill=SoftTeal,minimum width=2.0cm,minimum height=0.65cm] (r2) at (-1.9,0.3) {$60,70$};
+\draw[->] (r1) -- (l1); \draw[->] (r1) -- (r2);
+\node[align=center,font=\tiny,text=Burgundy] at (-4.6,-0.55) {插入 $25$ 后有 $5$ 个关键字\\超过上限 $m-1=4$};
+
+\node[draw,fill=SoftBlue,minimum width=2.4cm,minimum height=0.6cm] (R1) at (3.5,1.9) {$25,50$};
+\node[draw,fill=SoftTeal,minimum width=1.7cm,minimum height=0.65cm] (L1) at (1.65,0.3) {$10,20$};
+\node[draw,fill=SoftTeal,minimum width=1.7cm,minimum height=0.65cm] (L2) at (3.55,0.3) {$30,40$};
+\node[draw,fill=SoftTeal,minimum width=1.7cm,minimum height=0.65cm] (L3) at (5.45,0.3) {$60,70$};
+\draw[->] (R1) -- (L1); \draw[->] (R1) -- (L2); \draw[->] (R1) -- (L3);
+\node[align=center,font=\tiny] at (3.6,-0.55) {$25$ 上升，左右各 $2$ 个关键字};
+\draw[->,very thick,Amber] (-0.8,0.9) -- node[above,font=\tiny]{分裂} (0.9,0.9);
 \end{tikzpicture}
 \end{center}
 
-\begin{formula}{B-树的结点结构}{btree-node}
-\begin{lstlisting}[language=C]
-#define MAXM 5           // B-树的阶
-typedef struct BTNode {
-    int keynum;                        // 结点中关键字个数
-    KeyType key[MAXM - 1];             // 关键字数组
-    struct BTNode *ptr[MAXM];          // 子树指针数组
-    // 可包含指向数据记录的指针
-} BTNode, *BTree;
-\end{lstlisting}
-\textbf{408 常考性质：} $n$ 个关键字的 $m$ 阶 B-树，除根以外的非叶结点关键字数 $k$ 满足：
+{\small\color{MutedText} 左图是 $m=5$（最多 $4$ 个关键字）时的一次溢出：插入 $25$ 后左孩子有五个关键字。取第 $\lceil 5/2\rceil=3$ 个关键字 $25$ 上升，左边留下 $10,20$，右边留下 $30,40$，父结点变成 $25,50$。若父结点也满了，就对父结点重复同样的分裂。}
+
+\textbf{删除。} 先找到关键字。若它不在最底层，用中序前驱或后继替换它，问题转成删除最底层的关键字。删除后若关键字数低于 $\lceil m/2\rceil-1$，就发生下溢：
+\begin{itemize}
+  \item 兄弟结点够借（关键字数多于下限）：父结点中的分隔关键字下移，兄弟中相邻的关键字上移，相当于绕父结点转一下；
+  \item 兄弟也只有下限个关键字：把当前结点、父结点中的分隔关键字、兄弟合并成一个结点。父结点少了一个关键字，可能继续下溢。
+\end{itemize}
+根结点只剩 $0$ 个关键字时，删除根，让它的唯一孩子成为新根，树高减 $1$。
+
+\textbf{高度。} $n$ 个关键字对应 $n+1$ 个空指针（失败结点）。高度为 $h$ 时，失败结点至少有 $2\lceil m/2\rceil^{h-1}$ 个，因此
 \[
-\big\lceil \tfrac{m}{2}\big\rceil - 1 \;\leqslant\; k \;\leqslant\; m-1
+n+1\ge 2\left\lceil\frac{m}{2}\right\rceil^{h-1}
+\quad\Longrightarrow\quad
+h\le 1+\log_{\lceil m/2\rceil}\frac{n+1}{2}.
 \]
-\end{formula}
+另一方面，高度为 $h$ 的 $m$ 阶 B-树最多有 $m^h-1$ 个关键字，所以
+\[
+h\ge \left\lceil\log_m(n+1)\right\rceil.
+\]
+以 $m=3$、$n=7$ 为例，最矮可以是 $2$ 层（最多 $3^2-1=8$ 个关键字），最高不超过 $1+\log_2 4=3$ 层。实际树高取决于插入、删除的历史，不一定取到这两个端点。
 
-\begin{conclusion}{B-树的查找}{btree-search}
-B-树的查找与 BST 类似，但每个结点内还需\textbf{在有序关键字数组中查找}（可用顺序或折半查找）：
-\begin{enumerate}
-    \item 在根结点中查找，若找到则成功；
-    \item 否则，根据关键字大小关系确定应在哪个子树中继续查找；
-    \item 重复直到找到（成功）或到达外部失败结点（不成功）。
-\end{enumerate}
-\textbf{时间复杂度}：$O(\log_m n)$ 级别（$O(h)$，$h$ 为 B-树高度）。
-\end{conclusion}
+\subsection{B+ 树：把索引和数据分开}
 
-\begin{conclusion}{B-树的插入与分裂}{btree-insert}
-插入操作先将关键字插入到对应的\textbf{最底层数据结点}：
-\begin{enumerate}
-    \item 找到该关键字应插入的叶结点位置；
-    \item 若该结点关键字个数 $< m-1$，直接插入；
-    \item 若插入后关键字个数 $= m$（超出上限），则进行\textbf{分裂}（Split）：
-    \begin{itemize}
-        \item 将结点从中间位置 $\lceil m/2\rceil$ 处分裂为两个结点，中间关键字提升到父结点；
-        \item 若父结点也因此超上限，则父结点继续分裂，\textbf{分裂可能向上传播至根}；
-        \item 若根也分裂，则产生新根，B-树高度增加 1。
-    \end{itemize}
-\end{enumerate}
-\textbf{408 典型操作题：} 给定一个初始 B-树（通常 3 阶或 5 阶），依次插入若干关键字，画出每一步的结果。
-\end{conclusion}
+B+ 树是 B-树为数据库和文件系统改造出来的变体。最大的变化是：分支结点只存索引，所有关键字和记录指针都放在叶结点；叶结点之间再用指针串成有序链表。
 
-\begin{conclusion}{B-树的删除}{btree-delete}
-删除分为两步：先\textbf{找到}待删关键字所在结点，然后执行删除。若待删关键字不在最底层数据结点中，则用其直接前驱（或直接后继）替代，再删除替代结点（归结为删除最底层数据结点中的关键字）。
-
-删除后可能导致结点关键字个数低于下限（$\lceil m/2\rceil - 1$，根除外），需进行\textbf{调整}：
+具体性质可以对照 B-树记：
 \begin{itemize}
-    \item \textbf{借（Borrow）：} 若左/右兄弟结点富裕（关键字数 $\geqslant \lceil m/2\rceil$），从兄弟「借」一个关键字过来——通过父结点中转。
-    \item \textbf{合并（Merge）：} 若左/右兄弟都不富裕，则与兄弟（及父结点中的分隔关键字）合并为一个结点。合并可能导致父结点关键字也低于下限，向上递归。
+  \item 每个分支结点最多有 $m$ 棵子树；非叶根至少 $2$ 棵，其他分支结点至少 $\lceil m/2\rceil$ 棵；
+  \item 分支结点的子树个数与关键字个数相等（B-树是关键字数比子树数少 $1$）；
+  \item 分支结点中的关键字是各子树最大关键字的副本，只起分界作用；
+  \item 所有关键字都出现在叶结点，叶结点存放记录指针（或记录本身），并按关键字顺序链接。
 \end{itemize}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频考点——B-树性质：}
-\begin{itemize}
-    \item $n$ 个关键字的非空 $m$ 阶 B-树，按本文「数据结点层数」定义的\textbf{最大高度}满足：
-    \[
-    h_{\max} \leqslant \log_{\lceil m/2\rceil}\!\left(\frac{n+1}{2}\right) + 1
-    \]
-    \item \textbf{最小高度}满足 $h_{\min}=\lceil\log_m(n+1)\rceil$；因为高度为 $h$ 时至多有 $m^h-1$ 个关键字。
-    \item 结点分裂时，若 $m$ 为奇数，中间关键字 $\lceil m/2\rceil$ 上升；若 $m$ 为偶数，$\lceil m/2\rceil$ 或 $\lceil m/2\rceil+1$ 均可（取决于实现，但通常取 $\lceil m/2\rceil$，即中间偏左）。
-    \item B-树的所有外部失败结点在同一层，等价地，所有最底层数据结点在同一层，这是其「平衡性」的体现。
-\end{itemize}
-\end{attention}
-
-\subsubsection{B+树}
-
-\begin{mydef}{$m$ 阶 B+树}{bplus-tree}
-B+树是 B-树的一种变形，广泛应用于数据库索引。与 B-树的主要区别：
-\begin{enumerate}
-    \item 每个非叶结点至多有 $m$ 棵子树，至少有 $\lceil m/2\rceil$ 棵（根除外）。
-    \item 按 408 教材的常用定义，非叶结点有 $n$ 棵子树时含有 $n$ 个索引关键字；非叶根至少有 2 棵子树，因而含 2 至 $m$ 个关键字。
-    \item 非叶结点\textbf{仅起索引作用}，不存储指向数据记录的指针，只存储关键字和子树指针。
-    \item \textbf{所有关键字都出现在叶结点中}，叶结点包含全部关键字及指向数据记录的指针。
-    \item 叶结点之间按关键字大小\textbf{顺序链接}（通常为单链表），支持高效的范围查询。
-    \item 查找时即使中间结点有关键字匹配，也\textbf{必须继续走到叶结点}才能确认——因为 B+树中非叶结点的关键字只是索引项，不一定对应实际存在的记录（被删除的记录可能仍在非叶结点中作为分界值）。
-\end{enumerate}
-\end{mydef}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % 根 / 内部结点（仅索引关键字）
-  \node[draw,rectangle,minimum width=3.2cm,minimum height=0.7cm,fill=Navy!12] (root) at (0,0) {索引：$7\mid9$};
-  % 叶结点（含全部关键字 + 记录指针）
-  \node[draw,rectangle,minimum width=2.3cm,minimum height=0.8cm,fill=Teal!14] (L1) at (-3.0,-1.7) {$1\mid3\mid7$};
-  \node[draw,rectangle,minimum width=2.3cm,minimum height=0.8cm,fill=Teal!14] (L2) at (0,-1.7) {$8\mid9$};
-  \node[draw,rectangle,minimum width=2.3cm,minimum height=0.8cm,fill=Teal!14] (L3) at (3.0,-1.7) {$13\mid15$};
-  % 父子指针
-  \draw[->] (root.south) -- (L1.north);
-  \draw[->] (root.south) -- (L2.north);
-  \draw[->] (root.south) -- (L3.north);
-  % 叶子链表（next 指针）
-  \draw[->,thick] (L1.east) -- (L2.west);
-  \draw[->,thick] (L2.east) -- (L3.west) node[midway,above,font=\scriptsize]{next};
-  % 说明
-  \node[align=center,font=\scriptsize,black!70] at (0,-3.0){内部结点只存\textbf{索引}；全部关键字与记录指针都在\textbf{叶结点}\\叶结点按关键字\textbf{顺序链接}，范围查询直接沿链表扫描};
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+\node[draw,fill=SoftBlue,minimum width=4.6cm,minimum height=0.7cm] (root) at (0,0) {$5\mid11\mid17$};
+\node[align=center,font=\tiny,text=MutedText] at (0,0.75) {分支结点：每个关键字是其子树的最大关键字};
+\node[draw,fill=SoftAmber,minimum width=2.4cm,minimum height=0.85cm,align=center] (L2) at (0,-1.9) {$7\quad9\quad\textcolor{Burgundy}{11}$\\[-2pt]{\tiny 记录指针}};
+\node[draw,fill=SoftTeal,minimum width=2.4cm,minimum height=0.85cm,align=center] (L1) at (-3.7,-1.9) {$1\quad3\quad5$\\[-2pt]{\tiny 记录指针}};
+\node[draw,fill=SoftTeal,minimum width=2.4cm,minimum height=0.85cm,align=center] (L3) at (3.7,-1.9) {$13\quad15\quad17$\\[-2pt]{\tiny 记录指针}};
+\draw[->] ([xshift=-1.3cm]root.south) -- (L1.north);
+\draw[->,Burgundy,thick,dashed] (root.south) -- node[right,font=\tiny]{查 $11$ 仍要下到叶子} (L2.north);
+\draw[->] ([xshift=1.3cm]root.south) -- (L3.north);
+\draw[->,very thick,Teal] (L1.east) -- node[above,font=\tiny]{next} (L2.west);
+\draw[->,very thick,Teal] (L2.east) -- node[above,font=\tiny]{next} (L3.west);
+\node[align=center,font=\scriptsize] at (0,-3.0) {所有关键字都在叶结点；叶链支持范围扫描};
 \end{tikzpicture}
 \end{center}
 
-\begin{tablebox}{B-树与 B+树的对比（408 常考）}
+{\small\color{MutedText} 图中分支结点的 $5,11,17$ 分别是三棵子树的最大关键字，它们只是索引副本，真正的记录指针在叶结点。查 $11$ 时虽然根结点里已经出现 $11$，仍必须沿中间指针下到叶子才能拿到记录；查范围 $[9,15]$ 时先定位到中间的叶子，再沿 \texttt{next} 指针扫到右边的叶子。}
+
+B+ 树和 B-树最容易混淆的几点，可以放在一起看：
+
+\begin{tablebox}{B-树与 B+ 树的区别}
 \centering
-\begin{tabularx}{\linewidth}{|l|X|X|}
-\hline
-\textbf{对比维度} & \textbf{B-树} & \textbf{B+树} \\
-\hline
-关键字存储 & 每个结点都存关键字+记录指针 & 非叶仅存关键字（索引），叶存全部+记录指针 \\
-\hline
-查找成功结束位置 & 任意层（找到即停） & 必须到叶结点 \\
-\hline
-叶结点结构 & 无链接 & 有指向下一叶结点的指针 \\
-\hline
-范围查询效率 & 需中序遍历 & $O(\log_m n + k)$，沿叶结点链直接扫描 \\
-\hline
-根结点关键字数 & $[1, m-1]$（非叶时至少 2 个子树） & 非叶根 $[2,m]$；根即叶时 $[1,m]$ \\
-\hline
-每个关键字出现次数 & 仅一次 & 非叶结点中可出现多次（作为索引分界值） \\
-\hline
+\small
+\begin{tabularx}{\linewidth}{@{}lXX@{}}
+\toprule
+ & B-树 & B+ 树\\
+\midrule
+关键字与记录指针 & 每个结点都可能存记录指针 & 只有叶结点存记录指针\\
+分支结点关键字数 & 子树数减 $1$ & 与子树数相等，是子树最大关键字的副本\\
+查找结束位置 & 任意层命中即可结束 & 必须走到叶结点\\
+叶结点 & 无链接 & 按关键字顺序链接\\
+范围查询 & 需要中序遍历 & 定位左端点后沿叶链扫描\\
+\bottomrule
 \end{tabularx}
 \end{tablebox}
 
-\begin{attention}
-\textbf{408 常考对比题：}
+同样大的磁盘块，B+树的分支结点不存记录指针，能放下更多索引项，树更矮，磁盘 I/O 更少；叶链又让范围查询不需要回到上层。这就是数据库索引普遍采用 B+树的原因。B-树则在单点查找时可能在分支结点提前命中，结构更紧凑。
+
+\subsection{散列表}
+
+前面所有方法都靠比较关键字来缩小范围，散列则试图不比较：用一个函数把关键字直接算成地址。比如学号 $20230117$，令 $H(k)=k\bmod 1000$，地址就是 $117$。理想情况下一次就能定位，时间复杂度 $O(1)$。
+
+问题是不同的关键字可能算出同一个地址，这叫冲突。例如 $117$ 和 $20231117$ 都会落到 $117$。散列技术要解决两件事：设计一个把关键字打散的散列函数；冲突发生时安排一个规则继续找位置。
+
+\textbf{散列函数。} 常见的有：
 \begin{itemize}
-    \item B+树支持\textbf{顺序访问}和\textbf{随机访问}两种方式——顺序访问通过叶结点链表实现；B-树只能通过中序遍历顺序访问。
-    \item B+树更适合文件系统和数据库索引的原因是：叶结点链支持高效范围查询（Range Query）；非叶结点不存数据，每个结点可容纳更多关键字，树更矮，减少磁盘 I/O。
-    \item B-树更适合「单点查询」，因为可能在非叶结点就命中。
-\end{itemize}
-\end{attention}
-
-\subsection{散列表（Hash Table）}
-
-\begin{mydef}{散列表与散列函数}{hash-def}
-\textbf{散列表}（Hash Table）：根据关键字直接计算存储位置的数据结构。基本思想：以关键字 $key$ 为自变量，通过\textbf{散列函数}（Hash Function）$H(key)$ 计算出对应的存储地址。
-
-理想情况下，查找无需比较即可直接定位——期望时间复杂度 $O(1)$。但不同的关键字可能映射到同一地址，称为\textbf{冲突}（Collision）。散列技术的核心问题：设计好的散列函数和冲突处理方法。
-\end{mydef}
-
-\begin{formula}{散列函数的构造方法}{hash-funcs}
-常见的散列函数设计方法：
-\begin{enumerate}
-    \item \textbf{除留余数法}（Division Method）：
-    \[
-    H(key) = key \bmod p
-    \]
-    $p$ 为不大于表长 $m$ 的素数（或不包含小于 20 的质因数的合数）。408 中最常见的方法。
-
-    \item \textbf{平方取中法}（Mid-Square Method）：取关键字平方后的中间几位作为散列地址。适用于关键字的每一位分布都不够均匀的场景。
-
-    \item \textbf{直接定址法}：$H(key)=a\cdot key+b$（$a,b$ 为常数）。适用于关键字基本连续的情况，不会产生冲突，但空间利用率低。
-
-    \item \textbf{数字分析法}：选取关键字中分布较均匀的若干位作为散列地址。适用于关键字位数较多且某些位分布均匀的场景。
-
-    \item \textbf{折叠法}：将关键字分割为位数相等的几段，叠加后取后几位。如移位叠加和边界叠加。
-\end{enumerate}
-\textbf{408 考试中}，除留余数法是最常考的散列函数构造方法。
-\end{formula}
-
-\subsubsection{冲突处理方法}
-
-\begin{formula}{开放定址法（Open Addressing）}{open-addressing}
-发生冲突时，按某种探测序列在散列表中寻找下一个空闲位置：
-\[
-H_i = \big(H(key) + d_i\big) \bmod m,\quad i=0,1,2,\ldots
-\]
-三种常见的探测方式：
-
-\textbf{（1） 线性探测法（Linear Probing）：} $d_i = i$（即 $0, 1, 2, 3, \ldots$）。
-\begin{itemize}
-    \item 优点：实现简单。
-    \item 缺点：容易产生\textbf{聚集}（Clustering）现象——冲突的关键字会聚集在相邻的位置，降低查找效率。
+  \item 除留余数法：$H(k)=k\bmod p$，$p$ 取不大于表长 $m$ 的最大素数。它最简单，也最常考。不要把 $p$ 取成 $2$ 的幂，否则关键字的低位相同就会全部冲突。
+  \item 直接定址法：$H(k)=a k+b$。关键字基本连续时不会冲突，但地址空间可能浪费很大。
+  \item 平方取中法：把关键字平方，取中间几位。关键字的每一位都不够均匀时，平方后中间位通常更均匀。
+  \item 数字分析法：关键字位数较多时，挑分布均匀的若干位作地址。
+  \item 折叠法：把关键字分成等长几段，相加后取低位。
 \end{itemize}
 
-\textbf{（2） 二次探测法（Quadratic Probing）：} $d_i = 1^2, -1^2, 2^2, -2^2, \ldots$（即 $0, 1, -1, 4, -4, \ldots$），即
+\textbf{装填因子。} 记
 \[
-H_i = \big(H(key) + i^2\big) \bmod m \quad\text{或}\quad H_i = \big(H(key) \pm i^2\big) \bmod m
+\alpha=\frac{n}{m},
 \]
-可以缓解聚集现象。若采用 $\pm i^2$ 的对称探测序列，并希望覆盖全部位置，常取表长 $m=4k+3$ 的素数；只采用单向 $i^2$ 时通常只能覆盖部分位置，不能把该条件笼统套用于所有二次探测实现。
+其中 $n$ 是已存入的记录数，$m$ 是散列表长度。$\alpha$ 越大，表越满，冲突越多。开放定址法必须 $\alpha<1$；链地址法可以超过 $1$，但链会变长。
 
-\textbf{（3） 双重散列法（Double Hashing）：} $d_i = i \times H_2(key)$，其中 $H_2(key)$ 是另一个散列函数。$H_2(key)$ 应与 $m$ 互质。是最有效的开放定址法之一。
+\subsubsection{开放定址法}
 
-\textbf{通用规则：} 无论哪种探测方式，开放定址法\textbf{不能真正删除}元素——删除只能做逻辑删除（标记删除），否则会切断探测序列导致后续查找失败。
-\end{formula}
+冲突时按一个探测序列找下一个空槽：
+\[
+H_i=\bigl(H(key)+d_i\bigr)\bmod m,\qquad i=0,1,2,\ldots
+\]
+常用的 $d_i$ 有三种：
+
+\begin{itemize}
+  \item 线性探测：$d_i=i$，即依次看 $H,H+1,H+2,\ldots$。实现最简单，但会产生\textbf{聚集}：一段连续被占用后，任何落到这段里的关键字都要往后排，这段就越排越长。
+  \item 二次探测：$d_i=1^2,-1^2,2^2,-2^2,\ldots$，即左右交替跳平方步。它能打散线性探测的连续聚集；若希望双向平方探测覆盖整张表，常取 $m$ 为 $4k+3$ 的素数。只取单向 $i^2$ 时通常覆盖不了全部位置，不能把“$4k+3$”无条件套到所有二次探测实现上。
+  \item 双重散列：$d_i=i\cdot H_2(key)$，步长由第二个散列函数决定。$H_2(key)$ 要与 $m$ 互质，否则探测序列可能只覆盖表的一部分。它打散效果最好。
+\end{itemize}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 11 个槽位（下标 0..10）
-\foreach \nn in {0,...,10} {
-  \node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,align=center] (s\nn) at (\nn*0.9,0) {\tiny \nn\\\strut};
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+\foreach \i in {0,1,2,10} {
+  \node[draw,minimum width=0.75cm,minimum height=1.0cm,align=center] (h\i) at (\i*0.85,0) {\tiny \i\\[1pt]--};
 }
-% 依次插入 26,25,72,38,8,18,59（H(k)=k mod 11）
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f3) at (3*0.9,0) {\tiny 3\\25};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f4) at (4*0.9,0) {\tiny 4\\26};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f5) at (5*0.9,0) {\tiny 5\\38};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f6) at (6*0.9,0) {\tiny 6\\72};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f7) at (7*0.9,0) {\tiny 7\\18};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Teal!15,align=center] (f8) at (8*0.9,0) {\tiny 8\\8};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.8cm,fill=Amber!20,align=center] (f9) at (9*0.9,0) {\tiny 9\\59};
-\node[align=center,font=\scriptsize,black!70] at (4.5,-1.4){开放定址法（线性探测）：$H(k)=k\bmod 11$\\插入 59 时 $H(59)=4$ 冲突，沿 $4\to5\to6\to7\to8\to9$ 探测，最终落位 9（槽中上为下标、下为关键字）};
+\foreach \i/\k in {3/25,4/26,5/38,6/72,7/18,8/8} {
+  \node[draw,fill=SoftTeal,minimum width=0.75cm,minimum height=1.0cm,align=center] (h\i) at (\i*0.85,0) {\tiny \i\\[1pt]\k};
+}
+\node[draw,fill=SoftAmber,minimum width=0.75cm,minimum height=1.0cm,align=center] (h9) at (9*0.85,0) {\tiny 9\\[1pt]58};
+\node[font=\tiny,text=Burgundy] at (3*0.85,0.72) {1};
+\node[font=\tiny,text=Burgundy] at (4*0.85,0.72) {1};
+\node[font=\tiny,text=Burgundy] at (5*0.85,0.72) {1};
+\node[font=\tiny,text=Burgundy] at (6*0.85,0.72) {1};
+\node[font=\tiny,text=Burgundy] at (7*0.85,0.72) {1};
+\node[font=\tiny,text=Burgundy] at (8*0.85,0.72) {1};
+\node[font=\tiny,text=Burgundy] at (9*0.85,0.72) {7};
+\node[font=\tiny,text=MutedText] at (0*0.85,-0.72) {1};
+\node[font=\tiny,text=MutedText] at (1*0.85,-0.72) {1};
+\node[font=\tiny,text=MutedText] at (2*0.85,-0.72) {1};
+\node[font=\tiny,text=MutedText] at (3*0.85,-0.72) {8};
+\node[font=\tiny,text=MutedText] at (4*0.85,-0.72) {7};
+\node[font=\tiny,text=MutedText] at (5*0.85,-0.72) {6};
+\node[font=\tiny,text=MutedText] at (6*0.85,-0.72) {5};
+\node[font=\tiny,text=MutedText] at (7*0.85,-0.72) {4};
+\node[font=\tiny,text=MutedText] at (8*0.85,-0.72) {3};
+\node[font=\tiny,text=MutedText] at (9*0.85,-0.72) {2};
+\node[font=\tiny,text=MutedText] at (10*0.85,-0.72) {1};
+\node[font=\scriptsize] at (4.25,1.45) {插入 $58$：$H(58)=3$，探测 $3\to4\to5\to6\to7\to8\to9$};
+\draw[RuleGray] (3*0.85-0.38,-1.2) -- (9*0.85+0.38,-1.2);
+\draw[RuleGray] (3*0.85-0.38,-1.2) -- (3*0.85-0.38,-1.28);
+\draw[RuleGray] (9*0.85+0.38,-1.2) -- (9*0.85+0.38,-1.28);
+\node[font=\tiny,text=MutedText] at (6.0,-1.42) {连续占用形成聚集区};
 \end{tikzpicture}
 \end{center}
 
-\begin{formula}{链地址法（Separate Chaining）}{separate-chaining}
-将所有散列地址相同的关键字链接在同一个\textbf{单链表}中。散列表的每个槽位是一个链表的头指针。
+{\small\color{MutedText} 图中 $H(k)=k\bmod 11$，依次插入 $26,25,72,38,8,18,58$。前六个关键字各就各位，$58$ 的本地址 $3$ 已被占用，沿 $4,5,6,7,8,9$ 一路探测，直到 $10$ 号槽为空才停下。上方数字是每个关键字的成功探测次数，下方数字是从该地址出发查找不存在关键字时的探测次数（含最后遇到的空槽）。$3\sim9$ 号槽连成一片，就是线性探测的聚集现象。}
+
+开放定址法有一个容易忽略的限制：删除不能直接把槽置空，否则会截断其他关键字的探测序列。比如把 $26$ 从 $4$ 号槽删掉，再查 $58$，探测到 $4$ 号槽为空就会误判“不存在”，而 $58$ 其实在 $9$ 号槽。正确做法是留下删除标记（墓碑），查找时跳过它，插入时可以复用它。
+
+\subsubsection{链地址法}
+
+链地址法把所有散列到同一地址的记录挂成一条单链表，散列表的每个槽只存链表的头指针。
+
 \begin{lstlisting}[language=C]
 typedef struct HashNode {
     KeyType key;
@@ -718,279 +653,159 @@ typedef struct HashNode {
 } HashNode;
 
 typedef struct {
-    HashNode *table[MAXSIZE];   // 链表头指针数组
+    HashNode *table[MAXSIZE];
     int size;
 } HashTable;
 \end{lstlisting}
-\textbf{优点：}
-\begin{itemize}
-    \item 不会出现「堆积」现象；
-    \item 删除操作简单（直接链表删除）；
-    \item 装填因子 $\alpha$ 可大于 1（但太大影响效率）；
-    \item 适用于表长不确定的场景。
-\end{itemize}
-\textbf{缺点：} 需要额外的指针空间。
-\end{formula}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 桶（表头数组）
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.5cm,fill=SoftBlue,draw=Navy,text=NavyDark,font=\scriptsize\bfseries] (bk0) at (0,2.0) {0};
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.5cm,fill=SoftBlue,draw=Navy,text=NavyDark,font=\scriptsize\bfseries] (bk1) at (0,1.0) {1};
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.5cm,fill=SoftBlue,draw=Navy,text=NavyDark,font=\scriptsize\bfseries] (bk2) at (0,0) {2};
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.5cm,fill=SoftBlue,draw=Navy,text=NavyDark,font=\scriptsize\bfseries] (bk3) at (0,-1.0) {3};
-\node[draw,rectangle,minimum width=0.6cm,minimum height=0.5cm,fill=SoftBlue,draw=Navy,text=NavyDark,font=\scriptsize\bfseries] (bk4) at (0,-2.0) {4};
-% 桶0: 5 -> NULL
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c00) at (1.4,2.0){5};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (n0) at (2.8,2.0){$\wedge$};
-\draw[->] (bk0) -- (c00);
-\draw[->] (c00) -- (n0);
-% 桶1: NULL
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (n1) at (1.4,1.0){$\wedge$};
-\draw[->] (bk1) -- (n1);
-% 桶2: 12 -> 17 -> 2 -> NULL
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c20) at (1.4,0){12};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c21) at (2.8,0){17};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c22) at (4.2,0){2};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (n2) at (5.6,0){$\wedge$};
-\draw[->] (bk2) -- (c20);
-\draw[->] (c20) -- (c21);
-\draw[->] (c21) -- (c22);
-\draw[->] (c22) -- (n2);
-% 桶3: 3 -> 8 -> NULL
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c30) at (1.4,-1.0){3};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (c31) at (2.8,-1.0){8};
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (n3) at (4.2,-1.0){$\wedge$};
-\draw[->] (bk3) -- (c30);
-\draw[->] (c30) -- (c31);
-\draw[->] (c31) -- (n3);
-% 桶4: NULL
-\node[draw,rectangle,minimum width=0.55cm,minimum height=0.5cm,fill=SoftGray] (n4) at (1.4,-2.0){$\wedge$};
-\draw[->] (bk4) -- (n4);
-\node[align=center,font=\scriptsize,black!70] at (2.6,-3.0){链地址法：$H(k)=k\bmod 5$，依次插入 $5,12,3,8,17,2$\\同地址关键字链成单链表，左侧数组为散列表（表头指针）};
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+\foreach \r/\lab in {0/0,1/1,2/2,3/3,4/4} {
+  \node[draw,fill=SoftBlue,minimum width=0.65cm,minimum height=0.55cm] (b\r) at (0,2-\r) {\lab};
+}
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (c0) at (1.4,2) {5};
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (n0) at (2.5,2) {$\wedge$};
+\draw[->] (b0) -- (c0); \draw[->] (c0) -- (n0);
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (n1) at (1.4,1) {$\wedge$};
+\draw[->] (b1) -- (n1);
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (c20) at (1.4,0) {2};
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (c21) at (2.5,0) {17};
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (c22) at (3.6,0) {12};
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (n2) at (4.7,0) {$\wedge$};
+\draw[->] (b2) -- (c20); \draw[->] (c20) -- (c21);
+\draw[->] (c21) -- (c22); \draw[->] (c22) -- (n2);
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (c30) at (1.4,-1) {3};
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (c31) at (2.5,-1) {8};
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (n3) at (3.6,-1) {$\wedge$};
+\draw[->] (b3) -- (c30); \draw[->] (c30) -- (c31); \draw[->] (c31) -- (n3);
+\node[draw,minimum width=0.6cm,minimum height=0.5cm] (n4) at (1.4,-2) {$\wedge$};
+\draw[->] (b4) -- (n4);
+\node[font=\tiny,text=MutedText] at (4.4,-2.7) {$H(k)=k\bmod 5$；新结点头插};
 \end{tikzpicture}
 \end{center}
 
-\subsubsection{散列表的 ASL 与装填因子}
+{\small\color{MutedText} 图中 $5,12,3,8,17,2$ 依次插入 $m=5$ 的散列表。$12,17,2$ 都落在 $2$ 号槽，按头插法形成 $2\to17\to12$；$3,8$ 形成 $3\to8$。空槽直接挂空指针。删除只需在链表里摘掉一个结点，不像开放定址法那样要留墓碑。}
 
-\begin{mydef}{装填因子}{load-factor}
-\textbf{装填因子}（Load Factor）$\alpha$ = （表中填入的记录数）/（散列表长度）。$\alpha$ 越大，表明表越满，冲突的可能性越大，查找效率越低。
-\end{mydef}
+链地址法的优点是：不会产生开放定址法的“聚集”，删除简单，装填因子可以大于 $1$，表长也不必事先定得很准。缺点是结点需要额外的指针空间，且记录在内存中不连续，缓存局部性不如开放定址法。
 
-\begin{conclusion}{散列表的 ASL 计算}{hash-asl}
-\textbf{开放定址法——线性探测：}
-\begin{itemize}
-    \item ASL$_{\text{成功}} \approx \dfrac{1}{2}\left(1 + \dfrac{1}{1-\alpha}\right)$
-    \item ASL$_{\text{不成功}} \approx \dfrac{1}{2}\left(1 + \dfrac{1}{(1-\alpha)^2}\right)$
-\end{itemize}
+\subsubsection{ASL 的手算方法}
 
-\textbf{链地址法：}
-\begin{itemize}
-    \item ASL$_{\text{成功}} \approx 1 + \dfrac{\alpha}{2}$
-    \item ASL$_{\text{不成功}} \approx \alpha$（只计与表中关键字的比较次数时，等于桶内链表的平均长度）
-\end{itemize}
+散列表的 ASL 通常不套近似公式，而是对着表逐个数。
 
-上述是简单均匀散列下的期望值。若题目把访问桶头或判断空链表也记为一次操作，则不成功查找还要按题设口径计入该操作，不能把不同的计数口径混用。
+\textbf{成功查找。} 对每个已存入的关键字，数它从本地址开始探测了几次（第一次散列也算一次），求和除以 $n$。前面线性探测的例子中，七个关键字的探测次数是
+\[
+1,1,1,1,1,1,7,
+\]
+所以
+\[
+\mathrm{ASL}_{\text{成功}}=\frac{1+1+1+1+1+1+7}{7}=\frac{13}{7}\approx1.86.
+\]
 
-\textbf{408 实际计算要求：} 通常不直接套用上述近似公式，而是要求\textbf{手工计算}具体散列表的 ASL。
-\textbf{计算步骤（ASL$_{\text{成功}}$）：}
+\textbf{不成功查找。} 对每个可能的散列地址 $j$，假设要找一个散列到 $j$ 但表中不存在的关键字，沿探测序列走到空槽为止，记下经过的槽数 $c_j$（包含最后那个空槽），再对 $m$ 个地址求平均。该例中
+\[
+c_0,\ldots,c_{10}=1,1,1,8,7,6,5,4,3,2,1,
+\]
+求和得 $39$，因此
+\[
+\mathrm{ASL}_{\text{不成功}}=\frac{39}{11}\approx3.55.
+\]
+这里分母是表长 $m$，不是记录数 $n$。如果散列函数只可能产生其中 $q$ 个地址（比如关键字都满足某个同余条件），分母才是 $q$。
+
+链地址法的失败查找只需把对应链上的关键字全部比较一遍：空链比较 $0$ 次，长度 $L$ 的链比较 $L$ 次。上例中五条链的长度为 $1,0,3,2,0$，故
+\[
+\mathrm{ASL}_{\text{不成功}}=\frac{1+0+3+2+0}{5}=\frac{6}{5}=1.2.
+\]
+成功查找时，长度为 $L$ 的链各位置贡献 $1+2+\cdots+L=L(L+1)/2$，与链内顺序无关，所以上例
+\[
+\mathrm{ASL}_{\text{成功}}=\frac{1+6+3}{6}=\frac{5}{3}\approx1.67.
+\]
+如果题目把“走到空指针”也计一次比较，失败查找每个地址都要再加 $1$；先看清题干的计数口径。
+
+在均匀散列假设下，还可以用装填因子估计平均代价：
+\[
+\begin{aligned}
+\text{线性探测：}\quad &\mathrm{ASL}_{\text{成功}}\approx\frac12\left(1+\frac{1}{1-\alpha}\right),
+&&\mathrm{ASL}_{\text{不成功}}\approx\frac12\left(1+\frac{1}{(1-\alpha)^2}\right),\\
+\text{链地址法：}\quad &\mathrm{ASL}_{\text{成功}}\approx1+\frac{\alpha}{2},
+&&\mathrm{ASL}_{\text{不成功}}\approx\alpha.
+\end{aligned}
+\]
+这些是期望值，用来判断趋势；408 的计算题通常给出具体的表和探测规则，要求按表手算，不要直接把公式当答案。
+
+\subsection{红黑树}
+
+AVL 树要求左右子树高度差不超过 $1$，条件很严，插入删除时旋转较多。红黑树换了一种约束：给结点染红或黑，用颜色规则保证“最长路径不超过最短路径的两倍”，平衡稍松，但维护代价更低。
+
+一棵红黑树满足：
 \begin{enumerate}
-    \item 根据给定的关键字序列、散列函数和冲突处理方法，构造完整的散列表；
-    \item 对每个关键字，统计查找它所需的\textbf{探测次数}（含第一次散列）；
-    \item 求平均值：$\mathrm{ASL}_{\text{成功}} = \frac{1}{n}\sum_{i=1}^{n} \text{探测次数}_i$。
+  \item 每个结点是红色或黑色；
+  \item 根结点是黑色；
+  \item 每个叶结点（这里的叶结点指空指针 NIL）是黑色；
+  \item 红结点的两个孩子都是黑色，即不存在连续的红色结点；
+  \item 从任一结点到其所有后代 NIL 的路径上，黑色结点数目相同（称为黑高相等）。
 \end{enumerate}
-\textbf{计算步骤（ASL$_{\text{不成功}}$）：}
-\begin{enumerate}
-    \item 对散列表的每个槽位（$0$ 到 $m-1$），分别计算：若查找一个\textbf{散列到该槽位但不存在的关键字}，需要多少次探测才能判定「不存在」；
-    \item 对所有槽位的探测次数求和再除以 $m$。
-\end{enumerate}
-\textbf{注意：} 若散列函数把不成功关键字等概率映射到表的全部 $m$ 个初始地址，则 ASL$_{\text{不成功}}$ 的分母是 $m$（不是已有记录数 $n$）。若散列函数的可能初始地址只有其中 $q$ 个，则应对这 $q$ 个初始地址求平均，不能机械地除以表长。
-\end{conclusion}
 
-\begin{attention}
-\textbf{408 高频考点——散列表 ASL 的关键细节：}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth,
+  rb/.style={circle,minimum size=0.55cm,inner sep=0pt},
+  nil/.style={rectangle,fill=black,minimum size=0.16cm,inner sep=0pt}]
+\node[rb,fill=black,text=white] (r10) at (0,0) {10};
+\node[rb,fill=Burgundy,text=white] (r5) at (-2.4,-1.2) {5};
+\node[rb,fill=Burgundy,text=white] (r15) at (2.4,-1.2) {15};
+\node[rb,fill=black,text=white] (r3) at (-3.2,-2.4) {3};
+\node[rb,fill=black,text=white] (r7) at (-1.6,-2.4) {7};
+\node[rb,fill=black,text=white] (r12) at (1.6,-2.4) {12};
+\node[rb,fill=black,text=white] (r18) at (3.2,-2.4) {18};
+\draw (r10)--(r5); \draw (r10)--(r15);
+\draw (r5)--(r3); \draw (r5)--(r7);
+\draw (r15)--(r12); \draw (r15)--(r18);
+\node[nil] (n3a) at (-3.55,-3.5) {}; \node[nil] (n3b) at (-2.85,-3.5) {};
+\node[nil] (n7a) at (-1.95,-3.5) {}; \node[nil] (n7b) at (-1.25,-3.5) {};
+\node[nil] (n12a) at (1.25,-3.5) {}; \node[nil] (n12b) at (1.95,-3.5) {};
+\node[nil] (n18a) at (2.85,-3.5) {}; \node[nil] (n18b) at (3.55,-3.5) {};
+\draw (r3)--(n3a); \draw (r3)--(n3b);
+\draw (r7)--(n7a); \draw (r7)--(n7b);
+\draw (r12)--(n12a); \draw (r12)--(n12b);
+\draw (r18)--(n18a); \draw (r18)--(n18b);
+\node[font=\scriptsize,text=MutedText] at (0,-4.1) {根到任一 NIL 都经过 $3$ 个黑结点（含 NIL）};
+\end{tikzpicture}
+\end{center}
+
+{\small\color{MutedText} 图中黑结点为实心，红结点为深色。$5$ 和 $15$ 是红结点，它们的两个孩子都是黑结点；从根 $10$ 出发到任意一个 NIL，黑色结点数都是 $3$。红色结点不能相邻，所以一条路径上红结点最多与黑结点一样多，最长路径不超过最短路径的两倍。}
+
+由这两条可以推出树高 $h\le 2\log_2(n+1)$。直观地说：黑高为 $b$ 的子树至少有 $2^b-1$ 个结点；红结点不能连续，所以根到叶子的路径上红结点数不超过黑结点数，树高不超过 $2b$。查找、插入、删除都是 $O(\log n)$。
+
+插入时先把新结点染红，这样不会破坏黑高。若父结点是黑色，直接完成；若父结点是红色，看叔叔结点的颜色：
 \begin{itemize}
-    \item \textbf{查找成功的探测次数} = 从第一次散列算起到找到目标的探测次数（含第一次）。
-    \item \textbf{查找不成功的探测次数} = 从某槽位第一次散列算起，沿探测序列直到遇到\textbf{空位置}（表明该关键字一定不存在）的探测次数。线性探测中若全表满则需探测 $m$ 次。
-    \item 链地址法中，\textbf{ASL$_{\text{不成功}}$} 等于在每个槽位的链表中查找不存在的关键字所需的比较次数——即该链表长度（因为需要遍历完整个链表才能确定不存在）。
-    \item 二次探测法和双重散列法中，ASL$_{\text{不成功}}$ 的判断条件是「探测到空槽」或「探测完整个表仍未找到」。
+  \item 叔叔为红：父、叔变黑，祖父变红，把可能的问题上移到祖父继续检查（若祖父就是根，最后再把它染黑）；
+  \item 叔叔为黑或不存在：按 LL/RR/LR/RL 做旋转，再重新染色。
 \end{itemize}
-\end{attention}
+一次插入最多旋转两次。删除的修复更繁琐，但同样是 $O(\log n)$。
 
-\subsection{408 高频考点速查}
+和 AVL 树相比：AVL 更严格，树更矮，查找略快，但插入删除旋转更多；红黑树平衡稍松，旋转少，适合插入删除频繁的场景。C++ 的 \texttt{map/set} 和 Java 的 \texttt{TreeMap} 底层多用红黑树。
 
-\begin{conclusion}{查找 —— 408 选择题常考点}{search-408-keypoints}
-\begin{enumerate}
-    \item \textbf{折半查找的判定树}：$n$ 个元素对应判定树中 $n$ 个圆形结点和 $n+1$ 个方形结点；树形是平衡 BST；不同取整方式对应不同判定树形态。
-    \item \textbf{ASL 计算}：折半查找 ASL$_{\text{成功}}$ 和 ASL$_{\text{不成功}}$ ——前者分母 $n$，后者分母 $n+1$（方形结点数）。
-    \item \textbf{AVL 旋转判断}：从插入点向上找第一个 $|bf|=2$ 的结点，根据「自上而下两步」判断 LL/LR/RL/RR。
-    \item \textbf{B-树性质}：除根外每个非叶结点至少 $\lceil m/2\rceil$ 棵子树；所有叶结点同层；插入可能导致连锁分裂。
-    \item \textbf{B+树 vs B-树}：B+树非叶仅索引、叶链、查找必须到叶；B-树任意层可命中。
-    \item \textbf{散列表 ASL}：手工计算成功/不成功 ASL，区分分母（$n$ vs $m$），区分探测次数起算点。
-    \item \textbf{装填因子 $\alpha$}：$\alpha = n/m$；决定散列表效率的核心参数。
-    \item \textbf{BST 删除}：度 2 结点转换为度 0/1 结点的删除；中序前驱/后继替代。
-\end{enumerate}
-\end{conclusion}
+\subsection{几种查找结构放在一起看}
+
+\begin{tablebox}{查找结构的横向比较}
+\centering
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}lXX X@{}}
+\toprule
+结构 & 前提/存储 & 成功查找代价 & 插入、删除与适用场景\\
+\midrule
+顺序查找 & 任意表，顺序或链式 & $\dfrac{n+1}{2}$，$O(n)$ & 插入 $O(1)$（表尾），适合小表、无序表\\
+折半查找 & 有序，顺序存储 & 最坏 $\lceil\log_2(n+1)\rceil$，平均约 $\log_2(n+1)-1$ & 插入删除 $O(n)$，适合静态表\\
+分块查找 & 块间有序、块内任意，另建索引 & $\approx\log_2(b+1)-1+\dfrac{s+1}{2}$ 或 $\dfrac{b+s+2}{2}$ & 块内调整，适合索引顺序文件\\
+二叉排序树 & 无额外要求 & 平均 $O(\log n)$，最坏 $O(n)$ & 插入删除 $O(h)$，形态依赖插入顺序\\
+AVL 树 & BST，$|\mathrm{bf}|\le1$ & $O(\log n)$，最坏约 $1.44\log_2(n+1)$ & 插入至多一次旋转，删除可能多次；查多改少\\
+B-树 & 外存，$m$ 阶多路平衡 & $O(\log_m n)$ 次结点访问 & 分裂、借/合；磁盘索引\\
+B+ 树 & 外存，叶结点链接 & $O(\log_m n)$，范围查询沿叶链 & 数据库、文件系统索引\\
+散列表 & 选好散列函数与冲突处理 & 平均 $O(1+\alpha)$，最坏 $O(n)$ & 平均 $O(1)$；不支持顺序/范围查找\\
+\bottomrule
+\end{tabularx}
+\end{tablebox}
+
+选择哪一种，先问三个问题：表是静态的还是频繁改动的；数据在内存还是磁盘；只需要等值查找，还是还要按关键字范围扫描。静态且有序，折半最省事；内存中频繁插入删除，用 AVL 或红黑树；数据在外存、要范围查询，用 B+树；只做等值查找且不要求顺序，散列表通常最快。
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（真题风格·选择题）} 已知一个长度为$16$的顺序表$L$，其元素按关键字有序排列。若采用折半查找法查找一个不存在的元素，则比较次数最多为
-\begin{center}
-\begin{tabular}{ll}
-(A) 4 & (B) 5 \\[6pt]
-(C) 6 & (D) 7
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 折半查找最多比较次数$=\lfloor\log_2 n\rfloor+1=\lfloor\log_2 16\rfloor+1=5$。判定树高度为$h=\lfloor\log_2 16\rfloor+1=5$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 在一棵$m$阶B-树中，除根结点外的所有非终端结点至少有多少棵子树？
-\begin{center}
-\begin{tabular}{ll}
-(A) $\lfloor m/2\rfloor$ & (B) $\lceil m/2\rceil$ \\[6pt]
-(C) $\lfloor m/2\rfloor+1$ & (D) $m-1$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} $m$阶B-树定义：除根外每个非终端结点至少有$\lceil m/2\rceil$棵子树（即至少$\lceil m/2\rceil-1$个关键字）。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 一棵 3 阶 B-树的根结点含关键字 $[40,70]$，三个孩子从左到右分别含关键字 $[10,20]$、$[50,60]$、$[80,90]$。依次删除关键字 10 和 20；结点下溢时优先向右兄弟借关键字。调整完成后，根结点中的关键字是
-\begin{center}
-\begin{tabular}{ll}
-(A) $[40,70]$ & (B) $[50,70]$ \\[6pt]
-(C) $[50,80]$ & (D) $[60,70]$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 3 阶 B-树的非根数据结点至少含 $\lceil3/2\rceil-1=1$ 个关键字。删除 10 后左孩子为 $[20]$，未下溢；再删除 20 后左孩子为空。右兄弟 $[50,60]$ 有两个关键字，可以借出：父结点中的 40 下移到左孩子，右兄弟的最小关键字 50 上移替代 40。因此根变为 $[50,70]$，三个孩子为 $[40]$、$[60]$、$[80,90]$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 设散列表长$m=14$，散列函数$H(k)=k\bmod 11$。表中已有4个记录：15,38,61,84，用线性探测法处理冲突。则关键字49的地址是
-\begin{center}
-\begin{tabular}{ll}
-(A) 8 & (B) 3 \\[6pt]
-(C) 5 & (D) 9
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} $H(15)=4$占4，$H(38)=5$占5，$H(61)=6$占6，$H(84)=7$占7。$H(49)=5$，5已被占$\to$探测6已占$\to$探测7已占$\to$探测8空，故49在地址8。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 下列选项中，属于B+树特点的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 非叶结点包含关键字，也包含指向记录的指针 \\[4pt]
-(B) 叶结点仅包含关键字，不包含指向记录的指针 \\[4pt]
-(C) 所有叶结点通过指针链接成有序链表 \\[4pt]
-(D) 结点中的关键字个数可以任意
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} B+树特点：(1)所有关键字出现在叶结点中，非叶结点仅起索引作用；(2)叶结点包含全部关键字及指向记录的指针；(3)叶结点按关键字顺序链接。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} B-树中所有外部失败结点均在同一层上，这是由 B-树的什么特点决定的？
-\begin{center}
-\begin{tabular}{ll}
-(A) 所有结点至少$\lceil m/2\rceil$棵子树 \\[4pt]
-(B) 所有关键字按递增顺序排列 \\[4pt]
-(C) 从根到叶的所有路径上关键字个数相同 \\[4pt]
-(D) 插入和删除操作始终保持树的平衡
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} B-树是一种\textbf{平衡}的多路查找树，插入和删除操作通过分裂和合并保持所有叶结点在同一层。这正是B-树的\textbf{自平衡}特性。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 下列关于 B-树与 B+树的比较中，错误的是
-\begin{center}
-\begin{tabular}{ll}
-(A) B-树中的关键字可与记录关联，B+树的非叶结点只保存索引项 \\[4pt]
-(B) B+树的所有关键字都出现在叶结点中 \\[4pt]
-(C) B+树的叶结点通过指针链接在一起 \\[4pt]
-(D) B-树和 B+树的成功查找都必须到达最底层数据结点
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} B+树的非叶结点只起索引作用，全部关键字（及记录指针）都在叶结点，且叶结点构成有序链表。(D) 错：B-树可能在任一数据结点命中后结束；B+树即使在非叶索引结点匹配，也要继续到叶结点取得记录。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·综合题）} 依次输入关键字序列$(30,15,25,40,10,20,35)$，构造一棵二叉排序树（BST）。
-\begin{enumerate}
-    \item[(1)] 画出该BST；
-    \item[(2)] 计算等概率下查找成功的平均查找长度ASL；
-    \item[(3)] 删除关键字$25$后画出BST（用前驱替代）。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) BST: 30为根，15在其左，15的右为25，15的左为10，20在25左；30的右为40，40的左为35。
-(2) 深度：30(1),15(2),25(3),40(2),10(3),20(4),35(3)。ASL$=(1+2+3+2+3+4+3)/7=18/7\approx2.57$。
-(3) 删除25（度为1，仅有左孩子20），将其左孩子20替代25的位置。\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·综合题）} 设散列表长$m=13$，散列函数$H(k)=k\bmod 13$。用线性探测法处理冲突。依次插入关键字序列$(19,14,23,1,68,20,84,27,55,11,10,79)$。
-\begin{enumerate}
-    \item[(1)] 画出最终的散列表；
-    \item[(2)] 计算等概率下查找成功的平均查找长度ASL；
-    \item[(3)] 计算查找不成功的平均查找长度ASL。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) 插入过程：$H(19)=6$$\to$6；$H(14)=1$$\to$1；$H(23)=10$$\to$10；$H(1)=1$冲突$\to$2；$H(68)=3$$\to$3；$H(20)=7$$\to$7；$H(84)=6$冲突$\to$7冲突$\to$8；$H(27)=1$冲突$\to$2冲突$\to$3冲突$\to$4；$H(55)=3$冲突$\to$4冲突$\to$5；$H(11)=11$$\to$11；$H(10)=10$冲突$\to$11冲突$\to$12；$H(79)=1$冲突$\to$2冲突$\to$3冲突$\to$4冲突$\to$5冲突$\to$6冲突$\to$7冲突$\to$8冲突$\to$9。
-
-(2) 成功ASL：各关键字查找次数为1+1+1+2+1+1+3+4+3+1+3+9=30，ASL$_{\text{成功}}=30/12=2.5$。
-
-(3) 最终仅地址 0 为空。从初始地址 $0,1,\ldots,12$ 出发，不成功探测次数依次为
-\[
-1,13,12,11,10,9,8,7,6,5,4,3,2,
-\]
-故 $\mathrm{ASL}_{\text{不成功}}=91/13=7$。\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·综合题）} 设有关键字序列$(40,30,20,60,50,80,70,10)$，依次插入一棵初始为空的AVL树。
-\begin{enumerate}
-    \item[(1)] 画出每次插入后AVL树的变化过程，标注旋转类型（LL/RR/LR/RL）；
-    \item[(2)] 写出该AVL树的中序遍历序列。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-插入 20 后，结点 40 首次失衡，为 LL 型，对 40 右旋，得到以 30 为根、20 和 40 为左右孩子的树。
-
-插入 60 后不失衡。插入 50 后，结点 40 首次失衡，为 RL 型：先对 60 右旋，再对 40 左旋；此时 30 的右子树以 50 为根，40、60 为其左右孩子。
-
-插入 80 后，结点 30 首次失衡，为 RR 型，对 30 左旋；整棵树以 50 为根，左子树为 $30(20,40)$，右子树为 $60(\varnothing,80)$。
-
-插入 70 后，结点 60 首次失衡，为 RL 型：先对 80 右旋，再对 60 左旋。最后插入 10 不会造成失衡。最终树为
-\[
-50\bigl(30(20(10,\varnothing),40),\;70(60,80)\bigr).
-\]
-其中记号 $x(L,R)$ 表示结点 $x$ 的左右子树。中序遍历为 $10,20,30,40,50,60,70,80$。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
-\noindent\textbf{拓展阅读：}
-\begin{itemize}
-    \item 邓俊辉《数据结构（C++语言版）》第7章「二叉搜索树」、第8章「高级搜索树」（含AVL和B-树）。
-    \item Sedgewick《算法》第3.2节（二叉查找树）、第3.3节（平衡查找树——红黑树和B-树）。
-\end{itemize}
+\input{ds/exercises/chap6.tex}

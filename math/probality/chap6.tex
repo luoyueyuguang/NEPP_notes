@@ -1,180 +1,297 @@
 \section{数理统计概念}
-\subsection{统计量及其数字特征}
-\begin{mydef}{总体与样本}{population and sample}
-    总体是指待研究的对象的集合，样本是指从总体中抽取的部分对象.
-    设总体为\(X\)，与\(X\)同分布且相互独立的随机变量\(X_1,X_2,\cdots,X_n\)称为
-    来自总体的简单随机样本。\(n\)为样本容量。\(x_1,x_2,\cdots,x_n\)分别是\(X_1, X_2, \cdots, X_n\)的
-    观测值，则称\(x_1,x_2,\cdots,x_n\)为样本观测值.
+
+概率论里总体分布已知，题目问样本出现的概率。数理统计反过来：手里只有有限个观测值，要据此推断总体。这一章先把“样本”“统计量”“抽样分布”这几个对象说清楚，再给出正态总体下几个可以直接计算的分布。
+
+\subsection{总体、样本与经验分布}
+
+拿一批灯泡的寿命来说。把所有灯泡的寿命看成一个整体，记作 $X$。$X$ 的分布 $F(x)=P(X\le x)$ 称为总体分布。实际测试不可能把每只灯泡都点亮到坏，只能抽 $n$ 只，记录寿命 $x_1,\dots,x_n$。
+
+\begin{mydef}{总体与简单随机样本}{population and sample}
+    研究对象的某个数量指标 $X$ 及其分布称为总体。若随机变量 $X_1,\dots,X_n$ 相互独立，且每个 $X_i$ 都与总体 $X$ 同分布，则称它们为来自总体的简单随机样本，$n$ 为样本容量。抽样后得到的具体数值 $x_1,\dots,x_n$ 称为样本观测值。
 \end{mydef}
 
-\begin{conclusion}{样本的概率分布}{sample probability distribution}
-    \begin{enumerate}
-        \item 分布函数 \\
-        总体\(X\)分布函数为\(F(x)\)，由于样本独立，样本向量的联合分布函数为
-        \[
-            F_{X_1,\ldots,X_n}(x_1,\ldots,x_n)=\prod_{i=1}^{n}F(x_i)
-        \]
-        \item 概率密度函数 \\
-        总体\(X\)概率密度函数为\(f(x)\)，则样本向量的联合密度为
-        \[
-            f_{X_1,\ldots,X_n}(x_1,\ldots,x_n)=\prod_{i=1}^{n}f(x_i)
-        \]
-        \item 联合概率分布 \\
-        若总体为离散型且 $P(X=x)=p(x)$，则样本联合概率函数为
-        \[
-            P(X_1=x_1,\ldots,X_n=x_n)=\prod_{i=1}^{n}p(x_i)
-        \]
-    \end{enumerate}
-\end{conclusion}
+有放回抽样满足独立性；不放回抽样在总体容量远大于 $n$ 时，也近似看作独立。考研范围内的“样本”默认指简单随机样本。
 
-\begin{mydef}{统计量}{statistic variable}
-    设\(X_1, X_2, \cdots, X_n\)为样本，\(g(X_1, X_2, \cdots, X_n)\)是
-    \(X_1, X_2, \cdots, X_n\)的函数，则称\(g(X_1, X_2, \cdots, X_n)\)为统计量.其中\(g\)不含任何未知参数
-\end{mydef}
+样本是随机向量，观测值是普通数组。书写时用大写 $X_i$ 表示抽样前的随机变量，用小写 $x_i$ 表示抽完后的数。统计量是随机变量，代入观测值后才变成数。
 
-\begin{conclusion}{常用统计量}{common statistic variable}
-    \begin{enumerate}
-        \item 样本均值 \\
-        \(\overline{X} = \frac{1}{n} \sum \limits_{i = 1}^{n} X_i\)
-        \item 样本方差 \\
-        \(S^2= \frac{1}{n - 1} \sum \limits_{i = 1}^{n} (X_i - \overline{X})^2\)
-        \item 样本标准差 \\
-        \(S = \sqrt{\frac{1}{n - 1} \sum \limits_{i = 1}^{n} (X_i - \overline{X})^2}\)
-        \item 样本\(k\)阶原点矩 \\
-        \[
-            A_k = \frac{1}{n} \sum \limits_{i = 1}^{n} X_i^k
-        \]
-        \item 样本\(k\)阶中心矩 \\
-        \[
-            B_k = \frac{1}{n} \sum \limits_{i = 1}^{n} (X_i - \overline{X})^k
-        \]
-        \item 顺序统计量,即 \\
-        样本最大值 ~
-        \(\max(X_1, X_2, \cdots, X_n)\) \\
-        样本最小值 ~
-        \(\min(X_1, X_2, \cdots, X_n)\)
-    \end{enumerate}
-    对简单随机样本，只要总体二阶矩存在，则总有
-    \[
-        \begin{aligned}
-        E(\overline{X}) = E(X) = \mu, &D(\overline{X}) = \frac{D(X)}{n} = \frac{\sigma^2}{n} \\
-        E(S^2) = \sigma^2, 
-        \end{aligned}
-    \]
-\end{conclusion}
+独立性把联合分布拆成乘积。若总体有密度 $f$，则样本向量的联合密度为
+\[
+    f_{X_1,\dots,X_n}(x_1,\dots,x_n)=\prod_{i=1}^{n}f(x_i).
+\]
+离散情形把 $f$ 换成概率 $p(x_i)=P(X=x_i)$，分布函数情形把 $f$ 换成 $F$，形式相同。后面所有抽样分布都从这个乘积出发。
 
-\subsection{抽样分布}
-\begin{mydef}{$\chi^2$分布}{chi2 distribution}
-    设\(X_1, X_2, \cdots, X_n\)为独立随机变量，且均服从标准正态分布，
-    则\(\chi^2\)分布为
-    \[
-        \chi^2 = \sum \limits_{i = 1}^{n} X_i^2
-    \]
-    \(\chi^2(n)\)中的n为自由度
-    对于给定的\(\alpha\),称满足
-    \[
-        P(\chi^2 > \chi^2_{\alpha}(n)) = \alpha
-    \]
-    其中\(\chi^2_{\alpha}\)为\(\chi^2\)分布的上\(\alpha\)分位数.
-\end{mydef}
-
-\begin{conclusion}{$\chi^2$分布的性质}{chi2 distribution property}
-    \begin{enumerate}
-        \item \(E(\chi^2) = n, D(\chi^2) = 2n.\) 
-        \item 可加性, \(\chi_1^2 \sim  \chi^2(n_1), \chi_2^2 \sim  \chi^2(n_2)\), ~若\(\chi_{1}^2, \chi_2^2\)相互独立，则\(\chi_1^2 + \chi_2^2 \sim  \chi^2(n_1 + n_2)\)
-    \end{enumerate}
-\end{conclusion}
+样本能不能代表总体，可以直接看经验分布函数
+\[
+    F_n(x)=\frac{1}{n}\sum_{i=1}^{n}\mathbf{1}_{\{X_i\le x\}}.
+\]
+它只依赖样本，在每个观测值处向上跳 $1/n$。由大数定律，对每个固定的 $x$，$F_n(x)\to F(x)$（依概率）；更强的格里汶科定理说，$n\to\infty$ 时 $F_n$ 在整个实轴上一致逼近 $F$。这就是“用样本推断总体”的依据。
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.84\linewidth, height=5.6cm,
-  xlabel={$x$}, ylabel={概率密度},
-  xmin=0, xmax=25, ymin=0, ymax=0.55,
-  xtick={0,5,10,15,20,25}, ytick={0,0.1,0.2,0.3,0.4,0.5},
-  legend pos=north east, font=\footnotesize,
-  domain=0:25, samples=220,
+  width=0.46\linewidth, height=4.0cm,
+  xmin=0, xmax=6.5, ymin=-0.11, ymax=0.41,
+  xlabel={$x$}, ylabel={密度},
+  xtick={0,2,4,6}, ytick={0,0.1,0.2,0.3,0.4},
+  title={\footnotesize 总体密度与 45 个样本点},
+  font=\footnotesize,
 ]
-\addplot[blue,thick] {0.5*exp(-x/2)};
-\addlegendentry{$\chi^2(2)$}
-\addplot[red,thick] {0.25*x*exp(-x/2)};
-\addlegendentry{$\chi^2(4)$}
-\addplot[green!55!black,thick] {x^4*exp(-x/2)/768};
-\addlegendentry{$\chi^2(10)$}
+\addplot[blue,thick,domain=0:6.5,samples=160] {x*exp(-x)};
+\addplot[only marks, mark=|, mark size=3.2pt, red!70!black] coordinates {
+(0.149,-0.02) (0.159,-0.02) (0.168,-0.02) (0.215,-0.02) (0.360,-0.02)
+(0.380,-0.02) (0.585,-0.02) (0.610,-0.02) (0.657,-0.02) (0.669,-0.02)
+(0.704,-0.02) (0.761,-0.02) (0.771,-0.02) (0.819,-0.02) (0.898,-0.02)
+(0.935,-0.02) (1.081,-0.02) (1.086,-0.02) (1.229,-0.02) (1.249,-0.02)
+(1.508,-0.02) (1.597,-0.02) (1.655,-0.02) (1.724,-0.02) (1.741,-0.02)
+(1.885,-0.02) (1.985,-0.02) (2.033,-0.02) (2.110,-0.02) (2.218,-0.02)
+(2.228,-0.02) (2.362,-0.02) (2.377,-0.02) (2.470,-0.02) (2.496,-0.02)
+(2.575,-0.02) (2.689,-0.02) (3.296,-0.02) (4.082,-0.02) (4.184,-0.02)
+(4.531,-0.02) (4.555,-0.02) (4.989,-0.02) (5.617,-0.02) (6.387,-0.02)
+};
+\end{axis}
+\end{tikzpicture}\hspace{2mm}%
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.46\linewidth, height=4.0cm,
+  xmin=0, xmax=6.5, ymin=0, ymax=1.04,
+  xlabel={$x$}, ylabel={$F$},
+  xtick={0,2,4,6}, ytick={0,0.5,1},
+  legend pos=south east, font=\footnotesize,
+]
+\addplot[red!70!black,thick,const plot] coordinates {
+(0.000,0.0000) (0.149,0.0222) (0.159,0.0444) (0.168,0.0667) (0.215,0.0889) (0.360,0.1111) (0.380,0.1333) (0.585,0.1556) (0.610,0.1778) (0.657,0.2000) (0.669,0.2222) (0.704,0.2444) (0.761,0.2667) (0.771,0.2889) (0.819,0.3111) (0.898,0.3333) (0.935,0.3556) (1.081,0.3778) (1.086,0.4000) (1.229,0.4222) (1.249,0.4444) (1.508,0.4667) (1.597,0.4889) (1.655,0.5111) (1.724,0.5333) (1.741,0.5556) (1.885,0.5778) (1.985,0.6000) (2.033,0.6222) (2.110,0.6444) (2.218,0.6667) (2.228,0.6889) (2.362,0.7111) (2.377,0.7333) (2.470,0.7556) (2.496,0.7778) (2.575,0.8000) (2.689,0.8222) (3.296,0.8444) (4.082,0.8667) (4.184,0.8889) (4.531,0.9111) (4.555,0.9333) (4.989,0.9556) (5.617,0.9778) (6.387,1.0000)
+};
+\addlegendentry{$F_n(x)$}
+\addplot[blue,thick,dashed,domain=0:6.5,samples=150] {1-(1+x)*exp(-x)};
+\addlegendentry{$F(x)$}
 \end{axis}
 \end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 左图：样本点落在密度高的区间更密，稀疏区也会有零星点。右图：每条横线的高度都是 $1/n$ 的整数倍，$n$ 越大阶梯越细，经验分布越贴近总体分布。}
+\end{minipage}
 \end{center}
 
-\begin{mydef}{t分布}{t distribution}
-    设\(X\sim N(0,1)\)、\(Y\sim\chi^2(n)\) 且 $X,Y$ 相互独立，则
-    \(t=\frac{X}{\sqrt{Y/n}}\) 服从自由度为 $n$ 的 $t$ 分布，记作 $t(n)$。其密度函数关于 $0$ 对称，
-    对于给定的\(\alpha\),称满足
-    \[
-        P(t > t_{\alpha}(n)) = \alpha
-    \]
-    其中\(t_{\alpha}(n)\)为\(t(n)\)分布的上\(\alpha\)分位数.因为\(t\)分布密度函数对称,所以\(t_{1 - \alpha}(n) = -t_{\alpha}(n)\)
+\subsection{统计量与样本矩}
+
+把样本代入一个函数，就得到一个数。换一批样本，这个数会变，所以统计量是随机变量。
+
+\begin{mydef}{统计量}{statistic variable}
+    设 $X_1,\dots,X_n$ 是来自总体的样本。若 $g(X_1,\dots,X_n)$ 只由样本决定，表达式中不含任何未知参数，则称 $g(X_1,\dots,X_n)$ 为统计量。
 \end{mydef}
 
-\begin{conclusion}{t分布的性质}{t distribution property}
-    \begin{enumerate}
-        \item 当 $n>1$ 时 $E(t)=0$（当 $n\leq1$ 时期望不存在）；
-        \item 记自由度为 $n$ 的 $t$ 分布密度为 $f_n(t)$，则对每个固定的 $t$，
-        \[\lim\limits_{n \to \infty}f_n(t) = \frac{1}{\sqrt{2\pi}} \mathrm{e}^{-t^2/2}.\]
-        \item \(t \sim t(n), t^2 \sim F(1, n)\)
-    \end{enumerate}
-\end{conclusion}
+参数是否“未知”取决于问题设定。若总体分布完全已知，参数是已知常数，含参数的量也可以作为统计量；若参数待估计，它就不能出现在统计量里。统计量不能使用总体信息，否则就失去了“只看样本”的意义。
+
+常用的有样本均值、样本方差、样本标准差和样本矩：
+\[
+    \overline{X}=\frac{1}{n}\sum_{i=1}^{n}X_i,\qquad
+    S^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2,\qquad
+    S=\sqrt{S^2},
+\]
+\[
+    A_k=\frac{1}{n}\sum_{i=1}^{n}X_i^k,\qquad
+    B_k=\frac{1}{n}\sum_{i=1}^{n}(X_i-\overline{X})^k.
+\]
+$A_k$ 是 $k$ 阶原点矩，$B_k$ 是 $k$ 阶中心矩。$B_1=0$，$B_2$ 与 $S^2$ 只差一个系数：
+\[
+    B_2=\frac{1}{n}\sum_{i=1}^{n}(X_i-\overline{X})^2=\frac{n-1}{n}S^2.
+\]
+
+样本方差的分母是 $n-1$，不是笔误。把离差平方和按总体均值 $\mu$ 拆开：
+\[
+    \sum_{i=1}^{n}(X_i-\mu)^2
+    =\sum_{i=1}^{n}(X_i-\overline{X})^2+n(\overline{X}-\mu)^2.
+\]
+两边取期望。左边每项期望为 $\sigma^2$，共 $n\sigma^2$；右边第一项是 $(n-1)E(S^2)$，第二项是 $n\cdot D(\overline{X})=n\cdot\frac{\sigma^2}{n}=\sigma^2$。于是
+\[
+    n\sigma^2=(n-1)E(S^2)+\sigma^2
+    \quad\Longrightarrow\quad
+    E(S^2)=\sigma^2.
+\]
+所以 $S^2$ 是无偏的，而 $B_2$ 的期望是 $\frac{n-1}{n}\sigma^2$，系统性偏小。
+
+对任意二阶矩存在的总体（不要求正态），都有
+\[
+    E(\overline{X})=\mu,\qquad
+    D(\overline{X})=\frac{\sigma^2}{n},\qquad
+    E(S^2)=\sigma^2.
+\]
+$D(\overline{X})$ 随 $n$ 减小，说明样本量越大，均值估计越稳。这三条只用到独立同分布和期望、方差的性质。
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.84\linewidth, height=5.6cm,
+  width=0.82\linewidth, height=4.8cm,
+  xmin=1.5, xmax=30, ymin=0.45, ymax=1.06,
+  xlabel={$n$}, ylabel={期望与 $\sigma^2$ 之比},
+  xtick={2,5,10,15,20,25,30}, ytick={0.5,0.6,0.7,0.8,0.9,1.0},
+  legend pos=south east, font=\footnotesize,
+  domain=2:30, samples=120,
+]
+\addplot[blue,thick] {(x-1)/x};
+\addlegendentry{$E(B_2)/\sigma^2$}
+\addplot[red,dashed,thick] {1};
+\addlegendentry{$E(S^2)/\sigma^2$}
+\node[font=\scriptsize,anchor=west] at (axis cs:5,0.76) {$n=5$ 时为 $0.8$};
+\draw[gray!70] (axis cs:5,0.8) circle (1.4pt);
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 用 $n$ 作分母时，期望只有真值的 $(n-1)/n$。$n$ 小的时候低估明显，$n$ 增大后逐渐接近 $\sigma^2$；改用 $n-1$ 后整条曲线抬到虚线位置。}
+\end{minipage}
+\end{center}
+
+\subsection{抽样分布：$\chi^2$、$t$、$F$}
+
+统计量作为随机变量，也有分布。这个分布称为抽样分布，它描述“重复抽 $n$ 个样本时，统计量会怎么波动”。一般总体的抽样分布很难写，正态总体下有三个可以精确写出的分布。
+
+先看平方和。设 $Z_1,\dots,Z_n$ 独立同分布，均服从 $N(0,1)$，令
+\[
+    \chi^2=\sum_{i=1}^{n}Z_i^2.
+\]
+把 $(Z_1,\dots,Z_n)$ 看成 $n$ 维空间中的随机点，$\chi^2$ 就是它到原点距离的平方。自由度 $n$ 对应独立坐标的个数。
+
+\begin{mydef}{$\chi^2$ 分布}{chi2 distribution}
+    若 $Z_1,\dots,Z_n$ 独立且都服从 $N(0,1)$，则 $\chi^2=\sum_{i=1}^{n}Z_i^2$ 服从自由度为 $n$ 的卡方分布，记作 $\chi^2(n)$。其密度为
+    \[
+        f_{\chi^2}(x;n)=\frac{1}{2^{n/2}\Gamma(n/2)}\,x^{n/2-1}\mathrm{e}^{-x/2},
+        \qquad x>0.
+    \]
+    对给定的 $\alpha\in(0,1)$，满足 $P(\chi^2>\chi^2_{\alpha}(n))=\alpha$ 的数 $\chi^2_{\alpha}(n)$ 称为上 $\alpha$ 分位数。
+\end{mydef}
+
+密度里的 $\Gamma$ 只是保证积分为 $1$ 的常数，考试不需要背。需要记住的是三条性质：
+\[
+    E(\chi^2(n))=n,\qquad D(\chi^2(n))=2n,
+\]
+若 $\chi_1^2\sim\chi^2(n_1)$ 与 $\chi_2^2\sim\chi^2(n_2)$ 独立，则
+\[
+    \chi_1^2+\chi_2^2\sim\chi^2(n_1+n_2).
+\]
+可加性的直观解释是：自由度就是独立平方项的个数，把两组平方项拼起来，自由度相加。
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.2cm,
+  xmin=0, xmax=25, ymin=0, ymax=0.56,
   xlabel={$x$}, ylabel={概率密度},
-  xmin=-4.5, xmax=4.5, ymin=0, ymax=0.46,
-  xtick={-4,-2,0,2,4}, ytick={0,0.1,0.2,0.3,0.4},
+  xtick={0,5,10,15,20,25}, ytick={0,0.1,0.2,0.3,0.4,0.5},
   legend pos=north east, font=\footnotesize,
-  domain=-4.5:4.5, samples=220,
+]
+\addplot[red!20,draw=none,domain=11.07:25,samples=120] {pow(x,1.5)*exp(-x/2)/7.5185} \closedcycle;
+\addplot[blue,thick,domain=0:25,samples=220] {0.5*exp(-x/2)};
+\addlegendentry{$\chi^2(2)$}
+\addplot[red,thick,domain=0:25,samples=220] {pow(x,1.5)*exp(-x/2)/7.5185};
+\addlegendentry{$\chi^2(5)$}
+\addplot[green!55!black,thick,domain=0:25,samples=220] {pow(x,4)*exp(-x/2)/768};
+\addlegendentry{$\chi^2(10)$}
+\node[font=\scriptsize,anchor=west] at (axis cs:16.2,0.11) {阴影面积 $=0.05$};
+\draw[->,gray!70] (axis cs:16.0,0.10) -- (axis cs:12.5,0.025);
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 卡方密度右偏，峰值在 $n-2$ 附近（$n\le2$ 时在左端点）。自由度越大，曲线整体右移、变矮变宽，因为均值 $n$ 和方差 $2n$ 都在增大。阴影是 $\chi^2(5)$ 的上 $5\%$ 尾部，边界就是 $\chi^2_{0.05}(5)=11.07$。}
+\end{minipage}
+\end{center}
+
+实际中总体标准差常常未知，用样本标准差 $S$ 代替 $\sigma$ 后，标准化量不再服从正态分布。这正是 $t$ 分布的来源。
+
+\begin{mydef}{$t$ 分布}{t distribution}
+    设 $Z\sim N(0,1)$，$V\sim\chi^2(n)$，且 $Z$ 与 $V$ 独立，则
+    \[
+        T=\frac{Z}{\sqrt{V/n}}
+    \]
+    服从自由度为 $n$ 的 $t$ 分布，记作 $t(n)$。其密度为
+    \[
+        f_T(t)=\frac{\Gamma\bigl((n+1)/2\bigr)}{\sqrt{n\pi}\,\Gamma(n/2)}
+        \left(1+\frac{t^2}{n}\right)^{-(n+1)/2},\qquad t\in\mathbb{R}.
+    \]
+    满足 $P(T>t_{\alpha}(n))=\alpha$ 的数 $t_{\alpha}(n)$ 称为上 $\alpha$ 分位数。
+\end{mydef}
+
+$t(n)$ 的密度关于 $0$ 对称，因此 $t_{1-\alpha}(n)=-t_{\alpha}(n)$。当 $n>1$ 时期望为 $0$（$n=1$ 是柯西分布，期望不存在）。自由度越大，分母 $\sqrt{V/n}$ 越稳定，$t(n)$ 越接近 $N(0,1)$：
+\[
+    \lim_{n\to\infty}f_T(t)=\frac{1}{\sqrt{2\pi}}\mathrm{e}^{-t^2/2}.
+\]
+另外，把 $T$ 平方，
+\[
+    T^2=\frac{Z^2}{V/n}\sim F(1,n),
+\]
+因为 $Z^2\sim\chi^2(1)$，这是后面 $F$ 分布的一个特例。
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.2cm,
+  xmin=-4.5, xmax=4.5, ymin=0, ymax=0.68,
+  xlabel={$t$}, ylabel={概率密度},
+  xtick={-4,-2,0,2,4}, ytick={0,0.2,0.4,0.6},
+  legend pos=north east, font=\footnotesize,
+  domain=-4.5:4.5, samples=240,
 ]
 \addplot[black,dashed,thick] {exp(-x^2/2)/sqrt(2*pi)};
 \addlegendentry{$N(0,1)$}
 \addplot[blue,thick] {1/(pi*(1+x^2))};
 \addlegendentry{$t(1)$}
-\addplot[red,thick] {0.35355*pow(1+x^2/2,-1.5)};
-\addlegendentry{$t(2)$}
-\addplot[green!55!black,thick] {0.37961*pow(1+x^2/5,-3)};
-\addlegendentry{$t(5)$}
+\addplot[red,thick] {0.63662*pow(1+x^2/3,-2)};
+\addlegendentry{$t(3)$}
+\addplot[green!55!black,thick] {0.38911*pow(1+x^2/10,-5.5)};
+\addlegendentry{$t(10)$}
 \end{axis}
 \end{tikzpicture}
-\par\vspace{3pt}
-{\footnotesize\itshape $t(n)$ 分布关于 $0$ 对称、期望为 $0$，与 $N(0,1)$（黑色虚线）相比峰更矮、尾巴更厚：$t(1)$（柯西）尾部最重，随自由度 $n$ 增大，$t(n)$ 的密度逐渐逼近 $N(0,1)$（$\lim_{n\to\infty}f_n(t)=\frac{1}{\sqrt{2\pi}}e^{-t^2/2}$）。}
+\par\vspace{2pt}
+{\footnotesize\itshape 与 $N(0,1)$ 相比，$t$ 分布中间更低、两尾更厚。$t(1)$ 尾部最重，衰减像 $1/t^2$；$n$ 增大后尾巴迅速变薄，$t(10)$ 已经和标准正态很接近。同样分位数下，$t$ 分布的临界值比正态的大。}
+\end{minipage}
 \end{center}
 
-\begin{mydef}{F分布}{f distribution}
-    设\(X\sim\chi^2(n_1)\)、\(Y\sim\chi^2(n_2)\) 且 $X,Y$ 相互独立，则
-    \(F=\frac{X/n_1}{Y/n_2}\) 服从 $F(n_1,n_2)$ 分布，
-    其中\(n_1, n_2\)为自由度.\\
-    对于给定的\(\alpha\),称满足
+第三个分布用来比较两个方差。
+
+\begin{mydef}{$F$ 分布}{f distribution}
+    设 $U\sim\chi^2(n_1)$，$V\sim\chi^2(n_2)$，且 $U,V$ 独立，则
     \[
-        P(F > F_{\alpha}(n_1, n_2)) = \alpha
+        F=\frac{U/n_1}{V/n_2}
     \]
-    其中\(F_{\alpha}(n_1, n_2)\)为\(F(n_1, n_2)\)分布的上\(\alpha\)分位数.
+    服从自由度为 $(n_1,n_2)$ 的 $F$ 分布，记作 $F(n_1,n_2)$。其密度为
+    \[
+        f_F(x)=\frac{\Gamma\bigl((n_1+n_2)/2\bigr)}
+        {\Gamma(n_1/2)\Gamma(n_2/2)}
+        \left(\frac{n_1}{n_2}\right)^{n_1/2}
+        x^{n_1/2-1}
+        \left(1+\frac{n_1}{n_2}x\right)^{-(n_1+n_2)/2},
+        \qquad x>0.
+    \]
+    满足 $P(F>F_{\alpha}(n_1,n_2))=\alpha$ 的数 $F_{\alpha}(n_1,n_2)$ 称为上 $\alpha$ 分位数。
 \end{mydef}
 
-\begin{conclusion}{F分布的性质}{f distribution property}
-    \begin{enumerate}
-        \item \(F \sim F(n_1, n_2), \frac{1}{F} \sim F(n_2, n_1)\)
-        \item \(F_{1-\alpha}(n_1, n_2) = \frac{1}{F_{\alpha}(n_2, n_1)}\)
-    \end{enumerate}
-\end{conclusion}
+$F$ 分布由两个独立的卡方变量相除得到，分子、分母各除以自己的自由度，这样两个方差的尺度才可比。交换分子分母，分布的自由度也跟着交换：
+\[
+    F\sim F(n_1,n_2)\quad\Longrightarrow\quad \frac{1}{F}\sim F(n_2,n_1).
+\]
+对分位数，这条关系写成
+\[
+    F_{1-\alpha}(n_1,n_2)=\frac{1}{F_{\alpha}(n_2,n_1)}.
+\]
+它把下尾分位数转成上尾分位数，查表时只需要一张上尾表。当 $n_2>2$ 时 $E(F)=\frac{n_2}{n_2-2}$；$n_2\le2$ 时期望不存在。
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.84\linewidth, height=5.6cm,
+  width=0.84\linewidth, height=5.2cm,
+  xmin=0, xmax=4.2, ymin=0, ymax=1.02,
   xlabel={$x$}, ylabel={概率密度},
-  xmin=0, xmax=3.4, ymin=0, ymax=1.05,
-  xtick={0,1,2,3}, ytick={0,0.2,0.4,0.6,0.8,1.0},
+  xtick={0,1,2,3,4}, ytick={0,0.2,0.4,0.6,0.8,1.0},
   legend pos=north east, font=\footnotesize,
-  domain=0.0015:3.4, samples=240,
+  domain=0.002:4.2, samples=260,
 ]
 \addplot[blue,thick] {pow(1+0.4*x,-3.5)};
 \addlegendentry{$F(2,5)$}
@@ -182,436 +299,190 @@
 \addlegendentry{$F(5,10)$}
 \addplot[green!55!black,thick] {630*pow(x,4)*pow(1+x,-10)};
 \addlegendentry{$F(10,10)$}
+\draw[dashed,gray!80] (axis cs:3.326,0) -- (axis cs:3.326,0.10);
+\node[font=\scriptsize,anchor=west] at (axis cs:3.35,0.10) {$F_{0.05}(5,10)$};
 \end{axis}
 \end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape $F$ 密度只在 $x>0$ 上有定义，通常右偏。$n_1$ 较小时曲线在左端较高、衰减较快；$n_1,n_2$ 都增大时，分布向 $1$ 附近集中。虚线标出 $F(5,10)$ 的上 $5\%$ 分位点，它右侧的面积是 $0.05$。}
+\end{minipage}
 \end{center}
 
-\subsection{正态总体的样本均值与方差的分布}
-\begin{conclusion}{单个正态总体}{single normal population sample mean distribution}
-    \begin{enumerate}
-        \item \(\overline{X}\),\text{样本均值} \\
-        \[
-        \begin{aligned}
-            &\overline{X} \sim N(\mu, \frac{\sigma^2}{n}) \\
-            &\frac{\overline{X} - \mu}{\frac{\sigma}{\sqrt{n}}} 
-            = \frac{\sqrt{n}(\overline{X} - \mu)}{\sigma} \sim N(0, 1) \\
-            &\frac{\overline{X} - \mu}{\frac{S}{\sqrt{n}}}=\frac{\sqrt{n}(\overline{X} - \mu)}{S}
-            \sim t(n - 1) \\
-        \end{aligned}
-        \]
-        \item \(\frac{S^2}{\sigma^2}\),\text{样本方差} \\
-        \[
-        \begin{aligned}
-            & \frac{1}{\sigma^2} \sum \limits_{i = 1}^{n} (X_i - \mu)^2 \sim \chi^2(n) \\
-            &\frac{(n-1)S^2}{\sigma^2} \sim \chi^2(n - 1) \\
-        \end{aligned}
-        \]
-        \item 对正态总体，还有核心结论：\(\overline X\)与\(S^2\)相互独立。
-    \end{enumerate}
-\end{conclusion}
+\subsection{正态总体的抽样分布}
+
+正态分布对线性运算和平方和都封闭，所以正态总体的抽样分布可以写得很干净。以下都设 $X_1,\dots,X_n$ 是来自 $N(\mu,\sigma^2)$ 的简单随机样本。
+
+样本均值是独立正态变量的线性组合，仍服从正态分布：
+\[
+    \overline{X}\sim N\!\left(\mu,\frac{\sigma^2}{n}\right),
+    \qquad
+    \frac{\sqrt{n}(\overline{X}-\mu)}{\sigma}\sim N(0,1).
+\]
+把每个 $X_i$ 标准化，得到 $n$ 个独立的标准正态变量，平方和就是
+\[
+    \frac{1}{\sigma^2}\sum_{i=1}^{n}(X_i-\mu)^2\sim\chi^2(n).
+\]
+但实际计算 $S^2$ 时用的是 $\overline{X}$，不是 $\mu$。平方和分解
+\[
+    \sum_{i=1}^{n}(X_i-\mu)^2
+    =\sum_{i=1}^{n}(X_i-\overline{X})^2+n(\overline{X}-\mu)^2
+\]
+的右边第二项正好是 $\frac{(\overline{X}-\mu)^2}{\sigma^2/n}$，它消耗了一个自由度。剩下的部分服从
+\[
+    \frac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1).
+\]
+自由度为 $n-1$ 的原因也可以从约束看：$n$ 个离差 $X_i-\overline{X}$ 满足 $\sum_i(X_i-\overline{X})=0$，知道其中 $n-1$ 个，最后一个就确定了。
+
+更关键的是，$\overline{X}$ 与 $S^2$ 相互独立。做一个正交变换，把第一坐标取在方向 $(1,\dots,1)/\sqrt{n}$ 上，则第一坐标是 $\sqrt{n}\,\overline{X}$，其余 $n-1$ 个坐标张成与它垂直的子空间，平方和正是 $(n-1)S^2$。正交变换保持独立正态性，所以“均值方向”和“离差方向”互不影响。用这个独立性构造 $t$ 统计量：
+\[
+    \frac{\sqrt{n}(\overline{X}-\mu)}{S}
+    =\frac{\dfrac{\sqrt{n}(\overline{X}-\mu)}{\sigma}}
+    {\sqrt{\dfrac{(n-1)S^2}{\sigma^2}\Big/(n-1)}}
+    \sim t(n-1).
+\]
+分子是标准正态，分母根号内是 $\chi^2(n-1)$ 除以自由度，两者独立。
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.84\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={概率密度},
-  xmin=-4, xmax=4, ymin=0, ymax=1.75,
-  xtick={-4,-2,0,2,4}, ytick={0,0.4,0.8,1.2,1.6},
+  width=0.84\linewidth, height=4.9cm,
+  xmin=-2.6, xmax=2.6, ymin=0, ymax=3.35,
+  xlabel={$\overline{x}$}, ylabel={概率密度},
+  xtick={-2,-1,0,1,2}, ytick={0,1,2,3},
   legend pos=north east, font=\footnotesize,
-  domain=-4:4, samples=200,
+  domain=-2.6:2.6, samples=220,
 ]
 \addplot[blue,thick] {0.3989*exp(-x^2/2)};
 \addlegendentry{$n=1$}
 \addplot[red,thick] {0.7979*exp(-2*x^2)};
 \addlegendentry{$n=4$}
-\addplot[green!55!black,thick] {1.1968*exp(-4.5*x^2)};
-\addlegendentry{$n=9$}
-\addplot[orange,thick] {1.5958*exp(-8*x^2)};
+\addplot[green!55!black,thick] {1.5958*exp(-8*x^2)};
 \addlegendentry{$n=16$}
+\addplot[orange,thick] {3.1915*exp(-32*x^2)};
+\addlegendentry{$n=64$}
 \end{axis}
 \end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 四条曲线的中心都在 $\mu$，但标准差依次是 $\sigma$、$\sigma/2$、$\sigma/4$、$\sigma/8$。样本量翻四倍，标准差减半，曲线高度按 $\sqrt{n}$ 增大。均值的大偏差随 $n$ 迅速变得罕见。}
+\end{minipage}
 \end{center}
 
-\begin{conclusion}{两个正态总体}{two normal population sample mean distribution}
-    \[
-    \begin{aligned}
-        &\overline{X} = \frac{\sum \limits_{i = 1}^{n_1} X_i}{n_1}, \quad
-        \overline{Y} = \frac{\sum \limits_{i = 1}^{n_2} Y_i}{n_2} \\
-        &S_X^2 = \frac{\sum \limits_{i = 1}^{n_1} (X_i - \overline{X})^2}{n_1 - 1}, \quad
-        S_Y^2 = \frac{\sum \limits_{i = 1}^{n_2} (Y_i - \overline{Y})^2}{n_2 - 1} \\
-        &S_{XY}^2 = \frac{(n_1 -1)S_{X}^2 + (n_2 -1)S_{Y}^2}{n_1 + n_2 -2}
-    \end{aligned}
-    \]
-    设两组样本分别来自两个正态总体，且两组样本相互独立。
-    \begin{enumerate}
-        \item 样本均值差 \\
-        \[
-        \begin{aligned}
-            &\overline{X} - \overline{Y} \sim N(\mu_1 - \mu_2, \frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}) \\
-            &\frac{\overline{X} - \overline{Y} - (\mu_1 - \mu_2)}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}}
-            \sim N(0, 1) \\
-            &\frac{\overline{X}- \overline{Y}- (\mu_1 - \mu_2)}{S_{XY}\sqrt{\frac{1}{n_1} + \frac{1}{n_2}}} 
-            \sim t(n_1 + n_2 - 2) \quad (\sigma_1^2 = \sigma_2^2)
-        \end{aligned}
-        \]
-        \item 样本方差比 \\
-        \[
-        \begin{aligned}
-            & F = \frac{S_X^2/\sigma_1^2}{S_Y^2/\sigma_2^2} \sim F(n_1 - 1, n_2 - 1) \\
-            &\frac{(n_1 + n_2 - 2)S_{XY}^2}{\sigma^2} \sim \chi^2(n_1 + n_2 -2)
-            \quad(\sigma_1^2=\sigma_2^2=\sigma^2)
-        \end{aligned}
-        \]
-    \end{enumerate}
-\end{conclusion}
+两个正态总体时，设 $X_1,\dots,X_{n_1}$ 来自 $N(\mu_1,\sigma_1^2)$，$Y_1,\dots,Y_{n_2}$ 来自 $N(\mu_2,\sigma_2^2)$，两组样本相互独立。均值差仍为正态：
+\[
+    \overline{X}-\overline{Y}
+    \sim N\!\left(\mu_1-\mu_2,\ \frac{\sigma_1^2}{n_1}+\frac{\sigma_2^2}{n_2}\right).
+\]
+若进一步假设 $\sigma_1^2=\sigma_2^2=\sigma^2$，把两组的离差平方和合并，得到合并方差
+\[
+    S_w^2=\frac{(n_1-1)S_X^2+(n_2-1)S_Y^2}{n_1+n_2-2}.
+\]
+两个卡方变量独立，自由度相加，所以
+\[
+    \frac{(n_1+n_2-2)S_w^2}{\sigma^2}\sim\chi^2(n_1+n_2-2).
+\]
+用它替换未知的 $\sigma$，得到两样本 $t$ 统计量
+\[
+    \frac{\overline{X}-\overline{Y}-(\mu_1-\mu_2)}
+    {S_w\sqrt{\dfrac{1}{n_1}+\dfrac{1}{n_2}}}
+    \sim t(n_1+n_2-2).
+\]
+不假设方差相等时，比较两个方差用
+\[
+    \frac{S_X^2/\sigma_1^2}{S_Y^2/\sigma_2^2}
+    \sim F(n_1-1,n_2-1).
+\]
+它的构造就是两个独立的 $\chi^2$ 变量分别除以自己的自由度再相除，两个 $\sigma^2$ 在比值中约掉。
 
-\begin{conclusion}{$X_{(n)} = \max(X_1, X_2, \cdots , X_{n})$\\与$X_{(1)} = \min(X_1,X_2,\cdots,X_n)$}{min and max distribution}
-    设\(X_1,\ldots,X_n\)独立同分布，共同分布函数为\(F\)，则
-    \[
-        \begin{aligned}
-            &F_{\max}(x)=P(\max(X_1,\ldots,X_n)\leq x)=[F(x)]^n,\\
-            &F_{\min}(x)=P(\min(X_1,\ldots,X_n)\leq x)=1-[1-F(x)]^n
-        \end{aligned}
-    \]
-\end{conclusion}
+\subsection{次序统计量}
 
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.84\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={概率密度},
-  xmin=0, xmax=1, ymin=0, ymax=20,
-  xtick={0,0.2,0.4,0.6,0.8,1}, ytick={0,4,8,12,16,20},
-  legend pos=north west, font=\footnotesize,
-  domain=0:1, samples=160,
-]
-\addplot[blue,thick] {2*x};
-\addlegendentry{$n=2$}
-\addplot[green!55!black,thick] {5*x^4};
-\addlegendentry{$n=5$}
-\addplot[orange,thick] {20*x^19};
-\addlegendentry{$n=20$}
-\end{axis}
-\end{tikzpicture}
-\par\vspace{3pt}
-{\footnotesize\itshape 最大次序统计量 $X_{(n)}=\max(X_1,\ldots,X_n)$ 的密度为 $f_{\max}(x)=n x^{n-1}$（$0\le x\le1$）：质量集中在 $x=1$ 附近，$n$ 越大，$X_{(n)}$ 越可能接近 $1$。}
-\end{center}
+把样本从小到大排好，得到
+\[
+    X_{(1)}\le X_{(2)}\le\cdots\le X_{(n)}.
+\]
+$X_{(k)}$ 称为第 $k$ 个次序统计量。$X_{(1)}=\min_i X_i$ 是最小值，$X_{(n)}=\max_i X_i$ 是最大值。比如观测值为 $3.2,\,1.7,\,4.0,\,2.5$，排序后是 $1.7,\,2.5,\,3.2,\,4.0$，次序统计量的观测值就是这四个数。括号下标表示“排序后的位置”，不要和样本下标混淆。
+
+次序统计量的分布函数有一个很直观的算法。对固定的 $x$，记
+\[
+    N_x=\#\{i:X_i\le x\}.
+\]
+每个样本独立地以概率 $F(x)$ 落入 $(-\infty,x]$，所以 $N_x\sim B(n,F(x))$。事件 $\{X_{(k)}\le x\}$ 等价于“至少有 $k$ 个样本不超过 $x$”，即 $\{N_x\ge k\}$。于是
+\[
+    F_{(k)}(x)=P(X_{(k)}\le x)
+    =\sum_{j=k}^{n}\binom{n}{j}\bigl[F(x)\bigr]^j
+    \bigl[1-F(x)\bigr]^{n-j}.
+\]
+若总体有密度 $f$，对 $x$ 求导得
+\[
+    f_{(k)}(x)=\frac{n!}{(k-1)!(n-k)!}
+    \bigl[F(x)\bigr]^{k-1}
+    \bigl[1-F(x)\bigr]^{n-k}f(x).
+\]
+这个式子可以这样读：要让 $X_{(k)}$ 落在 $x$ 附近，需要 $k-1$ 个样本在 $x$ 左边、$n-k$ 个在右边、恰好一个落在 $x$ 处；多项式系数数的是这 $n$ 个样本的分配方式。
+
+两个端点最常用：
+\[
+    F_{\max}(x)=\bigl[F(x)\bigr]^n,\qquad
+    f_{\max}(x)=n\bigl[F(x)\bigr]^{n-1}f(x),
+\]
+\[
+    F_{\min}(x)=1-\bigl[1-F(x)\bigr]^n,\qquad
+    f_{\min}(x)=n\bigl[1-F(x)\bigr]^{n-1}f(x).
+\]
+最大值不超过 $x$ 等价于每个样本都不超过 $x$，直接乘起来就得到 $[F(x)]^n$；最小值用对立事件更简单：最小值大于 $x$ 等价于每个样本都大于 $x$，概率是 $[1-F(x)]^n$。
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.84\linewidth, height=5.4cm,
+  width=0.84\linewidth, height=5.0cm,
+  xmin=0, xmax=1, ymin=0, ymax=6.3,
   xlabel={$x$}, ylabel={概率密度},
-  xmin=0, xmax=1, ymin=0, ymax=20,
-  xtick={0,0.2,0.4,0.6,0.8,1}, ytick={0,4,8,12,16,20},
+  xtick={0,0.2,0.4,0.6,0.8,1}, ytick={0,1,2,3,4,5,6},
   legend pos=north east, font=\footnotesize,
-  domain=0:1, samples=160,
+  domain=0:1, samples=200,
 ]
-\addplot[blue,thick] {2*(1-x)};
-\addlegendentry{$n=2$}
-\addplot[green!55!black,thick] {5*(1-x)^4};
-\addlegendentry{$n=5$}
-\addplot[orange,thick] {20*(1-x)^19};
-\addlegendentry{$n=20$}
+\addplot[blue,thick] {6*pow(1-x,5)};
+\addlegendentry{$k=1$}
+\addplot[red,thick] {60*x^2*pow(1-x,3)};
+\addlegendentry{$k=3$}
+\addplot[green!55!black,thick] {6*pow(x,5)};
+\addlegendentry{$k=6$}
 \end{axis}
 \end{tikzpicture}
-\par\vspace{3pt}
-{\footnotesize\itshape 最小次序统计量 $X_{(1)}=\min(X_1,\ldots,X_n)$ 的密度为 $f_{\min}(x)=n(1-x)^{n-1}$（$0\le x\le1$）：质量集中在 $x=0$ 附近，$n$ 越大，$X_{(1)}$ 越可能接近 $0$。}
+\par\vspace{2pt}
+{\footnotesize\itshape 取 $U(0,1)$ 总体、$n=6$。$k=1$ 的密度在 $0$ 处最高，向右单调下降；$k=6$ 正好相反；中间的 $k=3$ 近似对称，峰值在 $0.4$ 附近。$k$ 越靠近端点，分布越向对应的端点集中。}
+\end{minipage}
 \end{center}
 
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.0cm,
+  xmin=0, xmax=1, ymin=0, ymax=1.04,
+  xlabel={$x$}, ylabel={分布函数},
+  xtick={0,0.2,0.4,0.6,0.8,1}, ytick={0,0.5,1},
+  legend pos=north west, font=\footnotesize,
+  domain=0:1, samples=200,
+]
+\addplot[black,dashed,thick] {x};
+\addlegendentry{$F(x)=x$}
+\addplot[red,thick] {pow(x,10)};
+\addlegendentry{$F_{\max}$, $n=10$}
+\addplot[blue,thick] {1-pow(1-x,10)};
+\addlegendentry{$F_{\min}$, $n=10$}
+\end{axis}
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 总体为 $U(0,1)$，图中取 $n=10$。最大值的分布函数在 $F(x)=x$ 下方，最小值的在上方：最大值倾向于更小，最小值倾向于更大。$n$ 越大，两条曲线越贴近 $0$ 和 $1$ 两侧的台阶。}
+\end{minipage}
+\end{center}
+
+次序统计量之间不独立。知道最小值偏大，其余样本的取值范围就被压缩，后面的次序统计量也跟着变大。这一点与样本均值、样本方差不同，后者在正态总体下反而独立。
+
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\textbf{1.} \textbf{（选择题）} 设 $X_1, X_2, \ldots, X_n$ 是来自总体 $X$ 的简单随机样本，$E(X)=\mu$，$D(X)=\sigma^2$。记 $\overline{X}=\frac{1}{n}\sum_{i=1}^{n}X_i$，$S^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2$，则下列结论中\textbf{错误的是} \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item $E(\overline{X})=\mu$
-    \item $D(\overline{X})=\dfrac{\sigma^2}{n}$
-    \item $E(S^2)=\sigma^2$
-    \item $D(S^2)=\dfrac{\sigma^4}{n-1}$
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 \textbf{(D)}。
-
-\textbf{分析：}(A)、(B)、(C) 均为样本均值和样本方差的基本性质，对任意总体只要方差存在即成立。
-
-(D) 错误。$S^2$ 的方差依赖于总体的峰度。仅当总体为正态分布时，$\dfrac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1)$，从而 $D\!\left(\dfrac{(n-1)S^2}{\sigma^2}\right)=2(n-1)$，即 $D(S^2)=\dfrac{2\sigma^4}{n-1}$，并非 $\dfrac{\sigma^4}{n-1}$。对于非正态总体，$D(S^2)$ 的表达式更为复杂，还涉及总体的四阶中心矩。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{2.} \textbf{（选择题）} 设 $X_1, X_2, X_3, X_4$ 是来自正态总体 $N(0, 2^2)$ 的简单随机样本，则下列统计量中服从 $\chi^2(3)$ 分布的是 \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item $\dfrac{1}{4}\bigl(X_1^2+X_2^2+X_3^2+X_4^2\bigr)$
-    \item $\dfrac{1}{4}\bigl(X_1^2+X_2^2+X_3^2\bigr)$
-    \item $\dfrac{1}{2}\bigl(X_1^2+X_2^2+X_3^2+X_4^2\bigr)$
-    \item $\dfrac{1}{16}\bigl(X_1^2+X_2^2+X_3^2+X_4^2\bigr)$
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 \textbf{(B)}。
-
-\textbf{分析：}$X_i\sim N(0,4)$，标准化得 $\dfrac{X_i}{2}\sim N(0,1)$。则 $\dfrac{X_i^2}{4}\sim\chi^2(1)$。由 $\chi^2$ 分布的可加性：
-\[
-\frac{X_1^2}{4}+\frac{X_2^2}{4}+\frac{X_3^2}{4}=\frac{1}{4}\bigl(X_1^2+X_2^2+X_3^2\bigr)\sim\chi^2(3).
-\]
-(A) 为 $\chi^2(4)$；(C) 中系数 $\frac{1}{2}$ 不对；(D) 系数 $\frac{1}{16}$ 不对。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{3.} \textbf{（选择题）} 设 $X\sim N(0,1)$，$Y\sim\chi^2(n)$，且 $X$ 与 $Y$ 相互独立，则随机变量 $T=\dfrac{X}{\sqrt{Y/n}}$ 服从的分布为 \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item $N(0,1)$
-    \item $t(n)$
-    \item $\chi^2(n)$
-    \item $F(1,n)$
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 \textbf{(B)}。
-
-由 $t$ 分布的定义直接得出：若 $X\sim N(0,1)$，$Y\sim\chi^2(n)$，且 $X$ 与 $Y$ 独立，则 $T=\dfrac{X}{\sqrt{Y/n}}\sim t(n)$。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{4.} \textbf{（填空题）} 设 $X\sim\chi^2(m)$，$Y\sim\chi^2(n)$，且 $X$ 与 $Y$ 相互独立，令 $F=\dfrac{X/m}{Y/n}$，则 $F\sim$ \underline{\qquad}；$\dfrac{1}{F}\sim$ \underline{\qquad}；$E(F)=$ \underline{\qquad}（$n>2$）。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 依次填 $F(m,n)$；$F(n,m)$；$\dfrac{n}{n-2}$。
-
-\textbf{分析：}由 $F$ 分布定义，$F\sim F(m,n)$。由 $F$ 分布的性质，$\dfrac{1}{F}=\dfrac{Y/n}{X/m}\sim F(n,m)$。
-
-对于 $F\sim F(m,n)$，当 $n>2$ 时，
-\[
-E(F)=\frac{n}{n-2}.
-\]
-推导：$F=\dfrac{X/m}{Y/n}$，$E(F)=\dfrac{n}{m}E\!\left(\dfrac{X}{Y}\right)$。由独立性及 $E(X)=m$，$E(Y^{-1})=\dfrac{1}{n-2}$，得 $E(F)=\dfrac{n}{m}\cdot m\cdot\dfrac{1}{n-2}=\dfrac{n}{n-2}$。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{5.} \textbf{（选择题）} 设 $X_1, X_2, \ldots, X_n$ 是来自正态总体 $N(\mu,\sigma^2)$ 的简单随机样本，$\overline{X}$ 为样本均值，$S^2$ 为样本方差，则下列结论中\textbf{正确的是} \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item $\dfrac{\overline{X}-\mu}{S/\sqrt{n}}\sim N(0,1)$
-    \item $\dfrac{\overline{X}-\mu}{S/\sqrt{n}}\sim t(n-1)$
-    \item $\dfrac{\overline{X}-\mu}{\sigma/\sqrt{n}}\sim t(n-1)$
-    \item $\dfrac{(n-1)S^2}{\sigma^2}\sim\chi^2(n)$
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 \textbf{(B)}。
-
-\textbf{分析：}由正态总体抽样分布基本定理：
-\begin{itemize}
-    \item $\dfrac{\overline{X}-\mu}{\sigma/\sqrt{n}}\sim N(0,1)$，故 (C) 错误（应为 $N(0,1)$ 而非 $t$）；
-    \item $\dfrac{\overline{X}-\mu}{S/\sqrt{n}}\sim t(n-1)$，故 (B) 正确，(A) 错误（用 $S$ 代替 $\sigma$ 后变成 $t$ 分布）；
-    \item $\dfrac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1)$，故 (D) 错误（自由度为 $n-1$ 而非 $n$）。
-\end{itemize}
-这些是正态总体抽样分布的基础结论，属于考研数学一主线内容；使用时应特别区分总体标准差 $\sigma$ 与样本标准差 $S$，并核对自由度。
-
-\else \answerarea \fi%
-\newpage
-\subsection{综合提高题}
-
-\textbf{6.} \textbf{（计算与证明题）} 设 $X_1, X_2, \ldots, X_n$ 是来自正态总体 $N(0,\sigma^2)$ 的简单随机样本，$\overline{X}=\dfrac{1}{n}\sum_{i=1}^{n}X_i$。证明：
-\begin{enumerate}[label=(\arabic*)]
-    \item $\displaystyle\sum_{i=1}^{n}\left(\frac{X_i}{\sigma}\right)^2\sim\chi^2(n)$；
-    \item $\displaystyle\frac{\sqrt{n}\,\overline{X}}{\sigma}\sim N(0,1)$，且与 $\displaystyle\sum_{i=1}^{n}\left(\frac{X_i-\overline{X}}{\sigma}\right)^2$ 相互独立；
-    \item 由此证明 $\displaystyle\frac{\sqrt{n}\,\overline{X}}{S}\sim t(n-1)$，其中 $S^2=\dfrac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-(1) 因为 $X_i\sim N(0,\sigma^2)$ 且相互独立，故 $\dfrac{X_i}{\sigma}\sim N(0,1)$ 且相互独立。由 $\chi^2$ 分布定义，
-\[
-\sum_{i=1}^{n}\left(\frac{X_i}{\sigma}\right)^2\sim\chi^2(n).
-\]
-
-(2) 样本均值 $\overline{X}\sim N\!\left(0,\dfrac{\sigma^2}{n}\right)$，标准化得 $\dfrac{\sqrt{n}\,\overline{X}}{\sigma}\sim N(0,1)$。
-
-由 Cochran 定理（正态总体下的平方和分解定理），
-\[
-\sum_{i=1}^{n}X_i^2=n\overline{X}^2+\sum_{i=1}^{n}(X_i-\overline{X})^2,
-\]
-且 $n\overline{X}^2/\sigma^2\sim\chi^2(1)$ 与 $\sum_{i=1}^{n}(X_i-\overline{X})^2/\sigma^2\sim\chi^2(n-1)$ 相互独立。故 $\overline{X}$ 与 $\sum_{i=1}^{n}(X_i-\overline{X})^2$ 相互独立。
-
-(3) 由 $t$ 分布定义，
-\[
-T=\frac{\dfrac{\sqrt{n}\,\overline{X}}{\sigma}}{\sqrt{\dfrac{\sum_{i=1}^{n}(X_i-\overline{X})^2/\sigma^2}{n-1}}}
-=\frac{\sqrt{n}\,\overline{X}}{\sqrt{\dfrac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2}}
-=\frac{\sqrt{n}\,\overline{X}}{S}\sim t(n-1).
-\]
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{7.} \textbf{（计算题）} 设 $X_1, X_2, \ldots, X_{n_1}$ 是来自正态总体 $N(\mu_1,\sigma^2)$ 的样本，$Y_1, Y_2, \ldots, Y_{n_2}$ 是来自正态总体 $N(\mu_2,\sigma^2)$ 的样本，且两样本相互独立。记
-\[
-S_w^2=\frac{(n_1-1)S_X^2+(n_2-1)S_Y^2}{n_1+n_2-2},
-\]
-其中 $S_X^2$ 和 $S_Y^2$ 分别为两样本的样本方差。
-\begin{enumerate}[label=(\arabic*)]
-    \item 求 $\dfrac{(n_1+n_2-2)S_w^2}{\sigma^2}$ 的分布；
-    \item 证明 $\dfrac{(\overline{X}-\overline{Y})-(\mu_1-\mu_2)}{S_w\sqrt{\dfrac{1}{n_1}+\dfrac{1}{n_2}}}\sim t(n_1+n_2-2)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-(1) 由正态总体样本方差的分布：
-\[
-\frac{(n_1-1)S_X^2}{\sigma^2}\sim\chi^2(n_1-1),\qquad
-\frac{(n_2-1)S_Y^2}{\sigma^2}\sim\chi^2(n_2-1).
-\]
-两样本独立，故由 $\chi^2$ 分布的可加性：
-\[
-\frac{(n_1+n_2-2)S_w^2}{\sigma^2}
-=\frac{(n_1-1)S_X^2}{\sigma^2}+\frac{(n_2-1)S_Y^2}{\sigma^2}
-\sim\chi^2(n_1+n_2-2).
-\]
-
-(2) 由正态总体样本均值的分布：
-\[
-\overline{X}-\overline{Y}\sim N\!\left(\mu_1-\mu_2,\;\frac{\sigma^2}{n_1}+\frac{\sigma^2}{n_2}\right).
-\]
-标准化得
-\[
-U=\frac{(\overline{X}-\overline{Y})-(\mu_1-\mu_2)}{\sigma\sqrt{\dfrac{1}{n_1}+\dfrac{1}{n_2}}}\sim N(0,1).
-\]
-由 (1) 知 $V=\dfrac{(n_1+n_2-2)S_w^2}{\sigma^2}\sim\chi^2(n_1+n_2-2)$。
-
-由两样本独立性及 Cochran 定理，$U$ 与 $V$ 相互独立。由 $t$ 分布定义：
-\[
-T=\frac{U}{\sqrt{V/(n_1+n_2-2)}}
-=\frac{(\overline{X}-\overline{Y})-(\mu_1-\mu_2)}{S_w\sqrt{\dfrac{1}{n_1}+\dfrac{1}{n_2}}}
-\sim t(n_1+n_2-2).
-\]
-
-\boxed{\text{注}} 以上推导假设两总体方差相等（$\sigma_1^2=\sigma_2^2=\sigma^2$），此时才能将两个样本方差合并为 $S_w^2$。若方差不等，则需用 Welch 近似 $t$ 检验，其分布不再是精确的 $t$ 分布。
-
-\else \answerarea \fi%
-\newpage
-\textbf{8.} \textbf{（综合证明题）} 设 $X_1, X_2, \ldots, X_n$ 是来自绝对连续总体的简单随机样本，其分布函数为 $F(x)$，概率密度为 $f(x)$。记次序统计量为 $X_{(1)}\leqslant X_{(2)}\leqslant\cdots\leqslant X_{(n)}$。
-\begin{enumerate}[label=(\arabic*)]
-    \item 求 $X_{(n)}=\max(X_1,\ldots,X_n)$ 的分布函数和概率密度函数；
-    \item 求 $X_{(1)}=\min(X_1,\ldots,X_n)$ 的分布函数和概率密度函数；
-    \item 若 $X\sim U(0,\theta)$，求 $X_{(n)}$ 的数学期望 $E(X_{(n)})$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-(1) 对于最大值 $X_{(n)}$，事件 $\{X_{(n)}\leqslant x\}$ 等价于所有 $X_i\leqslant x$。由独立性：
-\[
-F_{(n)}(x)=P(X_{(n)}\leqslant x)=P(X_1\leqslant x,\ldots,X_n\leqslant x)=[F(x)]^n.
-\]
-求导得概率密度函数：
-\[
-f_{(n)}(x)=n[F(x)]^{n-1}f(x).
-\]
-
-(2) 对于最小值 $X_{(1)}$，
-\[
-\begin{aligned}
-F_{(1)}(x)
-&=P(X_{(1)}\leqslant x)=1-P(X_{(1)}>x)\\
-&=1-P(X_1>x,\ldots,X_n>x)=1-[1-F(x)]^n.
-\end{aligned}
-\]
-求导得：
-\[
-f_{(1)}(x)=n[1-F(x)]^{n-1}f(x).
-\]
-
-(3) 当 $X\sim U(0,\theta)$ 时，$F(x)=\dfrac{x}{\theta}\;(0<x<\theta)$，$f(x)=\dfrac{1}{\theta}$。代入 (1)：
-\[
-f_{(n)}(x)=n\left(\frac{x}{\theta}\right)^{n-1}\cdot\frac{1}{\theta}=\frac{n x^{n-1}}{\theta^n},\quad 0<x<\theta.
-\]
-\[
-E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{n x^{n-1}}{\theta^n}\,dx
-=\frac{n}{\theta^n}\int_{0}^{\theta}x^n\,dx
-=\frac{n}{\theta^n}\cdot\frac{\theta^{n+1}}{n+1}
-=\frac{n}{n+1}\theta.
-\]
-
-\boxed{\text{注}} $E(X_{(n)})=\dfrac{n}{n+1}\theta<\theta$，说明即使样本容量很大，样本最大值也倾向于低估 $\theta$，这是矩估计中需要修正的原因。
-
-\else \answerarea \fi%
-\newpage
-\subsection{真题风格与综合训练}
-
-\textbf{9.} \textbf{（\boxed{\textbf{真题风格}}，综合计算题）} 设 $X_1, X_2, \ldots, X_n$ 是来自正态总体 $N(\mu,\sigma^2)$ 的简单随机样本，$\overline{X}$ 为样本均值，$S^2$ 为样本方差。
-\begin{enumerate}[label=(\arabic*)]
-    \item 求 $P\!\left(\dfrac{S^2}{\sigma^2}\leqslant c\right)$ 用 $\chi^2$ 分布函数表示的表达式；
-    \item 若 $n=9$，求 $P\!\left(\overline{X}>\mu+\dfrac{\sigma}{3}\right)$；
-    \item 若 $n=16$，判断 $P\!\left(S^2>2\sigma^2\right)$ 所在的区间（已知 $\chi^2_{0.025}(15)=27.49$，$\chi^2_{0.01}(15)=30.58$；这里 $\chi^2_{\alpha}(15)$ 表示右尾概率为 $\alpha$ 的临界值）。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-
-(1) 由正态总体抽样分布基本定理：
-\[
-\frac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1).
-\]
-因此
-\[
-P\!\left(\frac{S^2}{\sigma^2}\leqslant c\right)
-=P\!\left(\frac{(n-1)S^2}{\sigma^2}\leqslant (n-1)c\right)
-=F_{\chi^2(n-1)}\bigl((n-1)c\bigr),
-\]
-其中 $F_{\chi^2(n-1)}$ 为 $\chi^2(n-1)$ 分布的分布函数。
-
-(2) $n=9$ 时，$\overline{X}\sim N\!\left(\mu,\dfrac{\sigma^2}{9}\right)$。标准化：
-\[
-P\!\left(\overline{X}>\mu+\frac{\sigma}{3}\right)
-=P\!\left(\frac{\overline{X}-\mu}{\sigma/3}>1\right)
-=P(Z>1),\quad Z\sim N(0,1).
-\]
-查标准正态分布表，$P(Z>1)=1-\Phi(1)=1-0.8413=0.1587$。
-
-(3) $n=16$ 时，$\dfrac{(n-1)S^2}{\sigma^2}=\dfrac{15S^2}{\sigma^2}\sim\chi^2(15)$。
-\[
-P(S^2>2\sigma^2)=P\!\left(\frac{15S^2}{\sigma^2}>30\right).
-\]
-由 $\chi^2_{0.025}(15)=27.49<30<30.58=\chi^2_{0.01}(15)$，且右尾概率随临界值增大而减小，故
-\[
-0.01<P(S^2>2\sigma^2)<0.025.
-\]
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{10.} \textbf{（\boxed{\textbf{真题风格}}，选择题）} 设随机变量 $X\sim t(n)$（$n>1$），$Y=\dfrac{1}{X^2}$，则 \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item $Y\sim\chi^2(n)$
-    \item $Y\sim\chi^2(n-1)$
-    \item $Y\sim F(n,1)$
-    \item $Y\sim F(1,n)$
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 \textbf{(C)}。
-
-\textbf{分析：}由 $t$ 分布与 $F$ 分布的关系：若 $T\sim t(n)$，则 $T^2\sim F(1,n)$。
-
-按 $t$ 分布的构造，可写成
-\[
-T=\frac{Z}{\sqrt{U/n}},\qquad
-Z\sim N(0,1),\quad U\sim\chi^2(n),\quad Z\perp U.
-\]
-于是
-\[
-T^2=\frac{Z^2/1}{U/n}\sim F(1,n).
-\]
-题设中的 $X\sim t(n)$，故 $X^2\sim F(1,n)$，进而
-$Y=1/X^2\sim F(n,1)$（若 $F\sim F(m,n)$，则 $1/F\sim F(n,m)$）。
-
-\boxed{\text{注}} 此题考查 $t$ 分布与 $F$ 分布的内在联系，是考研选择题中的经典题型。关键结论链：$t(n)\xrightarrow{\text{平方}}F(1,n)\xrightarrow{\text{取倒数}}F(n,1)$。
-
-\else \answerarea \fi%
+\input{probality/exercises/chap6.tex}

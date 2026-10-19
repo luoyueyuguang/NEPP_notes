@@ -1,0 +1,625 @@
+\section{习题}
+
+\subsection{本章速览}
+
+\begin{itemize}
+\item \textbf{矩估计：}有几个未知参数就列几个方程，令样本原点矩等于总体原点矩，即 $\dfrac{1}{n}\sum_{i=1}^{n}X_i^{j}=E_\theta(X^{j})$（$j=1,2,\ldots,k$），再解出参数。关键是先用参数表示总体矩，且方程个数必须等于未知参数个数。
+\item \textbf{最大似然估计：}写出 $L(\theta)=\prod_{i=1}^{n}p_\theta(x_i)$，取对数求驻点，再确认它是最大值：二阶导为负、或比较端点。驻点只是候选——当似然函数关于 $\theta$ 单调时，最大值落在参数空间的边界上（如 $U(0,\theta)$ 的 $\widehat\theta=X_{(n)}$），此时令导数为零会解出矛盾。
+\item \textbf{三条评选标准：}无偏性指 $E(\widehat\theta)=\theta$；有效性只在同为无偏估计之间比较，要求对\emph{所有}参数值方差都不大，且至少有一处严格小；一致性指 $\widehat\theta_n\xrightarrow{P}\theta$。三者互不蕴含：只用第一个观测 $X_1$ 估计 $\mu$ 是无偏的但不是一致估计；$\bar X+\dfrac{1}{n}$ 是一致估计但有偏。
+\item \textbf{区间估计：}先构造分布完全已知且含待估参数的枢轴量——$\sigma^{2}$ 已知估 $\mu$ 用 $z$，$\sigma^{2}$ 未知估 $\mu$ 用 $t$，估 $\sigma^{2}$ 用 $\chi^{2}$——再用分位点把概率等式反解成参数的范围。$1-\alpha$ 描述的是“这套构造方法覆盖参数的概率为 $1-\alpha$”，不是某个已算出的具体区间含参数的概率。
+\item \textbf{假设检验：}按研究目的定 $H_0$、$H_1$，$\alpha$ 只控制第一类错误（弃真），拒绝域的方向由 $H_1$ 决定（$H_1$ 为 $\mu>\mu_0$ 时取右尾）。样本量固定时 $\alpha$ 与 $\beta$ 此消彼长，要同时减小只能增大样本量。
+\item \textbf{分位数记号：}本章一律用上侧分位数：$P\{Z>z_\alpha\}=\alpha$，$P\{t_\nu>t_\alpha(\nu)\}=\alpha$，$P\{\chi^{2}_\nu>\chi^{2}_\alpha(\nu)\}=\alpha$。因此置信区间里 $\chi^{2}$ 的左右端点用的是 $\chi^{2}_{\alpha/2}$ 与 $\chi^{2}_{1-\alpha/2}$，位置与 $z$、$t$ 相反。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 判断下列说法是否正确，正确的说明理由，错误的举出反例：
+\begin{enumerate}[label=(\arabic*)]
+    \item 若 $\widehat\theta$ 是 $\theta$ 的无偏估计，则 $\widehat\theta$ 也一定是 $\theta$ 的一致估计；
+    \item 若 $\widehat\theta_n$ 是 $\theta$ 的一致估计，则 $\widehat\theta_n$ 一定是无偏估计；
+    \item 设 $\widehat\theta_1,\widehat\theta_2$ 都是 $\theta$ 的无偏估计，且 $D(\widehat\theta_1)<D(\widehat\theta_2)$，则对任意一次抽样所得的观测值都有 $|\widehat\theta_1-\theta|<|\widehat\theta_2-\theta|$；
+    \item 若 $\widehat\theta_n$ 是 $\theta$ 的无偏估计，且 $\lim\limits_{n\to\infty}D(\widehat\theta_n)=0$，则 $\widehat\theta_n$ 是 $\theta$ 的一致估计。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}逐条对照定义。无偏性只约束 $E(\widehat\theta)$，一致性约束的是 $\widehat\theta_n$ 与 $\theta$ 的接近程度，二者没有推出关系；有效性与方差是平均意义下的概念，不能对单次抽样下结论。
+
+(1) \textbf{错误。}设 $X_1,X_2,\ldots$ 是来自 $N(\mu,1)$ 的样本，取 $\widehat\mu_n=X_1$（对所有 $n$ 都只用第一个观测）。则 $E(\widehat\mu_n)=\mu$，但 $D(\widehat\mu_n)=1$ 不随 $n$ 趋于 $0$，故 $\widehat\mu_n$ 不依概率收敛于 $\mu$，不是一致估计。
+
+(2) \textbf{错误。}仍取上述正态样本，令 $\widehat\mu_n=\bar X+\dfrac{1}{n}$。由大数定律 $\bar X\xrightarrow{P}\mu$，故 $\widehat\mu_n\xrightarrow{P}\mu$，是一致估计；但 $E(\widehat\mu_n)=\mu+\dfrac{1}{n}\neq\mu$，有偏。
+
+(3) \textbf{错误。}方差刻画的是估计量的\emph{平均}波动，与某一次具体抽样的误差大小没有必然联系。
+
+反例：设 $X\sim N(\mu,1)$，$\theta=\mu$，取 $n=2$，$\widehat\theta_1=\bar X$，$\widehat\theta_2=X_1$。二者都无偏，且
+\[
+D(\widehat\theta_1)=\frac{1}{2}<1=D(\widehat\theta_2).
+\]
+但若观测值为 $x_1=10$、$x_2=-10$，则 $\bar x=0$。取 $\mu=8$，有
+\[
+|\bar x-\mu|=|0-8|=8>|10-8|=|x_1-\mu|,
+\]
+即方差较小的 $\bar X$ 这一次反而离真值更远。故“方差小”推不出“每次观测都更接近”。
+
+需要区分两件事：定义中的“$\widehat\theta_1$ 更有效”要求对所有 $\theta$ 都有 $D(\widehat\theta_1)\leqslant D(\widehat\theta_2)$ 且至少一处严格不等，这是关于\emph{分布}的命题；本题的说法则是对\emph{单次实现}下结论，二者不能混同。
+
+(4) \textbf{正确。}由切比雪夫不等式，对任意 $\varepsilon>0$，
+\[
+P\{|\widehat\theta_n-\theta|\geqslant\varepsilon\}
+\leqslant\frac{E(\widehat\theta_n-\theta)^2}{\varepsilon^2}
+=\frac{D(\widehat\theta_n)}{\varepsilon^2}\to 0,
+\]
+故 $\widehat\theta_n\xrightarrow{P}\theta$。这里用到无偏性把二阶矩化成方差。
+
+\boxed{\text{答案：(1) 错；(2) 错；(3) 错；(4) 对。}}
+
+\else \answerarea[8] \fi%
+\textbf{2.} 设总体 $X$ 的概率密度为
+\[
+f(x;\theta)=\begin{cases}
+\theta x^{\theta-1}, & 0<x<1,\\
+0, & \text{其他},
+\end{cases}
+\qquad \theta>0 \text{ 未知},
+\]
+$X_1,\ldots,X_n$ 为来自该总体的简单随机样本。
+\begin{enumerate}[label=(\arabic*)]
+    \item 求 $\theta$ 的矩估计量；
+    \item 求 $\theta$ 的最大似然估计量，并说明你求得的确实是最大值点。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}只有一个未知参数，矩估计只需令 $E(X)=\bar X$。求 MLE 时注意 $\ln x_i<0$，驻点方程有负项，解出后要说明 $\ln L$ 是凹函数、且在两端趋于 $-\infty$。
+
+(1) 先算总体一阶矩：
+\[
+E(X)=\int_{0}^{1}x\cdot\theta x^{\theta-1}\,\mathrm{d}x
+=\theta\int_{0}^{1}x^{\theta}\,\mathrm{d}x
+=\frac{\theta}{\theta+1}.
+\]
+令 $\bar X=\dfrac{\theta}{\theta+1}$，解得
+\[
+\widehat\theta_{\text{矩}}=\frac{\bar X}{1-\bar X}.
+\]
+因 $0<X_i<1$，故 $0<\bar X<1$，该估计量恒有意义且为正。
+
+(2) 似然函数（样本全部落在 $(0,1)$ 内，指示函数与 $\theta$ 无关，可略去）：
+\[
+L(\theta)=\prod_{i=1}^{n}\theta X_i^{\theta-1}
+=\theta^{n}\Bigl(\prod_{i=1}^{n}X_i\Bigr)^{\theta-1},
+\qquad
+\ln L(\theta)=n\ln\theta+(\theta-1)\sum_{i=1}^{n}\ln X_i.
+\]
+求导并令其为零：
+\[
+\frac{\mathrm{d}\ln L}{\mathrm{d}\theta}=\frac{n}{\theta}+\sum_{i=1}^{n}\ln X_i=0
+\ \Longrightarrow\
+\widehat\theta_{\text{MLE}}=-\frac{n}{\sum_{i=1}^{n}\ln X_i}
+=-\frac{1}{\overline{\ln X}}.
+\]
+因为 $0<X_i<1$，有 $\ln X_i<0$，故 $\widehat\theta_{\text{MLE}}>0$，落在参数空间内。
+
+再验证是最大值：$\dfrac{\mathrm{d}^{2}\ln L}{\mathrm{d}\theta^{2}}=-\dfrac{n}{\theta^{2}}<0$，$\ln L$ 在 $(0,+\infty)$ 上严格凹，驻点即唯一最大值点；且 $\theta\to0^{+}$ 与 $\theta\to+\infty$ 时 $\ln L\to-\infty$，无需另查端点。
+
+\textbf{评注：}两个估计量一般不相等。例如 $n=2$，样本为 $0.5,\,0.25$：矩估计为 $\dfrac{0.375}{0.625}=0.6$；而 $\sum\ln x_i=\ln0.125\approx-2.079$，MLE 为 $\dfrac{2}{2.079}\approx0.962$。差异来自矩估计只用了均值，MLE 用到了每个观测的具体取值。
+
+\boxed{\text{答案：$\widehat\theta_{\text{矩}}=\dfrac{\bar X}{1-\bar X}$，$\widehat\theta_{\text{MLE}}=-\dfrac{n}{\sum_{i=1}^{n}\ln X_i}$。}}
+
+\else \answerarea[10] \fi%
+\textbf{3.} 设总体 $X$ 的 $E(X)=\mu$，$D(X)=\sigma^{2}>0$，$X_1,\ldots,X_n$（$n\geqslant2$）是简单随机样本。考虑 $\mu$ 的三个估计量
+\[
+\widehat\mu_1=X_1,\qquad
+\widehat\mu_2=\frac{X_1+2X_2}{3},\qquad
+\widehat\mu_3=\bar X.
+\]
+\begin{enumerate}[label=(\arabic*)]
+    \item 验证三者都是 $\mu$ 的无偏估计；
+    \item 比较三者的有效性；
+    \item 判断三者是否为 $\mu$ 的一致估计。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}无偏看期望，有效看方差（必须同为无偏才能比较），一致看 $n\to\infty$ 时方差是否趋于零；估计量若根本不随 $n$ 变化，方差不会消失，就不一致。
+
+(1) 由 $E(X_i)=\mu$：
+\[
+E(\widehat\mu_1)=\mu,\qquad
+E(\widehat\mu_2)=\frac{\mu+2\mu}{3}=\mu,\qquad
+E(\widehat\mu_3)=E(\bar X)=\mu.
+\]
+三者均无偏。
+
+(2) 由样本的独立性：
+\[
+D(\widehat\mu_1)=\sigma^{2},\qquad
+D(\widehat\mu_2)=\frac{\sigma^{2}+4\sigma^{2}}{9}=\frac{5}{9}\sigma^{2},\qquad
+D(\widehat\mu_3)=\frac{\sigma^{2}}{n}.
+\]
+当 $n\geqslant2$ 时 $\dfrac{1}{n}\leqslant\dfrac{1}{2}<\dfrac{5}{9}<1$，故
+\[
+D(\widehat\mu_3)\leqslant D(\widehat\mu_2)<D(\widehat\mu_1),
+\]
+即 $\widehat\mu_3=\bar X$ 最有效，$\widehat\mu_1=X_1$ 最差。直观上，$\bar X$ 用上了全部 $n$ 个观测，$\widehat\mu_2$ 只用了两个且给 $X_2$ 加了权，$X_1$ 只用一个观测。
+
+(3) 一致性要求 $n\to\infty$ 时方差趋于零。$D(\widehat\mu_1)=\sigma^{2}$、$D(\widehat\mu_2)=\frac59\sigma^{2}$ 都与 $n$ 无关，故 $\widehat\mu_1,\widehat\mu_2$ 都不一致（它们甚至不是随 $n$ 变化的一列统计量）。而 $D(\widehat\mu_3)=\frac{\sigma^{2}}{n}\to0$，且无偏，由切比雪夫不等式 $\bar X\xrightarrow{P}\mu$，故只有 $\widehat\mu_3$ 是一致估计。
+
+\textbf{评注：}本题说明“无偏”和“一致”是两件事：三个估计量都无偏，但只有 $\bar X$ 一致。也说明有效性必须在同为无偏的估计量之间比较才有意义。
+
+\boxed{\text{答案：(1) 均无偏；(2) $\bar X$ 最有效，$X_1$ 最差；(3) 仅 $\bar X$ 一致。}}
+
+\else \answerarea[8] \fi%
+\textbf{4.} 设某种合金的抗压强度 $X\sim N(\mu,\sigma^{2})$，$\mu,\sigma^{2}$ 均未知。现抽取 $16$ 个试件，测得样本均值 $\bar x=10.0$，样本标准差 $s=2.0$（即 $s^{2}=\frac{1}{n-1}\sum(X_i-\bar X)^{2}$）。取置信水平 $0.95$，并已知
+\[
+t_{0.025}(15)=2.131,\qquad
+\chi^{2}_{0.025}(15)=27.49,\qquad
+\chi^{2}_{0.975}(15)=6.26 .
+\]
+\begin{enumerate}[label=(\arabic*)]
+    \item 求 $\mu$ 的置信区间；
+    \item 求 $\sigma^{2}$ 的置信区间，并由此写出 $\sigma$ 的置信区间。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}$\sigma^{2}$ 未知，估计 $\mu$ 要用 $t$ 分布而不能用 $z$；估计 $\sigma^{2}$ 用 $\chi^{2}$ 分布，注意两个端点对应的分位数是“一大一小”，不要都取上侧。
+
+(1) 枢轴量为 $\dfrac{\bar X-\mu}{S/\sqrt{n}}\sim t(n-1)$，$n-1=15$，$\alpha/2=0.025$。于是
+\[
+P\Bigl\{-t_{0.025}(15)<\frac{\bar X-\mu}{S/\sqrt{n}}<t_{0.025}(15)\Bigr\}=0.95 .
+\]
+反解得
+\[
+\bar X\pm t_{0.025}(15)\frac{S}{\sqrt{n}}
+=10\pm2.131\times\frac{2}{4}
+=10\pm1.0655 .
+\]
+故 $\mu$ 的置信度为 $0.95$ 的置信区间为 $(8.93,\ 11.07)$。
+
+(2) 枢轴量为 $\dfrac{(n-1)S^{2}}{\sigma^{2}}\sim\chi^{2}(n-1)$。由
+\[
+P\Bigl\{\chi^{2}_{0.975}(15)<\frac{(n-1)S^{2}}{\sigma^{2}}<\chi^{2}_{0.025}(15)\Bigr\}=0.95
+\]
+反解得
+\[
+\frac{(n-1)s^{2}}{\chi^{2}_{0.025}(15)}<\sigma^{2}<\frac{(n-1)s^{2}}{\chi^{2}_{0.975}(15)},
+\]
+代入 $(n-1)s^{2}=15\times4=60$：
+\[
+\frac{60}{27.49}=2.183,\qquad \frac{60}{6.26}=9.585 .
+\]
+故 $\sigma^{2}$ 的置信区间为 $(2.18,\ 9.59)$。两端开平方得 $\sigma$ 的置信区间
+\[
+(\sqrt{2.183},\ \sqrt{9.585})=(1.48,\ 3.10).
+\]
+\textbf{评注：}$\sigma^{2}$ 的区间不是关于 $s^{2}=4$ 对称的，因为 $\chi^{2}$ 分布不对称；开平方后 $\sigma$ 的区间同样不对称。另外，$\sigma$ 的区间不能由 $\sigma^{2}$ 区间“中心开方”得到，必须对两个端点分别开方。
+
+\boxed{\text{答案：$\mu$ 的区间为 $(8.93,11.07)$；$\sigma^{2}$ 的区间为 $(2.18,9.59)$，$\sigma$ 的区间为 $(1.48,3.10)$。}}
+
+\else \answerarea[10] \fi%
+\textbf{5.} 某包装机灌装的净含量 $X\sim N(\mu,8^{2})$（单位：g），标称净含量为 $500$ g。为检查机器是否把净含量调得偏高，随机抽测 $25$ 袋，算得 $\bar x=503$ g。取显著性水平 $\alpha=0.05$，已知 $z_{0.05}=1.645$、$z_{0.01}=2.326$。
+\begin{enumerate}[label=(\arabic*)]
+    \item 写出原假设与备择假设，给出拒绝域并作出判断；
+    \item 计算该检验的 $p$ 值；
+    \item 若把显著性水平改为 $0.01$，结论是否改变？再用单侧置信下限说明结论的一致性。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}关心的是“是否偏高”，故把“没有偏高”放在 $H_0$，拒绝域取右尾。$\sigma$ 已知，用 $z$ 检验；判断与区间估计应当互相印证。
+
+(1) 设
+\[
+H_0:\mu\leqslant500,\qquad H_1:\mu>500 .
+\]
+$\sigma^{2}=64$ 已知，检验统计量
+\[
+Z=\frac{\bar X-\mu_0}{\sigma/\sqrt{n}}=\frac{\bar X-500}{8/5}\sim N(0,1)\quad(H_0\text{ 取等号时}).
+\]
+$H_1$ 为右侧，拒绝域为 $Z>z_{0.05}=1.645$，等价地 $\bar X>500+1.645\times1.6=502.632$。
+由 $\bar x=503$ 得
+\[
+z=\frac{503-500}{1.6}=1.875>1.645 ,
+\]
+落入拒绝域，故拒绝 $H_0$，认为机器灌装净含量的均值显著高于 $500$ g。
+
+(2) $p$ 值为“$H_0$ 成立时出现当前或更极端样本的概率”：
+\[
+p=P\{Z\geqslant1.875\}=1-\Phi(1.875)\approx0.0304 .
+\]
+$p<0.05$，与(1)的结论一致。若用 $p$ 值判断，$p$ 是拒绝 $H_0$ 所需的最小显著性水平。
+
+(3) 取 $\alpha=0.01$，临界值 $z_{0.01}=2.326$。此时 $1.875<2.326$，$z$ 未落入拒绝域，故\emph{不拒绝} $H_0$：在更严格的标准下，现有数据不足以断言净含量偏高。注意“不拒绝”不等于“接受 $\mu\leqslant500$”，只说明证据不够强。
+
+单侧置信下限：由 $P\{\mu>\bar X-z_{0.05}\sigma/\sqrt{n}\}=0.95$ 得
+\[
+\mu>503-1.645\times1.6=503-2.632=500.368 .
+\]
+置信下限 $500.368>500$，说明在 $0.95$ 的置信水平下 $\mu$ 确实高于 $500$，与(1)拒绝 $H_0$ 完全对应；而在 $0.99$ 水平下下限会变成 $503-2.326\times1.6=499.28<500$，也与(3)的不拒绝对应。这正是检验与置信区间的对偶关系。
+
+\boxed{\text{答案：(1) 拒绝 $H_0$；(2) $p\approx0.030$；(3) $\alpha=0.01$ 时不拒绝。}}
+
+\else \answerarea[10] \fi%
+\subsection{综合提高题}
+
+\textbf{6.} 设总体 $X\sim U(0,\theta)$，$\theta>0$ 未知，$X_1,\ldots,X_n$ 为样本，$X_{(n)}=\max\{X_1,\ldots,X_n\}$。
+\begin{enumerate}[label=(\arabic*)]
+    \item 求 $\theta$ 的最大似然估计量 $\widehat\theta$，并说明为什么不能靠“求导等于零”得到它；
+    \item 判断 $\widehat\theta$ 是否无偏，若有偏，把它修正为无偏估计量 $\widetilde\theta$；
+    \item 将 $\widetilde\theta$ 与矩估计量 $2\bar X$ 比较有效性；
+    \item 证明 $\widehat\theta$ 是 $\theta$ 的一致估计。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}均匀分布的支撑集依赖参数，似然函数是 $\theta^{-n}$ 与一个指示函数的乘积，在 $\theta\geqslant X_{(n)}$ 上关于 $\theta$ 单调递减，最大值必在左端点 $X_{(n)}$ 取得。次序统计量的分布是本题全部计算的入口。
+
+(1) 似然函数为
+\[
+L(\theta)=\prod_{i=1}^{n}\frac{1}{\theta}I\{0<X_i\leqslant\theta\}
+=\frac{1}{\theta^{n}}I\{X_{(n)}\leqslant\theta\},\qquad \theta>0 .
+\]
+当 $\theta<X_{(n)}$ 时 $L(\theta)=0$；当 $\theta\geqslant X_{(n)}$ 时 $L(\theta)=\theta^{-n}$ 关于 $\theta$ 严格递减。故最大值在 $\theta=X_{(n)}$ 处取得：
+\[
+\widehat\theta=X_{(n)} .
+\]
+若强行令 $\dfrac{\mathrm{d}\ln L}{\mathrm{d}\theta}=-\dfrac{n}{\theta}=0$，方程无解——这说明“驻点法”只是求 MLE 的一种手段，遇到支撑集含参数时必须回到定义比较函数值。
+
+(2) $X_{(n)}$ 的分布函数为 $F_{\max}(x)=\left(\dfrac{x}{\theta}\right)^{n}$（$0<x<\theta$），密度
+\[
+f_{\max}(x)=\frac{nx^{n-1}}{\theta^{n}},\qquad 0<x<\theta .
+\]
+于是
+\[
+E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{nx^{n-1}}{\theta^{n}}\,\mathrm{d}x
+=\frac{n}{\theta^{n}}\cdot\frac{\theta^{n+1}}{n+1}
+=\frac{n}{n+1}\theta\neq\theta ,
+\]
+故 $\widehat\theta$ 是有偏的，且系统性地偏小（$X_{(n)}$ 永远小于 $\theta$）。修正：
+\[
+\widetilde\theta=\frac{n+1}{n}X_{(n)},\qquad
+E(\widetilde\theta)=\frac{n+1}{n}\cdot\frac{n}{n+1}\theta=\theta .
+\]
+
+(3) 先算二阶矩：
+\[
+E(X_{(n)}^{2})=\int_{0}^{\theta}x^{2}\cdot\frac{nx^{n-1}}{\theta^{n}}\,\mathrm{d}x
+=\frac{n}{n+2}\theta^{2},
+\]
+故
+\[
+D(X_{(n)})=\frac{n}{n+2}\theta^{2}-\frac{n^{2}}{(n+1)^{2}}\theta^{2}
+=\frac{n\theta^{2}}{(n+1)^{2}(n+2)} .
+\]
+从而
+\[
+D(\widetilde\theta)=\Bigl(\frac{n+1}{n}\Bigr)^{2}\cdot\frac{n\theta^{2}}{(n+1)^{2}(n+2)}
+=\frac{\theta^{2}}{n(n+2)} .
+\]
+矩估计 $\widehat\theta_{\text{矩}}=2\bar X$ 满足 $E(2\bar X)=\theta$，且
+\[
+D(2\bar X)=4\cdot\frac{D(X)}{n}=4\cdot\frac{\theta^{2}/12}{n}=\frac{\theta^{2}}{3n}.
+\]
+比较 $\dfrac{1}{n(n+2)}$ 与 $\dfrac{1}{3n}$：当 $n\geqslant2$ 时 $n+2>3$，故
+\[
+D(\widetilde\theta)=\frac{\theta^{2}}{n(n+2)}<\frac{\theta^{2}}{3n}=D(2\bar X),
+\]
+即修正后的 MLE $\widetilde\theta$ 比矩估计更有效。这体现了极大似然估计通常更充分地利用了样本信息。
+
+(4) 对任意 $\varepsilon\in(0,\theta)$，
+\[
+P\{|\widehat\theta-\theta|\geqslant\varepsilon\}
+=P\{X_{(n)}\leqslant\theta-\varepsilon\}
+=P\{X_1\leqslant\theta-\varepsilon,\ldots,X_n\leqslant\theta-\varepsilon\}
+=\Bigl(\frac{\theta-\varepsilon}{\theta}\Bigr)^{n}\to0 ,
+\]
+（$\varepsilon\geqslant\theta$ 时该概率为 $0$，更无需讨论），故 $X_{(n)}\xrightarrow{P}\theta$，即 $\widehat\theta$ 是 $\theta$ 的一致估计。
+
+\textbf{评注：}$\widehat\theta$ 有偏但一致，说明有偏性不影响一致性；而(3)中比较有效性的前提是二者都无偏，这一点不能漏。
+
+\boxed{\text{答案：$\widehat\theta=X_{(n)}$，有偏；无偏修正 $\widetilde\theta=\frac{n+1}{n}X_{(n)}$，且比 $2\bar X$ 有效。}}
+
+\else \answerarea[10] \fi%
+\textbf{7.} 某自动灌装线的灌装量 $X\sim N(\mu,10^{2})$（单位：g），$\sigma=10$ 已知。
+\begin{enumerate}[label=(\arabic*)]
+    \item 为使 $\mu$ 的置信水平 $0.95$ 的双侧置信区间长度不超过 $2$ g，至少需要抽取多少件产品？
+    \item 若要求置信水平提高到 $0.99$，其他条件不变，样本量至少为多少？由此说明置信水平与精度的关系。
+    \item 若实际抽取 $n=400$ 件，测得 $\bar x=50.0$ g，求 $\mu$ 的置信水平 $0.95$ 的单侧置信下限。
+\end{enumerate}
+已知 $z_{0.025}=1.96$，$z_{0.05}=1.645$，$z_{0.005}=2.576$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}$\sigma$ 已知时区间半宽为 $z_{\alpha/2}\dfrac{\sigma}{\sqrt{n}}$，长度是半宽的两倍。把“长度不超过 $L$”写成关于 $n$ 的不等式，再向上取整——样本量必须取整数且只能放大。
+
+(1) 区间为 $\bar X\pm z_{0.025}\dfrac{\sigma}{\sqrt{n}}$，长度为
+\[
+L=2z_{0.025}\frac{\sigma}{\sqrt{n}}=\frac{2\times1.96\times10}{\sqrt{n}}=\frac{39.2}{\sqrt{n}} .
+\]
+要求 $L\leqslant2$，即 $\sqrt{n}\geqslant19.6$，$n\geqslant384.16$。样本量取整数且需满足不等式，故 $n_{\min}=385$。
+
+(2) 置信水平 $0.99$ 对应 $\alpha=0.01$，$z_{0.005}=2.576$，条件为
+\[
+2\times2.576\times\frac{10}{\sqrt{n}}\leqslant2
+\ \Longrightarrow\
+\sqrt{n}\geqslant25.76
+\ \Longrightarrow\
+n\geqslant663.58 ,
+\]
+故 $n_{\min}=664$。置信水平由 $0.95$ 升到 $0.99$，所需样本量约从 $385$ 增到 $664$：在样本量固定时，提高置信水平必然使区间变宽、精度下降；若要同时保证高置信度与高精度，只能增大样本量。
+
+(3) $\sigma$ 已知时 $\mu$ 的置信水平 $1-\alpha$ 的单侧下限为
+\[
+\bar X-z_{\alpha}\frac{\sigma}{\sqrt{n}} .
+\]
+取 $\alpha=0.05$，$n=400$，$\sigma/\sqrt{n}=10/20=0.5$：
+\[
+50.0-1.645\times0.5=50.0-0.8225=49.1775\approx49.18 .
+\]
+即可以 $95\%$ 的置信水平断言 $\mu>49.18$ g。注意单侧区间用 $z_{\alpha}$ 而不是 $z_{\alpha/2}$：把全部 $\alpha$ 的尾概率放在一侧。
+
+\boxed{\text{答案：(1) $385$ 件；(2) $664$ 件；(3) 单侧下限为 $49.18$ g。}}
+
+\else \answerarea[10] \fi%
+\textbf{8.} 某型电池的循环寿命 $X\sim N(\mu,8^{2})$（单位：次），$\sigma=8$ 已知。标准要求平均寿命不低于 $1000$ 次，现抽取 $n=25$ 只测得样本均值 $\bar x$。取显著性水平 $\alpha=0.05$。
+\begin{enumerate}[label=(\arabic*)]
+    \item 写出检验 $H_0:\mu\leqslant1000$ 对 $H_1:\mu>1000$ 的拒绝域；
+    \item 若真实均值 $\mu=1006$，求犯第二类错误的概率 $\beta$；
+    \item 保持 $\alpha=0.05$，欲使 $\mu=1006$ 时 $\beta\leqslant0.10$，样本量至少为多少？
+\end{enumerate}
+已知 $z_{0.05}=1.645$，$z_{0.10}=1.282$，$\Phi(1.355)=0.912$，$\Phi(2.105)=0.982$，$\Phi(1.260)=0.896$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}先由 $H_1$ 的方向定出临界值，再在“真实均值为 $\mu_1$”的分布下计算 $\bar X$ 落入接受域的概率，这就是 $\beta$。样本量问题把 $\beta\leqslant0.10$ 写成不等式，用 $z_{0.10}=1.282$ 反解。
+
+(1) 检验统计量 $Z=\dfrac{\bar X-1000}{8/\sqrt{25}}=\dfrac{\bar X-1000}{1.6}$，$H_1$ 为右侧，拒绝域为
+\[
+Z>z_{0.05}=1.645,
+\quad\text{即}\quad
+\bar X>1000+1.645\times1.6=1002.632 .
+\]
+
+(2) 第二类错误是 $H_1$ 为真（此处取 $\mu=1006$）时不拒绝 $H_0$。此时 $\bar X\sim N(1006,1.6^{2})$，
+\[
+\begin{aligned}
+\beta&=P_{\mu=1006}\{\bar X\leqslant1002.632\}
+=\Phi\Bigl(\frac{1002.632-1006}{1.6}\Bigr)
+=\Phi\Bigl(\frac{-3.368}{1.6}\Bigr)\\
+&=\Phi(-2.105)=1-0.982=0.018 .
+\end{aligned}
+\]
+即若真实均值已提高到 $1006$ 次，仍有约 $1.8\%$ 的把握被误判为“不达标”。
+
+(3) 一般地，临界值为 $1000+z_{0.05}\dfrac{8}{\sqrt{n}}$，故
+\[
+\beta(n)=P_{\mu=1006}\Bigl\{\bar X\leqslant1000+z_{0.05}\frac{8}{\sqrt{n}}\Bigr\}
+=\Phi\Bigl(z_{0.05}-\frac{6\sqrt{n}}{8}\Bigr)
+=\Phi\Bigl(1.645-0.75\sqrt{n}\Bigr).
+\]
+要求 $\beta\leqslant0.10$，即 $1.645-0.75\sqrt{n}\leqslant-z_{0.10}=-1.282$，解得
+\[
+0.75\sqrt{n}\geqslant2.927
+\ \Longrightarrow\
+\sqrt{n}\geqslant3.9027
+\ \Longrightarrow\
+n\geqslant15.23 ,
+\]
+故 $n_{\min}=16$。
+
+验算：$n=16$ 时临界值 $1000+1.645\times2=1003.29$，$\beta=\Phi\bigl((1003.29-1006)/2\bigr)=\Phi(-1.355)=0.088\leqslant0.10$；而 $n=15$ 时 $\beta=\Phi(-1.260)=0.104>0.10$，确以 $16$ 为最小。
+
+\textbf{评注：}在(2)中 $n=25$ 时 $\beta=0.018$，比(3)要求的 $0.10$ 还小——因为(3)问的是“达到 $\beta\leqslant0.10$ 所需的最少样本量”，而不是原样本量下的 $\beta$。同时可见：$\alpha$ 与 $\beta$ 在 $n$ 固定时不能同时压低，只能靠增大 $n$ 换取两者同时变小。
+
+\boxed{\text{答案：(1) $\bar X>1002.632$；(2) $\beta\approx0.018$；(3) $n_{\min}=16$。}}
+
+\else \answerarea[10] \fi%
+\textbf{9.} 设 $X_1,\ldots,X_n$（$n\geqslant2$）来自正态总体 $N(\mu,\sigma^{2})$，$\mu,\sigma^{2}$ 均未知，记
+\[
+\bar X=\frac{1}{n}\sum_{i=1}^{n}X_i,\qquad
+S^{2}=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\bar X)^{2},\qquad
+M_2=\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar X)^{2}.
+\]
+\begin{enumerate}[label=(\arabic*)]
+    \item 求 $\mu$ 与 $\sigma^{2}$ 的最大似然估计量；
+    \item 判断 $M_2$ 与 $S^{2}$ 是否为 $\sigma^{2}$ 的无偏估计；
+    \item 以均方误差 $E(\widehat\sigma^{2}-\sigma^{2})^{2}$ 为标准，比较 $M_2$ 与 $S^{2}$，并解释结论。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}正态情形下 MLE 的分母是 $n$（样本二阶中心矩），而无偏估计的分母是 $n-1$，这是本题的核心差异。均方误差要拆成“方差 + 偏差平方”，再用 $(n-1)S^{2}/\sigma^{2}\sim\chi^{2}(n-1)$ 计算方差。
+
+(1) 似然函数
+\[
+L(\mu,\sigma^{2})=\prod_{i=1}^{n}\frac{1}{\sqrt{2\pi}\sigma}
+\exp\Bigl(-\frac{(X_i-\mu)^{2}}{2\sigma^{2}}\Bigr)
+=(2\pi\sigma^{2})^{-n/2}\exp\Bigl(-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(X_i-\mu)^{2}\Bigr).
+\]
+对数似然
+\[
+\ln L=-\frac{n}{2}\ln(2\pi)-\frac{n}{2}\ln\sigma^{2}-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(X_i-\mu)^{2}.
+\]
+对 $\mu$ 求偏导并令其为零，得 $\displaystyle\sum_{i=1}^{n}(X_i-\mu)=0$，即
+\[
+\widehat\mu=\bar X .
+\]
+把 $\mu=\bar X$ 代入后记 $v=\sigma^{2}$，对 $v$ 求导：
+\[
+\frac{\partial\ln L}{\partial v}=-\frac{n}{2v}+\frac{1}{2v^{2}}\sum_{i=1}^{n}(X_i-\bar X)^{2}=0
+\ \Longrightarrow\
+\widehat\sigma^{2}=\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar X)^{2}=M_2 .
+\]
+（二阶条件可用 $\ln L$ 关于 $v$ 的凹性验证：$\partial^{2}\ln L/\partial v^{2}=\frac{n}{2v^{2}}-\frac{1}{v^{3}}\sum(X_i-\bar X)^{2}$，在驻点处等于 $-\frac{n}{2v^{2}}<0$。）故 MLE 为 $\widehat\mu=\bar X$，$\widehat\sigma^{2}=M_2$。
+
+(2) 由正态样本的性质，
+\[
+\frac{(n-1)S^{2}}{\sigma^{2}}\sim\chi^{2}(n-1),\qquad E\bigl(\chi^{2}(n-1)\bigr)=n-1,
+\]
+故
+\[
+E(S^{2})=\sigma^{2}\quad(\text{无偏});\qquad
+E(M_2)=E\Bigl(\frac{n-1}{n}S^{2}\Bigr)=\frac{n-1}{n}\sigma^{2}\neq\sigma^{2}\quad(\text{有偏}).
+\]
+$M_2$ 系统性地偏小，因为它是相对样本均值 $\bar X$ 而非真实均值 $\mu$ 求平方和，损失了一个自由度。
+
+(3) 由 $D\bigl(\chi^{2}(k)\bigr)=2k$，
+\[
+D\Bigl(\frac{(n-1)S^{2}}{\sigma^{2}}\Bigr)=2(n-1)
+\ \Longrightarrow\
+D(S^{2})=\frac{2\sigma^{4}}{n-1},
+\qquad
+D(M_2)=\Bigl(\frac{n-1}{n}\Bigr)^{2}D(S^{2})=\frac{2(n-1)\sigma^{4}}{n^{2}} .
+\]
+于是
+\[
+\operatorname{MSE}(S^{2})=D(S^{2})=\frac{2\sigma^{4}}{n-1},
+\]
+\[
+\operatorname{MSE}(M_2)=D(M_2)+\bigl(E(M_2)-\sigma^{2}\bigr)^{2}
+=\frac{2(n-1)\sigma^{4}}{n^{2}}+\frac{\sigma^{4}}{n^{2}}
+=\frac{(2n-1)\sigma^{4}}{n^{2}} .
+\]
+比较两者：约去 $\sigma^{4}>0$，需比较 $\dfrac{2}{n-1}$ 与 $\dfrac{2n-1}{n^{2}}$，
+\[
+\frac{2}{n-1}>\frac{2n-1}{n^{2}}
+\iff
+2n^{2}>(2n-1)(n-1)=2n^{2}-3n+1
+\iff
+3n>1,
+\]
+对一切 $n\geqslant2$ 成立。故
+\[
+\operatorname{MSE}(M_2)<\operatorname{MSE}(S^{2}),
+\]
+即在均方误差意义下，有偏的 $M_2$ 反而优于无偏的 $S^{2}$。
+
+\textbf{评注：}这并不矛盾：无偏性只消除“系统性偏差”，不保证单个估计值离真值更近。$M_2$ 的偏差为 $-\sigma^{2}/n$，但方差由 $\dfrac{2\sigma^{4}}{n-1}$ 降为 $\dfrac{2(n-1)\sigma^{4}}{n^{2}}$，两部分相加后总体更小。考试中若题目指定“无偏”，仍应选 $S^{2}$；若以 MSE 为标准，则应选 $M_2$。
+
+\boxed{\text{答案：$\widehat\mu=\bar X$，$\widehat\sigma^{2}=M_2$；$S^{2}$ 无偏、$M_2$ 有偏；但 $\operatorname{MSE}(M_2)<\operatorname{MSE}(S^{2})$。}}
+
+\else \answerarea[10] \fi%
+\subsection{真题风格与综合训练}
+
+\textbf{10.}（单项选择题）设总体 $X\sim N(\mu,\sigma^{2})$，$\sigma^{2}$ 已知，由样本算得 $\mu$ 的置信水平 $0.95$ 的置信区间为 $(\bar x-1.96\sigma/\sqrt{n},\ \bar x+1.96\sigma/\sqrt{n})$。下列关于置信区间的说法中，正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) $\mu$ 落入该区间的概率为 $0.95$； & (B) 反复抽样时，约 $95\%$ 的这类区间会覆盖 $\mu$；\\[4pt]
+(C) 置信水平越高，区间一定越短； & (D) $n$ 足够大时该区间必覆盖 $\mu$。
+\end{tabular}
+\end{center}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}分清“参数固定、区间随机”这一基本立场。$\mu$ 是常数，一旦样本定了，区间也就定了，此时“$\mu$ 落在区间内”不再有概率可言；概率 $0.95$ 属于区间的\emph{构造方法}。
+
+(A) 错。$\mu$ 是固定常数，区间在样本给定后是确定的两个数，事件“$\mu$ 落入该区间”要么发生要么不发生，概率只能是 $0$ 或 $1$，不能说 $0.95$。$0.95$ 描述的是构造区间的随机方法。
+
+(B) 对。置信水平的频率解释是：重复独立抽样，每次按同一公式造一个区间，长期看约 $95\%$ 的区间覆盖 $\mu$。这正是 $P_\mu\{\mu\in I(X_1,\ldots,X_n)\}=1-\alpha$ 的含义——随机性来自 $I$ 而不是 $\mu$。
+
+(C) 错。置信水平越高，所需的 $z_{\alpha/2}$ 越大，区间越长。例如置信水平 $0.95$ 时 $z_{0.025}=1.96$，$0.99$ 时 $z_{0.005}=2.576$，后者区间更宽。置信度与精度（区间长度）此消彼长。
+
+(D) 错。$n$ 增大只使区间变短，即精度提高，但覆盖概率始终是 $0.95$，不会随 $n$ 增大而升到 $1$。无论 $n$ 多大，仍有约 $5\%$ 的样本会给出不含 $\mu$ 的区间；把“精度高”误当成“必然覆盖”，正是混淆了概率与确定性。
+
+\boxed{\text{答案：(B)}}
+
+\else \answerarea[8] \fi%
+\textbf{11.}（填空题）设 $X_1,\ldots,X_n$（$n\geqslant2$）是来自 $N(\mu,\sigma^{2})$ 的简单随机样本，记
+\[
+Q=\sum_{i=1}^{n-1}(X_{i+1}-X_i)^{2},\qquad
+Q'=\sum_{i=1}^{n}(X_i-\bar X)^{2}.
+\]
+\begin{enumerate}[label=(\arabic*)]
+    \item 常数 $c=\underline{\qquad}$ 使 $cQ$ 成为 $\sigma^{2}$ 的无偏估计；
+    \item 常数 $c'=\underline{\qquad}$ 使 $c'Q'$ 成为 $\sigma^{2}$ 的无偏估计；
+    \item 若 $n=9$，$s^{2}=4$，则 $\sigma^{2}$ 的置信水平 $0.90$ 的置信区间为 $\underline{\qquad}$（已知 $\chi^{2}_{0.05}(8)=15.51$，$\chi^{2}_{0.95}(8)=2.73$）。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}相邻差 $X_{i+1}-X_i$ 的期望为 $0$、方差为 $2\sigma^{2}$，所以它的平方的期望就是 $2\sigma^{2}$，与 $\mu$ 无关——这是“消去未知均值”的常用技巧。$Q'$ 则是标准的偏差平方和。
+
+(1) 由独立性，$D(X_{i+1}-X_i)=D(X_{i+1})+D(X_i)=2\sigma^{2}$，且 $E(X_{i+1}-X_i)=0$，故
+\[
+E\bigl[(X_{i+1}-X_i)^{2}\bigr]=D(X_{i+1}-X_i)+0^{2}=2\sigma^{2}.
+\]
+求和得
+\[
+E(Q)=(n-1)\cdot2\sigma^{2}=2(n-1)\sigma^{2},
+\]
+所以 $c=\dfrac{1}{2(n-1)}$。
+
+(2) $Q'=(n-1)S^{2}$，而 $E(S^{2})=\sigma^{2}$，故 $E(Q')=(n-1)\sigma^{2}$，$c'=\dfrac{1}{n-1}$。
+
+(3) $\sigma^{2}$ 的置信水平 $1-\alpha$ 的区间为
+\[
+\Bigl(\frac{(n-1)S^{2}}{\chi^{2}_{\alpha/2}(n-1)},\
+\frac{(n-1)S^{2}}{\chi^{2}_{1-\alpha/2}(n-1)}\Bigr).
+\]
+取 $\alpha=0.10$，$n-1=8$，$(n-1)s^{2}=8\times4=32$：
+\[
+\Bigl(\frac{32}{15.51},\ \frac{32}{2.73}\Bigr)=(2.06,\ 11.72).
+\]
+注意左端点除以较大的 $\chi^{2}_{0.05}$、右端点除以较小的 $\chi^{2}_{0.95}$，这是因为 $\chi^{2}$ 在分母上，分位数越大商越小。
+
+\boxed{\text{答案：(1) $c=\frac{1}{2(n-1)}$；(2) $c'=\frac{1}{n-1}$；(3) $(2.06,\ 11.72)$。}}
+
+\else \answerarea[8] \fi%
+\textbf{12.}（解答题）某厂生产的零件长度 $X\sim N(\mu,\sigma^{2})$，设计要求长度的标准差不超过 $0.8$ mm。现抽取 $16$ 件，测得 $\bar x=20.00$ mm，$s=1.095$ mm（即 $s^{2}=1.20$）。已知
+\[
+\chi^{2}_{0.05}(15)=24.996,\qquad
+\chi^{2}_{0.025}(15)=27.488,\qquad
+\chi^{2}_{0.01}(15)=30.578,\qquad
+t_{0.025}(15)=2.131 .
+\]
+\begin{enumerate}[label=(\arabic*)]
+    \item 取 $\alpha=0.05$，检验 $H_0:\sigma^{2}\leqslant0.64$ 对 $H_1:\sigma^{2}>0.64$，写出检验统计量、拒绝域与结论；
+    \item 估计该检验的 $p$ 值所在范围；
+    \item 在 $\sigma^{2}$ 未知的前提下求 $\mu$ 的置信水平 $0.95$ 的置信区间，并说明此处为什么不能用 $z$ 区间。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}检验“波动是否超标”只关心方差是否偏大，故取右侧拒绝域，用 $\chi^{2}=\frac{(n-1)S^{2}}{\sigma_0^{2}}$，它在大方差时偏大。区间估计在 $\sigma^{2}$ 未知时只能用 $t$。
+
+(1) 设计要求“标准差不超过 $0.8$”，即 $\sigma^{2}\leqslant0.64$，故
+\[
+H_0:\sigma^{2}\leqslant0.64,\qquad H_1:\sigma^{2}>0.64 .
+\]
+$\mu$ 未知，取检验统计量
+\[
+\chi^{2}=\frac{(n-1)S^{2}}{\sigma_0^{2}}\sim\chi^{2}(n-1)\quad(H_0\text{ 取等号时}).
+\]
+$H_1$ 为右侧，拒绝域为 $\chi^{2}>\chi^{2}_{0.05}(15)=24.996$。
+计算：
+\[
+\chi^{2}=\frac{15\times1.20}{0.64}=\frac{18}{0.64}=28.125>24.996 ,
+\]
+落入拒绝域，故拒绝 $H_0$，认为长度的标准差显著超过 $0.8$ mm，工艺波动不满足设计要求。
+
+(2) $p=P_{H_0}\{\chi^{2}(15)\geqslant28.125\}$。由给定分位数
+\[
+\chi^{2}_{0.025}(15)=27.488<28.125<\chi^{2}_{0.01}(15)=30.578 ,
+\]
+故
+\[
+0.01<p<0.025 ,
+\]
+约为 $0.021$。$p<\alpha=0.05$，与(1)的结论一致。
+
+(3) $\sigma^{2}$ 未知，枢轴量为 $\dfrac{\bar X-\mu}{S/\sqrt{n}}\sim t(n-1)$，置信区间为
+\[
+\bar X\pm t_{0.025}(15)\frac{S}{\sqrt{n}}
+=20.00\pm2.131\times\frac{1.095}{4}
+=20.00\pm0.583 .
+\]
+即 $(19.42,\ 20.58)$ mm。
+
+此处不能套用 $z$ 区间 $\bar X\pm1.96\dfrac{\sigma}{\sqrt{n}}$：该公式要求 $\sigma$ 已知且为常数，而本题 $\sigma$ 未知。若硬把 $s=1.095$ 当作 $\sigma$ 代入，得到 $20.00\pm1.96\times0.2738=20.00\pm0.537$，区间被\emph{人为变窄}，因为忽略了“用 $S$ 代替 $\sigma$”带来的额外抽样波动；$t$ 分布正是为补偿这部分不确定性而比 $N(0,1)$ 有更厚的尾部（$t_{0.025}(15)=2.131>1.96$）。第(1)问已判定实际波动大于设计值 $0.8$，这也说明不能拿 $\sigma=0.8$ 去构造 $z$ 区间。
+
+\textbf{评注：}同一组数据下，方差的检验与均值的区间估计可以并存：前者说明“波动是否可控”，后者在承认波动未知的情况下给出均值的范围。把两者混用（用检验后的 $\sigma$ 值当已知）会低估不确定性。
+
+\boxed{\text{答案：(1) 拒绝 $H_0$，波动超标；(2) $0.01<p<0.025$；(3) $(19.42,20.58)$ mm。}}
+
+\else \answerarea[10] \fi%

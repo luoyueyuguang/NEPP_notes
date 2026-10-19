@@ -1,0 +1,258 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 主机甲的应用进程使用 UDP 连续三次调用 \texttt{sendto}，每次交付 100 B 数据；主机乙的应用进程每次调用 \texttt{recvfrom} 时都提供一个 400 B 的接收缓冲区，且三次数据报均正确到达。下列叙述正确的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 乙调用 1 次即可收到 300 B & (B) 乙必须调用 3 次，每次收到 100 B \\[4pt]
+(C) 乙可能 1 次收到 300 B，也可能分 3 次收到 & (D) 乙调用 2 次，分别收到 100 B 和 200 B
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} UDP 是\textbf{面向报文}的协议：发送方对应用层交下来的每个报文只添加 8 B 首部，既不合并也不拆分，一次交付一个完整报文。因此三个 100 B 的用户数据报在网络中仍然是三个独立的数据报，接收方的三次 \texttt{recvfrom} 各取走一个，缓冲区大小为 400 B 也不会让它们被合并。选项 (A)、(C) 描述的是 TCP 的字节流语义——TCP 不保留报文边界，接收方可能一次读到 300 B；本题使用的协议是 UDP，故不适用。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 某 UDP 数据报的源端口号为 \texttt{0x1234}，目的端口号为 \texttt{0x5678}，数据部分为 4 B：\texttt{0x01 0x02 0x03 0x04}。其 IP 首部中源 IP 地址为 192.168.1.1，目的 IP 地址为 192.168.1.2。发送方计算校验和时先把校验和字段置 0。该 UDP 数据报的校验和为
+\begin{center}
+\begin{tabular}{ll}
+(A) \texttt{0x0FD0} & (B) \texttt{0xF02F} \\[4pt]
+(C) \texttt{0x9341} & (D) \texttt{0xFFFF}
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} UDP 校验和覆盖\textbf{伪首部 + UDP 首部 + 数据}，按 16 位字做二进制反码求和后取反。本例总长 $8+4=12$ B，为偶数，无需补 0。
+
+伪首部：源 IP 两字 \texttt{0xC0A8}、\texttt{0x0101}；目的 IP 两字 \texttt{0xC0A8}、\texttt{0x0102}；零与协议号合成 \texttt{0x0011}（UDP 协议号为 17）；UDP 长度 \texttt{0x000C}。
+
+UDP 首部（校验和字段置 0）：\texttt{0x1234}、\texttt{0x5678}、\texttt{0x000C}、\texttt{0x0000}。数据：\texttt{0x0102}、\texttt{0x0304}。
+
+逐项累加（每逢进位回卷加 1）：
+\[
+\begin{aligned}
+&\texttt{0xC0A8}+\texttt{0x0101}=\texttt{0xC1A9},\quad
+\texttt{0xC1A9}+\texttt{0xC0A8}=\texttt{0x18251}\to\texttt{0x8252},\\
+&\texttt{0x8252}+\texttt{0x0102}=\texttt{0x8354},\quad
++\texttt{0x0011}=\texttt{0x8365},\quad
++\texttt{0x000C}=\texttt{0x8371},\\
+&+\texttt{0x1234}=\texttt{0x95A5},\quad
++\texttt{0x5678}=\texttt{0xEC1D},\quad
++\texttt{0x000C}=\texttt{0xEC29},\\
+&+\texttt{0x0102}=\texttt{0xED2B},\quad
++\texttt{0x0304}=\texttt{0xF02F}.
+\end{aligned}
+\]
+取反得 $\texttt{0xFFFF}-\texttt{0xF02F}=\texttt{0x0FD0}$。验算：$\texttt{0xF02F}+\texttt{0x0FD0}=\texttt{0xFFFF}$，说明接收方再算一遍必得全 1，校验通过。\texttt{0xF02F} 是未取反的和；\texttt{0x9341} 是漏掉伪首部的结果，均不正确。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 主机甲、乙已建立 TCP 连接，此前收发的数据均已被确认。甲当前待发送数据的第一个字节序号为 3001。甲发送一个报文段：携带 500 B 数据，同时捎带确认乙已按序送达的 8000 号字节及其之前的全部数据。若乙按序正确收到该报文段，则该报文段首部的序号为 \rule{2cm}{0.4pt}，确认号为 \rule{2cm}{0.4pt}；乙随后发回的确认号为 \rule{2cm}{0.4pt}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} TCP 首部的序号字段是本报文段\textbf{数据部分第一个字节}的序号，故为 3001；这 500 B 占据序号 3001～3500。确认号是\textbf{期望收到的下一个字节}的序号，乙已按序送到 8000 号，故确认号为 $8000+1=8001$。乙正确收下 3001～3500 后，期望甲的下一字节为 $3500+1=3501$，即乙发回的确认号为 3501。注意区分两个方向：8001 是甲对乙的确认，3501 是乙对甲的确认。\boxed{\text{答案：}\ \text{序号}=3001,\ \text{确认号}=8001,\ \text{乙的确认号}=3501}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 关于 TCP 连接建立与释放过程中的状态和标志位，下列叙述正确的是
+\begin{center}
+\begin{tabular}{l}
+(A) 服务器收到第一个 SYN 后立即进入 ESTABLISHED 状态 \\[4pt]
+(B) 主动关闭方发送 FIN 后立即进入 FIN-WAIT-2 状态 \\[4pt]
+(C) 第三次握手的 ACK 报文段可以携带数据，所携带的数据要消耗序号 \\[4pt]
+(D) TIME-WAIT 状态由被动关闭方在发出 FIN 后进入
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 逐项辨析：
+(A) 错。服务器收到 SYN 后发回 SYN+ACK 并进入 \texttt{SYN-RCVD}，只有收到第三次握手的 ACK 才进入 \texttt{ESTABLISHED}。
+(B) 错。主动关闭方发出 FIN 后进入 \texttt{FIN-WAIT-1}，收到对方的 ACK 后才进入 \texttt{FIN-WAIT-2}。
+(C) 对。第三次握手的报文段 ACK=1，此时客户端已认为连接建立，可以携带数据；数据字节按字节消耗序号（若只发纯 ACK，则不消耗序号）。
+(D) 错。\texttt{TIME-WAIT} 由\textbf{主动}关闭方在发出最后一个 ACK 后进入，等待 2MSL；被动关闭方发出 FIN 后进入 \texttt{LAST-ACK}，收到 ACK 即进入 \texttt{CLOSED}。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 主机甲与乙的 TCP 连接中 MSS$=1$ KB，某时刻甲的 cwnd$=18$ KB、ssthresh$=16$ KB。甲连续收到 3 个重复 ACK，于是执行快重传。本题采用教材化规则：3 个重复 ACK 后 ssthresh 取当时 cwnd 的一半，cwnd 置为该 ssthresh 并进入拥塞避免。若随后 1 个 RTT 内发送的数据全部被确认，且无新的拥塞事件，则该 RTT 结束时 cwnd 为
+\begin{center}
+\begin{tabular}{ll}
+(A) 9 KB & (B) 10 KB \\[4pt]
+(C) 12 KB & (D) 18 KB
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 关键是把“收到 3 个重复 ACK”与“超时”区分开：超时说明网络严重拥塞，cwnd 要跌回 1 MSS 重新慢开始；而重复 ACK 说明后续报文段仍在到达，网络尚能交付数据，因此只把窗口减半，并直接从减半后的值继续线性增长。
+
+本题中 ssthresh $=18/2=9$ KB，按题设教材化规则 cwnd 也置为 9 KB，并且已经处于拥塞避免（$9\geqslant 9$）。此后每经过 1 个 RTT，cwnd 加 1 MSS，故该 RTT 结束时 cwnd $=9+1=10$ KB。
+
+若按 TCP Reno 的快恢复细节，第 3 个重复 ACK 时会把 cwnd 临时置为 $\text{ssthresh}+3=12$ KB，本题题干已明确采用教材化规则，不取 12。(A) 是漏掉这一轮增长，(D) 是完全没做减半。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 某 TCP 连接当前的 RTT 估计值为 EstimatedRTT $=100$ ms，偏差为 DevRTT $=10$ ms。发送方发送一个报文段后超时并重传，随后收到该报文段的确认（无法判断该确认对应原始报文还是重传副本）。之后发送方发送一个新报文段，测得无歧义的 SampleRTT $=140$ ms。按 Jacobson/Karels 算法（$\alpha=0.125$，$\beta=0.25$），更新后的 RTO 为
+\begin{center}
+\begin{tabular}{ll}
+(A) 105 ms & (B) 140 ms \\[4pt]
+(C) 175 ms & (D) 180 ms
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 第一步用 Karn 算法排除歧义样本：重传报文段收到的确认无法区分确认的是哪一次发送，因此\textbf{不}用它更新 EstimatedRTT 与 DevRTT，EstimatedRTT 仍为 100 ms、DevRTT 仍为 10 ms。第二步用后续那个无歧义的 SampleRTT $=140$ ms 更新：
+\[
+E_{\text{new}}=0.875\times100+0.125\times140=87.5+17.5=105\ \text{ms},
+\]
+\[
+D_{\text{new}}=0.75\times10+0.25\times\lvert140-100\rvert=7.5+10=17.5\ \text{ms},
+\]
+\[
+\mathrm{RTO}=E_{\text{new}}+4D_{\text{new}}=105+4\times17.5=105+70=175\ \text{ms}.
+\]
+(A) 只算了 EstimatedRTT 而未加 $4\cdot$DevRTT；(B) 是直接把 SampleRTT 当作 RTO，既没用旧估计平滑，也没加偏差余量；(D) 是偏差项计算错误的结果。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 主机甲与乙使用滑动窗口协议通信，帧序号用 3 位二进制表示，即序号为 0～7。甲连续发送了序号 0～6 共 7 帧，其中 2 号帧丢失，其余 6 帧均正确到达乙，随后甲发生超时（所有确认均未丢失）。若分别采用后退 N 帧（GBN）和选择重传（SR），则甲需要重传的帧数分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) 5 帧和 1 帧 & (B) 7 帧和 1 帧 \\[4pt]
+(C) 5 帧和 5 帧 & (D) 7 帧和 5 帧
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 先看两种协议的接收方行为。GBN 的接收窗口为 1，只按序接收：乙收到 0、1 号帧后交付并累计确认“期望 2 号”；3～6 号帧虽正确到达但都是失序帧，一律丢弃，并重复发回同一个确认（期望 2 号）。SR 的接收窗口可缓存失序帧：乙把 3～6 号帧缓存起来并逐一确认，只等 2 号帧补齐。
+
+再看发送方。GBN 中甲的超时定时器对应最早的未确认帧 2 号，一旦超时，从 2 号开始把它之后所有已发送的帧全部重发，即 2、3、4、5、6 共 5 帧；注意 3～6 号虽然曾经正确到达，仍要重发。SR 中甲只为 2 号帧单独超时重传，3～6 号已被乙确认并缓存，无需重发，故只重传 1 帧。
+
+序号 3 位时 GBN 的发送窗口上限是 $2^3-1=7$，本题恰好发满 7 帧，正好用完窗口，不影响结论。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 主机甲与乙已建立 TCP 连接，MSS$=1$ KB。某时刻甲收到乙的一个确认报文段，其确认号为 4001、窗口字段为 6 KB（6144 B）。此时甲已发送但尚未收到确认的数据恰好为 1 KB（序号 4001～5024），甲的 cwnd $=8$ KB。在收到下一个确认之前，甲最多还能发送多少字节的新数据
+\begin{center}
+\begin{tabular}{ll}
+(A) 5 KB & (B) 6 KB \\[4pt]
+(C) 7 KB & (D) 8 KB
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 实际发送窗口由流量控制和拥塞控制共同决定：
+\[
+\text{发送窗口}=\min(\text{rwnd},\text{cwnd})=\min(6\text{ KB},8\text{ KB})=6\text{ KB}.
+\]
+窗口的\textbf{左边界}是确认号 4001，\textbf{右边界}是 $4001+6144-1=10144$。其中 4001～5024（1024 B）已经在途、尚未确认，仍占用窗口。因此还能新发的数据量为
+\[
+6144-1024=5120\ \text{B}=5\ \text{KB}.
+\]
+易错点：直接把窗口大小 6 KB 当作可发量（漏掉在途数据，选 B），或直接用 cwnd $=8$ KB 计算（忽略接收方窗口，选 D）。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（综合应用题）} 主机甲与乙建立 TCP 连接，MSS$=1$ KB。初始 cwnd $=1$ KB、ssthresh $=8$ KB，甲始终有数据要发送。传输过程依次发生：
+
+\begin{enumerate}
+\item[(i)] cwnd 按慢开始、拥塞避免规则增长，直至 cwnd 达到 12 KB 时发生\textbf{超时}；
+\item[(ii)] 超时后 cwnd 重新增长，到 cwnd 达到 10 KB 时收到\textbf{3 个重复 ACK}；
+\item[(iii)] 此后又成功传输 2 个 RTT，未再发生任何拥塞事件。
+\end{enumerate}
+
+本题统一采用教材化规则：超时令 $\text{ssthresh}=\max(\text{cwnd}/2,\,2\text{ MSS})$、cwnd $=1$ MSS；3 个重复 ACK 令 $\text{ssthresh}=\text{cwnd}/2$、cwnd $=\text{ssthresh}$ 并进入拥塞避免；慢开始阶段每经过 1 个 RTT cwnd 翻倍，拥塞避免阶段每经过 1 个 RTT cwnd 加 1 MSS；慢开始翻倍后即使超过 ssthresh 也不截断；所有除法向下取整到整数 MSS。
+
+\begin{enumerate}
+\item[(1)] 写出全过程每个 RTT 结束时的 cwnd，标出各阶段名称及两次拥塞事件的位置。
+\item[(2)] 求最终的 cwnd 与 ssthresh。
+\item[(3)] 按“每个 RTT 发送 cwnd 个 MSS 的新数据（不含重传）”计数，求全过程共发送多少数据（KB）；并求从超时到 3 个重复 ACK 之间发送了多少数据、经历了几个 RTT。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+\textbf{（1）逐轮推演。} 初始 cwnd $=1$，ssthresh $=8$。
+
+第一阶段（超时前）：cwnd 从 1 开始，$1<8$ 故慢开始，每轮翻倍：
+\[
+1\to2\to4\to8.
+\]
+第 4 轮结束时 cwnd 达到 ssthresh $=8$，此后转入拥塞避免，每轮加 1：
+\[
+9\to10\to11\to12.
+\]
+第 8 轮结束时 cwnd $=12$，此时发生超时。
+
+超时处理：$\text{ssthresh}=12/2=6$ KB，cwnd $=1$ KB，重新慢开始。
+
+第二阶段：$1<6$，慢开始 $1\to2\to4$；第 3 轮开始时 cwnd $=4<6$，仍按慢开始翻倍到 8（教材规则不截断到 6）。此时 $8\geqslant6$，下一轮转入拥塞避免：$9\to10$。第 6 轮结束时 cwnd $=10$，收到 3 个重复 ACK。
+
+3 个重复 ACK 处理：$\text{ssthresh}=10/2=5$ KB，cwnd $=5$ KB，直接进入拥塞避免。
+
+第三阶段从 cwnd $=5$ 开始，两个成功 RTT 分别发送 $5$、$6$ KB，窗口依次变为 $6$、$7$。
+
+集中写成序列（第三段的 $5$ 是起点，$6,7$ 是两个 RTT 结束时的 cwnd，单位 KB）：
+\[
+\underbrace{1,2,4,8}_{\text{慢开始}},\underbrace{9,10,11,12}_{\text{拥塞避免, 超时}},
+\underbrace{1,2,4,8}_{\text{慢开始}},\underbrace{9,10}_{\text{拥塞避免, 3 重复 ACK}},
+\underbrace{5,6,7}_{\text{拥塞避免}}.
+\]
+
+\textbf{（2）} 最终 cwnd $=7$ KB，ssthresh $=5$ KB。
+
+\textbf{（3）} 计数口径：每个 RTT 发送 cwnd 个 MSS 的新数据，重传不计入；1 MSS $=1$ KB。三段求和：
+\[
+(1+2+4+8+9+10+11+12)=57,
+\]
+\[
+(1+2+4+8+9+10)=34,
+\]
+\[
+(5+6)=11.
+\]
+合计 $57+34+11=102$ KB。其中从超时到 3 个重复 ACK 之间为第二阶段的 6 个 RTT，共发送 34 KB。
+
+\textbf{要点：} 超时使 ssthresh 减半、cwnd 跌回 1，是“乘法减小 + 重新慢开始”；3 个重复 ACK 只把 cwnd 降到 ssthresh（同样减半），随后立即线性增长，不再回到 1。这是两种拥塞事件在 cwnd 曲线上的本质差别。
+
+\boxed{\text{答案：}\ \text{最终 cwnd}=7\text{ KB},\ \text{ssthresh}=5\text{ KB};\ \text{共发送 }102\text{ KB};\ \text{超时到 3 个重复 ACK 之间 34 KB（6 个 RTT）}}\else \answerarea[10] \fi
+
+\item \textbf{（综合应用题）} 主机甲（客户端）与主机乙（服务器）建立 TCP 连接，甲选定的初始序号 $\text{ISN}_A=1000$，乙选定的初始序号 $\text{ISN}_B=2000$。所有报文段均正确按序到达，未发生重传。连接建立后依次发生：
+
+\begin{enumerate}
+\item[(1)] 甲发送 SYN；
+\item[(2)] 乙回复 SYN+ACK；
+\item[(3)] 甲发送 ACK；
+\item[(4)] 甲发送 600 B 数据（捎带确认）；
+\item[(5)] 乙发送 200 B 数据（捎带确认）；
+\item[(6)] 甲发送 ACK；
+\item[(7)] 甲发送 FIN（此时甲已无数据待发）；
+\item[(8)] 乙发送 ACK；
+\item[(9)] 乙发送 400 B 数据；
+\item[(10)] 甲发送 ACK；
+\item[(11)] 乙发送 FIN；
+\item[(12)] 甲发送 ACK。
+\end{enumerate}
+
+\begin{enumerate}
+\item[(1)] 写出 (1)～(12) 每个报文段的序号字段与确认号字段的取值，并注明 SYN、FIN 标志位。
+\item[(2)] 乙收到 (12) 后进入什么状态？甲发送 (12) 之后还要停留多久才能进入 CLOSED？设 MSL $=2$ min。
+\item[(3)] 若甲在 (7) 时还有 100 B 数据未发完，能否把数据与 FIN 放在同一报文段中发送？若能，写出该报文段的序号与确认号，并给出甲下一个报文段应使用的序号。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+\textbf{（1）} 规则：序号字段取本报文段数据首字节的序号；SYN 与 FIN 各消耗 1 个序号，纯 ACK 不消耗序号；确认号取“期望对方发来的下一个字节序号”，仅在 ACK$=1$ 时有效。
+
+\begin{center}
+\small
+\begin{tabular}{|c|c|c|c|}
+\hline
+报文段 & 标志位 & 序号 seq & 确认号 ack \\
+\hline
+(1) 甲$\to$乙 & SYN & 1000 & 无效（ACK$=0$）\\
+(2) 乙$\to$甲 & SYN, ACK & 2000 & 1001 \\
+(3) 甲$\to$乙 & ACK & 1001 & 2001 \\
+(4) 甲$\to$乙 & ACK & 1001 & 2001 \\
+(5) 乙$\to$甲 & ACK & 2001 & 1601 \\
+(6) 甲$\to$乙 & ACK & 1601 & 2201 \\
+(7) 甲$\to$乙 & FIN, ACK & 1601 & 2201 \\
+(8) 乙$\to$甲 & ACK & 2201 & 1602 \\
+(9) 乙$\to$甲 & ACK & 2201 & 1602 \\
+(10) 甲$\to$乙 & ACK & 1602 & 2601 \\
+(11) 乙$\to$甲 & FIN, ACK & 2601 & 1602 \\
+(12) 甲$\to$乙 & ACK & 1602 & 2602 \\
+\hline
+\end{tabular}
+\end{center}
+
+推导要点：(1) 的 SYN 消耗序号 1000，故甲的数据从 1001 开始。(4) 的 600 B 占 1001～1600，下一个序号 1601，乙回确认号 1601。(5) 的 200 B 占 2001～2200，确认号 1601。(7) 的 FIN 占序号 1601，故甲下一个序号 1602，乙回确认号 1602。(9) 的 400 B 占 2201～2600，确认号 1602。(11) 的 FIN 占序号 2601，确认号 1602。
+
+\textbf{（2）} 乙收到 (12) 后收到的是对自己 FIN 的确认，直接进入 \texttt{CLOSED}。甲发送 (12) 后进入 \texttt{TIME-WAIT}，需等待 $2\text{MSL}=2\times2=4$ min 才进入 \texttt{CLOSED}。等待 2MSL 有两个作用：一是若 (12) 丢失、乙重传 FIN，甲还能重发 ACK；二是让本连接产生的所有报文段在网络中消失，避免干扰之后复用相同四元组的新连接。
+
+\textbf{（3）} 可以。FIN 报文段允许携带数据，数据与 FIN 分别消耗序号：该报文段序号为 1601，数据占 1601～1700（共 100 B），FIN 占用序号 1701，确认号仍为 2201；甲下一个报文段应使用序号 1702。注意 SYN 报文段不能携带数据，这一点与 FIN 不同。
+
+\boxed{\text{答案：}\ \text{见表；(2) 乙进入 CLOSED，甲等待 4 min；(3) 可以，seq}=1601,\ \text{ack}=2201,\ \text{下一序号 1702}}\else \answerarea[10] \fi
+
+\end{enumerate}

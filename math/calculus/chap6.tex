@@ -1,1054 +1,722 @@
 \section{无穷级数}
+
+无穷多个数相加，不能真的逐项加完。可行的做法是：先加前 $n$ 项，得到一个普通数列，再看 $n\to\infty$ 时这个数列有没有极限。本章反复处理三件事：级数收不收敛、收敛时和是多少、能不能用简单的幂函数或三角函数去逼近一个给定函数。
+
 \subsection{常数项级数}
 
-\begin{mydef}{常数项级数}{ConstantTermSeries}
-    若级数\(
-        \sum_{n=1}^{\infty} a_n
-    \)中\(a_n\)为常数，则称该级数为常数项级数。
+最熟悉的例子是
+\[
+\frac12+\frac14+\frac18+\cdots .
+\]
+前 $n$ 项和为
+\[
+S_n=\frac12+\frac14+\cdots+\frac1{2^n}=1-\frac1{2^n},
+\]
+$n$ 越大，$S_n$ 越接近 $1$。于是可以放心地说这个无穷和等于 $1$。如果换成
+\[
+1+\frac12+\frac13+\cdots+\frac1n+\cdots,
+\]
+前 $n$ 项和 $H_n$ 也会慢慢变大，但它没有上界，因此不能对应任何有限数。
+
+\begin{mydef}{级数、部分和与余项}{SeriesPartialSum}
+    给定数列 $\{a_n\}$，形式和
+    \[
+        \sum_{n=1}^{\infty}a_n=a_1+a_2+\cdots+a_n+\cdots
+    \]
+    称为常数项级数。它的前 $n$ 项和
+    \[
+        S_n=\sum_{k=1}^{n}a_k
+    \]
+    称为部分和。若部分和数列 $\{S_n\}$ 收敛于有限数 $S$，则称级数收敛，$S$ 称为级数的和，记作
+    \[
+        S=\sum_{n=1}^{\infty}a_n=\lim_{n\to\infty}S_n.
+    \]
+    若 $\{S_n\}$ 发散，则称级数发散。收敛时，
+    \[
+        R_n=S-S_n=\sum_{k=n+1}^{\infty}a_k
+    \]
+    称为余项，且 $R_n\to0$。
 \end{mydef}
 
-\begin{mydef}{部分和,收敛与余项}{PartialSum}
-    级数\(
-        \sum_{n=1}^{\infty} a_n
-    \)的部分和为
-    \[
-        S_n = a_1 + a_2 + \cdots + a_n
-    \]
+按定义判断敛散性，就是判断部分和数列有没有极限。收敛时，$S_n$ 与 $S$ 的差就是余项；$R_n\to0$ 与级数收敛是同一件事。
 
-    若\(S_n\)收敛，则称该级数收敛；若\(S_n\)发散，则称该级数发散。
-    若级数\(
-        \sum_{n=1}^{\infty} a_n
-    \)收敛，则其和为
-    \[
-        S = \lim_{n \to \infty} S_{n}
-    \]
-    其余项为
-    \[
-        R_n = S - S_n
-    \]
-    \end{mydef}
-\begin{conclusion}{收敛级数的基本性质}{ConvergenceProperties}
-    \begin{enumerate}
-        \item 收敛级数的必要条件：级数\(
-            \sum_{n=1}^{\infty} a_n
-        \)收敛，则\(
-            \lim\limits_{n \to \infty} a_n = 0
-        \)
-        \item 若两个级数\(
-            \sum_{n=1}^{\infty} a_n
-        \)和\(
-            \sum_{n=1}^{\infty} b_n
-        \)都收敛，则\(
-            \sum_{n=1}^{\infty} (\lambda a_n + \mu b_n)
-        \)也收敛。\\
-        若\(\sum a_n\)收敛、\(\sum b_n\)发散且\(\mu\neq0\)，则\(\sum(\lambda a_n+\mu b_n)\)发散。若发散级数前的系数为零，则结论显然不成立。\\
-        若两个级数都发散，则
-        \(
-            \sum_{n=1}^{\infty} (\lambda a_n \pm \mu b_n)
-        \)
-        敛散性需进行讨论。
-        \item 绝对收敛级数的任意子级数都绝对收敛。一般收敛级数的子级数未必收敛；例如条件收敛级数的正项子级数通常发散。
-        \item 在级数中添加或减少有限项不影响敛散性
-    \end{enumerate}
-\end{conclusion}
+先看通项。若 $\sum a_n$ 收敛，则
+\[
+a_n=S_n-S_{n-1}\longrightarrow S-S=0.
+\]
+所以通项不趋于零时，级数一定发散。但反过来不成立：通项趋于零，级数仍可能发散。调和级数就是标准反例。把它的项按 $2$ 的幂分组：
+\[
+\begin{aligned}
+H_{2^m}
+&=1+\frac12+\left(\frac13+\frac14\right)+\cdots+
+\left(\frac1{2^{m-1}+1}+\cdots+\frac1{2^m}\right)\\
+&\ge 1+\frac12+\underbrace{\frac12+\cdots+\frac12}_{m-1\text{ 个}}
+=1+\frac m2.
+\end{aligned}
+\]
+每个括号里有 $2^{k-1}$ 项，每项都不小于 $1/2^k$，所以括号和至少是 $1/2$。让 $m\to\infty$，$H_{2^m}$ 无界，调和级数发散。
 
-\begin{formula}{几个重要的级数}{ImportantSeries}
-    \begin{enumerate}
-        \item 几何级数
-        \(
-            \sum_{n=1}^{\infty} q^n
-        \)
-        当且仅当
-        \(
-            |q| < 1
-        \)时收敛，当
-        \(
-            |q| \geq 1
-        \)时发散。
-        \item p级数
-        \(
-            \sum_{n=1}^{\infty} \frac{1}{n^p}
-        \)
-        当且仅当
-        \(
-            p > 1
-        \)时收敛，当
-        \(
-            p \leq 1
-        \)时发散。
-        \item \(
-            \sum_{n=2}^{\infty} \frac{1}{n^p \ln^q n}
-        \)
-        当\(p>1\)时收敛，当\(p<1\)时发散；当\(p=1\)时，\(q>1\)收敛，\(q\leq1\)发散。
-    \end{enumerate}
-\end{formula}
+收敛级数可以做线性组合：若 $\sum a_n=A$、$\sum b_n=B$，则
+\[
+\sum_{n=1}^{\infty}(\alpha a_n+\beta b_n)=\alpha A+\beta B.
+\]
+在级数前面或中间删掉、添上有限项，不影响敛散性，只可能改变和。两个级数一个收敛、一个发散，加起来一定发散；否则用“和级数减去收敛级数”就会推出原来发散的级数收敛。两个都发散时，相加的结果要看具体情形，$\sum 1/n$ 与 $\sum(-1/n)$ 相加就得到零级数。
+
+收敛级数可以任意加括号，和不变；反过来，去掉括号不一定安全。例如
+\[
+(1-1)+(1-1)+\cdots=0,
+\]
+而 $1-1+1-1+\cdots$ 的部分和在 $0,1$ 之间跳动，是发散的。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
+  width=0.86\linewidth, height=6.2cm,
   xlabel={$n$}, ylabel={$S_n$},
-  xmin=0, xmax=11, ymin=0, ymax=1.2,
-  xtick={0,2,4,6,8,10}, ytick={0,0.2,0.4,0.6,0.8,1.0},
-  legend pos=north east, font=\footnotesize,
-  domain=1:10, samples=10,
+  xmin=0, xmax=13, ymin=0, ymax=3.35,
+  xtick={0,2,4,6,8,10,12},
+  ytick={0,0.5,1,1.5,2,2.5,3},
+  legend pos=north west, legend cell align=left,
+  legend style={font=\scriptsize},
+  font=\footnotesize,
 ]
-\addplot[dashed,gray!70,thick] {1};
-\addlegendentry{$S=1$ (级数和)}
-\addplot[ycomb,blue,very thick,mark=*] {1-0.5^x};
-\addlegendentry{$S_n=\sum_{k=1}^{n}q^k,\ q=\frac12$}
-\addplot[ycomb,red!70,very thick,mark=triangle*] {0.5*(1-(1/3)^x)};
-\addlegendentry{$q=\frac13$}
+\addplot[dashed,gray!70,thick,domain=0:13,samples=2] {1};
+\addlegendentry{几何级数的和 $1$}
+\addplot[ycomb,blue!70,thick,mark=*,mark size=1.3pt] coordinates {
+  (1,0.5) (2,0.75) (3,0.875) (4,0.9375) (5,0.96875)
+  (6,0.984375) (7,0.9921875) (8,0.99609375) (9,0.998046875)
+  (10,0.9990234375) (11,0.99951171875) (12,0.999755859375)};
+\addlegendentry{$q=\frac12$ 的部分和}
+\addplot[ycomb,red!70,thick,mark=triangle*,mark size=1.5pt] coordinates {
+  (1,0.3333) (2,0.4444) (3,0.4815) (4,0.4938) (5,0.4979)
+  (6,0.4993) (7,0.4998) (8,0.4999) (9,0.5) (10,0.5) (11,0.5) (12,0.5)};
+\addlegendentry{$q=\frac13$ 的部分和}
+\addplot[ycomb,green!50!black,thick,mark=square*,mark size=1.2pt] coordinates {
+  (1,1) (2,1.5) (3,1.8333) (4,2.0833) (5,2.2833) (6,2.45)
+  (7,2.5929) (8,2.7179) (9,2.829) (10,2.929) (11,3.0199) (12,3.1032)};
+\addlegendentry{调和级数 $H_n$}
 \end{axis}
 \end{tikzpicture}
 \end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 蓝、红两组竖线是等比级数 $q=\frac12$、$q=\frac13$ 的部分和，它们分别贴着 $1$ 与 $\frac12$ 不动；绿色是调和级数 $H_n$，每项虽然趋于零，部分和却一直往上走，没有上界。}}
 
-    \begin{mydef}{正项级数}{PositiveTermSeries}
-        若级数\(
-            \sum_{n=1}^{\infty} a_n
-        \)中\(a_n\)全为正数，则称该级数为正项级数。
-        正项级数的部分和数列单调非减。
-        因此正项级数收敛的充要条件是它的部分和数列有界，即
-        \[
-            \text{有界} \Leftrightarrow \text{收敛}
-        \]
-    \end{mydef}
-    \subsubsection{正项级数的收敛性的判别法}
-    \begin{conclusion}{比较判别法}{ComparisonTest}
-        设\(cv_n \geq u_n \geq 0(n \geq N), c > 0\)
-        若\(
-            \sum\limits_{n = 1}^{\infty} v_n
-        \)收敛，则\(
-            \sum\limits_{n = 1}^{\infty} u_n
-        \)也收敛。
-        若\(
-            \sum\limits_{n = 1}^{\infty} u_n
-        \)发散，则\(
-            \sum\limits_{n = 1}^{\infty} v_n
-        \)也发散。
-        比较原理的极限形式为 \\
-        设\(u_n \geq 0\), \(v_n \geq 0\), 若\(
-            \lim\limits_{n \to \infty} \frac{v_n}{u_n} = A
-        \),则有
-        \begin{enumerate}
-            \item 若 \(0 < A < \infty\), 则\(
-                \sum\limits_{n = 1}^{\infty} u_n
-            \)与\(
-                \sum\limits_{n = 1}^{\infty} v_n
-            \)具有相同的敛散性。
-            \item 若 \(A = 0\)，则\(v_n=o(u_n)\)；当二者均趋于零时，\(v_n\)是比\(u_n\)高阶的无穷小。并且从某项起有\(v_n<u_n\)。
-            若\(
-                \sum\limits_{n = 1}^{\infty} u_n
-            \)收敛，则\(
-                \sum\limits_{n = 1}^{\infty} v_n
-            \)也收敛。
-            \item 若 \(A = \infty\)，则\(u_n=o(v_n)\)；当二者均趋于零时，\(v_n\)是比\(u_n\)低阶的无穷小。并且从某项起有\(u_n<v_n\)。
-            若\(
-                \sum\limits_{n = 1}^{\infty} u_n
-            \)发散，则\(
-                \sum\limits_{n = 1}^{\infty} v_n
-            \)也发散。
-        \end{enumerate}
-    \end{conclusion}
-    \begin{conclusion}{比值与根值判别法(与几何级数比较)}{RatioAndRootTest}
-       \begin{enumerate}
-        \item \textbf{比值判别法}
-        \[
-            \lim\limits_{n \to \infty} \frac{u_{n+1}}{u_n} = \rho = 
-            \begin{cases}
-                \rho < 1 & \text{收敛} \\
-                \rho > 1 & \text{发散} \\
-                \rho = 1 & \text{此判别法失效}
-            \end{cases}
-        \]
-        当\(\rho>1\)时，通项不能趋于零（事实上从某项起至少按几何速度增长），故级数发散；其余分支不能附加\(u_n\to+\infty\)这一结论。
-        \item 根值判别法
-        \[
-            \lim\limits_{n \to \infty} \sqrt[n]{u_n} = R = 
-            \begin{cases}
-                R < 1 & \text{收敛} \\
-                R > 1 & \text{发散} \\
-                = 1 & \text{此判别法失效}
-            \end{cases}
-        \]
-        当\(R>1\)时，通项不能趋于零，故级数发散；当\(R=1\)时判别法失效。
-       \end{enumerate}
-    \end{conclusion}
-    \begin{conclusion}{与$p$级数比较，确定无穷小$u_n$关于$\frac{1}{n}$的阶}
-        设\(u_n > 0\),\(
-            \lim\limits_{n \to \infty} \frac{u_n}{\frac{1}{n^p}} = A
-        \)
-        若
-        \begin{enumerate}
-            \item \(
-                0  < A < +\infty, p > 1
-            \)即当\(n \to \infty\)时，\(u_n\)与\(n^{-p}\)同阶，并且相对于\(1/n\)是高阶无穷小。
-            则\(
-                \sum\limits_{n = 1}^{\infty} u_n
-            \)收敛。
-            \item \(
-                0 < A < +\infty, p \leq 1
-            \)时级数发散。其中\(p=1\)时\(u_n\)与\(1/n\)同阶，\(0<p<1\)时为低阶无穷小，\(p\leq0\)时\(u_n\)甚至不趋于零。
-            则\(
-                \sum\limits_{n = 1}^{\infty} u_n
-            \)发散。
-        \end{enumerate}
-    \end{conclusion}
+\subsection{正项级数}
 
-    \begin{conclusion}{积分判别法}{IntegralTest}
-        设\(\sum u_n\)为正项级数,若\(
-            \exists
-        \)单调下降的函数\(f(x)\)满足\(f(n) = u_n\),则级数\(
-            \sum\limits_{n = 1}^{\infty} u_n
-        \)收敛的充分必要条件是\(
-            \int_{1}^{\infty} f(x) \mathrm{d}x 
-        \)收敛
-    \end{conclusion}
-    \subsubsection{交错级数}
-    \begin{conclusion}{交错级数的定义}{InterlacedSeries}
-        若\(u_n \geq 0\)，则称\(
-            \sum\limits_{n = 1}^{\infty} {(-1)^{n-1} u_n}
-        \)为交错级数。
-    \end{conclusion}
-
-    \begin{conclusion}{莱布尼茨判别法}{LeibnizTest}
-        设\(
-            \sum\limits_{n = 1}^{\infty} {(-1)^{n-1} u_n}
-        \)为交错级数,满足以下条件
-        \begin{enumerate}
-            \item \(
-                u_n \geq u_{n+1}, n \geq N \geq 1
-            \)
-            \item \(
-                \lim\limits_{n \to \infty} u_n = 0
-            \)
-        \end{enumerate}
-        则\(\sum\limits_{n=1}^{\infty}(-1)^{n-1}u_n\)收敛。若\(u_n\)从第一项起单调不增，则其和满足\(0\leq S\leq u_1\)；截断到第\(n\)项的余项满足
-        \[
-            |R_n|\leq u_{n+1},
-        \]
-        且余项符号与首个被舍去项相同。
-    \end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
-  xlabel={$n$}, ylabel={$u_n$},
-  xmin=0, xmax=16, ymin=-1.2, ymax=1.2,
-  xtick={0,2,4,6,8,10,12,14}, ytick={-1,-0.5,0,0.5,1},
-  legend pos=north east, font=\footnotesize,
-  domain=1:15, samples=15,
-]
-\addplot[dashed,gray!70,thick] {1/x};
-\addlegendentry{$y=1/n$}
-\addplot[dashed,gray!70,thick] {-1/x};
-\addlegendentry{$y=-1/n$}
-\addplot[ycomb,blue,very thick,mark=*] {cos(deg(180*(x+1)))/x};
-\addlegendentry{$u_n=\frac{(-1)^{n-1}}{n}$}
-\end{axis}
-\end{tikzpicture}
-\end{center}
-
-    \begin{mydef}{绝对收敛与条件收敛}{AbsoluteConvergenceAndConditionalConvergence}
-        设\(\sum_{n = 1}^{\infty}u_n\)为任意项级数 \\
-        若\(
-            \sum_{n = 1}^{\infty} |u_n|
-        \)收敛,则称\(\sum_{n = 1}^{\infty}u_n\)绝对收敛。 \\
-        若\(
-            \sum_{n = 1}^{\infty} |u_n|
-        \)发散,而\(
-            \sum_{n = 1}^{\infty} u_n
-        \)收敛,则称\(\sum_{n = 1}^{\infty}u_n\)为条件收敛。
-    \end{mydef}
-    \begin{conclusion}{关于绝对收敛与条件收敛的结论}{conclusion about AbsoluteConvergenceAndConditionalConvergence}
-        \begin{enumerate}
-            \item 绝对收敛的级数一定收敛。即若
-            \(
-                \sum_{n = 1}^{\infty} |u_n|
-            \)收敛,则\(
-                \sum_{n = 1}^{\infty} u_n
-            \)收敛。
-            \item 条件收敛的全部正项或全部负项级数一定发散，即若
-            \item \(
-                \sum_{n = 1}^{\infty} u_n
-            \)条件收敛,则级数\(
-                \sum_{n = 1}^{\infty} \frac{1}{2} (|u_n| + u_n)
-            \)与级数\(
-                \sum_{n = 1}^{\infty} \frac{1}{2} (u_n - |u_n|)
-            \)
-            发散。
-        \end{enumerate}
-    \end{conclusion}
-    \begin{conclusion}{判别任意项级数收敛的步骤}{StepsToDiscriminateConvergenceOfSeries}
-        \begin{enumerate}
-            \item 判断\(\sum_{n = 1}^{\infty} |u_n|\)是否收敛。
-            \item 若\(\sum_{n = 1}^{\infty} |u_n|\)收敛,则\(\sum_{n = 1}^{\infty} u_n\)绝对收敛。
-            \item 若\(\sum_{n = 1}^{\infty} |u_n|\)发散,则\(\sum_{n = 1}^{\infty} u_n\)可能收敛(条件收敛)。此时若为交错级数,可使用莱布尼茨判别法；否则使用其他判别法。
-        \end{enumerate}
-        \boxed{\text{注}}莱布尼茨判别法只是判断交错级数收敛的一个充分条件，当莱布尼茨判别法失效时，应转回到正常的判别步骤 \\
-        \boxed{\text{注}}绝对收敛级数与条件收敛级数的和必定是条件收敛级数
-    \end{conclusion}
-\subsection{幂级数}
-\begin{mydef}{收敛点与收敛域}{ConvergencePointAndConvergenceDomain}
-   对于函数项级数\(
-       \sum_{n = 1}^{\infty} u_n(x)
-    \)若在\(x_0 \in  I\)上\(
-        \sum_{n = 1}^{\infty} u_n(x_0)
-    \)收敛,则称\(x_0\)为\(  
-        \sum_{n = 1}^{\infty} u_n(x)
-    \)的收敛点,称\(I\)为\(
-        \sum_{n = 1}^{\infty} u_n(x)
-    \)的收敛域。称\(x_0 \notin I\)为\(
-        \sum_{n = 1}^{\infty} u_n(x)
-    \)的发散点。\(I'\)为\(
-        \sum_{n = 1}^{\infty} u_n(x)
-    \)的发散域。
-\end{mydef}
-\begin{mydef}{和函数}{SumFunction}
-    设\(
-        \sum_{n = 1}^{\infty} u_n(x)
-    \)为函数项级数,若\(
-        S(x) = \sum_{n = 1}^{\infty} u_n(x)
-       (x \in  I)
-    \),则称\(S(x)\)为\(
-        \sum_{n = 1}^{\infty} u_n(x)
-    \)的和函数。
+\begin{mydef}{正项级数}{PositiveSeries}
+    若 $a_n\ge0$（$n=1,2,\ldots$），则称 $\sum_{n=1}^{\infty}a_n$ 为正项级数。
 \end{mydef}
 
-\begin{mydef}{幂级数}{PowerSeries}
-    形如\(
-        \sum_{n = 1}^{\infty} a_n (x - x_0)^n
-    \)的级数称为幂级数。其中常数\(a_n\)为系数，当\(x_0 = 0\)时，
-    则\(
-        \sum_{n = 1}^{\infty} a_n x^n
-    \)为\(
-        x
-    \)的幂级数
-\end{mydef}
-\begin{conclusion}{幂级数的特点}{CharacteristicsOfPowerSeries}
-    \begin{conclusion}{阿贝尔定理}{AbelTheorem}
-        对幂级数\(\sum_{n=0}^{\infty}a_n(x-x_0)^n\)：若它在某点\(x_1\neq x_0\)收敛，则在\(|x-x_0|<|x_1-x_0|\)内绝对收敛；若它在某点\(x_2\)发散，则在\(|x-x_0|>|x_2-x_0|\)处发散。
-    \end{conclusion}
-    \begin{mydef}{收敛区间与收敛半径}{ConvergenceIntervalAndConvergenceRadius}
-        若\(
-            \sum_{n = 1}^{\infty} a_n (x - x_0)^n
-        \)在\(|x-x_0|<R\)内绝对收敛，在\(|x-x_0|>R\)处发散，
-        则称\(R\)为收敛半径，\(I=(x_0-R,x_0+R)\)为收敛区间。两个端点\(x=x_0\pm R\)需分别判定；收敛端点与开区间共同组成收敛域。
-        如果只在\(x=x_0\)处收敛，则\(R=0\)；如果在整个数轴上收敛，则
-        \(R = + \infty\)
-    \end{mydef}
-    如果\(R\)为幂级数的收敛半径，则在\(|x-x_0|<R\)内幂级数绝对收敛。
-\end{conclusion}
+正项级数的部分和 $S_n$ 单调不减。单调数列只有两种命运：有上界就收敛，无上界就发散。所以正项级数的判敛，本质上是在找上界。
 
-\begin{conclusion}{幂级数收敛半径与收敛域的求法}{ConvergenceRadiusAndConvergenceDomainOfPowerSeries}
-    \begin{enumerate}
-        \item 方法1,先求收敛半径得到收敛区间，再考察端点的敛散性
-        \begin{enumerate}
-            \item 求收敛半径
-            \[
-                l=\lim\limits_{n\to\infty}\left|\frac{a_{n+1}}{a_n}\right|
-                \quad\text{或}\quad
-                l=\lim\limits_{n\to\infty}\sqrt[n]{|a_n|},
-            \]
-            \[
-                R = \begin{cases}
-                    \frac{1}{l} & 0 < l < +\infty \\
-                    0 & l = +\infty \\
-                    +\infty & l = 0 \\
-                \end{cases}
-            \]
-            \item 讨论收敛区间端点处敛散性,即当\(0 < R < +\infty\)时,
-            讨论\(\sum_{n = 1}^{\infty} a_n (x - x_0)^n\)在\(x=x_0-R\)和\(x=x_0+R\)处的敛散性
-            \item 确定幂级数的收敛域
-        \end{enumerate}
-        \item 方法2,直接求收敛域
-        求幂级数\(
-            \sum_{n = 1}^{\infty} a_n (x - x_0)^n
-        \)的收敛域,可将\(t = x - x_0\)代入幂级数,得到
-        \[
-            \sum_{n = 1}^{\infty} a_n t^n
-        \]
-        的收敛域与收敛半径
-        \item 幂级数逐项求导或积分,收敛半径不变，但收敛域可能缩小或扩大
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{幂级数的运算与和函数的性质}{PropertiesOfPowerSeries}
-    \begin{enumerate}
-        \item 设\(
-            \sum_{n = 1}^{\infty} a_n x^n
-        \)和\(
-            \sum_{n = 1}^{\infty} b_n x^n
-        \)为两个幂级数，收敛半径分别为\(R_1\)和\(R_2\)，则可以进行如下计算
-        \begin{enumerate}
-            \item \(\lambda \sum_{n = 1}^{\infty} a_n x^n + 
-            \mu \sum_{n = 1}^{\infty} b_n x^n =
-            \sum_{n = 1}^{\infty} (\lambda a_n + \mu b_n) x^n
-        \)
-            其中\(\lambda\)和\(\mu\)为任意常数
-            \item \(
-                \sum_{n = 0}^{\infty} a_n x^n \cdot \sum_{n = 0}^{\infty} b_n x^n =
-                \sum_{n = 0}^{\infty} (c_n) x^n
-            \)，其中\(c_n=\sum_{k=0}^{n}a_kb_{n-k}\)。乘积级数至少在\(|x|<\min\{R_1,R_2\}\)内收敛；其实际收敛半径可能更大，不能无条件断言等于两者的较小值。
-        \end{enumerate}
-        \item 设\(
-            \sum_{n = 1}^{\infty} a_n x^n
-        \)的收敛半径为\(R(R > 0)\),收敛区间为\(I = (-R, R)\),收敛域为\(D\)，
-        则\(
-            \sum_{n = 1}^{\infty} a_n x^n
-        \)的和函数为
-        \(
-            S(x) = \sum_{n = 1}^{\infty} a_n x^n
-        \),有如下性质成立
-        \begin{enumerate}
-            \item 和函数\(S(x)\)在\(I\)内任意次求导，并有逐项求导公式
-            \[
-                S^{(k)}(x)=\sum_{n=k}^{\infty}a_n n(n-1)\cdots(n-k+1)x^{n-k}
-            \]
-            它的收敛半径仍为\(R\) 
-            \item 和函数\(S(x)\)在\(I\)内任意次积分，并有逐项积分公式
-            \[
-                \int_0^x S(t)\,\mathrm dt=\sum_{n=1}^{\infty}a_n\frac{x^{n+1}}{n+1}
-            \]
-            它的收敛半径仍为\(R\)
-            \item 若\(
-                S(x) = \sum_{n = 1}^{\infty} a_n x^n
-            \)在\(x = R(-R)\)处收敛，则该幂级数
-            \begin{enumerate}
-                \item \(\lim\limits_{x \to R-0} S(x) = \sum_{n = 0}^{\infty} a_nR^n\) (
-                    \(
-                        \lim\limits_{x \to R-0} S(x) = \sum_{n = 0}^{\infty} a_nR^n
-                    \)
-                )
-                \item 可以在\([0, R]\)(\([-R, 0]\))上逐项积分，即
-                \[
-                    \int_{0}^{R} S(x) dx = \sum_{n = 0}^{\infty} \frac{a_n}{n+1}R^{n + 1}
-                    (
-                        \int_{-R}^{0} S(x) dx = \sum_{n = 0}^{\infty} \frac{-a_n}{n+1}(-R)^{n + 1}
-                    )
-                \]
-                \item 逐项求导后的级数\(
-                    \sum_{n = 0}^{\infty} n a_n x^{n - 1}
-                \)可能在\(x = R(-R)\)发散
-            \end{enumerate}
-            \item 若\(
-                S(x) = \sum_{n = 0}^{\infty} a_n x^n
-            \)在\(x = R(-R)\)处发散，则该幂级数逐项求导后的级数
-            \[
-                \sum_{n = 0}^{\infty} n a_n x^{n - 1}
-            \]
-            也在\(x = R(-R)\)处发散， \\
-            但逐项积分后的级数 
-            \[
-                \sum_{n = 0}^{\infty} \frac{a_n}{n+1} x^{n + 1}
-            \]
-            在\(x = R(-R)\)处有可能收敛
-        \end{enumerate}
-    \end{enumerate}
-\end{conclusion}
-\begin{mydef}{幂级数求和与幂级数展开式}{PowerSeriesSumAndExpansion}
-    设\(f(x) = \sum_{n = 0}^{\infty} a_n(x-x_0)^n\),\(|x - x_0| < R\)，
-    已知左端，求右端，是幂级数求和；已知右端，求左端，是幂级数展开式。
-\end{mydef}
-
-\begin{conclusion}{泰勒级数与麦克劳林级数}{TaylorAndMaclaurinSeries}
-    设函数\(f(x)\)在点\(x_0\)的某一邻域内具有任意阶导数，则称级数
-    \[
-        \begin{aligned}
-        &\sum_{n = 0}^{\infty} \frac{f^{(n)}(x_0)}{n!} (x - x_0)^n \\
-        &= f(x_0) + \frac{f'(x_0)}{1!} (x - x_0) + \frac{f''(x_0)}{2!} (x - x_0)^2 + \cdots 
-        + \frac{f^{(n)}(x_0)}{n!} (x - x_0)^n + \cdots
-        \end{aligned}
-    \]
-    为\(f(x)\)的泰勒级数，\(x_0\)为展开点。
-    若\(x_0 = 0\)，则称该级数为麦克劳林级数。
-    \[
-        \sum_{n = 0}^{\infty} \frac{f^{(n)}(0)}{n!} x^n = 
-        f(0) + \frac{f'(0)}{1!} x + \frac{f''(0)}{2!} x^2 + \cdots
-        + \frac{f^{(n)}(0)}{n!} x^n + \cdots
-    \]
-    展开后的级数是否收敛还需要验证
-\end{conclusion}
-
-\begin{conclusion}{函数展成幂级数的条件}{requirement for unfold}
-    设\(f\)在\((x_0-R,x_0+R)\)内具有任意阶导数。\(f\)在该区间等于其 Taylor 级数，当且仅当对区间内每个固定的\(x\)，Taylor 余项\(R_n(x)\to0\)：
-    \[
-        \begin{aligned}
-        &f(x) = \sum_{n = 0}^{\infty}\frac{f^{(n)}(x_0)}{n!}(x-x_0)^n \quad (|x-x_0|<R)\\
-        &\Leftrightarrow \\
-        &\lim\limits_{n \to \infty} R_n(x) = 0.
-        \end{aligned}
-    \]
-    在\(f\)具有相应阶连续导数时，Lagrange 余项可写成
-    \[
-        R_n(x)=\frac{f^{(n+1)}[x_0+\theta_n(x-x_0)]}{(n+1)!}(x-x_0)^{n+1},
-        \qquad 0<\theta_n<1.
-    \]
-    \(f(x)\)在点\(x_0\)的幂级数展开式是唯一的，即若
-    \(
-        f(x) = \sum_{n = 0}^{\infty} a_n (x - x_0)^n (|x - x_0| < R)
-    \)
-    则
-    \(
-        a_n = \frac{f^{(n)}(x_0)}{n!}
-    \)
-    \\
-    若存在常数\(L,M\)，使得\(\forall n \in \mathbb{N}\)，
-    \(
-        |f^{(n)}(x)| \leq LM^n,\quad |x - x_0| < R
-    \)
-    则在\(|x - x_0| < R\)上泰勒级数收敛于\(f(x)\),且
-    \(
-        \lim\limits_{n \to \infty} R_n(x) = 0
-    \)
-\end{conclusion}
-
-\begin{formula}{常见函数的麦克劳林展开式}{usual marcliaurin unfold}
-    \begin{enumerate}
-        \item \[
-            e^x = \sum_{n = 0}^{\infty} \frac{x^n}{n!} = 1 + x + \frac{x^2}{2!} + \cdots + \frac{x^n}{n!} + \cdots,(-\infty < x < +\infty)
-        \]
-        \item \[
-            \sin x = \sum_{n = 0}^{\infty} \frac{(-1)^n x^{2n + 1}}{(2n + 1)!} = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \frac{x^7}{7!} + \cdots,(-\infty < x < +\infty)
-        \]
-        \item \[
-            \cos x = \sum_{n = 0}^{\infty} \frac{(-1)^n x^{2n}}{(2n)!} = 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \frac{x^6}{6!} + \cdots,(-\infty < x < +\infty)
-        \]
-        \item \[
-            \ln(1 + x) = \sum_{n = 1}^{\infty} \frac{(-1)^{n + 1} x^n}{n},(-1 < x \leq 1)
-        \]
-        \item \[
-            (1+x)^{\alpha} = 1 + \alpha x + \frac{\alpha(\alpha - 1)}{2!} x^2 + \cdots + \frac{\alpha(\alpha -1) \cdots
-                (\alpha - n + 1)
-            }{n!} x^n + \cdots
-        \]
-        ,\((-1 < x < 1)\)
-    \end{enumerate}
-    \((1+x)^{\alpha}\)的级数在\(x = \pm 1\)处的收敛性依\(\alpha\)的不同而异，特别，当\(\alpha = -1\)时，
-    \[
-        \begin{aligned}
-            &\frac{1}{1+x} = \sum_{n = 0}^{\infty} (-1)^{n}x^{n} = 
-            1 - x + x^2 - x^3 + \cdots + (-1)^{n}x^{n},(-1 < x <1)\\
-            &\frac{1}{1-x} = \sum_{n = 0}^{\infty} x^{n} = 
-            1 + x + x^2 + x^3 + \cdots + x^{n}+\cdots,(-1 < x <1)\\
-        \end{aligned}
-    \]
-\end{formula}
-
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-1, xmax=1.1, ymin=-2.6, ymax=1.3,
-  xtick={-1,-0.5,0,0.5,1}, ytick={-2,-1,0,1},
-  legend pos=south east, font=\footnotesize,
-  domain=-0.8:1, samples=160,
-]
-\addplot[very thick,black] {ln(1+x)};
-\addlegendentry{$f(x)=\ln(1+x)$}
-\addplot[green!55!black,thick] {x-x^2/2};
-\addlegendentry{$T_2$}
-\addplot[orange!70,thick] {x-x^2/2+x^3/3};
-\addlegendentry{$T_3$}
-\addplot[red!70,thick] {x-x^2/2+x^3/3-x^4/4};
-\addlegendentry{$T_4$}
-\end{axis}
-\end{tikzpicture}
-\end{center}
-
-\begin{conclusion}{幂级数求和与幂级数展开式的方法}{method of sum and unfold}
-    \begin{enumerate}
-        \item 直接法
-        直接计算泰勒系数，并证明泰勒公式的余项\(R_n(x)\to0\)，才能断言泰勒级数在相应区间内收敛到原函数。
-        \item 间接法
-        利用上文常见的麦克劳林级数展开式，通过变量替换、或逐项求导，积分，待定性质，以及利用级数性质的方法
-        来得到幂级数的和函数与展开式的方法. \\
-        在求导或积分过程中，收敛半径不变，但端点处的敛散性可能会发生变化 \\
-    \end{enumerate}
-\end{conclusion}
-\subsection{傅里叶级数}
-\begin{mydef}{三角函数系的正交性}{triangle zhengjiao}
-    三角函数系
-    \[
-        \{
-            1, \cos \frac{\pi}{l} x , \sin \frac{\pi}{l} x ,
-            \cos \frac{2\pi}{l} x , \sin \frac{2\pi}{l} x ,
-            \cdots,
-            \cos \frac{n\pi}{l} x , \sin \frac{n\pi}{l} x ,
-            \cdots
-        \}
-    \]
-    在区间\([-l, l]\)上是正交的，即
-    \[
-        \int_{-l}^{l} f(x) g(x)\,\mathrm dx=0,
-        \quad f,g\text{为三角函数系中两个不同的函数}.
-    \]
-    三角函数系中任何两个不同函数的乘积在\([-l, l]\)上的积分为0，即
-    \[
-        \begin{aligned}
-            &\int_{-l}^{l} \cos \frac{n\pi}{l}x\mathrm{d}x = 
-        \int_{-l}^{l} \sin \frac{n\pi}{l}x\mathrm{d}x = 0, \\
-            &\int_{-l}^{l} \cos \frac{n\pi}{l}x \sin \frac{m\pi}{l}x \mathrm{d}x = 0 \\
-            &\int_{-l}^{l} \cos \frac{m\pi}{l}x \cos \frac{n \pi}{l}x \mathrm{d}x
-            =
-            \int_{-l}^{l} \sin \frac{m\pi}{l}x \sin \frac{n \pi}{l}x \mathrm{d}x = 0\quad(m\neq n)
-        \end{aligned}
-    \]
-\end{mydef}
-\begin{mydef}{傅里叶系数与傅里叶级数}{Fourie series}
-    若函数\(f(x)\)在\([-l, l]\)上可积分，且只定义在\([-l, l]\)上，或以\(2l\)为周期，
-    则可由下式定义其傅里叶级数。一般先写关联符号而不是等号：
-    \[
-        f(x) \sim \frac{a_0}{2} + \sum_{n = 1}^{\infty} (a_n \cos \frac{n\pi}{l}x + b_n \sin \frac{n\pi}{l}x)
-    \]
-    若
-    \[
-        \begin{cases}
-            a_n = \frac{1}{l} \int_{-l}^{l} f(x) \cos \frac{n\pi}{l}x \mathrm{d}x, \\
-            b_n = \frac{1}{l} \int_{-l}^{l} f(x) \sin \frac{n\pi}{l}x \mathrm{d}x.
-        \end{cases}
-    \]
-    \(a_n, b_n\)称为\(f(x)\)的傅里叶系数.
-\end{mydef}
-\begin{conclusion}{傅里叶级数的收敛性(狄利克雷收敛定理(充分条件))}{dirichlet def}
-    若\(f(x)\)在区间\(l\)上满足
-    \begin{enumerate}
-        \item 连续，或只有有限个第一类间断点 
-        \item 只有有限个极值点
-    \end{enumerate}
-    则\(f(x)\)在\([-l, l]\)上的傅里叶级数收敛，且
-    \[
-        \begin{aligned}
-            &\frac{a_0}{2} + \sum_{n = 1}^{\infty}(a_n \cos \frac{n\pi}{l}x + b_n \sin \frac{n\pi}{l}x) \\
-            &\quad=\begin{cases}
-            f(x), \text{若}x \in (-l, l)\text{为}f(x)\text{的连续点},  \\
-            \frac{1}{2}\left[f(x+0) + f(x-0)\right], \text{若}x \in (-l, l)\text{且为}x\text{的第一类间断点} \\
-            \frac{1}{2}\left[f(-l+0) + f(l-0)\right], \text{若}x = \pm l
-        \end{cases}
-        \end{aligned} 
-    \]
-\end{conclusion}
-
-\begin{conclusion}{周期与非周期函数的傅里叶级数}{period or unperiod fourier}
-    对于非周期函数,可以进行延拓，使得称为傅里叶级数
-    \begin{enumerate}
-        \item \(f(x)\)只在\([-l, l]\)上定义,进行周期延拓
-        \item 只在\([0,l]\)有定义的函数,进行奇延拓或偶延拓,再作周期延拓
-        \begin{enumerate}
-            \item 奇函数 \\
-            \(f(-x) = -f(x)\),其傅里叶级数为正弦级数，即\(a_n = 0, n = 0, 1,2,\cdots\)\\
-            \[
-                f(x) \sim \sum_{n = 1}^{\infty} b_n \sin \frac{n\pi}{l}x,
-                b_n = \frac{2}{l} \int_{0}^{l} f(x) \sin \frac{n\pi}{l}x \mathrm{d}x
-            \]
-            \item 偶函数 \\
-            \(f(x) = f(-x)\),其傅里叶级数为余弦级数，即\(b_n = 0, n = 0, 1,2,\cdots\)\\
-            \[
-                f(x) \sim \frac{a_0}{2}+\sum_{n = 1}^{\infty} a_n \cos \frac{n\pi}{l}x,
-                a_n = \frac{2}{l} \int_{0}^{l} f(x) \cos \frac{n\pi}{l}x \mathrm{d}x
-            \]
-        \end{enumerate}
-        \item 奇延拓必有\(a_0=0\)。偶延拓时应保留常数项\(a_0/2\)，但\(a_0\)也可能等于零，取决于函数在\([0,l]\)上的平均值。
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{函数$f(x)$的傅里叶展开式}{fx unfold fourier}
-    设\(f(x)\)在\([-l, l]\)上，并满足狄利克雷条件，
-    \begin{enumerate}
-        \item  若有\(f(x)\)在\((-l, l)\)上连续，则\(f(x)\)可展成傅里叶级数，即
-        \[
-        f(x) = \frac{a_0}{2} + \sum_{n = 1}^{\infty} (a_n \cos \frac{n\pi}{l}x + b_n \sin \frac{n\pi}{l}x),
-        (-l < x < l)
-        \]
-        \item 若\(f(x)\)在\([-l, l]\)上连续且\(f(-l) = f(l)\),则\(f(x)\)在\([-l, l]\)上可展成
-        傅里叶级数,即上式在\([-l, l]\)上成立
-    \end{enumerate}
-\end{conclusion}
-\noindent\textbf{拓展（傅里叶与谱分析）:}傅里叶级数把周期函数分解到正交基 $\{1,\cos nx,\sin nx\}$ 上，系数 $(a_n,b_n)$ 就是“频谱”——它记录函数在各频率上的能量分布，这正是信号处理、语音与图像压缩（JPEG、MP3）的数学根基。卷积定理指出两函数卷积 $f*g$ 的傅里叶变换等于二者傅里叶变换之积（时域卷积对频域相乘），于是卷积可在频域用 FFT 加速，这也是 CNN（卷积神经网络）空间卷积在频域逐点相乘的理论依据。
-
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.82\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={$y$},
-  xmin=-3.7, xmax=3.7, ymin=-1, ymax=11.5,
-  xtick={-3.14,-1.57,0,1.57,3.14},
-  xticklabels={$-\pi$,$-\frac{\pi}{2}$,0,$\frac{\pi}{2}$,$\pi$},
-  ytick={0,2,4,6,8,10},
-  legend pos=north east, font=\footnotesize,
-  legend cell align=left,
-  domain=-3.1416:3.1416, samples=220,
-]
-\addplot[black,thick,dashed] {x^2};
-\addlegendentry{$f(x)=x^2$（目标函数）}
-\addplot[blue,ultra thick] {pi^2/3 - 4*cos(deg(x)) + cos(deg(2*x))};
-\addlegendentry{$S_2$（前 $2$ 项）}
-\addplot[red,ultra thick] {pi^2/3 - 4*cos(deg(x)) + cos(deg(2*x)) - (4/9)*cos(deg(3*x)) + 0.25*cos(deg(4*x))};
-\addlegendentry{$S_4$（前 $4$ 项）}
-\end{axis}
-\end{tikzpicture}
-\end{center}
-\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 在 $[-l,l]$ 上（图中 $l=\pi$），$f(x)=x^2$ 的傅里叶部分和 $S_2$、$S_4$ 随项数增加而越来越逼近 $f(x)$，端点处也收敛（$f$ 连续且满足周期延拓条件）。}}
-
-\subsection{普适方法}
-
-\begin{conclusion}{常数项级数敛散性的判定}{const term series}
-    \begin{enumerate}
-        \item 判别级数\(\sum_{n = 1}^{\infty} a_n\)的类型
-        \item 若\(\sum_{n = 1}^{\infty} a_n\)是正项级数，则首先考察\(
-        \lim\limits_{n \to \infty} a_n
-        \begin{cases}
-            \neq 0, \text{级数发散} \\
-            = 0, \text{进一步判断}
-        \end{cases}
-        \)
-        \begin{enumerate}
-            \item 一般项含有\(n!\)或者\(n\),选择比值判别法
-            \item 一般项含有以\(n\)为指数的因子，采用根值判别法
-            \item 含有形如\(n^{\alpha}\)的因子，一般选择比较判别法
-            \item 若一般项\(u_n\)可表示为\(f(n)\)，\(f(x)\)在\(
-                [1, +\infty)
-            \)单调下降,且其积分的敛散性容易判断，可使用积分判别法
-            \item 利用已知敛散性结果，结合级数性质，进行判断
-            \item 如上述方法均失效，采用定义，考察\(\lim\limits_{n \to \infty}S_n\)
-            是否存在，即判断\(S_n\)是否有上界
-        \end{enumerate}
-        \item 若为任意项级数，先考察\(
-        \lim\limits_{n \to \infty} a_n
-        \begin{cases}
-            \neq 0, \text{级数发散} \\
-            = 0, \text{进一步判断}
-        \end{cases}
-        \)
-        若\(\lim\limits_{n \to \infty} a_n = 0\),则如下进行
-        \begin{enumerate}
-            \item 按正项级数判别法，判断\(
-                \sum_{n = 1}^{\infty} |a_n|
-            \)是否收敛，若收敛，则\(\sum_{n = 1}^{\infty} a_n\)绝对收敛
-            \item 若\(
-                \sum_{n = 1}^{\infty} |a_n|
-            \)发散，则看其是否为交错级数，若是，则采用莱布尼茨判别法，若收敛，则
-            则\(\sum_{n = 1}^{\infty} a_n\)条件收敛
-            \item 若\(\sum_{n = 1}^{\infty} a_n\)为交错级数，但不满足莱布尼茨判别法条件
-            或\(\sum_{n = 1}^{\infty} a_n\)不是交错级数，则有如下方法
-            \begin{enumerate}
-                \item 比值判别法,当\(\lim\limits_{n \to \infty} \frac{|u_{n+1}|}{u_{n}} = \rho > 1 \)时，
-                级数\(sum_{n = 1}^{\infty} u_n\)发散
-                \item 根植判别法,当\(\lim\limits_{n \to \infty} \sqrt[n]{|u_n|} = \rho > 1 \)时，
-                级数\(sum_{n = 1}^{\infty} u_n\)发散
-                \item 讨论\(\{S_{2n}\},S_{2n+1}\)的敛散性，以及其他能够判定部分和数列\(\{
-                    S_n
-                \}\)敛散性的方法
-            \end{enumerate}
-        \end{enumerate}
-             \item 结合级数性质判定敛散性
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{常数项级数求和}{const term series sum}
-    \begin{enumerate}
-        \item 直接计算有限部分和\(S_N = \sum_{n = 1}^{N} a_n\)，再取极限得到级数的和
-        \(
-            \sum_{n = 1}^{\infty} a_n = \lim\limits_{n \to \infty} S_n
-        \)
-        \item 利用分解法和已知的幂级数展开式
-        \item 转化为求幂级数的和函数
-        \item 借助于函数的傅里叶级数展开式
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{求幂级数展开式与利用幂级数展开式求和}{power series}
-    \begin{enumerate}
-        \item 函数
-        \item 求傅里叶级数展开式
-        \item 根据傅里叶级数特性，确定要计算的常数项系数
-        \item 根据收敛定理求常数项系数之和
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{$S(X)$的导数表示}{S(X) derivative}
-    \[
-        S(x) = \int_{0}^{x} f(t) dt + S(0)
-    \]
-    \begin{center}
-        \boxed{\text{注意不要忘记S(0)}}
-    \end{center}
-\end{conclusion}
-
-
-
-\subsection{基础过关题}
-
-\textbf{1.} 判断级数 $\displaystyle\sum_{n=2}^{\infty} \frac{(-1)^{n}}{\sqrt{n}+(-1)^{n}}$ 的敛散性。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-记 $u_{n}=\frac{(-1)^{n}}{\sqrt{n}+(-1)^{n}}$。将其有理化：
+两个基准级数必须记牢：
 \[
-u_{n}=\frac{(-1)^{n}}{\sqrt{n}+(-1)^{n}} \cdot \frac{\sqrt{n}-(-1)^{n}}{\sqrt{n}-(-1)^{n}}
-=\frac{(-1)^{n}\sqrt{n}-1}{n-1}.
-\]
-于是 $u_{n}=\frac{(-1)^{n}\sqrt{n}}{n-1}-\frac{1}{n-1}$。
-级数 $\sum_{n=2}^{\infty}\frac{(-1)^{n}\sqrt{n}}{n-1}$ 由 Leibniz 判别法收敛（通项绝对值 $\sim\frac{1}{\sqrt{n}}\to 0$ 且单调递减），
-而 $\sum_{n=2}^{\infty}\frac{1}{n-1}$ 发散（调和级数）。
-故原级数发散。
-
-\else \answerarea \fi%
-\textbf{2.} 判断级数 $\displaystyle\sum_{n=1}^{\infty} \frac{2^{n}n!}{n^{n}}$ 的敛散性。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-由比值判别法，记 $a_{n}=\frac{2^{n}n!}{n^{n}}$，则
-\[
-\frac{a_{n+1}}{a_{n}}=\frac{2^{n+1}(n+1)!}{(n+1)^{n+1}}\cdot\frac{n^{n}}{2^{n}n!}
-=2\cdot\frac{(n+1)n^{n}}{(n+1)^{n+1}}=2\cdot\frac{n^{n}}{(n+1)^{n}}
-=2\left(\frac{n}{n+1}\right)^{\!n}.
-\]
-由于 $\lim\limits_{n\to\infty}\bigl(\frac{n}{n+1}\bigr)^{n}=\lim\limits_{n\to\infty}\frac{1}{(1+1/n)^{n}}=\frac{1}{e}$，
-故 $\lim\limits_{n\to\infty}\frac{a_{n+1}}{a_{n}}=\frac{2}{e}<1$，级数收敛。
-
-\else \answerarea \fi%
-\textbf{3.} 求幂级数 $\displaystyle\sum_{n=1}^{\infty} \frac{3^{n}+(-2)^{n}}{n}(x+1)^{n}$ 的收敛域。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-记 $t=x+1$，考虑 $\sum_{n=1}^{\infty}\frac{3^{n}+(-2)^{n}}{n}t^{n}$。
-记 $a_{n}=\frac{3^{n}+(-2)^{n}}{n}$，则
-\[
-\lim_{n\to\infty}\sqrt[n]{|a_{n}|}
-=\lim_{n\to\infty}\sqrt[n]{\frac{3^{n}\bigl|1+(-2/3)^{n}\bigr|}{n}}=3,
-\]
-故收敛半径 $R=\frac{1}{3}$，收敛区间为 $|t|<\frac{1}{3}$，即 $-\frac{4}{3}<x<-\frac{2}{3}$。
-
-考察端点：
-\begin{itemize}
-
-\item 当 $x=-\frac{4}{3}$ 时，$t=-\frac{1}{3}$，级数为 $\sum_{n=1}^{\infty}\frac{3^{n}+(-2)^{n}}{n}\bigl(-\frac{1}{3}\bigr)^{n}
-=\sum_{n=1}^{\infty}\frac{(-1)^{n}}{n}+\sum_{n=1}^{\infty}\frac{(2/3)^{n}}{n}$。
-前者为交错调和级数（收敛），后者通项 $\sim\frac{(2/3)^{n}}{n}$（由比值判别法收敛）。故 $x=-\frac{4}{3}$ 时收敛。
-\item 当 $x=-\frac{2}{3}$ 时，$t=\frac{1}{3}$，级数为 $\sum_{n=1}^{\infty}\frac{1}{n}+\sum_{n=1}^{\infty}\frac{(-2/3)^{n}}{n}$。
-前者发散（调和级数），后者收敛。故 $x=-\frac{2}{3}$ 时发散。
-\end{itemize}
-\else \answerarea \fi%
-因此收敛域为 $\bigl[-\frac{4}{3},-\frac{2}{3}\bigr)$。
-
-\textbf{4.} 设 $a_{n}>0$，且级数 $\displaystyle\sum_{n=1}^{\infty}(-1)^{n}a_{n}$ 条件收敛。判断级数 $\displaystyle\sum_{n=1}^{\infty} a_{2n}$ 的敛散性，并证明你的结论。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-$\sum_{n=1}^{\infty} a_{2n}$ 发散。证明如下：
-
-设 $\sum_{n=1}^{\infty}(-1)^{n}a_{n}$ 收敛于 $S$。取其偶数项部分和：
-\[
-S_{2N}=\sum_{n=1}^{N}\bigl(a_{2n}-a_{2n-1}\bigr)\to S\quad(N\to\infty).
-\]
-条件收敛意味着 $\sum_{n=1}^{\infty} a_{n}=+\infty$（正项级数）。若 $\sum_{n=1}^{\infty} a_{2n}$ 收敛，则
-\[
-\sum_{n=1}^{N} a_{2n-1}=\sum_{n=1}^{N} a_{2n}-\sum_{n=1}^{N}\bigl(a_{2n}-a_{2n-1}\bigr)
-\]
-右边两项均收敛，故 $\sum a_{2n-1}$ 也收敛，从而 $\sum a_{n}=\sum a_{2n}+\sum a_{2n-1}$ 收敛，与条件收敛矛盾。
-故 $\sum_{n=1}^{\infty} a_{2n}$ 必发散。
-
-（注：题设并未假设 $\{a_n\}$ 单调，不能引用 Leibniz 判别法；上述证明不依赖单调性。）
-
-
-\else \answerarea \fi%
-\subsection{综合提高题}
-
-\textbf{5.} 求幂级数 $\displaystyle\sum_{n=1}^{\infty} \frac{x^{n}}{n(n+1)}$ 的和函数，并指出收敛域。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-收敛半径 $R=1$。当 $|x|=1$ 时，通项绝对值 $\sim\frac{1}{n^{2}}$，故在 $x=\pm 1$ 处均（绝对）收敛，收敛域为 $[-1,1]$。
-
-当 $x\neq 0$ 时，利用部分分式：
-\[
-\frac{1}{n(n+1)}=\frac{1}{n}-\frac{1}{n+1},
-\]
-故
-\[
-S(x)=\sum_{n=1}^{\infty}\frac{x^{n}}{n}-\sum_{n=1}^{\infty}\frac{x^{n}}{n+1}
-=-\ln(1-x)-\frac{1}{x}\sum_{n=1}^{\infty}\frac{x^{n+1}}{n+1}
-=-\ln(1-x)-\frac{1}{x}\bigl[-\ln(1-x)-x\bigr]
-\]
-\[
-=-\ln(1-x)+\frac{\ln(1-x)}{x}+1
-=1+\Bigl(\frac{1}{x}-1\Bigr)\ln(1-x),\quad 0<|x|\leq 1,\;x\neq 0.
-\]
-当 $x=0$ 时 $S(0)=0$（级数从 $n=1$ 起，各项含因子 $x^{n}$）。
-当 $x=1$ 时，由连续性与 $\lim\limits_{x\to 1^{-}}(1-x)\ln(1-x)=0$ 得 $S(1)=\sum_{n=1}^{\infty}\frac{1}{n(n+1)}=1$。
-
-\else \answerarea \fi%
-\textbf{6.} 将函数 $f(x)=\dfrac{1}{x^{2}+3x+2}$ 展开为 $x$ 的幂级数，并指出收敛区间。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-分解为部分分式：
-\[
-f(x)=\frac{1}{(x+1)(x+2)}=\frac{1}{x+1}-\frac{1}{x+2}.
-\]
-利用几何级数 $\frac{1}{1+u}=\sum_{n=0}^{\infty}(-1)^{n}u^{n}\;(|u|<1)$：
-\[
-\frac{1}{x+1}=\frac{1}{1+x}=\sum_{n=0}^{\infty}(-1)^{n}x^{n},\quad |x|<1,
-\]
-\[
-\frac{1}{x+2}=\frac{1}{2}\cdot\frac{1}{1+x/2}
-=\frac{1}{2}\sum_{n=0}^{\infty}(-1)^{n}\Bigl(\frac{x}{2}\Bigr)^{\!n}
-=\sum_{n=0}^{\infty}\frac{(-1)^{n}}{2^{n+1}}x^{n},\quad |x|<2.
-\]
-取交集得收敛区间 $|x|<1$，在 $|x|<1$ 内：
-\[
-f(x)=\sum_{n=0}^{\infty}(-1)^{n}x^{n}-\sum_{n=0}^{\infty}\frac{(-1)^{n}}{2^{n+1}}x^{n}
-=\sum_{n=0}^{\infty}(-1)^{n}\Bigl(1-\frac{1}{2^{n+1}}\Bigr)x^{n},\quad |x|<1.
-\]
-
-\else \answerarea \fi%
-\textbf{7.} 将 $f(x)=x^{2}$ 在 $[-\pi,\pi]$ 上展开为傅里叶级数，并利用展开式求级数 $\displaystyle\sum_{n=1}^{\infty}\frac{1}{n^{2}}$ 与 $\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n^{2}}$ 的和。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-$f(x)=x^{2}$ 为偶函数，故 $b_{n}=0$。
-\[
-a_{0}=\frac{2}{\pi}\int_{0}^{\pi}x^{2}\,\mathrm{d}x=\frac{2}{\pi}\cdot\frac{\pi^{3}}{3}=\frac{2\pi^{2}}{3}.
-\]
-\[
-a_{n}=\frac{2}{\pi}\int_{0}^{\pi}x^{2}\cos nx\,\mathrm{d}x
-=\frac{2}{\pi}\left[\frac{x^{2}\sin nx}{n}+\frac{2x\cos nx}{n^{2}}-\frac{2\sin nx}{n^{3}}\right]_{0}^{\pi}
-=\frac{4(-1)^{n}}{n^{2}}.
-\]
-因为 $f(x)$ 在 $[-\pi,\pi]$ 上连续且 $f(-\pi)=f(\pi)$，故
-\[
-x^{2}=\frac{\pi^{2}}{3}+4\sum_{n=1}^{\infty}\frac{(-1)^{n}}{n^{2}}\cos nx,\quad |x|\leq\pi.
-\]
-分别取 $x=0$ 和 $x=\pi$：
-\[
-x=0:\quad 0=\frac{\pi^{2}}{3}+4\sum_{n=1}^{\infty}\frac{(-1)^{n}}{n^{2}}
-\;\Longrightarrow\; \sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n^{2}}=\frac{\pi^{2}}{12}.
-\]
-\[
-x=\pi:\quad \pi^{2}=\frac{\pi^{2}}{3}+4\sum_{n=1}^{\infty}\frac{(-1)^{n}}{n^{2}}(-1)^{n}
-=\frac{\pi^{2}}{3}+4\sum_{n=1}^{\infty}\frac{1}{n^{2}}
-\;\Longrightarrow\; \sum_{n=1}^{\infty}\frac{1}{n^{2}}=\frac{\pi^{2}}{6}.
-\]
-
-\else \answerarea \fi%
-\textbf{8.} 求常数项级数 $\displaystyle\sum_{n=1}^{\infty}\frac{n+1}{n!}\,2^{n}$ 的和。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-利用 $e^{x}$ 的幂级数展开式 $e^{x}=\sum_{n=0}^{\infty}\frac{x^{n}}{n!}$：
-\[
-\sum_{n=1}^{\infty}\frac{n+1}{n!}2^{n}
-=\sum_{n=1}^{\infty}\frac{n}{n!}2^{n}+\sum_{n=1}^{\infty}\frac{1}{n!}2^{n}
-=\sum_{n=1}^{\infty}\frac{2^{n}}{(n-1)!}+\bigl(e^{2}-1\bigr).
-\]
-令 $k=n-1$，则 $\sum_{n=1}^{\infty}\frac{2^{n}}{(n-1)!}=2\sum_{k=0}^{\infty}\frac{2^{k}}{k!}=2e^{2}$。
-故原级数 $=2e^{2}+e^{2}-1=3e^{2}-1$。
-
-
-\else \answerarea \fi%
-\subsection{真题风格与综合训练}
-
-\textbf{9.}（\boxed{\textbf{真题风格}}）讨论下列级数的敛散性（$p$ 为实参数）：
-\begin{enumerate}
-\item[(1)] $\displaystyle\sum_{n=2}^{\infty}\frac{1}{n\ln^{p}n}$；
-\item[(2)] $\displaystyle\sum_{n=2}^{\infty}\frac{(-1)^{n}}{n\ln^{p}n}$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 用积分判别法。令 $f(x)=\frac{1}{x\ln^{p}x}\;(x\geq 2)$，$f$ 非负单调递减。
-\[
-\int_{2}^{+\infty}\frac{\mathrm{d}x}{x\ln^{p}x}=
+\sum_{n=1}^{\infty}q^n=\frac{q}{1-q}\quad(|q|<1),
+\qquad
+\sum_{n=1}^{\infty}\frac1{n^p}
 \begin{cases}
-\displaystyle\Bigl[\frac{\ln^{1-p}x}{1-p}\Bigr]_{2}^{+\infty}, & p\neq 1,\\[1em]
-\displaystyle\bigl[\ln\ln x\bigr]_{2}^{+\infty}, & p=1.
+\text{收敛},&p>1,\\
+\text{发散},&p\le1.
 \end{cases}
 \]
-该积分当且仅当 $p>1$ 时收敛，故 $\sum_{n=2}^{\infty}\frac{1}{n\ln^{p}n}$ 收敛 $\Leftrightarrow p>1$。
+$p=1$ 时就是调和级数。$p$ 级数是后面比较判别法的“尺子”。
 
-(2) 绝对收敛性：由(1)，$\sum_{n=2}^{\infty}\frac{1}{n\ln^{p}n}$ 当 $p>1$ 时收敛，故 $p>1$ 时原级数绝对收敛。
+\begin{conclusion}{比较判别法}{ComparisonTest}
+    设从某一项起 $0\le a_n\le b_n$。若 $\sum b_n$ 收敛，则 $\sum a_n$ 收敛；若 $\sum a_n$ 发散，则 $\sum b_n$ 发散。
 
-当 $0<p\leq 1$ 时，通项绝对值构成的级数发散，但为交错级数。令 $g(x)=x\ln^{p}x$，
-$g'(x)=\ln^{p}x+p\ln^{p-1}x>0$（$x>1$ 且 $p>0$），故 $g(x)$ 递增，$\frac{1}{g(x)}$ 递减趋于 $0$。
-由 Leibniz 判别法，$\sum_{n=2}^{\infty}\frac{(-1)^{n}}{n\ln^{p}n}$ 条件收敛。
+    极限形式：设 $a_n>0$、$b_n>0$，且
+    \[
+        L=\lim_{n\to\infty}\frac{a_n}{b_n}.
+    \]
+    \begin{enumerate}
+        \item $0<L<+\infty$：两个级数同敛散。
+        \item $L=0$：$a_n=o(b_n)$。若 $\sum b_n$ 收敛，则 $\sum a_n$ 收敛；若 $\sum b_n$ 发散，则无法判定。
+        \item $L=+\infty$：$b_n=o(a_n)$。若 $\sum b_n$ 发散，则 $\sum a_n$ 发散；若 $\sum b_n$ 收敛，则无法判定。
+    \end{enumerate}
+\end{conclusion}
 
-当 $p\leq 0$ 时，令 $q=-p\geq 0$，通项绝对值为 $|u_n|=\frac{(\ln n)^{q}}{n}\to 0$（$n\to\infty$，多项式衰减胜过对数增长），且 $h(x)=\frac{(\ln x)^{q}}{x}$ 在 $x>e^{q}$ 时单调递减（$h'(x)=\frac{(\ln x)^{q-1}(q-\ln x)}{x^{2}}<0$），故由 Leibniz 判别法 $\sum_{n=2}^{\infty}\frac{(-1)^{n}}{n\ln^{p}n}$ 收敛；而由 (1)，$\sum_{n=2}^{\infty}\frac{1}{n\ln^{p}n}$ 在 $p\leq 0$ 时发散，故此时为条件收敛。特别地 $p=0$ 时为交错调和级数，条件收敛。
-
-综上：$p>1$ 时绝对收敛；一切 $p\leq 1$ 均条件收敛。
-
-\else \answerarea \fi%
-\textbf{10.}（\boxed{\textbf{真题风格}}）求幂级数 $\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}x^{2n}$ 的和函数，并求数项级数 $\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n\cdot 4^{n}}$ 的和。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-令 $S(x)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}(x^{2})^{n}=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}(x^{2})^{n}$。
-利用 $\ln(1+t)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}t^{n}\;(|t|<1)$，以 $t=x^{2}$ 代入得
+极限形式的用法是估阶：把 $a_n$ 与 $1/n^p$ 比。若 $a_n\sim C/n^p$，则 $p>1$ 收敛，$p\le1$ 发散。比如
 \[
-S(x)=\ln(1+x^{2}),\quad |x|<1.
+1-\cos\frac1n\sim\frac{1}{2n^2},
+\qquad
+\sin\frac1{\sqrt n}\sim\frac1{\sqrt n}.
 \]
-当 $|x|=1$ 时，级数化为 $\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}$（收敛），且 $S(x)$ 在 $x=\pm 1$ 处连续，故收敛域为 $[-1,1]$，
-和函数 $S(x)=\ln(1+x^{2}),\;x\in[-1,1]$。
+前者对应 $p=2$，级数收敛；后者对应 $p=\frac12$，级数发散。
 
-数项级数中 $x=\frac{1}{2}$，代入得
+\begin{conclusion}{比值判别法与根值判别法}{RatioRootTest}
+    设 $a_n>0$，且
+    \[
+        \rho=\lim_{n\to\infty}\frac{a_{n+1}}{a_n}.
+    \]
+    则 $\rho<1$ 时 $\sum a_n$ 收敛，$\rho>1$（包括 $+\infty$）时发散，$\rho=1$ 时判别法失效。
+
+    若
+    \[
+        \rho=\lim_{n\to\infty}\sqrt[n]{a_n},
+    \]
+    同样有：$\rho<1$ 收敛，$\rho>1$ 发散，$\rho=1$ 失效。
+\end{conclusion}
+
+为什么是与几何级数比较：若从某项起 $a_{n+1}/a_n\le q<1$，则
 \[
-\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n\cdot 4^{n}}
-=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}}{n}\Bigl(\frac{1}{2}\Bigr)^{\!2n}
-=S\Bigl(\frac{1}{2}\Bigr)=\ln\Bigl(1+\frac{1}{4}\Bigr)=\ln\frac{5}{4}.
+a_n\le Cq^n,
 \]
+而几何级数收敛；若比值极限大于 $1$，从某项起 $a_{n+1}>a_n$，通项不可能趋于零。根值法同理，$a_n\le q^n$ 就够了。
 
-\else \answerarea \fi%
-\textbf{11.}（\boxed{\textbf{真题风格}}）设 $a_{n}=\displaystyle\int_{0}^{\pi/4}\tan^{n}x\,\mathrm{d}x\;(n=1,2,\ldots)$。
+$\rho=1$ 时不要下结论。$\sum1/n$ 和 $\sum1/n^2$ 的比值极限都等于 $1$，一个发散、一个收敛，说明此时必须换方法。
+
+\begin{conclusion}{积分判别法}{IntegralTest}
+    设 $f(x)$ 在 $[1,+\infty)$ 上非负、连续、单调不增，且 $f(n)=a_n$。则
+    \[
+        \sum_{n=1}^{\infty}a_n\text{ 收敛}
+        \iff
+        \int_1^{+\infty}f(x)\,\mathrm dx\text{ 收敛}.
+    \]
+    进一步，对 $N\ge1$ 有
+    \[
+        \int_1^{N+1}f(x)\,\mathrm dx
+        \le \sum_{n=1}^{N}a_n
+        \le a_1+\int_1^{N}f(x)\,\mathrm dx.
+    \]
+\end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[x=1.45cm,y=3.1cm,font=\footnotesize]
+\draw[->] (0,0) -- (6.6,0) node[below] {$x$};
+\draw[->] (0,0) -- (0,1.2) node[left] {$y$};
+\foreach \n in {1,...,5} {
+  \draw[fill=blue!10,draw=blue!55] (\n,0) rectangle (\n+1,{1/((\n+1)*(\n+1))});
+}
+\draw[domain=1:6.45,smooth,variable=\x,red!75!black,thick] plot ({\x},{1/(\x*\x)});
+\node[red!75!black] at (3.4,0.42) {$y=\frac{1}{x^2}$};
+\node[blue!60!black,font=\scriptsize] at (1.5,0.33) {$f(2)$};
+\node[blue!60!black,font=\scriptsize] at (2.5,0.17) {$f(3)$};
+\node[font=\scriptsize] at (4.9,0.14) {高为 $f(n+1)$ 的矩形};
+\draw[dashed] (1,0)--(1,1);
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 在区间 $[n,n+1]$ 上，递减函数 $f$ 的图形在矩形上方，所以矩形面积 $f(n+1)$ 不超过曲边梯形的面积 $\int_n^{n+1}f(x)\,dx$。把所有矩形加起来，就得到 $\sum_{n=2}^{N}f(n)\le\int_1^{N}f(x)\,dx$；右边积分有界，部分和就被控制住了。}}
+
+使用前确认三条：非负、连续、单调不增。通常只需从某一项之后满足，前面有限项不影响敛散性。
+
+\subsection{交错级数与任意项级数}
+
+形如
+\[
+\sum_{n=1}^{\infty}(-1)^{n-1}u_n\quad(u_n\ge0)
+\]
+的级数称为交错级数。它的符号一正一负，部分和会在某个值两侧摆动。莱布尼茨判别法把这种摆动说清楚。
+
+\begin{conclusion}{莱布尼茨判别法}{LeibnizTest}
+    设 $u_n\ge0$，且
+    \begin{enumerate}
+        \item $u_n$ 从某项起单调不增；
+        \item $\lim_{n\to\infty}u_n=0$。
+    \end{enumerate}
+    则交错级数 $\sum_{n=1}^{\infty}(-1)^{n-1}u_n$ 收敛。若 $u_n$ 从第一项起单调不增，则其和 $S$ 满足
+    \[
+        0\le S\le u_1,
+    \]
+    余项满足
+    \[
+        |R_n|=|S-S_n|\le u_{n+1},
+    \]
+    且余项的符号与第一个被舍去的项相同。
+\end{conclusion}
+
+看它的证明思路。偶部分和与奇部分和分别为
+\[
+\begin{aligned}
+S_{2m}&=(u_1-u_2)+(u_3-u_4)+\cdots+(u_{2m-1}-u_{2m}),\\
+S_{2m+1}&=u_1-(u_2-u_3)-\cdots-(u_{2m}-u_{2m+1}).
+\end{aligned}
+\]
+每个括号都非负，所以 $S_{2m}$ 单调不减，$S_{2m+1}$ 单调不增，并且 $S_{2m}\le S_{2m+1}$。两者之差
+\[
+S_{2m+1}-S_{2m}=u_{2m+1}\longrightarrow0,
+\]
+因此它们夹到同一个极限 $S$。由 $S_{2m}\le S\le S_{2m+1}$ 就得到 $|S-S_n|\le u_{n+1}$。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.86\linewidth, height=5.8cm,
+  xlabel={$n$}, ylabel={$S_n$},
+  xmin=0, xmax=13, ymin=0.4, ymax=1.05,
+  xtick={0,2,4,6,8,10,12},
+  ytick={0.4,0.5,0.6,0.7,0.8,0.9,1.0},
+  legend pos=north east, legend style={font=\scriptsize},
+  font=\footnotesize,
+]
+\addplot[dashed,gray!70,thick,domain=0:13,samples=2] {0.693147};
+\addlegendentry{$\ln 2$}
+\addplot[blue,thick,mark=*,mark size=1.3pt] coordinates {
+  (1,1) (2,0.5) (3,0.833333) (4,0.583333) (5,0.783333)
+  (6,0.616667) (7,0.759524) (8,0.634524) (9,0.745635)
+  (10,0.645635) (11,0.736544) (12,0.653211)};
+\addlegendentry{$\sum_{k=1}^{n}\frac{(-1)^{k-1}}{k}$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 交错调和级数的部分和在 $\ln 2$ 上下摆动：奇数项从上方逼近，偶数项从下方逼近，摆幅一轮比一轮小。这就是莱布尼茨判别法描述的“夹逼”。}}
+
+\begin{mydef}{绝对收敛与条件收敛}{AbsoluteConditional}
+    设 $\sum u_n$ 为任意项级数。
+    \begin{enumerate}
+        \item 若 $\sum|u_n|$ 收敛，则称 $\sum u_n$ 绝对收敛。
+        \item 若 $\sum|u_n|$ 发散，而 $\sum u_n$ 收敛，则称 $\sum u_n$ 条件收敛。
+    \end{enumerate}
+\end{mydef}
+
+绝对收敛一定收敛。把 $u_n$ 分成正部和负部：
+\[
+u_n^+=\frac{|u_n|+u_n}{2},\qquad u_n^-=\frac{|u_n|-u_n}{2},
+\]
+两者都非负且不超过 $|u_n|$。$\sum|u_n|$ 收敛时，$\sum u_n^+$ 与 $\sum u_n^-$ 都收敛，于是 $\sum u_n=\sum(u_n^+-u_n^-)$ 收敛。
+
+条件收敛时，正部和负部都发散。否则其中一个收敛会迫使另一个也收敛，从而 $\sum|u_n|$ 收敛，与条件收敛矛盾。
+
+条件收敛的级数不能随便交换项的顺序，重排后和可能改变；绝对收敛的级数可以任意重排，和不变。这个差别在无穷级数里很实际：有限和随便交换顺序都安全，无穷和不是。
+
+\subsection{幂级数}
+
+把常数换成一个变量，得到函数项级数。幂级数是最简单的一类。
+
+\begin{mydef}{幂级数}{PowerSeries}
+    形如
+    \[
+        \sum_{n=0}^{\infty}a_n(x-x_0)^n
+    \]
+    的级数称为幂级数，其中 $a_n$ 为系数，$x_0$ 为展开中心。$x_0=0$ 时就是 $\sum a_nx^n$。
+\end{mydef}
+
+例如 $\sum_{n=0}^{\infty}x^n$。当 $|x|<1$ 时，部分和 $S_n=(1-x^{n+1})/(1-x)$ 收敛到 $1/(1-x)$；当 $|x|\ge1$ 时，通项不趋于零。收敛域是一个以 $0$ 为中心的区间。幂级数的收敛域总是这种形状：以 $x_0$ 为中心的区间，可能退化为一个点，也可能铺满整条数轴。
+
+\begin{conclusion}{阿贝尔定理}{AbelTheorem}
+    对幂级数 $\sum_{n=0}^{\infty}a_n(x-x_0)^n$：
+    \begin{enumerate}
+        \item 若它在某点 $x_1\ne x_0$ 收敛，则对满足 $|x-x_0|<|x_1-x_0|$ 的 $x$，级数绝对收敛；
+        \item 若它在某点 $x_2$ 发散，则对满足 $|x-x_0|>|x_2-x_0|$ 的 $x$，级数发散。
+    \end{enumerate}
+\end{conclusion}
+
+第一条这样看：
+\[
+|a_n(x-x_0)^n|
+=|a_n(x_1-x_0)^n|\left|\frac{x-x_0}{x_1-x_0}\right|^n
+\le Mr^n.
+\]
+在 $x_1$ 处收敛，通项 $a_n(x_1-x_0)^n\to0$，所以有界，记为 $M$；只要 $|x-x_0|<|x_1-x_0|$，就有 $r<1$，右边是收敛的几何级数。第二条用反证：若在外侧某点收敛，第一条会迫使 $x_2$ 也收敛，矛盾。
+
+\begin{conclusion}{收敛半径与收敛区间}{Radius}
+    若存在 $R\in[0,+\infty]$，使得
+    \[
+        \sum_{n=0}^{\infty}a_n(x-x_0)^n
+    \]
+    在 $|x-x_0|<R$ 内绝对收敛，在 $|x-x_0|>R$ 处发散，则称 $R$ 为收敛半径，$(x_0-R,x_0+R)$ 为收敛区间。两个端点 $x=x_0\pm R$ 要分别代回原级数判断；收敛的端点与开区间合起来才是收敛域。
+\end{conclusion}
+
+收敛半径通常这样求：
+\[
+\ell=\lim_{n\to\infty}\left|\frac{a_{n+1}}{a_n}\right|,
+\qquad
+R=
+\begin{cases}
+\dfrac1\ell,&0<\ell<+\infty,\\[6pt]
++\infty,&\ell=0,\\
+0,&\ell=+\infty.
+\end{cases}
+\]
+用根值也可以：
+\[
+\ell=\lim_{n\to\infty}\sqrt[n]{|a_n|},
+\qquad R=\frac1\ell.
+\]
+极限不存在时要用上极限，考研题中通常极限存在。
+
+几个例子：
+\[
+\sum_{n=1}^{\infty}\frac{x^n}{n}:\ R=1,\quad
+\sum_{n=1}^{\infty}\frac{x^n}{n^2}:\ R=1,
+\]
+前者的收敛域是 $[-1,1)$（$x=1$ 时是调和级数，$x=-1$ 时交错调和级数收敛），后者两个端点都收敛，收敛域是 $[-1,1]$。又如 $\sum n!x^n$ 的 $R=0$，只在 $x=0$ 收敛；$\sum x^n/n!$ 的 $R=+\infty$，在整个数轴上收敛。
+
+\noindent\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}[x=1.7cm,font=\small]
+\draw[->] (-3.5,0) -- (3.5,0) node[below] {$x$};
+\fill[green!10] (-2,0) rectangle (2,1.0);
+\draw[green!45!black] (-2,0)--(-2,1.0)--(2,1.0)--(2,0);
+\node[green!45!black] at (0,0.55) {绝对收敛};
+\node at (-2.75,0.55) {发散};
+\node at (2.75,0.55) {发散};
+\draw[thick] (-2,0.08)--(-2,-0.08) node[below=2pt] {$x_0-R$};
+\draw[thick] (2,0.08)--(2,-0.08) node[below=2pt] {$x_0+R$};
+\fill (0,0) circle (2pt) node[below=5pt] {$x_0$};
+\end{tikzpicture}\\[2pt]
+{\footnotesize\parbox{\dimexpr\linewidth-2em\relax}{\centering 收敛半径把数轴分成三段：中间一段绝对收敛，两侧发散，两个端点是“待定项”。端点可能绝对收敛、条件收敛或发散，所以求收敛域时必须单独代入。}}
+\end{minipage}
+
+\begin{conclusion}{幂级数的运算与和函数的性质}{PowerSeriesProperties}
+    设幂级数 $\sum a_n(x-x_0)^n$ 的收敛半径为 $R>0$。在 $|x-x_0|<R$ 内，和函数 $S(x)$ 可以逐项求导、逐项积分：
+    \[
+        S'(x)=\sum_{n=1}^{\infty}na_n(x-x_0)^{n-1},
+    \]
+    \[
+        \int_{x_0}^{x}S(t)\,\mathrm dt
+        =\sum_{n=0}^{\infty}\frac{a_n}{n+1}(x-x_0)^{n+1}.
+    \]
+    两个新级数的收敛半径仍是 $R$，但端点的敛散性可能改变。
+
+    若 $\sum a_nR^n$ 收敛，则
+    \[
+        \lim_{x\to R^-}S(x)=\sum_{n=0}^{\infty}a_nR^n;
+    \]
+    左端点同理。这是阿贝尔极限定理，常用来把和函数在端点的值接上。
+
+    两个幂级数相乘时，
+    \[
+        \sum a_n(x-x_0)^n\cdot\sum b_n(x-x_0)^n
+        =\sum c_n(x-x_0)^n,
+    \]
+    其中
+    \[
+        c_n=\sum_{k=0}^{n}a_kb_{n-k}.
+    \]
+    乘积级数至少在 $|x-x_0|<\min(R_1,R_2)$ 内收敛，实际收敛半径可能更大。
+\end{conclusion}
+
+求和函数通常从几何级数出发：
+\[
+\frac1{1-x}=\sum_{n=0}^{\infty}x^n,\qquad |x|<1.
+\]
+逐项求导：
+\[
+\frac1{(1-x)^2}=\sum_{n=1}^{\infty}nx^{n-1},
+\qquad
+\frac{x}{(1-x)^2}=\sum_{n=1}^{\infty}nx^n.
+\]
+逐项积分：
+\[
+-\ln(1-x)=\sum_{n=1}^{\infty}\frac{x^n}{n},\qquad -1\le x<1.
+\]
+做积分时要补常数。一般写成
+\[
+S(x)=\int_0^x S'(t)\,\mathrm dt+S(0),
+\]
+再用 $S(0)$ 定常数。漏掉 $S(0)$ 是常见错误。
+
+\subsection{泰勒级数}
+
+幂级数的另一面是展开：给定函数，找它的幂级数。
+
+\begin{mydef}{泰勒级数与麦克劳林级数}{TaylorSeries}
+    设 $f$ 在 $x_0$ 的某邻域内有任意阶导数，称
+    \[
+        \sum_{n=0}^{\infty}\frac{f^{(n)}(x_0)}{n!}(x-x_0)^n
+    \]
+    为 $f$ 在 $x_0$ 处的泰勒级数。$x_0=0$ 时称为麦克劳林级数。
+\end{mydef}
+
+注意，这只是形式级数，不一定收敛；即使收敛，也不一定收敛到 $f$。成立的条件是余项趋于零：
+\[
+f(x)=\sum_{n=0}^{\infty}\frac{f^{(n)}(x_0)}{n!}(x-x_0)^n
+\iff
+R_n(x)=f(x)-T_n(x)\longrightarrow0.
+\]
+若 $f$ 有 $n+1$ 阶连续导数，拉格朗日余项可写成
+\[
+R_n(x)=\frac{f^{(n+1)}(\xi)}{(n+1)!}(x-x_0)^{n+1},
+\]
+其中 $\xi$ 在 $x_0$ 与 $x$ 之间。
+
+展开式还是唯一的：若在某个区间内
+\[
+f(x)=\sum_{n=0}^{\infty}a_n(x-x_0)^n,
+\]
+则必有
+\[
+a_n=\frac{f^{(n)}(x_0)}{n!}.
+\]
+所以不管用什么方法得到展开式，只要它在某个区间内成立，它就是泰勒展开。
+
+有任意阶导数还不够。例如
+\[
+f(x)=
+\begin{cases}
+e^{-1/x^2},&x\ne0,\\
+0,&x=0,
+\end{cases}
+\]
+在 $0$ 处各阶导数都是 $0$，泰勒级数是零级数，但 $x\ne0$ 时 $f(x)>0$。所以必须验证余项。
+
+\begin{formula}{常见麦克劳林展开式}{CommonMaclaurin}
+    \begin{enumerate}
+        \item
+        \[
+            e^x=\sum_{n=0}^{\infty}\frac{x^n}{n!},
+            \qquad -\infty<x<+\infty.
+        \]
+        \item
+        \[
+            \sin x=\sum_{n=0}^{\infty}\frac{(-1)^nx^{2n+1}}{(2n+1)!},
+            \qquad -\infty<x<+\infty.
+        \]
+        \item
+        \[
+            \cos x=\sum_{n=0}^{\infty}\frac{(-1)^nx^{2n}}{(2n)!},
+            \qquad -\infty<x<+\infty.
+        \]
+        \item
+        \[
+            \ln(1+x)=\sum_{n=1}^{\infty}\frac{(-1)^{n+1}x^n}{n},
+            \qquad -1<x\le1.
+        \]
+        \item
+        \[
+            (1+x)^\alpha
+            =1+\sum_{n=1}^{\infty}
+            \frac{\alpha(\alpha-1)\cdots(\alpha-n+1)}{n!}x^n,
+            \qquad |x|<1.
+        \]
+        \item
+        \[
+            \frac1{1-x}=\sum_{n=0}^{\infty}x^n,
+            \qquad |x|<1.
+        \]
+        \item
+        \[
+            \arctan x=\sum_{n=0}^{\infty}\frac{(-1)^nx^{2n+1}}{2n+1},
+            \qquad |x|\le1.
+        \]
+    \end{enumerate}
+    $(1+x)^\alpha$ 在 $x=\pm1$ 处的收敛性与 $\alpha$ 有关，通常先记开区间，需要时再单独判断端点。
+\end{formula}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.9\linewidth, height=6.4cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-3.5, xmax=3.5, ymin=-4, ymax=4,
+  xtick={-3.1416,-1.5708,0,1.5708,3.1416},
+  xticklabels={$-\pi$,$-\frac{\pi}{2}$,$0$,$\frac{\pi}{2}$,$\pi$},
+  legend style={at={(0.5,1.03)},anchor=south,legend columns=5,font=\scriptsize},
+  font=\footnotesize,
+  domain=-3.4:3.4, samples=220,
+]
+\addplot[black,very thick] {sin(deg(x))};
+\addlegendentry{$\sin x$}
+\addplot[blue,thick] {x};
+\addlegendentry{$T_1=x$}
+\addplot[red,thick] {x-x^3/6};
+\addlegendentry{$T_3$}
+\addplot[orange!80!black,thick] {x-x^3/6+x^5/120};
+\addlegendentry{$T_5$}
+\addplot[green!50!black,thick] {x-x^3/6+x^5/120-x^7/5040};
+\addlegendentry{$T_7$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 在展开点 $0$ 附近，次数越高，多项式越贴合 $\sin x$；离开 $0$ 越远，同样次数的误差越大。$T_1$ 在 $x=\pi$ 处已经偏到 $3.14$，而 $\sin\pi=0$。泰勒多项式的价值是局部逼近，不是全局替代。}}
+
+间接展开靠已知展开式做替换、求导、积分、拆项。例如
+\[
+\frac1{1+x^2}=\sum_{n=0}^{\infty}(-1)^nx^{2n},\qquad |x|<1.
+\]
+从 $0$ 到 $x$ 积分：
+\[
+\arctan x=\int_0^x\frac{\mathrm dt}{1+t^2}
+=\sum_{n=0}^{\infty}\frac{(-1)^nx^{2n+1}}{2n+1},\qquad |x|\le1.
+\]
+端点 $x=\pm1$ 的收敛性由莱布尼茨判别法单独确认；积分后的等式在端点仍成立，依据是阿贝尔极限定理。
+
+\subsection{傅里叶级数}
+
+泰勒级数用 $1,x,x^2,\ldots$ 作基，适合局部逼近；傅里叶级数用
+\[
+1,\ \cos\frac{\pi x}{l},\ \sin\frac{\pi x}{l},\
+\cos\frac{2\pi x}{l},\ \sin\frac{2\pi x}{l},\ldots
+\]
+作基，适合周期函数和整体逼近。
+
+先看这些函数在 $[-l,l]$ 上的积分。直接算得，对 $n,m\ge1$，
+\[
+\int_{-l}^{l}\cos\frac{n\pi x}{l}\,\mathrm dx
+=\int_{-l}^{l}\sin\frac{n\pi x}{l}\,\mathrm dx=0,
+\]
+\[
+\int_{-l}^{l}\cos\frac{n\pi x}{l}\cos\frac{m\pi x}{l}\,\mathrm dx
+=
+\begin{cases}
+0,&m\ne n,\\
+l,&m=n,
+\end{cases}
+\]
+\[
+\int_{-l}^{l}\sin\frac{n\pi x}{l}\sin\frac{m\pi x}{l}\,\mathrm dx
+=
+\begin{cases}
+0,&m\ne n,\\
+l,&m=n.
+\end{cases}
+\]
+正弦与余弦的乘积积分也为零。这套性质叫正交性。它和向量正交一样，使我们可以通过积分把某个频率的成分“投影”出来。
+
+设
+\[
+f(x)=\frac{a_0}{2}+\sum_{n=1}^{\infty}
+\left(a_n\cos\frac{n\pi x}{l}+b_n\sin\frac{n\pi x}{l}\right).
+\]
+两边在 $[-l,l]$ 上积分，三角函数的积分全为零，只剩常数项：
+\[
+a_0=\frac1l\int_{-l}^{l}f(x)\,\mathrm dx.
+\]
+两边乘 $\cos\frac{m\pi x}{l}$ 再积分，只有 $n=m$ 的余弦项留下：
+\[
+a_m=\frac1l\int_{-l}^{l}f(x)\cos\frac{m\pi x}{l}\,\mathrm dx,
+\qquad m\ge1.
+\]
+两边乘 $\sin\frac{m\pi x}{l}$ 再积分，同理得到
+\[
+b_m=\frac1l\int_{-l}^{l}f(x)\sin\frac{m\pi x}{l}\,\mathrm dx,
+\qquad m\ge1.
+\]
+常数项写成 $a_0/2$，是为了让 $a_0$ 的公式与 $a_m$ 统一；$a_0/2$ 正好是 $f$ 在区间上的平均值。
+
+\begin{mydef}{傅里叶系数与傅里叶级数}{FourierSeries}
+    设 $f$ 在 $[-l,l]$ 上可积，称上面算出的 $a_n,b_n$ 为 $f$ 的傅里叶系数，称
+    \[
+        f(x)\sim\frac{a_0}{2}+\sum_{n=1}^{\infty}
+        \left(a_n\cos\frac{n\pi x}{l}+b_n\sin\frac{n\pi x}{l}\right)
+    \]
+    为 $f$ 的傅里叶级数。这里用 $\sim$ 而不是等号，因为尚未证明级数收敛到 $f$。
+\end{mydef}
+
+\begin{conclusion}{狄利克雷收敛定理}{DirichletTheorem}
+    若 $f$ 在 $[-l,l]$ 上满足：
+    \begin{enumerate}
+        \item 连续，或只有有限个第一类间断点；
+        \item 只有有限个极值点，
+    \end{enumerate}
+    则 $f$ 的傅里叶级数收敛。在 $(-l,l)$ 内，
+    \[
+        \frac{a_0}{2}+\sum_{n=1}^{\infty}
+        \left(a_n\cos\frac{n\pi x}{l}+b_n\sin\frac{n\pi x}{l}\right)
+        =
+        \begin{cases}
+        f(x),&x\text{ 为连续点},\\[4pt]
+        \dfrac{f(x+0)+f(x-0)}{2},&x\text{ 为第一类间断点},
+        \end{cases}
+    \]
+    而在端点处，$\sin n\pi=0$，$\cos n\pi=(-1)^n$，所以
+    \[
+        \frac{a_0}{2}+\sum_{n=1}^{\infty}(-1)^n a_n
+        =\frac{f(-l+0)+f(l-0)}{2}.
+    \]
+\end{conclusion}
+
+看一个具体例子。取 $l=\pi$，
+\[
+f(x)=
+\begin{cases}
+-1,&-\pi<x<0,\\
+0,&x=0,\\
+1,&0<x<\pi.
+\end{cases}
+\]
+它是奇函数，所以 $a_n=0$。正弦系数
+\[
+b_n=\frac1\pi\int_{-\pi}^{\pi}f(x)\sin nx\,\mathrm dx
+=\frac2\pi\int_0^{\pi}\sin nx\,\mathrm dx
+=\frac{2(1-(-1)^n)}{n\pi}.
+\]
+偶数 $n$ 时 $b_n=0$；奇数 $n=2k-1$ 时 $b_n=4/((2k-1)\pi)$。于是
+\[
+f(x)\sim\frac4\pi\sum_{k=1}^{\infty}\frac{\sin(2k-1)x}{2k-1}.
+\]
+在 $x=0$ 处，右边为 $0$，正好是左右极限 $-1$ 与 $1$ 的平均；在 $x=\pm\pi$ 处同理。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.9\linewidth, height=6.2cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-3.4, xmax=3.4, ymin=-1.6, ymax=1.6,
+  xtick={-3.1416,-1.5708,0,1.5708,3.1416},
+  xticklabels={$-\pi$,$-\frac{\pi}{2}$,$0$,$\frac{\pi}{2}$,$\pi$},
+  legend style={at={(0.5,1.03)},anchor=south,legend columns=3,font=\scriptsize},
+  font=\footnotesize,
+  domain=-3.35:3.35, samples=300,
+]
+\addplot[black,dashed,thick] coordinates {(-3.1416,-1) (0,-1)};
+\addlegendentry{$f(x)$}
+\addplot[black,dashed,thick,forget plot] coordinates {(0,1) (3.1416,1)};
+\draw[dashed,gray] (axis cs:0,-1) -- (axis cs:0,1);
+\addplot[blue,thick] {4/pi*sin(deg(x))};
+\addlegendentry{$S_1$}
+\addplot[red,thick] {4/pi*(sin(deg(x))+sin(deg(3*x))/3)};
+\addlegendentry{$S_3$}
+\addplot[green!50!black,thick] {4/pi*(sin(deg(x))+sin(deg(3*x))/3+sin(deg(5*x))/5)};
+\addlegendentry{$S_5$}
+\addplot[orange!80!black,thick] {4/pi*(sin(deg(x))+sin(deg(3*x))/3+sin(deg(5*x))/5+sin(deg(7*x))/7+sin(deg(9*x))/9)};
+\addlegendentry{$S_9$}
+\addplot[only marks,mark=*,black,mark size=1.5pt] coordinates {(0,0)};
+\node[font=\scriptsize,anchor=west] at (axis cs:0.15,0.22) {间断点取中点};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 方波的傅里叶部分和 $S_1,S_3,S_5,S_9$。项数增加时，平顶部分越来越贴近 $\pm1$，但在跳跃点附近总有多余的振荡（吉布斯现象），跳跃点本身收敛到左右极限的平均值 $0$。}}
+
+如果函数只定义在 $[0,l]$ 上，可以先补全 $[-l,0]$ 上的值，再以 $2l$ 为周期延拓。补法有两种。
+
+奇延拓：令 $F(-x)=-f(x)$。此时 $F$ 是奇函数，傅里叶级数只剩正弦项：
+\[
+F(x)\sim\sum_{n=1}^{\infty}b_n\sin\frac{n\pi x}{l},
+\qquad
+b_n=\frac2l\int_0^l f(x)\sin\frac{n\pi x}{l}\,\mathrm dx.
+\]
+偶延拓：令 $F(-x)=f(x)$。此时 $F$ 是偶函数，傅里叶级数只剩余弦项：
+\[
+F(x)\sim\frac{a_0}{2}+\sum_{n=1}^{\infty}a_n\cos\frac{n\pi x}{l},
+\qquad
+a_n=\frac2l\int_0^l f(x)\cos\frac{n\pi x}{l}\,\mathrm dx.
+\]
+奇延拓在 $0$ 处函数值为 $0$，偶延拓在 $0$ 处导数为 $0$（如果可导）。选哪一种，取决于边界条件：杆端固定常用正弦级数，杆端绝热常用余弦级数。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.86\linewidth, height=5.6cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=-3.4, xmax=3.4, ymin=-0.2, ymax=3.4,
+  xtick={-3.1416,-1.5708,0,1.5708,3.1416},
+  xticklabels={$-\pi$,$-\frac{\pi}{2}$,$0$,$\frac{\pi}{2}$,$\pi$},
+  legend pos=north west, legend style={font=\scriptsize},
+  font=\footnotesize,
+]
+\addplot[red,thick,domain=-3.1416:3.1416,samples=2] {x};
+\addlegendentry{奇延拓：$F(x)=x$}
+\addplot[green!50!black,thick,domain=-3.1416:3.1416,samples=200] {abs(x)};
+\addlegendentry{偶延拓：$F(x)=|x|$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\centerline{\parbox{\dimexpr\linewidth-2em\relax}{\centering\footnotesize 同一个 $[0,\pi]$ 上的函数 $f(x)=x$，奇延拓得到过原点的直线，对应正弦级数；偶延拓得到 $|x|$，对应余弦级数。两种延拓在 $0$ 处的行为不同，展开式也就完全不同。}}
+
+傅里叶级数把周期信号拆成不同频率的正弦波，系数的大小就是各频率成分的强弱，这就是频谱。工程上的快速傅里叶变换（FFT）只是把这件事算得更快。
+
+\subsection{判敛与求和的思路}
+
+拿到一个级数，可以按下面的顺序想。
+
 \begin{enumerate}
-\item[(1)] 求 $a_{n}+a_{n+2}$；
-\item[(2)] 求级数 $\displaystyle\sum_{n=1}^{\infty}\frac{1}{n}(a_{n}+a_{n+2})$ 的和。
+    \item 先看通项是否趋于零。不趋于零，直接发散。
+    \item 正项级数先估阶，与 $p$ 级数比较；含阶乘用比值判别法，含 $n$ 次幂用根值判别法；含 $\ln n$ 且积分好算时用积分判别法。
+    \item 交错级数先看绝对值级数。绝对收敛就结束；否则用莱布尼茨判别法，并可用 $|R_n|\le u_{n+1}$ 估计误差。
+    \item 幂级数先求收敛半径，再代端点；求和时认已知展开式，通过求导、积分、换元、拆项化过去；积分后别忘了 $S(0)$。
+    \item 傅里叶级数先看奇偶性减少计算；算系数；用狄利克雷定理处理间断点；要算某个数项级数，就选一个使函数值已知的点代入。
 \end{enumerate}
 
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 
-\[
-a_{n}+a_{n+2}=\int_{0}^{\pi/4}\tan^{n}x\,(1+\tan^{2}x)\,\mathrm{d}x
-=\int_{0}^{\pi/4}\tan^{n}x\cdot\sec^{2}x\,\mathrm{d}x.
-\]
-令 $u=\tan x$，则 $\mathrm{d}u=\sec^{2}x\,\mathrm{d}x$，积分上下限 $0\to 1$：
-\[
-a_{n}+a_{n+2}=\int_{0}^{1}u^{n}\,\mathrm{d}u=\frac{1}{n+1}.
-\]
+最后提醒一句：判敛定理的条件要逐条核对。比较判别法要求正项，莱布尼茨判别法要求单调不增，积分判别法要求单调不增；逐项求导只在收敛区间内部无条件成立。
 
-(2) 由(1)，
-\[
-\sum_{n=1}^{\infty}\frac{1}{n}(a_{n}+a_{n+2})
-=\sum_{n=1}^{\infty}\frac{1}{n}\cdot\frac{1}{n+1}
-=\sum_{n=1}^{\infty}\Bigl(\frac{1}{n}-\frac{1}{n+1}\Bigr).
-\]
-部分和 $S_{N}=1-\frac{1}{N+1}\to 1\;(N\to\infty)$，故和为 $1$。
-
-\else \answerarea \fi%
-\textbf{12.}（\boxed{\textbf{真题风格}}）将 $f(x)=|x|$ 在 $[-\pi,\pi]$ 上展开为傅里叶级数，并利用展开式求级数 $\displaystyle\sum_{n=0}^{\infty}\frac{1}{(2n+1)^{2}}$ 的和。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-$f(x)=|x|$ 为偶函数，故 $b_{n}=0$。
-\[
-a_{0}=\frac{2}{\pi}\int_{0}^{\pi}x\,\mathrm{d}x=\pi.
-\]
-\[
-a_{n}=\frac{2}{\pi}\int_{0}^{\pi}x\cos nx\,\mathrm{d}x
-=\frac{2}{\pi}\left[\frac{x\sin nx}{n}+\frac{\cos nx}{n^{2}}\right]_{0}^{\pi}
-=\frac{2}{\pi}\cdot\frac{(-1)^{n}-1}{n^{2}}.
-\]
-当 $n$ 为偶数时 $a_{n}=0$；当 $n$ 为奇数 $n=2k+1$ 时 $a_{n}=-\frac{4}{\pi(2k+1)^{2}}$。
-
-$f(x)$ 在 $[-\pi,\pi]$ 上连续且 $f(-\pi)=f(\pi)$，故
-\[
-|x|=\frac{\pi}{2}-\frac{4}{\pi}\sum_{k=0}^{\infty}\frac{\cos(2k+1)x}{(2k+1)^{2}},\quad |x|\leq\pi.
-\]
-取 $x=0$（连续点）：$0=\frac{\pi}{2}-\frac{4}{\pi}\sum_{k=0}^{\infty}\frac{1}{(2k+1)^{2}}$，解得
-\[
-\sum_{n=0}^{\infty}\frac{1}{(2n+1)^{2}}=\frac{\pi^{2}}{8}.
-\]
-
-\else \answerarea \fi%
+\input{calculus/exercises/chap6.tex}

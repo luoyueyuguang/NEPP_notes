@@ -1,0 +1,327 @@
+\section{习题}
+\subsection{本章速览}
+\begin{itemize}
+  \item \textbf{原函数与可积性}：区间上连续的函数必有原函数，变上限积分 $\Phi(x)=\int_a^x f(t)\,\mathrm dt$ 就是一个原函数；若 $f$ 有第一类间断点，则 $f$ 在含该点的区间上无原函数。可积只要求“有界 + 间断点不太多”，与是否存在原函数是两件事。
+  \item \textbf{牛顿—莱布尼茨公式}：$f$ 在 $[a,b]$ 上连续（或可积且有原函数 $F$）时，$\int_a^b f(x)\,\mathrm dx=F(b)-F(a)$。定积分换元要“三换”：换被积函数、换微分、换上下限，且换元函数必须单调、有连续导数。
+  \item \textbf{定积分的性质}：线性、区间可加、保序、估值 $m(b-a)\le\int_a^b f\le M(b-a)$、积分中值定理；在对称区间上奇函数积分为 $0$，偶函数积分为半区间上的两倍；周期函数在任一周期长度区间上积分相等。
+  \item \textbf{分部积分}：$\int u\,\mathrm dv=uv-\int v\,\mathrm du$。遇“幂 $\times$ 指数/三角”取幂为 $u$，遇“幂 $\times$ 对数/反三角”取对数或反三角为 $u$；出现 $\int e^{ax}\sin bx\,\mathrm dx$ 时两次分部后解方程。
+  \item \textbf{有理函数积分}：假分式先做多项式除法；真分式按分母的实因式分解写部分分式，分母含 $(x-a)^k$ 或 $(x^2+px+q)^m$ 时逐项待定系数，再积分。
+  \item \textbf{反常积分与几何应用}：无穷区间用极限 $\lim_{b\to+\infty}\int_a^b$ 定义，瑕积分在瑕点处取单侧极限；$\int_1^{+\infty}x^{-p}\,\mathrm dx$ 当 $p>1$ 收敛，$\int_0^1 x^{-p}\,\mathrm dx$ 当 $p<1$ 收敛。面积、旋转体体积、弧长都按“微元法”写出 $\mathrm dA,\mathrm dV,\mathrm ds$ 后积分。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 判断下列命题是否正确，并说明理由：
+(1) 若 $f$ 在 $[a,b]$ 上可积，则 $f$ 在 $[a,b]$ 上连续；
+(2) 若 $f$ 在 $[a,b]$ 上连续，则 $f$ 在 $[a,b]$ 上存在原函数；
+(3) 若 $f$ 在 $[a,b]$ 上可积，则 $F(x)=\int_a^x f(t)\,\mathrm dt$ 在 $[a,b]$ 上连续；
+(4) 若 $f$ 在 $[a,b]$ 上存在原函数，则 $f$ 在 $[a,b]$ 上可积。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}把“连续”“可积”“有原函数”三者的推出关系分开考察，反例优先考虑符号函数和无界导函数。
+
+(1) 错。取 $f(x)=\operatorname{sgn}x$ 在 $[-1,1]$ 上，它只有一个第一类间断点且有界，故可积，但在 $x=0$ 处不连续。
+
+(2) 对。连续函数一定有原函数，$\Phi(x)=\int_a^x f(t)\,\mathrm dt$ 满足 $\Phi'(x)=f(x)$。
+
+(3) 对。$f$ 可积则有界，设 $|f|\le M$，于是
+\[
+  |F(x)-F(y)|=\left|\int_y^x f(t)\,\mathrm dt\right|\le M|x-y|,
+\]
+故 $F$ 在 $[a,b]$ 上连续（实际上一致连续）。
+
+(4) 错。“有原函数”不蕴含“有界”。取
+\[
+  F(x)=\begin{cases}x^2\sin\dfrac{1}{x^2},&x\ne 0,\\[4pt] 0,&x=0,\end{cases}
+\]
+则 $F$ 处处可导，$f=F'$ 以 $F$ 为原函数；但
+\[
+  f(x)=2x\sin\frac{1}{x^2}-\frac{2}{x}\cos\frac{1}{x^2}\quad(x\ne 0)
+\]
+在 $0$ 附近无界，故 $f$ 在 $[-1,1]$ 上不可积。
+
+\boxed{\text{\textbf{答案：}(1) 错；(2) 对；(3) 对；(4) 错}}
+\else \answerarea[8] \fi%
+
+\textbf{2.} 求下列不定积分：
+(1) $\displaystyle\int (3x-1)^5\,\mathrm dx$；\qquad
+(2) $\displaystyle\int \frac{\mathrm dx}{x\ln x}$。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}两题都是第一类换元（凑微分），关键是看出内层函数的导数是否出现在被积表达式中。
+
+(1) 令 $u=3x-1$，则 $\mathrm du=3\,\mathrm dx$，即 $\mathrm dx=\frac13\mathrm du$。于是
+\[
+  \int (3x-1)^5\,\mathrm dx=\frac13\int u^5\,\mathrm du
+  =\frac13\cdot\frac{u^6}{6}+C=\frac{(3x-1)^6}{18}+C.
+\]
+
+(2) 被积函数要求 $x>0$ 且 $\ln x\ne 0$，即定义域为 $(0,1)\cup(1,+\infty)$。在这些区间上令 $u=\ln x$，则 $\mathrm du=\dfrac{\mathrm dx}{x}$，故
+\[
+  \int\frac{\mathrm dx}{x\ln x}=\int\frac{\mathrm du}{u}=\ln|u|+C=\ln|\ln x|+C.
+\]
+这里必须保留绝对值：当 $0<x<1$ 时 $\ln x<0$。
+
+\boxed{\text{\textbf{答案：}(1) $\dfrac{(3x-1)^6}{18}+C$；(2) $\ln|\ln x|+C$（$x>0$, $x\ne1$）}}
+\else \answerarea[8] \fi%
+
+\textbf{3.} 设 $F(x)=\displaystyle\int_{\sin x}^{\cos x}\sqrt{1+t^2}\,\mathrm dt$，求 $F'(x)$。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}上下限都是函数，先用变上限积分求导公式，再分别乘以上、下限的导数；上限项为正，下限项为负。
+
+令 $\Phi(u)=\int_0^u\sqrt{1+t^2}\,\mathrm dt$，则 $\Phi'(u)=\sqrt{1+u^2}$，且 $F(x)=\Phi(\cos x)-\Phi(\sin x)$。由链式法则，
+\[
+\begin{aligned}
+  F'(x)&=\Phi'(\cos x)\cdot(\cos x)'-\Phi'(\sin x)\cdot(\sin x)'\\
+  &=\sqrt{1+\cos^2x}\cdot(-\sin x)-\sqrt{1+\sin^2x}\cdot\cos x\\
+  &=-\sin x\sqrt{1+\cos^2x}-\cos x\sqrt{1+\sin^2x}.
+\end{aligned}
+\]
+
+\boxed{\text{\textbf{答案：}}F'(x)=-\sin x\sqrt{1+\cos^2x}-\cos x\sqrt{1+\sin^2x}}
+\else \answerarea[8] \fi%
+
+\textbf{4.} 计算 $\displaystyle\int_{-1}^{1}\left(x^5\cos x+x^2\sin^3x+|x|\right)\mathrm dx$。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}对称区间上先判断奇偶性，奇函数项直接消去，只算偶函数项。
+
+在 $[-1,1]$ 上：
+$x^5\cos x$ 是奇函数（奇 $\times$ 偶）；
+$x^2\sin^3x$ 也是奇函数（偶 $\times$ 奇）；
+$|x|$ 是偶函数。
+因此
+\[
+  \int_{-1}^{1}x^5\cos x\,\mathrm dx=0,\qquad
+  \int_{-1}^{1}x^2\sin^3x\,\mathrm dx=0,
+\]
+而
+\[
+  \int_{-1}^{1}|x|\,\mathrm dx=2\int_0^1 x\,\mathrm dx=2\cdot\frac12=1.
+\]
+所以原积分 $=1$。
+
+\boxed{\text{\textbf{答案：}}1}
+\else \answerarea[8] \fi%
+
+\textbf{5.} 计算 $\displaystyle\int_{1}^{e}x\ln x\,\mathrm dx$。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}“幂 $\times$ 对数”型，取 $u=\ln x$，$\mathrm dv=x\,\mathrm dx$。
+
+令 $u=\ln x$，$\mathrm dv=x\,\mathrm dx$，则 $\mathrm du=\dfrac{\mathrm dx}{x}$，$v=\dfrac{x^2}{2}$。由分部积分公式，
+\[
+\begin{aligned}
+  \int_1^e x\ln x\,\mathrm dx
+  &=\left.\frac{x^2}{2}\ln x\right|_1^e-\int_1^e\frac{x^2}{2}\cdot\frac{\mathrm dx}{x}\\
+  &=\frac{e^2}{2}-\frac12\int_1^e x\,\mathrm dx
+   =\frac{e^2}{2}-\frac12\cdot\frac{x^2}{2}\Big|_1^e\\
+  &=\frac{e^2}{2}-\frac{e^2-1}{4}
+   =\frac{e^2+1}{4}.
+\end{aligned}
+\]
+
+\boxed{\text{\textbf{答案：}}\dfrac{e^2+1}{4}}
+\else \answerarea[8] \fi%
+
+\subsection{综合提高题}
+
+\textbf{6.} 求 $\displaystyle\int\frac{2x^2-x+1}{x(x^2+1)}\,\mathrm dx$。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}分子次数 $2$ 小于分母次数 $3$，已是真分式；分母已分解为一次因式 $x$ 与不可约二次因式 $x^2+1$，按部分分式设参。
+
+设
+\[
+  \frac{2x^2-x+1}{x(x^2+1)}=\frac{A}{x}+\frac{Bx+C}{x^2+1}.
+\]
+去分母得
+\[
+  2x^2-x+1=A(x^2+1)+(Bx+C)x=(A+B)x^2+Cx+A.
+\]
+比较系数：
+\[
+  A=1,\qquad C=-1,\qquad A+B=2\ \Rightarrow\ B=1.
+\]
+于是
+\[
+\begin{aligned}
+  \int\frac{2x^2-x+1}{x(x^2+1)}\,\mathrm dx
+  &=\int\frac{\mathrm dx}{x}+\int\frac{x\,\mathrm dx}{x^2+1}-\int\frac{\mathrm dx}{x^2+1}\\
+  &=\ln|x|+\frac12\ln(x^2+1)-\arctan x+C.
+\end{aligned}
+\]
+其中第二项用了 $\mathrm d(x^2+1)=2x\,\mathrm dx$。
+
+\boxed{\text{\textbf{答案：}}\ln|x|+\dfrac12\ln(x^2+1)-\arctan x+C}
+\else \answerarea[10] \fi%
+
+\textbf{7.} 计算 $\displaystyle I=\int_{0}^{\pi}\frac{x\sin x}{1+\cos^2x}\,\mathrm dx$。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}被积函数含因子 $x$，直接分部会很繁；利用区间变换 $x=\pi-t$ 把 $x$ 换成 $\pi-t$，再与原式相加消去 $x$。
+
+令 $x=\pi-t$，则 $\sin(\pi-t)=\sin t$，$\cos^2(\pi-t)=\cos^2t$，$\mathrm dx=-\mathrm dt$，上下限互换后
+\[
+  I=\int_0^\pi\frac{(\pi-t)\sin t}{1+\cos^2t}\,\mathrm dt
+   =\pi\int_0^\pi\frac{\sin t}{1+\cos^2t}\,\mathrm dt-I.
+\]
+故
+\[
+  2I=\pi J,\qquad J=\int_0^\pi\frac{\sin t}{1+\cos^2t}\,\mathrm dt.
+\]
+对 $J$ 令 $u=\cos t$，则 $\mathrm du=-\sin t\,\mathrm dt$，$t=0$ 时 $u=1$，$t=\pi$ 时 $u=-1$，于是
+\[
+  J=\int_{-1}^{1}\frac{\mathrm du}{1+u^2}
+   =\arctan u\Big|_{-1}^{1}
+   =\frac{\pi}{4}-\left(-\frac{\pi}{4}\right)=\frac{\pi}{2}.
+\]
+所以
+\[
+  I=\frac{\pi}{2}\cdot\frac{\pi}{2}=\frac{\pi^2}{4}.
+\]
+
+\boxed{\text{\textbf{答案：}}\dfrac{\pi^2}{4}}
+\else \answerarea[10] \fi%
+
+\textbf{8.} 计算 $\displaystyle\int_{0}^{1}x\arctan x\,\mathrm dx$。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}反三角函数与幂函数相乘，取 $u=\arctan x$；分部后出现的 $\dfrac{x^2}{1+x^2}$ 通过拆项 $\dfrac{x^2}{1+x^2}=1-\dfrac{1}{1+x^2}$ 处理。
+
+令 $u=\arctan x$，$\mathrm dv=x\,\mathrm dx$，则 $\mathrm du=\dfrac{\mathrm dx}{1+x^2}$，$v=\dfrac{x^2}{2}$。于是
+\[
+\begin{aligned}
+  \int_0^1 x\arctan x\,\mathrm dx
+  &=\left.\frac{x^2}{2}\arctan x\right|_0^1
+    -\frac12\int_0^1\frac{x^2}{1+x^2}\,\mathrm dx\\
+  &=\frac{\pi}{8}-\frac12\int_0^1\left(1-\frac{1}{1+x^2}\right)\mathrm dx\\
+  &=\frac{\pi}{8}-\frac12\Bigl[x-\arctan x\Bigr]_0^1\\
+  &=\frac{\pi}{8}-\frac12\left(1-\frac{\pi}{4}\right)
+   =\frac{\pi}{4}-\frac12.
+\end{aligned}
+\]
+
+\boxed{\text{\textbf{答案：}}\dfrac{\pi}{4}-\dfrac12}
+\else \answerarea[10] \fi%
+
+\textbf{9.} 讨论反常积分 $\displaystyle I=\int_{0}^{1}\frac{\mathrm dx}{\sqrt{x(1-x)}}$ 的敛散性；若收敛，求其值。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}$x=0$ 与 $x=1$ 都是瑕点，先拆成两个瑕积分分别判断收敛，再作三角代换计算。
+
+被积函数在 $(0,1)$ 内连续且为正。取 $c=\frac12$，
+\[
+  I=\int_0^{1/2}\frac{\mathrm dx}{\sqrt{x(1-x)}}+\int_{1/2}^{1}\frac{\mathrm dx}{\sqrt{x(1-x)}}.
+\]
+当 $x\to0^+$ 时，
+\[
+  \frac{1}{\sqrt{x(1-x)}}\sim\frac{1}{\sqrt x},
+\]
+而 $\int_0^{1/2}x^{-1/2}\,\mathrm dx$ 收敛（$p=\frac12<1$），故第一个积分收敛。同理，当 $x\to1^-$ 时被积函数 $\sim\dfrac{1}{\sqrt{1-x}}$，第二个积分也收敛。因此 $I$ 收敛。
+
+计算时令 $x=\sin^2t$，$t\in\left[0,\frac{\pi}{2}\right]$，则
+\[
+  \mathrm dx=2\sin t\cos t\,\mathrm dt,\qquad
+  \sqrt{x(1-x)}=\sin t\cos t\ge0.
+\]
+于是
+\[
+  I=\int_0^{\pi/2}\frac{2\sin t\cos t}{\sin t\cos t}\,\mathrm dt
+   =\int_0^{\pi/2}2\,\mathrm dt=\pi.
+\]
+（端点处为极限意义下的广义换元，不影响积分值。）
+
+\boxed{\text{\textbf{答案：}收敛，$I=\pi$}}
+\else \answerarea[10] \fi%
+
+\subsection{真题风格与综合训练}
+
+\textbf{10.}（单项选择题）设 $f$ 在 $[0,1]$ 上连续，$F(x)=\displaystyle\int_0^x (x-t)f(t)\,\mathrm dt$，则 $F''(x)=$
+
+\begin{center}
+\begin{tabular}{ll}
+(A) $f(x)$； & (B) $2f(x)$；\\[4pt]
+(C) $xf(x)$； & (D) $\displaystyle\int_0^x f(t)\,\mathrm dt$。
+\end{tabular}
+\end{center}
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}$x$ 同时出现在积分上限和被积函数中，先把 $x$ 提到积分号外，再逐次求导。
+
+拆开积分：
+\[
+  F(x)=x\int_0^x f(t)\,\mathrm dt-\int_0^x t f(t)\,\mathrm dt.
+\]
+第一次求导，注意前项用乘积法则、两项中 $x f(x)$ 相消：
+\[
+  F'(x)=\int_0^x f(t)\,\mathrm dt+x f(x)-x f(x)=\int_0^x f(t)\,\mathrm dt.
+\]
+第二次求导，由变上限积分求导公式得
+\[
+  F''(x)=f(x).
+\]
+故选 (A)。选项 (D) 是 $F'(x)$，属于求导次数不足的干扰项；(B)、(C) 则是把被积函数中的 $x$ 误当作可随意提出或重复求导。
+
+\boxed{\text{\textbf{答案：}}(A)}
+\else \answerarea[8] \fi%
+
+\textbf{11.}（填空题）曲线 $y=x^2$ 与 $y=2-x^2$ 所围成的平面图形绕 $x$ 轴旋转一周所得旋转体的体积为 \underline{\qquad}。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}先求交点确定积分区间，再判断哪条曲线在外侧，用垫圈法 $V=\pi\int_a^b(y_{\text{外}}^2-y_{\text{内}}^2)\,\mathrm dx$。
+
+由 $x^2=2-x^2$ 得 $x=\pm1$，交点为 $(-1,1)$ 与 $(1,1)$。在 $[-1,1]$ 上 $2-x^2\ge x^2$，故外侧为 $y=2-x^2$，内侧为 $y=x^2$。体积
+\[
+\begin{aligned}
+  V&=\pi\int_{-1}^{1}\left[(2-x^2)^2-(x^2)^2\right]\mathrm dx\\
+   &=\pi\int_{-1}^{1}\left(4-4x^2+x^4-x^4\right)\mathrm dx\\
+   &=\pi\left[4x-\frac{4x^3}{3}\right]_{-1}^{1}
+    =\pi\left[\left(4-\frac43\right)-\left(-4+\frac43\right)\right]\\
+   &=\pi\cdot\frac{16}{3}=\frac{16\pi}{3}.
+\end{aligned}
+\]
+
+\boxed{\text{\textbf{答案：}}\dfrac{16\pi}{3}}
+\else \answerarea[8] \fi%
+
+\textbf{12.}（解答题）过原点作曲线 $y=\ln x$ 的切线，求该切线与曲线 $y=\ln x$ 及 $x$ 轴所围成的平面图形的面积。
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：}先设切点并写出切线方程，用“过原点”定出切点；再画图确认边界：上方是切线，下方由曲线与 $x$ 轴围成，用“切线下的面积减去曲线下的面积”计算。
+
+设切点为 $(a,\ln a)$（$a>0$）。由 $y'=\dfrac1x$，切线斜率为 $\dfrac1a$，切线方程为
+\[
+  y-\ln a=\frac1a(x-a),\qquad\text{即}\qquad y=\frac{x}{a}-1+\ln a.
+\]
+切线过原点 $(0,0)$，代入得 $0=-1+\ln a$，故 $\ln a=1$，$a=e$。切点为 $(e,1)$，切线为
+\[
+  y=\frac{x}{e}.
+\]
+
+曲线 $y=\ln x$ 与 $x$ 轴交于 $(1,0)$。所围图形可看作：在 $0\le x\le e$ 上切线 $y=\dfrac{x}{e}$ 与 $x$ 轴之间的三角形，减去在 $1\le x\le e$ 上曲线 $y=\ln x$ 与 $x$ 轴之间的曲边三角形。因此面积
+\[
+\begin{aligned}
+  A&=\int_0^e\frac{x}{e}\,\mathrm dx-\int_1^e\ln x\,\mathrm dx\\
+   &=\frac{1}{e}\cdot\frac{e^2}{2}-\Bigl[x\ln x-x\Bigr]_1^e\\
+   &=\frac e2-\bigl[(e-e)-(0-1)\bigr]
+    =\frac e2-1.
+\end{aligned}
+\]
+（也可直接写成 $A=\int_1^e\left(\dfrac{x}{e}-\ln x\right)\mathrm dx+\int_0^1\dfrac{x}{e}\,\mathrm dx$，结果相同。）因 $\frac e2-1>0$，面积合理。
+
+\boxed{\text{\textbf{答案：}}\dfrac e2-1}
+\else \answerarea[10] \fi%

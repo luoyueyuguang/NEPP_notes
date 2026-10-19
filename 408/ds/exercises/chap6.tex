@@ -1,0 +1,252 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 对含 $12$ 个互异关键字的有序表进行折半查找，取
+$\texttt{mid}=\lfloor(\texttt{low}+\texttt{high})/2\rfloor$。判定树中根所在层为第 $1$ 层；查找失败时，失败结点的查找长度按其父结点所在层计算，不再额外计算空指针判断。则查找成功与查找不成功的平均查找长度分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) $\dfrac{37}{12}$，$\dfrac{49}{13}$ & (B) $\dfrac{37}{12}$，$\dfrac{51}{13}$ \\[8pt]
+(C) $3$，$4$ & (D) $\dfrac{39}{12}$，$\dfrac{49}{13}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 按向下取整构造判定树。根为第 $6$ 个元素；第 $2$ 层为第 $3,9$ 个元素；第 $3$ 层为第 $1,4,7,11$ 个元素；第 $4$ 层为第 $2,5,8,10,12$ 个元素。于是
+\[
+\mathrm{ASL}_{\text{成功}}=\frac{1\times1+2\times2+4\times3+5\times4}{12}
+=\frac{37}{12}.
+\]
+判定树有 $n+1=13$ 个失败结点。其中 $3$ 个失败结点的父结点在第 $3$ 层（结点 $1,4,7$ 各自的空左指针），$10$ 个失败结点的父结点在第 $4$ 层（第 $4$ 层的 $5$ 个结点各有 $2$ 个空指针），故
+\[
+\mathrm{ASL}_{\text{不成功}}=\frac{3\times3+10\times4}{13}=\frac{49}{13}.
+\]
+\par\noindent\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\vspace{6pt}
+
+\item \textbf{（单项选择题）} 长度为 $100$ 的顺序表存放在下标 $1\sim100$ 中，下标 $0$ 处存放待查关键字作为哨兵。查找每个元素的概率相等，且比较次数包含与哨兵的比较。则查找成功时的平均查找长度和查找失败时的比较次数分别为
+\begin{center}
+\begin{tabular}{ll}
+(A) $50$，$101$ & (B) $50.5$，$101$ \\[6pt]
+(C) $50.5$，$100$ & (D) $50$，$100$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 查找第 $i$ 个元素需比较 $i$ 次，故
+\[
+\mathrm{ASL}_{\text{成功}}=\frac{1}{100}\sum_{i=1}^{100}i=\frac{5050}{100}=50.5.
+\]
+查找失败时，从下标 $100$ 一路比较到下标 $0$ 的哨兵才停止，共比较 $100+1=101$ 次。哨兵只省去了每轮的越界判断，并不减少关键字比较次数。
+\par\noindent\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\vspace{6pt}
+
+\item \textbf{（填空题）} 从空树开始，依次插入关键字
+\[
+50,\ 30,\ 70,\ 20,\ 40,\ 60,\ 80,\ 35,\ 45,\ 65
+\]
+构造一棵二叉排序树。等概率下查找成功的平均查找长度为 \underline{\hspace{2.6cm}}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 按插入次序得到的树为
+\[
+50\bigl(30(20,\ 40(35,45)),\ 70(60(\varnothing,65),\ 80)\bigr),
+\]
+其中 $x(L,R)$ 表示结点 $x$ 的左右子树。各结点的层次为：$50$ 在第 $1$ 层；$30,70$ 在第 $2$ 层；$20,40,60,80$ 在第 $3$ 层；$35,45,65$ 在第 $4$ 层。关键字个数 $n=10$，故
+\[
+\mathrm{ASL}_{\text{成功}}
+=\frac{1+2\times2+3\times4+4\times3}{10}
+=\frac{29}{10}=2.9.
+\]
+\par\noindent\boxed{\textbf{答案：}\mathrm{ASL}_{\text{成功}}=\dfrac{29}{10}=2.9}\else \answerarea \fi
+
+\vspace{6pt}
+
+\item \textbf{（单项选择题）} 从空 AVL 树开始，依次插入 $50,20,10,30,40$。插入 $40$ 后，最小不平衡子树的根结点以及应做的旋转是
+\begin{center}
+\begin{tabular}{ll}
+(A) $50$，LR 型 & (B) $20$，LR 型 \\[6pt]
+(C) $50$，RL 型 & (D) $20$，RL 型
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 插入 $50,20,10$ 后，结点 $50$ 的平衡因子变为 $+2$，属于 LL 型，对 $50$ 右旋，得到以 $20$ 为根、$10$ 和 $50$ 为左右孩子的树。再插入 $30$，它成为 $50$ 的左孩子，此时树为
+\[
+20\bigl(10,\ 50(30,\varnothing)\bigr).
+\]
+插入 $40$ 后，$40$ 位于 $30$ 的右子树。$50$ 的左子树高度为 $2$、右子树为空，平衡因子为 $+2$，是最低（最小）的不平衡结点；而从 $50$ 出发的插入路径为“左、右”，故为 LR 型。先对 $30$ 左旋，再对 $50$ 右旋，最终整棵树为
+\[
+20\bigl(10,\ 40(30,50)\bigr).
+\]
+结点 $20$ 虽然也暂时失衡，但它是 $50$ 的祖先，不是最小不平衡子树的根；$50$ 调整后它会自动恢复平衡。
+\par\noindent\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\vspace{6pt}
+
+\item \textbf{（单项选择题）} 从空树开始，向一棵 $3$ 阶 B-树依次插入关键字 $1,2,3,4,5,6,7$。分裂时取 $\lceil m/2\rceil$ 处的关键字上移。最终根结点中的关键字及树的高度（只计存放关键字的结点层数）为
+\begin{center}
+\begin{tabular}{ll}
+(A) 根为 $[4]$，高度为 $3$ & (B) 根为 $[2,4]$，高度为 $3$ \\[6pt]
+(C) 根为 $[2,4,6]$，高度为 $3$ & (D) 根为 $[4]$，高度为 $2$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} $3$ 阶 B-树每个结点最多 $2$ 个关键字。
+\begin{itemize}
+    \item 插入 $1,2$ 后根为 $[1,2]$；插入 $3$ 时根溢出，$[1,2,3]$ 从第 $2$ 个关键字处分裂，$2$ 上移为新根，左右孩子为 $[1]$、$[3]$。
+    \item 插入 $4$ 得 $[3,4]$；插入 $5$ 时该结点变为 $[3,4,5]$，分裂后 $4$ 上移，根变为 $[2,4]$，孩子为 $[1],[3],[5]$。
+    \item 插入 $6$ 得 $[5,6]$；插入 $7$ 时该结点变为 $[5,6,7]$，分裂后 $6$ 上移，根暂时变为 $[2,4,6]$。此时根有 $3$ 个关键字，超过上限 $m-1=2$，必须继续分裂。
+    \item 根 $[2,4,6]$ 从中间关键字 $4$ 处分裂，$4$ 成为新根，左孩子 $[2]$、右孩子 $[6]$；原来的孩子 $[1],[3]$ 归 $[2]$，$[5],[7]$ 归 $[6]$。
+\end{itemize}
+最终根为 $[4]$，树高为 $3$。若忘记根也会溢出，就会误选 $[2,4,6]$。
+\par\noindent\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\vspace{6pt}
+
+\ifshowsolutions\newpage\fi
+\item \textbf{（单项选择题）} 散列表长 $m=13$，散列函数 $H(k)=k\bmod 13$，采用线性探测法处理冲突（探测序列为 $d_i=0,1,2,\ldots$）。依次插入关键字 $25,41,18,32,56,70,83$，等概率下查找成功的平均查找长度为
+\begin{center}
+\begin{tabular}{ll}
+(A) $\dfrac{12}{7}$ & (B) $\dfrac{13}{7}$ \\[8pt]
+(C) $\dfrac{15}{7}$ & (D) $2$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 逐个插入：
+\[
+\begin{aligned}
+H(25)&=12,\ H(41)=2,\ H(18)=5,\ H(32)=6,\ H(56)=4,\\
+H(70)&=5\ \text{冲突}\to6\to7,\\
+H(83)&=5\ \text{冲突}\to6\to7\to8.
+\end{aligned}
+\]
+最终地址 $2,4,5,6,7,8,12$ 分别存放 $41,56,18,32,70,83,25$。各关键字的比较次数为
+\[
+25:1,\ 41:1,\ 18:1,\ 32:1,\ 56:1,\ 70:3,\ 83:4,
+\]
+故
+\[
+\mathrm{ASL}_{\text{成功}}=\frac{1+1+1+1+1+3+4}{7}=\frac{12}{7}\approx1.71.
+\]
+\par\noindent\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格·选择题）} 下列关于 B+树的叙述中，正确的是
+\begin{center}
+\begin{tabular}{l}
+(A) B+树的非叶结点既存放索引关键字，也存放指向记录的指针 \\[4pt]
+(B) B+树的所有关键字都出现在叶结点中，叶结点按键值大小链接成有序链表 \\[4pt]
+(C) B+树查找时，只要在非叶结点匹配到关键字就可以结束，不必到达叶结点 \\[4pt]
+(D) B+树的每个非叶结点至少含 $m$ 个关键字（$m$ 为树的阶）
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} B+树的非叶结点只起索引作用，存放关键字和指向子树的指针，不存放指向记录的指针，(A) 错。全部关键字及记录指针都在叶结点中，且叶结点按关键字顺序链接，支持范围查询，(B) 对。非叶结点中的关键字只是分界索引，可能对应已被删除的记录，因此即使匹配也必须继续查到叶结点，(C) 错。$m$ 阶 B+树的非叶结点至多有 $m$ 个关键字，至少含 $\lceil m/2\rceil$ 个（根至少 $2$ 个），不可能都至少 $m$ 个，(D) 错。
+\par\noindent\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\vspace{6pt}
+
+\item \textbf{（真题风格·选择题）} 规定空树高度为 $0$，只有根结点的树高度为 $1$。一棵高度为 $5$ 的 AVL 树最少含有多少个结点？
+\begin{center}
+\begin{tabular}{ll}
+(A) $12$ & (B) $15$ \\[6pt]
+(C) $20$ & (D) $31$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 设 $N(h)$ 为高度 $h$ 的 AVL 树的最少结点数。根结点本身占 $1$ 个；为了使结点数最少，根的左右子树高度应分别为 $h-1$ 和 $h-2$（两者相差不超过 $1$），且都取对应高度的最少结点形态，因此
+\[
+N(h)=N(h-1)+N(h-2)+1,\qquad N(0)=0,\ N(1)=1.
+\]
+依次算得
+\[
+N(2)=2,\quad N(3)=4,\quad N(4)=7,\quad N(5)=12.
+\]
+高度为 $5$ 的满二叉树有 $31$ 个结点，但它不是结点数最少的 AVL 树；$20$ 是把递推项记错时容易得到的干扰值。
+\par\noindent\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\vspace{6pt}
+
+\item \textbf{（真题风格·综合题）} 散列表长 $m=11$，散列函数 $H(k)=k\bmod 11$，采用链地址法处理冲突，新结点插入到对应单链表的表头。依次插入关键字
+\[
+19,\ 14,\ 23,\ 1,\ 68,\ 20,\ 84,\ 27,\ 55,\ 11.
+\]
+\begin{enumerate}
+    \item[(1)] 画出最终的散列表（写出每条链上的次序）；
+    \item[(2)] 求等概率下查找成功的平均查找长度 $\mathrm{ASL}_{\text{成功}}$；
+    \item[(3)] 求查找不成功的平均查找长度 $\mathrm{ASL}_{\text{不成功}}$ 及装填因子 $\alpha$。不成功查找只统计与表中关键字的比较次数，空链计 $0$ 次。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 各关键字的散列地址为
+\[
+19\to8,\ 14\to3,\ 23\to1,\ 1\to1,\ 68\to2,\ 20\to9,\ 84\to7,\ 27\to5,\ 55\to0,\ 11\to0.
+\]
+按表头插入，地址 $1$ 的链依次插入 $23,1$ 后为 $1\to23$；地址 $0$ 的链依次插入 $55,11$ 后为 $11\to55$。最终散列表为
+\begin{center}
+\begin{tabular}{c|ccccccccccc}
+\hline
+地址 & $0$ & $1$ & $2$ & $3$ & $4$ & $5$ & $6$ & $7$ & $8$ & $9$ & $10$\\
+\hline
+链 & $11\to55$ & $1\to23$ & $68$ & $14$ & 空 & $27$ & 空 & $84$ & $19$ & $20$ & 空\\
+\hline
+\end{tabular}
+\end{center}
+（1）如上表。
+
+（2）两条长度为 $2$ 的链，查找链上第 $1,2$ 个结点分别比较 $1,2$ 次，合计 $3+3=6$ 次；其余 $6$ 条非空链各长 $1$，合计 $6$ 次。因此
+\[
+\mathrm{ASL}_{\text{成功}}=\frac{6+6}{10}=\frac{12}{10}=1.2.
+\]
+
+（3）不成功查找时，对每个散列地址都要把对应链上的关键字全部比较一遍才能确认不存在，故比较次数之和等于全部链长之和 $10$。散列函数可产生 $0\sim10$ 共 $11$ 个初始地址，于是
+\[
+\mathrm{ASL}_{\text{不成功}}=\frac{10}{11}\approx0.91,\qquad
+\alpha=\frac{n}{m}=\frac{10}{11}.
+\]
+\par\noindent\boxed{\textbf{答案：}\mathrm{ASL}_{\text{成功}}=1.2,\ \mathrm{ASL}_{\text{不成功}}=\dfrac{10}{11}\approx0.91,\ \alpha=\dfrac{10}{11}}\else \answerarea[8] \fi
+
+\vspace{6pt}
+
+\ifshowsolutions\newpage\fi
+\item \textbf{（真题风格·综合题）} 设二叉树采用二叉链表存储，每个结点的关键字为整数且互不相同。设计算法判断该二叉树是否为二叉排序树。要求：
+\begin{enumerate}
+    \item[(1)] 说明算法的基本设计思想；
+    \item[(2)] 用 C 语言实现算法；
+    \item[(3)] 分析时间复杂度和空间复杂度；
+    \item[(4)] 说明“只检查每个结点与它的左右孩子的大小关系”为什么不够，并给出一个反例。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} （1）二叉排序树的充要条件是其中序遍历序列严格递增。因此中序遍历二叉树，用指针 \texttt{pre} 记住刚访问过的前驱结点；每访问一个结点，若 \texttt{pre} 非空且 \texttt{pre->key} 不小于当前关键字，则说明中序序列出现逆序，立即返回“不是 BST”。遍历结束仍无逆序，则为 BST。
+
+（2）实现如下：
+\begin{lstlisting}[language=C]
+typedef struct BTNode {
+    int key;
+    struct BTNode *lchild, *rchild;
+} BTNode;
+
+int IsBST(BTNode *T, BTNode **pre) {
+    if (T == NULL) return 1;
+    if (!IsBST(T->lchild, pre)) return 0;   // 左子树必须已是 BST
+    if (*pre != NULL && (*pre)->key >= T->key)
+        return 0;                           // 中序序列必须严格递增
+    *pre = T;                               // 更新前驱
+    return IsBST(T->rchild, pre);           // 再检查右子树
+}
+/* 调用方式：
+   BTNode *pre = NULL;
+   if (IsBST(root, &pre)) ...              */
+\end{lstlisting}
+
+（3）每个结点恰好访问一次，时间复杂度为 $O(n)$；递归调用栈的深度等于树高 $h$，辅助空间为 $O(h)$（最坏 $O(n)$）。
+
+（4）BST 要求的是“整棵左子树的所有关键字都小于根，整棵右子树的所有关键字都大于根”，而不仅是父子之间的大小关系。反例：根为 $10$，其左孩子为 $5$，$5$ 的右孩子为 $12$，根的右孩子为 $15$。每一对父子都满足左小右大（$5<10$，$12>5$，$15>10$），但 $12$ 位于根 $10$ 的左子树中却大于 $10$，违反 BST 定义；其中序序列为 $5,12,10,15$，并不递增，算法会正确判为非 BST。
+\par\noindent\boxed{\text{\textbf{答案：}算法见上；时间复杂度 }O(n)\text{，空间复杂度 }O(h)\text{。}}\else \answerarea[10] \fi
+
+\end{enumerate}

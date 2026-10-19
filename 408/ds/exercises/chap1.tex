@@ -1,0 +1,159 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（填空题）} 一个长度为 $n$ 的顺序表，若在 $1,2,\ldots,n+1$ 的每个合法位置插入元素的概率相同，则插入一个元素平均需要向后移动 \underline{\qquad\qquad} 个元素；若在 $1,2,\ldots,n$ 的每个位置删除元素的概率相同，则删除一个元素平均需要向前移动 \underline{\qquad\qquad} 个元素。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 在第 $i$ 个位置之前插入时，原第 $i$ 至第 $n$ 个元素都要后移一位，共移动 $n-i+1$ 个。插入位置有 $n+1$ 种等可能选择，故平均移动次数为
+\[
+\frac{1}{n+1}\sum_{i=1}^{n+1}(n-i+1)
+=\frac{n+(n-1)+\cdots+0}{n+1}
+=\frac{n(n+1)/2}{n+1}
+=\frac{n}{2}.
+\]
+删除第 $i$ 个元素时，原第 $i+1$ 至第 $n$ 个元素都要前移一位，共移动 $n-i$ 个。删除位置有 $n$ 种等可能选择，故平均移动次数为
+\[
+\frac{1}{n}\sum_{i=1}^{n}(n-i)
+=\frac{(n-1)+(n-2)+\cdots+0}{n}
+=\frac{n-1}{2}.
+\]
+两式的分母不同：插入有 $n+1$ 个合法位置，删除只有 $n$ 个。\boxed{\text{答案：}\dfrac{n}{2}\text{；}\dfrac{n-1}{2}}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 下列关于顺序表和链表的叙述中，正确的是
+
+\begin{center}
+\begin{tabular}{p{0.92\linewidth}}
+(A) 顺序表的插入和删除操作一定比链表慢 \\[4pt]
+(B) 单链表按位查找第 $i$ 个结点需要 $O(i)$ 时间，找到该结点后在其后插入一个新结点只需 $O(1)$ 时间 \\[4pt]
+(C) 顺序表只能采用静态数组实现，表满后无法再扩充容量 \\[4pt]
+(D) 链表结点中含有指针域，所以链表的存储密度高于顺序表 \\
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错误。顺序表在表尾插入（第 $n+1$ 个位置）不需要移动元素，时间为 $O(1)$；链表插入前却往往要先花 $O(n)$ 定位，不能笼统地说顺序表一定更慢。(B) 正确。单链表没有随机存取能力，按位查找要从头走 $i-1$ 步，故为 $O(i)$；但指针已经指向目标结点后，修改两个指针即可完成插入，不需要移动数据。(C) 错误。顺序表可以用动态分配的数组实现，扩容时重新申请更大空间并搬移元素。(D) 错误。存储密度指数据本身所占空间与结点总空间之比，指针域是额外开销，所以链表的存储密度低于顺序表。\boxed{\text{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 在带头结点的双链表中，指针 \texttt{p} 指向某结点，\texttt{q = p->next} 指向其后继结点（\texttt{q} 可能为尾结点）。要删除 \texttt{q} 并释放其空间，下列语句序列正确的是
+
+\begin{center}
+\begin{tabular}{p{0.92\linewidth}}
+(A) 先执行 \texttt{p->next = q->next}；若 \texttt{q->next} 非空，再执行 \texttt{q->next->prior = p}；最后 \texttt{free(q)} \\[4pt]
+(B) 先执行 \texttt{q->next->prior = p}；再执行 \texttt{p->next = q->next}；最后 \texttt{free(q)} \\[4pt]
+(C) 先执行 \texttt{p->next = q->next}；再执行 \texttt{q->next->prior = p}；最后 \texttt{free(q)} \\[4pt]
+(D) 先执行 \texttt{p->prior = q->next}；再执行 \texttt{q->next->prior = p}；最后 \texttt{free(q)} \\
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 删除双链表中的结点，要让前驱的 \texttt{next} 绕过它，再让后继的 \texttt{prior} 指回前驱。由于 \texttt{q} 可能是尾结点，\texttt{q->next} 可能为 \texttt{NULL}，所以访问 \texttt{q->next->prior} 前必须先判空，否则会解引用空指针。(B) 没有判空，\texttt{q} 为尾结点时出错；(C) 同样没有判空；(D) 修改的是 \texttt{p->prior}，方向错误，且未正确接上前驱的 \texttt{next}。只有 (A) 同时处理了指针方向和尾结点边界。\boxed{\text{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 带头结点的单链表 \texttt{L} 中至少有 $k$ 个数据结点。指针 \texttt{p}、\texttt{q} 初始都指向首元结点，先让 \texttt{p} 沿 \texttt{next} 走 $k-1$ 步，再让 \texttt{p}、\texttt{q} 同步后移，使 \texttt{q} 最终指向倒数第 $k$ 个结点。同步后移时循环继续的条件应是
+
+\begin{center}
+\begin{tabular}{ll}
+(A) \texttt{p != NULL} & (B) \texttt{p->next != NULL} \\[6pt]
+(C) \texttt{q->next != NULL} & (D) \texttt{p != q}
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 初始时 \texttt{p} 在第 $k$ 个结点，\texttt{q} 在第 $1$ 个结点，二者相距 $k-1$ 步。若循环条件为 \texttt{p != NULL}，当 \texttt{p} 走到 \texttt{NULL} 时 \texttt{q} 还会多走一步，指向倒数第 $k$ 个结点的后继。正确的停止时机是 \texttt{p} 停在最后一个结点，此时 \texttt{q} 与表尾相距 $k-1$ 步，恰好指向倒数第 $k$ 个结点，因此条件是 \texttt{p->next != NULL}。以 $n=3$、$k=1$ 验证：\texttt{p} 先走 $0$ 步仍在首元结点，循环在 \texttt{p->next == NULL} 时停止，\texttt{q} 停在尾结点，正是倒数第 $1$ 个。若条件改为 \texttt{q->next != NULL}，\texttt{q} 尚未到表尾时 \texttt{p} 就可能先越过 \texttt{NULL}；若改为 \texttt{p != q}，当 $k>1$ 时两指针同速前进、间距始终不变，会陷入死循环。\boxed{\text{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 顺序表 \texttt{L} 的长度为 $n$，其中值等于 $x$ 的元素共有 $m$ 个。现要删除所有值为 $x$ 的元素，并保持剩余元素的相对次序。采用读写指针法：令 $k=0$，依次扫描下标 $i=0,1,\ldots,n-1$，若 \texttt{L.data[i] != x}，就执行 \texttt{L.data[k++] = L.data[i]}，最后令 \texttt{L.length = k}。该算法的时间复杂度为 \underline{\qquad}，辅助空间复杂度为 \underline{\qquad}，结束后表长为 \underline{\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 扫描指针 $i$ 从 $0$ 走到 $n-1$，每个元素只被检查一次；写指针 $k$ 只把保留下来的元素依次写到前面的位置，保留元素的相对次序不变。整个过程只用了 $i,k$ 两个辅助变量，没有再开数组。被保留的元素共有 $n-m$ 个，因此循环结束时 $k=n-m$，表长也更新为 $n-m$。注意 $k$ 永远不超过 $i$，写入的位置不会覆盖尚未扫描的元素。\boxed{\text{答案：}O(n)\text{；}O(1)\text{；}n-m}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 不带头结点的单链表，头指针为 \texttt{L}（\texttt{L} 可能为 \texttt{NULL}）。指针 \texttt{s} 指向一个待插入的新结点。要把 \texttt{s} 插入为新的首元结点，正确的语句序列是
+
+\begin{center}
+\begin{tabular}{ll}
+(A) \texttt{s->next = L; L = s;} & (B) \texttt{L->next = s; s->next = L;} \\[6pt]
+(C) \texttt{s->next = L->next; L->next = s;} & (D) \texttt{L = s; s->next = L;}
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 插入到表头时，新结点应接管原来的整条链表，然后头指针改指新结点。必须先执行 \texttt{s->next = L}，把原链表接到 \texttt{s} 后面；再执行 \texttt{L = s}，让头指针指向新首元结点。若先执行 \texttt{L = s}，原来的头指针值就被覆盖，原链表再也找不到。(B) 先执行 \texttt{L->next = s} 会覆盖原首元结点的地址；即使 \texttt{L} 非空，接着执行 \texttt{s->next = L} 也只会让 \texttt{s} 和头结点互相指向，原来的整条链表丢失，而 \texttt{L} 为 \texttt{NULL} 时第一条语句还会解引用空指针；(C) 是插在第一个结点之后，不是表头，且空表时不成立；(D) 会让 \texttt{s->next} 指向自己，形成环。\boxed{\text{答案：}(A)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（单项选择题）} 两个长度分别为 $m$ 和 $n$ 的升序顺序表 $A$、$B$（$m,n\geqslant 1$），采用双指针归并：$i$、$j$ 分别指向 $A$、$B$ 当前待比较元素，每次比较 $A[i]$ 与 $B[j]$，把较小者放入结果表并移动相应指针；当其中一个表扫描完后，把另一个表的剩余元素直接依次放入结果表。最坏情况下，关键字比较次数为
+
+\begin{center}
+\begin{tabular}{ll}
+(A) $m+n$ & (B) $m+n-1$ \\[6pt]
+(C) $\min(m,n)$ & (D) $\max(m,n)$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 每比较一次，结果表中恰好确定一个元素，而且这次比较要求两个表都非空。当结果表已经输出 $m+n-1$ 个元素时，两个输入表合计只剩一个元素，此后不可能再发生“两个表都非空”的比较，所以比较次数至多为 $m+n-1$。这个上界可以达到：取 $m=n=2$，$A=(1,3)$、$B=(2,4)$，比较过程为 $1$ 与 $2$、$3$ 与 $2$、$3$ 与 $4$，共 $3=2+2-1$ 次，此时两个表交错排列，谁也不会提前耗尽。若一个表的所有元素都小于另一个表，比较次数会更少，所以 $m+n-1$ 是最坏情况而不是固定值。\boxed{\text{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 用头插法将带头结点的单链表就地逆置（不申请新的数据结点）。下列说法正确的是
+
+\begin{center}
+\begin{tabular}{p{0.92\linewidth}}
+(A) 需要额外申请 $n$ 个结点暂存数据，空间复杂度为 $O(n)$ \\[4pt]
+(B) 逆置完成后，原首元结点成为新链表的首元结点 \\[4pt]
+(C) 修改当前结点 \texttt{p} 的 \texttt{next} 之前，必须先保存 \texttt{p->next}，否则无法继续访问剩余结点 \\[4pt]
+(D) 逆置过程需要两层嵌套循环，时间复杂度为 $O(n^2)$ \\
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 头插法的做法是：先把头结点与后面的链断开，然后依次取下原链表的每个结点，插入到头结点之后。每个结点只处理一次，时间是 $O(n)$，只用了几个指针变量，空间是 $O(1)$，所以 (A)、(D) 错误。逆置后原首元结点变成尾结点，原尾结点变成新的首元结点，故 (B) 错误。处理结点 \texttt{p} 时，要先把 \texttt{p->next} 改成指向已逆置部分的第一个结点，这一改就会覆盖原来的后继指针；若不提前用 \texttt{q} 保存 \texttt{p->next}，剩余链表就断了，因此 (C) 正确。\boxed{\text{答案：}(C)}\else \answerarea \fi
+
+\item \textbf{（真题风格·算法设计题）} 设带头结点的单链表 \texttt{L} 的结点结构为 \texttt{[data | next]}，数据结点个数为 $n$（$n\geqslant 0$）。设计算法将链表就地逆置，要求不新建数据结点、不使用递归，辅助空间为 $O(1)$。写出 C 语言实现，并说明算法为什么正确，分析时间复杂度与空间复杂度。
+
+\ifshowsolutions\par\noindent\textbf{解析：} \textbf{思路：} 把头结点后面的链表分成两部分：左边是已经逆置好的部分，右边是尚未处理的部分。初始时左边为空，右边是整条链表。每轮从右边取下第一个结点 \texttt{p}，用 \texttt{q} 记住 \texttt{p} 的后继，再把 \texttt{p} 头插到左边。这样左边长度每轮增加 $1$，右边减少 $1$，$n$ 轮后右边为空，整条链表逆置完成。
+
+\begin{lstlisting}[language=C]
+void ReverseList(LinkList L) {
+    LNode *p = L->next;   // p: 尚未处理部分的第一个结点
+    LNode *q;             // q: 暂存 p 的后继
+    L->next = NULL;       // 已逆置部分初始为空
+    while (p != NULL) {
+        q = p->next;      // (1) 先保存后继，防止断链
+        p->next = L->next;// (2) p 接到已逆置部分的头部
+        L->next = p;      // (3) 头结点指向 p，p 成为新的首元结点
+        p = q;            // (4) p 移到尚未处理部分
+    }
+}
+\end{lstlisting}
+
+\textbf{正确性：} 设每轮循环开始时，\texttt{L->next} 指向已逆置部分的首结点，\texttt{p} 指向未处理部分的首结点，且两部分互不重叠。执行 (1) 后 \texttt{q} 保存未处理部分的第二个结点；执行 (2)(3) 后 \texttt{p} 成为已逆置部分的新首结点，已逆置部分增加一个结点；执行 (4) 后 \texttt{p} 指向剩余未处理部分。循环不变式保持。当 \texttt{p == NULL} 时未处理部分为空，全部结点都在已逆置部分中，算法结束。$n=0$ 时循环不执行，\texttt{L->next} 保持 \texttt{NULL}；$n=1$ 时只执行一轮，结果不变，均正确。
+
+\textbf{复杂度：} 每个结点恰好被取下并头插一次，循环执行 $n$ 次，每次做常数次指针赋值，故时间复杂度为 $O(n)$。只使用了 \texttt{p}、\texttt{q} 两个辅助指针，空间复杂度为 $O(1)$。\else \answerarea[10] \fi
+
+\item \textbf{（真题风格·算法设计题）} 设带头结点的单链表 \texttt{L} 中有 $n$ 个数据结点，结点结构为 \texttt{[data | next]}。给定整数 $k$，设计一个尽可能高效的算法，删除链表中倒数第 $k$ 个结点。要求：只允许从头到尾扫描一趟；$k<1$ 或 $k>n$ 时返回 \texttt{false}，且链表保持不变；删除成功时返回 \texttt{true}，并用 \texttt{*e} 带回被删结点的数据。分析算法的时间复杂度与空间复杂度。
+
+\ifshowsolutions\par\noindent\textbf{解析：} \textbf{思路：} 用快慢指针。先让快指针 \texttt{fast} 从头结点出发走 $k$ 步，此时 \texttt{fast} 指向第 $k$ 个数据结点，\texttt{slow} 仍指向头结点，二者相距 $k$ 个位置。然后 \texttt{fast}、\texttt{slow} 同步后移，直到 \texttt{fast} 到达尾结点。设表长为 $n$，\texttt{fast} 还要走 $n-k$ 步，\texttt{slow} 也走 $n-k$ 步，从头结点（第 $0$ 个位置）走到第 $n-k$ 个结点。第 $n-k$ 个结点正是倒数第 $k$ 个结点的前驱，所以 \texttt{slow->next} 就是待删结点。
+
+\begin{lstlisting}[language=C]
+bool DeleteKthFromEnd(LinkList L, int k, ElemType *e) {
+    if (k < 1) return false;
+    LNode *fast = L, *slow = L;
+    for (int i = 0; i < k; i++) {   // fast 先走 k 步
+        if (fast == NULL) return false;
+        fast = fast->next;
+    }
+    if (fast == NULL) return false; // k 超过表长
+    while (fast->next != NULL) {    // fast 到表尾时停止
+        fast = fast->next;
+        slow = slow->next;
+    }
+    LNode *q = slow->next;          // q 为倒数第 k 个结点
+    *e = q->data;
+    slow->next = q->next;           // 前驱绕过 q
+    free(q);
+    return true;
+}
+\end{lstlisting}
+
+\textbf{边界与计数：} 设头结点为第 $0$ 个位置，首元结点为第 $1$ 个位置。第一段循环执行 $k$ 次后，\texttt{fast} 在第 $k$ 个位置；若表长不足 $k$，循环中 \texttt{fast} 会先变成 \texttt{NULL}，或者循环结束时 \texttt{fast == NULL}，两种情况都返回 \texttt{false}。$k=n$ 时，\texttt{fast} 恰好停在尾结点（第 $n$ 个位置），第二段循环不执行，\texttt{slow} 仍在头结点，删除的是首元结点，正确。$k=1$ 时，\texttt{slow} 最终停在尾结点的前驱，删除尾结点，正确。失败返回前只读取了指针，没有修改任何 \texttt{next} 域，链表保持不变。
+
+\textbf{复杂度：} \texttt{fast} 共走 $k+(n-k)=n$ 步，\texttt{slow} 走 $n-k$ 步，合计 $O(n)$；两个指针都只向前移动，只扫描一趟。辅助空间只有 \texttt{fast}、\texttt{slow}、\texttt{q} 等常数个指针，为 $O(1)$。\else \answerarea[10] \fi
+
+\end{enumerate}
+
+\vspace{8pt}

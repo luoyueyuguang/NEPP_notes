@@ -1,413 +1,572 @@
 \section{数据链路层}
 
-\subsection{数据链路层的功能}
+数据链路层把网络层交下来的分组封装成帧，再交给物理层发送。它只负责同一条链路两端的通信。这里的“链路”可以是一根电缆、一段光纤，也可以是一台主机到交换机、两台交换机之间的连接。中间经过交换机不算跨链路，经过路由器才算。
 
-\begin{mydef}{数据链路层}{dll-def}
-数据链路层在物理层提供的比特流基础上，为网络层提供\textbf{帧}（Frame）的透明传输。主要功能：
-\begin{enumerate}
-    \item \textbf{成帧（Framing）}：将比特流划分为帧。
-    \item \textbf{差错控制}：检测并（可选地）纠正传输错误。
-    \item \textbf{流量控制}：协调发送方和接收方的速率（速率匹配）。
-    \item \textbf{介质访问控制（MAC）}：广播网络中决定谁可以使用共享信道。
-\end{enumerate}
-\end{mydef}
+这一层要解决四件事：把比特流切成帧、发现传输错误、在共享介质上决定谁先发、在需要时提供可靠传输。以太网做帧定界、差错检测和介质访问控制，不保证可靠；PPP 做帧定界和差错检测，也不重传。408 的题目大多围绕以太网和 PPP 展开。
 
-\subsection{组帧方法}
+\subsection{帧定界：从连续的比特里切出帧}
 
-\begin{conclusion}{四种组帧方法}{framing-methods}
-\begin{itemize}
-    \item \textbf{字符计数法}：帧首部包含帧中字符数。缺点：计数字段一旦出错，后续全部帧错位。
-    \item \textbf{字符填充法（字节填充）}：用特殊字符标记帧边界，数据中出现的边界字符用转义字符 ESC 替换。
-    \item \textbf{零比特填充法（Bit Stuffing）}：帧边界标记为 \texttt{01111110}（6 个连续 1）。发送方每 5 个连续的 1 后插入 0，接收方每 5 个连续的 1 后删除 0。\textbf{HDLC 和同步 PPP 使用；异步 PPP 通常使用字节填充/转义机制。}
-    \item \textbf{违规编码法}：利用物理层的冗余编码（如曼彻斯特编码中非法跳变）。仅适用于物理层编码特殊的网络。
-\end{itemize}
-\end{conclusion}
+物理层送上来的是长长的 0/1 序列。接收方如果不知道一帧从哪里开始，就无法解释首部的地址、类型和尾部的校验字段。组帧要做的第一件事，就是让接收方能从比特流里认出帧边界。
 
-\subsection{差错控制}
+最简单的办法是字符计数法：帧的第一个字节写入本帧的字符数。接收方先读这个数，再往后数相应多个字节。这个办法的弱点很直接：计数字段一旦出错，接收方就会按错误长度切分，后面的帧全部错位，而且很难重新同步。
 
-\begin{formula}{CRC 循环冗余校验}{crc}
-\textbf{原理：}将 $k$ 位数据后拼接 $r$ 位校验位，构成 $n=k+r$ 位码字，使其能被生成多项式 $G(x)$ 整除。接收方用同一 $G(x)$ 除码字，余数非零表示出错。
+更常用的是在帧前后放一个特殊标记。标记出现在数据里时，发送方要把它“转义”，接收方再还原。按处理单位不同，分为字节填充和零比特填充。
 
-\textbf{408 计算方法：}给定数据比特串 $M$ 和生成多项式 $G(x)$（如 $G(x)=x^3+x+1$，即 1011）：
-\begin{enumerate}
-    \item $M$ 后补 $r$ 个 0（$r$ 是 $G(x)$ 的次数），得 $2^r M$。
-    \item $2^r M$ 除以 $G(x)$（模 2 除法，即异或运算），得 $r$ 位余数 $R$。
-    \item 发送码字 = $M\parallel R$（$M$ 后拼接 $R$）。
-\end{enumerate}
+字节填充用于面向字节的链路。PPP 用 \texttt{0x7E} 作帧边界。数据中如果出现 \texttt{0x7E}，发送方发 \texttt{0x7D} \texttt{0x5E}；如果出现转义字节 \texttt{0x7D}，发送方发 \texttt{0x7D} \texttt{0x5D}。两个替换字节都等于原字节异或 \texttt{0x20}。PPP 默认还会转义小于 \texttt{0x20} 的控制字符，例如 \texttt{0x03} 变成 \texttt{0x7D} \texttt{0x23}。接收方看到 \texttt{0x7D}，就把后一个字节异或 \texttt{0x20}，还原出原字节。
+
+零比特填充用于面向比特的链路，HDLC 是典型例子。帧边界固定为 \texttt{01111110}，也就是六个连续的 1 两边各加一个 0。发送方在数据部分每遇到五个连续的 1，就插入一个 0；接收方每收到五个连续的 1，就删除后面的那个 0。这样数据里不可能出现六个连续的 1，边界标记就不会和普通数据混淆。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, x=0.42cm, y=0.55cm]
+  % 起始标志
+  \foreach \bit [count=\i from 0] in {0,1,1,1,1,1,1,0}{
+    \draw[fill=SoftTeal,draw=black!35] (\i,0) rectangle ++(1,0.75);
+    \node at (\i+0.5,0.375) {\bit};
+  }
+  % 数据部分，第 8 位是插入的 0
+  \foreach \bit/\col [count=\i from 0] in {1/SoftGray,0/SoftGray,1/SoftGray,1/SoftGray,1/SoftGray,1/SoftGray,1/SoftGray,0/SoftAmber,1/SoftGray,0/SoftGray,1/SoftGray}{
+    \draw[fill=\col,draw=black!35] ({8+\i},0) rectangle ++(1,0.75);
+    \node at ({8+\i+0.5},0.375) {\bit};
+  }
+  % 结束标志
+  \foreach \bit [count=\i from 0] in {0,1,1,1,1,1,1,0}{
+    \draw[fill=SoftTeal,draw=black!35] ({19+\i},0) rectangle ++(1,0.75);
+    \node at ({19+\i+0.5},0.375) {\bit};
+  }
+  % 标注
+  \node[above,TealDark] at (4,0.9) {帧标志 \texttt{01111110}};
+  \node[above,TealDark] at (23,0.9) {帧标志};
+  \draw[decorate,decoration={brace,amplitude=5pt,raise=3pt},black!55] (8,0.9) -- (19,0.9);
+  \node[above,black!70] at (13.5,1.35) {发送方填充后的数据};
+  \draw[->,Amber,thick] (15.5,-0.85) -- (15.5,-0.08);
+  \node[below,Amber] at (15.5,-0.9) {插入的 0};
+  \node[align=center,font=\scriptsize,black!70] at (13.5,-2.7){原数据有六个连续 1，发送方在第五个 1 后插入 0。\\接收方看到五个连续 1 就删除后面的 0，数据还原为 \texttt{1011111101}。};
+\end{tikzpicture}
+\end{center}
+
+图中左右两个青色块是帧标志，中间灰色块是数据，橙色位是发送方插入的 0。接收方每看到五个连续 1，就删掉后面的那个 0。
+
+还有一种违规编码法。曼彻斯特编码用高低跳变表示 0 和 1，高-高、低-低属于非法波形。发送方可以用非法波形作帧边界，接收方看到它就认为一帧开始或结束。这个办法依赖物理层编码，通用性差，408 只需知道名字和适用条件。
+
+\subsection{差错检测与纠正}
+
+传输错误分两类。随机错误由噪声引起，表现为零星的比特翻转；突发错误由短暂干扰引起，表现为一串连续的比特出错。检错码只能发现错误，纠错码还能定位并改正错误。数据链路层常用的检错码是奇偶校验和 CRC，纠错码是汉明码。
+
+\paragraph{奇偶校验。}一维奇偶校验在数据后加一位，使 1 的个数为奇数或偶数。它能发现奇数个比特错误，发现不了偶数个错误。二维奇偶校验把数据排成矩阵，每行每列都加校验位。某一位出错时，对应的行和列同时不满足校验，接收方就能定位这一位并翻转它。二维校验可以纠正一位错误，但两位错误可能互相掩盖。
+
+\paragraph{CRC。}CRC 把数据看成一个二进制多项式，用生成多项式去除，把余数附在数据后面。接收方用同一个多项式去除整个码字，余数为 0 就认为没有检出错误。
+
+\begin{formula}{CRC 的发送码字}{crc-codeword}
+设数据比特串为 $M(x)$，生成多项式 $G(x)$ 的次数为 $r$。发送方先计算
+\[
+R(x)=x^r M(x)\bmod G(x),
+\]
+得到 $r$ 位余数，再发送
+\[
+T(x)=x^r M(x)+R(x).
+\]
+模 2 加法和减法都等于异或，不进位，也不借位。接收方计算 $T(x)\bmod G(x)$，结果为 0 表示没有检出错误。
+
+$G(x)$ 的次数决定校验位数。例如 $G(x)=x^4+x+1$ 对应比特串 \texttt{10011}，次数为 4，余数就是 4 位。
 \end{formula}
 
-\begin{attention}
-\textbf{408 CRC 计算题的几个注意点：}
+下面用 408 常见的数据算一遍。取 $M=\texttt{1101011011}$，$G=\texttt{10011}$。$G$ 的次数为 4，先在 $M$ 后补四个 0，得到 \texttt{11010110110000}。用 \texttt{10011} 做模 2 除法，余数为 \texttt{1110}。发送方把余数替换掉补的四个 0，发送 \texttt{11010110111110}。接收方用 \texttt{10011} 除这个码字，余数为 0。
+
+CRC 能检出什么错误，取决于 $G(x)$：
 \begin{itemize}
-    \item CRC 是\textbf{检错码}（非纠错码）。当生成多项式至少含两个非零项时可检测所有单比特错误；对突发错误的检测能力取决于生成多项式次数和具体因子，不能只用“CRC”二字概括成无条件保证。
-    \item 模 2 除法 = 异或（不进位、不借位）。
-    \item $r$ 次生成多项式产生的 CRC 校验位为 $r$ 位。
+  \item $G(x)$ 至少有两项非零时，所有单比特错误都能检出。
+  \item $G(x)$ 的常数项为 1，也就是 $G(0)\neq 0$ 时，所有长度不超过 $r$ 的突发错误都能检出。
+  \item $G(x)$ 含有因子 $x+1$ 时，所有奇数个比特错误都能检出。
+  \item 如果错误图样恰好是 $G(x)$ 的倍数，余数仍为 0，这种错误检不出来。所以 CRC 不是“任何错误都能发现”。
 \end{itemize}
-\end{attention}
 
-\subsection{可靠传输与滑动窗口协议}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, x=0.9cm, y=0.75cm]
+  % 第一行：数据 + 补零
+  \draw[fill=SoftBlue,draw=black!35] (0,0) rectangle (5,0.8);
+  \node at (2.5,0.4) {数据 $M$（$k$ 位）};
+  \draw[fill=SoftGray,draw=black!35] (5,0) rectangle (8,0.8);
+  \node at (6.5,0.4) {补 $r$ 个 0};
+  \node[above,black!70] at (4,0.9) {$x^rM(x)$，被除数};
+  % 第二行：余数
+  \draw[fill=SoftAmber,draw=black!35] (5,-1.3) rectangle (8,-0.5);
+  \node at (6.5,-0.9) {余数 $R$（$r$ 位）};
+  \draw[->,Amber,thick] (7.3,-0.45) -- (7.3,0.0);
+  \node[right,Amber,align=left] at (8.1,-0.9) {用 $R$ 替换\\补的 $r$ 个 0};
+  % 第三行：发送码字
+  \draw[fill=SoftBlue,draw=black!35] (0,-2.6) rectangle (5,-1.8);
+  \node at (2.5,-2.2) {数据 $M$};
+  \draw[fill=SoftAmber,draw=black!35] (5,-2.6) rectangle (8,-1.8);
+  \node at (6.5,-2.2) {余数 $R$};
+  \node[above,black!70] at (2.5,-1.75) {发送码字 $T=M\parallel R$};
+  \draw[decorate,decoration={brace,amplitude=4pt,raise=3pt},black!55] (0,-2.7) -- (8,-2.7);
+  \node[below,black!70] at (4,-2.9) {接收方用同一个 $G(x)$ 除 $T$，余数为 0 才通过};
+\end{tikzpicture}
+\end{center}
 
-\begin{conclusion}{停止--等待、GBN 与 SR}{arq-protocols}
-\begin{tablebox}{三种可靠传输协议对比}
+图中上排是补了 $r$ 个 0 的被除数，中间的余数替换掉这些 0，下排才是实际发送的码字。接收方用同一个 $G(x)$ 去除下排，余数为 0 就通过。
+
+\paragraph{汉明码。}汉明码用多个校验位覆盖不同的数据位，使每个数据位至少被两个校验位覆盖。接收方重新计算各校验位，得到的故障字直接指出出错位置。以 (7,4) 汉明码为例，7 位码字中有 4 位数据、3 位校验。校验位放在第 1、2、4 位，数据位放在第 3、5、6、7 位。
+
+三个校验圈分别记作 $p_1$、$p_2$、$p_4$。$p_1$ 校验第 1、3、5、7 位，$p_2$ 校验第 2、3、6、7 位，$p_4$ 校验第 4、5、6、7 位。每个校验圈内所有位的异或规定为 0。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, scale=0.95]
+  \draw[fill=Teal!12,draw=Teal!65,thick] (-0.9,0.6) circle (1.35);
+  \draw[fill=Amber!12,draw=Amber!75,thick] (0.9,0.6) circle (1.35);
+  \draw[fill=Navy!10,draw=Navy!55,thick] (0,-0.9) circle (1.35);
+  % 七个区域：1、2、3、4、5、6、7
+  \node at (-1.45,0.75) {1};
+  \node at (1.45,0.75) {2};
+  \node at (0,1.25) {3};
+  \node at (0,-1.55) {4};
+  \node at (-0.75,-0.45) {5};
+  \node at (0.75,-0.45) {6};
+  \node at (0,0.42) {7};
+  % 圈名
+  \node[TealDark] at (-1.95,1.55) {$p_1$};
+  \node[Amber!85!black] at (1.95,1.55) {$p_2$};
+  \node[Navy] at (0,-2.45) {$p_4$};
+  \node[align=center,font=\scriptsize,black!70] at (0,-3.15){$p_1$ 覆盖 1、3、5、7；$p_2$ 覆盖 2、3、6、7；$p_4$ 覆盖 4、5、6、7。\\三个圈内各自异或为 0，数据位 3、5、6、7 被至少两个圈覆盖。};
+\end{tikzpicture}
+\end{center}
+
+收到码字后，接收方分别计算三个圈的异或。三个结果组成故障字，为 0 表示没有检出错误；发生一位错误时，非 0 故障字的数值就是出错位的编号。例如故障字为 5，说明第 5 位出错，把它翻转即可。这个“故障字等于位置”的性质，来自校验位放在 1、2、4 这些 2 的幂的位置。
+
+汉明码的纠错能力由最小汉明距离决定。码字之间最少有多少位不同，就记作 $d_{\min}$。要检出 $e$ 位错误，需要 $d_{\min}\ge e+1$；要纠正 $t$ 位错误，需要 $d_{\min}\ge 2t+1$。(7,4) 汉明码的 $d_{\min}=3$，可以纠正 1 位错误，检出 2 位错误。增加校验位可以提高纠错能力，但开销也更大。一般地，$r$ 个校验位要覆盖 $k$ 个数据位并指出错误位置，需要
+\[
+2^r\ge k+r+1.
+\]
+这个不等式的右边多出的 1 表示“没有错误”这一种情况。
+
+\subsection{可靠传输：确认、超时与滑动窗口}
+
+差错检测只能发现问题。要让发送方知道帧有没有到达，还需要确认和重传。这类机制统称 ARQ（自动重传请求）。最基本的三个部件是：序号、确认帧、超时计时器。
+
+\paragraph{停止-等待。}发送方发一帧，等确认；收到确认再发下一帧；超时没收到确认就重发。只用 1 位序号就能工作。序号为 0 的帧收到确认后，下一帧用 1；再下一帧又回到 0。接收方收到重复帧时丢弃，但必须再发一次确认，否则发送方的确认可能永远丢失。
+
+设数据帧长度为 $L$，数据率为 $R$，单程传播时延为 $\tau$。忽略确认帧的发送时间和处理时间，发送时延 $T_f=L/R$，停止-等待的信道利用率为
+\[
+U=\frac{T_f}{T_f+2\tau}=\frac{1}{1+2a},\qquad a=\frac{\tau}{T_f}.
+\]
+$2\tau$ 是往返传播时延。$a$ 越大，等待确认浪费的时间越多，利用率越低。卫星链路时延大，停止-等待的效率很低，这也是滑动窗口出现的原因。
+
+\paragraph{后退 N 帧（GBN）。}发送方可以连续发多个帧，不必每帧都停下来等确认。接收方只按序接收，收到失序帧就丢弃，并重复确认最后一个按序收到的帧。发送方为最早未确认的帧设置计时器，超时后从这一帧开始，把它和后面已经发过的帧全部重发。
+
+\paragraph{选择重传（SR）。}接收方设置缓存，把失序但正确的帧先存起来，并逐帧确认。发送方只重发超时或出错的帧，已经确认的帧不再重发。这样减少了重传量，代价是接收方要更多缓存，逻辑也更复杂。
+
+\begin{tablebox}{三种可靠传输协议的窗口与重传}
 \centering
 \small
-\begin{tabularx}{\linewidth}{|p{2.8cm}|p{2.3cm}|p{2.3cm}|X|}
+\begin{tabularx}{\linewidth}{|p{2.2cm}|p{3.2cm}|p{2.5cm}|X|}
 \hline
-协议 & 发送窗口 & 接收窗口 & 超时后的处理 \\
+协议 & 发送窗口 $W_T$ & 接收窗口 $W_R$ & 超时后的动作 \\
 \hline
-停止--等待 & 1 & 1 & 重发当前未确认帧；用 1 位序号区分新帧与重复帧 \\
-GBN（后退 N 帧） & $1\leqslant W_T\leqslant 2^m-1$ & 1 & 从最早未确认帧开始重发其后所有已发送帧 \\
-SR（选择重传） & $W_T\leqslant2^{m-1}$ & $W_R\leqslant2^{m-1}$ & 只重发出错或超时的帧 \\
+停止-等待 & 1 & 1 & 重发当前帧；1 位序号足以区分新旧帧 \\
+GBN & $1\le W_T\le 2^m-1$ & 1 & 从最早未确认帧开始，重发它及其后所有已发帧 \\
+SR & $W_T\le 2^{m-1}$ & $W_R\le 2^{m-1}$ & 只重发超时或出错的帧，失序帧先缓存 \\
 \hline
 \end{tabularx}
 \end{tablebox}
 
-其中 $m$ 为帧序号位数。GBN 使用累计确认，接收方只按序接收；SR 可缓存失序帧并分别确认。SR 要求窗口不超过序号空间的一半，是为了避免序号回绕后无法区分旧帧和新帧。
-\end{conclusion}
+表中 $m$ 是序号位数，序号空间为 $2^m$。GBN 的上限是 $2^m-1$，不能取 $2^m$。若取满 $2^m$，发送方把窗口内的帧全发完，确认又全部丢失，超时后重发第 0 帧；接收方此时正好也期待第 0 帧，就会把旧帧当成新帧。少一个序号，接收方就能分辨重复帧。
+
+SR 通常取 $W_T=W_R=2^{m-1}$。更一般的条件是 $W_T+W_R\le 2^m$。窗口超过一半序号空间时，新旧窗口会重叠，接收方无法判断一个帧是重传的旧帧还是新帧。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.4cm]
-  \node[left,align=right] at (-0.6,2.6){停止-等待};
-  \node[left,align=right] at (-0.6,1.6){GBN（$m=3$）};
-  \node[left,align=right] at (-0.6,0.6){SR（$m=3$）};
-  % 停止-等待：窗口 = 1
-  \fill[Teal!35] (0,2.45) rectangle (1,2.75);
-  % GBN：窗口 = 2^3-1 = 7
-  \foreach \i in {0,...,6} \fill[Navy!30] (\i,1.45) rectangle (\i+1,1.75);
-  % SR：窗口 = 2^(3-1) = 4
-  \foreach \i in {0,...,3} \fill[Amber!40] (\i,0.45) rectangle (\i+1,0.75);
-  % 序号
-  \foreach \i in {0,...,7} \draw (\i,0.3) -- (\i,0.22) node[below]{\i};
-  \node[align=center,font=\scriptsize,black!70] at (3.5,-0.55){发送窗口大小（3 位序号，帧号 $0\sim7$）};
-  \node[align=center,font=\scriptsize,black!70] at (3.5,3.4){GBN 累计确认、失序即重发之后所有帧；SR 个别确认、可缓存失序帧\\（窗口 $\leqslant 2^{m-1}$ 以避免序号回绕混淆）};
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=0.92]
+  % GBN 面板
+  \begin{scope}
+    \draw[->,thick] (0,0.5) -- (0,-8.7) node[below]{时间};
+    \draw[->,thick] (4,0.5) -- (4,-8.7);
+    \node[above] at (0,0.55) {发送方};
+    \node[above] at (4,0.55) {接收方};
+    \node[above,font=\bfseries] at (2,1.15) {GBN（后退 N 帧）};
+    % 0,1 正常
+    \draw[->,Teal] (0,-0.1) -- (4,-0.9) node[midway,above]{0};
+    \draw[->,Teal] (4,-0.9) -- (0,-1.4) node[midway,above]{ACK0};
+    \draw[->,Teal] (0,-1.1) -- (4,-1.9) node[midway,above]{1};
+    \draw[->,Teal] (4,-1.9) -- (0,-2.4) node[midway,above]{ACK1};
+    % 2 丢失
+    \draw[->,Burgundy] (0,-2.1) -- (2.1,-2.7) node[midway,above]{2};
+    \node[Burgundy,font=\bfseries] at (2.35,-2.75){$\times$};
+    \node[Burgundy,right] at (2.5,-2.75){丢失};
+    % 3,4 被丢弃
+    \draw[->,MutedText] (0,-3.0) -- (4,-3.8) node[midway,above]{3};
+    \node[Burgundy,right] at (4.05,-3.8){丢弃};
+    \draw[->,MutedText] (0,-4.0) -- (4,-4.8) node[midway,above]{4};
+    \node[Burgundy,right] at (4.05,-4.8){丢弃};
+    % 超时
+    \draw[dashed,Amber] (0,-5.3) -- (4,-5.3) node[midway,above]{超时};
+    % 重发 2,3,4
+    \draw[->,Amber,thick] (0,-5.5) -- (4,-6.3) node[midway,above]{2};
+    \draw[->,Amber] (0,-6.3) -- (4,-7.1) node[midway,above]{3};
+    \draw[->,Amber] (0,-7.1) -- (4,-7.9) node[midway,above]{4};
+    \draw[->,Teal] (4,-7.9) -- (0,-8.4) node[midway,above]{ACK4};
+    \node[align=center,black!70] at (2,-9.1){重发 2、3、4；\\接收方按序收下后累计确认};
+  \end{scope}
+  % SR 面板
+  \begin{scope}[xshift=8.2cm]
+    \draw[->,thick] (0,0.5) -- (0,-8.7) node[below]{时间};
+    \draw[->,thick] (4,0.5) -- (4,-8.7);
+    \node[above] at (0,0.55) {发送方};
+    \node[above] at (4,0.55) {接收方};
+    \node[above,font=\bfseries] at (2,1.15) {SR（选择重传）};
+    % 0,1 正常
+    \draw[->,Teal] (0,-0.1) -- (4,-0.9) node[midway,above]{0};
+    \draw[->,Teal] (4,-0.9) -- (0,-1.4) node[midway,above]{ACK0};
+    \draw[->,Teal] (0,-1.1) -- (4,-1.9) node[midway,above]{1};
+    \draw[->,Teal] (4,-1.9) -- (0,-2.4) node[midway,above]{ACK1};
+    % 2 丢失
+    \draw[->,Burgundy] (0,-2.1) -- (2.1,-2.7) node[midway,above]{2};
+    \node[Burgundy,font=\bfseries] at (2.35,-2.75){$\times$};
+    \node[Burgundy,right] at (2.5,-2.75){丢失};
+    % 3,4 缓存并逐帧确认
+    \draw[->,Teal] (0,-3.0) -- (4,-3.8) node[midway,above]{3};
+    \draw[->,Teal] (4,-3.8) -- (0,-4.3) node[midway,above]{ACK3};
+    \draw[->,Teal] (0,-4.0) -- (4,-4.8) node[midway,above]{4};
+    \draw[->,Teal] (4,-4.8) -- (0,-5.3) node[midway,above]{ACK4};
+    % 接收方缓存
+    \draw[fill=SoftAmber,draw=Amber!60,rounded corners=1pt] (4.35,-4.4) rectangle (5.65,-3.2);
+    \node[align=center,Amber!85!black] at (5.0,-3.8){缓存\\3、4};
+    % 超时
+    \draw[dashed,Amber] (0,-5.9) -- (4,-5.9) node[midway,above]{超时};
+    % 只重发 2
+    \draw[->,Amber,thick] (0,-6.1) -- (4,-6.9) node[midway,above]{2};
+    \draw[->,Teal] (4,-6.9) -- (0,-7.4) node[midway,above]{ACK2};
+    \node[align=center,black!70] at (2,-8.1){只重发 2；\\收齐后按序交付 2、3、4};
+  \end{scope}
 \end{tikzpicture}
 \end{center}
 
-\begin{formula}{停止--等待协议的信道利用率}{stop-wait-utilization}
-忽略确认帧发送时延和处理时延，设数据帧发送时延为 $T_f=L/R$、单程传播时延为 $\tau$，则
+图里两条竖线分别是发送方和接收方，斜线表示帧或确认在链路上传播，向下表示时间推进。GBN 的接收方没有缓存，3、4 到得再对也会被丢掉；SR 的接收方先把它们存起来，所以发送方只需要补发 2。
+
+\subsection{介质访问控制}
+
+共享信道需要一套规则决定谁可以发。常见做法分三类：划分信道、随机接入、受控接入。
+
+\paragraph{划分信道。}FDM 把频带切成几段，每个用户独占一段；TDM 把时间切成时隙，每个用户轮流使用；WDM 是光纤上的频分复用；CDMA 让所有用户同时同频发送，但每个用户使用不同的码片序列。CDMA 中，两个不同用户的码片序列内积为 0，同一序列与自身的内积为 1。接收方用某个用户的码片序列与收到的叠加信号做内积，就能提取该用户的数据。划分信道适合用户数固定、流量稳定的场景，用户空闲时隙会浪费。
+
+\paragraph{随机接入。}所有站都可以随时发送，发生冲突后再想办法重发。ALOHA 是最早的方案：纯 ALOHA 想发就发，冲突后随机等待；时隙 ALOHA 只能在时隙边界开始发送，冲突窗口减半。设 $G$ 为归一化负载，纯 ALOHA 的吞吐率为
 \[
-U=\frac{T_f}{T_f+2\tau}=\frac{1}{1+2a},\qquad a=\frac{\tau}{T_f}.
+S=Ge^{-2G},
 \]
-滑动窗口允许多个帧在途；当 $W_TT_f\geqslant T_f+2\tau$ 时，发送方可持续发送，理想利用率可达到 1。
-\end{formula}
+最大值为 $1/(2e)\approx 0.184$。时隙 ALOHA 的吞吐率为
+\[
+S=Ge^{-G},
+\]
+最大值为 $1/e\approx 0.368$。时隙化把易冲突时间从两帧缩短到一帧，吞吐率翻倍。
 
-\subsection{介质访问控制（MAC）子层}
-
-\begin{conclusion}{信道划分协议}{channel-partition}
+CSMA 在发送前先监听信道，比 ALOHA 更礼貌。根据“信道忙时怎么办”，分为三种：
 \begin{itemize}
-    \item \textbf{频分复用（FDM）}：各用户占用不同频段。
-    \item \textbf{时分复用（TDM）}：各用户分配不同时隙。统计 TDM（STDM）按需分配，效率更高。
-    \item \textbf{波分复用（WDM）}：光的频分复用。
-    \item \textbf{码分复用（CDM/CDMA）}：每用户分配唯一码片序列，各用户同时同频传输。接收方用码片序列内积提取数据。
+  \item 1-坚持：忙时继续听，一空闲就以概率 1 发送。冲突概率高，但信道利用率也高。
+  \item 非坚持：忙时随机等一段时间再听。冲突少，但可能白白浪费空闲时间。
+  \item $p$-坚持：空闲时以概率 $p$ 发送，以 $1-p$ 推迟到下一个时隙。$p$ 用来在冲突和空闲浪费之间折中。
 \end{itemize}
-\end{conclusion}
+载波监听不能消除冲突。信号在链路上传播需要时间，两个站可能同时听到“空闲”，然后同时开始发送。
 
-\begin{conclusion}{随机接入协议}{random-access}
-\begin{itemize}
-    \item \textbf{ALOHA：}纯 ALOHA 可随时发送，时隙 ALOHA 只能在时隙边界发送；二者发生冲突后均随机退避，时隙化可减小易冲突时间。
-    \item \textbf{CSMA：}发送前监听载波；根据“忙时如何处理”可分 1-坚持、非坚持和 $p$-坚持 CSMA。载波监听不能消除冲突，因为存在传播时延。
-    \item \textbf{CSMA/CD：}适用于共享式有线以太网，发送时检测冲突。
-    \item \textbf{CSMA/CA：}用于 IEEE 802.11 无线局域网，通过确认、帧间间隔和随机退避避免冲突，可选 RTS/CTS 缓解隐藏站问题；无线站难以边发送边可靠检测冲突，因此不使用 CSMA/CD。
-\end{itemize}
-\end{conclusion}
+\paragraph{受控接入。}轮询由主站依次询问从站有没有数据；令牌传递让令牌在环上轮转，只有拿到令牌的站才能发送。受控接入不会冲突，但主站故障或令牌丢失会影响整个网络。令牌环网 802.5 和令牌总线 802.4 是典型例子。
 
-\subsection{CSMA/CD 协议（以太网核心）}
+\subsection{CSMA/CD：共享以太网如何抢信道}
 
-\begin{conclusion}{CSMA/CD 协议}{csma-cd}
-CSMA/CD（Carrier Sense Multiple Access with Collision Detection）是以太网的核心协议。
+早期的以太网是多台主机接在同一根同轴电缆上，所有站共享一个信道。一个站发送时，其他站也能收到信号。两个站同时发送，信号会叠加、互相破坏，这就是冲突。CSMA/CD 在 CSMA 的基础上增加了冲突检测：发送过程中继续听，发现冲突就立刻停发。
 
-\textbf{工作流程}（四句话）：
-\begin{enumerate}
-    \item \textbf{先听后发}：发送前先监听信道，信道空闲则发送。
-    \item \textbf{边发边听}：发送过程中持续监听。
-    \item \textbf{冲突停发}：检测到冲突立即停止发送。
-    \item \textbf{随机重发}：等待随机时间后重新尝试（\textbf{二进制指数退避算法}）。
-\end{enumerate}
+工作过程可以记成四步：先听后发，边发边听，冲突停发，随机重发。发送前监听信道，空闲就发；发送时继续检测；检测到冲突就停止发送，并发送一段强化碰撞信号，让所有站都知道发生了冲突；然后按二进制指数退避算法等待一段时间，再重新尝试。
 
-\textbf{争用期（Contention Period）}：$2\tau$（$\tau$ 为端到端传播时延）。在争用期内若未检测到冲突，则后续不会冲突。
-
-\textbf{最短帧长}：$L_{\min} = 2\tau \times \text{数据率}$。若帧过短（小于 $L_{\min}$），最坏情况下冲突信号返回发送端时帧已经发完，发送端就无法保证在发送期间检测到该冲突。
-
-\textbf{二进制指数退避：}第 $k$ 次重传（$k\leqslant 10$）的等待时间为从 $[0, 2^k-1]$ 中随机选一个 $r$，等待 $r\times 2\tau$。$k>10$ 后 $r$ 范围锁定为 $[0,2^{10}-1]$。重传 16 次仍失败则丢弃帧。
-\end{conclusion}
+冲突检测的关键是时间。信号从 A 传到 B 需要 $\tau$。最坏的情况是：B 在 A 的信号到达前的一瞬间判断信道空闲，开始发送。两个信号在 B 附近相撞，碰撞信号再传回 A。A 从开始发送到收到碰撞信号，最多经过 $2\tau$。如果 A 在这段时间内没有检测到冲突，就可以认为发送成功。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.0]
-  % 横轴=距离（A 左、B 右）；纵轴=时间（向上增大，表示时间先后）
-  \draw[->,thick] (-0.7,0) -- (7.9,0) node[right]{距离};
-  \node[left,font=\bfseries] at (0,0.28){$\mathrm{A}$};
-  \node[right,font=\bfseries] at (7,0.28){$\mathrm{B}$};
-  % A 的帧：t=0 从 A 发出，沿链路传到 B（t=τ 到达）
-  \draw[->,Teal,very thick] (0,0.6) -- (7,2.4) node[pos=0.40,above,sloped]{A 的帧（$t=0$ 发出）};
-  % B 的帧：t≈τ 从 B 发出（尚未感知 A 的载波），沿链路传向 A（t≈2τ 到 A）
-  \draw[->,Burgundy,very thick] (7,2.2) -- (0,4.0) node[pos=0.42,below,sloped]{B 的帧（$t\approx\tau$ 发出）};
-  % 冲突点：两帧在时空上相交（联立 y=0.6+0.257x 与 y=4.0-0.257x ⇒ x≈6.61，y≈2.30，位于 B 附近）
-  \fill[Amber,draw=black!80] (6.61,2.30) circle (2.8pt);
-  \node[above right,font=\scriptsize,align=left,black] at (6.61,2.30){冲突点\\（两帧相遇）};
-  % 争用期（2τ）窗口：A 在 0.6（t=0）发出，到 4.0（t≈2τ）感知到冲突
-  \draw[dashed,gray!70] (0,0.6) -- (2.2,0.6);
-  \draw[dashed,gray!70] (0,4.0) -- (2.8,4.0);
-  \draw[<->,red] (-0.45,0.6) -- (-0.45,4.0);
-  \node[left,font=\scriptsize,red,align=center] at (-0.72,2.3){争用期\\ $2\tau$};
-  \node[align=center,font=\scriptsize,black!70] at (3.6,4.85){A 在 $t=0$ 发送，最坏情况下 $t\approx\tau$ 时 B 才开始，冲突发生在 B 附近；\\A 收到返回的冲突信号（沿同一链路回传）的时间 $\leqslant 2\tau$，故 $2\tau$ 内未检测到冲突即认定发送成功。};
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=0.9]
+  % 坐标轴
+  \draw[->,thick] (-1.7,0) -- (8.8,0) node[right]{距离};
+  \draw[->,thick] (-0.45,0) -- (-0.45,7.2) node[above]{时间};
+  \node[left,font=\bfseries] at (0,0.2) {A};
+  \node[right,font=\bfseries] at (8,0.2) {B};
+  % A 的发送时延
+  \draw[Teal,line width=2.2pt] (0,0.6) -- (0,6.9);
+  \node[right,TealDark,align=left] at (0.2,2.35) {A 持续发送\\$T_f$};
+  \draw[->,TealDark] (0.2,2.35) -- (0.03,2.35);
+  % A 的帧（第一个比特的传播）
+  \draw[->,Teal,very thick] (0,0.6) -- (8,3.6) node[pos=0.42,above,sloped]{A 的帧};
+  % B 在 A 的信号到达前开始发送
+  \draw[->,Burgundy,very thick] (8,3.3) -- (0,6.3) node[pos=0.45,below,sloped]{B 的帧};
+  \node[right,Burgundy,align=left] at (8.05,3.15) {B 误判空闲\\开始发送};
+  % 冲突点
+  \fill[Amber,draw=black!80] (7.6,3.45) circle (3pt);
+  \node[above right,Amber!85!black,align=left] at (7.6,3.5){冲突点};
+  % A 检测到冲突
+  \fill[Burgundy] (0,6.3) circle (2.5pt);
+  \node[right,Burgundy] at (0.1,6.45){A 检测到冲突};
+  % 2τ 窗口
+  \draw[dashed,gray!70] (-1.5,0.6) -- (0,0.6);
+  \draw[dashed,gray!70] (-1.5,6.3) -- (0,6.3);
+  \draw[<->,Burgundy] (-1.1,0.6) -- (-1.1,6.3);
+  \node[left,Burgundy,align=right] at (-1.45,3.45){检测窗口\\$\le 2\tau$};
+  \node[align=center,font=\scriptsize,black!70] at (4.2,-0.9){A 在 $t=0$ 开始发送；B 在 A 的信号到达前开始发送；两帧在 B 附近相撞。\\碰撞信号回传到 A 不超过 $2\tau$。A 必须还在发送，才能听到这个冲突。};
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-\textbf{二进制指数退避——逐步演示：}某站连续冲突，第 $k$ 次重传在 $[0,2^{k}-1]$ 中取随机整数 $r$，等待 $r\times 2\tau$：
-\begin{itemize}
-    \item \textbf{第 1 次冲突}（$k=1$）：$r\in\{0,1\}$，等 $0$ 或 $2\tau$；
-    \item \textbf{第 2 次冲突}（$k=2$）：$r\in\{0,1,2,3\}$，等 $0,2\tau,4\tau,6\tau$；
-    \item \textbf{第 3 次冲突}（$k=3$）：$r\in\{0,\dots,7\}$，最多等 $14\tau$——重传间隔随冲突次数\textbf{指数}扩大，降低再次冲突概率；
-    \item $k>10$ 后 $r$ 锁定在 $[0,2^{10}-1]$；重传 16 次仍失败则丢弃帧。
-\end{itemize}
-\textbf{要点：} "指数"指的是\textbf{随机退避范围}随重传次数指数增长——冲突越多，各站越"拉开"重试时刻，避免再次同时冲突。
-\end{attention}
+图里横轴是链路位置，纵轴是时间。A 的帧斜线表示第一个比特从 A 传到 B；B 的帧斜线表示 B 发出的信号。两条斜线相交的位置就是冲突点。A 在冲突信号回来时还没有发完，所以能检测到冲突。如果帧太短，A 已经发完并停止监听，就会误以为发送成功。
 
-\begin{attention}
-\textbf{408 CSMA/CD 高频计算：}
-\begin{enumerate}
-    \item 给定数据率和最大距离，求最短帧长。
-    \item 给定最短帧长和数据率，求最大传输距离。
-    \item 二进制指数退避的等待时间和 $k$ 值的对应关系。
-\end{enumerate}
-\end{attention}
-
-\subsection{以太网与交换机}
-
-\begin{conclusion}{以太网帧格式}{ethernet-frame}
+由此得到最短帧长的条件：
 \[
-\begin{array}{|c|c|c|c|c|c|c|}
-\hline
-\text{前导码} & \text{目的MAC} & \text{源MAC} & \text{类型} & \text{数据} & \text{填充} & \text{CRC} \\
-\text{(8B)} & \text{(6B)} & \text{(6B)} & \text{(2B)} & \text{(46-1500B)} & & \text{(4B)} \\
-\hline
-\end{array}
+T_f=\frac{L}{R}\ge 2\tau
+\quad\Longrightarrow\quad
+L_{\min}=2\tau\cdot R.
 \]
-以太网 MAC 帧的最短长度为 64 B，即 $6+6+2+46+4=64$ B（从目的 MAC 到 FCS，不含 7 B 前导码和 1 B 帧开始定界符）。加上前导码和定界符后，链路上发送 72 B；帧间间隔也不计入帧长。
-\end{conclusion}
+$R$ 是数据率。10 Mb/s 以太网的争用期 $2\tau$ 规定为 51.2 $\mu$s，也就是 512 个比特时间。代入得 $L_{\min}=512$ bit $=64$ B。这个 64 B 从目的 MAC 算到 FCS，不包括前导码。100 Mb/s 以太网的时隙仍是 512 个比特时间，但时间缩短为 5.12 $\mu$s；为了在更短的时间里完成往返，网段的最大距离必须相应减小。
+
+二进制指数退避的做法如下。设一个帧已经发生了 $n$ 次冲突，令
+\[
+k=\min(n,10),
+\]
+从 $\{0,1,\dots,2^k-1\}$ 中随机选一个整数 $r$，等待 $r$ 个争用期后再尝试发送。第一次冲突时 $r\in\{0,1\}$，第二次冲突时 $r\in\{0,1,2,3\}$。冲突次数越多，可选等待范围越大，各站错开重试时刻的概率越高。$n>10$ 后范围不再增大，固定在 $[0,2^{10}-1]$。连续冲突 16 次仍不成功，就丢弃这个帧并向上层报告。
+
+\begin{attention}
+\textbf{两个容易混的数：}争用期是 $2\tau$，不是 $\tau$；最短帧长是 64 B，也就是 512 bit，不是 512 B。计算时先把数据率换成 bit/s，把帧长换成 bit，再代入 $L_{\min}=2\tau R$。另外，全双工交换式以太网的点对点链路不会冲突，不需要 CSMA/CD；但以太网帧的最小长度仍是 64 B。
+\end{attention}
+
+\subsection{以太网帧与 MAC 地址}
+
+以太网是目前最常用的局域网技术。它把数据链路层分成两个子层：上面的 LLC 子层处理逻辑链路控制，下面的 MAC 子层处理介质访问和帧的封装。408 常说的“以太网帧”一般指 DIX Ethernet V2 格式。
 
 \begin{center}
 \begin{tikzpicture}[font=\scriptsize]
-  \def\bh{0.62}
-  \filldraw[fill=SoftGray,draw=black!40] (0,0) rectangle (2.0,\bh) node[midway,align=center]{前导码+SFD\\(8B)};
-  \filldraw[fill=SoftTeal,draw=black!40] (2.0,0) rectangle (3.6,\bh) node[midway,align=center]{目的MAC\\(6B)};
-  \filldraw[fill=SoftTeal,draw=black!40] (3.6,0) rectangle (5.2,\bh) node[midway,align=center]{源MAC\\(6B)};
-  \filldraw[fill=SoftBlue,draw=black!40] (5.2,0) rectangle (6.6,\bh) node[midway,align=center]{类型\\(2B)};
-  \filldraw[fill=SoftAmber,draw=black!40] (6.6,0) rectangle (9.4,\bh) node[midway,align=center]{数据+填充\\(46--1500B)};
-  \filldraw[fill=SoftGray,draw=black!40] (9.4,0) rectangle (10.2,\bh) node[midway,align=center]{FCS\\(4B)};
-  \draw[decorate,decoration={brace,amplitude=5pt,raise=2pt},black!60] (2.0,\bh+0.12) -- (10.2,\bh+0.12);
-  \node[font=\scriptsize,black!70] at (6.1,\bh+0.5){最短帧长 64 B（目的MAC $\to$ FCS）};
-  \node[align=center,font=\scriptsize,black!70] at (1.0,\bh+0.95){前导码+帧定界符\\不计入帧长};
+  \def\bh{0.8}
+  % 帧字段
+  \draw[fill=SoftGray,draw=black!35] (0,0) rectangle (2.0,\bh);
+  \node[align=center] at (1.0,0.4) {前导码\\SFD\\8 B};
+  \draw[fill=SoftBlue,draw=black!35] (2.0,0) rectangle (3.6,\bh);
+  \node[align=center] at (2.8,0.4) {目的\\MAC\\6 B};
+  \draw[fill=SoftBlue,draw=black!35] (3.6,0) rectangle (5.2,\bh);
+  \node[align=center] at (4.4,0.4) {源\\MAC\\6 B};
+  \draw[fill=SoftAmber,draw=black!35] (5.2,0) rectangle (6.4,\bh);
+  \node[align=center] at (5.8,0.4) {类型\\2 B};
+  \draw[fill=SoftTeal,draw=black!35] (6.4,0) rectangle (9.8,\bh);
+  \node[align=center] at (8.1,0.4) {数据 + 填充\\46--1500 B};
+  \draw[fill=SoftGray,draw=black!35] (9.8,0) rectangle (11.2,\bh);
+  \node[align=center] at (10.5,0.4) {FCS\\4 B};
+  % 帧长括号
+  \draw[decorate,decoration={brace,amplitude=5pt,raise=3pt},black!55] (2.0,\bh+0.05) -- (11.2,\bh+0.05);
+  \node[above,black!70] at (6.6,\bh+0.55) {帧长 64--1518 B};
+  % 前导码括号
+  \draw[decorate,decoration={brace,amplitude=4pt,raise=3pt,mirror},black!55] (0,-0.05) -- (2.0,-0.05);
+  \node[below,black!70] at (1.0,-0.55) {物理层添加，不计入帧长};
+  \node[align=center,black!70] at (6.0,-1.85){最短 64 B 来自 $6+6+2+46+4$；数据不足 46 B 时由填充字段补齐。\\FCS 用 CRC-32，只检错，不重传。};
 \end{tikzpicture}
 \end{center}
 
-\subsection{无线局域网与 VLAN}
+图中从左到右是前导码、目的 MAC、源 MAC、类型、数据和 FCS。括号标出的 64--1518 B 从目的 MAC 算到 FCS，前面的 8 B 不计入帧长。
 
-\begin{conclusion}{IEEE 802.11 无线局域网}{wlan-80211}
-基础设施模式中，主机通过接入点 AP 接入分配系统；同一 AP 覆盖的基本服务集称为 BSS。802.11 使用 CSMA/CA，并以链路层 ACK 确认单播数据帧。隐藏站问题是指两个站彼此听不到，却同时向同一接收站发送而产生冲突；RTS/CTS 通过预约信道降低该问题的影响。
-\end{conclusion}
+目的 MAC 和源 MAC 各 6 B，共 48 位，通常写成 6 组十六进制数。全 1 地址 \texttt{FF-FF-FF-FF-FF-FF} 是广播地址。MAC 地址的第一位表示单播还是组播，第二位表示全球管理还是本地管理。网卡会接收发往自己 MAC 的帧、广播帧，以及自己加入的组播组的帧，其余帧丢弃。
 
-\begin{conclusion}{虚拟局域网 VLAN}{vlan}
-VLAN 在二层交换网络中按逻辑划分广播域。不同 VLAN 的主机即使连接同一台交换机也不能直接进行二层通信，跨 VLAN 通信必须经过三层设备。
+类型字段说明上层协议。\texttt{0x0800} 表示 IP，\texttt{0x0806} 表示 ARP，\texttt{0x8100} 表示带 802.1Q 标签的帧。IEEE 802.3 的帧在这个位置放的是长度字段，并在数据部分放 LLC 首部。408 默认考 DIX V2 格式。
+
+数据字段最少 46 B，最多 1500 B。最少 46 B 是为了让整个帧达到 64 B；数据不足时用填充字节补齐。最多 1500 B 就是常说的 MTU。超过 MTU 的 IP 分组要在网络层分片。
+
+以太网提供无连接、不可靠的服务。发送前不建立连接，收到坏帧直接丢弃，不发送确认，也不重传。可靠性由上层协议负责。帧之间还要留出至少 96 个比特时间的帧间间隔，让接收方有时间处理上一帧。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, x=0.45cm, y=0.7cm]
+  % 第一行：TPID 16 bit
+  \foreach \i in {0,...,15} {
+    \draw[fill=SoftBlue,draw=black!25] (\i,1.0) rectangle ++(1,0.7);
+  }
+  \node[above,black!70] at (8,1.75) {TPID = \texttt{0x8100}（16 bit）};
+  % 第二行：PCP 3 bit + DEI 1 bit + VID 12 bit
+  \foreach \i in {0,1,2} {
+    \draw[fill=SoftAmber,draw=black!25] (\i,0) rectangle ++(1,0.7);
+  }
+  \draw[fill=SoftGray,draw=black!25] (3,0) rectangle ++(1,0.7);
+  \foreach \i in {4,...,15} {
+    \draw[fill=SoftTeal,draw=black!25] (\i,0) rectangle ++(1,0.7);
+  }
+  \draw[black!55] (0,0) rectangle (16,0.7);
+  \draw[black!55] (0,1.0) rectangle (16,1.7);
+  % 字段标签
+  \draw[decorate,decoration={brace,amplitude=4pt,raise=3pt,mirror},black!55] (0,-0.05) -- (3,-0.05);
+  \node[below,Amber!85!black] at (1.5,-0.55) {PCP（3 bit）};
+  \draw[decorate,decoration={brace,amplitude=4pt,raise=3pt,mirror},black!55] (4,-0.05) -- (16,-0.05);
+  \node[below,TealDark] at (10,-0.55) {VID（12 bit）};
+  \draw[->,Amber,thick] (3.5,-1.45) -- (3.5,-0.08);
+  \node[below,Amber!85!black] at (3.5,-1.5) {DEI（1 bit）};
+  \node[align=center,black!70] at (8,-2.8){4 B 标签插在源 MAC 之后、类型字段之前；\\VID 取 1--4094，0 和 4095 保留。};
+\end{tikzpicture}
+\end{center}
+
+图中上排是 16 位的 TPID，下排把 16 位分成 PCP、DEI 和 VID 三段。整个标签 4 B，插在源 MAC 与类型字段之间。
+
+\subsection{交换机与自学习}
+
+集线器工作在物理层，它把收到的比特直接复制到所有端口。所有端口在同一个冲突域里，同一时刻只能有一个站发送。交换机工作在数据链路层，它把帧收进来，检查目的 MAC，再决定从哪个端口转发。交换机的每个端口是一个独立的冲突域，端口之间可以同时通信。
+
+交换机刚上电时，交换表是空的。它收到一个帧，先把帧的源 MAC 和入端口记下来，这就是自学习。然后查目的 MAC：
 \begin{itemize}
-    \item \textbf{Access 端口：}通常只属于一个 VLAN，连接终端，收发普通以太网帧。
-    \item \textbf{Trunk 端口：}在交换机之间承载多个 VLAN，通常使用 IEEE 802.1Q 标签标识 VLAN。
+  \item 目的 MAC 在表里，且出端口不是入端口：只从该端口转发。
+  \item 目的 MAC 在表里，且出端口就是入端口：说明目的主机和源主机在同一端口后面，丢弃这个帧。
+  \item 目的 MAC 不在表里，或者是广播、组播地址：向除入端口外的所有端口泛洪。
 \end{itemize}
-VLAN 能隔离广播域，但不等同于物理隔离，也不能替代路由和安全策略。
-\end{conclusion}
+表项有老化时间。主机长时间不发帧，表项会被删除，避免主机换端口后一直转发到旧端口。如果主机真的换了端口，交换机收到它从新端口发出的帧时，会用新的端口覆盖旧表项。
 
-\begin{conclusion}{交换机与网桥}{switch-bridge}
-\begin{itemize}
-    \item \textbf{网桥（Bridge）}：工作在数据链路层，根据 MAC 地址转发帧。可隔离冲突域，但无法隔离广播域。
-    \item \textbf{交换机（Switch）}：多端口网桥。每个端口是一个独立的冲突域。
-    \item \textbf{自学习算法}：交换机通过源 MAC 地址学习端口-地址映射，构建\textbf{交换表（MAC 地址表）}。未知目的地址的帧\textbf{泛洪}（flood）到除接收端口外的所有端口。
-\end{itemize}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, >=stealth]
+  % 交换机
+  \node[draw,fill=SoftBlue,minimum width=2.8cm,minimum height=1.4cm] (sw) at (0,0) {交换机};
+  % 端口坐标
+  \coordinate (p1) at (-1.4,0.6);
+  \coordinate (p2) at (-1.4,-0.6);
+  \coordinate (p3) at (1.4,0.6);
+  \coordinate (p4) at (1.4,-0.6);
+  % 主机
+  \node[draw,fill=SoftGray,minimum width=1.1cm,minimum height=0.6cm] (A) at (-4.2,1.0) {P};
+  \node[draw,fill=SoftGray,minimum width=1.1cm,minimum height=0.6cm] (B) at (-4.2,-1.0) {Q};
+  \node[draw,fill=SoftGray,minimum width=1.1cm,minimum height=0.6cm] (C) at (4.2,1.0) {R};
+  \node[draw,fill=SoftGray,minimum width=1.1cm,minimum height=0.6cm] (D) at (4.2,-1.0) {S};
+  % 连线
+  \draw (A.east) -- (p1);
+  \draw (B.east) -- (p2);
+  \draw (p3) -- (C.west);
+  \draw (p4) -- (D.west);
+  % 端口号
+  \node[above,TealDark] at (-1.4,0.65) {1};
+  \node[below,TealDark] at (-1.4,-0.65) {2};
+  \node[above,TealDark] at (1.4,0.65) {3};
+  \node[below,TealDark] at (1.4,-0.65) {4};
+  % 交换表快照
+  \node[draw=RuleGray,fill=SoftGray,rounded corners=1pt,align=left,font=\scriptsize,inner sep=5pt,text width=6.1cm] at (8.3,0) {%
+    \textbf{交换表快照}\\
+    初始：空\\
+    收到 P$\to$R：学习 P--1\\
+    收到 R$\to$P：学习 R--3\\
+    收到 Q$\to$P：学习 Q--2
+  };
+  \node[align=center,font=\scriptsize,black!70] at (0,-2.1){端口号就是交换表里的出端口。\\源 MAC 用来学习，目的 MAC 用来转发。};
+\end{tikzpicture}
+\end{center}
 
-\begin{tablebox}{冲突域 vs 广播域}
+图中只画了一台交换机。P 第一次给 R 发帧时，交换机学到 P 在端口 1；R 的地址还不在表里，所以帧被泛洪到端口 2、3、4。R 回帧时，交换机学到 R 在端口 3，并查表知道 P 在端口 1，于是只从端口 1 转发。Q 给 P 发帧时，交换机学到 Q 在端口 2，同样只转到端口 1。
+
+交换机有两种转发方式。存储转发把整个帧收完，检查 FCS 后再转发，坏帧不会进入下一段链路，但时延较大。直通转发只读到目的 MAC 就开始转发，时延小，但会把坏帧也传下去。现在的交换机大多默认存储转发。
+
+交换机可以隔离冲突域，但不能隔离广播域。广播帧仍然会从所有端口发出去。要隔离广播域，需要 VLAN 或路由器。
+
+\begin{tablebox}{不同设备隔离哪个域}
 \centering
-\begin{tabular}{|l|c|c|}
+\begin{tabular}{|c|c|c|}
 \hline
-设备 & 隔离冲突域？& 隔离广播域？\\
+设备 & 隔离冲突域 & 隔离广播域 \\
 \hline
-中继器/集线器（物理层）& 否 & 否 \\
-网桥/交换机（数据链路层）& \textbf{是} & 否 \\
-路由器（网络层）& 是 & \textbf{是} \\
+中继器、集线器 & 否 & 否 \\
+网桥、交换机 & 是 & 否 \\
+路由器 & 是 & 是 \\
 \hline
 \end{tabular}
 \end{tablebox}
-\end{conclusion}
 
-\subsection{ARP 协议}
+交换机之间如果接成环路，广播帧会一直在环里打转，形成广播风暴。生成树协议（STP）通过阻塞部分端口，把有环的拓扑变成一棵无环的树。被阻塞的端口不转发数据帧，只保留在需要时接管的可能。
 
-\begin{mydef}{ARP}{arp}
-ARP（Address Resolution Protocol）将 IP 地址映射为 MAC 地址。工作过程：主机广播 ARP 请求（「谁的 IP 是 xxx？请告诉你的 MAC」），目标主机单播 ARP 响应。结果缓存于 ARP 表（有老化时间）。
-\end{mydef}
+\subsection{VLAN}
+
+VLAN 把一个物理交换网络划分成多个逻辑广播域。同一个 VLAN 内的主机可以直接二层通信；不同 VLAN 的主机即使接在同一台交换机上，也不能直接通信，必须经过路由器或三层交换机。
+
+交换机用 802.1Q 标签区分 VLAN。标签 4 B，插在源 MAC 之后、类型字段之前。原来的帧加上标签后，最大长度从 1518 B 变成 1522 B。
+
+端口分两种。Access 端口通常连接主机，只属于一个 VLAN，收发不带标签的普通以太网帧。Trunk 端口通常连接另一台交换机或路由器，承载多个 VLAN，帧在链路上带 802.1Q 标签。Trunk 上可以有一个本征 VLAN，它的帧不打标签，其余 VLAN 的帧都打标签。
+
+VLAN 隔离的是广播域。一个 VLAN 内的广播帧不会转到另一个 VLAN。VLAN 不改变交换机每个端口是一个冲突域这一事实，也不提供路由功能。跨 VLAN 通信仍然要经过三层设备。
+
+\subsection{PPP}
+
+PPP 是点对点链路协议，常用于拨号上网、DSL 和 PPPoE。点对点链路只有两个端点，不需要 MAC 地址，也不需要介质访问控制。PPP 负责帧定界、差错检测、链路建立和网络层协议协商，但不提供可靠传输。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (A) at (0,1.4){主机A};
-  \node[draw,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (B) at (7.0,1.4){主机B};
-  \draw[->,thick,Teal] (A) -- (B) node[midway,above,font=\scriptsize,align=center]{广播 ARP 请求\\「谁有 IP 192.168.1.2？」};
-  \draw[->,thick,Burgundy] (B) -- (A) node[midway,below,font=\scriptsize,align=center]{单播 ARP 响应\\「我的 MAC 是 00-…-E2」};
-  \node[align=center,font=\scriptsize,black!70] at (3.5,-0.7){ARP 请求是广播帧（目的 MAC = FF-FF-FF-FF-FF-FF）；ARP 响应是单播帧};
+\begin{tikzpicture}[font=\scriptsize]
+  \def\bh{0.8}
+  \draw[fill=SoftGray,draw=black!35] (0,0) rectangle (1.1,\bh);
+  \node[align=center] at (0.55,0.4) {标志\\\texttt{0x7E}};
+  \draw[fill=SoftBlue,draw=black!35] (1.1,0) rectangle (2.3,\bh);
+  \node[align=center] at (1.7,0.4) {地址\\\texttt{0xFF}};
+  \draw[fill=SoftBlue,draw=black!35] (2.3,0) rectangle (3.5,\bh);
+  \node[align=center] at (2.9,0.4) {控制\\\texttt{0x03}};
+  \draw[fill=SoftAmber,draw=black!35] (3.5,0) rectangle (5.1,\bh);
+  \node[align=center] at (4.3,0.4) {协议\\2 B};
+  \draw[fill=SoftTeal,draw=black!35] (5.1,0) rectangle (9.1,\bh);
+  \node[align=center] at (7.1,0.4) {信息\\0--1500 B};
+  \draw[fill=SoftGray,draw=black!35] (9.1,0) rectangle (10.7,\bh);
+  \node[align=center] at (9.9,0.4) {FCS\\2 B};
+  \draw[fill=SoftGray,draw=black!35] (10.7,0) rectangle (11.8,\bh);
+  \node[align=center] at (11.25,0.4) {标志\\\texttt{0x7E}};
+  % 开销括号
+  \draw[decorate,decoration={brace,amplitude=5pt,raise=3pt},black!55] (0,\bh+0.05) -- (11.8,\bh+0.05);
+  \node[above,black!70] at (5.9,\bh+0.55) {固定开销 8 B（含首尾标志，不含信息字段）};
+  \node[align=center,black!70] at (5.9,-1.0){地址字段固定 \texttt{0xFF}，控制字段固定 \texttt{0x03}，两者可以协商压缩。\\信息字段默认最大 1500 B，FCS 用 CRC-16。};
 \end{tikzpicture}
 \end{center}
 
-\subsection{PPP 协议}
+图中从左到右依次是标志、地址、控制、协议、信息和 FCS。首尾两个 \texttt{0x7E} 之间是一帧，固定开销共 8 B。
 
-\begin{conclusion}{PPP}{ppp}
-点对点协议（Point-to-Point Protocol）是目前最广泛使用的数据链路层协议（如电话线拨号、PPPoE）。特点：
-\begin{itemize}
-    \item 不提供可靠传输（不编号、不确认），差错检测仅用 CRC。
-    \item 面向字节，使用字节填充（转义字符 \texttt{0x7D}）。
-    \item 支持多种网络层协议（LCP + NCP）。
-\end{itemize}
-\end{conclusion}
+PPP 的帧边界也是 \texttt{0x7E}。因为信息字段里可能出现 \texttt{0x7E}，PPP 在异步链路上使用字节填充：\texttt{0x7E} 变成 \texttt{0x7D} \texttt{0x5E}，\texttt{0x7D} 变成 \texttt{0x7D} \texttt{0x5D}。默认还会转义小于 \texttt{0x20} 的字符。接收方看到 \texttt{0x7D}，就把后一个字节异或 \texttt{0x20}，还原原字节。
+
+PPP 的协议字段说明信息字段里装的是什么。\texttt{0x0021} 是 IP，\texttt{0xC021} 是 LCP，\texttt{0x8021} 是 IPCP。LCP 负责建立、配置、测试和关闭链路，还可以协商认证方式。PAP 把用户名和口令以明文发送；CHAP 用挑战-响应，不直接传口令。NCP 负责配置网络层协议，IP 对应 IPCP，用来协商 IP 地址、DNS 等参数。
+
+PPP 的数据帧不编号，不确认，也不重传。FCS 只用来发现错误，发现后丢弃帧，由上层协议决定要不要重发。PPP 也不做流量控制。它的“可靠”只体现在链路建立和认证过程，数据传输本身是不可靠的。
+
+PPP 可以跑在以太网上，叫 PPPoE。PPPoE 在 PPP 帧前加 6 B 的 PPPoE 首部，再用以太网帧封装，常用于宽带拨号。这样既能使用以太网的多址链路，又能保留 PPP 的认证和会话管理。
+
+\subsection{无线局域网为什么不用 CSMA/CD}
+
+无线局域网使用 CSMA/CA，也就是冲突避免。原因有两个。第一，无线网卡通常半双工，发送时不能同时可靠地接收，边发边听很难做到。第二，无线信号的动态范围很大，发送时自己的信号会盖住远处微弱的冲突信号，检测不可靠。既然不能检测冲突，就只能尽量避开冲突。
+
+无线还有一个有线网络没有的问题：隐藏站。两个站都能听到接入点 AP，但彼此听不到。它们可能同时判断信道空闲，然后同时向 AP 发送，在 AP 处发生冲突。发送方自己却检测不到这个冲突，因为冲突发生在 AP 附近。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, scale=0.9, >=stealth]
+  % 覆盖范围
+  \draw[dashed,Teal!60,thick] (-3.6,0) circle (3.9);
+  \draw[dashed,Amber!75,thick] (3.6,0) circle (3.9);
+  % 节点
+  \node[draw,fill=SoftGray,minimum width=1.1cm,minimum height=0.65cm] (A) at (-3.6,0) {A};
+  \node[draw,fill=SoftBlue,minimum width=1.3cm,minimum height=0.7cm] (AP) at (0,0) {AP};
+  \node[draw,fill=SoftGray,minimum width=1.1cm,minimum height=0.65cm] (C) at (3.6,0) {C};
+  % 链路
+  \draw (A) -- (AP);
+  \draw (AP) -- (C);
+  % 标注
+  \node[TealDark] at (-5.4,2.7) {A 的覆盖范围};
+  \node[Amber!85!black] at (5.4,2.7) {C 的覆盖范围};
+  \node[align=center,black!70] at (0,2.2){A 与 C 都能到达 AP，\\但彼此听不到};
+  \node[align=center,black!70] at (0,-4.6){A 先发 RTS，AP 回 CTS；C 收到 CTS 后推迟发送。\\RTS/CTS 用短控制帧预约信道，降低隐藏站的冲突概率。};
+\end{tikzpicture}
+\end{center}
+
+图中两个虚线圆是 A、C 的覆盖范围。它们在 AP 附近相交，但 A 和 C 都在对方圆外，所以彼此听不到。
+
+CSMA/CA 的基本流程是：先监听信道，空闲持续 DIFS 后进入随机退避；退避计数到 0 再发送；接收方正确收到后，等 SIFS 发回 ACK。因为发送方听不到冲突，ACK 成了判断帧是否送达的主要手段。RTS/CTS 是可选项：发送方先发 RTS，AP 回 CTS，CTS 会被覆盖范围内的所有站听到，其他站据此推迟发送。
+
+CSMA/CA 不能完全消除冲突。随机退避只能降低同时发送的概率，隐藏站和突发流量仍可能造成碰撞。它的目标是把冲突控制在可接受的范围，而不是像 CSMA/CD 那样检测到冲突就立刻停发。
 
 \subsection{408 高频考点速查}
 
-\begin{conclusion}{数据链路层 — 408常考点}{cn3-keypoints}
+\begin{conclusion}{数据链路层常考点}{cn3-keypoints}
 \begin{enumerate}
-    \item \textbf{CSMA/CD}：最短帧长计算、争用期 $2\tau$ 的概念、二进制指数退避。
-    \item \textbf{交换机自学习}：给定帧转发序列和初始空交换表，写出交换表项的变化过程。
-    \item \textbf{CRC 校验}：给定生成多项式，计算 CRC 校验码（模 2 除法）。
-    \item \textbf{滑动窗口协议}：GBN/SR 的窗口上限、确认方式、超时重传范围和序号回绕。
-    \item \textbf{无线与 VLAN}：CSMA/CD vs CSMA/CA、隐藏站、802.1Q、广播域划分。
-    \item \textbf{冲突域 vs 广播域}：各设备隔离哪个域。
-    \item \textbf{ARP}：工作原理、是否跨网络（ARP 仅在同一广播域内有效）。
+  \item 帧定界：字节填充的 \texttt{0x7E}/\texttt{0x7D} 替换规则；零比特填充“五个 1 插一个 0”。
+  \item CRC：补 $r$ 个 0、模 2 除法、余数替换；生成多项式次数与校验位数的关系。
+  \item 汉明码：校验位放在 1、2、4 的位置；故障字指出出错位；$d_{\min}$ 与检错、纠错能力的关系。
+  \item 滑动窗口：停止-等待的利用率公式；GBN 的 $2^m-1$；SR 的 $2^{m-1}$；累计确认与逐帧确认的区别。
+  \item CSMA/CD：争用期 $2\tau$；最短帧长 $L_{\min}=2\tau R$；二进制指数退避的范围；10 Mb/s 以太网的 51.2 $\mu$s 和 64 B。
+  \item 以太网帧：前导码不计入帧长；帧长 64--1518 B；数据字段 46--1500 B；FCS 用 CRC-32。
+  \item 交换机：源 MAC 学习、目的 MAC 转发、未知目的泛洪、同端口丢弃；每个端口一个冲突域，未划分 VLAN 时整个交换机一个广播域。
+  \item VLAN：802.1Q 标签 4 B；Access 与 Trunk 的区别；VLAN 隔离广播域，不隔离冲突域。
+  \item PPP：帧格式与字节填充；LCP/NCP；不提供可靠传输；FCS 只检错。
+  \item 无线：CSMA/CA 用随机退避降低冲突概率，用 ACK 确认单播帧是否送达；隐藏站问题；RTS/CTS 的作用。
 \end{enumerate}
 \end{conclusion}
 
-\newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（真题风格·选择题）} 数据链路层采用后退N帧（GBN）协议，发送方已经发送了编号为0~7的帧。当计时器超时时，若发送方只收到0、2、3号帧的确认，则发送方需要重发的帧数是
-\begin{center}
-\begin{tabular}{ll}
-(A) 2 & (B) 3 \\[6pt]
-(C) 4 & (D) 5
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} GBN协议使用累计确认。收到3号帧的确认表示0-3号帧均已正确接收，只需重发4-7号帧，共4帧。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 某局域网采用CSMA/CD协议，数据传输速率为10 Mbps，信号传播速率为$2\times 10^8$ m/s，主机甲和主机乙相距2 km。若主机甲和主机乙发送数据时发生冲突，则从开始发送数据到检测到冲突的最短时间和最长时间分别是
-\begin{center}
-\begin{tabular}{ll}
-(A) 0, $20\ \mu$s & (B) 0, $10\ \mu$s \\[6pt]
-(C) $10\ \mu$s, $20\ \mu$s & (D) $10\ \mu$s, $10\ \mu$s
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} $\tau=2\text{ km}/(2\times 10^8\text{ m/s})=10\ \mu$s。最短：双方同时发送（0），最长：一方发到达另一方前另一方才发（$2\tau=20\ \mu$s）。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 对于100 Mbps的以太网交换机，当输出端口无排队，以直通交换方式转发一个以太网帧时，引入的转发时延至少是
-\begin{center}
-\begin{tabular}{ll}
-(A) $0\,\mu\text{s}$ & (B) $0.48\,\mu\text{s}$ \\[6pt]
-(C) $5.12\,\mu\text{s}$ & (D) $121.44\,\mu\text{s}$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 直通交换只接收目的MAC地址（6 B）就开始转发。$6\times 8/10^8=0.48\ \mu$s。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 下列介质访问控制方法中，可能发生冲突的是
-\begin{center}
-\begin{tabular}{ll}
-(A) CDMA & (B) CSMA/CD \\[6pt]
-(C) TDMA & (D) FDMA
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} CSMA/CD是竞争型协议，存在冲突。CDMA/TDMA/FDMA是信道划分协议，无冲突。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·选择题）} 数据$M=101001$，生成多项式$G(x)=x^3+x^2+1$（即1101），则CRC校验码为
-\begin{center}
-\begin{tabular}{ll}
-(A) 001 & (B) 101 \\[6pt]
-(C) 011 & (D) 110
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} $M$后补3个0得$101001000$。模2除$1101$：$101001000\div 1101$，余数$=001$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（基础题）} 帧序号使用 3 位二进制数。GBN 协议发送窗口的最大值和 SR 协议发送窗口的最大值分别为
-\begin{center}
-\begin{tabular}{ll}
-(A) 7 和 4 & (B) 8 和 4 \\[6pt]
-(C) 4 和 7 & (D) 7 和 8
-\end{tabular}
-\end{center}
-\ifshowsolutions\par\noindent\textbf{解析：}GBN 最大为 $2^3-1=7$，SR 最大为 $2^{3-1}=4$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（基础题）} IEEE 802.11 无线局域网使用 CSMA/CA 而不使用 CSMA/CD 的主要原因是
-\begin{center}
-\begin{tabular}{ll}
-(A) 无线网络没有传播时延 & (B) 无线站难以边发送边检测冲突 \\[6pt]
-(C) 无线帧不需要确认 & (D) 无线网络不存在隐藏站
-\end{tabular}
-\end{center}
-\ifshowsolutions\par\noindent\textbf{解析：}无线发送信号远强于接收信号，站点难以在发送时可靠检测碰撞，故采用避免、确认和重传机制。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（基础题）} 同一台二层交换机上属于不同 VLAN 的两台主机要互相通信，至少还需要
-\begin{center}
-\begin{tabular}{ll}
-(A) 中继器 & (B) 集线器 \\[6pt]
-(C) 三层转发设备 & (D) 仅修改 MAC 地址表
-\end{tabular}
-\end{center}
-\ifshowsolutions\par\noindent\textbf{解析：}VLAN 隔离广播域，跨 VLAN 通信必须经过路由器或三层交换机。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·选择题）} 交换机通过自学习算法建立交换表。某交换机初始交换表为空，先后收到发往不同目的MAC地址的帧。以下关于自学习的说法，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 交换机通过目的MAC地址学习 & (B) 交换机通过源MAC地址学习 \\[4pt]
-(C) 交换机只在收到广播帧时学习 & (D) 交换表项永不过期
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 交换机通过\textbf{源MAC地址}和接收端口学习，建立端口-地址映射。表项有老化时间。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\vspace{8pt}
-
-\item \textbf{（真题风格·综合题）} 某局域网通过交换机连接4台主机A、B、C、D，分别连接端口1-4。交换表初始为空。按顺序：A$\to$B, B$\to$A, C$\to$A, D$\to$C。描述每步后交换表变化及帧的转发方式（明确转发、泛洪或过滤）。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-(1) A$\to$B：表空，无B的映射$\to$泛洪到端口2,3,4。学习A(端口1)。
-(2) B$\to$A：表中有A在端口1$\to$明确转发到端口1。学习B(端口2)。
-(3) C$\to$A：表中有A在端口1$\to$明确转发到端口1。学习C(端口3)。
-(4) D$\to$C：表中有C在端口3$\to$明确转发到端口3。学习D(端口4)。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item Kurose \& Ross 第6章——CSMA/CD、交换机自学习的完整讨论。
-    \item 谢希仁 第3章——PPP协议和CSMA/CD的国内标准表述。
+  \item Kurose \& Ross《计算机网络：自顶向下方法》第 6 章：CSMA/CD、交换机自学习和无线局域网的完整讨论。
+  \item 谢希仁《计算机网络》第 3 章：PPP、CSMA/CD 和以太网的国内标准表述。
 \end{itemize}
+
+\newpage
+\input{cn/exercises/chap3.tex}

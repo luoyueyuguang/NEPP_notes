@@ -1,0 +1,256 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 在单处理机系统中，进程 $P$ 因时间片用完而被切换，进程 $Q$ 因请求磁盘读操作而主动让出处理机。这两个进程本次状态转换后分别进入
+\begin{center}
+\begin{tabular}{ll}
+(A) 就绪态、阻塞态 & (B) 阻塞态、就绪态 \\[4pt]
+(C) 就绪态、就绪态 & (D) 阻塞态、阻塞态
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 时间片用完属于被剥夺处理机，$P$ 仍具备运行条件，只是暂时不能上 CPU，故进入就绪态。请求磁盘读是进程主动等待 I/O 完成，在事件发生前无法继续执行，故进入阻塞态。注意阻塞态不能直接转为运行态，必须先回到就绪态；而“运行 $\to$ 就绪”和“运行 $\to$ 阻塞”是两种不同原因导致的转换，不能混为一谈。\boxed{\text{\textbf{答案：}(A)}}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 同一进程内的两个线程，下列资源中两者都私有的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 地址空间与打开文件表 & (B) 栈与程序计数器 \\[4pt]
+(C) 代码段与全局变量 & (D) 堆与已打开文件
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 线程是处理机调度的基本单位，每个线程必须有独立的运行现场，因此线程 ID、程序计数器、通用寄存器组和栈是私有的。代码段、数据段（含全局变量）、堆、地址空间和打开文件表都属于整个进程，由同进程的所有线程共享。选项 (A)(C)(D) 中每组都至少含有一项共享资源。\boxed{\text{\textbf{答案：}(B)}}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（填空题）} 某类资源共有 3 个，用记录型信号量 $S$ 管理，初值 $S=3$。某时刻 $S$ 的值为 $-2$，则此时该信号量的等待队列中有 \underline{\qquad} 个进程，已有 \underline{\qquad} 个进程获得该类资源。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 记录型信号量的 $P$ 操作先做 $S.value\gets S.value-1$，若结果小于 0 则阻塞；$V$ 操作先做 $S.value\gets S.value+1$，若结果不大于 0 则唤醒一个等待者。因此 $S.value<0$ 时，$|S.value|$ 就是等待队列中的进程数，故等待进程为 2 个。设已有 $x$ 个进程成功申请到资源且尚未释放，则共有 $x$ 次成功的 $P$ 和 2 次被阻塞的 $P$，于是 $S.value=3-x-2=-2$，解得 $x=3$。这也可直接理解为：3 个资源已全部分配完，另有 2 个进程在排队。\boxed{\text{\textbf{答案：}2；3}}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 在生产者-消费者问题中，若生产者把 \texttt{P(empty)} 与 \texttt{P(mutex)} 的次序颠倒为先执行 \texttt{P(mutex)}、后执行 \texttt{P(empty)}，则当缓冲区已满时可能出现
+\begin{center}
+\begin{tabular}{ll}
+(A) 新数据覆盖缓冲区中的旧数据 & (B) 生产者与消费者互相等待，发生死锁 \\[4pt]
+(C) 消费者重复取走同一个数据 & (D) 信号量的初值被改写
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 缓冲区满时 \texttt{empty}=0。生产者先取得 \texttt{mutex}，再在 \texttt{empty} 上阻塞，于是它占着缓冲区锁睡觉；消费者要取走产品，必须先执行 \texttt{P(mutex)}，因此也被阻塞。消费者无法取走产品，\texttt{empty} 就永远不会被 \texttt{V}，生产者永远醒不来，双方互相等待。正确次序是先对资源信号量做 $P$（确认有空位或产品），再对互斥信号量做 $P$；释放时次序相反，先 $V$ 互斥量再 $V$ 资源量。\boxed{\text{\textbf{答案：}(B)}}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 某系统的每类资源都有多个实例。若某时刻的资源分配图中存在环，则
+\begin{center}
+\begin{tabular}{ll}
+(A) 系统一定处于死锁状态 & (B) 系统一定未发生死锁 \\[4pt]
+(C) 系统可能死锁，也可能未死锁 & (D) 环上的每个进程都必然死锁
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 当每类资源只有一个实例时，资源分配图存在环是死锁的充要条件。当某类资源有多个实例时，环只是死锁的必要条件：环上的进程可能等待的资源实例由环外某个能继续推进的进程持有，等该进程释放后环就被打破。因此有环只能说明“可能死锁”，还必须通过资源分配图化简（或安全性检查）才能判定。\boxed{\text{\textbf{答案：}(C)}}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（填空题）} 某系统采用高响应比优先（HRRN）调度。当前有作业 $A$、$B$ 等待调度：$A$ 已等待 7 ms，要求服务时间 3 ms；$B$ 已等待 2 ms，要求服务时间 1 ms。$A$ 的响应比为 \underline{\qquad}，$B$ 的响应比为 \underline{\qquad}，应优先调度 \underline{\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 响应比定义为
+\[
+R=\frac{\text{等待时间}+\text{要求服务时间}}{\text{要求服务时间}}
+=1+\frac{\text{等待时间}}{\text{要求服务时间}}.
+\]
+代入得 $R_A=1+\dfrac{7}{3}=\dfrac{10}{3}\approx 3.33$，$R_B=1+\dfrac{2}{1}=3$。HRRN 选择响应比最高者，$\dfrac{10}{3}>3$，故先调度 $A$。这也说明 HRRN 兼顾了短作业优先与先来先服务：等待越久，响应比越高，长作业不至于无限期等待。\boxed{\text{\textbf{答案：}$\dfrac{10}{3}$（约 3.33）；3；$A$}}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（单项选择题）} 某系统有 $A$、$B$ 两类资源，总数分别为 4 和 2。当前分配情况如下表，此时可用资源为 $(1,0)$。下列序列中，可能成为安全序列的是
+\begin{center}
+\begin{tabular}{|c|cc|cc|}
+\hline
+进程 & \multicolumn{2}{c|}{Allocation} & \multicolumn{2}{c|}{Max} \\
+ & $A$ & $B$ & $A$ & $B$ \\
+\hline
+$P_1$ & 1 & 1 & 2 & 1 \\
+$P_2$ & 0 & 1 & 0 & 2 \\
+$P_3$ & 2 & 0 & 3 & 1 \\
+\hline
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) $P_2\to P_1\to P_3$ & (B) $P_3\to P_2\to P_1$ \\[4pt]
+(C) $P_1\to P_3\to P_2$ & (D) 系统不安全，不存在安全序列
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 先由 $\text{Need}=\text{Max}-\text{Allocation}$ 得
+\[
+P_1:(1,0),\qquad P_2:(0,1),\qquad P_3:(1,1).
+\]
+当前 $Work=(1,0)$。$P_2$ 需要 $B=1$、$P_3$ 需要 $B=1$，而可用 $B=0$，二者都无法启动；只有 $P_1$ 的 Need $(1,0)$ 可满足。所以任何安全序列都必须以 $P_1$ 开头，选项 (A)(B) 的首进程分别为 $P_2$、$P_3$，均不成立。$P_1$ 完成后归还 $(1,1)$，$Work=(1,0)+(1,1)=(2,1)$，此后 $P_2$ 的 $(0,1)$、$P_3$ 的 $(1,1)$ 都能满足，故 $P_1\to P_3\to P_2$ 与 $P_1\to P_2\to P_3$ 都是安全序列，系统安全，(D) 也不成立。核对总量：已分配 $(1,1)+(0,1)+(2,0)=(3,2)$，加上可用 $(1,0)$ 恰为总数 $(4,2)$，数据自洽。\boxed{\text{\textbf{答案：}(C)}}\else \answerarea[8] \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 某系统采用时间片轮转调度，时间片 $q=2$ ms，忽略进程切换开销。三个进程的到达时间与运行时间如下表，同一时刻没有进程到达时间片结束点，就绪队列次序无歧义。它们的平均周转时间为
+\begin{center}
+\begin{tabular}{|c|ccc|}
+\hline
+进程 & $P_1$ & $P_2$ & $P_3$ \\
+\hline
+到达时间/ms & 0 & 1 & 3 \\
+运行时间/ms & 5 & 3 & 1 \\
+\hline
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tabular}{ll}
+(A) $6.0$ ms & (B) $\dfrac{20}{3}$ ms（约 6.67 ms） \\[4pt]
+(C) $7.0$ ms & (D) $\dfrac{22}{3}$ ms（约 7.33 ms）
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 按时间片轮转模拟，新到达进程按到达先后进入队尾，时间片用完的进程也排到队尾：
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+时间段/ms & 运行进程 & 说明 \\
+\hline
+$0\sim 2$ & $P_1$ & $P_1$ 剩余 3；$t=1$ 时 $P_2$ 到达 \\
+$2\sim 4$ & $P_2$ & $P_1$ 排到队尾；$t=3$ 时 $P_3$ 到达 \\
+$4\sim 6$ & $P_1$ & $P_2$ 剩余 1，排到队尾 \\
+$6\sim 7$ & $P_3$ & 运行 1 ms 后完成 \\
+$7\sim 8$ & $P_2$ & 运行 1 ms 后完成 \\
+$8\sim 9$ & $P_1$ & 运行最后 1 ms，完成 \\
+\hline
+\end{tabular}
+\end{center}
+完成时间分别为 $C_1=9$、$C_2=8$、$C_3=7$ ms。周转时间 $=$ 完成时间 $-$ 到达时间，即
+\[
+T_1=9-0=9,\qquad T_2=8-1=7,\qquad T_3=7-3=4,
+\]
+平均周转时间 $=(9+7+4)/3=20/3\approx 6.67$ ms。也可用“周转 $=$ 运行 $+$ 等待”核对：等待时间分别为 $4,4,3$ ms，加上运行时间 $5,3,1$ ms，结果一致。\boxed{\text{\textbf{答案：}(B)}}\else \answerarea[10] \fi
+
+\vspace{8pt}
+
+\item \textbf{（综合应用题）} 三个进程通过两个有界缓冲区流水作业：缓冲区 $B_1$ 可放 4 个数据，$B_2$ 可放 3 个数据。$P_1$ 每次生成一个数据并放入 $B_1$；$P_2$ 每次从 $B_1$ 取出一个数据，加工后放入 $B_2$；$P_3$ 每次从 $B_2$ 取出一个数据并处理。缓冲区的读写指针是共享变量，读写操作不是原子操作，同一缓冲区的存、取不能交错。要求：
+\begin{enumerate}
+    \item 给出所有信号量的名称、含义与初值；
+    \item 用 PV 操作写出三个进程的同步与互斥流程，并说明 $P$、$V$ 的次序理由。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 每个缓冲区都需要“空位数”“数据个数”“互斥”三个信号量，共 6 个。按 $(\text{empty},\text{full},\text{mutex})$ 的顺序，$B_1$ 为 $(4,0,1)$，$B_2$ 为 $(3,0,1)$。其中 \texttt{empty} 的初值是缓冲区容量（初始全空），\texttt{full} 的初值为 0（初始无数据），\texttt{mutex} 的初值为 1。
+\begin{lstlisting}[language=C]
+semaphore empty1 = 4, full1 = 0, mutex1 = 1;
+semaphore empty2 = 3, full2 = 0, mutex2 = 1;
+
+P1() {
+    while (1) {
+        data d = produce();
+        P(empty1);          // 等 B1 空位
+        P(mutex1);          // 独占 B1 的读写指针
+        put(B1, d);
+        V(mutex1);
+        V(full1);           // B1 中数据数加 1
+    }
+}
+
+P2() {
+    while (1) {
+        P(full1);           // 等 B1 中有数据
+        P(mutex1);
+        data d = get(B1);
+        V(mutex1);
+        V(empty1);          // 归还 B1 的一个空位
+        d = process(d);
+        P(empty2);          // 等 B2 空位
+        P(mutex2);
+        put(B2, d);
+        V(mutex2);
+        V(full2);           // B2 中数据数加 1
+    }
+}
+
+P3() {
+    while (1) {
+        P(full2);           // 等 B2 中有数据
+        P(mutex2);
+        data d = get(B2);
+        V(mutex2);
+        V(empty2);          // 归还 B2 的一个空位
+        consume(d);
+    }
+}
+\end{lstlisting}
+次序理由：$P$ 操作必须“先资源、后互斥”。若先取 \texttt{mutex} 再等 \texttt{empty}，缓冲区满时进程会占着锁阻塞，持有空位的消费者无法进入，形成死锁。$V$ 操作“先互斥、后资源”，先释放锁再唤醒对方，可减少无谓的等待。$P_2$ 在加工前就执行 \texttt{V(empty1)}，是为了尽早把 $B_1$ 的空位还给 $P_1$，让上游不必等加工完成，提高流水线的并行度；这一次序不影响正确性。\boxed{\text{\textbf{答案：}6 个信号量，$(4,0,1)$ 与 $(3,0,1)$（含义见上）}}\else \answerarea[16] \fi
+
+\vspace{8pt}
+
+\item \textbf{（综合应用题）} 某系统有 $A$、$B$、$C$ 三类资源，总数分别为 $(5,5,4)$。当前分配情况如下表。
+\begin{center}
+\begin{tabular}{|c|ccc|ccc|}
+\hline
+进程 & \multicolumn{3}{c|}{Allocation} & \multicolumn{3}{c|}{Max} \\
+ & $A$ & $B$ & $C$ & $A$ & $B$ & $C$ \\
+\hline
+$P_0$ & 1 & 0 & 2 & 3 & 2 & 2 \\
+$P_1$ & 2 & 1 & 0 & 3 & 3 & 1 \\
+$P_2$ & 0 & 1 & 1 & 2 & 1 & 2 \\
+$P_3$ & 1 & 1 & 0 & 2 & 2 & 1 \\
+\hline
+\end{tabular}
+\end{center}
+\begin{enumerate}
+    \item 求各进程的 Need 和当前 Available，判断系统是否安全，并给出一个安全序列；
+    \item 若 $P_0$ 请求 $(1,1,0)$，能否立即分配？
+    \item 若 $P_0$ 请求 $(0,1,0)$，能否立即分配？
+\end{enumerate}
+其中 (2)(3) 相互独立，均以初始状态为出发点；只有请求同时不超过 Need 与 Available 时才进入试分配。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由 $\text{Need}=\text{Max}-\text{Allocation}$ 得
+\[
+P_0:(2,2,0),\quad P_1:(1,2,1),\quad P_2:(2,0,1),\quad P_3:(1,1,1).
+\]
+已分配总量为 $(4,3,3)$，故
+\[
+Available=(5,5,4)-(4,3,3)=(1,2,1).
+\]
+
+(1) 令 $Work=(1,2,1)$。$P_0$ 需 $A=2>1$，$P_2$ 需 $A=2>1$，暂不能运行；$P_1$ 的 Need $(1,2,1)$ 恰好满足，令其完成并归还全部资源：
+\[
+Work=(1,2,1)+(2,1,0)=(3,3,1).
+\]
+接着 $P_2$ 的 Need $(2,0,1)\le(3,3,1)$，完成后
+\[
+Work=(3,3,1)+(0,1,1)=(3,4,2).
+\]
+再是 $P_3$ 的 $(1,1,1)\le(3,4,2)$，完成后
+\[
+Work=(3,4,2)+(1,1,0)=(4,5,2).
+\]
+最后 $P_0$ 的 $(2,2,0)\le(4,5,2)$，完成后 $Work=(5,5,4)$，等于资源总数。四个进程都能完成，故系统安全，安全序列为 $P_1\to P_2\to P_3\to P_0$（这不是唯一解，$P_3$ 也可先于 $P_1$）。
+
+(2) 请求 $(1,1,0)\le$ Need$_0$ 且 $\le$ Available，可以试分配。假定分配后
+\[
+Available=(1,2,1)-(1,1,0)=(0,1,1),
+\]
+$P_0$ 的 Need 变为 $(1,1,0)$，Allocation 变为 $(2,1,2)$。此时检查：$P_0$ 需 $A=1>$ 可用 $A=0$；$P_1$ 需 $A=1>0$；$P_2$ 需 $A=2>0$；$P_3$ 需 $A=1>0$。没有任何进程能完成，找不到安全序列，说明试分配会进入不安全状态，故不能立即分配，$P_0$ 应阻塞等待。
+
+(3) 请求 $(0,1,0)\le$ Need$_0$ 且 $\le$ Available，试分配后
+\[
+Available=(1,2,1)-(0,1,0)=(1,1,1),
+\]
+$P_0$ 的 Need 变为 $(2,1,0)$，Allocation 变为 $(1,1,2)$。取 $Work=(1,1,1)$：$P_3$ 的 $(1,1,1)$ 满足，完成后 $Work=(2,2,1)$；$P_0$ 的 $(2,1,0)$ 满足，完成后 $Work=(3,3,3)$；$P_1$ 的 $(1,2,1)$ 满足，完成后 $Work=(5,4,3)$；$P_2$ 的 $(2,0,1)$ 满足，完成后 $Work=(5,5,4)$。存在安全序列 $P_3\to P_0\to P_1\to P_2$，故可以立即分配。\boxed{\text{\textbf{答案：}(1) $(1,2,1)$，安全；(2) 不能；(3) 能}}\else \answerarea[16] \fi
+
+\end{enumerate}
+
+\vspace{8pt}

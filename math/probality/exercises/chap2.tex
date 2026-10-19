@@ -1,0 +1,389 @@
+\section{习题}
+
+\subsection{本章速览}
+\begin{itemize}
+  \item 分布函数 $F(x)=P(X\leq x)$ 单调不减、右连续，且 $F(-\infty)=0$、$F(+\infty)=1$；区间概率 $P(a<X\leq b)=F(b)-F(a)$，点概率 $P(X=x)=F(x)-F(x-0)$。
+  \item 离散型随机变量的分布律满足 $p_i\geq 0$、$\sum p_i=1$，分布函数为阶梯函数，跳跃高度等于该点概率。
+  \item 连续型随机变量由密度 $f$ 描述：$f\geq 0$，$\int_{-\infty}^{+\infty}f(x)\,\mathrm{d}x=1$，$F(x)=\int_{-\infty}^{x}f(t)\,\mathrm{d}t$；任一点概率为 $0$，密度不必连续。
+  \item 常考连续分布：均匀分布、指数分布（无记忆性）、正态分布（标准化 $Z=(X-\mu)/\sigma$ 及对称性 $\Phi(-x)=1-\Phi(x)$）。
+  \item 求 $Y=g(X)$ 的分布用分布函数法：先由 $X$ 的取值范围确定 $Y$ 的值域，再解不等式 $g(X)\leq y$；当 $g$ 严格单调可导时可用 $f_Y(y)=f_X(h(y))\,|h'(y)|$，非单调时按分支分别求和。
+  \item 期望与方差：$E(g(X))=\sum g(x_i)p_i$ 或 $\int g(x)f(x)\,\mathrm{d}x$；$D(X)=E(X^2)-[E(X)]^2$，且 $D(aX+b)=a^2D(X)$。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 设连续型随机变量 $X$ 的分布函数为
+\[
+F(x)=\begin{cases}
+0, & x<0,\\
+ax^2, & 0\leq x<1,\\
+b, & 1\leq x<2,\\
+1, & x\geq 2.
+\end{cases}
+\]
+(1) 求常数 $a,b$；(2) 求概率密度 $f(x)$；(3) 求 $P(0.5<X\leq 1.5)$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 连续型随机变量的分布函数处处连续，用连续性在分段点建立方程；密度由 $f=F'$ 得到。
+
+(1) 在 $x=1$ 处连续：$F(1)=b=\lim_{x\to1^-}ax^2=a$，故 $a=b$。在 $x=2$ 处连续：$\lim_{x\to2^-}F(x)=b=F(2)=1$，故 $b=1$，从而 $a=1$。
+
+(2) 在 $0<x<1$ 内 $f(x)=F'(x)=2x$，其余各段 $F$ 为常数，故
+\[
+f(x)=\begin{cases}
+2x, & 0<x<1,\\
+0, & \text{其他}.
+\end{cases}
+\]
+
+(3) $P(0.5<X\leq 1.5)=F(1.5)-F(0.5)=1-0.5^2=\dfrac34$。
+
+\fbox{\parbox{0.9\linewidth}{\textbf{答案：}$a=b=1$；$f(x)=2x\ (0<x<1)$，其余为 $0$；$P(0.5<X\leq1.5)=\dfrac34$}}
+\else \answerarea[8] \fi%
+
+\textbf{2.} 某射手每次射击命中目标的概率为 $0.6$，各次射击相互独立，共射击 $4$ 次。记 $X$ 为命中次数。(1) 写出 $X$ 的分布律；(2) 求 $P(X\geq 2)$；(3) 求 $E(X)$ 与 $D(X)$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 独立重复试验的命中次数服从二项分布 $B(n,p)$。
+
+(1) $X\sim B(4,0.6)$，分布律为
+\[
+P(X=k)=\binom{4}{k}0.6^k0.4^{4-k},\qquad k=0,1,2,3,4.
+\]
+具体数值：
+\[
+P(X=0)=0.0256,\quad P(X=1)=0.1536,\quad P(X=2)=0.3456,
+\]
+\[
+P(X=3)=0.3456,\quad P(X=4)=0.1296.
+\]
+
+(2) $P(X\geq2)=1-P(X=0)-P(X=1)=1-0.0256-0.1536=0.8208$。
+
+(3) $E(X)=np=4\times0.6=2.4$，$D(X)=np(1-p)=4\times0.6\times0.4=0.96$。
+
+\fbox{\parbox{0.9\linewidth}{\textbf{答案：}$X\sim B(4,0.6)$；$P(X\geq2)=0.8208$；$E(X)=2.4,\ D(X)=0.96$}}
+\else \answerarea[8] \fi%
+
+\textbf{3.} 设某电话交换台每分钟接到的呼叫次数 $X\sim P(\lambda)$，已知 $\lambda=2$，且 $\mathrm{e}^{-2}\approx0.1353$。求：(1) $P(X=0)$；(2) $P(X\leq1)$；(3) $P(X\geq2)$；(4) $E(X)$ 与 $D(X)$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 泊松分布 $P(X=k)=\dfrac{\lambda^k\mathrm{e}^{-\lambda}}{k!}$，且 $E(X)=D(X)=\lambda$。
+
+(1) $P(X=0)=\mathrm{e}^{-2}\approx0.1353$。
+
+(2) $P(X\leq1)=P(X=0)+P(X=1)=\mathrm{e}^{-2}+2\mathrm{e}^{-2}=3\mathrm{e}^{-2}\approx0.4059$。
+
+(3) $P(X\geq2)=1-P(X\leq1)\approx1-0.4059=0.5941$。
+
+(4) $E(X)=\lambda=2$，$D(X)=\lambda=2$。
+
+\fbox{\textbf{答案：}$0.1353$;\ $0.4059$;\ $0.5941$;\ $E(X)=D(X)=2$}
+\else \answerarea[8] \fi%
+
+\textbf{4.} 设随机变量 $X$ 的概率密度为
+\[
+f(x)=\begin{cases}
+cx(1-x), & 0<x<1,\\
+0, & \text{其他}.
+\end{cases}
+\]
+(1) 求常数 $c$；(2) 求分布函数 $F(x)$；(3) 求 $P\!\left(X>\dfrac12\right)$；(4) 求 $E(X)$ 与 $D(X)$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 先用规范性确定 $c$，再由 $F(x)=\int_{-\infty}^{x}f(t)\,\mathrm{d}t$ 分段积分。
+
+(1) 由 $\int_0^1cx(1-x)\,\mathrm{d}x=c\left(\dfrac12-\dfrac13\right)=\dfrac{c}{6}=1$，得 $c=6$。
+
+(2) 当 $x<0$ 时 $F(x)=0$；当 $0\leq x<1$ 时
+\[
+F(x)=\int_0^x6t(1-t)\,\mathrm{d}t=3x^2-2x^3;
+\]
+当 $x\geq1$ 时 $F(x)=1$。
+
+(3) $P\!\left(X>\dfrac12\right)=1-F\!\left(\dfrac12\right)=1-\left(3\cdot\dfrac14-2\cdot\dfrac18\right)=1-\dfrac12=\dfrac12$。
+
+(4) $E(X)=\int_0^16x^2(1-x)\,\mathrm{d}x=6\left(\dfrac13-\dfrac14\right)=\dfrac12$；
+\[
+E(X^2)=\int_0^16x^3(1-x)\,\mathrm{d}x=6\left(\dfrac14-\dfrac15\right)=\dfrac{3}{10},
+\]
+故 $D(X)=\dfrac{3}{10}-\left(\dfrac12\right)^2=\dfrac{1}{20}$。
+
+\fbox{\parbox{0.9\linewidth}{\textbf{答案：}$c=6$；$F(x)=3x^2-2x^3\ (0\leq x<1)$；$P(X>1/2)=\dfrac12$；$E(X)=\dfrac12,\ D(X)=\dfrac{1}{20}$}}
+\else \answerarea[8] \fi%
+
+\textbf{5.} 设 $X\sim N(1,4)$，已知 $\Phi(1)=0.8413$。求：(1) $P(X<3)$；(2) $P(|X-1|\leq2)$；(3) 常数 $c$，使 $P(X>c)=0.1587$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 正态分布标准化 $Z=\dfrac{X-\mu}{\sigma}\sim N(0,1)$，再利用 $\Phi(-x)=1-\Phi(x)$。
+
+此处 $\mu=1$，$\sigma=2$。
+
+(1) $P(X<3)=P\!\left(Z<\dfrac{3-1}{2}\right)=\Phi(1)=0.8413$。
+
+(2) $P(|X-1|\leq2)=P(-1\leq X\leq3)=P(-1\leq Z\leq1)=2\Phi(1)-1=0.6826$。
+
+(3) $P(X>c)=1-\Phi\!\left(\dfrac{c-1}{2}\right)=0.1587$，故 $\Phi\!\left(\dfrac{c-1}{2}\right)=0.8413=\Phi(1)$，得 $\dfrac{c-1}{2}=1$，即 $c=3$。
+
+\fbox{\textbf{答案：}$0.8413$；$0.6826$；$c=3$}
+\else \answerarea[8] \fi%
+
+\subsection{综合提高题}
+
+\textbf{6.} 设 $X\sim U(-1,2)$，令 $Y=X^2$。(1) 求 $Y$ 的概率密度 $f_Y(y)$；(2) 求 $E(Y)$ 与 $D(Y)$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} $g(x)=x^2$ 在 $(-1,2)$ 上不单调，用分布函数法，并按 $0<y<1$ 与 $1\leq y<4$ 分段讨论逆像。
+
+$X$ 的密度为 $f_X(x)=\dfrac13\ (-1<x<2)$，且 $Y$ 的值域为 $[0,4)$。
+
+当 $y<0$ 时 $F_Y(y)=0$；当 $y\geq4$ 时 $F_Y(y)=1$。
+
+当 $0<y<1$ 时，$\{X^2\leq y\}=\{-\sqrt y\leq X\leq\sqrt y\}$，该区间含于 $(-1,2)$，故
+\[
+F_Y(y)=\int_{-\sqrt y}^{\sqrt y}\frac13\,\mathrm{d}x=\frac{2\sqrt y}{3},
+\qquad f_Y(y)=\frac{1}{3\sqrt y}.
+\]
+
+当 $1\leq y<4$ 时，$\{X^2\leq y\}=\{-1\leq X\leq\sqrt y\}$，故
+\[
+F_Y(y)=\int_{-1}^{\sqrt y}\frac13\,\mathrm{d}x=\frac{\sqrt y+1}{3},
+\qquad f_Y(y)=\frac{1}{6\sqrt y}.
+\]
+
+即
+\[
+f_Y(y)=\begin{cases}
+\dfrac{1}{3\sqrt y}, & 0<y<1,\\[6pt]
+\dfrac{1}{6\sqrt y}, & 1\leq y<4,\\[6pt]
+0, & \text{其他}.
+\end{cases}
+\]
+（$y=1$ 处密度取何值不影响分布，端点的分段方式可任选。）
+
+(2) 直接由 $X$ 计算：
+\[
+E(Y)=E(X^2)=\int_{-1}^{2}\frac{x^2}{3}\,\mathrm{d}x=\frac13\cdot\frac{8-(-1)}{3}=1,
+\]
+\[
+E(Y^2)=E(X^4)=\int_{-1}^{2}\frac{x^4}{3}\,\mathrm{d}x=\frac13\cdot\frac{32+1}{5}=\frac{11}{5},
+\]
+故 $D(Y)=\dfrac{11}{5}-1=\dfrac65$。
+
+\fbox{\parbox{0.9\linewidth}{\textbf{答案：}$f_Y(y)=\dfrac{1}{3\sqrt y}\ (0<y<1)$，$\dfrac{1}{6\sqrt y}\ (1\leq y<4)$，其余为 $0$；$E(Y)=1,\ D(Y)=\dfrac65$}}
+\else \answerarea[8] \fi%
+
+\textbf{7.} 某元件的寿命 $X$（单位：千小时）服从参数 $\lambda=\dfrac15$ 的指数分布。(1) 求 $P(X>10)$；(2) 已知元件已正常工作 $10$ 千小时，求它还能再工作至少 $5$ 千小时的概率；(3) 求已工作 $10$ 千小时的元件剩余寿命的期望。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 指数分布的生存函数为 $P(X>x)=\mathrm{e}^{-\lambda x}$，并具有无记忆性。
+
+$X$ 的密度与分布函数为
+\[
+f(x)=\frac15\mathrm{e}^{-x/5}\ (x>0),\qquad F(x)=1-\mathrm{e}^{-x/5}\ (x\geq0).
+\]
+
+(1) $P(X>10)=\mathrm{e}^{-10/5}=\mathrm{e}^{-2}\approx0.1353$。
+
+(2) 由条件概率及无记忆性：
+\[
+P(X>15\mid X>10)=\frac{P(X>15)}{P(X>10)}
+=\frac{\mathrm{e}^{-3}}{\mathrm{e}^{-2}}=\mathrm{e}^{-1}\approx0.3679.
+\]
+
+(3) 设剩余寿命 $Y=X-10\mid X>10$。对 $t\geq0$，
+\[
+P(Y>t)=P(X>10+t\mid X>10)=\mathrm{e}^{-t/5},
+\]
+即 $Y$ 仍服从参数 $\dfrac15$ 的指数分布，故 $E(Y)=5$（千小时）。
+
+（也可由 $E(X)=\dfrac1\lambda=5$、$D(X)=\dfrac1{\lambda^2}=25$ 验证。）
+
+\fbox{\textbf{答案：}$\mathrm{e}^{-2}\approx0.1353$;\ $\mathrm{e}^{-1}\approx0.3679$;\ $5$ 千小时}
+\else \answerarea[8] \fi%
+
+\textbf{8.} 设离散型随机变量 $X$ 的分布律为
+\[
+\begin{gathered}
+P(X=-1)=0.2,\quad P(X=0)=0.3,\\
+P(X=1)=0.3,\quad P(X=2)=0.2.
+\end{gathered}
+\]
+(1) 求 $E(X)$ 与 $D(X)$；(2) 求 $Y=X^2$ 的分布律，并由此计算 $E(Y)$、$D(Y)$；(3) 求 $E(2X+3)$ 与 $D(2X+3)$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 先算 $E(X)$、$E(X^2)$ 得方差；求函数的分布时把相同函数值的概率合并；期望的线性性与方差的性质直接使用。
+
+(1)
+\[
+E(X)=(-1)(0.2)+0(0.3)+1(0.3)+2(0.2)=0.5,
+\]
+\[
+E(X^2)=1(0.2)+0(0.3)+1(0.3)+4(0.2)=1.3,
+\]
+故 $D(X)=1.3-0.5^2=1.05$。
+
+(2) $X^2$ 的取值为 $0,1,4$：
+\[
+P(Y=0)=P(X=0)=0.3,\quad P(Y=1)=P(X=-1)+P(X=1)=0.5,
+\]
+\[
+P(Y=4)=P(X=2)=0.2.
+\]
+于是 $E(Y)=0(0.3)+1(0.5)+4(0.2)=1.3$，与 $E(X^2)$ 一致。
+又 $E(Y^2)=0(0.3)+1(0.5)+16(0.2)=3.7$，故 $D(Y)=3.7-1.3^2=2.01$。
+
+(3) $E(2X+3)=2E(X)+3=4$，$D(2X+3)=2^2D(X)=4.2$。
+
+\fbox{\parbox{0.9\linewidth}{\textbf{答案：}$E(X)=0.5,\ D(X)=1.05$；$Y=X^2$ 的分布律为 $P(Y=0)=0.3,\ P(Y=1)=0.5,\ P(Y=4)=0.2$，故 $E(Y)=1.3,\ D(Y)=2.01$；$E(2X+3)=4,\ D(2X+3)=4.2$}}
+\else \answerarea[8] \fi%
+
+\textbf{9.} 设 $X\sim N(0,1)$，令 $Y=|X|$。(1) 求 $Y$ 的分布函数与概率密度；(2) 求 $E(Y)$ 与 $D(Y)$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} $Y\geq0$，用分布函数法把 $\{|X|\leq y\}$ 化为关于 $X$ 的对称区间；求 $E(Y)$ 时利用标准正态密度的原函数。
+
+(1) 当 $y<0$ 时 $F_Y(y)=0$。当 $y\geq0$ 时，
+\[
+F_Y(y)=P(|X|\leq y)=P(-y\leq X\leq y)=\Phi(y)-\Phi(-y)=2\Phi(y)-1.
+\]
+对 $y>0$ 求导：
+\[
+f_Y(y)=2\varphi(y)=\frac{2}{\sqrt{2\pi}}\mathrm{e}^{-y^2/2}
+=\sqrt{\frac{2}{\pi}}\,\mathrm{e}^{-y^2/2},
+\]
+且 $f_Y(y)=0\ (y\leq0)$。
+
+(2) 由于 $y\varphi(y)=-\varphi'(y)$，
+\[
+E(Y)=\int_0^{+\infty}y\cdot2\varphi(y)\,\mathrm{d}y
+=-2\int_0^{+\infty}\varphi'(y)\,\mathrm{d}y
+=-2\bigl[\varphi(y)\bigr]_0^{+\infty}
+=2\varphi(0)=\frac{2}{\sqrt{2\pi}}=\sqrt{\frac{2}{\pi}}.
+\]
+又 $E(Y^2)=E(X^2)=1$，故
+\[
+D(Y)=1-\frac{2}{\pi}.
+\]
+
+\fbox{\parbox{0.9\linewidth}{\textbf{答案：}$F_Y(y)=2\Phi(y)-1\ (y\geq0)$；$f_Y(y)=2\varphi(y)\ (y>0)$，$f_Y(y)=0\ (y\leq0)$；$E(Y)=\sqrt{2/\pi},\ D(Y)=1-2/\pi$}}
+\else \answerarea[8] \fi%
+
+\subsection{真题风格与综合训练}
+
+\textbf{10.} （选择题）设 $F(x)$ 是随机变量 $X$ 的分布函数，则下列结论中正确的是（\quad）。
+
+(A) 连续型随机变量的密度函数一定连续；
+
+(B) $F(x)$ 右连续，且 $P(X=x)=F(x)-F(x-0)$；
+
+(C) 若 $F(x)$ 在 $x_0$ 处连续，则 $P(X=x_0)=1$；
+
+(D) 离散型随机变量的分布函数处处连续。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 逐项对照分布函数的基本性质，特别注意“连续型”只要求 $F$ 连续，不要求密度连续。
+
+(A) 错。均匀分布 $U(0,1)$ 的密度在 $x=0,1$ 处不连续，但仍是连续型随机变量。
+
+(B) 对。分布函数的定义保证其右连续；且
+\[
+P(X=x)=P(X\leq x)-P(X<x)=F(x)-\lim_{t\uparrow x}F(t)=F(x)-F(x-0).
+\]
+
+(C) 错。$F$ 在 $x_0$ 连续恰说明 $P(X=x_0)=F(x_0)-F(x_0-0)=0$，而不是 $1$。
+
+(D) 错。离散型随机变量在每一个正概率取值点处，分布函数都有跳跃，不连续。
+
+\fbox{\textbf{答案：}(B)}
+\else \answerarea[8] \fi%
+
+\textbf{11.} （填空题）设 $X\sim B(n,p)$，已知 $E(X)=2.4$，$D(X)=1.44$，则 $n=\underline{\qquad}$，$p=\underline{\qquad}$，$P(X=0)=\underline{\qquad}$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 二项分布满足 $E(X)=np$、$D(X)=np(1-p)$，联立解出 $n,p$。
+
+由 $np=2.4$，$np(1-p)=1.44$，两式相除得
+\[
+1-p=\frac{1.44}{2.4}=0.6,
+\]
+故 $p=0.4$，$n=\dfrac{2.4}{0.4}=6$。
+
+于是
+\[
+P(X=0)=(1-p)^n=0.6^6=0.046656.
+\]
+
+\fbox{\textbf{答案：}$n=6$，$p=0.4$，$P(X=0)=0.046656$}
+\else \answerarea[8] \fi%
+
+\textbf{12.} 设随机变量 $X$ 的概率密度为
+\[
+f_X(x)=\begin{cases}
+x, & 0\leq x<1,\\
+2-x, & 1\leq x<2,\\
+0, & \text{其他}.
+\end{cases}
+\]
+(1) 验证 $f_X$ 是概率密度；(2) 求分布函数 $F_X(x)$；(3) 求 $P(0.5<X<1.5)$、$E(X)$ 与 $D(X)$；(4) 令 $Y=2X+1$，求 $f_Y(y)$ 及 $E(Y)$、$D(Y)$。
+
+\ifshowsolutions%
+\boxed{\text{解}}
+\textbf{思路：} 密度关于 $x=1$ 对称，这既可用于验证规范性，也可用于快速判断 $E(X)=1$；线性变换用单调变换公式。
+
+(1)
+\[
+\int_0^1x\,\mathrm{d}x+\int_1^2(2-x)\,\mathrm{d}x=\frac12+\frac12=1,
+\]
+且 $f_X(x)\geq0$，故 $f_X$ 是概率密度。
+
+(2) 当 $x<0$ 时 $F_X(x)=0$；当 $0\leq x<1$ 时
+\[
+F_X(x)=\int_0^x t\,\mathrm{d}t=\frac{x^2}{2};
+\]
+当 $1\leq x<2$ 时
+\[
+F_X(x)=\frac12+\int_1^x(2-t)\,\mathrm{d}t
+=\frac12+\left(2x-\frac{x^2}{2}-\frac32\right)
+=2x-\frac{x^2}{2}-1;
+\]
+当 $x\geq2$ 时 $F_X(x)=1$。
+
+(3) $F_X(1.5)=3-\dfrac{9}{8}-1=\dfrac78$，$F_X(0.5)=\dfrac18$，故
+\[
+P(0.5<X<1.5)=\frac78-\frac18=\frac34.
+\]
+由密度关于 $x=1$ 对称得 $E(X)=1$。又
+\[
+E(X^2)=\int_0^1x^3\,\mathrm{d}x+\int_1^2x^2(2-x)\,\mathrm{d}x
+=\frac14+\frac{11}{12}=\frac76,
+\]
+故 $D(X)=\dfrac76-1=\dfrac16$。
+
+(4) $y=2x+1$ 严格单调，反函数 $x=h(y)=\dfrac{y-1}{2}$，$h'(y)=\dfrac12$。由
+\[
+f_Y(y)=f_X(h(y))\,|h'(y)|
+\]
+得
+\[
+f_Y(y)=\begin{cases}
+\dfrac{y-1}{4}, & 1<y<3,\\[6pt]
+\dfrac{5-y}{4}, & 3\leq y<5,\\[6pt]
+0, & \text{其他}.
+\end{cases}
+\]
+于是 $E(Y)=2E(X)+1=3$，$D(Y)=2^2D(X)=\dfrac23$。
+
+\fbox{\parbox{0.9\linewidth}{\textbf{答案：}$F_X(x)=0\ (x<0)$，$\dfrac{x^2}{2}\ (0\leq x<1)$，$2x-\dfrac{x^2}{2}-1\ (1\leq x<2)$，$1\ (x\geq2)$；$P(0.5<X<1.5)=\dfrac34$，$E(X)=1$，$D(X)=\dfrac16$；$f_Y(y)=\dfrac{y-1}{4}\ (1<y<3)$，$\dfrac{5-y}{4}\ (3\leq y<5)$，其余为 $0$，且 $E(Y)=3,\ D(Y)=\dfrac23$}}
+\else \answerarea[10] \fi%

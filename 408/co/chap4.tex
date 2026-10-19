@@ -1,303 +1,428 @@
 \section{指令系统}
 
-\subsection{指令格式}
+CPU 执行一条指令要经过取指、译码、取操作数、执行、写回。指令系统规定的是这条链路上两件事的格式：指令本身长什么样，操作数从哪里来。这两件事一定，数据通路和控制器的设计空间就大致定了，编译器能生成什么样的代码也大致定了。
 
-\begin{mydef}{指令的基本格式}{instruction-format}
-一条机器指令由\textbf{操作码（Opcode）}和\textbf{地址码（Address）}两部分组成：
+先看一条具体的指令。RISC-V 的 \texttt{add x5, x6, x7} 编码成 32 位：
 \[
-\underbrace{\text{操作码 OP}}_{\text{指定操作类型}}\quad \underbrace{\text{地址码 A}_1\;\text{A}_2\;\cdots\;\text{A}_n}_{\text{指定操作数地址}}
+\texttt{0000000}\;\texttt{00111}\;\texttt{00110}\;\texttt{000}\;\texttt{00101}\;\texttt{0110011}
+\]
+即十六进制的 \texttt{0x007302B3}。最低 7 位 \texttt{0110011} 是主操作码，表示“这是一条寄存器—寄存器型的整数运算”；最高 7 位 \texttt{0000000} 与中间 3 位 \texttt{000} 合起来，才把“加”从同一主操作码下的减、与、或里区分出来；剩下的三组 5 位分别是目的寄存器 \texttt{x5} 和两个源寄存器 \texttt{x6}、\texttt{x7}。
+
+这段编码说明了一件常被忽略的事：操作码并不总是“一个字段决定一条指令”。当同一类操作的方式很多时，ISA 会把操作码拆成主操作码加若干辅助字段，让译码器先粗分大类，再细分具体操作。
+
+\subsection{指令格式：字段怎么放}
+
+经典教材把指令写成操作码加若干地址码，但真实的指令字里通常还有第三类字段——寻址方式字段。它告诉硬件地址码该怎么解释：是直接当地址，当偏移量，还是当寄存器号。于是多数指令字的划分是
+
+\[
+\underbrace{\text{操作码}}_{\text{做什么}}\quad
+\underbrace{\text{寻址特征}}_{\text{地址码怎么解释}}\quad
+\underbrace{\text{地址码（形式地址）}}_{\text{对谁做}}
 \]
 
-按地址码数量分类：
-\begin{itemize}
-    \item \textbf{三地址指令}：OP A1, A2, A3 —— (A1)OP(A2) $\to$ A3
-    \item \textbf{二地址指令}：OP A1, A2 —— (A1)OP(A2) $\to$ A1（或 A2）
-    \item \textbf{一地址指令}：OP A —— 如 ACC OP (A) $\to$ ACC
-    \item \textbf{零地址指令}：无地址码——如堆栈操作、空操作 NOP
-\end{itemize}
-\end{mydef}
+指令字总位数是有限的：操作码长了，地址码就短。指令格式的设计就是在这两者之间分配位数，并决定字段放在哪几位。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[anchor=east] at (-0.3,1.9){三地址};
-  \draw[thick,fill=Amber!18] (0,1.7) rectangle (1.6,2.1) node[midway]{OP};
-  \draw[thick,fill=SoftGray] (1.6,1.7) rectangle (3.4,2.1) node[midway]{A1};
-  \draw[thick,fill=SoftGray] (3.4,1.7) rectangle (5.2,2.1) node[midway]{A2};
-  \draw[thick,fill=SoftGray] (5.2,1.7) rectangle (7.0,2.1) node[midway]{A3};
-  \node[anchor=east] at (-0.3,1.2){二地址};
-  \draw[thick,fill=Amber!18] (0,1.0) rectangle (2.0,1.4) node[midway]{OP};
-  \draw[thick,fill=SoftGray] (2.0,1.0) rectangle (4.4,1.4) node[midway]{A1};
-  \draw[thick,fill=SoftGray] (4.4,1.0) rectangle (6.8,1.4) node[midway]{A2};
-  \node[anchor=east] at (-0.3,0.5){一地址};
-  \draw[thick,fill=Amber!18] (0,0.3) rectangle (2.4,0.7) node[midway]{OP};
-  \draw[thick,fill=SoftGray] (2.4,0.3) rectangle (6.8,0.7) node[midway]{A};
-  \node[anchor=east] at (-0.3,-0.2){零地址};
-  \draw[thick,fill=Amber!18] (0,-0.4) rectangle (6.8,0.0) node[midway]{OP（如 NOP、堆栈操作）};
-  \node[font=\scriptsize,black!70] at (3.4,-1.1){指令字按地址码数量分类：OP 指定操作类型，地址码指定操作数或其地址};
+  % ===== R 型 =====
+  \node[anchor=east,align=right] at (2.3,4.2) {R 型\\{\tiny 32 位}};
+  \draw[thick,fill=Amber!18] (2.4,3.9) rectangle (5.06,4.5) node[midway,font=\tiny]{funct7};
+  \draw[thick,fill=SoftBlue] (5.06,3.9) rectangle (6.96,4.5) node[midway,font=\tiny]{rs2};
+  \draw[thick,fill=SoftBlue] (6.96,3.9) rectangle (8.86,4.5) node[midway,font=\tiny]{rs1};
+  \draw[thick,fill=SoftTeal] (8.86,3.9) rectangle (10.0,4.5) node[midway,font=\tiny]{funct3};
+  \draw[thick,fill=SoftBlue] (10.0,3.9) rectangle (11.9,4.5) node[midway,font=\tiny]{rd};
+  \draw[thick,fill=Amber!18] (11.9,3.9) rectangle (14.56,4.5) node[midway,font=\tiny]{opcode};
+  \foreach \x/\n in {3.73/7,6.01/5,7.91/5,9.43/3,10.95/5,13.23/7}{%
+    \node[font=\tiny,text=MutedText] at (\x,3.74){\n};}
+  \node[font=\tiny,text=MutedText,anchor=south west] at (2.4,4.52){31};
+  \node[font=\tiny,text=MutedText,anchor=south east] at (14.56,4.52){0};
+
+  % ===== I 型 =====
+  \node[anchor=east,align=right] at (2.3,2.9) {I 型\\{\tiny 32 位}};
+  \draw[thick,fill=Burgundy!14] (2.4,2.6) rectangle (6.96,3.2) node[midway,font=\tiny]{imm[11:0]};
+  \draw[thick,fill=SoftBlue] (6.96,2.6) rectangle (8.86,3.2) node[midway,font=\tiny]{rs1};
+  \draw[thick,fill=SoftTeal] (8.86,2.6) rectangle (10.0,3.2) node[midway,font=\tiny]{funct3};
+  \draw[thick,fill=SoftBlue] (10.0,2.6) rectangle (11.9,3.2) node[midway,font=\tiny]{rd};
+  \draw[thick,fill=Amber!18] (11.9,2.6) rectangle (14.56,3.2) node[midway,font=\tiny]{opcode};
+  \foreach \x/\n in {4.68/12,7.91/5,9.43/3,10.95/5,13.23/7}{%
+    \node[font=\tiny,text=MutedText] at (\x,2.44){\n};}
+
+  % ===== x86-64 变长 =====
+  \node[anchor=east,align=right] at (2.3,1.3) {x86-64\\{\tiny 1--15 字节}};
+  \draw[thick,fill=SoftGray] (2.4,1.0) rectangle (4.8,1.6) node[midway,font=\tiny]{前缀};
+  \draw[thick,fill=Amber!18] (4.8,1.0) rectangle (6.8,1.6) node[midway,font=\tiny]{操作码};
+  \draw[thick,fill=SoftTeal] (6.8,1.0) rectangle (8.4,1.6) node[midway,font=\tiny]{ModRM};
+  \draw[thick,fill=SoftTeal] (8.4,1.0) rectangle (10.0,1.6) node[midway,font=\tiny]{SIB};
+  \draw[thick,fill=Burgundy!14] (10.0,1.0) rectangle (12.2,1.6) node[midway,font=\tiny]{位移};
+  \draw[thick,fill=Burgundy!14] (12.2,1.0) rectangle (14.6,1.6) node[midway,font=\tiny]{立即数};
+  \node[font=\tiny,text=MutedText] at (3.6,0.8){0--4};
+  \node[font=\tiny,text=MutedText] at (5.8,0.8){1--3};
+  \node[font=\tiny,text=MutedText] at (7.6,0.8){0--1};
+  \node[font=\tiny,text=MutedText] at (9.2,0.8){0--1};
+  \node[font=\tiny,text=MutedText] at (11.1,0.8){0/1/2/4};
+  \node[font=\tiny,text=MutedText] at (13.4,0.8){0/1/2/4/8};
 \end{tikzpicture}
 \end{center}
 
-\begin{conclusion}{定长操作码 vs 扩展操作码}{opcode-encoding}
-\begin{itemize}
-    \item \textbf{定长操作码}：所有指令操作码位数相同，译码简单、控制方便，但指令条数受限。
-    \item \textbf{扩展操作码（哈夫曼编码思想）}：操作码位数可变，短操作码留给高频指令，长操作码对应更多寻址方式或低频指令。\textbf{这是 408 选择题中的高频考点}——给定指令字长和地址码位数，计算最多能有多少条指令。
-\end{itemize}
+图里两条 32 位指令的字段边界完全重合：\texttt{opcode} 总在最低 7 位，\texttt{rs1}、\texttt{funct3}、\texttt{rd} 的位置也不随指令类型变化。译码器取到指令的同时，寄存器号已经躺在固定位置上了。最下面一行的 x86 则没有固定边界，方框只表示“可能有哪些字段”，每个字段实际占几个字节由前面的字段内容决定，整条指令 1 到 15 字节不等。
 
-\textbf{扩展操作码的设计约束：} 短操作码不能是长操作码的前缀（类似 Huffman 编码的前缀性质），否则译码歧义。
+变长带来的麻烦是真实的：不解析当前指令，就不知道下一条从哪里开始。x86 处理器因此要在流水线前端做指令长度预译码，把字节流先切成一条条指令。定长则相反，RISC-V 的基础指令每条 4 字节，PC 每次加 4 就能取到下一条，代价是一条本可以用 16 位表示的指令也占满 32 位。
+
+字段位置还会反过来影响硬件。RISC-V 的 I 型把 12 位立即数放在最高位，符号扩展后直接可用；B 型和 J 型为了不挪动 \texttt{rs1}、\texttt{rs2} 的位置，把立即数的各位打散重排，硬件只好多花几根线把它们拼回原位。格式设计始终在“字段位置固定、译码简单”和“字段够用、编码紧凑”之间取舍。
+
+指令字长不一定等于机器字长，也不一定等于存储字长。它通常取存储字长的整数倍；如果一条指令比存储字长还长，取指就要多次访存，PC 的增量也必须按整条指令的字节数计算。
+
+\subsection{地址码数量与操作数来源}
+
+一条指令能显式写几个地址，决定了它属于哪种风格。下面的约定是目的操作数写在最左。
+
+三地址指令写成 \texttt{OP A1, A2, A3}，语义是 $A_1\leftarrow A_2\ \mathrm{op}\ A_3$。一次运算三个地址都写全，源操作数不被破坏，代价是指令长。二地址指令写成 \texttt{OP A1, A2}，语义是 $A_1\leftarrow A_1\ \mathrm{op}\ A_2$，目的地址复用了源地址，省下字段但会覆盖一个操作数。一地址指令只剩一个地址，另一个操作数隐含在累加器里，即 $\mathrm{ACC}\leftarrow \mathrm{ACC}\ \mathrm{op}\ A$。零地址指令连地址都不写，常见于堆栈计算机：两个操作数默认取栈顶，运算结果压回栈顶；\texttt{NOP}、\texttt{RET} 这类指令本来也不需要地址。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 三地址
+  \node[anchor=east] at (4.0,4.85){三地址};
+  \draw[thick,fill=Amber!18] (4.2,4.6) rectangle (6.2,5.1) node[midway,font=\tiny]{OP};
+  \draw[thick,fill=SoftGray] (6.2,4.6) rectangle (8.2,5.1) node[midway,font=\tiny]{$A_1$};
+  \draw[thick,fill=SoftGray] (8.2,4.6) rectangle (10.2,5.1) node[midway,font=\tiny]{$A_2$};
+  \draw[thick,fill=SoftGray] (10.2,4.6) rectangle (12.2,5.1) node[midway,font=\tiny]{$A_3$};
+  \node[anchor=west,align=left] at (12.5,4.85){$A_1\leftarrow A_2\ \mathrm{op}\ A_3$\\{\tiny 每个地址 4 位}};
+
+  % 二地址
+  \node[anchor=east] at (4.0,3.85){二地址};
+  \draw[thick,fill=Amber!18] (4.2,3.6) rectangle (6.2,4.1) node[midway,font=\tiny]{OP};
+  \draw[thick,fill=SoftGray] (6.2,3.6) rectangle (9.2,4.1) node[midway,font=\tiny]{$A_1$};
+  \draw[thick,fill=SoftGray] (9.2,3.6) rectangle (12.2,4.1) node[midway,font=\tiny]{$A_2$};
+  \node[anchor=west,align=left] at (12.5,3.85){$A_1\leftarrow A_1\ \mathrm{op}\ A_2$\\{\tiny 每个地址 6 位}};
+
+  % 一地址
+  \node[anchor=east] at (4.0,2.85){一地址};
+  \draw[thick,fill=Amber!18] (4.2,2.6) rectangle (6.2,3.1) node[midway,font=\tiny]{OP};
+  \draw[thick,fill=SoftGray] (6.2,2.6) rectangle (12.2,3.1) node[midway,font=\tiny]{$A$};
+  \node[anchor=west,align=left] at (12.5,2.85){$\mathrm{ACC}\leftarrow \mathrm{ACC}\ \mathrm{op}\ A$\\{\tiny 地址 12 位}};
+
+  % 零地址
+  \node[anchor=east] at (4.0,1.85){零地址};
+  \draw[thick,fill=Amber!18] (4.2,1.6) rectangle (12.2,2.1) node[midway,font=\tiny]{OP（可用满 16 位）};
+  \node[anchor=west,align=left] at (12.5,1.85){栈顶 $\leftarrow$ 次栈顶 $\mathrm{op}$ 栈顶\\{\tiny 没有地址字段}};
+
+  \node[font=\scriptsize,text=Navy,align=center] at (8.2,0.85)
+    {指令字长都取 16 位：地址码越少，单个地址码越长，可寻址的单元越多};
+\end{tikzpicture}
+\end{center}
+
+四条指令字一样长，差别全在位数怎么分。三地址要三个 4 位地址，只能覆盖 16 个单元；一地址把 12 位全给地址，能覆盖 4096 个单元。地址码数量与寻址范围是一对此消彼长的量，这也是早期机器偏爱一地址、二地址的现实原因——内存小，地址短，反而够用。
+
+零地址指令把这种思路推到极端：既然操作数总在栈顶，地址就彻底不必写了。表达式 \mbox{$(a+b)\times(c+d)$} 在堆栈机上写成
+
+\begin{center}
+\texttt{PUSH a; PUSH b; ADD; PUSH c; PUSH d; ADD; MUL; POP x}
+\end{center}
+
+八条指令里只有 \texttt{PUSH}、\texttt{POP} 带地址字段，\texttt{ADD}、\texttt{MUL} 只占一个操作码。若指令允许变长，这几条零地址指令可以各占一个字节，代码总量甚至比三地址版本更短；但指令条数多了，压栈、弹栈还要访存。这就是“每条指令做多少事”与“一共要多少条指令”之间的交换，后面 CISC 与 RISC 的分歧，根子上也是这个交换。
+
+还有一类一地址指令，地址码给的不是操作数而是转移目标，例如 \texttt{JMP A}。这类指令没有“取操作数”的问题，地址码的含义要结合操作码来判断。
+
+按操作数的存放位置，指令系统通常分成三类：堆栈型以零地址为主；累加器型以一地址为主，另一个操作数隐含在 ACC；通用寄存器型以二地址或三地址为主，配合 load/store 结构把指令做规整。x86 属于混合型，以二地址为主，且允许其中一个操作数直接来自主存。
+
+\subsection{扩展操作码}
+
+定长操作码的规则最简单：$n$ 位操作码最多 $2^n$ 条指令，译码时把操作码整段送进译码器就行。问题是各类指令的使用频率相差很大，传送、加减、比较占了程序的绝大部分，系统控制类指令寥寥无几，却要和它们平分编码空间。
+
+扩展操作码让常用的指令用短码，少用的用长码。做法是：基本操作码取 $0000\sim1110$ 表示 15 条三地址指令，把 $1111$ 留作标志；译码器看到 $1111$ 时不把它当指令，而是继续读下一个 4 位字段 $A_1$，把它当操作码的延伸。于是 \texttt{1111 0000}～\texttt{1111 1110} 表示 15 条二地址指令，\texttt{1111 1111} 再往下扩展，依此类推。
+
+这里有一个常被说错的约束。教材常说“短操作码不能是长操作码的前缀”，严格讲应该是：\textbf{被用作指令的码字之间不能有前缀关系}。$1111$ 本身不是任何一条指令，它只是扩展标志，所以它当然可以作为 \texttt{1111 0000} 的前缀；真正的错误是把 $1111$ 同时定义成一条三地址指令——那样译码器读到 $1111$ 时就无法判断后面的 4 位是地址还是操作码。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % 扩展链
+  \node[draw,thick,fill=SoftAmber,rounded corners=2pt,minimum width=2.7cm,minimum height=0.85cm,align=center] (b1) at (2.5,1.0) {4 位操作码\\{\tiny 16 个码字}};
+  \node[draw,thick,fill=SoftTeal,rounded corners=2pt,minimum width=2.7cm,minimum height=0.85cm,align=center] (b2) at (6.0,1.0) {$A_1$ 字段\\{\tiny 再得 16 个}};
+  \node[draw,thick,fill=SoftTeal,rounded corners=2pt,minimum width=2.7cm,minimum height=0.85cm,align=center] (b3) at (9.5,1.0) {$A_2$ 字段\\{\tiny 再得 16 个}};
+  \node[draw,thick,fill=SoftTeal,rounded corners=2pt,minimum width=2.7cm,minimum height=0.85cm,align=center] (b4) at (13.0,1.0) {$A_3$ 字段\\{\tiny 再得 16 个}};
+
+  % 叶
+  \node[draw,thick,fill=SoftBlue,rounded corners=2pt,minimum width=4.0cm,minimum height=1.2cm,align=center] (l1) at (2.5,3.4) {三地址 15 条\\{\tiny 基本码 0000--1110}};
+  \node[draw,thick,fill=SoftBlue,rounded corners=2pt,minimum width=4.0cm,minimum height=1.2cm,align=center] (l2) at (6.0,3.4) {二地址 15 条\\{\tiny 1111 + $A_1$：0000--1110}};
+  \node[draw,thick,fill=SoftBlue,rounded corners=2pt,minimum width=4.0cm,minimum height=1.2cm,align=center] (l3) at (9.5,3.4) {一地址 15 条\\{\tiny 1111 1111 + $A_2$：0000--1110}};
+  \node[draw,thick,fill=SoftBlue,rounded corners=2pt,minimum width=4.0cm,minimum height=1.2cm,align=center] (l4) at (13.0,3.4) {零地址 16 条\\{\tiny 1111 1111 1111 + $A_3$}};
+
+  % 纵向：定型
+  \foreach \b/\l in {b1/l1,b2/l2,b3/l3,b4/l4}{%
+    \draw[->,thick,TealDark] (\b.north) -- (\l.south);
+  }
+  \foreach \x in {2.5,6.0,9.5,13.0}{%
+    \node[font=\tiny,text=TealDark,anchor=west] at (\x+0.08,2.4){15 个};}
+
+  % 横向：扩展
+  \draw[->,thick,Burgundy] (3.85,1.0) -- (4.65,1.0);
+  \draw[->,thick,Burgundy] (7.35,1.0) -- (8.15,1.0);
+  \draw[->,thick,Burgundy] (10.85,1.0) -- (11.65,1.0);
+  \node[font=\tiny,text=Burgundy] at (4.25,1.2){1111};
+  \node[font=\tiny,text=Burgundy] at (7.75,1.2){1111};
+  \node[font=\tiny,text=Burgundy] at (11.25,1.2){1111};
+
+  \node[font=\tiny,text=MutedText,align=center] at (8.0,0.15)
+    {每扩展一层消耗掉一个地址字段；被留下来的 1111 只是标志，不表示任何指令};
+\end{tikzpicture}
+\end{center}
+
+横向的箭头是“扩展”：剩下的那 1 个码字连同下一个 4 位字段，变成 16 个新码字。纵向的箭头是“定型”：其中 15 个拿来当指令，留 1 个继续扩展。四层分别得到 15、15、15、16 条，一共 61 条；同样 16 位的字长，若操作码定长 4 位，只能有 16 条。
+
+数指令条数有一个比逐层数前缀更稳的通式。把 $L$ 位的指令字看成 $2^L$ 个码点：一条三地址指令的 12 位地址字段可以任意取值而操作不变，所以它独占 $2^{12}$ 个码点；二地址占 $2^8$ 个，一地址占 $2^4$ 个，零地址占 1 个。所有指令占的码点既不能重叠，也不能超过总数，于是
+
+\begin{conclusion}{扩展操作码的容量约束}{opcode-capacity}
+设指令字长 $L$ 位，某类指令的地址字段共占 $a_i$ 位，该类指令有 $n_i$ 条，则
+\[
+\sum_i n_i\,2^{a_i}\ \leqslant\ 2^{L}.
+\]
+对 16 位字长、4 位地址字段的例子，$m$ 条三地址、$n$ 条二地址、$p$ 条一地址、$q$ 条零地址满足
+\[
+m\cdot 2^{12}+n\cdot 2^{8}+p\cdot 2^{4}+q\ \leqslant\ 2^{16}.
+\]
 \end{conclusion}
 
+代入 $m=n=p=15$，左端为 $61440+3840+240=65520$，剩下 16 个码点，所以零地址最多 16 条。这个不等式还有一个等价的读法：操作码集合是前缀无关的，短码占掉的编码空间正好等于它能扩展出的长码总数。
+
+\subsection{数据寻址方式}
+
+指令里的地址字段叫形式地址，记作 $A$。它往往不是操作数的真实地址：可能是偏移量，可能是寄存器号，甚至就是操作数本身。把这层解释规则叫寻址方式，指令里用几位寻址特征字段指明它。
+
+无论哪种方式，硬件最终都要得到一个有效地址 $EA$，或者干脆绕过主存直接拿到操作数。下图是一条通用的取数通路。
+
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % ===== 定长操作码 =====
-  \node[anchor=east,text=Navy,font=\scriptsize] at (0.45,3.8){定长};
-  \draw[thick,fill=Amber!18] (1.0,3.55) rectangle (2.0,4.05) node[midway]{OP};
-  \draw[thick,fill=SoftGray] (2.0,3.55) rectangle (3.5,4.05) node[midway]{A1};
-  \draw[thick,fill=SoftGray] (3.5,3.55) rectangle (5.0,4.05) node[midway]{A2};
-  \node at (1.5,3.31){4位};
-  \node at (2.75,3.31){6位};
-  \node at (4.25,3.31){6位};
-  \node[anchor=west,text=TealDark] at (5.5,3.8){OP 固定 4 位，最多 $2^4$ 种};
+  \node[draw,thick,fill=SoftTeal,rounded corners=2pt,minimum width=3.8cm,minimum height=0.9cm,align=center] (ir) at (2.1,4.95) {指令寄存器 IR\\{\tiny OP \quad 方式 \quad $A$}};
+  \node[draw,thick,fill=SoftBlue,rounded corners=2pt,minimum width=3.8cm,minimum height=0.9cm,align=center] (reg) at (2.1,3.65) {寄存器堆\\{\tiny $R_X$（变址）\ \ $R_B$（基址）}};
+  \node[draw,thick,fill=SoftGray,rounded corners=2pt,minimum width=3.8cm,minimum height=0.7cm,align=center] (pc) at (2.1,2.15) {PC（指向下一条指令）};
 
-  % ===== 扩展操作码（可变长度）=====
-  \node[anchor=east,text=Navy,font=\scriptsize] at (0.45,2.1){二地址};
-  \draw[thick,fill=Amber!18] (1.0,1.85) rectangle (2.0,2.35) node[midway]{OP};
-  \draw[thick,fill=SoftGray] (2.0,1.85) rectangle (3.5,2.35) node[midway]{A1};
-  \draw[thick,fill=SoftGray] (3.5,1.85) rectangle (5.0,2.35) node[midway]{A2};
-  \node at (1.5,1.61){4位};
-  \node at (2.75,1.61){6位};
-  \node at (4.25,1.61){6位};
-  \node[anchor=west] at (5.5,2.1){OP$=0000{\sim}1110$ 为 15 种};
+  \node[draw,thick,fill=SoftAmber,rounded corners=2pt,minimum width=3.4cm,minimum height=1.8cm,align=center] (adder) at (7.3,3.5) {地址形成部件\\{\tiny 加法器 / 选择器}};
+  \node[draw,thick,fill=SoftGray,rounded corners=2pt,minimum width=2.0cm,minimum height=0.7cm,align=center] (mar) at (11.6,3.5) {MAR};
+  \node[draw,thick,fill=SoftBlue,rounded corners=2pt,minimum width=2.0cm,minimum height=1.8cm,align=center] (mem) at (14.2,3.5) {主存\\{\tiny $M[EA]$}};
+  \node[draw,thick,fill=SoftGray,rounded corners=2pt,minimum width=2.0cm,minimum height=0.6cm,align=center] (mdr) at (14.2,2.0) {MDR};
+  \node[draw,thick,fill=SoftTeal,rounded corners=2pt,minimum width=2.0cm,minimum height=0.8cm,align=center] (op) at (14.2,0.85) {操作数\\{\tiny 送运算器}};
 
-  \node[anchor=east,text=Navy,font=\scriptsize] at (0.45,0.4){一地址};
-  \draw[thick,fill=Amber!18] (1.0,0.15) rectangle (2.0,0.65) node[midway]{1111};
-  \draw[thick,fill=Teal!18] (2.0,0.15) rectangle (3.5,0.65) node[midway]{扩展 OP};
-  \draw[thick,fill=SoftGray] (3.5,0.15) rectangle (5.0,0.65) node[midway]{A2};
-  \node at (1.5,-0.09){4位};
-  \node at (2.75,-0.09){6位};
-  \node at (4.25,-0.09){6位};
-  \node[anchor=west] at (5.5,0.4){OP$=1111$ 时 A1 作扩展};
+  \draw[->,thick] (4.0,4.95) -- (4.9,4.95) -- (4.9,4.15) -- (5.6,4.15);
+  \draw[->,thick] (4.0,3.65) -- (5.6,3.65);
+  \draw[->,thick] (4.0,2.15) -- (6.5,2.15) -- (6.5,2.6);
+  \draw[->,thick] (9.0,3.5) -- (10.6,3.5);
+  \draw[->,thick] (12.6,3.5) -- (13.2,3.5);
+  \draw[->,thick] (14.2,2.6) -- (14.2,2.3);
+  \draw[->,thick] (14.2,1.7) -- (14.2,1.25);
+  \draw[->,thick,dashed,Burgundy] (13.2,2.0) -- (11.6,2.0) -- (11.6,3.15);
 
-  \node[anchor=east,text=Navy,font=\scriptsize] at (0.45,-1.3){零地址};
-  \draw[thick,fill=Amber!18] (1.0,-1.55) rectangle (2.0,-1.05) node[midway]{1111};
-  \draw[thick,fill=Teal!18] (2.0,-1.55) rectangle (3.5,-1.05) node[midway]{111111};
-  \draw[thick,fill=Burgundy!18] (3.5,-1.55) rectangle (5.0,-1.05) node[midway]{扩展 OP};
-  \node at (1.5,-1.79){4位};
-  \node at (2.75,-1.79){6位};
-  \node at (4.25,-1.79){6位};
-  \node[anchor=west] at (5.5,-1.3){扩展 OP 全 1 时 A2 再扩展};
-
-  \node[font=\scriptsize,black!70,align=center] at (2.8,-2.55){短操作码不能是长操作码的前缀，否则译码歧义（哈夫曼前缀性质）};
+  \node[font=\tiny,text=MutedText] at (4.4,5.1){$A$};
+  \node[font=\tiny,text=MutedText] at (4.8,3.8){$R_X/R_B$};
+  \node[font=\tiny,text=MutedText] at (5.0,2.02){PC};
+  \node[font=\tiny,text=MutedText] at (9.8,3.62){$EA$};
+  \node[font=\tiny,text=Burgundy,anchor=east] at (11.5,2.55){间接};
+  \node[font=\scriptsize,text=MutedText,align=left,anchor=north west] at (2.2,0.45)
+    {实线：按 $EA$ 访存取操作数；虚线：间接寻址多一次访存。\\
+     立即寻址与寄存器寻址不经过 MAR 和主存。};
 \end{tikzpicture}
 \end{center}
 
-\subsection{寻址方式}
+图中从左侧进入加法器的三条实线，是三种“基准”的来源：形式地址 $A$ 来自指令寄存器，变址寄存器和基址寄存器来自寄存器堆，PC 来自取指部件。加法器把基准和 $A$ 相加得到 $EA$；直接寻址时选择器让 $A$ 直通，不做加法。虚线是间接寻址特有的回路：从 $M[A]$ 读出来的不是操作数而是地址，它要再送进 MAR 才行。
 
-\begin{mydef}{寻址方式}{addressing-modes}
-指令中获取操作数（或跳转地址）的方式。分为指令寻址和数据寻址两大类。
-\end{mydef}
+各种方式的差别可以列成一张表。表里的访存次数只算取操作数，不含取指令。
 
-\begin{conclusion}{常见数据寻址方式}{data-addressing}
-设指令字中的形式地址为 $A$，有效地址为 $EA$。
-
-\begin{tablebox}{寻址方式汇总}
+\begin{tablebox}{数据寻址方式一览}
 \centering
 \small
-\begin{tabularx}{\linewidth}{|p{2.4cm}|p{3.6cm}|p{3.2cm}|X|}
+\begin{tabularx}{\linewidth}{|p{2.1cm}|p{4.5cm}|p{1.7cm}|X|}
 \hline
-寻址方式 & EA 计算 & 访存次数（取操作数）& 用途 \\
+方式 & 有效地址 / 操作数 & 访存次数 & 典型用途 \\
 \hline
-立即寻址 & 操作数 = A（无需访存）& 0 & 常量 \\
-直接寻址 & EA = A & 1 & 简单变量 \\
-间接寻址 & EA = (A) & $\geqslant 2$ & 指针 \\
-寄存器寻址 & 操作数 = $R_A$ & 0 & 频繁使用变量 \\
-寄存器间接 & EA = $(R_A)$ & 1 & 数组遍历 \\
-变址寻址 & EA = $(R_X) + A$ & 1 & 循环/数组 \\
-基址寻址 & EA = $(R_B) + A$ & 1 & 程序重定位 \\
-相对寻址 & EA = (PC) + A & 1 & 转移指令 \\
-堆栈寻址 & 栈顶隐含 & 0 & 表达式求值 \\
+隐含寻址 & 地址隐含（如 ACC） & 0 & 一地址指令 \\
+立即寻址 & 操作数 $=A$ & 0 & 常数、小整数 \\
+直接寻址 & $EA=A$ & 1 & 全局变量 \\
+一次间接 & $EA=(A)$ & 2 & 指针、函数参数 \\
+寄存器寻址 & 操作数 $=R_A$ & 0 & 局部变量 \\
+寄存器间接 & $EA=(R_A)$ & 1 & 指针、数组 \\
+变址 & $EA=(R_X)+A$ & 1 & 数组元素 \texttt{a[i]} \\
+基址 & $EA=(R_B)+A$ & 1 & 程序重定位 \\
+相对 & $EA=(PC)+A$ & 1 & 转移、位置无关代码 \\
+堆栈 & 栈顶由 $SP$ 隐含 & 0 或 1 & 表达式求值、函数调用 \\
 \hline
 \end{tabularx}
 \end{tablebox}
 
-\textbf{变址寻址 vs 基址寻址：} 两者形式相同（$EA = \text{寄存器} + A$），但语义不同：
-\begin{itemize}
-    \item \textbf{变址}：$A$ 为基准，$R_X$ 为偏移（可修改），用于数组。
-    \item \textbf{基址}：$R_B$ 为基准，$A$ 为偏移，用于程序重定位（OS 管理）。
-\end{itemize}
-\end{conclusion}
+\textbf{立即寻址}的地址码字段就是操作数本身，通常按补码解释。取指时它已随指令进入 IR，取操作数不再访存，这是它比直接寻址快的原因。代价是位数：字段只有 12 位，常数就被限制在 $[-2048,2047]$，更大的常数得先用 \texttt{lui} 之类的指令拼出来。
+
+\textbf{直接寻址}的 $EA=A$，一次访存拿到操作数，含义最直白。寻址范围被地址字段的位数锁死：12 位地址只能指向 4096 个单元。
+
+\textbf{间接寻址}的 $EA=(A)$，先按 $A$ 读一次主存，读出来的字才是地址。一次间接要访存两次，换来两个好处：地址字段不必和机器地址一样宽，长地址可以存在主存里；以及天然的指针语义，改指针的值就能换操作数。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.7cm,minimum height=0.9cm,align=center] (rx) at (-2.5,2.5){变址寄存器 $R_X$};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.7cm,minimum height=0.9cm,align=center] (a) at (2.5,2.5){指令形式地址 $A$};
-  \node[draw,circle,fill=SoftTeal,minimum size=0.78cm,inner sep=0pt] (plus) at (0,1.42){$+$};
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.9cm,minimum height=0.9cm,align=center] (ea) at (0,0.32){有效地址 $EA$};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=3.3cm,minimum height=0.9cm,align=center] (mem) at (0,-1.08){主存单元（操作数）};
-  \draw[->] (rx) -- (plus);
-  \draw[->] (a) -- (plus);
-  \draw[->] (plus) -- (ea);
-  \draw[->] (ea) -- (mem);
-  \node[font=\scriptsize,MutedText] at (0,-2.05){$EA = (R_X) + A$（变址）；基址同理 $EA = (R_B) + A$};
+  \node[font=\tiny,text=MutedText] at (3.5,2.35){$T_0$};
+  \node[font=\tiny,text=MutedText] at (6.9,2.35){$T_1$};
+  \node[font=\tiny,text=MutedText] at (10.3,2.35){$T_2$};
+  \node[anchor=east] at (1.75,1.85){直接寻址};
+  \draw[thick,fill=SoftBlue] (1.8,1.5) rectangle (5.2,2.2) node[midway,font=\tiny]{取指令};
+  \draw[thick,fill=SoftAmber] (5.2,1.5) rectangle (8.6,2.2) node[midway,font=\tiny]{取操作数 $M[A]$};
+  \node[anchor=east] at (1.75,0.85){间接寻址};
+  \draw[thick,fill=SoftBlue] (1.8,0.5) rectangle (5.2,1.2) node[midway,font=\tiny]{取指令};
+  \draw[thick,fill=SoftTeal] (5.2,0.5) rectangle (8.6,1.2) node[midway,font=\tiny]{读 $M[A]$ 得 $EA$};
+  \draw[thick,fill=SoftAmber] (8.6,0.5) rectangle (12.0,1.2) node[midway,font=\tiny]{取操作数 $M[EA]$};
+  \node[anchor=west,font=\tiny,text=MutedText,align=left] at (12.2,0.85){多出的一次\\读的是地址};
 \end{tikzpicture}
 \end{center}
 
+图里每个方格是一次访存。直接寻址两格就结束；间接寻址多出的第二格读回来的仍然是地址，它必须再走一遍地址通路，所以取操作数的访存次数从 1 变成 2。两次间接就是 3 次，层数越多越慢，实际机器很少超过两层。
+
+\textbf{寄存器寻址与寄存器间接寻址}只差一层括号，差别却是一次访存。寄存器寻址的操作数就在寄存器里，指令中只需 5 位寄存器号，取数不用访存；寄存器间接则把地址放在寄存器里，还要按那个地址访存一次。前者适合局部变量，后者适合指针和数组遍历。
+
+\textbf{变址、基址、相对寻址}三者的计算式都是“寄存器加形式地址”，区别在谁提供基准、谁在程序运行中被修改。
+
+\begin{conclusion}{变址与基址的区别}{index-vs-base}
+两者形式相同，$EA=(R)+A$，但谁变谁不变正好相反：
+\begin{itemize}
+    \item \textbf{变址}：指令里的 $A$ 是数组首地址，固定不变；变址寄存器 $R_X$ 存放下标，由用户程序在循环中反复修改。一条 \texttt{LW R1, 0(R2)} 配合 \texttt{R2} 每次加 4，就能走遍整个数组。
+    \item \textbf{基址}：基址寄存器 $R_B$ 存放程序（或段）在内存中的起始地址，由操作系统装入，运行中不变；指令里的 $A$ 是段内偏移。程序被换到别处，只要改 $R_B$，指令一条都不用重写，这就是重定位。
+\end{itemize}
+判断时看谁被反复修改：用户程序改的是变址，操作系统设定的是基址。
+\end{conclusion}
+
+\textbf{相对寻址}以 PC 为基准，$A$ 是补码位移。它的价值在下一小节展开，因为 PC 到底取哪个值，是这类题目最常见的失分点。
+
+x86 的 SIB 寻址把基址、变址、比例因子和位移揉在了一起：$EA=\text{基址}+\text{变址}\times\text{比例因子}+\text{位移}$。比例因子只取 1、2、4、8，正好是 \texttt{char}、\texttt{short}、\texttt{int}、\texttt{double} 的宽度，所以访问 \texttt{a[i]} 时一条指令就能算出元素地址，不必先做一次乘法。这种“把常用组合做进硬件”的思路，是 CISC 的典型手法。
+
+\textbf{堆栈寻址}的操作数地址由栈指针 $SP$ 隐含给出。软堆栈建在主存里，一次 push 要写数据、改 $SP$，至少一次访存；硬堆栈用一组寄存器实现，不访存但容量很小，通常只有十几层。
+
+\subsection{指令寻址与转移}
+
+数据寻址解决“操作数在哪”，指令寻址解决“下一条指令在哪”。顺序执行时 PC 加上一条指令的长度；遇到转移指令，PC 被改写成目标地址，称为跳跃。
+
+按字节编址时 PC 的增量是指令的字节数，不是 1。16 位定长指令加 2，RISC-V 的 32 位指令加 4，x86 则要加实际长度。取指结束时，PC 已经指向下一条指令——这个细节决定了相对寻址的基准：
+
+\[
+EA=(PC)+A,
+\]
+
+其中 $(PC)$ 是\textbf{下一条}指令的地址，不是当前正在执行的那条的地址。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw[->,thick] (0.5,0) -- (15.2,0) node[right,font=\tiny]{地址};
+  \foreach \x in {1.8,4.2,6.4,9.6}{\draw[thick] (\x,0.06) -- (\x,-0.06);}
+  \draw[thick,fill=SoftAmber] (4.2,0.02) rectangle (6.4,0.55) node[midway,font=\tiny]{指令};
+  \node[font=\tiny] at (1.8,-0.32){0FFDH};
+  \node[font=\tiny] at (4.2,-0.32){1000H};
+  \node[font=\tiny] at (6.4,-0.32){1002H};
+  \node[font=\tiny] at (9.6,-0.32){1008H};
+  \node[font=\tiny,text=MutedText] at (1.8,-0.72){$A=$FBH 的目标};
+  \node[font=\tiny,text=MutedText] at (4.2,-0.72){本指令};
+  \node[font=\tiny,text=MutedText] at (6.4,-0.72){PC（取指后）};
+  \node[font=\tiny,text=MutedText] at (9.6,-0.72){$A=$06H 的目标};
+  \draw[->,thick,TealDark] (6.4,0.88) -- (9.6,0.88) node[midway,above,font=\tiny]{$+6$};
+  \draw[->,thick,Burgundy] (6.4,1.38) -- (1.8,1.38) node[midway,above,font=\tiny]{$-5$（FBH）};
+\end{tikzpicture}
+\end{center}
+
+指令占 1000H、1001H 两个单元，取指后 PC 变成 1002H。位移 $A=06$H 时目标为 1008H；$A=$FBH 是补码的 $-5$，目标为 0FFDH。箭头从 PC 出发而不是从 1000H 出发，这就是相对寻址与“直接拿指令地址加位移”的分水岭。
+
+位移字段是 8 位补码，可正可负，范围 $-128\sim+127$，对应目标地址在 $PC-128$ 到 $PC+127$ 之间。若想把范围扩大，可以让位移以指令长度为单位编码：指令总是对齐的，最低位不必存。MIPS 的分支偏移左移 2 位，RISC-V 的 B 型立即数以 2 字节为单位，都是这个道理，代价是目标必须对齐。
+
 \begin{attention}
-\textbf{408 高频考点：给定一段 C 代码，分析其中某变量的访问使用了哪种寻址方式。} 例如 \texttt{for(i=0; i<n; i++) sum += a[i];} 中 \texttt{a[i]} 通常使用变址寻址（基址寄存器 = a 的首地址，变址寄存器 = i）。
+算相对转移目标时，要用 \textbf{当前指令地址 + 指令长度 + 位移}，三项缺一不可。直接把位移加到当前指令地址上，是这类题最常见的错误；把补码位移当无符号数相加，是第二种常见错误。
 \end{attention}
 
-\subsection{CISC vs RISC}
+用相对寻址还有一个工程上的理由：位置无关。程序被加载到内存的任何位置，指令与目标的相对距离都不变，代码不必修改；同时 8 位位移只占一个字节，比在指令里写完整的绝对地址省空间。代价是转移范围有限，跳得远就得换成绝对寻址或先装基址。
 
-\begin{conclusion}{CISC 与 RISC 对比}{cisc-risc}
-\begin{tablebox}{CISC vs RISC}
+\subsection{指令的几大类}
+
+指令按功能大致分几类：数据传送（\texttt{MOV}、\texttt{LOAD}、\texttt{STORE}）、算术逻辑（\texttt{ADD}、\texttt{AND}、\texttt{CMP}）、移位、转移（\texttt{JMP}、\texttt{BEQ}、\texttt{CALL}、\texttt{RET}）、输入输出、系统控制（停机、开中断、陷入）。
+
+分类本身不难记，考试真正用得上的是每类指令对操作数和状态的影响：转移类只改 PC，不写数据；比较类只置标志位，不产生结果；调用类要把返回地址压栈，返回时再弹出。看懂一段汇编在做什么，靠的就是这些副作用，而不是助记符的字面意思。
+
+\subsection{CISC 与 RISC}
+
+早期的存储器又贵又小，程序长度直接决定成本，于是设计者尽量让一条指令多做事：一条指令完成“取数—运算—存回”，甚至直接支持链表遍历、字符串比较。这类复杂指令集（CISC）用硬件的复杂度换程序员的方便，x86 是它的代表。
+
+后来情况反了过来。编译器足够聪明，能把高级语言翻译成简单指令的组合；流水线要求每一级的工作量和时延都稳定，复杂指令反而成了障碍。于是出现了精简指令集（RISC）：指令少而规整，格式固定，只有 load/store 访存，寄存器多，控制器用硬布线实现。MIPS、ARM、RISC-V 都属于这一类。
+
+\begin{tablebox}{CISC 与 RISC 的常见差别}
 \centering
 \small
-\begin{tabularx}{\linewidth}{|p{3.0cm}|X|X|}
+\begin{tabularx}{\linewidth}{|p{2.9cm}|X|X|}
 \hline
 特征 & CISC & RISC \\
 \hline
-指令长度 & 变长 & 定长（通常 32 位）\\
-指令数量 & 通常较多 & 通常较少、强调规则性\\
-寻址方式 & 多 & 少（仅 LOAD/STORE 访存）\\
-指令执行周期 & 差异通常较大 & 设计上便于流水化，周期数较规则 \\
-控制实现 & 可采用微程序控制 & 常采用硬布线控制 \\
-寄存器数量 & 传统设计相对较少 & 通常较多 \\
-流水线实现 & 困难 & 容易 \\
-典型代表 & x86 & MIPS, ARM, RISC-V \\
-设计哲学 & 用硬件复杂度换编译器简单性 & 用编译器复杂度换硬件简单性 \\
+指令数量与格式 & 多，格式不规整 & 少，格式规整、种类有限 \\
+指令长度 & 可变（x86 为 1--15 字节） & 通常定长（如 32 位）\\
+寻址方式 & 多，且多数指令可直接访存 & 少，一般只有 load/store 访存 \\
+寄存器数量 & 传统设计较少 & 较多，减少访存压力 \\
+控制器 & 常用微程序，便于实现复杂指令 & 常用硬布线，译码快、延迟低 \\
+流水线 & 较难，需处理变长与不定长执行 & 容易，节拍均匀 \\
+代码密度 & 高 & 定长编码下偏低 \\
+编译负担 & 编译器较轻松 & 编译器要做更多寄存器分配与调度 \\
 \hline
 \end{tabularx}
 \end{tablebox}
-\end{conclusion}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % CISC 取指流
+  \node[anchor=east] at (1.1,6.75){CISC};
+  \draw[thick,fill=SoftGray] (1.2,6.4) rectangle (2.3,7.1) node[midway,font=\tiny]{1B};
+  \draw[thick,fill=SoftGray] (2.3,6.4) rectangle (5.6,7.1) node[midway,font=\tiny]{6B};
+  \draw[thick,fill=SoftGray] (5.6,6.4) rectangle (7.2,7.1) node[midway,font=\tiny]{2B};
+  \draw[thick,fill=SoftGray] (7.2,6.4) rectangle (11.1,7.1) node[midway,font=\tiny]{7B};
+  \draw[thick,fill=SoftGray] (11.1,6.4) rectangle (13.2,7.1) node[midway,font=\tiny]{3B};
+  \node[anchor=west,font=\tiny,text=MutedText,align=left] at (13.4,6.75){长度不定\\逐条解析};
+
+  % RISC 取指流
+  \node[anchor=east] at (1.1,5.75){RISC};
+  \foreach \i in {0,...,4}{%
+    \pgfmathsetmacro{\xa}{1.2+2.4*\i}%
+    \draw[thick,fill=SoftBlue] (\xa,5.4) rectangle (\xa+2.4,6.1) node[midway,font=\tiny]{4B};}
+  \node[anchor=west,font=\tiny,text=MutedText,align=left] at (13.4,5.75){定长\\PC 每次 $+4$};
+
+  % 五级流水线
+  \foreach \c in {1,...,9}{%
+    \node[font=\tiny,text=MutedText] at ({2.2+0.95*(\c-0.5)},4.05){\c};}
+  \node[anchor=east,font=\tiny,text=MutedText] at (2.1,4.05){周期};
+  \foreach \i in {1,...,5}{%
+    \node[anchor=east,font=\tiny] at (2.1,{3.6-0.5*(\i-1)}){I\i};}
+  \foreach \i in {1,...,5}{%
+    \foreach \j/\st/\fc in {0/IF/SoftBlue,1/ID/SoftTeal,2/EX/SoftAmber,3/MEM/Burgundy!14,4/WB/Navy!12}{%
+      \pgfmathtruncatemacro{\c}{\i+\j}%
+      \draw[thick,fill=\fc] ({2.2+0.95*(\c-1)},{3.35-0.5*(\i-1)}) rectangle ({2.2+0.95*\c},{3.85-0.5*(\i-1)}) node[midway,font=\tiny]{\st};}}
+
+  \node[anchor=west,font=\tiny,text=MutedText,align=left] at (11.05,2.9)
+    {定长指令让每一级的工作量固定：\\5 条指令在 9 个周期内完成，\\稳态下每个周期流出一条结果。};
+  \node[font=\tiny,text=MutedText] at (6.4,1.05)
+    {IF 取指\quad ID 译码并读寄存器\quad EX 执行\quad MEM 访存\quad WB 写回};
+\end{tikzpicture}
+\end{center}
+
+上半部分对比两种取指流：CISC 的指令边界要逐条解析，长度从 1 字节到 15 字节；RISC 每条固定 4 字节，PC 加 4 就能取下一条。下半部分是定长指令的五级流水线，斜着看每一行表示一条指令依次经过五个阶段，任意一个周期里五个阶段都在忙。变长指令想进这样的流水线，必须先在前面加一级翻译，把长度不一、执行时间不一的指令变成节拍均匀的微操作。
+
+实际产品早已不是非此即彼。x86 处理器前端把复杂指令译成一串类 RISC 的微操作，后端用乱序执行和深流水线跑这些微操作；RISC-V 的 C 扩展把常用指令压成 16 位，ARM 有 Thumb，都是为了提高代码密度。所以“RISC 一定定长”“CISC 一定用微程序”这类说法都不成立——微程序还是硬布线是具体实现的选择，不是指令集的定义特征。
+
+至于性能，指令条数少不等于快，指令简单也不等于慢。同样一个程序在两台机器上，最终比的是执行时间，而执行时间取决于指令条数、平均 CPI 和主频三者的乘积关系。CISC 用更少的指令、更高的 CPI 完成工作，RISC 用更多的指令、更低的 CPI 完成工作，谁快要看具体数值。
 
 \begin{attention}
-\textbf{408 常考：} x86 是 CISC 的代表，但现代 x86 处理器内部将 CISC 指令「翻译」为类 RISC 微操作（$\mu$ops）执行，融合了两者优势。
+三个常见的绝对化说法要当心：
+\begin{itemize}
+    \item “RISC 每条指令一个周期”指的是经典五级流水线中每条指令占用一个节拍，不是整个执行过程只花一个时钟周期；访存指令仍要经过 MEM 级。
+    \item “只有 load/store 访存”是典型 RISC 的设计取向，不是所有 RISC 的硬性定义。
+    \item “CISC 用微程序、RISC 用硬布线”只是统计意义上的常见搭配，两类都可以选另一种实现。
+\end{itemize}
 \end{attention}
 
-\subsection{408 高频考点速查}
+\subsection{拓展阅读}
 
-\begin{conclusion}{指令系统 — 408常考点}{co4-keypoints}
-\begin{enumerate}
-    \item \textbf{扩展操作码设计}：给定指令字长和地址码字段，求最大指令数。
-    \item \textbf{寻址方式}：根据访存次数、EA 计算公式区分不同寻址方式。
-    \item \textbf{CISC vs RISC}：对比表每条都要记住。
-    \item \textbf{指令字长}：定长 vs 变长，与操作码、地址码字段位数的关系。
-    \item \textbf{大端/小端（Endianness）}：给定一条指令或数据在内存中的字节存储顺序，判断是大端还是小端。
-\end{enumerate}
-\end{conclusion}
+\begin{itemize}
+    \item \textbf{Patterson \& Hennessy《计算机组成与设计（RISC-V 版）》}第 2 章「指令：计算机的语言」——RISC-V 的 R/I/S/B/U/J 六种格式、过程调用与栈的使用，是本章最直接的补充。
+
+    \item \textbf{Bryant \& O'Hallaron《深入理解计算机系统》}第 3 章「程序的机器级表示」——从 x86-64 汇编出发，讲清一条 C 语句如何变成取数、运算、存回，以及变长指令的字节级编码。
+
+    \item \textbf{唐朔飞《计算机组成原理》}第 7 章「指令系统」——机器指令、操作数类型、寻址方式、指令格式举例与 RISC 技术；不同版本的章节号可能略有差异，以所用教材为准。
+
+    \item \textbf{延伸思考：}指令格式没有唯一解：RISC-V 打散立即数位以复用寄存器字段，x86 用前缀字节换向后兼容，ARM 用条件执行字段减少分支。遇到没见过的格式，先问三件事：操作码在哪几位、地址字段怎么解释、指令长度怎么确定。
+\end{itemize}
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（单项选择题）} 某计算机指令字长为 16 位，采用扩展操作码设计，二地址指令含两个6位地址字段。若二地址指令有 15 条，一地址指令有 62 条，则零地址指令最多有
-\begin{center}
-\begin{tabular}{ll}
-(A) 8 条 & (B) 16 条 \\[6pt]
-(C) 64 条 & (D) 128 条
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 二地址指令有两个6位地址字段，因此基础操作码为4位。15条二地址指令占15个前缀，剩余1个前缀可扩展出 $2^6=64$ 个一地址操作码；其中使用62个后还剩2个，再利用最后6位扩展为零地址操作码，最多 $2\times2^6=128$ 条。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\item \textbf{（单项选择题）} 在指令寻址方式中，直接寻址方式的有效地址为
-\begin{center}
-\begin{tabular}{ll}
-(A) 程序计数器 PC 的值 & (B) 指令中给出的形式地址 \\[4pt]
-(C) 形式地址所指主存单元的内容 & (D) 变址寄存器与形式地址之和
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 直接寻址的形式地址字段本身就是有效地址，即 $EA=A$；若再取该主存单元内容作为地址，则属于间接寻址。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（填空题）} 变址寻址中，操作数的有效地址 = \underline{\qquad} + \underline{\qquad}。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 变址寄存器内容；指令中的形式地址，即 $EA=(IX)+A$。\else \answerarea \fi
-
-\item \textbf{（填空题）} 在 RISC 处理器中，只有 \underline{\qquad} 和 \underline{\qquad} 指令可以访问存储器。
-
-\ifshowsolutions\par\noindent\textbf{答案：} LOAD；STORE。这里指典型 load/store 型 RISC 对数据存储器的显式访问，不包括取指。\else \answerarea \fi
-
-\item \textbf{（简答题）} 解释变址寻址和基址寻址在功能上的区别。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 两者形式上都可写为寄存器内容加形式地址。变址寻址通常由程序修改变址寄存器，形式地址给出数组等数据结构的基准位置，便于循环访问；基址寻址通常由系统或装入程序设置基址寄存器，指令中的形式地址作为偏移，便于程序重定位和地址空间管理。具体哪一部分由程序改变取决于体系结构约定。\else \answerarea \fi
-
-\item \textbf{（计算题）} 某计算机指令字长为 32 位，采用二地址指令。操作码字段占 8 位，两个地址字段各占 12 位。求：(1) 最多可有多少条二地址指令？(2) 若改为扩展操作码，保留 100 条二地址指令，一地址指令最多多少条？
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) 8位操作码最多编码 $2^8=256$ 条二地址指令。
-
-(2) 保留100个8位前缀后，剩余 $256-100=156$ 个前缀可把一个12位地址字段扩展为操作码。故一地址指令最多有
-\[
-156\times2^{12}=638{,}976\text{ 条}.
-\]
-这是假定所有剩余前缀都用于一地址指令且不再保留零地址扩展空间时的上限。\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格，单项选择题）} 以下关于 CISC 和 RISC 的说法，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) CISC 的指令长度固定 \\[4pt]
-(B) RISC 的寻址方式种类更多 \\[4pt]
-(C) 典型 load/store 型 RISC 中，只有 LOAD/STORE 指令访问数据存储器 \\[4pt]
-(D) CISC 比 RISC 更容易实现流水线
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} CISC通常指令长度和执行周期更不规则、寻址方式更多；典型 load/store 型 RISC 只有 LOAD/STORE 显式访问数据存储器，算术逻辑运算在寄存器之间完成，更利于流水线。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（真题风格，单项选择题）} 一条指令的地址码字段给出的是操作数在寄存器中的编号，则该寻址方式是
-\begin{center}
-\begin{tabular}{ll}
-(A) 直接寻址 & (B) 立即寻址 \\[6pt]
-(C) 寄存器寻址 & (D) 寄存器间接寻址
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 地址码直接给出保存操作数的寄存器编号，属于寄存器寻址；寄存器间接寻址则是寄存器中保存操作数的主存地址。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 某 16 位计算机采用单字长定长指令，指令格式如下：
-\[
-\begin{array}{|c|c|c|c|c|}
-\hline
-\text{OP(4位)} & \text{Md(2位)} & \text{Rd(2位)} & \text{Ms(2位)} & \text{A/Rs(6位)} \\
-\hline
-\end{array}
-\]
-其中 OP 为操作码，设 \texttt{ADD} 的 OP=0010；Md、Ms 分别为目的和源寻址方式，00 表示寄存器寻址，01 表示寄存器间接寻址，10 表示变址寻址（变址寄存器为 R0），11 表示立即寻址；Rd 为目的寄存器号。A/Rs 字段在寄存器或寄存器间接寻址时以低2位给出源寄存器号（高4位置0），在变址/立即寻址时给出6位形式地址或立即数。寄存器编码为 R0=00、R1=01、R2=10、R3=11。
-\begin{enumerate}
-    \item[(1)] 该指令系统最多可有多少条指令？
-    \item[(2)] 写出指令 \texttt{ADD R1, (R2)}（将 R1 与 R2 指向的内存单元内容相加，结果存 R1）的机器码（二进制）。
-    \item[(3)] 若某指令 Ms=10，A/Rs=000101，R0 的内容为十进制 1000，求源操作数的有效地址。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) OP 有4位，最多编码 $2^4=16$ 种基本操作。
-
-(2) \texttt{ADD} 的 OP=0010；目的 R1 为寄存器寻址，Md=00、Rd=01；源操作数为 R2 寄存器间接寻址，Ms=01，A/Rs=000010。因此机器码为
-\[
-\underbrace{0010}_{OP}\,
-\underbrace{00}_{Md}\,
-\underbrace{01}_{Rd}\,
-\underbrace{01}_{Ms}\,
-\underbrace{000010}_{A/Rs},
-\]
-即 \texttt{0010000101000010}。
-
-(3) 变址寻址，且题设已注明 $R0=1000_{10}$，故 $EA=(R0)+A=1000+5=1005$。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
-\noindent\textbf{拓展阅读：}
-\begin{itemize}
-    \item Patterson \& Hennessy《计算机组成与设计》第 2 章「指令：计算机的语言」——MIPS/RISC-V 指令集详解，含寻址方式与指令格式设计原理。
-    \item CS:APP 第 3 章「程序的机器级表示」——从 x86-64 汇编出发，建立一个程序如何被翻译为机器指令的完整心智模型。
-\end{itemize}
+\input{co/exercises/chap4.tex}

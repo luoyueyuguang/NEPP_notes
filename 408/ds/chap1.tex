@@ -1,772 +1,747 @@
 \section{线性表}
 
-\subsection{线性表的定义与ADT}
+\subsection{先把“排队”这件事说清楚}
+
+把班里的成绩单按学号排成一行：第一行是 1 号，第二行是 2 号……这张表能做的操作很有限——取第 5 行、找学号为 2024003 的那一行、在第 3 行前插进一行、删掉第 7 行。注意这些操作只关心元素排成的\textbf{次序}，不关心每个元素具体是什么，也不关心它存在哪里。把“排成一队”这件事单独抽出来，就是线性表。
 
 \begin{mydef}{线性表}{linear-list}
-线性表（Linear List）是由 $n\ (n\geqslant 0)$ 个数据元素 $a_1,a_2,\ldots,a_n$ 构成的有限序列，满足：
-\begin{enumerate}
-    \item 除首元素 $a_1$ 外，每个元素有且仅有一个直接前驱；
-    \item 除末元素 $a_n$ 外，每个元素有且仅有一个直接后继；
-    \item 元素个数 $n$ 称为表长，$n=0$ 时为空表。
-\end{enumerate}
-线性表是逻辑结构概念，不规定存储方式。实现时可选择顺序存储或链式存储。
+线性表是由 $n\ (n\geqslant 0)$ 个数据元素构成的有限序列 $a_1,a_2,\ldots,a_n$。除首元素外，每个元素有且只有一个直接前驱；除末元素外，每个元素有且只有一个直接后继。$n$ 称为表长，$n=0$ 时是空表。
+
+元素在序列中的序号 $1,2,\ldots,n$ 称为\textbf{位序}，它从 1 开始；C 数组的下标从 0 开始，两者相差 1，这是后面大量边界错误的来源。
 \end{mydef}
 
-\begin{conclusion}{线性表的抽象数据类型（ADT）}{adt-linear-list}
-线性表 ADT 的核心操作集（以 C 风格描述）：
-\begin{tablebox}{线性表 ADT 操作}
+线性表是\textbf{逻辑结构}。真正放进内存时，硬件只提供两样东西：地址，以及该地址上存的内容。要让逻辑上相邻的两个元素在物理上也相邻，就把它们塞进连续的存储单元，这是\textbf{顺序表}；不要求物理相邻，而是在每个元素旁边记下下一个元素在哪里，这是\textbf{链表}。同一条逻辑上的线性表，可以有两种存法，后面所有“谁更快”的比较，本质上都是这两种映射方式的比较。
+
+线性表的抽象数据类型把“能对它做什么”固定下来，与存法无关：
+
+\begin{tablebox}{线性表的 ADT（C 风格）}
 \centering
-\begin{tabular}{|c|l|}
-\hline
+\begin{tabular}{l|l}
+\toprule
 操作 & 语义 \\
-\hline
-\texttt{InitList(\&L)} & 初始化空表 \\
-\texttt{DestroyList(\&L)} & 销毁表，释放空间 \\
-\texttt{ClearList(\&L)} & 清空为初始状态 \\
-\texttt{ListEmpty(L)} & 判空，返回 bool \\
-\texttt{ListLength(L)} & 返回元素个数 \\
-\texttt{GetElem(L, i, \&e)} & 取第 $i$ 个元素（$1\leqslant i\leqslant n$）\\
-\texttt{LocateElem(L, e)} & 定位第一个等于 $e$ 的元素位置 \\
-\texttt{PriorElem(L, cur, \&pre)} & 取前驱 \\
-\texttt{NextElem(L, cur, \&next)} & 取后继 \\
-\texttt{ListInsert(\&L, i, e)} & 在第 $i$ 位前插入 $e$ \\
-\texttt{ListDelete(\&L, i, \&e)} & 删除第 $i$ 位元素，用 $e$ 返回 \\
-\texttt{ListTraverse(L)} & 遍历访问 \\
-\hline
+\midrule
+\texttt{InitList(L)} & 构造一个空表 \\
+\texttt{Length(L)} & 返回表长 \\
+\texttt{GetElem(L, i)} & 取位序为 $i$ 的元素（按位查找） \\
+\texttt{LocateElem(L, e)} & 找第一个值等于 $e$ 的元素（按值查找） \\
+\texttt{Insert(L, i, e)} & 在第 $i$ 位之前插入 $e$ \\
+\texttt{Delete(L, i)} & 删除第 $i$ 位元素 \\
+\texttt{Empty(L)} & 判空 \\
+\bottomrule
 \end{tabular}
 \end{tablebox}
 
-408 考试中重点关注 \texttt{GetElem}、\texttt{LocateElem}、\texttt{ListInsert}、\texttt{ListDelete} 的算法实现与复杂度，且要能区分类似 \texttt{LocateElem} 与 \texttt{GetElem} 的差异（按值 vs 按位）。
-\end{conclusion}
+表里有两个极容易混的操作：\texttt{GetElem} 是“按位置取”，\texttt{LocateElem} 是“按值找”。在顺序表上，前者 $O(1)$、后者 $O(n)$；在链表上，两者都是 $O(n)$。408 的选择题很喜欢在这里设陷阱，比如“顺序表查找的时间复杂度是 $O(1)$”——只有按位查找才成立。
 
-\subsection{顺序表（Sequential List）}
+\subsection{顺序表：让元素挨着放}
 
-\begin{mydef}{顺序表}{seq-list}
-用一组\textbf{地址连续}的存储单元依次存储线性表的数据元素。若每个元素占 $s$ 个存储单元，首地址为 $\mathtt{LOC}(a_1)$，则第 $i$ 个元素的地址为：
-\[
-\mathtt{LOC}(a_i) = \mathtt{LOC}(a_1) + (i-1)\times s,\qquad 1\leqslant i \leqslant n.
-\]
-这一性质称为\textbf{随机存取}（Random Access）：任意位置元素的访问时间为 $O(1)$。
-\end{mydef}
-
-\begin{formula}{顺序表的存储结构（C 实现）}{seq-list-struct}
-\begin{lstlisting}[language=C]
-#define MaxSize 100          // 最大容量
-typedef int ElemType;        // 元素类型，可按需替换
-typedef struct {
-    ElemType data[MaxSize];  // 存储空间
-    int length;              // 当前长度
-} SqList;                    // 顺序表类型
-\end{lstlisting}
-\textbf{关键点：} \texttt{data} 是静态数组，预先分配 \texttt{MaxSize}；\texttt{length} 记录实际元素个数（不是最后一个元素的下标）。408 常考「\texttt{length} 与下标的关系」——第 $i$ 个元素对应 \texttt{data[i-1]}。
-\end{formula}
-
-\subsubsection{顺序表的基本操作}
-
-\begin{conclusion}{顺序表的插入操作}{seq-list-insert}
-在第 $i$（$1\leqslant i \leqslant n+1$）位插入新元素 $e$：
-\begin{enumerate}
-    \item 检查 $i$ 是否合法，以及表是否已满；
-    \item 将第 $i$ 到第 $n$ 个元素依次后移一位；
-    \item 在位置 $i-1$ 处放入 $e$，\texttt{length++}。
-\end{enumerate}
+先看一个具体的表：\texttt{int data[8] = \{12, 7, 25, 18, 33\}}，\texttt{length = 5}。五个有效元素占数组的前五个单元，每个 \texttt{int} 占 4 个字节，首地址是 2000。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[font=\scriptsize, Navy] at (2.5,1.15){插入前（在第 3 位前插入 $e$）：};
-  \foreach \v/\i in {a_1/0,a_2/1,a_3/2,a_4/3,a_5/4}{
-    \node[draw, rectangle, minimum width=0.82cm, minimum height=0.55cm, fill=SoftBlue] (p\i) at (\i*0.95,0.5){$\v$};
+  \def\cwa{1.1}
+  % 有效单元
+  \foreach \i/\v in {0/12,1/7,2/25,3/18,4/33} {
+    \node[draw=RuleGray, fill=SoftBlue, minimum width=\cwa cm, minimum height=0.62cm]
+      (c\i) at ({(0.5+\i)*\cwa}, 0.62) {\v};
   }
-  \node[draw, rectangle, minimum width=0.82cm, minimum height=0.55cm, fill=SoftAmber] (e) at (2.85,-0.35){$e$};
-  \node[font=\scriptsize, MutedText] at (2.85,-0.85){新元素 $e$};
-  \node[font=\scriptsize, black!70] at (2.2,-1.35){$a_3,a_4,a_5$ 依次后移一位，空出第 3 位};
-  \node[font=\scriptsize, Navy] at (2.85,-1.9){插入后：};
-  \foreach \v/\i in {a_1/0,a_2/1,e/2,a_3/3,a_4/4,a_5/5}{
-    \node[draw, rectangle, minimum width=0.82cm, minimum height=0.55cm, fill=SoftBlue] (q\i) at (\i*0.95,-2.35){$\v$};
+  % 未使用单元
+  \foreach \i in {5,6} {
+    \node[draw=RuleGray, fill=SoftGray, minimum width=\cwa cm, minimum height=0.62cm]
+      (c\i) at ({(0.5+\i)*\cwa}, 0.62) {};
   }
+  % 下标
+  \foreach \i in {0,...,6} {
+    \node[font=\tiny, MutedText] at ({(0.5+\i)*\cwa}, 1.14) {\i};
+  }
+  % 地址
+  \foreach \i/\a in {0/2000,1/2004,2/2008,3/2012,4/2016,5/2020,6/2024} {
+    \node[font=\tiny, MutedText] at ({(0.5+\i)*\cwa}, -0.05) {\a};
+  }
+  % 头指针
+  \node[Teal] (L) at (-0.55,0.62) {\texttt{L}};
+  \draw[->, Teal, thick] (L) -- (0,0.62);
+  % 省略号与 length
+  \node[font=\scriptsize, MutedText] at ({7.5*\cwa}, 0.62) {$\cdots$};
+  \node[draw=RuleGray, fill=SoftAmber, minimum width=1.1cm, minimum height=0.62cm]
+    (len) at ({8.55*\cwa}, 0.62) {5};
+  \node[font=\tiny, MutedText] at ({8.55*\cwa}, -0.05) {\texttt{length}};
+  \node[font=\tiny, MutedText, anchor=north] at ({3.0*\cwa}, -0.38)
+    {前 5 个单元有效，后两个尚未使用};
 \end{tikzpicture}
 \end{center}
 
+图里的关键信息是：每个单元的下标和地址都能直接读出，相邻单元的地址差固定为 4。因此第 $i$ 个元素的地址不必从头找，算一下就行：
+\[
+\mathtt{LOC}(a_i)=\mathtt{LOC}(a_1)+(i-1)\times s,\qquad 1\leqslant i\leqslant n,
+\]
+其中 $s$ 是单个元素占的字节数。例如 $a_4$ 的地址是 $2000+(4-1)\times4=2012$。这种“给定位置就能在常数时间内算出地址”的能力叫\textbf{随机存取}，是顺序表区别于链表的根本特征。
+
+\begin{formula}{顺序表的类型定义}{seq-list-struct}
+\begin{lstlisting}[language=C]
+#define MaxSize 50
+typedef int ElemType;
+typedef struct {
+    ElemType data[MaxSize];   // 静态分配的存储区
+    int length;               // 当前元素个数，不是最大下标
+} SqList;
+\end{lstlisting}
+静态数组版本在编译时就定死了容量。若把 \texttt{data} 改成指向动态数组的指针，并另记一个容量 \texttt{MaxSize}，初始化时用 \texttt{malloc} 申请空间、表满时用 \texttt{realloc} 换更大的一块并把旧数据拷过去，就是动态顺序表。扩容那一次是 $O(n)$，但容量按倍数增长，连续多次插入平摊下来每次仍是 $O(1)$。408 只需要知道“动态顺序表可以扩容，扩容要整体搬移”。
+\end{formula}
+
+\subsubsection{插入：从后往前搬}
+
+在长度为 $n$ 的表中，把 $e$ 插到第 $i$ 位之前（$1\leqslant i\leqslant n+1$，$i=n+1$ 表示追加到表尾）。原来占着第 $i$ 位及之后的元素都必须往后挪一格，给 $e$ 腾位置。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \def\cwb{1.0}
+  % 插入前
+  \foreach \i/\v in {0/a_1,1/a_2,2/a_3,3/a_4,4/a_5,5/a_6} {
+    \node[draw=RuleGray, fill=SoftBlue, minimum width=\cwb cm, minimum height=0.55cm]
+      (b\i) at ({(0.5+\i)*\cwb}, 1.5) {$\v$};
+  }
+  % 插入后
+  \foreach \i/\v in {0/a_1,1/a_2,3/a_3,4/a_4,5/a_5,6/a_6} {
+    \node[draw=RuleGray, fill=SoftBlue, minimum width=\cwb cm, minimum height=0.55cm]
+      (a\i) at ({(0.5+\i)*\cwb}, -0.2) {$\v$};
+  }
+  \node[draw=Amber, fill=SoftAmber, minimum width=\cwb cm, minimum height=0.55cm]
+    (a2) at ({2.5*\cwb}, -0.2) {$e$};
+  % 后移箭头
+  \foreach \s/\t in {2/3,3/4,4/5,5/6} {
+    \draw[->, Teal, thick, shorten >=1pt, shorten <=1pt]
+      ({(0.5+\s)*\cwb}, 1.2) -- ({(0.5+\t)*\cwb}, 0.08);
+  }
+  % 插入点
+  \draw[dashed, Burgundy] ({2*\cwb}, 1.95) -- ({2*\cwb}, -0.62);
+  \node[Burgundy, font=\tiny, anchor=south] at ({2*\cwb}, 1.95) {插入点 $i=3$};
+  \node[MutedText, anchor=north] at ({3.6*\cwb}, -0.62)
+    {第 3 个及其后的 4 个元素各后移一位，移动次数 $n-i+1=4$};
+\end{tikzpicture}
+\end{center}
+
+图中四条斜箭头就是四次赋值。它们必须\textbf{从右往左}执行：先把 $a_6$ 放到第 7 格，再放 $a_5$……如果反过来从 $a_3$ 开始往右搬，$a_3$ 会先覆盖掉尚未搬走的 $a_4$，数据就丢了。代码里的循环变量从 \texttt{length} 递减到 \texttt{i}，正是这个道理。
+
 \begin{lstlisting}[language=C]
 bool ListInsert(SqList *L, int i, ElemType e) {
-    if (i < 1 || i > L->length + 1) return false;
-    if (L->length >= MaxSize)        return false;
-    for (int j = L->length; j >= i; j--)
-        L->data[j] = L->data[j-1];
-    L->data[i-1] = e;
+    if (i < 1 || i > L->length + 1) return false;  // 位序越界
+    if (L->length >= MaxSize)       return false;  // 表满
+    for (int j = L->length; j >= i; j--)           // 从后往前搬
+        L->data[j] = L->data[j - 1];
+    L->data[i - 1] = e;                            // 位序 i 对应下标 i-1
     L->length++;
     return true;
 }
 \end{lstlisting}
 
-\textbf{时间复杂度：}
+插在第 $i$ 位要移动 $n-i+1$ 个元素。若 $n+1$ 个合法位置等概率出现，平均移动次数为
 \[
-T(n) = \frac{1}{n+1}\sum_{i=1}^{n+1}(n-i+1) = \frac{n}{2}.
+\frac{1}{n+1}\sum_{i=1}^{n+1}(n-i+1)
+=\frac{n+(n-1)+\cdots+0}{n+1}
+=\frac{n(n+1)/2}{n+1}
+=\frac{n}{2}.
 \]
-等概率下平均移动 $n/2$ 个元素，为 $O(n)$。最好情况（插在末尾）$O(1)$，最坏情况（插在表头）$O(n)$。
-\end{conclusion}
+最好情况是插在表尾，移动 0 个，$O(1)$；最坏情况是插在表头，整表后移，$O(n)$。
 
-\begin{conclusion}{顺序表的删除操作}{seq-list-delete}
-删除第 $i$（$1\leqslant i \leqslant n$）位元素并用 $e$ 返回：
+\subsubsection{删除：从前往后补}
+
+删除第 $i$ 位（$1\leqslant i\leqslant n$）时方向相反：第 $i+1$ 到第 $n$ 个元素依次往前补一格，把空洞填上。这时循环必须从 $i$ 开始递增，否则前面的元素会覆盖还没读取的后继。
 
 \begin{lstlisting}[language=C]
 bool ListDelete(SqList *L, int i, ElemType *e) {
     if (i < 1 || i > L->length) return false;
-    *e = L->data[i-1];
-    for (int j = i; j < L->length; j++)
-        L->data[j-1] = L->data[j];
+    *e = L->data[i - 1];
+    for (int j = i; j < L->length; j++)   // 从前往后补
+        L->data[j - 1] = L->data[j];
     L->length--;
     return true;
 }
 \end{lstlisting}
 
-等概率下平均移动 $(n-1)/2$ 个元素，为 $O(n)$。
-\end{conclusion}
+删除第 $i$ 位要移动 $n-i$ 个元素，平均值是
+\[
+\frac{1}{n}\sum_{i=1}^{n}(n-i)=\frac{(n-1)+(n-2)+\cdots+0}{n}=\frac{n-1}{2}.
+\]
+它比插入的平均值少 $1/2$，原因有两个：删除只有 $n$ 个合法位置（没有“第 $n+1$ 位”），而且被删元素本身不用移动。
 
-\begin{conclusion}{顺序表按值查找}{seq-list-locate}
+把两个公式放在同一张图里看，差异和趋势都很直观：
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.78\linewidth, height=5.4cm,
+  xlabel={位置 $i$}, ylabel={移动元素个数},
+  xmin=0.5, xmax=9.5, ymin=-0.7, ymax=9.2,
+  xtick={1,2,...,9}, ytick={0,2,4,6,8},
+  grid=major, legend pos=north east, legend cell align=left,
+  font=\footnotesize,
+]
+\addplot[Teal, thick, mark=*, mark size=1.5pt]
+  coordinates {(1,8)(2,7)(3,6)(4,5)(5,4)(6,3)(7,2)(8,1)(9,0)};
+\addlegendentry{插入 $n-i+1$（$n=8$）}
+\addplot[Navy, thick, mark=square*, mark size=1.5pt]
+  coordinates {(1,7)(2,6)(3,5)(4,4)(5,3)(6,2)(7,1)(8,0)};
+\addlegendentry{删除 $n-i$（$n=8$）}
+\addplot[Teal, dashed, domain=0.5:9.5] {4};
+\addlegendentry{插入平均 $n/2=4$}
+\addplot[Navy, dashed, domain=0.5:9.5] {3.5};
+\addlegendentry{删除平均 $(n-1)/2=3.5$}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+两条实线都是斜率为 $-1$ 的直线，说明“位置越靠前，搬得越多”；虚线是各自在所有位置上的平均值，插入的平均线始终比删除高半个元素。表长为 $n$ 时，这两条线只是把图中的 $n=8$ 换成对应数值，形状不变。
+
+\subsubsection{按值查找}
+
+按位取值是 $O(1)$，按值查找则要逐个比较：
+
 \begin{lstlisting}[language=C]
 int LocateElem(SqList L, ElemType e) {
     for (int i = 0; i < L.length; i++)
-        if (L.data[i] == e) return i + 1;  // 返回位序
-    return 0;  // 未找到
+        if (L.data[i] == e) return i + 1;   // 返回位序
+    return 0;                               // 0 表示未找到
 }
 \end{lstlisting}
-平均比较次数 $(n+1)/2$，时间复杂度 $O(n)$。
 
-\textbf{与按位查找的区别：} \texttt{GetElem(L, i, \&e)} 直接通过下标访问 \texttt{L.data[i-1]}，时间复杂度 $O(1)$——顺序表的随机存取特性。
-\end{conclusion}
+若每个位置被查到的概率相同，查找成功时平均比较次数为 $(1+2+\cdots+n)/n=(n+1)/2$；查找失败则要把 $n$ 个元素全部比完。两种情况都是 $O(n)$。
 
-\subsection{单链表（Singly Linked List）}
+\begin{attention}
+顺序表代码里的边界，几乎都出在“位序”和“下标”的换算上：
+\begin{itemize}
+\item \texttt{length} 是元素个数。表空是 \texttt{length == 0}，表满是 \texttt{length == MaxSize}，最后一个元素的下标是 \texttt{length - 1}。
+\item 插入的合法范围是 $1\leqslant i\leqslant n+1$，删除是 $1\leqslant i\leqslant n$。判断越界要用当前的 \texttt{length}，而不是 \texttt{MaxSize}。
+\item 插入时先判 $i$ 再判满、删除时先判 $i$ 再判空，顺序反了虽然结果不错，但会给出误导性的返回值。
+\end{itemize}
+\end{attention}
+
+\subsection{单链表：用指针把散落的结点串起来}
+
+顺序表插入要搬半个表。如果表很长、又频繁在中间插队，搬移就成了主要开销。链表的想法很直接：元素不必挨着放，每个结点在存数据的同时，额外存一个指针，指向下一个结点在哪里。
 
 \begin{mydef}{单链表}{linked-list}
-用一组\textbf{任意}的存储单元存放线性表元素，每个结点包含：
-\begin{itemize}
-    \item \textbf{数据域}（data）：存放元素值；
-    \item \textbf{指针域}（next）：指向直接后继结点的指针。
-\end{itemize}
-$n$ 个结点通过指针链成一个链表。最后一个结点的指针域为 \texttt{NULL}。
-
-单链表不再支持随机存取——访问第 $i$ 个元素需从头沿链走 $i-1$ 步，时间复杂度 $O(n)$。
+每个结点含两个域：\textbf{数据域} \texttt{data} 存元素，\textbf{指针域} \texttt{next} 存直接后继结点的地址。最后一个结点的 \texttt{next} 为 \texttt{NULL}。结点在内存中的位置任意，逻辑次序完全由指针决定。
 \end{mydef}
 
-\begin{formula}{单链表的结点定义}{linked-list-node}
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \def\nodebox#1#2#3#4{%
+    \node[draw=RuleGray, fill=SoftBlue, minimum width=1.7cm, minimum height=0.7cm,
+          rounded corners=1pt] (#1) at (#2,#3) {};
+    \draw[RuleGray] ([xshift=0.18cm]#1.north west) -- ([xshift=0.18cm]#1.south west);
+    \node[font=\scriptsize] at ([xshift=-0.32cm]#1.center) {#4};
+    \node[font=\tiny, MutedText] at ([xshift=0.5cm]#1.center) {next};
+  }
+  \nodebox{h}{0}{0}{头}
+  \nodebox{n1}{3.0}{1.15}{$a_1$}
+  \nodebox{n2}{5.7}{-0.55}{$a_2$}
+  \nodebox{n3}{8.3}{0.75}{$a_3$}
+  \node[Teal] (L) at (-1.45,0) {\texttt{L}};
+  \draw[->, Teal, thick] (L) -- (h.west);
+  \draw[->, Teal, thick] (h.east) .. controls (1.3,0) and (1.5,1.15) .. (n1.west);
+  \draw[->, Teal, thick] (n1.east) .. controls (4.3,1.15) and (4.4,-0.55) .. (n2.west);
+  \draw[->, Teal, thick] (n2.east) .. controls (6.9,-0.55) and (7.0,0.75) .. (n3.west);
+  \node[font=\scriptsize, MutedText] (nul) at (10.35,0.75) {NULL};
+  \draw[->, Teal, thick] (n3.east) -- (nul.west);
+  % 地址
+  \node[font=\tiny, MutedText] at ([yshift=-0.5cm]h.south) {0x1A00};
+  \node[font=\tiny, MutedText] at ([yshift=-0.5cm]n1.south) {0x2C40};
+  \node[font=\tiny, MutedText] at ([yshift=-0.5cm]n2.south) {0x1F80};
+  \node[font=\tiny, MutedText] at ([yshift=-0.5cm]n3.south) {0x3A20};
+\end{tikzpicture}
+\end{center}
+
+图中每个方框右边的 \texttt{next} 存的是下一个方框的地址：$a_1$ 在 0x2C40，$a_2$ 在 0x1F80，两者相距很远，但 $a_1$ 的 \texttt{next} 恰好写着 0x1F80，于是逻辑上 $a_2$ 紧跟 $a_1$。地址没有任何规律，所以第 $i$ 个结点的位置算不出来，只能从头沿 \texttt{next} 一步一步走，这就是\textbf{顺序存取}，代价是 $O(n)$。
+
 \begin{lstlisting}[language=C]
 typedef struct LNode {
     ElemType data;
     struct LNode *next;
 } LNode, *LinkList;
 \end{lstlisting}
-\texttt{LinkList} 是指向 \texttt{LNode} 的指针，即头指针。后续代码中的 \texttt{L} 通常指头指针。
-\end{formula}
 
-\subsubsection{头结点 vs 无头结点}
-
-\begin{conclusion}{头结点的作用}{head-node}
-408 考试中单链表通常\textbf{带头结点}（head node），即第一个结点（头结点）的 \texttt{data} 无实际意义，\texttt{next} 指向首元结点。好处：
-\begin{enumerate}
-    \item 空表/非空表的操作代码统一——头指针 \texttt{L} 始终非空（至少指向头结点）；
-    \item 链表头部的插入/删除不需要单独判定边界。
-\end{enumerate}
-\begin{center}
-\begin{tikzpicture}[>=stealth, node distance=1.8cm, auto]
-\node[draw, rectangle] (H) {头结点}; 
-\node[draw, rectangle, right of=H] (A) {$a_1$};
-\node[draw, rectangle, right of=A] (B) {$a_2$};
-\node[right of=B] (dots) {$\cdots$};
-\node[draw, rectangle, right of=dots] (Z) {$a_n$};
-\node[draw, rectangle, right of=Z] (N) {NULL};
-\draw[->] (H) -- (A);
-\draw[->] (A) -- (B);
-\draw[->] (B) -- (dots);
-\draw[->] (dots) -- (Z);
-\draw[->] (Z) -- (N);
-\node[above of=H, yshift=-0.8cm] {L（头指针）};
-\draw[->] (0.3,0.8) -- (H);
-\end{tikzpicture}
-\end{center}
-\textbf{注意：} 题目既可能采用带头结点的链表，也可能采用不带头结点的链表，务必以题设为准。
-\end{conclusion}
-
-\subsubsection{单链表的基本操作}
-
-\begin{conclusion}{头插法建表}{head-insert}
-每次将新结点插入到\textbf{头结点之后}，形成逆序链表：
-\begin{lstlisting}[language=C]
-LinkList CreateListHead(int n) {
-    LinkList L = (LinkList)malloc(sizeof(LNode));
-    L->next = NULL;                     // 头结点
-    for (int i = 0; i < n; i++) {
-        LNode *s = (LNode*)malloc(sizeof(LNode));
-        scanf("%d", &s->data);
-        s->next = L->next;              // （1） s 后继 = 原首元
-        L->next = s;                    // （2） 头$\to$s
-    }
-    return L;
-}
-\end{lstlisting}
-时间复杂度 $O(n)$。输入顺序与结果顺序相反。
-\end{conclusion}
-
-\begin{conclusion}{尾插法建表}{tail-insert}
-每次将新结点接到链表\textbf{末尾}，保持插入顺序：
-\begin{lstlisting}[language=C]
-LinkList CreateListTail(int n) {
-    LinkList L = (LinkList)malloc(sizeof(LNode));
-    LNode *r = L;                       // r 始终指向当前尾结点
-    for (int i = 0; i < n; i++) {
-        LNode *s = (LNode*)malloc(sizeof(LNode));
-        scanf("%d", &s->data);
-        r->next = s;                    // 尾结点指向新结点
-        r = s;                          // 更新尾指针
-    }
-    r->next = NULL;
-    return L;
-}
-\end{lstlisting}
-时间复杂度 $O(n)$，输入与结果顺序相同。
-\end{conclusion}
-
-\begin{conclusion}{单链表按位查找}{linked-list-get-elem}
-从第一个\textbf{数据结点}（不是头结点）开始计数：
-\begin{lstlisting}[language=C]
-LNode *GetElem(LinkList L, int i) {
-    if (i < 0) return NULL;
-    LNode *p = L;                // p 指向头结点（第0个）
-    int j = 0;
-    while (p && j < i) {         // j=i 时 p 指向第i个结点
-        p = p->next;
-        j++;
-    }
-    return p;                    // 若 i>表长 则返回 NULL
-}
-\end{lstlisting}
-\textbf{注意：}\texttt{GetElem(L, 0)} 返回头结点；\texttt{GetElem(L, 1)} 返回首元结点。时间复杂度 $O(n)$。
-\end{conclusion}
-
-\begin{conclusion}{单链表插入操作}{linked-list-insert}
-在第 $i-1$ 个结点后插入新结点（即插入为第 $i$ 个）：
-\begin{lstlisting}[language=C]
-bool ListInsert(LinkList L, int i, ElemType e) {
-    LNode *p = GetElem(L, i-1);       // 找第 i-1 个结点
-    if (!p) return false;
-    LNode *s = (LNode*)malloc(sizeof(LNode));
-    s->data = e;
-    s->next = p->next;                // （1） 新结点先接后继
-    p->next = s;                      // （2） 前驱再接新结点
-    return true;
-}
-\end{lstlisting}
-\textbf{关键：} 语句（1）（2）的顺序不能颠倒！若先执行 \texttt{p->next = s}，则原后继链丢失。时间复杂度：查找 $O(n)$，插入本身 $O(1)$。
+\texttt{LinkList} 就是指向 \texttt{LNode} 的指针。它指向的可能是首元结点，也可能是一个不存数据的头结点，这两种约定决定了边界代码怎么写。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[font=\scriptsize, Navy] at (2.2,2.05){插入前};
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (p) at (0,1.0){$p$};
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (q) at (1.7,1.0){$q$};
-  \draw[->, black!60] (p.east) -- (q.west);
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (s) at (0.85,2.0){$s$};
-  \node[font=\scriptsize, MutedText] at (2.6,0.55){$p$ 原指向 $q$};
-  \node[font=\scriptsize, Navy] at (5.4,1.75){插入后};
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (p2) at (4.0,1.0){$p$};
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (s2) at (5.7,1.0){$s$};
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (q2) at (7.4,1.0){$q$};
-  \draw[->, Teal, thick] (p2.east) -- (s2.west);
-  \draw[->, Teal, thick] (s2.east) -- (q2.west);
-  \node[font=\scriptsize, black!70] at (5.9,0.4){\texttt{(1) s->next = p->next}};
-  \node[font=\scriptsize, black!70] at (5.9,-0.15){\texttt{(2) p->next = s}};
+  % (a) 带头结点
+  \node[font=\scriptsize, Navy, anchor=west] at (-0.3,3.1)
+    {(a) 带头结点：\texttt{L} 指向头结点，头结点的 data 不用};
+  \node[Teal] (La) at (0,2.35) {\texttt{L}};
+  \node[draw=RuleGray, fill=SoftAmber, minimum width=1.0cm, minimum height=0.45cm, font=\scriptsize] (ha) at (1.5,2.35) {头};
+  \node[font=\scriptsize, MutedText] (Na) at (3.1,2.35) {NULL};
+  \draw[->, Teal] (La) -- (ha);
+  \draw[->, Teal] (ha) -- (Na);
+  \node[font=\scriptsize, MutedText, anchor=west] at (3.85,2.35) {空表：\texttt{L->next == NULL}};
+
+  \node[Teal] (Lb) at (0,1.3) {\texttt{L}};
+  \node[draw=RuleGray, fill=SoftAmber, minimum width=1.0cm, minimum height=0.45cm, font=\scriptsize] (hb) at (1.5,1.3) {头};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=1.0cm, minimum height=0.45cm, font=\scriptsize] (b1) at (2.9,1.3) {$a_1$};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=1.0cm, minimum height=0.45cm, font=\scriptsize] (b2) at (4.3,1.3) {$a_2$};
+  \node[font=\scriptsize, MutedText] (Nb) at (5.6,1.3) {NULL};
+  \draw[->, Teal] (Lb) -- (hb);
+  \draw[->, Teal] (hb) -- (b1);
+  \draw[->, Teal] (b1) -- (b2);
+  \draw[->, Teal] (b2) -- (Nb);
+
+  % (b) 不带头结点
+  \node[font=\scriptsize, Navy, anchor=west] at (-0.3,0.55)
+    {(b) 不带头结点：\texttt{L} 直接指向首元结点};
+  \node[Teal] (Lc) at (0,0.0) {\texttt{L}};
+  \node[font=\scriptsize, MutedText] (Nc) at (1.5,0.0) {NULL};
+  \draw[->, Teal] (Lc) -- (Nc);
+  \node[font=\scriptsize, MutedText, anchor=west] at (2.0,0.0) {空表：\texttt{L == NULL}};
+
+  \node[Teal] (Ld) at (0,-1.0) {\texttt{L}};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=1.0cm, minimum height=0.45cm, font=\scriptsize] (d1) at (1.4,-1.0) {$a_1$};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=1.0cm, minimum height=0.45cm, font=\scriptsize] (d2) at (2.8,-1.0) {$a_2$};
+  \node[font=\scriptsize, MutedText] (Nd) at (4.1,-1.0) {NULL};
+  \draw[->, Teal] (Ld) -- (d1);
+  \draw[->, Teal] (d1) -- (d2);
+  \draw[->, Teal] (d2) -- (Nd);
 \end{tikzpicture}
 \end{center}
-\end{conclusion}
 
-\begin{conclusion}{单链表删除操作}{linked-list-delete}
-删除第 $i$ 个结点：
+对比上下两组：带头结点时，即使表空，\texttt{L} 也始终指向一个真实结点，因此“在表头插入/删除”和“在中间插入/删除”可以用同一段代码；不带头结点时，空表是 \texttt{L == NULL}，在表头操作必须修改 \texttt{L} 本身（通常把 \texttt{LinkList *} 传进去，或让函数返回新的头指针）。题目没有明说时，按题设给出的类型和空表描述判断，不要默认某一套。
+
+按位查找从\textbf{头结点}开始计数，头结点算第 0 个：
+
+\begin{lstlisting}[language=C]
+LNode *GetElem(LinkList L, int i) {
+    if (i < 0) return NULL;
+    LNode *p = L;                 // p 指向头结点（第 0 个）
+    int j = 0;
+    while (p != NULL && j < i) {  // 走 i 步后 p 指向第 i 个结点
+        p = p->next;
+        j++;
+    }
+    return p;                     // i 超过表长时返回 NULL
+}
+\end{lstlisting}
+
+\texttt{GetElem(L, 0)} 返回头结点，\texttt{GetElem(L, 1)} 返回首元结点。循环每走一步只做一次指针赋值，走 $i-1$ 步，所以是 $O(i)$，最坏 $O(n)$。
+
+\subsubsection{插入与删除：改指针，不搬数据}
+
+要在第 $i$ 位插入 $e$，先找到第 $i-1$ 个结点 $p$，让新结点 $s$ 接住 $p$ 原来的后继，再让 $p$ 指向 $s$。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % (a) 正确顺序
+  \node[font=\scriptsize, Navy, anchor=west] at (-0.5,2.05) {(a) 先接后继，再断前驱};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.9cm, minimum height=0.45cm] (p) at (0,0) {$p$};
+  \node[draw=RuleGray, fill=SoftAmber, minimum width=0.9cm, minimum height=0.45cm] (s) at (1.6,1.3) {$s$};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.9cm, minimum height=0.45cm] (q) at (3.2,0) {$q$};
+  \draw[->, MutedText] (p.east) -- (q.west);
+  \draw[->, Teal, thick, dashed] (s.east) -- (q.north);
+  \node[Teal, font=\tiny] at (2.6,0.62) {(1)};
+  \draw[->, Burgundy, thick] (p.east) -- (s.south west);
+  \node[Burgundy, font=\tiny] at (0.62,0.55) {(2)};
+
+  % (b) 错误顺序
+  \node[font=\scriptsize, Navy, anchor=west] at (-1.45,-1.25) {(b) 先断前驱会丢链};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.9cm, minimum height=0.45cm] (p2) at (-0.5,-2.0) {$p$};
+  \node[draw=RuleGray, fill=SoftAmber, minimum width=0.9cm, minimum height=0.45cm] (s2) at (1.1,-2.0) {$s$};
+  \node[draw=RuleGray, fill=SoftGray, minimum width=0.9cm, minimum height=0.45cm, text=MutedText] (q2) at (2.7,-2.0) {$q$};
+  \draw[->, Burgundy, thick] (p2.east) -- (s2.west);
+  \draw[->, MutedText, dashed] (p2.south) .. controls (-0.5,-2.85) and (2.7,-2.85) .. (q2.south);
+  \node[Burgundy, font=\scriptsize] at (1.1,-2.78) {$\times$};
+  \node[MutedText, font=\tiny, anchor=north] at (1.1,-3.05) {原来的 $p\to q$ 链接已被覆盖};
+\end{tikzpicture}
+\end{center}
+
+图 (a) 中 (1) 是 \texttt{s->next = p->next}，(2) 是 \texttt{p->next = s}。(1) 先从 $p$ 那里读出 $q$ 的地址存进 $s$，(2) 再把 $p$ 的指针改成指向 $s$。顺序反过来，$p$ 的 \texttt{next} 一旦被改写，$q$ 的地址就无处可查，(b) 中那条虚线链接就断了，$q$ 及其后的所有结点全部丢失。
+
+\begin{lstlisting}[language=C]
+bool ListInsert(LinkList L, int i, ElemType e) {
+    if (i < 1) return false;
+    LNode *p = GetElem(L, i - 1);      // 找第 i-1 个结点
+    if (p == NULL) return false;
+    LNode *s = (LNode *)malloc(sizeof(LNode));
+    if (s == NULL) return false;
+    s->data = e;
+    s->next = p->next;                 // (1) 新结点接住原后继
+    p->next = s;                       // (2) 前驱改指新结点
+    return true;
+}
+\end{lstlisting}
+
+带头结点时 $i=1$ 的 $p$ 就是头结点，上面这段代码不用特判就能插在表头。找到 $p$ 花 $O(n)$，改指针只有常数次，所以“按位插入”整体仍是 $O(n)$——常说的“链表插入 $O(1)$”有个前提：已经拿到前驱指针。
+
+删除同理，先找到第 $i-1$ 个结点，让它的 \texttt{next} 绕过第 $i$ 个结点，再释放后者：
+
 \begin{lstlisting}[language=C]
 bool ListDelete(LinkList L, int i, ElemType *e) {
-    LNode *p = GetElem(L, i-1);       // 找第 i-1 个结点（前驱）
-    if (!p || !p->next) return false; // p不存在或p无后继
-    LNode *q = p->next;               // q 指向第 i 个结点
+    if (i < 1) return false;
+    LNode *p = GetElem(L, i - 1), *q;
+    if (p == NULL || p->next == NULL) return false;  // 无前驱或无第 i 个
+    q = p->next;
     *e = q->data;
-    p->next = q->next;                // 前驱跳过 q
+    p->next = q->next;
     free(q);
     return true;
 }
 \end{lstlisting}
-\end{conclusion}
 
 \begin{attention}
-\textbf{408 常考陷阱——删除指定结点 p 本身：} 若只给指向 p 的指针（不知道前驱），可以将 p 的后继结点的 data 复制到 p，然后删除后继结点。但此方法\textbf{不适用于 p 是最后一个结点}，也不适用于结点 data 量过大或包含不能简单复制的资源（如指针/文件句柄）。
+\textbf{“删除指针 \texttt{p} 所指结点”是一个经典陷阱。} 如果只给 \texttt{p}、不给前驱，常规做法是把后继的数据复制到 \texttt{p}，再删掉后继：
+\begin{lstlisting}[language=C]
+q = p->next;
+p->data = q->data;
+p->next = q->next;
+free(q);
+\end{lstlisting}
+它在 $O(1)$ 时间内完成，但有三个前提：\texttt{p} 不是尾结点（否则没有后继可供复制）；结点数据可以整体复制；外部没有别的指针还指着被删的那个后继结点。题目若问“能否在 $O(1)$ 时间内删除”，要连这些条件一起答。
 \end{attention}
 
-\subsection{双链表（Doubly Linked List）}
+\subsubsection{建表：头插与尾插}
 
-\begin{mydef}{双链表}{double-linked-list}
-每个结点有两个指针域：\texttt{prior} 指向前驱，\texttt{next} 指向后继。
+从空表开始逐个插入 $n$ 个元素，插的位置不同，得到的次序也不同。
+
+头插法把每个新结点插到头结点之后：
+
+\begin{lstlisting}[language=C]
+LinkList List_HeadInsert(int n) {
+    LinkList L = (LinkList)malloc(sizeof(LNode));
+    L->next = NULL;                        // 头结点
+    for (int i = 0; i < n; i++) {
+        LNode *s = (LNode *)malloc(sizeof(LNode));
+        scanf("%d", &s->data);
+        s->next = L->next;                 // 新结点接住当前首元
+        L->next = s;                       // 头结点改指新结点
+    }
+    return L;
+}
+\end{lstlisting}
+
+每次插入都在表头，$n$ 次共 $O(n)$。输入 $1,2,3$，得到的是 $3,2,1$——次序正好相反。这个性质可以直接用来做就地逆置：把头结点摘下，再把原链表的结点依次头插回去。
+
+尾插法要保持输入次序，必须记住尾结点，否则每插一个都要从头走到尾，总代价变成 $O(n^2)$：
+
+\begin{lstlisting}[language=C]
+LinkList List_TailInsert(int n) {
+    LinkList L = (LinkList)malloc(sizeof(LNode));
+    LNode *r = L;                          // r 始终指向尾结点
+    for (int i = 0; i < n; i++) {
+        LNode *s = (LNode *)malloc(sizeof(LNode));
+        scanf("%d", &s->data);
+        r->next = s;
+        r = s;                             // 尾指针后移
+    }
+    r->next = NULL;                        // 收尾
+    return L;
+}
+\end{lstlisting}
+
+\subsection{双链表与循环链表}
+
+单链表只能单向走。要删除结点 $p$，必须知道它的前驱，而找前驱又得从头再扫一遍。双链表给每个结点再加一个指向前驱的指针，把这个回头路省掉。
+
 \begin{lstlisting}[language=C]
 typedef struct DNode {
     ElemType data;
     struct DNode *prior, *next;
 } DNode, *DLinkList;
 \end{lstlisting}
-双链表可以从任意结点出发沿两个方向遍历，但存储密度低于单链表（多一个指针域）。
-\end{mydef}
 
-\begin{conclusion}{双链表的插入操作}{dlink-insert}
-在结点 \texttt{p} 之后插入新结点 \texttt{s}：
-\begin{lstlisting}[language=C]
-s->next = p->next;                   // （1） s接p的后继
-s->prior = p;                        // （2） s接p
-if (p->next) p->next->prior = s;     // （3） p后继的前驱指向s
-p->next = s;                         // （4） p接s
-\end{lstlisting}
-四条语句缺一不可，且顺序有讲究：先建立 s 的两个指针，再修改原链中指向 s 的两个指针。若 p 为尾结点则跳过（3）。
+在 $p$ 之后插入 $s$，一共要改四个指针：
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (p) at (0,0.9){$p$};
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (s) at (1.85,0.9){$s$};
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (q) at (3.7,0.9){$q$};
-  \draw[->, Teal, thick] (p.east) -- (s.west);
-  \draw[->, Teal, thick] (s.east) -- (q.west);
-  \draw[<-, Burgundy, thick] (p.south) .. controls (0,0.3) and (0.15,0.3) .. (s.south);
-  \draw[<-, Burgundy, thick] (s.south) .. controls (1.85,0.3) and (2.0,0.3) .. (q.south);
-  \node[font=\scriptsize, black!70] at (1.85,-0.3){\texttt{(1) s->next=q\ \ (2) s->prior=p}};
-  \node[font=\scriptsize, black!70] at (1.85,-0.8){\texttt{(3) q->prior=s\ \ (4) p->next=s}};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.9cm, minimum height=0.5cm] (p) at (0,1.0) {$p$};
+  \node[draw=RuleGray, fill=SoftAmber, minimum width=0.9cm, minimum height=0.5cm] (s) at (1.8,1.0) {$s$};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.9cm, minimum height=0.5cm] (q) at (3.6,1.0) {$q$};
+  % next：上方
+  \draw[->, Teal, thick] (p.north) .. controls (0,1.75) and (1.8,1.75) .. (s.north);
+  \node[Teal, font=\tiny] at (0.9,1.72) {(4)};
+  \draw[->, Teal, thick] (s.north) .. controls (1.8,1.75) and (3.6,1.75) .. (q.north);
+  \node[Teal, font=\tiny] at (2.7,1.72) {(1)};
+  % prior：下方，画在结点底边上
+  \draw[->, Burgundy, thick] (s.south west) -- (p.south east);
+  \node[Burgundy, font=\tiny, anchor=north] at (0.9,0.7) {(3)};
+  \draw[->, Burgundy, thick] (q.south west) -- (s.south east);
+  \node[Burgundy, font=\tiny, anchor=north] at (2.7,0.7) {(2)};
+
+  % 删除
+  \node[font=\scriptsize, Navy, anchor=west] at (-0.5,-0.35) {删除 $q$：};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.9cm, minimum height=0.5cm] (p2) at (0,-1.6) {$p$};
+  \node[draw=RuleGray, fill=SoftGray, minimum width=0.9cm, minimum height=0.5cm, text=MutedText] (q2) at (1.5,-1.6) {$q$};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.9cm, minimum height=0.5cm] (r2) at (3.0,-1.6) {$r$};
+  \draw[->, Teal, thick] (p2.north) .. controls (0,-1.0) and (3.0,-1.0) .. (r2.north);
+  \draw[->, Burgundy, thick] (r2.south) .. controls (3.0,-2.2) and (0,-2.2) .. (p2.south);
+  \node[Burgundy, font=\scriptsize] at (1.72,-1.42) {$\times$};
+  \node[MutedText, font=\tiny, anchor=north] at (1.5,-2.35)
+    {\texttt{p->next = q->next;}\quad \texttt{q->next->prior = p;}};
 \end{tikzpicture}
 \end{center}
-\end{conclusion}
 
-\begin{conclusion}{双链表的删除操作}{dlink-delete}
-删除结点 \texttt{p} 的后继结点 \texttt{q}：
+上半部分是插入，青线是 \texttt{next} 方向，红线是 \texttt{prior} 方向，编号对应四条语句：
 \begin{lstlisting}[language=C]
-DNode *q = p->next;
-p->next = q->next;                   // p跳过q
-if (q->next) q->next->prior = p;     // q后继的前驱指向p
-free(q);
+s->next = p->next;                    // (1) 先接住 p 原来的后继 q
+if (p->next != NULL) p->next->prior = s;  // (2) q 回指 s
+s->prior = p;                         // (3) s 指回 p
+p->next = s;                          // (4) p 才指向 s
 \end{lstlisting}
-注意 \texttt{q} 不存在和 \texttt{q} 为尾结点的边界处理。
-\end{conclusion}
 
-\subsection{循环链表（Circular Linked List）}
+重要的是 (1)(2)(3) 都必须在 (4) 之前完成：(4) 一执行，\texttt{p->next} 就变成了 $s$，再去读“$p$ 原来的后继”就晚了，而 (2) 若拖到 (4) 之后，修改的会是 $s$ 自己的 \texttt{prior}。其中 (2) 要判空，因为 $p$ 可能是尾结点，此时 $q$ 不存在。若链表是循环双链表，\texttt{p->next} 永远非空，这个判断可以省掉。
 
-\begin{mydef}{循环链表}{circular-list}
-将单链表（或双链表）的最后一个结点的指针域指向头结点（而不是 NULL），形成一个环。
-\begin{itemize}
-    \item \textbf{循环单链表}：尾结点 \texttt{next} 指向头结点。判空条件：\texttt{L->next == L}。
-    \item \textbf{循环双链表}：头结点的 \texttt{prior} 指向尾结点；尾结点的 \texttt{next} 指向头结点。判空条件：\texttt{L->next == L \&\& L->prior == L}。
-\end{itemize}
-循环链表适合需要\textbf{循环遍历}或从任意结点出发沿链反复扫描的场景。它避免了到达表尾后重新回到表头的特殊处理，但从一个任意结点查找到另一个任意结点通常仍需 $O(n)$ 时间，并不提供随机访问。
-\end{mydef}
+删除 $q$ 只需两步：让 $p$ 的 \texttt{next} 指向 $r$，再让 $r$ 的 \texttt{prior} 指回 $p$，最后释放 $q$。图下半部分画的就是这两条新边；同样地，$q$ 是尾结点时要判空。
 
-\subsection{静态链表（Static Linked List）}
+循环链表把尾结点的 \texttt{next} 指回头结点，整条链首尾相接：
 
-\begin{mydef}{静态链表}{static-list}
-用\textbf{数组}模拟链表：数组元素即结点，包含 \texttt{data} 和 \texttt{next}（记录后继结点的数组下标，-1 表示 NULL）。
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw=RuleGray, fill=SoftAmber, minimum width=1.1cm, minimum height=0.55cm] (h) at (0,1.9) {头};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=1.1cm, minimum height=0.55cm] (a1) at (2.0,0) {$a_1$};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=1.1cm, minimum height=0.55cm] (a2) at (0,-1.9) {$a_2$};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=1.1cm, minimum height=0.55cm] (a3) at (-2.0,0) {$a_3$};
+  \draw[->, Teal, thick] (h.east) -- (a1.north);
+  \draw[->, Teal, thick] (a1.south) -- (a2.east);
+  \draw[->, Teal, thick] (a2.west) -- (a3.south);
+  \draw[->, Teal, thick] (a3.north) -- (h.west);
+  \node[Teal] (L) at (0,2.75) {\texttt{L}};
+  \draw[->, Teal] (L) -- (h.north);
+  \node[Burgundy] (r) at (-3.2,0) {\texttt{r}};
+  \draw[->, Burgundy] (r) -- (a3.west);
+  \node[font=\tiny, MutedText, align=center] at (0,-2.75)
+    {尾结点 $a_3$ 的 next 指回头结点，不是 NULL};
+\end{tikzpicture}
+\end{center}
+
+看图验证两个常用结论。第一，带头结点的循环单链表判空条件是 \texttt{L->next == L}：表空时头结点自己指向自己，环上只有头结点。第二，若只保存尾指针 \texttt{r}（指向 $a_3$），则 \texttt{r->next} 是头结点，\texttt{r->next->next} 是首元结点，所以在表头插入和在表尾插入都只要常数时间，不需要遍历。这正是“只设尾指针的循环单链表”常被考的原因。
+
+循环双链表再多一条：头结点的 \texttt{prior} 指向尾结点，于是从表头可以 $O(1)$ 找到表尾。判空条件写成 \texttt{L->next == L}（此时也必有 \texttt{L->prior == L}）。由于任何结点的两个指针都非空，插入删除不需要判空分支。
+
+\subsection{静态链表：拿数组下标当指针}
+
+有些场合没有指针（早期语言），或者题目要求“不移动元素又要能插删”，这时可以用数组模拟链表：每个分量存数据和下一个分量的\textbf{下标}，用 $-1$ 表示结束。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \def\cwc{1.15}
+  \node[anchor=east, MutedText] at (-0.1,1.6) {下标};
+  \node[anchor=east, MutedText] at (-0.1,0.95) {\texttt{data}};
+  \node[anchor=east, MutedText] at (-0.1,0.3) {\texttt{next}};
+  \foreach \i in {0,...,5} {
+    \node[draw=RuleGray, fill=SoftGray, minimum width=\cwc cm, minimum height=0.5cm, font=\scriptsize]
+      at ({(0.5+\i)*\cwc},1.6) {\i};
+    \node[draw=RuleGray, fill=SoftBlue, minimum width=\cwc cm, minimum height=0.5cm, font=\scriptsize]
+      (d\i) at ({(0.5+\i)*\cwc},0.95) {};
+    \node[draw=RuleGray, fill=SoftAmber, minimum width=\cwc cm, minimum height=0.5cm, font=\scriptsize]
+      (n\i) at ({(0.5+\i)*\cwc},0.3) {};
+  }
+  \node[font=\scriptsize] at (d0) {—};
+  \node[font=\scriptsize] at (d1) {A};
+  \node[font=\scriptsize] at (d2) {B};
+  \node[font=\scriptsize] at (d3) {C};
+  \node[font=\scriptsize] at (d4) {D};
+  \node[font=\scriptsize, text=MutedText] at (d5) {空闲};
+  \node[font=\scriptsize] at (n0) {1};
+  \node[font=\scriptsize] at (n1) {3};
+  \node[font=\scriptsize] at (n2) {4};
+  \node[font=\scriptsize] at (n3) {2};
+  \node[font=\scriptsize] at (n4) {-1};
+  \node[font=\scriptsize, text=MutedText] at (n5) {—};
+
+  % 逻辑链（按 next 跳读）
+  \node[font=\scriptsize, MutedText, anchor=east] at (-0.15,-0.95) {逻辑次序};
+  \node[draw=RuleGray, fill=SoftAmber, minimum width=0.6cm, minimum height=0.45cm, font=\scriptsize] (h0) at (0.45,-0.95) {0};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.8cm, minimum height=0.45cm, font=\scriptsize] (c1) at (1.35,-0.95) {A};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.8cm, minimum height=0.45cm, font=\scriptsize] (c3) at (2.6,-0.95) {C};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.8cm, minimum height=0.45cm, font=\scriptsize] (c2) at (3.85,-0.95) {B};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.8cm, minimum height=0.45cm, font=\scriptsize] (c4) at (5.1,-0.95) {D};
+  \node[font=\scriptsize, MutedText] (cend) at (6.2,-0.95) {-1};
+  \node[font=\tiny, MutedText] at (1.35,-0.62) {下标 1};
+  \node[font=\tiny, MutedText] at (2.6,-0.62) {下标 3};
+  \node[font=\tiny, MutedText] at (3.85,-0.62) {下标 2};
+  \node[font=\tiny, MutedText] at (5.1,-0.62) {下标 4};
+  \draw[->, Teal] (h0) -- (c1.west);
+  \draw[->, Teal] (c1) -- (c3);
+  \draw[->, Teal] (c3) -- (c2);
+  \draw[->, Teal] (c2) -- (c4);
+  \draw[->, Teal] (c4) -- (cend);
+\end{tikzpicture}
+\end{center}
+
+0 号分量当表头，它的 \texttt{next = 1} 指向 A；A 的 \texttt{next = 3} 指向下标 3 的 C；C 的 \texttt{next = 2} 指向 B；B 指向 D；D 的 \texttt{next = -1} 结束。注意逻辑次序是 A、C、B、D，与它们在数组里的物理次序 1、2、3、4 不同——\texttt{next} 里存的是列号（数组下标），不是地址，这正是“静态链表”与普通链表的唯一区别。
+
 \begin{lstlisting}[language=C]
 #define MaxSize 100
 typedef struct {
     ElemType data;
-    int next;            // 后继下标
+    int next;              // 后继分量的数组下标，-1 表示结束
 } SLinkList[MaxSize];
 \end{lstlisting}
-静态链表不需要动态内存分配（\texttt{malloc/free}），适用于不支持指针的语言或内存受限场景。408 中偶尔以选择题形式考察。
-\end{mydef}
 
-\subsection{顺序表 vs 链表的比较}
+插入时从空闲分量中取一个，改两个 \texttt{next}；删除时把被删分量挂回空闲链。整个过程一个元素都不移动，这是它的优点。代价是容量固定、按位查找仍要沿 \texttt{next} 走 $O(n)$ 步，而且 \texttt{next} 存的是下标，写错一位不会报错，只会悄悄指到别处。
 
-\begin{tablebox}{顺序表与链表的对比}
-\centering
-\begin{tabular}{|l|c|c|}
-\hline
-比较维度 & 顺序表 & 链表 \\
-\hline
-存储方式 & 连续地址 & 任意地址，指针链接 \\
-存取方式 & 随机存取 $O(1)$ & 顺序存取 $O(n)$ \\
-插入/删除 & 需移动元素 $O(n)$ & 修改指针 $O(1)$（已定位时）\\
-存储密度 & $\approx 1$（纯数据） & $<1$（含指针域）\\
-缓存性能 & 好（局部性好） & 差（结点分散）\\
-动态扩容 & 静态数组需整体搬移 & 可按需分配单个结点 \\
-\hline
-\end{tabular}
-\end{tablebox}
+\subsection{双指针：把两趟扫描压成一趟}
+
+双指针不是一种存储结构，而是一类扫描技巧：用两个指针在同一条序列上以不同速度、或从不同起点移动，让它们各自负责一件事，从而避免嵌套循环。下面四种用法覆盖了 408 的绝大多数考法。
+
+\subsubsection{快慢指针找倒数第 $k$ 个}
+
+让 \texttt{fast} 先走 $k$ 步，然后两个指针同步后移。由于间距始终是 $k$，当 \texttt{fast} 停在尾结点时，\texttt{slow} 恰好停在倒数第 $k$ 个结点的前驱上。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[font=\scriptsize, Navy] at (2.4,1.15){顺序表：地址连续，随机存取 $O(1)$};
-  \foreach \v/\i in {a_1/0,a_2/1,a_3/2,a_4/3}{
-    \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftBlue] (s\i) at (\i*1.05,0.5){$\v$};
+  \def\cwd{1.05}
+  \foreach \i/\v in {0/a_1,1/a_2,2/a_3,3/a_4,4/a_5,5/a_6,6/a_7} {
+    \ifnum\i=5
+      \node[draw=Amber, fill=SoftAmber, minimum width=0.85cm, minimum height=0.5cm]
+        (x\i) at ({\i*\cwd},0) {$\v$};
+    \else
+      \node[draw=RuleGray, fill=SoftBlue, minimum width=0.85cm, minimum height=0.5cm]
+        (x\i) at ({\i*\cwd},0) {$\v$};
+    \fi
   }
-  \node[font=\scriptsize, black!60] at (4.9,0.5){$\cdots$};
-  \node[font=\scriptsize, black!60] at (2.0,-0.25){$\mathrm{LOC}(a_i)=\mathrm{LOC}(a_1)+(i-1)s$};
-  \node[font=\scriptsize, Navy] at (2.6,-1.1){链表：地址任意，指针链接，顺序存取 $O(n)$};
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (l0) at (0,-1.75){$a_1$};
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (l1) at (1.95,-2.15){$a_2$};
-  \node[draw, rectangle, minimum width=0.85cm, minimum height=0.55cm, fill=SoftAmber] (l2) at (3.9,-1.75){$a_3$};
-  \node[font=\scriptsize, black!60] at (5.2,-1.75){$\cdots$};
-  \draw[->, Teal, thick] (l0.east) -- (l1.west);
-  \draw[->, Teal, thick] (l1.east) -- (l2.west);
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,5} {
+    \draw[->, MutedText] (x\i.east) -- (x\j.west);
+  }
+  \node[Teal] (fast) at (6.3,1.0) {\texttt{fast}};
+  \draw[->, Teal, thick] (fast) -- (x6.north);
+  \node[Burgundy, align=center] (slow) at (3.2,-1.05) {\texttt{slow}\\（前驱）};
+  \draw[->, Burgundy, thick] (slow.north) -- (x4.south);
+  \draw[<->, MutedText] (4.25,-0.5) -- (6.25,-0.5);
+  \node[MutedText, anchor=north] at (5.25,-0.55) {相距 $k=2$};
+  \node[Amber, anchor=south, font=\tiny] at (5,0.55) {待删};
 \end{tikzpicture}
 \end{center}
 
-\subsection{408 高频考点与真题风格}
+图中 $n=7$、$k=2$：\texttt{fast} 先走 2 步到 $a_2$，同步移动 5 步后停在 $a_7$，\texttt{slow} 从第 0 个位置（头结点）走到 $a_5$，而待删的倒数第 2 个是 $a_6$，正好是 \texttt{slow->next}。两个指针的间距在整段移动中保持为 2，这就是“倒数第 $k$ 个”与“前驱”之间的换算依据。
 
-\begin{conclusion}{线性表 408 选择题常考点}{ds-chap1-keypoints}
-\begin{enumerate}
-    \item \textbf{顺序表插入/删除的元素移动次数}：平均 $\approx n/2$，注意区分插入与删除的差别。
-    \item \textbf{头结点与无头结点}：空表判定、边界处理的代码差异。
-    \item \textbf{单链表插入语句的顺序}：先连后继，再断前驱链。
-    \item \textbf{「删除 p 所指结点」陷阱}：无前驱时可否用复制后继法、何时失效。
-    \item \textbf{双链表/循环链表判空条件}：\texttt{L->next == L} 等。
-    \item \textbf{时间复杂度辨析}：已定位结点的插入/删除是 $O(1)$，但\textbf{定位本身}需要时间——单链表按位查找 $O(n)$，顺序表按值查找 $O(n)$。
-    \item \textbf{静态链表}：\texttt{next} 域存的是下标而非指针，增删元素不移动数据元素。
-\end{enumerate}
-\end{conclusion}
-
-\newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（填空题）} 在一个长度为 $n$ 的顺序表中删除第 $i$（$1 \leqslant i \leqslant n$）个元素，等概率下需要向前移动的元素个数的期望值为 \underline{\qquad\qquad}；若在第 $i$（$1 \leqslant i \leqslant n+1$）个位置之前插入一个新元素，等概率下需要向后移动的元素个数的期望值为 \underline{\qquad\qquad}。
-
-\ifshowsolutions\par\noindent\textbf{解析：} 删除第 $i$ 个元素需移动 $n-i$ 个元素，等概率下期望为 $\frac{1}{n}\sum_{i=1}^{n}(n-i)=\frac{n-1}{2}$。在第 $i$ 个位置前插入需移动 $n-i+1$ 个元素，等概率（$n+1$ 种可能）下期望为 $\frac{1}{n+1}\sum_{i=1}^{n+1}(n-i+1)=\frac{n}{2}$。
-
-\boxed{\text{答案：}\dfrac{n-1}{2}\text{；}\dfrac{n}{2}}\else \answerarea \fi
-
-\item \textbf{（单项选择题）} 在单链表中，要将指针 \texttt{s} 所指的新结点插入到指针 \texttt{p} 所指结点之后，正确的语句序列是
-\begin{center}
-\begin{tabular}{ll}
-(A) \texttt{s->next = p->next; p->next = s;} \\[4pt]
-(B) \texttt{p->next = s; s->next = p->next;} \\[4pt]
-(C) \texttt{s->next = p; p->next = s;} \\[4pt]
-(D) \texttt{p->next = s->next; s->next = p;}
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 插入结点时必须先让新结点 \texttt{s} 指向原后继 \texttt{p->next}，再修改 \texttt{p} 的指针域指向 \texttt{s}。若顺序颠倒（先执行 \texttt{p->next = s}），则原后继链丢失，无法再找到。故 (A) 正确。(B) 先断链导致丢失后继；(C) 是插在 \texttt{p} 之前而非之后；(D) 逻辑错误。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（真题风格·综合题）} 设单链表的结点结构为 \texttt{[data | next]}，头指针为 \texttt{L}（带头结点）。编写算法，将链表就地逆置，即辅助空间复杂度为 $O(1)$。分析算法的时间复杂度与空间复杂度。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-采用头插法思想：将头结点与后续结点断开，然后依次将每个数据结点以头插法重新插入到头结点之后。
+对应的代码只有两段循环：
 
 \begin{lstlisting}[language=C]
-void Reverse(LinkList L) {
-    LNode *p = L->next;    // p 指向首元结点
-    LNode *q;
-    L->next = NULL;        // 头结点与后续断开，作为新链表的头
-    while (p != NULL) {
-        q = p->next;       // 暂存后继
-        p->next = L->next; // 头插：p 的后继 = 原首元
-        L->next = p;       // 头结点指向新首元 p
-        p = q;             // p 后移
-    }
-}
-\end{lstlisting}
-
-\textbf{时间复杂度：} $O(n)$，遍历链表一次。\\
-\textbf{空间复杂度：} $O(1)$，仅使用常数个辅助指针。
-
-\textbf{关键点：} （1） 先断开 \texttt{L->next = NULL}，避免形成环；（2） \texttt{q} 暂存后继是必需的，否则修改 \texttt{p->next} 后无法找到下一个结点；（3） 头插法保证逆序结果。
-\else \answerarea \fi
-
-\item \textbf{（真题风格·综合题）} 已知一个带有头结点的单链表，结点结构为 \texttt{[data | next]}。假设该链表只给出了头指针 \texttt{L}。在不改变链表的前提下，设计一个尽可能高效的算法，查找链表中倒数第 $k$（$k$ 为正整数）个位置上的结点。若查找成功，算法输出该结点的 \texttt{data} 值并返回 1；否则只返回 0。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-采用双指针（快慢指针）法，一趟扫描完成：
-
-\begin{lstlisting}[language=C]
-int SearchKthFromEnd(LinkList L, int k) {
-    LNode *fast = L->next, *slow = L->next;
-    int count = 0;
-    // fast 先走 k 步
-    while (fast != NULL && count < k) {
+bool DeleteKthFromEnd(LinkList L, int k, ElemType *e) {
+    if (k < 1) return false;
+    LNode *fast = L, *slow = L;
+    for (int i = 0; i < k; i++) {
+        if (fast == NULL) return false;   // k 超过表长
         fast = fast->next;
-        count++;
     }
-    if (count < k) return 0;   // k 超过表长
-    // fast 和 slow 同步前进，fast 到 NULL 时 slow 即倒数第 k 个
-    while (fast != NULL) {
+    if (fast == NULL) return false;
+    while (fast->next != NULL) {          // fast 停在尾结点
         fast = fast->next;
         slow = slow->next;
     }
-    printf("%d\n", slow->data);
-    return 1;
+    LNode *q = slow->next;
+    *e = q->data;
+    slow->next = q->next;
+    free(q);
+    return true;
 }
 \end{lstlisting}
 
-\textbf{时间复杂度：} $O(n)$，只遍历一次链表。\\
-\textbf{空间复杂度：} $O(1)$。
+两处边界决定成败：$k=n$ 时 \texttt{fast} 恰好停在尾结点，第二段循环一次也不执行，\texttt{slow} 仍在头结点，删的是首元结点；$k>n$ 时 \texttt{fast} 在走的过程中变成 \texttt{NULL}，必须提前返回。另外，起点不同结论会平移一位：若从首元结点出发走 $k$ 步，最终 \texttt{slow} 指的就是待删结点本身，而不是它的前驱。答题时要写清楚从头结点还是首元结点开始。
 
-\textbf{思想：} 维护两个指针，间距为 $k$。当快指针走到表尾时，慢指针恰好指向倒数第 $k$ 个结点。
-\else \answerarea \fi
+\subsubsection{找中间结点}
 
-\item \textbf{（真题风格·综合题）} 已知一个带头结点的单链表，结点结构为 \texttt{[data | next]}。设计一个算法，删除链表中所有数据值在区间 $[a,b]$ 内的结点（$a \leqslant b$），并分析算法的时间复杂度。
+\texttt{slow} 每次走 1 步，\texttt{fast} 每次走 2 步。\texttt{fast} 走到 \texttt{NULL}（偶数个结点）或 \texttt{fast->next == NULL}（奇数个）时，\texttt{slow} 就在中间：$n$ 为奇数时是第 $(n+1)/2$ 个；$n$ 为偶数时是第 $n/2+1$ 个，即后半段的第一个。循环条件必须写成 \texttt{fast != NULL \&\& fast->next != NULL}，因为循环体里要访问两次 \texttt{next}。若题目要求偶数时取前半段的最后一个，把循环体末尾的判断提前一步即可，结论整体左移一位——答题时先看清题目要哪一个中位数。
 
-\ifshowsolutions\par\noindent\textbf{解析：}
-一趟遍历，维护前驱指针。由于单链表删除结点需要前驱，用 \texttt{p->next} 指向当前考察结点。
+\subsubsection{判环与找环入口}
+
+Floyd 判环仍然是一快一慢：\texttt{slow} 一步、\texttt{fast} 两步，有环必相遇，无环则 \texttt{fast} 先撞到 \texttt{NULL}。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.8cm, minimum height=0.45cm] (v1) at (0,-2.2) {1};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.8cm, minimum height=0.45cm] (v2) at (1.3,-2.2) {2};
+  \node[draw=Amber, fill=SoftAmber, minimum width=0.8cm, minimum height=0.45cm] (v3) at (2.6,-2.2) {3};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.8cm, minimum height=0.45cm] (v4) at (3.9,-2.2) {4};
+  \node[draw=RuleGray, fill=SoftBlue, minimum width=0.8cm, minimum height=0.45cm] (v5) at (5.2,-2.2) {5};
+  \draw[->, Teal] (v1) -- (v2);
+  \draw[->, Teal] (v2) -- (v3);
+  \draw[->, Teal] (v3) -- (v4);
+  \draw[->, Teal] (v4) -- (v5);
+  \draw[->, Burgundy, thick] (v5.south) .. controls (5.2,-3.2) and (2.6,-3.2) .. (v3.south);
+  \node[Burgundy, font=\tiny, anchor=north] at (3.9,-3.15) {环：$5\to3$};
+  \node[Amber, font=\tiny, anchor=south] at (2.6,-1.85) {入口};
+\end{tikzpicture}
+\end{center}
+
+图中 1、2 是环外的前缀，3、4、5 构成环，5 的 \texttt{next} 指回 3。两个指针进入环后，\texttt{fast} 每轮比 \texttt{slow} 多走一步，二者在环上的距离每轮缩小 1，所以最多绕一圈就会相遇。
+
+相遇之后要找入口：把 \texttt{slow} 放回头结点，两个指针都改成每次走 1 步，再次相遇的位置就是环入口。设头到入口为 $a$ 步，入口到相遇点为 $b$ 步，环长为 $L$。相遇时 \texttt{slow} 走了 $a+b$，\texttt{fast} 走了 $a+b+kL$，而 \texttt{fast} 的路程是 \texttt{slow} 的两倍：
+\[
+2(a+b)=a+b+kL \;\Longrightarrow\; a=kL-b=(k-1)L+(L-b).
+\]
+也就是说，从头走 $a$ 步、从相遇点走 $L-b$ 步，会在同一时刻到达入口。
 
 \begin{lstlisting}[language=C]
-void DeleteRange(LinkList L, int a, int b) {
-    LNode *p = L;            // p 指向待删结点的前驱
-    LNode *q;
-    while (p->next != NULL) {
-        if (p->next->data >= a && p->next->data <= b) {
-            q = p->next;
-            p->next = q->next;   // 前驱跳过被删结点
-            free(q);
-        } else {
-            p = p->next;          // 不删则后移
-        }
+bool HasCycle(LinkList L) {
+    LNode *slow = L, *fast = L;
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;          // 一步
+        fast = fast->next->next;    // 两步
+        if (slow == fast) return true;
     }
+    return false;
 }
 \end{lstlisting}
 
-\textbf{时间复杂度：} $O(n)$，遍历链表一次。\\
-\textbf{空间复杂度：} $O(1)$。
+判环时两个指针从同一个结点出发即可（通常取表头）；进入环后它们的距离每轮缩小 1，所以有环一定会相遇。求环长则更简单：相遇后让一个指针不动、另一个每次走一步，再次回到相遇点所走的步数就是 $L$。
 
-\textbf{关键：} （1） 用 \texttt{p->next} 考察结点，避免维护前驱的复杂性；（2） 删除时 \texttt{p} 不动（因为新的 \texttt{p->next} 可能也需删除），不删除时 \texttt{p} 才后移；（3） 注意区间是否包含端点，必须严格按题设处理开、闭区间。
-\else \answerarea \fi
+\subsubsection{顺序表上的双指针}
 
-\item \textbf{（真题风格·综合题）} 假定采用带头结点的单链表保存单词。当两个单词有相同的后缀时，可共享相同的后缀存储空间。设 \texttt{str1} 和 \texttt{str2} 分别指向两个单词所在单链表的头结点，链表结点结构为 \texttt{[data | next]}。设计一个尽可能高效的算法，找出由 \texttt{str1} 和 \texttt{str2} 所指的两个链表共同后缀的起始位置。
+顺序表虽然支持随机存取，双指针仍然能把 $O(n^2)$ 降成 $O(n)$：
 
-\ifshowsolutions\par\noindent\textbf{解析：}
-先计算两链表表长，将较长链表的指针先移动 $|len1-len2|$ 步，使两指针到表尾的距离相等；然后同步后移，第一个相同结点即为公共后缀起点。
-
-\begin{lstlisting}[language=C]
-int ListLen(LinkList L) {
-    int len = 0;
-    LNode *p = L->next;
-    while (p != NULL) { len++; p = p->next; }
-    return len;
-}
-
-LNode *FindCommonSuffix(LinkList str1, LinkList str2) {
-    int len1 = ListLen(str1), len2 = ListLen(str2);
-    LNode *p = str1->next, *q = str2->next;
-    // 将较长链表先走 |len1-len2| 步
-    if (len1 > len2)
-        for (int i = 0; i < len1 - len2; i++) p = p->next;
-    else
-        for (int i = 0; i < len2 - len1; i++) q = q->next;
-    // 同步后移，找第一个相同结点
-    while (p != NULL && p != q) {
-        p = p->next;
-        q = q->next;
-    }
-    return p;  // NULL 表示无公共后缀
-}
-\end{lstlisting}
-
-\textbf{时间复杂度：} $O(\max(m,n))$，$m$、$n$ 分别为两表表长。\\
-\textbf{空间复杂度：} $O(1)$。
-\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·综合题）} 设将 $n$（$n>1$）个整数存放到一维数组 $R$ 中。设计一个在时间和空间两方面都尽可能高效的算法，将 $R$ 中保存的序列循环左移 $p$（$0<p<n$）个位置，即将 $R$ 中的数据由 $(x_0,x_1,\ldots,x_{n-1})$ 变换为 $(x_p,x_{p+1},\ldots,x_{n-1},x_0,x_1,\ldots,x_{p-1})$。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-核心思想：三次逆置。
-\begin{enumerate}
-    \item 逆置前 $p$ 个元素：$(x_{p-1},\ldots,x_1,x_0,\ldots)$；
-    \item 逆置后 $n-p$ 个元素：$(\ldots,x_{n-1},\ldots,x_p)$；
-    \item 整体逆置：$(x_p,\ldots,x_{n-1},x_0,\ldots,x_{p-1})$。
-\end{enumerate}
-
-\begin{lstlisting}[language=C]
-void Reverse(int R[], int left, int right) {
-    while (left < right) {
-        int temp = R[left];
-        R[left] = R[right];
-        R[right] = temp;
-        left++; right--;
-    }
-}
-
-void LeftShift(int R[], int n, int p) {
-    if (p <= 0 || p >= n) return;
-    Reverse(R, 0, p - 1);       // 逆置前 p 个
-    Reverse(R, p, n - 1);       // 逆置后 n-p 个
-    Reverse(R, 0, n - 1);       // 整体逆置
-}
-\end{lstlisting}
-
-\textbf{时间复杂度：} $O(n)$，每个元素参与两次交换（整体逆置时一次，分段逆置时一次），共约 $n$ 次交换。\\
-\textbf{空间复杂度：} $O(1)$，仅使用常数个辅助变量。
-
-\textbf{关键：} 三次逆置法是本题最优解，比逐位移动（$O(np)$）和辅助数组（$O(n)$ 空间）都更优。
-\else \answerarea \fi
-
-\item \textbf{（真题风格·综合题）} 一个长度为 $L$（$L \geqslant 1$）的升序序列 $S$，处在第 $\lceil L/2 \rceil$ 个位置的数称为 $S$ 的中位数。例如，若序列 $S_1=(11,13,15,17,19)$，则 $S_1$ 的中位数是 15。两个序列的中位数是含它们所有元素的升序序列的中位数。例如，若 $S_2=(2,4,6,8,20)$，则 $S_1$ 和 $S_2$ 的中位数是 11。现有两个等长升序序列 $A$ 和 $B$，设计一个在时间和空间两方面都尽可能高效的算法，找出两个序列 $A$ 和 $B$ 的中位数。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-采用二分法，每次从两个序列中各删除大约一半的元素，直到两个序列均只剩一个元素时取较小者。
-
-\begin{lstlisting}[language=C]
-int MidSearch(int A[], int B[], int n) {
-    int s1 = 0, d1 = n - 1;  // A 的起止下标
-    int s2 = 0, d2 = n - 1;  // B 的起止下标
-    int m1, m2;
-    while (s1 != d1 || s2 != d2) {
-        m1 = (s1 + d1) / 2;
-        m2 = (s2 + d2) / 2;
-        if (A[m1] == B[m2])
-            return A[m1];
-        if (A[m1] < B[m2]) {
-            // 舍弃 A 的前半段和 B 的后半段
-            if ((s1 + d1) % 2 == 0) { s1 = m1; d2 = m2; }
-            else                     { s1 = m1 + 1; d2 = m2; }
-        } else {
-            if ((s2 + d2) % 2 == 0) { d1 = m1; s2 = m2; }
-            else                     { d1 = m1; s2 = m2 + 1; }
-        }
-    }
-    return A[s1] < B[s2] ? A[s1] : B[s2];
-}
-\end{lstlisting}
-
-\textbf{时间复杂度：} $O(\log n)$，每次循环大约减半。\\
-\textbf{空间复杂度：} $O(1)$。
-
-\textbf{思想：} 设 $a = A_{\text{med}}$，$b = B_{\text{med}}$。若 $a=b$ 则 $a$ 即为所求；若 $a<b$，则 $A$ 的前半段和 $B$ 的后半段不可能包含中位数，舍弃之；若 $a>b$ 同理。每次舍弃等长元素，保证等长性不变。
-
-\textbf{注意：} 当区间长度为偶数时中位数取偏左位置，元素个数的奇偶性会影响舍弃边界，代码中用 \texttt{(s+d)\%2==0} 判断。
-\else \answerarea \fi
-
-\item \textbf{（真题风格·综合题）} 已知一个整数序列 $A=(a_0,a_1,\ldots,a_{n-1})$，其中 $0 \leqslant a_i < n$（$0 \leqslant i < n$）。若存在 $a_{p_1}=a_{p_2}=\cdots=a_{p_m}=x$ 且 $m > n/2$（$0 \leqslant p_k < n$，$1 \leqslant k \leqslant m$），则称 $x$ 为 $A$ 的\textbf{主元素}。例如 $A=(0,5,5,3,5,7,5,5)$，则 5 为主元素；又如 $A=(0,5,5,3,5,1,5,7)$，则 $A$ 中没有主元素。假设 $A$ 中的 $n$ 个元素保存在一个一维数组中，设计一个尽可能高效的算法，找出 $A$ 的主元素。若存在主元素，则输出该元素；否则输出 $-1$。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-使用摩尔投票算法（Moore's Voting Algorithm）：候选元素与计数器，一趟扫描确定候选，二趟扫描验证。
-
-\begin{lstlisting}[language=C]
-int Majority(int A[], int n) {
-    // 第一阶段：选出候选主元素
-    int cand = A[0], count = 1;
-    for (int i = 1; i < n; i++) {
-        if (A[i] == cand) count++;
-        else {
-            if (count > 0) count--;
-            else { cand = A[i]; count = 1; }
-        }
-    }
-    // 第二阶段：验证候选是否确实过半
-    if (count == 0) return -1;
-    count = 0;
-    for (int i = 0; i < n; i++)
-        if (A[i] == cand) count++;
-    return (count > n / 2) ? cand : -1;
-}
-\end{lstlisting}
-
-\textbf{时间复杂度：} $O(n)$，两趟线性扫描。\\
-\textbf{空间复杂度：} $O(1)$。
-
-\textbf{思想：} 两两抵消——若当前元素与候选相同则计数+1，不同则计数-1。计数归零时更换候选。若存在主元素，最终候选必为主元素（因为主元素出现次数超过半数，无法被完全抵消）。但最终候选不一定过半（如全部不同的序列），故需二趟验证。
-\else \answerarea \fi
-
-\item \textbf{（真题风格·综合题）} 用单链表保存 $m$ 个整数，结点的结构为 \texttt{[data][next]}，且 $\lvert \texttt{data} \rvert \leqslant n$（$n$ 为正整数）。设计一个时间复杂度尽可能高效的算法，对于链表中 \texttt{data} 的绝对值相等的结点，仅保留第一次出现的结点而删除其余绝对值相等的结点。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-使用辅助数组标记已出现的绝对值，一趟扫描完成。
-
-\begin{lstlisting}[language=C]
-void DeleteAbsEqual(LinkList L, int n) {
-    int *flag = (int*)calloc(n + 1, sizeof(int)); // flag[x]=1 表示 |x| 已出现
-    LNode *p = L, *q;
-    while (p->next != NULL) {
-        int val = p->next->data;
-        int key = (val >= 0) ? val : -val;        // |data|
-        if (flag[key] == 1) {                     // 已出现过，删除
-            q = p->next;
-            p->next = q->next;
-            free(q);
-        } else {
-            flag[key] = 1;
-            p = p->next;
-        }
-    }
-    free(flag);
-}
-\end{lstlisting}
-
-\textbf{时间复杂度：} $O(m)$，遍历链表一次。\\
-\textbf{空间复杂度：} $O(n)$，辅助数组大小取决于 \texttt{data} 的取值范围 $n$，而非链表长度。
-
-\textbf{关键：} （1） 单链表删除结点需要知道前驱，用 \texttt{p->next} 指向当前考察结点，避免额外维护前驱指针；（2） 为什么是 $O(n)$ 空间？题目明确 $\lvert \texttt{data} \rvert \leqslant n$，辅助数组大小由 $n$ 决定。408 真题常故意用此考查「时间复杂度尽可能高效」与「空间换时间」的权衡。
-\else \answerarea \fi
-
-\item \textbf{（真题风格·综合题）} 给定一个含 $n$（$n \geqslant 1$）个整数的数组，设计一个在时间上尽可能高效的算法，找出数组中未出现的最小正整数。例如，数组 $\{-5,3,2,3\}$ 未出现的最小正整数是 1；数组 $\{1,2,3\}$ 未出现的最小正整数是 4。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-核心思想：用原数组本身做哈希表——将每个在 $[1,n]$ 范围内的数放到下标对应的位置。
-
-\begin{lstlisting}[language=C]
-int FindMissMin(int A[], int n) {
-    // 第一步：将所有在 [1,n] 范围内的数归位
-    for (int i = 0; i < n; i++) {
-        while (A[i] >= 1 && A[i] <= n && A[A[i] - 1] != A[i]) {
-            int temp = A[i];
-            A[i] = A[temp - 1];
-            A[temp - 1] = temp;
-        }
-    }
-    // 第二步：扫描，第一个 A[i] != i+1 的位置即答案
-    for (int i = 0; i < n; i++)
-        if (A[i] != i + 1) return i + 1;
-    return n + 1;
-}
-\end{lstlisting}
-
-\textbf{时间复杂度：} $O(n)$。每个元素最多交换一次，\texttt{while} 循环总次数为 $O(n)$。\\
-\textbf{空间复杂度：} $O(1)$，原地操作。
-
-\textbf{思想：} 答案只可能在 $[1,n+1]$ 范围内（最坏情况 $1,2,\ldots,n$ 全部出现则答案为 $n+1$）。将每个在 $[1,n]$ 内的数 $x$ 交换到下标 $x-1$ 处，然后检查哪个位置不匹配。
-\else \answerarea \fi
-
-\item \textbf{（真题风格·综合题）} 已知一个带头结点的单链表，结点结构为 \texttt{[data | next]}。设计一个算法，将该链表按结点位置的奇偶性拆分为两个链表：位置为奇数的结点保持原顺序组成链表 $A$，位置为偶数的结点保持原顺序组成链表 $B$（结点编号从 1 开始计数，即首元结点为第 1 个结点）。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-一趟遍历，用尾插法分别构建两个链表。
-
-\begin{lstlisting}[language=C]
-void SplitOddEven(LinkList L, LinkList *A, LinkList *B) {
-    *A = (LinkList)malloc(sizeof(LNode));
-    *B = (LinkList)malloc(sizeof(LNode));
-    (*A)->next = NULL;  (*B)->next = NULL;
-    LNode *ra = *A, *rb = *B;      // A, B 的尾指针
-    LNode *p = L->next;
-    int pos = 1;
-    while (p != NULL) {
-        LNode *q = p->next;        // 暂存后继
-        if (pos % 2 == 1) {        // 奇数位 $\to$ A
-            ra->next = p;  ra = p;
-        } else {                   // 偶数位 $\to$ B
-            rb->next = p;  rb = p;
-        }
-        p = q;
-        pos++;
-    }
-    ra->next = NULL;  rb->next = NULL;  // 尾结点指针置空
-}
-\end{lstlisting}
-
-\textbf{时间复杂度：} $O(n)$，一趟遍历。\\
-\textbf{空间复杂度：} $O(1)$（仅新建两个头结点，不新建数据结点）。
-
-\textbf{注意：} 拆分后原链表 $L$ 的头结点未释放，调用方根据需要处理。
-\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
-\noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item 邓俊辉《数据结构（C++语言版）》第 2 章「向量」和第 3 章「列表」——从 ADT 分层视角理解线性表，包括可扩充向量和有序列表。
-    \item Sedgewick《算法》第 1.3 节「背包、队列和栈」——基于链表的实现技巧和迭代器设计。
+\item \textbf{归并两个有序表}：$i$、$j$ 各指一个表，每次把较小的那个放进结果表并移动对应指针。每比较一次至少确定一个元素，最坏比较 $m+n-1$ 次。
+\item \textbf{有序表去重}：读指针 $i$ 扫描整个数组，写指针 $k$ 指向已保留部分的末尾。只有当前元素与最后一个已保留元素不同时，才写入 \texttt{data[k]} 并让 $k$ 前移。$k$ 永远不超过 $i$，所以不会覆盖尚未读取的元素。
+\item \textbf{按值划分}：左右指针从两端向中间夹，把满足条件的元素换到左边、不满足的换到右边，只扫描一趟。
 \end{itemize}
+
+这类题的两个易错点：循环条件用 \texttt{i < j} 还是 \texttt{i <= j}（决定中间那个元素要不要处理），以及写指针与读指针重合时能否安全赋值（能，因为写指针从不超前于读指针）。
+
+\subsection{顺序表与链表怎么选}
+
+把两种存法的代价列在一起，比较才有意义：
+
+\begin{tablebox}{顺序表与链表的操作代价}
+\centering
+\begin{tabular}{lcc}
+\toprule
+操作 & 顺序表 & 单链表 \\
+\midrule
+按位取第 $i$ 个 & $O(1)$（随机存取） & $O(n)$（顺序存取） \\
+按值查找 & $O(n)$，平均 $(n+1)/2$ 次比较 & $O(n)$，平均 $(n+1)/2$ 次比较 \\
+在第 $i$ 位插入 & $O(n)$，平均移动 $n/2$ 个 & 定位 $O(n)$，改指针 $O(1)$ \\
+删除第 $i$ 个 & $O(n)$，平均移动 $(n-1)/2$ 个 & 定位 $O(n)$，改指针 $O(1)$ \\
+已知前驱指针后插入 & 仍需搬移，$O(n)$ & $O(1)$ \\
+空间 & 预分配，可能留空位 & 每结点多一个指针域 \\
+扩容 & 需整体搬移，均摊 $O(1)$ & 单个结点申请，无整体搬移 \\
+\bottomrule
+\end{tabular}
+\end{tablebox}
+
+“链表插入是 $O(1)$”这句话只有在\textbf{已经拿到插入位置的前驱指针}时才成立。若题目要求“在第 $i$ 位插入”，链表仍要先花 $O(n)$ 定位，总时间与顺序表同阶；只是两边的钱花在不同地方：
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[anchor=east, MutedText] at (-0.2,1.4) {链表，按位插入};
+  \node[anchor=east, MutedText] at (-0.2,0.5) {顺序表，按位插入};
+  % 链表：定位 + 改指针
+  \draw[fill=SoftBlue, draw=RuleGray] (0,1.15) rectangle (6.0,1.65);
+  \node at (3.0,1.4) {定位：沿 \texttt{next} 走 $i-1$ 步，$O(n)$};
+  \draw[fill=SoftAmber, draw=RuleGray] (6.0,1.15) rectangle (7.4,1.65);
+  \node at (6.7,1.4) {改指针 $O(1)$};
+  % 顺序表：算地址 + 搬移
+  \draw[fill=SoftAmber, draw=RuleGray] (0,0.25) rectangle (1.1,0.75);
+  \node at (0.55,0.5) {$O(1)$};
+  \draw[fill=SoftBlue, draw=RuleGray] (1.1,0.25) rectangle (7.4,0.75);
+  \node at (4.25,0.5) {搬移 $n-i+1$ 个元素，$O(n)$};
+  \node[font=\scriptsize, MutedText, anchor=north] at (3.7,-0.1)
+    {两条色带总长相同：都是 $O(n)$，主要开销不在同一处};
+\end{tikzpicture}
+\end{center}
+
+图中蓝色部分一边是“沿指针找位置”，一边是“在连续内存里搬元素”。这也解释了为什么表很长时顺序表反而常常更快：搬移是顺序访问，硬件预取友好，而链表每走一步都可能是一次缓存缺失。反过来，若已经持有某个结点的指针、要在它后面反复插入，链表才是真正的 $O(1)$。
+
+空间上，\textbf{存储密度}指数据本身占的字节数与整个结点占的字节数之比。单链表的结点是“数据 + 一个指针”：若 \texttt{ElemType} 为 4 字节、指针 4 字节，密度为 $4/8=0.5$；64 位系统指针 8 字节，则降到 $4/12\approx0.33$。双链表还要再乘一次折扣。顺序表除了末尾可能浪费的预留空间，密度接近 1，但表满时要么扩容、要么失败。
+
+选择的原则并不复杂：需要频繁按位访问、表长变化不大、内存连续，用顺序表；需要频繁在已知位置插入删除、表长难以预估、单元素较大而指针开销可接受，用链表。考试里更常见的不是选型，而是判断某句“顺序表一定比链表快”或“链表插入一定是 $O(1)$”对不对——判断的依据就是上面这张表，以及“定位”是否已经完成。
+
+\newpage
+\input{ds/exercises/chap1.tex}

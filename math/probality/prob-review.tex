@@ -1,314 +1,273 @@
 \newpage
 \section{概率论与数理统计综合复习}
 
-\noindent\textbf{考研定位：}主体题目用于考研数学一概率论与数理统计主线训练；其中 Gamma/Erlang 分布识别、Cramér--Rao 下界、指数寿命的更新过程、定时截尾模型和总体比例的大样本检验标为“拓展”，不作为现行数学一主线备考要求。
+\noindent 本复习按“事件与概率、随机变量及其分布、二维随机变量、数字特征、极限定理、统计推断”的主线安排。基础题侧重定义与直接计算，提高题侧重变量变换与多步推理，应用题与证明题对应考研数学一的解答题风格。
 
 \subsection{基础综合题}
 
-\textbf{1.} 设袋中有4个红球和6个白球。现从中依次取出两球（不放回）。
+\textbf{1.} 某工厂有甲、乙、丙三台机器生产同一种零件，产量分别占总产量的 $50\%$、$30\%$、$20\%$，次品率分别为 $1\%$、$2\%$、$4\%$。三台机器的产品混放在一起。
 \begin{enumerate}
-    \item[(1)] 求第二次取到红球的概率；
-    \item[(2)] 已知第二次取到红球，求第一次取到红球的概率。
+    \item[(1)] 任取一件产品，求它是次品的概率；
+    \item[(2)] 已知取到的是次品，求它来自丙机器的概率；
+    \item[(3)] 已知取到的是正品，求它来自甲机器的概率。
 \end{enumerate}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 设$A_i=\{\text{第}i\text{次取到红球}\}$，$i=1,2$。由全概率公式：
-\[
-P(A_2)=P(A_1)P(A_2\mid A_1)+P(\bar{A}_1)P(A_2\mid\bar{A}_1)
-=\frac{4}{10}\cdot\frac{3}{9}+\frac{6}{10}\cdot\frac{4}{9}
-=\frac{12+24}{90}=\frac{36}{90}=0.4.
-\]
-(2) 由贝叶斯公式：
-\[
-P(A_1\mid A_2)=\frac{P(A_1)P(A_2\mid A_1)}{P(A_2)}
-=\frac{\frac{4}{10}\cdot\frac{3}{9}}{0.4}
-=\frac{\frac{12}{90}}{\frac{36}{90}}=\frac{12}{36}=\frac{1}{3}.
-\]
-\textbf{评注：}第(1)问结果等于$\frac{4}{10}$不是一个巧合——抽签问题中，不放回情形下每个人抽中的概率等于初始比例，与抽签顺序无关。
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 先按“来自哪台机器”作完备事件组，再用全概率公式求次品率；已知结果反推来源时用贝叶斯公式。
 
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{2.} 设随机变量 $X$ 的分布函数为
+设 $A,B,C$ 分别表示产品来自甲、乙、丙机器，$D$ 表示取到次品。则
 \[
-F(x)=\begin{cases}
-0, & x<0,\\
-Ax^2, & 0\leq x<1,\\
-B, & 1\leq x<2,\\
-Cx+D, & 2\leq x<3,\\
-1, & x\geq 3.
-\end{cases}
+P(A)=0.5,\quad P(B)=0.3,\quad P(C)=0.2,
 \]
-已知 $P(X=1)=0.15$，$P(X>2)=0.35$，且 $F$ 在 $x=2$ 和 $x=3$ 处连续。
+且
+\[
+P(D\mid A)=0.01,\quad P(D\mid B)=0.02,\quad P(D\mid C)=0.04.
+\]
+(1) 由全概率公式，
+\[
+\begin{aligned}
+P(D)&=0.5\times0.01+0.3\times0.02+0.2\times0.04\\
+&=0.005+0.006+0.008=0.019=\frac{19}{1000}.
+\end{aligned}
+\]
+(2) 由贝叶斯公式，
+\[
+P(C\mid D)=\frac{P(C)P(D\mid C)}{P(D)}
+=\frac{0.2\times0.04}{0.019}
+=\frac{0.008}{0.019}=\frac{8}{19}.
+\]
+(3) 先求正品率 $P(\bar D)=1-0.019=0.981$。甲机器生产正品的概率为 $0.5\times0.99=0.495$，故
+\[
+P(A\mid\bar D)=\frac{P(A)P(\bar D\mid A)}{P(\bar D)}
+=\frac{0.495}{0.981}=\frac{55}{109}\approx0.5046.
+\]
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) $\dfrac{19}{1000}$；(2) $\dfrac{8}{19}$；(3) $\dfrac{55}{109}$。}}}
+
+\else \answerarea[8] \fi%
+
+\textbf{2.} 设离散型随机变量 $X$ 的分布律为
+\begin{center}
+\begin{tabular}{c|cccc}
+$X$ & $-1$ & $0$ & $1$ & $2$\\
+\hline
+$P$ & $a$ & $\dfrac14$ & $b$ & $\dfrac14$
+\end{tabular}
+\end{center}
+其中 $a,b>0$，且 $E(X)=\dfrac12$。
 \begin{enumerate}
-    \item[(1)] 确定常数$A,B,C,D$；
-    \item[(2)] 写出 $X$ 的连续部分密度，并指出其离散概率质量；
-    \item[(3)] 求$E(X)$。
+    \item[(1)] 求 $a,b$；
+    \item[(2)] 求 $E(X^2)$ 与 $D(X)$；
+    \item[(3)] 求条件概率 $P(X\leq0\mid X\geq0)$。
 \end{enumerate}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 由 $P(X>2)=1-F(2)=0.35$，得
-\[
-F(2)=2C+D=0.65.
-\]
-$F$ 在 $x=2$ 处连续，故 $B=F(2^-)=F(2)=0.65$。又
-\[
-P(X=1)=F(1)-F(1^-)=B-A=0.15,
-\]
-所以 $A=0.50$。由 $F$ 在 $x=3$ 处连续，
-\[
-3C+D=1.
-\]
-联立 $2C+D=0.65$ 与 $3C+D=1$，得
-\[
-C=0.35,\qquad D=-0.05.
-\]
-因此
-\[
-A=0.50,\qquad B=0.65,\qquad C=0.35,\qquad D=-0.05.
-\]
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 用“概率之和为 $1$”和“期望定义”列出两个方程；方差用 $D(X)=E(X^2)-[E(X)]^2$。
 
-(2) $F$ 在连续区间上的导数为
+(1) 由分布律的规范性，
 \[
-f(x)=F'(x)=\begin{cases}
-0, & x<0,\\
-2Ax=x, & 0<x<1,\\
-0, & 1<x<2,\\
-C=0.35, & 2<x<3,\\
-0, & x>3.
-\end{cases}
+a+b+\frac14+\frac14=1\quad\Longrightarrow\quad a+b=\frac12.
 \]
-此外，$F$ 在 $x=1$ 处有跳跃量 $B-A=0.15$，故
-$P(X=1)=0.15$。因此 $X$ 是含一个离散质量点的混合型随机变量，不能只用上述密度完整描述其分布。
-
-(3) 
+由期望定义，
 \[
-E(X)=\int_{0}^{1}x\cdot 1.0x\,dx+1\times 0.15+\int_{2}^{3}x\cdot 0.35\,dx
-=\left[\frac{x^3}{3}\right]_{0}^{1}+0.15+0.35\left[\frac{x^2}{2}\right]_{2}^{3}
+E(X)=(-1)a+0\cdot\frac14+1\cdot b+2\cdot\frac14
+=-a+b+\frac12=\frac12,
 \]
+故 $-a+b=0$，即 $a=b$。结合 $a+b=\frac12$，得
 \[
-=\frac{1}{3}+0.15+0.35\times\frac{9-4}{2}
-=\frac{1}{3}+0.15+0.875
-=\frac{1}{3}+1.025\approx 1.358.
+a=b=\frac14.
 \]
+(2)
+\[
+E(X^2)=(-1)^2a+0^2\cdot\frac14+1^2\cdot b+2^2\cdot\frac14
+=\frac14+\frac14+1=\frac32.
+\]
+于是
+\[
+D(X)=E(X^2)-[E(X)]^2=\frac32-\frac14=\frac54.
+\]
+(3) $X\geq0$ 包含 $X=0,1,2$，概率为
+\[
+P(X\geq0)=\frac14+\frac14+\frac14=\frac34.
+\]
+其中 $X\leq0$ 与 $X\geq0$ 同时成立等价于 $X=0$，故
+\[
+P(X\leq0\mid X\geq0)=\frac{P(X=0)}{P(X\geq0)}
+=\frac{1/4}{3/4}=\frac13.
+\]
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) $a=b=\dfrac14$；(2) $E(X^2)=\dfrac32$，$D(X)=\dfrac54$；(3) $\dfrac13$。}}}
 
-\vspace{0.5cm}
+\else \answerarea[8] \fi%
 
-\else \answerarea \fi%
-\textbf{3.} 设二维随机变量$(X,Y)$的联合概率密度为
+\textbf{3.} 设二维随机变量 $(X,Y)$ 的联合概率密度为
 \[
 f(x,y)=\begin{cases}
-kxy, & 0<x<y<1,\\
+k(x+y), & 0<x<1,\ 0<y<1,\\
 0, & \text{其他}.
 \end{cases}
 \]
 \begin{enumerate}
-    \item[(1)] 求常数$k$；
-    \item[(2)] 求边缘密度$f_X(x)$和$f_Y(y)$；
-    \item[(3)] 求条件密度$f_{Y\mid X}(y\mid x)$；
-    \item[(4)] 判断$X$与$Y$是否独立。
+    \item[(1)] 求常数 $k$；
+    \item[(2)] 求边缘密度 $f_X(x)$、$f_Y(y)$，并判断 $X$ 与 $Y$ 是否独立；
+    \item[(3)] 求 $\Cov(X,Y)$ 与相关系数 $\rho_{XY}$。
 \end{enumerate}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 由规范性：
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 先用规范性确定 $k$，再分别对另一个变量积分得边缘密度；独立性看联合密度能否分解，协方差用 $E(XY)-E(X)E(Y)$。
+
+(1) 由
 \[
-1=\int_{0}^{1}\int_{x}^{1}kxy\,dy\,dx
-=k\int_{0}^{1}x\left[\frac{y^2}{2}\right]_{x}^{1}\,dx
-=k\int_{0}^{1}x\cdot\frac{1-x^2}{2}\,dx
+1=\int_0^1\int_0^1 k(x+y)\,dy\,dx
+=k\left(\int_0^1x\,dx+\int_0^1y\,dy\right)
+=k\left(\frac12+\frac12\right)=k,
+\]
+得 $k=1$。
+
+(2) 当 $0<x<1$ 时，
+\[
+f_X(x)=\int_0^1(x+y)\,dy=x+\frac12;
+\]
+当 $0<y<1$ 时，同理
+\[
+f_Y(y)=y+\frac12.
+\]
+其余情形密度为 $0$。若 $X,Y$ 独立，应有 $f(x,y)=f_X(x)f_Y(y)$，但
+\[
+\left(x+\frac12\right)\left(y+\frac12\right)\neq x+y,
+\]
+例如在 $\left(\frac14,\frac14\right)$ 处，联合密度为 $\frac12$，而两个边缘密度之积为 $\left(\frac34\right)^2=\frac{9}{16}$，二者不相等。故 $X$ 与 $Y$ 不独立。
+
+(3) 先算各阶矩：
+\[
+E(X)=\int_0^1x\left(x+\frac12\right)dx
+=\frac13+\frac14=\frac7{12},
+\]
+由对称性 $E(Y)=\frac7{12}$。又
+\[
+E(X^2)=\int_0^1x^2\left(x+\frac12\right)dx
+=\frac14+\frac16=\frac5{12},
+\]
+故
+\[
+D(X)=E(X^2)-[E(X)]^2=\frac5{12}-\frac{49}{144}=\frac{11}{144},
+\]
+同理 $D(Y)=\frac{11}{144}$。
+
+再算
+\[
+\begin{aligned}
+E(XY)&=\int_0^1\int_0^1xy(x+y)\,dy\,dx\\
+&=\int_0^1\int_0^1x^2y\,dy\,dx+\int_0^1\int_0^1xy^2\,dy\,dx
+=\frac16+\frac16=\frac13.
+\end{aligned}
+\]
+于是
+\[
+\Cov(X,Y)=E(XY)-E(X)E(Y)
+=\frac13-\frac{49}{144}=-\frac1{144},
 \]
 \[
-=\frac{k}{2}\int_{0}^{1}(x-x^3)\,dx
-=\frac{k}{2}\left(\frac{1}{2}-\frac{1}{4}\right)=\frac{k}{8}
-\Longrightarrow k=8.
+\rho_{XY}=\frac{\Cov(X,Y)}{\sqrt{D(X)D(Y)}}
+=\frac{-1/144}{11/144}=-\frac1{11}.
 \]
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) $k=1$；(2) $f_X(x)=x+\dfrac12$，$f_Y(y)=y+\dfrac12$（$0<x,y<1$），不独立；(3) $\Cov(X,Y)=-\dfrac1{144}$，$\rho_{XY}=-\dfrac1{11}$。}}}
 
-(2) 边缘密度：
-\[
-f_X(x)=\int_{x}^{1}8xy\,dy=8x\cdot\frac{1-x^2}{2}=4x(1-x^2),\quad 0<x<1.
-\]
-\[
-f_Y(y)=\int_{0}^{y}8xy\,dx=8y\cdot\frac{y^2}{2}=4y^3,\quad 0<y<1.
-\]
+\else \answerarea[10] \fi%
 
-(3) 条件密度：
-\[
-f_{Y\mid X}(y\mid x)=\frac{f(x,y)}{f_X(x)}=\frac{8xy}{4x(1-x^2)}=\frac{2y}{1-x^2},\quad 0<x<y<1.
-\]
-
-(4) $f_X(x)\cdot f_Y(y)=4x(1-x^2)\cdot 4y^3=16xy^3(1-x^2)\neq f(x,y)=8xy$，故$X$与$Y$不独立。
-事实上由定义域$0<x<y<1$也可直接看出$X$和$Y$不独立（支撑集非矩形区域）。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{4.} 设随机变量$X$与$Y$的联合分布为：
-\begin{center}
-\begin{tabular}{c|ccc}
-$X\setminus Y$ & $-1$ & $0$ & $1$\\
-\hline
-$0$ & $0.1$ & $0.2$ & $0.1$\\
-$1$ & $0.2$ & $0.1$ & $0.3$
-\end{tabular}
-\end{center}
+\textbf{4.} 某射手每次射击命中目标的概率为 $0.6$，各次射击相互独立。现连续射击 $10$ 次，记 $X$ 为命中次数。
 \begin{enumerate}
-    \item[(1)] 求$E(X)$，$E(Y)$，$D(X)$，$D(Y)$；
-    \item[(2)] 求$\Cov(X,Y)$和$\rho_{XY}$；
-    \item[(3)] 求$E(XY)$，验证$\Cov(X,Y)=E(XY)-E(X)E(Y)$。
+    \item[(1)] 求恰好命中 $6$ 次的概率；
+    \item[(2)] 求 $E(X)$、$D(X)$；
+    \item[(3)] 求至少命中 $1$ 次的概率。
 \end{enumerate}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $X$的边缘分布：$P(X=0)=0.4$，$P(X=1)=0.6$。
-\[E(X)=0.6,\quad E(X^2)=0.6,\quad D(X)=0.6-0.36=0.24.\]
-$Y$的边缘分布：$P(Y=-1)=0.3$，$P(Y=0)=0.3$，$P(Y=1)=0.4$。
-\[E(Y)=(-1)(0.3)+0\cdot 0.3+1\cdot 0.4=0.1,\]
-\[E(Y^2)=1\cdot 0.3+0\cdot 0.3+1\cdot 0.4=0.7,\quad D(Y)=0.7-0.01=0.69.\]
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 独立重复试验的命中次数服从二项分布，直接套用二项分布的概率公式与期望、方差公式。
 
-(2) 
-\[E(XY)=(-1)\cdot 0\cdot 0.1+0\cdot 0\cdot 0.2+1\cdot 0\cdot 0.1+(-1)\cdot 1\cdot 0.2+0\cdot 1\cdot 0.1+1\cdot 1\cdot 0.3\]
-\[=0+0+0-0.2+0+0.3=0.1.\]
+由题意 $X\sim B(10,0.6)$，即
 \[
-\Cov(X,Y)=E(XY)-E(X)E(Y)=0.1-0.6\times 0.1=0.1-0.06=0.04.
+P(X=k)=\binom{10}{k}0.6^k0.4^{10-k},\quad k=0,1,\ldots,10.
 \]
+(1)
 \[
-\rho_{XY}=\frac{\Cov(X,Y)}{\sqrt{D(X)D(Y)}}=\frac{0.04}{\sqrt{0.24\times 0.69}}\approx\frac{0.04}{0.4069}\approx 0.0983.
+P(X=6)=\binom{10}{6}0.6^6\,0.4^4
+=210\times0.046656\times0.0256
+\approx0.2508.
 \]
-
-(3) 已得$E(XY)=0.1$，$E(X)E(Y)=0.6\times 0.1=0.06$，故$\Cov(X,Y)=0.1-0.06=0.04$，验证通过。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.84\linewidth, height=5.2cm,
-  xlabel={$k$}, ylabel={概率},
-  xmin=21, xmax=84, ymin=0, ymax=0.065,
-  xtick={30,40,50,60,70}, ytick={0,0.01,0.02,0.03,0.04,0.05,0.06},
-  legend pos=north east, font=\footnotesize,
-  domain=21:84, samples=400,
-]
-\addplot[ybar,bar width=4pt,fill=blue!25,draw=gray!70] coordinates {(24,0.00002) (25,0.00004) (26,0.00007) (27,0.00013) (28,0.00023) (29,0.0004) (30,0.00066) (31,0.00107) (32,0.00168) (33,0.00255) (34,0.00376) (35,0.00538) (36,0.00748) (37,0.01013) (38,0.01334) (39,0.01713) (40,0.02143) (41,0.02617) (42,0.03118) (43,0.03628) (44,0.04126) (45,0.04587) (46,0.04989) (47,0.05309) (48,0.05532) (49,0.05646) (50,0.05647) (51,0.05536) (52,0.05322) (53,0.0502) (54,0.04647) (55,0.04223) (56,0.03768) (57,0.03304) (58,0.02846) (59,0.0241) (60,0.02006) (61,0.01643) (62,0.01324) (63,0.01049) (64,0.00819) (65,0.00629) (66,0.00476) (67,0.00354) (68,0.0026) (69,0.00188) (70,0.00134) (71,0.00094) (72,0.00065) (73,0.00045) (74,0.0003) (75,0.0002) (76,0.00013) (77,0.00009) (78,0.00005) (79,0.00003) (80,0.00002) (81,0.00001)};
-\addlegendentry{$B(10000,0.005)$ 的分布律}
-\addplot[red,thick] {0.05656*exp(-(x-50)^2/99.5)};
-\addlegendentry{$N(50,49.75)$}
-\end{axis}
-\end{tikzpicture}
-\end{center}
-\textbf{5.} 某保险公司有10000名投保人，每人每年索赔的概率为0.005，且相互独立；每人一年至多索赔一次，每次赔付额固定为8000元。公司收取的保费为每人每年100元。
-\begin{enumerate}
-    \item[(1)] 用切比雪夫不等式估计公司每年赔付总额超过保费总收入60\%的概率上界；
-    \item[(2)] 用中心极限定理近似计算公司亏损的概率。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-设索赔人数$X\sim B(10000,0.005)$，则$E(X)=np=50$，$D(X)=np(1-p)=49.75$。
-设总赔付额$S=8000X$，则$E(S)=8000\times 50=400000$，$D(S)=8000^2\times 49.75=3.184\times 10^9$。
-保费总收入$=100\times 10000=10^6$元。
-
-(1) 赔付总额超过保费总收入60\%即$S>600000$，等价于$S-400000>200000$。
-由切比雪夫不等式：
+(2) 二项分布的期望与方差分别为
 \[
-P(|S-400000|\geq 200000)\leq\frac{D(S)}{200000^2}
-=\frac{3.184\times 10^9}{4\times 10^{10}}=0.0796.
+E(X)=np=10\times0.6=6,\qquad
+D(X)=np(1-p)=10\times0.6\times0.4=2.4.
 \]
-故所求概率上界约为$0.0796$。
-
-(2) 公司亏损即 $S>1000000$，等价于 $X\geq126$。
-由CLT，$\frac{X-50}{\sqrt{49.75}}\stackrel{\cdot}{\sim}N(0,1)$：
+(3) 利用对立事件，
 \[
-P(X\geq126)
-\approx1-\Phi\!\left(\frac{125.5-50}{\sqrt{49.75}}\right)
-=1-\Phi(10.70)\approx0.
+P(X\geq1)=1-P(X=0)=1-0.4^{10}
+=1-0.0001048576\approx0.999895.
 \]
-标准化阈值约为 $10.70$，已处于标准正态分布的极端右尾，故该模型下亏损概率近似为 $0$。
-这里的“近似为 $0$”只表示概率极小；由于阈值远在分布尾部，中心极限定理的正态近似不宜用于给出高相对精度的尾概率。若实际风险管理需要精确数量级，应使用二项分布尾概率或专门的尾界。
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) $\approx0.2508$；(2) $E(X)=6$，$D(X)=2.4$；(3) $\approx0.999895$。}}}
 
-\vspace{0.5cm}
+\else \answerarea[8] \fi%
 
-\else \answerarea \fi%
-\textbf{6.} 设总体$X$的概率密度为
-\[
-f(x;\theta)=\begin{cases}
-\frac{2x}{\theta^2}, & 0<x\leq\theta,\\
-0, & \text{其他},
-\end{cases}
-\]
-其中$\theta>0$未知。设$X_1,X_2,\ldots,X_n$为来自总体的样本。
-\begin{enumerate}
-    \item[(1)] 求$\theta$的矩估计量$\hat{\theta}_M$；
-    \item[(2)] 求$\theta$的最大似然估计量$\hat{\theta}_L$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 总体均值：
-\[
-E(X)=\int_{0}^{\theta}x\cdot\frac{2x}{\theta^2}\,dx
-=\frac{2}{\theta^2}\int_{0}^{\theta}x^2\,dx
-=\frac{2}{\theta^2}\cdot\frac{\theta^3}{3}=\frac{2\theta}{3}.
-\]
-令$\bar{X}=E(X)=\frac{2\theta}{3}$，得矩估计量$\hat{\theta}_M=\frac{3}{2}\bar{X}$。
-
-(2) 似然函数：
-\[
-L(\theta)=\frac{2^n}{\theta^{2n}}\prod_{i=1}^{n}x_i
-\,\mathbf 1\{\theta\geq x_{(n)}\}.
-\]
-在可行域 $\theta\geq x_{(n)}$ 内，对数似然为
-\[
-\ln L(\theta)=n\ln 2-2n\ln\theta+\sum_{i=1}^{n}\ln x_i.
-\]
-导数$\frac{d\ln L}{d\theta}=-\frac{2n}{\theta}<0$恒成立，故$L(\theta)$关于$\theta$单调递减。
-似然函数随 $\theta$ 递减，因此在可行域左端点 $\theta=x_{(n)}$ 处取得最大值。
-故MLE为$\hat{\theta}_L=\max\{X_1,\ldots,X_n\}=X_{(n)}$。
-
-\else \answerarea \fi%
-\newpage
 \subsection{提高综合题}
 
-\textbf{7.} 设随机变量$X\sim U(0,1)$，$Y\sim U(0,1)$且$X$与$Y$相互独立。令$U=X+Y$，$V=\frac{X}{X+Y}$。
+\textbf{5.} 设 $X,Y$ 相互独立，均服从区间 $(0,1)$ 上的均匀分布。令
+\[
+U=X+Y,\qquad V=X-Y.
+\]
 \begin{enumerate}
-    \item[(1)] 求$(U,V)$的联合概率密度；
-    \item[(2)] 判断$U$与$V$是否独立。
+    \item[(1)] 求 $(U,V)$ 的联合概率密度，并写出其非零区域；
+    \item[(2)] 求边缘密度 $f_U(u)$ 与 $f_V(v)$；
+    \item[(3)] 判断 $U$ 与 $V$ 是否独立；
+    \item[(4)] 求 $\Cov(U,V)$。
 \end{enumerate}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 变换$(X,Y)\to(U,V)$：$U=X+Y$，$V=\frac{X}{X+Y}$，逆变换$X=UV$，$Y=U(1-V)$。
-Jacobian（雅可比）行列式：
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 作可逆线性变换，先求逆变换与雅可比行列式，再把联合密度限制在像区域上；判断独立性时既可比密度，也可看支撑集是否为矩形。
+
+(1) 由 $U=X+Y$，$V=X-Y$ 解得
+\[
+X=\frac{U+V}{2},\qquad Y=\frac{U-V}{2}.
+\]
+雅可比行列式为
 \[
 J=\begin{vmatrix}
-\frac{\partial X}{\partial U}&\frac{\partial X}{\partial V}\\[4pt]
-\frac{\partial Y}{\partial U}&\frac{\partial Y}{\partial V}
+\dfrac{\partial x}{\partial u} & \dfrac{\partial x}{\partial v}\\[8pt]
+\dfrac{\partial y}{\partial u} & \dfrac{\partial y}{\partial v}
 \end{vmatrix}
 =\begin{vmatrix}
-V & U\\
-1-V & -U
+\dfrac12 & \dfrac12\\[8pt]
+\dfrac12 & -\dfrac12
 \end{vmatrix}
-=-UV-U(1-V)=-U.
+=-\frac12,
 \]
-故$|J|=U$。
-
-$(X,Y)$的联合密度$f_{X,Y}(x,y)=1$（$0<x<1,0<y<1$）。
-变换后定义域：$0<X=UV<1$，$0<Y=U(1-V)<1$，且$U>0$，$0<V<1$。
-即$0<U<2$，$\max\{0,1-\frac{1}{U}\}<V<\min\{1,\frac{1}{U}\}$。
-
-联合密度：
+故 $|J|=\frac12$。原联合密度为 $f_{X,Y}(x,y)=1$（$0<x<1,0<y<1$），所以
 \[
-f_{U,V}(u,v)=f_{X,Y}(uv,u(1-v))\cdot|J|=1\cdot u=u,
+f_{U,V}(u,v)=\frac12
 \]
-定义域：$0<u<2$，$\max\{0,1-\frac{1}{u}\}<v<\min\{1,\frac{1}{u}\}$。
-
-(2) 边缘密度：
-当$0<u<1$时，$v\in(0,1)$：$f_U(u)=\int_{0}^{1}u\,dv=u$。
-当$1\leq u<2$时，$v\in(1-\frac{1}{u}, \frac{1}{u})$：$f_U(u)=\int_{1-\frac{1}{u}}^{\frac{1}{u}}u\,dv=u(\frac{2}{u}-1)=2-u$。
-故
+在区域
+\[
+D_{UV}=\{(u,v):0<u+v<2,\ 0<u-v<2\}
+\]
+上成立，其余处为 $0$。该区域可改写为
+\[
+\begin{cases}
+-u<v<u, & 0<u<1,\\
+u-2<v<2-u, & 1\leq u<2.
+\end{cases}
+\]
+(2) 当 $0<u<1$ 时，$v$ 的区间长度为 $2u$，故
+\[
+f_U(u)=\int_{-u}^{u}\frac12\,dv=u.
+\]
+当 $1\leq u<2$ 时，$v$ 的区间长度为 $2(2-u)$，故
+\[
+f_U(u)=\int_{u-2}^{2-u}\frac12\,dv=2-u.
+\]
+即
 \[
 f_U(u)=\begin{cases}
 u, & 0<u<1,\\
@@ -316,449 +275,494 @@ u, & 0<u<1,\\
 0, & \text{其他}.
 \end{cases}
 \]
-这是三角分布。
+同理，当 $0<v<1$ 时，$u$ 的取值范围为 $v<u<2-v$，故
+\[
+f_V(v)=\int_{v}^{2-v}\frac12\,du=1-v;
+\]
+由对称性，当 $-1<v<0$ 时 $f_V(v)=1+v$。合并得
+\[
+f_V(v)=1-|v|,\quad |v|<1,
+\]
+其余处为 $0$。
 
-$f_V(v)=\int_{0}^{\infty}f_{U,V}(u,v)\,du$。当$0<v<1$时，积分上限为$u_{\max}=\min(2,\frac{1}{v},\frac{1}{1-v})$：
-当$0<v\leq\frac{1}{2}$时，$u_{\max}=\frac{1}{1-v}$，$f_V(v)=\int_{0}^{1/(1-v)}u\,du=\frac{1}{2(1-v)^2}$；
-当$\frac{1}{2}\leq v<1$时，$u_{\max}=\frac{1}{v}$，$f_V(v)=\int_{0}^{1/v}u\,du=\frac{1}{2v^2}$。
+(3) 取 $(u,v)=(0.8,0.2)$，它位于 $D_{UV}$ 内，此时
+\[
+f_{U,V}(0.8,0.2)=\frac12,
+\]
+而
+\[
+f_U(0.8)f_V(0.2)=0.8\times0.8=0.64\neq\frac12.
+\]
+故 $U$ 与 $V$ 不独立。几何上看，$(U,V)$ 的支撑集是菱形而不是矩形，这已经排除了独立性。
+
+(4) 由 $X,Y$ 独立且均服从 $U(0,1)$，
+\[
+E(X)=E(Y)=\frac12,\qquad E(X^2)=E(Y^2)=\frac13.
+\]
+于是
+\[
+E(U)=E(X+Y)=1,\qquad E(V)=E(X-Y)=0,
+\]
+\[
+E(UV)=E\bigl((X+Y)(X-Y)\bigr)=E(X^2-Y^2)=\frac13-\frac13=0.
+\]
+所以
+\[
+\Cov(U,V)=E(UV)-E(U)E(V)=0.
+\]
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) $f_{U,V}(u,v)=\dfrac12$，$(u,v)\in D_{UV}$；(2) $f_U(u)=u\ (0<u<1)$，$f_U(u)=2-u\ (1\leq u<2)$，$f_V(v)=1-|v|\ (|v|<1)$；(3) 不独立；(4) $\Cov(U,V)=0$。}}}
+
+\else \answerarea[10] \fi%
+
+\textbf{6.} 设 $X,Y$ 相互独立，均服从参数为 $\lambda>0$ 的指数分布，其密度为
+\[
+f(t)=\begin{cases}
+\lambda e^{-\lambda t}, & t>0,\\
+0, & t\leq0.
+\end{cases}
+\]
+令
+\[
+U=\min\{X,Y\},\qquad V=\max\{X,Y\}-\min\{X,Y\}.
+\]
+\begin{enumerate}
+    \item[(1)] 求 $(U,V)$ 的联合概率密度；
+    \item[(2)] 求 $U$ 与 $V$ 的边缘密度，并判断它们是否独立；
+    \item[(3)] 求 $E(U)$ 与 $E(V)$。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 先看 $(U,V)$ 由 $(X,Y)$ 的两种大小关系分别给出，每种关系对应一个线性变换；把两支的密度相加，再验证联合密度能否分解。
+
+(1) 当 $X<Y$ 时，$U=X$，$V=Y-X$，即
+\[
+(X,Y)=(U,U+V);
+\]
+当 $Y<X$ 时，$U=Y$，$V=X-Y$，即
+\[
+(X,Y)=(U+V,U).
+\]
+两种情形下的雅可比行列式的绝对值均为 $1$。又由于 $X,Y$ 独立，
+\[
+f_{X,Y}(x,y)=\lambda^2e^{-\lambda(x+y)},\quad x>0,\ y>0.
+\]
+两种情形下 $x+y=2u+v$，故
+\[
+f_{U,V}(u,v)=2\lambda^2e^{-\lambda(2u+v)},\quad u>0,\ v>0,
+\]
+其余处为 $0$。
+
+(2) 对 $u>0$，
+\[
+f_U(u)=\int_0^\infty2\lambda^2e^{-\lambda(2u+v)}\,dv
+=2\lambda^2e^{-2\lambda u}\cdot\frac1\lambda
+=2\lambda e^{-2\lambda u}.
+\]
+对 $v>0$，
+\[
+f_V(v)=\int_0^\infty2\lambda^2e^{-\lambda(2u+v)}\,du
+=2\lambda^2e^{-\lambda v}\cdot\frac1{2\lambda}
+=\lambda e^{-\lambda v}.
+\]
+其余情形均为 $0$。直接验证：
+\[
+f_U(u)f_V(v)=2\lambda e^{-2\lambda u}\cdot\lambda e^{-\lambda v}
+=2\lambda^2e^{-\lambda(2u+v)}=f_{U,V}(u,v),
+\]
+故 $U$ 与 $V$ 相互独立。
+
+(3) 由边缘密度知 $U\sim\Exp(2\lambda)$，$V\sim\Exp(\lambda)$，因此
+\[
+E(U)=\frac1{2\lambda},\qquad E(V)=\frac1\lambda.
+\]
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) $f_{U,V}(u,v)=2\lambda^2e^{-\lambda(2u+v)}$（$u>0,v>0$）；(2) $f_U(u)=2\lambda e^{-2\lambda u}$，$f_V(v)=\lambda e^{-\lambda v}$，二者独立；(3) $E(U)=\dfrac1{2\lambda}$，$E(V)=\dfrac1\lambda$。}}}
+
+\else \answerarea[10] \fi%
+
+\textbf{7.} 设随机变量 $X,Y$ 满足
+\[
+E(X)=E(Y)=0,\qquad D(X)=D(Y)=1,\qquad \rho_{XY}=\frac12.
+\]
+\begin{enumerate}
+    \item[(1)] 求 $\Cov(X,Y)$、$D(X+Y)$ 与 $D(X-Y)$；
+    \item[(2)] 求 $\Cov(X+Y,X-Y)$，并说明能否由此断定 $X+Y$ 与 $X-Y$ 相互独立；
+    \item[(3)] 用切比雪夫不等式估计 $P(|X+Y|\geq2)$ 的上界。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 相关系数与协方差的关系是 $\Cov(X,Y)=\rho_{XY}\sqrt{D(X)D(Y)}$；和的方差展开时保留交叉项，差的方差展开时交叉项变号。
+
+(1) 由相关系数定义，
+\[
+\Cov(X,Y)=\rho_{XY}\sqrt{D(X)D(Y)}
+=\frac12\times1=\frac12.
+\]
+于是
+\[
+D(X+Y)=D(X)+D(Y)+2\Cov(X,Y)=1+1+2\times\frac12=3,
+\]
+\[
+D(X-Y)=D(X)+D(Y)-2\Cov(X,Y)=1+1-2\times\frac12=1.
+\]
+(2) 利用双线性，
+\[
+\Cov(X+Y,X-Y)=\Cov(X,X)-\Cov(X,Y)+\Cov(Y,X)-\Cov(Y,Y).
+\]
+由 $\Cov(X,X)=D(X)=1$，$\Cov(Y,Y)=D(Y)=1$，$\Cov(X,Y)=\Cov(Y,X)=\frac12$，得
+\[
+\Cov(X+Y,X-Y)=1-\frac12+\frac12-1=0.
+\]
+所以 $X+Y$ 与 $X-Y$ 不相关，但这只能说明它们没有线性相关关系，不能推出相互独立；只有当 $(X,Y)$ 服从二维正态分布时，不相关才等价于独立。本题没有给出联合正态的假设。
+
+(3) 由 $E(X+Y)=0$，$D(X+Y)=3$，切比雪夫不等式给出
+\[
+P(|X+Y|\geq2)\leq\frac{D(X+Y)}{2^2}=\frac34.
+\]
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) $\Cov(X,Y)=\dfrac12$，$D(X+Y)=3$，$D(X-Y)=1$；(2) $\Cov(X+Y,X-Y)=0$，不能断定独立；(3) 上界为 $\dfrac34$。}}}
+
+\else \answerarea[8] \fi%
+
+\textbf{8.} 某地区有 $900$ 名居民参与一项民意调查，假定每名居民独立地以概率 $\frac12$ 支持某项提案。记 $\hat p$ 为样本中支持该提案的比例。
+\begin{enumerate}
+    \item[(1)] 用切比雪夫不等式估计 $P(|\hat p-\frac12|\geq0.03)$ 的上界；
+    \item[(2)] 用中心极限定理近似计算 $P(|\hat p-\frac12|\geq0.03)$，并与 (1) 比较。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 把 $\hat p$ 写成二项分布的比例，先算期望与方差；切比雪夫只用到方差，中心极限定理则给出近似分布。
+
+设支持人数为 $X$，则 $X\sim B(900,\frac12)$，$\hat p=\frac{X}{900}$。于是
+\[
+E(\hat p)=\frac12,\qquad
+D(\hat p)=\frac{1}{900}\cdot\frac12\cdot\frac12=\frac1{3600}.
+\]
+(1) 由切比雪夫不等式，
+\[
+P\left(\left|\hat p-\frac12\right|\geq0.03\right)
+\leq\frac{D(\hat p)}{0.03^2}
+=\frac{1/3600}{0.0009}
+=\frac{25}{81}\approx0.3086.
+\]
+(2) 由中心极限定理，
+\[
+\frac{\hat p-\frac12}{1/60}\overset{\text{近似}}{\sim}N(0,1).
+\]
+于是
+\[
+P\left(\left|\hat p-\frac12\right|<0.03\right)
+\approx P\left(|Z|<\frac{0.03}{1/60}\right)
+=P(|Z|<1.8)
+=2\Phi(1.8)-1.
+\]
+查表 $\Phi(1.8)=0.9641$，故
+\[
+P\left(\left|\hat p-\frac12\right|<0.03\right)\approx0.9282,
+\]
+从而
+\[
+P\left(\left|\hat p-\frac12\right|\geq0.03\right)\approx1-0.9282=0.0718.
+\]
+这里没有作连续性修正。与 (1) 相比，切比雪夫上界 $0.3086$ 明显偏大，说明它只适合给出保守估计；在样本量较大时，中心极限定理的近似更精确。
+
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) 上界为 $\dfrac{25}{81}\approx0.3086$；(2) 约为 $0.0718$，中心极限定理的近似明显小于切比雪夫上界。}}}
+
+\else \answerarea[8] \fi%
+
+\textbf{9.} 设某保险公司一天内收到的理赔申请数 $N\sim P(4)$（泊松分布），每次理赔金额 $X_i$ 相互独立，且与 $N$ 独立，满足
+\[
+E(X_i)=1000,\qquad D(X_i)=250000.
+\]
+记一天内的理赔总额为
+\[
+S=\sum_{i=1}^{N}X_i
+\]
+（约定 $N=0$ 时 $S=0$）。
+\begin{enumerate}
+    \item[(1)] 求条件期望 $E(S\mid N=n)$ 与条件方差 $D(S\mid N=n)$；
+    \item[(2)] 求 $E(S)$ 与 $D(S)$；
+    \item[(3)] 求 $\Cov(N,S)$。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 先固定理赔次数，把随机和化成普通和；再用全期望公式与全方差公式处理随机求和上限。
+
+(1) 当 $N=n$ 给定且 $n\geq0$ 时，
+\[
+S=\sum_{i=1}^{n}X_i
+\]
+是 $n$ 个独立同分布随机变量之和，因此
+\[
+E(S\mid N=n)=nE(X_1)=1000n,
+\]
+\[
+D(S\mid N=n)=nD(X_1)=250000n.
+\]
+(2) 由全期望公式，
+\[
+E(S)=E\bigl[E(S\mid N)\bigr]=E(1000N)=1000\times4=4000.
+\]
+由全方差公式，
+\[
+D(S)=E\bigl[D(S\mid N)\bigr]+D\bigl[E(S\mid N)\bigr].
+\]
+其中
+\[
+E[D(S\mid N)]=E(250000N)=250000\times4=10^6,
+\]
+\[
+D[E(S\mid N)]=D(1000N)=1000^2D(N)=10^6\times4=4\times10^6.
+\]
 故
 \[
-f_V(v)=\begin{cases}
-\dfrac{1}{2(1-v)^2}, & 0<v\leq\dfrac{1}{2},\\[8pt]
-\dfrac{1}{2v^2}, & \dfrac{1}{2}\leq v<1,\\[8pt]
-0, & \text{其他}.
-\end{cases}
+D(S)=10^6+4\times10^6=5\times10^6.
 \]
-$f_V(v)$不是常数，故$V$不服从均匀分布。由于$f_{U,V}(u,v)=u$，$f_U(u)\cdot f_V(v)\neq u=f_{U,V}$，故$U$与$V$不独立。
+(3) 因为
+\[
+E(NS)=E\bigl[N\,E(S\mid N)\bigr]=E(1000N^2)=1000E(N^2),
+\]
+而泊松分布 $N\sim P(4)$ 满足
+\[
+E(N^2)=D(N)+[E(N)]^2=4+16=20,
+\]
+所以
+\[
+E(NS)=1000\times20=20000.
+\]
+又 $E(N)=4$，$E(S)=4000$，因此
+\[
+\Cov(N,S)=E(NS)-E(N)E(S)=20000-4\times4000=4000.
+\]
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) $E(S\mid N=n)=1000n$，$D(S\mid N=n)=250000n$；(2) $E(S)=4000$，$D(S)=5\times10^6$；(3) $\Cov(N,S)=4000$。}}}
 
-\vspace{0.5cm}
+\else \answerarea[8] \fi%
 
-\else \answerarea \fi%
-\textbf{8.} \textbf{（拓展：Gamma/Erlang 分布识别）}设$X$与$Y$独立同分布，均服从参数为$\lambda$的指数分布$E(\lambda)$。令$Z=X+Y$。
+\subsection{应用与证明题}
+
+\textbf{10.} 设总体 $X\sim U(0,\theta)$，$\theta>0$ 未知，$X_1,X_2,\ldots,X_n$ 为来自该总体的简单随机样本，$n\geq2$。记
+\[
+\bar X=\frac1n\sum_{i=1}^{n}X_i,\qquad X_{(n)}=\max\{X_1,\ldots,X_n\}.
+\]
+考虑 $\theta$ 的两个估计量
+\[
+\hat\theta_1=2\bar X,\qquad \hat\theta_2=\frac{n+1}{n}X_{(n)}.
+\]
 \begin{enumerate}
-    \item[(1)] 用卷积公式求$Z$的概率密度；
-    \item[(2)] 求$E(Z)$和$D(Z)$，并说明$Z$服从何种分布。
+    \item[(1)] 证明 $\hat\theta_1$ 与 $\hat\theta_2$ 都是 $\theta$ 的无偏估计；
+    \item[(2)] 分别求 $D(\hat\theta_1)$ 与 $D(\hat\theta_2)$；
+    \item[(3)] 比较两者的均方误差，说明在 $n\geq2$ 时哪个估计量更好。
 \end{enumerate}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $X$和$Y$的密度均为$f(t)=\lambda e^{-\lambda t}$（$t>0$）。
-由卷积公式，$Z=X+Y$的密度为：
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 均匀分布总体的均值与方差可直接算出；最大次序统计量的分布函数为 $(x/\theta)^n$，由此求其各阶矩。两个估计量都无偏时，均方误差就是方差。
+
+(1) 因为 $X\sim U(0,\theta)$，
 \[
-f_Z(z)=\int_{-\infty}^{\infty}f_X(x)f_Y(z-x)\,dx
-=\int_{0}^{z}\lambda e^{-\lambda x}\cdot\lambda e^{-\lambda(z-x)}\,dx
+E(X)=\frac{\theta}{2},\qquad D(X)=\frac{\theta^2}{12}.
 \]
+所以
 \[
-=\lambda^2 e^{-\lambda z}\int_{0}^{z}dx
-=\lambda^2 z e^{-\lambda z},\quad z>0.
+E(\hat\theta_1)=2E(\bar X)=2\cdot\frac{\theta}{2}=\theta,
 \]
+故 $\hat\theta_1$ 无偏。
 
-(2)
+最大次序统计量 $X_{(n)}$ 的分布函数为
 \[
-E(Z)=E(X+Y)=E(X)+E(Y)=\frac{1}{\lambda}+\frac{1}{\lambda}=\frac{2}{\lambda}.
+F_{X_{(n)}}(x)=P(X_{(n)}\leq x)=P(X_1\leq x,\ldots,X_n\leq x)
+=\left(\frac{x}{\theta}\right)^n,\quad 0<x<\theta,
 \]
+密度为
 \[
-D(Z)=D(X+Y)\stackrel{\text{独立}}{=}D(X)+D(Y)=\frac{1}{\lambda^2}+\frac{1}{\lambda^2}=\frac{2}{\lambda^2}.
+f_{X_{(n)}}(x)=\frac{n x^{n-1}}{\theta^n},\quad 0<x<\theta.
 \]
-$Z$的密度为$f_Z(z)=\frac{\lambda^2}{\Gamma(2)}z^{2-1}e^{-\lambda z}$（$z>0$），故$Z$服从形状参数为$2$、率参数为$\lambda$（等价地尺度参数为$1/\lambda$）的 Gamma 分布，也称 Erlang 分布。这里明确参数约定，以免把率参数与尺度参数混淆。
-
-\textbf{评注：}$n$个独立同分布$E(\lambda)$之和服从$\Gamma(n,\lambda)$分布，这是指数分布与Gamma分布的重要联系。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{9.} 设随机变量$X$服从参数为$p$的$0$-$1$分布（$P(X=1)=p$，$P(X=0)=1-p$），其中$0<p<1$；$Y$在条件$X=1$下服从区间$(0,1)$上的均匀分布，在条件$X=0$下服从参数为$\lambda$的指数分布，其中$\lambda>0$。求：
-\begin{enumerate}
-    \item[(1)] $Y$的边缘分布函数$F_Y(y)$；
-    \item[(2)] $Y$的概率密度$f_Y(y)$；
-    \item[(3)] 条件概率$P(X=1\mid Y>1)$。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $Y$是由两个连续条件分布按权重混合得到的连续型随机变量，总分布函数为
+于是
 \[
-F_Y(y)=P(Y\leq y)=P(X=1)P(Y\leq y\mid X=1)+P(X=0)P(Y\leq y\mid X=0).
+E(X_{(n)})=\int_0^\theta x\cdot\frac{n x^{n-1}}{\theta^n}\,dx
+=\frac{n}{\theta^n}\int_0^\theta x^n\,dx
+=\frac{n}{n+1}\theta.
 \]
-对于$y>0$：
-\begin{itemize}
-    \item $P(Y\leq y\mid X=1)$：$X=1$时$Y\sim U(0,1)$，
-    \[P(Y\leq y\mid X=1)=\begin{cases}0,&y<0\\y,&0\leq y<1\\1,&y\geq 1\end{cases}\]
-    \item $P(Y\leq y\mid X=0)$：$X=0$时$Y\sim E(\lambda)$，
-    \[P(Y\leq y\mid X=0)=\begin{cases}0,&y<0\\1-e^{-\lambda y},&y\geq 0\end{cases}\]
-\end{itemize}
-故对$y\geq 0$：
+因此
 \[
-F_Y(y)=p\begin{cases}
-y, & 0\leq y<1\\
-1, & y\geq 1
-\end{cases}+(1-p)(1-e^{-\lambda y}).
+E(\hat\theta_2)=\frac{n+1}{n}\cdot\frac{n}{n+1}\theta=\theta,
 \]
+故 $\hat\theta_2$ 也无偏。
 
-(2) 对$F_Y(y)$求导得密度（注意$y=1$处可能不连续）：
+(2) 由独立性，
 \[
-f_Y(y)=F_Y'(y)=\begin{cases}
-p\cdot 1+(1-p)\lambda e^{-\lambda y}, & 0<y<1,\\[4pt]
-(1-p)\lambda e^{-\lambda y}, & y>1,\\[4pt]
-0, & y<0.
-\end{cases}
+D(\hat\theta_1)=4D(\bar X)=4\cdot\frac{D(X)}{n}
+=\frac{4}{n}\cdot\frac{\theta^2}{12}=\frac{\theta^2}{3n}.
 \]
-在$y=1$处，$F_Y$有跳跃量$p[1-1]=0$（$F_Y(1^{-})=p+(1-p)(1-e^{-\lambda})$，$F_Y(1)=p+(1-p)(1-e^{-\lambda})$），故$y=1$处连续。
-
-(3) 
+再算 $X_{(n)}$ 的二阶矩：
 \[
-P(X=1\mid Y>1)=\frac{P(X=1,Y>1)}{P(Y>1)}.
+E(X_{(n)}^2)=\int_0^\theta x^2\cdot\frac{n x^{n-1}}{\theta^n}\,dx
+=\frac{n}{\theta^n}\int_0^\theta x^{n+1}\,dx
+=\frac{n}{n+2}\theta^2.
 \]
-\[
-P(X=1,Y>1)=P(X=1)P(Y>1\mid X=1)=p\cdot 0=0.
-\]
-故$P(X=1\mid Y>1)=0$。直观上，$X=1$时$Y\in(0,1)$，不可能$Y>1$。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{10.} 设总体$X\sim N(\mu,\sigma^2)$，$\mu$未知，$\sigma^2>0$未知。$X_1,\ldots,X_n$为样本。
-\begin{enumerate}
-    \item[(1)] 求$\mu$和$\sigma^2$的最大似然估计量$\hat{\mu}$和$\hat{\sigma}^2$；
-    \item[(2)] 判断$\hat{\sigma}^2$是否为$\sigma^2$的无偏估计；若否，给出无偏修正；
-    \item[(3)] \textbf{（拓展）}在$\mu$已知时，求$\sigma^2$的MLE，并利用 Cramér--Rao 下界判断其是否为$\sigma^2$的有效估计量。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 似然函数：
-\[
-L(\mu,\sigma^2)=\prod_{i=1}^{n}\frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(x_i-\mu)^2}{2\sigma^2}\right)
-=(2\pi\sigma^2)^{-n/2}\exp\!\left(-\frac{1}{2\sigma^2}\sum_{i=1}^{n}(x_i-\mu)^2\right).
-\]
-对数似然：
-\[
-\ln L=-\frac{n}{2}\ln(2\pi)-\frac{n}{2}\ln\sigma^2-\frac{1}{2\sigma^2}\sum_{i=1}^{n}(x_i-\mu)^2.
-\]
-分别对$\mu$和$\sigma^2$求偏导：
-\[
-\frac{\partial\ln L}{\partial\mu}=\frac{1}{\sigma^2}\sum_{i=1}^{n}(x_i-\mu)=0
-\Longrightarrow\hat{\mu}=\bar{X}.
-\]
-\[
-\frac{\partial\ln L}{\partial\sigma^2}=-\frac{n}{2\sigma^2}+\frac{1}{2\sigma^4}\sum_{i=1}^{n}(x_i-\mu)^2=0
-\Longrightarrow\hat{\sigma}^2=\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar{X})^2.
-\]
-
-(2) 已知$E\!\left(\sum_{i=1}^{n}(X_i-\bar{X})^2\right)=(n-1)\sigma^2$，故
-\[E(\hat{\sigma}^2)=\frac{n-1}{n}\sigma^2\neq\sigma^2,\]
-$\hat{\sigma}^2$不是无偏估计。无偏修正为样本方差$S^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\bar{X})^2$。
-
-(3) $\mu$已知时，$\sigma^2$的MLE为$\tilde{\sigma}^2=\frac{1}{n}\sum_{i=1}^{n}(X_i-\mu)^2$。
-\[E(\tilde{\sigma}^2)=\frac{1}{n}\sum_{i=1}^{n}E((X_i-\mu)^2)=\frac{1}{n}\cdot n\sigma^2=\sigma^2,\]
-故$\tilde{\sigma}^2$是$\sigma^2$的无偏估计。
-
-其方差：$\frac{(X_i-\mu)^2}{\sigma^2}\sim\chi^2(1)$，故$\sum_{i=1}^{n}\frac{(X_i-\mu)^2}{\sigma^2}\sim\chi^2(n)$，
-\[D(\tilde{\sigma}^2)=\frac{\sigma^4}{n^2}\cdot 2n=\frac{2\sigma^4}{n}.\]
-信息量$I(\sigma^2)=\frac{n}{2\sigma^4}$，故C-R下界为$\frac{1}{I(\sigma^2)}=\frac{2\sigma^4}{n}=D(\tilde{\sigma}^2)$。
-因此$\tilde{\sigma}^2$达到了C-R下界，是$\sigma^2$的有效估计量。
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.84\linewidth, height=5.4cm,
-  xlabel={$z$}, ylabel={概率密度},
-  xmin=-4, xmax=4, ymin=0, ymax=0.46,
-  xtick={-2,0,2}, ytick={0,0.1,0.2,0.3,0.4},
-  legend pos=north east, font=\footnotesize,
-  domain=-4:4, samples=200,
-]
-\addplot[teal!20,fill=teal!20,draw=none,domain=-1.96:1.96] {0.3989*exp(-x^2/2)} \closedcycle;
-\addplot[blue,thick] {0.3989*exp(-x^2/2)};
-\addlegendentry{枢轴量分布}
-\draw[dashed,gray!70] (axis cs:-1.96,0) -- (axis cs:-1.96,0.42);
-\draw[dashed,gray!70] (axis cs:1.96,0) -- (axis cs:1.96,0.42);
-\node[font=\scriptsize] at (axis cs:-1.96,0.02){$-z_{\alpha/2}$};
-\node[font=\scriptsize] at (axis cs:1.96,0.02){$z_{\alpha/2}$};
-\node[font=\scriptsize,teal!70!black] at (axis cs:0,0.42){置信水平 $1-\alpha$};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-\textbf{11.} 某工厂生产的零件长度$X\sim N(\mu,\sigma^2)$。现从生产线上随机抽取$16$个零件，测得样本均值$\bar{x}=10.2$，样本标准差$s=0.4$。
-\begin{enumerate}
-    \item[(1)] 求$\mu$的$95\%$置信区间；
-    \item[(2)] 在显著性水平$\alpha=0.05$下，检验$H_0:\mu=10$ vs $H_1:\mu\neq 10$；
-    \item[(3)] 若$\sigma=0.5$已知，求$\mu$为$10.3$时上述检验的第二类错误概率。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $\sigma^2$未知，用$t$分布。$n=16$，$\bar{x}=10.2$，$s=0.4$。
-$t_{0.025}(15)=2.131$。置信区间：
-\[
-\bar{x}\pm t_{\alpha/2}(n-1)\frac{s}{\sqrt{n}}
-=10.2\pm 2.131\times\frac{0.4}{4}
-=10.2\pm 0.2131
-=[9.9869,\ 10.4131].
-\]
-
-(2) 检验统计量：$T=\frac{\bar{X}-\mu_0}{s/\sqrt{n}}=\frac{10.2-10}{0.4/4}=2.0$。
-拒绝域：$|T|>t_{0.025}(15)=2.131$。
-由于$|T|=2.0<2.131$，不拒绝$H_0$。即没有充分证据表明$\mu\neq 10$。
-
-(3) $\sigma=0.5$已知时，拒绝域为$|\frac{\bar{X}-10}{0.5/4}|>z_{0.025}=1.96$，
-即$|\bar{X}-10|>0.245$或$\bar{X}<9.755$或$\bar{X}>10.245$。
-
-当$\mu=10.3$时，$\bar{X}\sim N(10.3, 0.5^2/16)=N(10.3, 0.015625)$，$\sigma_{\bar{X}}=0.125$。
-第二类错误概率$\beta=P(\text{不拒绝}H_0\mid\mu=10.3)$：
-\[
-\begin{aligned}
-\beta
-&=P(9.755<\bar{X}<10.245\mid\mu=10.3)\\
-&=P\!\left(
-\frac{9.755-10.3}{0.125}
-<\frac{\bar{X}-10.3}{0.125}
-<\frac{10.245-10.3}{0.125}
-\right).
-\end{aligned}
-\]
-\[
-=P(-4.36<Z<-0.44)=\Phi(-0.44)-\Phi(-4.36)
-\approx 0.3300-0=0.33.
-\]
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\textbf{12.} 设$X_1,X_2,\ldots,X_n$为来自总体$X\sim U(0,\theta)$的样本，$\theta>0$未知。记$X_{(1)}\leq X_{(2)}\leq\cdots\leq X_{(n)}$为次序统计量。
-\begin{enumerate}
-    \item[(1)] 求$X_{(n)}$的概率密度；
-    \item[(2)] 求$E(X_{(n)})$和$D(X_{(n)})$；
-    \item[(3)] 基于$X_{(n)}$构造$\theta$的无偏估计量，并求其方差。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) $X\sim U(0,\theta)$，分布函数$F(x)=x/\theta$（$0<x<\theta$），密度$f(x)=1/\theta$。
-最大次序统计量$X_{(n)}$的分布函数：
-\[
-F_{X_{(n)}}(x)=P(X_{(n)}\leq x)=P(\text{所有}X_i\leq x)=[F(x)]^n=\left(\frac{x}{\theta}\right)^n,\quad 0<x<\theta.
-\]
-密度：
-\[
-f_{X_{(n)}}(x)=\frac{d}{dx}\left(\frac{x}{\theta}\right)^n=\frac{nx^{n-1}}{\theta^n},\quad 0<x<\theta.
-\]
-
-(2) 
-\[
-E(X_{(n)})=\int_{0}^{\theta}x\cdot\frac{nx^{n-1}}{\theta^n}\,dx
-=\frac{n}{\theta^n}\int_{0}^{\theta}x^n\,dx
-=\frac{n}{\theta^n}\cdot\frac{\theta^{n+1}}{n+1}=\frac{n}{n+1}\theta.
-\]
-\[
-E(X_{(n)}^2)=\int_{0}^{\theta}x^2\cdot\frac{nx^{n-1}}{\theta^n}\,dx
-=\frac{n}{\theta^n}\int_{0}^{\theta}x^{n+1}\,dx
-=\frac{n}{\theta^n}\cdot\frac{\theta^{n+2}}{n+2}=\frac{n}{n+2}\theta^2.
-\]
+所以
 \[
 D(X_{(n)})=\frac{n}{n+2}\theta^2-\left(\frac{n}{n+1}\theta\right)^2
-=\frac{n\theta^2}{(n+2)(n+1)^2}.
+=\frac{n\theta^2}{(n+1)^2(n+2)}.
 \]
-
-(3) 由$E(X_{(n)})=\frac{n}{n+1}\theta$，得$\hat{\theta}=\frac{n+1}{n}X_{(n)}$是$\theta$的无偏估计量。
-其方差：
+从而
 \[
-D(\hat{\theta})=\left(\frac{n+1}{n}\right)^2D(X_{(n)})
-=\left(\frac{n+1}{n}\right)^2\cdot\frac{n\theta^2}{(n+2)(n+1)^2}
+D(\hat\theta_2)=\left(\frac{n+1}{n}\right)^2D(X_{(n)})
+=\left(\frac{n+1}{n}\right)^2\cdot\frac{n\theta^2}{(n+1)^2(n+2)}
 =\frac{\theta^2}{n(n+2)}.
 \]
-当$n\to\infty$时，$D(\hat{\theta})\to 0$；又因其无偏，由切比雪夫不等式可得
-$\hat{\theta}\xrightarrow{P}\theta$，故$\hat{\theta}$是一致估计量。
+(3) 两个估计量都无偏，故均方误差等于方差：
+\[
+\operatorname{MSE}(\hat\theta_1)=\frac{\theta^2}{3n},\qquad
+\operatorname{MSE}(\hat\theta_2)=\frac{\theta^2}{n(n+2)}.
+\]
+比较得
+\[
+\frac{\operatorname{MSE}(\hat\theta_1)}{\operatorname{MSE}(\hat\theta_2)}
+=\frac{n+2}{3}.
+\]
+当 $n>1$ 时，$\frac{n+2}{3}>1$，即
+\[
+\operatorname{MSE}(\hat\theta_2)<\operatorname{MSE}(\hat\theta_1).
+\]
+所以 $n\geq2$ 时，基于最大次序统计量的估计量 $\hat\theta_2$ 更好；当 $n=1$ 时两者相同。
 
-\else \answerarea \fi%
-\newpage
-\subsection{应用题专项}
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) 证明如上，二者均无偏；(2) $D(\hat\theta_1)=\dfrac{\theta^2}{3n}$，$D(\hat\theta_2)=\dfrac{\theta^2}{n(n+2)}$；(3) $n\geq2$ 时 $\hat\theta_2$ 的均方误差更小，故更好。}}}
 
-\textbf{13.} 某电子产品由三个独立工作的部件串联组成，各部件的寿命$T_1,T_2,T_3$分别服从参数为$\lambda_1,\lambda_2,\lambda_3$的指数分布。产品在任一部件失效时即失效。
+\else \answerarea[10] \fi%
+
+\textbf{11.} 设某正态总体 $X\sim N(\mu,\sigma^2)$，$\mu,\sigma^2$ 均未知。现随机抽取 $9$ 个样本，算得样本均值 $\bar x=51.2$，样本标准差 $s=2.4$。
 \begin{enumerate}
-    \item[(1)] 求产品寿命$T$的分布；
-    \item[(2)] 已知产品在时刻 $t_0$ 仍正常工作，求它继续正常工作至少 $s$ 个时间单位的概率；
-    \item[(3)] \textbf{（拓展）}若各部件失效后均可立即用同型号新件替换，且各次新件寿命相互独立并服从对应的指数分布，求产品在 $[0,t]$ 内所需备件总数的期望。
+    \item[(1)] 求总体均值 $\mu$ 的置信水平为 $95\%$ 的置信区间；
+    \item[(2)] 在显著性水平 $\alpha=0.05$ 下，检验 $H_0:\mu=50$ 与 $H_1:\mu\neq50$；
+    \item[(3)] 若将备择假设改为 $H_1:\mu>50$，在同样的 $\alpha=0.05$ 下结论如何？并说明置信区间与检验结论的一致性。
 \end{enumerate}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 串联系统寿命$T=\min\{T_1,T_2,T_3\}$。由独立性：
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 方差未知时用 $t$ 统计量 $T=\dfrac{\bar X-\mu_0}{S/\sqrt n}\sim t(n-1)$；双侧检验的接受域与置信区间互为对应。
+
+(1) 这里 $n=9$，自由度为 $n-1=8$。查表得
 \[
-P(T>t)=P(T_1>t,T_2>t,T_3>t)=e^{-\lambda_1 t}e^{-\lambda_2 t}e^{-\lambda_3 t}=e^{-(\lambda_1+\lambda_2+\lambda_3)t}.
+t_{0.025}(8)=2.306.
 \]
-故$T\sim E(\lambda_1+\lambda_2+\lambda_3)$，即寿命也服从指数分布，失效率为各部件失效率之和。
-
-(2) 由指数分布的无记忆性，
+置信区间为
 \[
-P(T>t_0+s\mid T>t_0)
-=P(T>s)=e^{-(\lambda_1+\lambda_2+\lambda_3)s}.
+\bar x\pm t_{0.025}(8)\frac{s}{\sqrt n}
+=51.2\pm2.306\times\frac{2.4}{3}
+=51.2\pm1.8448.
 \]
-
-(3) 设$N_i(t)$为部件$i$在$[0,t]$内的失效次数。由于部件$i$的寿命服从$E(\lambda_i)$，失效过程为Poisson过程，$N_i(t)\sim\text{Poisson}(\lambda_i t)$。
-总备件数$N(t)=N_1(t)+N_2(t)+N_3(t)$，期望为
+即
 \[
-E(N(t))=\lambda_1 t+\lambda_2 t+\lambda_3 t=(\lambda_1+\lambda_2+\lambda_3)t.
+[49.3552,\ 53.0448]\approx[49.36,\ 53.04].
 \]
+(2) 检验统计量
+\[
+T=\frac{\bar x-\mu_0}{s/\sqrt n}
+=\frac{51.2-50}{2.4/3}
+=\frac{1.2}{0.8}=1.5.
+\]
+双侧检验的拒绝域为 $|T|>t_{0.025}(8)=2.306$。由于
+\[
+|T|=1.5<2.306,
+\]
+不拒绝 $H_0$，即在 $\alpha=0.05$ 下没有充分证据认为 $\mu\neq50$。
 
-\vspace{0.5cm}
+(3) 单侧检验 $H_1:\mu>50$ 的拒绝域为
+\[
+T>t_{0.05}(8)=1.860.
+\]
+仍有 $1.5<1.860$，故不拒绝 $H_0$，不能认为均值显著大于 $50$。
 
-\else \answerarea \fi%
-\textbf{14.} 某高校有$5000$名学生，每人每天去图书馆的概率为$0.3$。图书馆有$1600$个座位。
+从区间估计看，$\mu_0=50$ 落在置信区间 $[49.36,53.04]$ 内，这与双侧检验不拒绝 $H_0:\mu=50$ 的结论一致。因为双侧 $t$ 检验的接受域恰好对应“$\mu_0$ 落在 $95\%$ 置信区间内”。
+
+另外，双侧检验的 $p$ 值约为 $2P(T_8>1.5)\approx0.17>0.05$，也支持不拒绝 $H_0$。
+
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) $[49.36,\ 53.04]$；(2) $T=1.5$，不拒绝 $H_0$；(3) 单侧检验也不拒绝 $H_0$，且 $\mu_0=50$ 在置信区间内，结论一致。}}}
+
+\else \answerarea[10] \fi%
+
+\textbf{12.} 设 $X_1,X_2,\ldots,X_n$ 是来自总体 $X$ 的简单随机样本，$E(X)=\mu$，$D(X)=\sigma^2<+\infty$，记样本均值
+\[
+\bar X_n=\frac1n\sum_{i=1}^{n}X_i.
+\]
 \begin{enumerate}
-    \item[(1)] 用中心极限定理估算某天座位不够用的概率；
-    \item[(2)] 仍用正态近似（作连续性修正）估算：若要使座位不够用的概率不超过$0.01$，至少需要多少个座位？
-    \item[(3)] 形式上用泊松逼近重新计算(1)，并说明这种逼近是否合适。
+    \item[(1)] 用切比雪夫不等式证明：对任意 $\varepsilon>0$，
+\[
+P(|\bar X_n-\mu|\geq\varepsilon)\leq\frac{\sigma^2}{n\varepsilon^2},
+\]
+并由此说明 $\bar X_n$ 依概率收敛于 $\mu$；
+    \item[(2)] 设 $\sigma=5$，若要求 $P(|\bar X_n-\mu|<0.5)\geq0.95$，用上述切比雪夫不等式至少需要多大的样本量 $n$？
+    \item[(3)] 说明 (2) 中得到的 $n$ 是充分条件而不是必要条件，并用中心极限定理给出一个参考样本量。
 \end{enumerate}
 
 \ifshowsolutions%
-\boxed{\textbf{解}}
-设去图书馆人数$X\sim B(5000,0.3)$。$E(X)=1500$，$D(X)=5000\times 0.3\times 0.7=1050$，$\sigma=\sqrt{1050}\approx 32.40$。
+\boxed{\text{\textbf{解}}}
+\textbf{思路：} 先算 $\bar X_n$ 的期望与方差，再对 $\bar X_n$ 本身使用切比雪夫不等式；第 (2) 问把不等式右端控制到 $0.05$ 以下即可。
 
-(1) 座位不够用即 $X\geq1601$。作连续性修正后，
+(1) 由样本的独立同分布性，
 \[
-\begin{aligned}
-P(X>1600)
-&\approx1-\Phi\!\left(\frac{1600.5-1500}{\sqrt{1050}}\right)\\
-&=1-\Phi(3.101)\approx0.00096\approx0.0010.
-\end{aligned}
+E(\bar X_n)=\mu,\qquad D(\bar X_n)=\frac{\sigma^2}{n}.
 \]
+对随机变量 $\bar X_n$ 应用切比雪夫不等式：
+\[
+P(|\bar X_n-\mu|\geq\varepsilon)
+\leq\frac{D(\bar X_n)}{\varepsilon^2}
+=\frac{\sigma^2}{n\varepsilon^2}.
+\]
+对任意固定的 $\varepsilon>0$，当 $n\to\infty$ 时右端趋于 $0$，因此
+\[
+\lim_{n\to\infty}P(|\bar X_n-\mu|\geq\varepsilon)=0.
+\]
+这正是 $\bar X_n$ 依概率收敛于 $\mu$ 的定义，即
+\[
+\bar X_n\xrightarrow{P}\mu.
+\]
+(2) 取 $\varepsilon=0.5$，$\sigma=5$。要求
+\[
+P(|\bar X_n-\mu|<0.5)\geq0.95,
+\]
+等价于
+\[
+P(|\bar X_n-\mu|\geq0.5)\leq0.05.
+\]
+由 (1) 的切比雪夫上界，只需
+\[
+\frac{25}{n\times0.5^2}\leq0.05,
+\]
+即
+\[
+\frac{25}{0.25n}\leq0.05
+\quad\Longrightarrow\quad
+\frac{100}{n}\leq0.05
+\quad\Longrightarrow\quad
+n\geq2000.
+\]
+所以按切比雪夫不等式，取 $n=2000$ 即可保证要求。
 
-(2) 设座位数为整数 $k$，要求 $P(X>k)\leq0.01$。作连续性修正后，
-\[
-\frac{k+0.5-1500}{\sqrt{1050}}\geq z_{0.01}=2.326.
-\]
-\[
-k\geq1500+2.326\sqrt{1050}-0.5\approx1574.87.
-\]
-故按该近似估算至少需要 $1575$ 个座位。
+(3) 切比雪夫不等式给出的是一个对所有分布都成立的保守上界，因此 $n=2000$ 是充分条件，不一定是最小样本量。
 
-(3) 若形式上取 $Y\sim\operatorname{Poisson}(1500)$ 近似 $X$，则
+若进一步假定总体近似正态，或直接用中心极限定理作近似，
 \[
-P(X>1600)\approx P(Y\geq1601)
-=\sum_{j=1601}^{\infty}\frac{e^{-1500}1500^j}{j!}.
+\frac{\bar X_n-\mu}{\sigma/\sqrt n}\overset{\text{近似}}{\sim}N(0,1).
 \]
-再把 $Y$ 正态化并作连续性修正，可得
+要求
 \[
-P(Y\geq1601)\approx
-1-\Phi\!\left(\frac{1600.5-1500}{\sqrt{1500}}\right)
-=1-\Phi(2.595)\approx0.0047.
+P\left(\left|\frac{\bar X_n-\mu}{\sigma/\sqrt n}\right|
+<z_{0.025}\right)\approx0.95,
 \]
-这与二项分布的正态近似值 $0.0010$ 有明显差别。原因是 $p=0.3$ 并不小，
-泊松近似会把方差由二项分布的 $np(1-p)=1050$ 错换为 $np=1500$；本题应优先使用二项分布的中心极限定理近似。
+即
+\[
+\frac{0.5}{5/\sqrt n}\geq1.96
+\quad\Longrightarrow\quad
+\sqrt n\geq\frac{1.96\times5}{0.5}=19.6
+\quad\Longrightarrow\quad
+n\geq384.16.
+\]
+故中心极限定理给出的参考样本量为 $n=385$，远小于切比雪夫给出的 $2000$。这体现了切比雪夫界虽然通用，但通常较粗糙。
 
-\vspace{0.5cm}
+\boxed{\text{\parbox{0.9\linewidth}{\textbf{答案：}(1) 证明如上，$\bar X_n\xrightarrow{P}\mu$；(2) $n\geq2000$；(3) $2000$ 只是充分条件，中心极限定理参考值为 $n\approx385$。}}}
 
-\else \answerarea \fi%
-\textbf{15.} \textbf{（拓展：定时截尾模型）}某产品的寿命$T$服从指数分布$E(\lambda)$，$\lambda>0$未知。现对$n$个产品进行定时截尾寿命试验，试验在时刻$t_0$停止。观察到有$r$个产品在$t_0$前失效（$1\leq r\leq n$，失效时间记为$t_1,t_2,\ldots,t_r$），其余$n-r$个产品在$t_0$时仍未失效。
-\begin{enumerate}
-    \item[(1)] 写出基于截尾数据的似然函数；
-    \item[(2)] 求$\lambda$的最大似然估计；
-    \item[(3)] 求平均寿命$1/\lambda$的MLE。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 指数分布的密度$f(t)=\lambda e^{-\lambda t}$，生存函数$S(t)=e^{-\lambda t}$。
-对于在$t_i$时刻失效的产品，贡献$f(t_i)=\lambda e^{-\lambda t_i}$；
-对于在$t_0$时仍未失效的产品，贡献$S(t_0)=e^{-\lambda t_0}$。
-故似然函数：
-\[
-L(\lambda)=\prod_{i=1}^{r}\lambda e^{-\lambda t_i}\cdot\prod_{j=1}^{n-r}e^{-\lambda t_0}
-=\lambda^r\exp\!\left(-\lambda\sum_{i=1}^{r}t_i\right)\cdot\exp\!\left(-\lambda(n-r)t_0\right)
-\]
-\[
-=\lambda^r\exp\!\left(-\lambda\!\left[\sum_{i=1}^{r}t_i+(n-r)t_0\right]\right).
-\]
-
-(2) 对数似然：$\ln L(\lambda)=r\ln\lambda-\lambda[\sum t_i+(n-r)t_0]$。
-\[
-\frac{d\ln L}{d\lambda}=\frac{r}{\lambda}-\left[\sum_{i=1}^{r}t_i+(n-r)t_0\right]=0
-\Longrightarrow\hat{\lambda}=\frac{r}{\sum_{i=1}^{r}t_i+(n-r)t_0}.
-\]
-分母为总试验时间（所有产品实际受试时间之和）。
-
-(3) 由MLE的不变性，平均寿命$\theta=1/\lambda$的MLE为
-\[
-\hat{\theta}=\frac{1}{\hat{\lambda}}=\frac{\sum_{i=1}^{r}t_i+(n-r)t_0}{r}.
-\]
-
-\vspace{0.5cm}
-
-\else \answerarea \fi%
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.9\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={概率密度},
-  xmin=-4, xmax=5, ymin=0, ymax=0.46,
-  xtick={-2,0,1.645,2,4}, ytick={0,0.1,0.2,0.3,0.4},
-  legend pos=north east, font=\footnotesize,
-  domain=-4:5, samples=200,
-]
-\addplot[blue!20,fill=blue!20,draw=none,domain=1.645:5] {0.3989*exp(-x^2/2)} \closedcycle;
-\addplot[red!20,fill=red!20,draw=none,domain=-4:1.645] {0.3989*exp(-(x-1)^2/2)} \closedcycle;
-\addplot[blue,thick] {0.3989*exp(-x^2/2)};
-\addlegendentry{$H_0:\mu=\mu_0$}
-\addplot[red,thick] {0.3989*exp(-(x-1)^2/2)};
-\addlegendentry{$H_1:\mu=\mu_1$}
-\draw[dashed,gray!70] (axis cs:1.645,0) -- (axis cs:1.645,0.42);
-\node[font=\scriptsize] at (axis cs:1.645,0.015){$c$};
-\node[font=\scriptsize,blue!60!black] at (axis cs:2.7,0.04){$\alpha$};
-\node[font=\scriptsize,red!60!black] at (axis cs:0.9,0.04){$\beta$};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-\textbf{16.} \textbf{（拓展：总体比例的大样本检验）}某药厂声称其生产的某种药品有效率至少为$90\%$。监管部门随机抽取$200$名患者进行临床试验，结果$168$人有效。
-\begin{enumerate}
-    \item[(1)] 在显著性水平$\alpha=0.05$下，检验真实有效率是否低于药厂声称的$90\%$；
-    \item[(2)] 求该检验的$p$值，并解释其含义；
-    \item[(3)] 若真实有效率为$85\%$，求样本量$n=200$时上述检验的功效（即$1-\beta$）。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 设$p$为真实有效率。$H_0:p\geq0.9$ vs $H_1:p<0.9$（左侧检验）；拒绝概率在原假设边界 $p_0=0.9$ 处最大，因此按 $p_0=0.9$ 构造统计量。
-样本比例$\hat{p}=168/200=0.84$。
-检验统计量（大样本正态近似）：
-\[
-Z=\frac{\hat{p}-p_0}{\sqrt{p_0(1-p_0)/n}}
-=\frac{0.84-0.9}{\sqrt{0.9\times 0.1/200}}
-=\frac{-0.06}{\sqrt{0.00045}}=\frac{-0.06}{0.02121}\approx -2.828.
-\]
-拒绝域：$Z<-z_{0.05}=-1.645$。由于$-2.828<-1.645$，拒绝$H_0$。
-即样本数据表明真实有效率显著低于$90\%$。
-
-(2) 按上述大样本 $Z$ 检验，近似 $p$ 值为
-\[
-P(Z\leq -2.828\mid p=0.9)=\Phi(-2.828)\approx0.0023.
-\]
-其含义是：在边界原假设 $p=0.9$ 成立时，按正态近似得到与当前样本同样或更不利结果的尾概率约为 $0.0023$。若直接使用精确二项分布，则
-\[
-P_{p=0.9}(X\leq168)=\sum_{k=0}^{168}\binom{200}{k}0.9^k0.1^{200-k}\approx0.00535.
-\]
-两种方法均给出拒绝 $H_0$ 的结论，但数值不应混称为同一个精确 $p$ 值。
-
-(3) 在 $H_0$ 边界 $p_0=0.9$ 下，大样本临界条件为
-\[
-\hat p<0.9-1.645\sqrt{\frac{0.9\times0.1}{200}}\approx0.8651.
-\]
-由于 $X=200\hat p$ 只能取整数，上式等价于 $X\leq173$。因此当真实 $p=0.85$ 时，精确功效为
-\[
-P_{p=0.85}(X\leq173)
-=\sum_{k=0}^{173}\binom{200}{k}0.85^k0.15^{200-k}
-\approx0.7520.
-\]
-若再用正态分布并作连续性修正，则
-\[
-P_{p=0.85}(X\leq173)
-\approx\Phi\!\left(\frac{173.5-200\times0.85}{\sqrt{200\times0.85\times0.15}}\right)
-=\Phi(0.693)\approx0.756.
-\]
-原先直接把连续临界比例 $0.8651$ 代入正态分布会忽略整数拒绝域，得到偏低的 $0.725$；这里应以约 $0.752$ 的精确二项功效为准。
-
-\else \answerarea \fi%
-\newpage
+\else \answerarea[10] \fi%

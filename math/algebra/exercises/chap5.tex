@@ -1,0 +1,604 @@
+\section{习题}
+
+\subsection{本章速览}
+
+\begin{itemize}
+\item \textbf{逆矩阵：}对同阶方阵 \(A,B\)，只要验证 \(AB=I\)（或 \(BA=I\)）一条，就自动有 \(BA=I\)，且逆矩阵唯一。常用公式：\((AB)^{-1}=B^{-1}A^{-1}\)、\((A^{\mathrm T})^{-1}=(A^{-1})^{\mathrm T}\)、\(|A^{-1}|=|A|^{-1}\)，注意乘积求逆要\textbf{反序}。
+\item \textbf{伴随矩阵：}核心恒等式是 \(AA^*=A^*A=|A|I\)，它对任意方阵成立，不需要 \(A\) 可逆。当 \(A\) 可逆时 \(A^*=|A|A^{-1}\)，从而 \(A^{-1}=\dfrac{1}{|A|}A^*\)；由此还得 \(|A^*|=|A|^{n-1}\)，以及 \(r(A^*)=n,\ 1,\ 0\) 分别对应 \(r(A)=n,\ n-1,\ \le n-2\)。
+\item \textbf{可逆的等价条件（\(n\) 阶方阵）：}\(|A|\neq 0\)；\(r(A)=n\)；\(Ax=0\) 只有零解；\(A\) 可写成若干初等矩阵的乘积；\(A\) 经初等行变换可化为 \(I\)。凡涉及“消去律”的推理，必须先说明可逆，否则 \(AB=AC\) 推不出 \(B=C\)。
+\item \textbf{初等矩阵：}由 \(I\) 经\textbf{一次}初等变换得到，只有倍乘 \(E_i(k)\)、互换 \(E_{ij}\)、倍加 \(E_{ij}(k)\) 三类。左乘作行变换、右乘作列变换；三者都可逆且逆仍是同类初等矩阵：\(E_i(k)^{-1}=E_i(1/k)\)，\(E_{ij}^{-1}=E_{ij}\)，\(E_{ij}(k)^{-1}=E_{ij}(-k)\)。
+\item \textbf{分块矩阵：}分块对角阵的行列式、秩、逆都按块“各自计算”：\(|A|=\prod |A_i|\)，\(r(A)=\sum r(A_i)\)，\(A^{-1}=\operatorname{diag}(A_i^{-1})\)。分块三角阵 \(\begin{pmatrix}A_{11}&A_{12}\\0&A_{22}\end{pmatrix}\) 的行列式为 \(|A_{11}||A_{22}|\)；若 \(A\) 可逆，则 \(|M|=|A|\,|D-CA^{-1}B|\)（Schur 补）。
+\item \textbf{矩阵方程与秩：}解 \(AX=B\) 先看 \(r(A)\) 与 \(r(A\mid B)\) 是否相等：可逆时 \(X=A^{-1}B\)，\(AXB=C\) 时为 \(X=A^{-1}CB^{-1}\)。秩的常用工具：\(r(AB)\le\min\{r(A),r(B)\}\)；\(AB=0\Rightarrow r(A)+r(B)\le n\)；\(r(A+B)\le r(A)+r(B)\)。证明秩等式通常“一边用乘积为零给上界，一边用拆项给下界”。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 设
+\[
+A=\begin{pmatrix}
+2&0&1\\
+1&1&0\\
+0&1&1
+\end{pmatrix}.
+\]
+用伴随矩阵法求 \(A^*\) 与 \(A^{-1}\)，并验证 \(AA^*=|A|I\)。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}先算 \(|A|\)；再逐个算出 \(9\) 个代数余子式 \(A_{ij}\)，按“转置”排成 \(A^*\)（即 \(A^*\) 的第 \(i\) 行第 \(j\) 列是 \(A_{ji}\)）；最后用 \(A^{-1}=\dfrac{1}{|A|}A^*\)。
+
+按第一行展开求行列式：
+\[
+|A|=2\begin{vmatrix}1&0\\1&1\end{vmatrix}
+-0\cdot\begin{vmatrix}1&0\\0&1\end{vmatrix}
++1\cdot\begin{vmatrix}1&1\\0&1\end{vmatrix}
+=2\cdot 1+1\cdot 1=3\neq 0,
+\]
+故 \(A\) 可逆。
+
+逐个计算代数余子式（注意符号 \((-1)^{i+j}\)）：
+\[
+\begin{aligned}
+&A_{11}=1,\quad A_{12}=-(1\cdot1-0\cdot0)=-1,\quad A_{13}=1\cdot1-1\cdot0=1;\\
+&A_{21}=-(0\cdot1-1\cdot1)=1,\quad A_{22}=2\cdot1-1\cdot0=2,\quad A_{23}=-(2\cdot1-0\cdot0)=-2;\\
+&A_{31}=0\cdot0-1\cdot1=-1,\quad A_{32}=-(2\cdot0-1\cdot1)=1,\quad A_{33}=2\cdot1-0\cdot1=2.
+\end{aligned}
+\]
+把这些余子式\textbf{转置}排列，得
+\[
+A^*=\begin{pmatrix}
+A_{11}&A_{21}&A_{31}\\
+A_{12}&A_{22}&A_{32}\\
+A_{13}&A_{23}&A_{33}
+\end{pmatrix}
+=\begin{pmatrix}
+1&1&-1\\
+-1&2&1\\
+1&-2&2
+\end{pmatrix}.
+\]
+于是
+\[
+A^{-1}=\frac{1}{|A|}A^*=\frac{1}{3}\begin{pmatrix}
+1&1&-1\\
+-1&2&1\\
+1&-2&2
+\end{pmatrix}.
+\]
+验证：用 \(A\) 的第 \(1\) 行 \((2,0,1)\) 乘 \(A^*\) 的三列，分别得 \(3,0,0\)；第 \(2\) 行 \((1,1,0)\) 得 \(0,3,0\)；第 \(3\) 行 \((0,1,1)\) 得 \(0,0,3\)。故 \(AA^*=3I=|A|I\)，结果正确。
+
+\textbf{评注：}伴随矩阵的元素位置最易出错。判断标准是 \(AA^*=|A|I\)：若把余子式按原位置摆放（不转置），乘积一般不是数量矩阵。
+
+\boxed{\textbf{答案：}A^*=\begin{pmatrix}1&1&-1\\-1&2&1\\1&-2&2\end{pmatrix},\quad
+A^{-1}=\frac13\begin{pmatrix}1&1&-1\\-1&2&1\\1&-2&2\end{pmatrix}}
+\else \answerarea[8] \fi%
+
+\textbf{2.} 设 \(A\) 为 \(3\) 阶可逆矩阵，把 \(A\) 的第 \(2\) 行的 \(-2\) 倍加到第 \(1\) 行得到 \(B\)。记 \(E_{12}(k)\) 为“把单位矩阵第 \(2\) 行的 \(k\) 倍加到第 \(1\) 行”所得的初等矩阵，则 \(B^{-1}=\)（\quad）
+
+\[
+\begin{array}{ll}
+\text{(A)}\ E_{12}(2)A^{-1} & \text{(B)}\ A^{-1}E_{21}(2)\\[3pt]
+\text{(C)}\ A^{-1}E_{12}(2) & \text{(D)}\ E_{21}(2)A^{-1}
+\end{array}
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}先写出 \(B\) 与 \(A\) 的矩阵关系 \(B=PA\)，再对两边求逆；关键是求逆后初等矩阵要换到另一侧并取逆。
+
+把 \(A\) 的第 \(2\) 行的 \(-2\) 倍加到第 \(1\) 行，相当于\textbf{左乘} \(E_{12}(-2)\)，即
+\[
+B=E_{12}(-2)A.
+\]
+两边求逆，并用 \((PA)^{-1}=A^{-1}P^{-1}\)（顺序反转）：
+\[
+B^{-1}=\bigl(E_{12}(-2)A\bigr)^{-1}=A^{-1}E_{12}(-2)^{-1}=A^{-1}E_{12}(2),
+\]
+其中用了 \(E_{12}(k)^{-1}=E_{12}(-k)\)。故选 (C)。
+
+选项 (A)、(D) 把初等矩阵放在 \(A^{-1}\) 左边，对应的是对 \(A^{-1}\) 作\textbf{行}变换，与本题无关；(B) 虽然位置正确，但 \(E_{21}(2)\) 是把第 \(1\) 行的 \(2\) 倍加到第 \(2\) 行，方向不对。
+
+\textbf{评注：}右乘 \(E_{12}(2)\) 等价于把 \(A^{-1}\) 的第 \(1\) 列的 \(2\) 倍加到第 \(2\) 列。可这样记忆：左乘行变、右乘列变，求逆后“左右互换、参数取反”。
+
+\boxed{\textbf{答案：}(C)}
+\else \answerarea[5] \fi%
+
+\textbf{3.} 用初等行变换法 \((A\mid I)\to(I\mid A^{-1})\) 求
+\[
+A=\begin{pmatrix}
+1&2&0\\
+2&5&1\\
+0&1&3
+\end{pmatrix}
+\]
+的逆矩阵。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}对增广矩阵 \((A\mid I)\) 只用初等行变换，把左半部分化为 \(I\)，右半部分随之变为 \(A^{-1}\)。若左半出现全零行，则 \(A\) 不可逆；本题能化到 \(I\)，说明可逆。
+
+\[
+(A\mid I)=\left(\begin{array}{ccc|ccc}
+1&2&0&1&0&0\\
+2&5&1&0&1&0\\
+0&1&3&0&0&1
+\end{array}\right)
+\xrightarrow[R_3-R_2]{R_2-2R_1}
+\left(\begin{array}{ccc|ccc}
+1&2&0&1&0&0\\
+0&1&1&-2&1&0\\
+0&0&2&2&-1&1
+\end{array}\right).
+\]
+第二行已出现主元 \(1\)，先把第三行主元化为 \(1\)：
+\[
+\xrightarrow{R_3\leftarrow \frac12R_3}
+\left(\begin{array}{ccc|ccc}
+1&2&0&1&0&0\\
+0&1&1&-2&1&0\\
+0&0&1&1&-\frac12&\frac12
+\end{array}\right).
+\]
+再用第三行消去第二行的第 \(3\) 列：
+\[
+\xrightarrow{R_2-R_3}
+\left(\begin{array}{ccc|ccc}
+1&2&0&1&0&0\\
+0&1&0&-3&\frac32&-\frac12\\
+0&0&1&1&-\frac12&\frac12
+\end{array}\right).
+\]
+最后用第二行消去第一行的第 \(2\) 列：
+\[
+\xrightarrow{R_1-2R_2}
+\left(\begin{array}{ccc|ccc}
+1&0&0&7&-3&1\\
+0&1&0&-3&\frac32&-\frac12\\
+0&0&1&1&-\frac12&\frac12
+\end{array}\right).
+\]
+左边已是 \(I\)，故右边就是 \(A^{-1}\)。
+
+\textbf{评注：}整个过程只允许行变换（若对 \((A\mid I)\) 作列变换，右边就不再是 \(A^{-1}\)）。可以用 \(AA^{-1}=I\) 抽查一行：\((1,2,0)\cdot(7,-3,1)^{\mathrm T}=7-6=1\)，\((1,2,0)\cdot(-3,\frac32,-\frac12)^{\mathrm T}=-3+3=0\)，符合。
+
+\boxed{\textbf{答案：}A^{-1}=\begin{pmatrix}
+7&-3&1\\
+-3&\frac32&-\frac12\\
+1&-\frac12&\frac12
+\end{pmatrix}}
+\else \answerarea[10] \fi%
+
+\textbf{4.} 求矩阵
+\[
+A=\begin{pmatrix}
+1&2&3&4&5\\
+2&1&0&1&2\\
+1&0&-1&-1&-2\\
+3&3&3&5&7
+\end{pmatrix}
+\]
+的秩。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}作初等行变换化为行阶梯形，非零行的个数就是秩。先观察行之间的关系可以减少计算：第 \(4\) 行恰好等于第 \(1\) 行加第 \(2\) 行。
+
+因为 \(R_4=R_1+R_2\)，先消去第 \(4\) 行，并用第 \(1\) 行消去第 \(2,3\) 行的首元：
+\[
+A\xrightarrow[\substack{R_3-R_1\\R_4-R_1-R_2}]{R_2-2R_1}
+\begin{pmatrix}
+1&2&3&4&5\\
+0&-3&-6&-7&-8\\
+0&-2&-4&-5&-7\\
+0&0&0&0&0
+\end{pmatrix}.
+\]
+为避开分数，把第 \(2,3\) 行分别乘以 \(-1\)：
+\[
+\xrightarrow[R_3\leftarrow -R_3]{R_2\leftarrow -R_2}
+\begin{pmatrix}
+1&2&3&4&5\\
+0&3&6&7&8\\
+0&2&4&5&7\\
+0&0&0&0&0
+\end{pmatrix}.
+\]
+再用 \(R_3\leftarrow 3R_3-2R_2\) 消去第 \(3\) 行的第二个主元：
+\[
+\xrightarrow{R_3\leftarrow 3R_3-2R_2}
+\begin{pmatrix}
+1&2&3&4&5\\
+0&3&6&7&8\\
+0&0&0&1&5\\
+0&0&0&0&0
+\end{pmatrix}.
+\]
+这是行阶梯形，主元分别在第 \(1,2,4\) 列，非零行共 \(3\) 行，所以 \(r(A)=3\)。
+
+\textbf{评注：}第 \(3\) 行原为 \((1,0,-1,-1,-2)\)，它与前两行线性无关（否则消元后该行应变成零行），因此秩不能再降。若只凭“第 \(4\) 行是前两行之和”就断定秩为 \(2\)，是漏掉了第 \(3\) 行。
+
+\boxed{\textbf{答案：}r(A)=3}
+\else \answerarea[8] \fi%
+
+\textbf{5.} 设分块对角矩阵
+\[
+M=\begin{pmatrix}
+1&2&0&0\\
+3&4&0&0\\
+0&0&2&1\\
+0&0&1&1
+\end{pmatrix}
+=\operatorname{diag}(B,C).
+\]
+求 \(|M|\)、\(M^{-1}\) 与 \(r(M)\)。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}分块对角阵的行列式、逆、秩都按块计算：\(|M|=|B||C|\)，\(M^{-1}=\operatorname{diag}(B^{-1},C^{-1})\)，\(r(M)=r(B)+r(C)\)。先确认两个块都可逆。
+
+\[
+|B|=\begin{vmatrix}1&2\\3&4\end{vmatrix}=4-6=-2\neq0,\qquad
+|C|=\begin{vmatrix}2&1\\1&1\end{vmatrix}=2-1=1\neq0.
+\]
+故 \(|M|=|B|\cdot|C|=(-2)\times 1=-2\)。二阶矩阵求逆用“主对角互换、副对角变号、除以行列式”：
+\[
+B^{-1}=\frac{1}{-2}\begin{pmatrix}4&-2\\-3&1\end{pmatrix}
+=\begin{pmatrix}-2&1\\[2pt] \frac32&-\frac12\end{pmatrix},
+\qquad
+C^{-1}=\frac{1}{1}\begin{pmatrix}1&-1\\-1&2\end{pmatrix}
+=\begin{pmatrix}1&-1\\-1&2\end{pmatrix}.
+\]
+于是
+\[
+M^{-1}=\begin{pmatrix}
+B^{-1}&0\\
+0&C^{-1}
+\end{pmatrix}
+=\begin{pmatrix}
+-2&1&0&0\\
+\frac32&-\frac12&0&0\\
+0&0&1&-1\\
+0&0&-1&2
+\end{pmatrix}.
+\]
+两个块都可逆（秩分别为 \(2,2\)），所以 \(r(M)=2+2=4\)，即 \(M\) 满秩。这与 \(|M|=-2\neq0\) 一致。
+
+\textbf{评注：}若分块是 \(\begin{pmatrix}A&B\\0&C\end{pmatrix}\) 而不是对角形，逆矩阵的右上块不是零，而是 \(-A^{-1}BC^{-1}\)，不能照搬本题结论。
+
+\boxed{\textbf{答案：}|M|=-2,\quad r(M)=4,\quad
+M^{-1}=\begin{pmatrix}
+-2&1&0&0\\
+\frac32&-\frac12&0&0\\
+0&0&1&-1\\
+0&0&-1&2
+\end{pmatrix}}
+\else \answerarea[8] \fi%
+
+\subsection{综合提高题}
+
+\textbf{6.} 设
+\[
+A=\begin{pmatrix}
+2&1&0\\
+0&2&1\\
+0&0&2
+\end{pmatrix},
+\]
+解矩阵方程 \(XA=A+X\)。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}把含未知矩阵 \(X\) 的项移到同一边，提出公因子，化成 \(X\cdot(\text{已知矩阵})=\text{已知矩阵}\) 的标准形，再判断该已知矩阵是否可逆。切忌直接写 \(X=A(A-I)^{-1}\) 而不说明 \(A-I\) 可逆。
+
+移项得
+\[
+XA-X=A,\qquad\text{即}\qquad X(A-I)=A.
+\]
+记 \(N=A-2I=\begin{pmatrix}0&1&0\\0&0&1\\0&0&0\end{pmatrix}\)，则 \(A=2I+N\)，且
+\[
+N^2=\begin{pmatrix}0&0&1\\0&0&0\\0&0&0\end{pmatrix},\qquad N^3=0.
+\]
+于是
+\[
+A-I=I+N,\qquad
+(I+N)^{-1}=I-N+N^2
+=\begin{pmatrix}
+1&-1&1\\
+0&1&-1\\
+0&0&1
+\end{pmatrix},
+\]
+这里用了 \(N^3=0\) 使级数 \(I-N+N^2-\cdots\) 在 \(N^2\) 处截断。因为 \(A-I\) 可逆，方程两边右乘 \((A-I)^{-1}\) 得唯一解
+\[
+X=A(A-I)^{-1}=(2I+N)(I-N+N^2)
+=2I-2N+2N^2+N-N^2+N^3
+=2I-N+N^2,
+\]
+即
+\[
+X=\begin{pmatrix}
+2&-1&1\\
+0&2&-1\\
+0&0&2
+\end{pmatrix}.
+\]
+回代检验：
+\[
+X(A-I)=(2I-N+N^2)(I+N)=2I+2N-N-N^2+N^2+N^3=2I+N=A,
+\]
+故 \(XA-X=A\) 成立，即 \(XA=A+X\)。
+
+\textbf{评注：}本题的 \(A\) 是“数量矩阵加幂零矩阵”，这类矩阵的逆可以用二项式展开快速写出；若改用 \((A-I\mid I)\) 作初等行变换，也会得到同一个逆矩阵，只是计算量更大。
+
+\boxed{\textbf{答案：}X=\begin{pmatrix}2&-1&1\\0&2&-1\\0&0&2\end{pmatrix}}
+\else \answerarea[10] \fi%
+
+\textbf{7.} 设 \(A\) 为 \(n\) 阶方阵，且 \(A^2=I\)。证明：
+\[
+r(A+I)+r(A-I)=n.
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}秩等式的标准套路是“夹逼”：用乘积为零给出上界，用两矩阵之和（差）为 \(2I\) 给出下界。关键是找出一个等于零的乘积。
+
+由 \(A^2=I\) 得
+\[
+(A+I)(A-I)=A^2-A+A-I=A^2-I=0.
+\]
+设 \(P=A+I\)，\(Q=A-I\)。因为 \(PQ=0\)，\(Q\) 的每一列都是 \(Px=0\) 的解，即 \(\operatorname{Im}Q\subseteq\ker P\)，于是
+\[
+r(Q)=\dim\operatorname{Im}Q\le\dim\ker P=n-r(P),
+\]
+即
+\[
+r(A+I)+r(A-I)\le n. \tag{1}
+\]
+另一方面，
+\[
+(A+I)-(A-I)=2I,
+\]
+利用秩的次可加性 \(r(X\pm Y)\le r(X)+r(Y)\)：
+\[
+n=r(2I)=r\bigl((A+I)-(A-I)\bigr)\le r(A+I)+r(A-I). \tag{2}
+\]
+由 (1)(2) 得 \(r(A+I)+r(A-I)=n\)。
+
+\textbf{评注：}这里得到 \(r(A+I)+r(A-I)=n\)，关键是用到了 \(I\) 是数量矩阵，使 \((A+I)-(A-I)=2I\) 仍为满秩。若把 \(I\) 换成一般可逆矩阵 \(C\)，下界一步不成立，结论不能照搬；仅由 \(PQ=0\) 只能得到“\(\le n\)”。
+
+\boxed{\textbf{答案：}r(A+I)+r(A-I)=n}
+\else \answerarea[10] \fi%
+
+\textbf{8.} 设 \(A,B\) 均为 \(n\) 阶方阵，且满足
+\[
+AB=A+B.
+\]
+证明：\(AB=BA\)。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}把 \(AB-A-B\) 配成乘积 \((A-I)(B-I)\)，多出的 \(I\) 正好用来构造“乘积等于单位矩阵”，从而得到可逆性，再反过来写出另一个方向的乘积。
+
+由 \(AB=A+B\) 得 \(AB-A-B=0\)，两边加 \(I\)：
+\[
+AB-A-B+I=I,
+\]
+左边恰为 \((A-I)(B-I)\)，故
+\[
+(A-I)(B-I)=I. \tag{1}
+\]
+对同阶方阵，\((A-I)(B-I)=I\) 已蕴含 \(A-I\) 与 \(B-I\) 互为逆矩阵，因此也有
+\[
+(B-I)(A-I)=I. \tag{2}
+\]
+把 (2) 展开：
+\[
+BA-B-A+I=I,
+\]
+即
+\[
+BA=A+B.
+\]
+与题设 \(AB=A+B\) 比较，得 \(AB=BA\)。
+
+\textbf{评注：}这里不能由 \((A-I)(B-I)=I\) 直接“约去”什么，而是利用“同阶方阵单侧逆即双侧逆”这一事实。若只写 \((B-I)(A-I)=I\) 而不说明它成立的理由，证明就有漏洞。
+
+\boxed{\textbf{答案：}(A-I)(B-I)=I\Rightarrow(B-I)(A-I)=I\Rightarrow BA=A+B=AB}
+\else \answerarea[8] \fi%
+
+\textbf{9.} 设 \(A,B,C,D\) 均为 \(n\) 阶方阵，且 \(A\) 可逆。证明分块矩阵
+\[
+M=\begin{pmatrix}A&B\\C&D\end{pmatrix}
+\]
+满足
+\[
+|M|=|A|\cdot\bigl|D-CA^{-1}B\bigr|.
+\]
+并利用该公式计算
+\[
+|M|,\qquad
+M=\begin{pmatrix}
+2&1&1&0\\
+1&1&2&1\\
+0&1&1&2\\
+1&0&3&4
+\end{pmatrix}.
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}把 \(M\) 拆成“分块下三角 \(\times\) 分块上三角”，使两个因子的行列式都容易算。这就是消元思想在分块层面的写法。
+
+直接验证如下分解：
+\[
+\begin{pmatrix}A&B\\C&D\end{pmatrix}
+=
+\begin{pmatrix}A&0\\C&I\end{pmatrix}
+\begin{pmatrix}I&A^{-1}B\\0&D-CA^{-1}B\end{pmatrix}.
+\]
+右边相乘：左上为 \(A\)，右上为 \(A\cdot A^{-1}B=B\)，左下为 \(C\)，右下为 \(C\cdot A^{-1}B+(D-CA^{-1}B)=D\)，确实等于 \(M\)。
+
+两个因子都是分块三角阵，行列式等于对角块行列式之积：
+\[
+\begin{vmatrix}A&0\\C&I\end{vmatrix}=|A|\cdot|I|=|A|,\qquad
+\begin{vmatrix}I&A^{-1}B\\0&D-CA^{-1}B\end{vmatrix}=|I|\cdot|D-CA^{-1}B|.
+\]
+再由 \(|XY|=|X||Y|\) 得
+\[
+|M|=|A|\cdot\bigl|D-CA^{-1}B\bigr|.
+\]
+
+对给出的矩阵取
+\[
+A=\begin{pmatrix}2&1\\1&1\end{pmatrix},\quad
+B=\begin{pmatrix}1&0\\2&1\end{pmatrix},\quad
+C=\begin{pmatrix}0&1\\1&0\end{pmatrix},\quad
+D=\begin{pmatrix}1&2\\3&4\end{pmatrix}.
+\]
+先算 \(|A|=2-1=1\)，且
+\[
+A^{-1}=\begin{pmatrix}1&-1\\-1&2\end{pmatrix}.
+\]
+于是
+\[
+CA^{-1}=\begin{pmatrix}0&1\\1&0\end{pmatrix}\begin{pmatrix}1&-1\\-1&2\end{pmatrix}
+=\begin{pmatrix}-1&2\\1&-1\end{pmatrix},
+\]
+\[
+CA^{-1}B=\begin{pmatrix}-1&2\\1&-1\end{pmatrix}\begin{pmatrix}1&0\\2&1\end{pmatrix}
+=\begin{pmatrix}3&2\\-1&-1\end{pmatrix}.
+\]
+所以
+\[
+D-CA^{-1}B=\begin{pmatrix}1&2\\3&4\end{pmatrix}-\begin{pmatrix}3&2\\-1&-1\end{pmatrix}
+=\begin{pmatrix}-2&0\\4&5\end{pmatrix},
+\]
+其行列式为 \((-2)\times 5-0\times 4=-10\)。故
+\[
+|M|=|A|\cdot(-10)=1\times(-10)=-10.
+\]
+直接按第一行展开 \(4\) 阶行列式也可得到 \(-10\)，与公式一致。
+
+\textbf{评注：}公式只要求 \(A\) 可逆，不要求 \(B,C,D\) 可逆；若 \(D\) 可逆，也可用对称形式 \(|M|=|D|\cdot|A-BD^{-1}C|\)。取 \(B=0,\ C=0\) 时公式退化为分块对角阵的行列式公式。
+
+\boxed{\textbf{答案：}|M|=|A|\cdot|D-CA^{-1}B|,\ \text{本例 }|M|=-10}
+\else \answerarea[10] \fi%
+
+\subsection{真题风格与综合训练}
+
+\textbf{10.} \textbf{（选择题）}设 \(A\) 为 \(3\) 阶方阵，\(|A|=2\)，\(A^*\) 为 \(A\) 的伴随矩阵，则
+\[
+\bigl|3A^*-2A^{-1}\bigr|=(\quad)
+\]
+\[
+\begin{array}{ll}
+\text{(A)}\ 32 & \text{(B)}\ 64\\[3pt]
+\text{(C)}\ 16 & \text{(D)}\ 8
+\end{array}
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}把 \(A^*\) 统一换成 \(A^{-1}\)，化为同一个矩阵的数量倍，再用 \(|kA|=k^n|A|\)（\(n=3\)）。
+
+由伴随矩阵的基本关系 \(A^*=|A|A^{-1}=2A^{-1}\)，得
+\[
+3A^*-2A^{-1}=3\cdot 2A^{-1}-2A^{-1}=4A^{-1}.
+\]
+于是
+\[
+\bigl|3A^*-2A^{-1}\bigr|=\bigl|4A^{-1}\bigr|=4^3\,|A^{-1}|=64\cdot\frac{1}{|A|}=64\cdot\frac12=32.
+\]
+故选 (A)。
+
+\textbf{评注：}常见错误是漏掉“\(3\) 阶”而用 \(4^2\)，或者把 \(|A^*|\) 误当成 \(|A|\)。注意 \(|kA|=k^n|A|\) 中的指数是矩阵阶数；另外 \(|A^{-1}|=1/|A|\)。
+
+\boxed{\textbf{答案：}(A)\ 32}
+\else \answerarea[5] \fi%
+
+\textbf{11.} \textbf{（解答题）}设
+\[
+A=\begin{pmatrix}
+1&1&1\\
+1&2&a\\
+1&4&a^2
+\end{pmatrix}.
+\]
+(1) 求 \(|A|\)；\qquad (2) 求使 \(r(A)<3\) 的全部 \(a\) 值；\qquad (3) 当 \(a=2\) 时，求 \(r(A^*)\)。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}(1) 按第一行展开；(2) 方阵秩小于阶数当且仅当行列式为零；(3) 用“\(r(A)=n-1\Rightarrow r(A^*)=1\)”这一结论，并说明理由。
+
+(1) 按第一行展开：
+\[
+\begin{aligned}
+|A|&=1\cdot\begin{vmatrix}2&a\\4&a^2\end{vmatrix}
+-1\cdot\begin{vmatrix}1&a\\1&a^2\end{vmatrix}
++1\cdot\begin{vmatrix}1&2\\1&4\end{vmatrix}\\
+&=(2a^2-4a)-(a^2-a)+(4-2)\\
+&=a^2-3a+2=(a-1)(a-2).
+\end{aligned}
+\]
+
+(2) \(A\) 是 \(3\) 阶方阵，\(r(A)<3\iff |A|=0\)，即
+\[
+(a-1)(a-2)=0,
+\]
+故 \(a=1\) 或 \(a=2\)。
+
+(3) 当 \(a=2\) 时 \(|A|=0\)，又 \(A\) 中左上角二阶子式 \(\begin{vmatrix}1&1\\1&2\end{vmatrix}=1\neq0\)，所以 \(r(A)=2=n-1\)。
+
+一方面，\(r(A)=2\) 说明存在非零的 \(2\) 阶子式，而 \(A^*\) 的元素正是 \(A\) 的 \(2\) 阶代数余子式，故 \(A^*\neq 0\)，即 \(r(A^*)\ge 1\)。另一方面，由 \(AA^*=|A|I=0\) 及“\(XY=0\Rightarrow r(X)+r(Y)\le n\)”（取 \(X=A,\ Y=A^*,\ n=3\)）得
+\[
+r(A)+r(A^*)\le 3\ \Longrightarrow\ r(A^*)\le 3-2=1.
+\]
+两者结合得 \(r(A^*)=1\)。
+
+\textbf{评注：}一般结论是：\(r(A)=n\) 时 \(A^*\) 可逆，\(r(A^*)=n\)；\(r(A)=n-1\) 时 \(r(A^*)=1\)；\(r(A)\le n-2\) 时所有 \(n-1\) 阶子式为零，\(A^*=0\)。本题第 (3) 问正是中间情形。
+
+\boxed{\textbf{答案：}(1)\ |A|=(a-1)(a-2);\quad(2)\ a\in\{1,2\};\quad(3)\ r(A^*)=1}
+\else \answerarea[10] \fi%
+
+\textbf{12.} \textbf{（解答题）}对 \(3\) 阶矩阵 \(A\) 依次作如下列变换：先交换第 \(1,2\) 列，再把第 \(3\) 列的 \(2\) 倍加到第 \(1\) 列，得到矩阵 \(B\)。求矩阵 \(Q\)，使 \(B=AQ\)，并求 \(Q^{-1}\) 与 \(|Q|\)。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}每一步列变换都等于右乘一个初等矩阵，且后作的变换写在乘积的右边。先按顺序写出两个初等矩阵，再相乘。
+
+记 \(E_{12}\) 为交换单位矩阵第 \(1,2\) 列（行）得到的初等矩阵，\(E_{31}(2)\) 为把单位矩阵第 \(3\) 列的 \(2\) 倍加到第 \(1\) 列得到的初等矩阵：
+\[
+E_{12}=\begin{pmatrix}0&1&0\\1&0&0\\0&0&1\end{pmatrix},
+\qquad
+E_{31}(2)=\begin{pmatrix}1&0&0\\0&1&0\\2&0&1\end{pmatrix}.
+\]
+第一次变换给出 \(A_1=AE_{12}\)，第二次变换给出
+\[
+B=A_1E_{31}(2)=A\,E_{12}E_{31}(2),
+\]
+故
+\[
+Q=E_{12}E_{31}(2)
+=\begin{pmatrix}0&1&0\\1&0&0\\0&0&1\end{pmatrix}
+\begin{pmatrix}1&0&0\\0&1&0\\2&0&1\end{pmatrix}
+=\begin{pmatrix}0&1&0\\1&0&0\\2&0&1\end{pmatrix}.
+\]
+求逆时用 \((XY)^{-1}=Y^{-1}X^{-1}\) 及 \(E_{12}^{-1}=E_{12}\)、\(E_{31}(2)^{-1}=E_{31}(-2)\)：
+\[
+Q^{-1}=E_{31}(2)^{-1}E_{12}^{-1}
+=E_{31}(-2)E_{12}
+=\begin{pmatrix}1&0&0\\0&1&0\\-2&0&1\end{pmatrix}
+\begin{pmatrix}0&1&0\\1&0&0\\0&0&1\end{pmatrix}
+=\begin{pmatrix}0&1&0\\1&0&0\\0&-2&1\end{pmatrix}.
+\]
+行列式用 \(|E_{12}|=-1\)、\(|E_{31}(2)|=1\)：
+\[
+|Q|=|E_{12}|\cdot|E_{31}(2)|=-1.
+\]
+也可直接按第一行展开验证：\(|Q|=-(1\cdot 1-0\cdot 2)=-1\)。
+
+\textbf{评注：}\(Q\) 是三阶可逆矩阵，故 \(B=AQ\) 与 \(A\) 的秩相同，这也说明列变换不改变秩。注意 \(E_{31}(2)\) 的下标含义：第 \(3\) 列的 \(2\) 倍加到第 \(1\) 列，写“\(31\)”而不是“\(13\)”；若写反，得到的矩阵不同。
+
+\boxed{\textbf{答案：}Q=\begin{pmatrix}0&1&0\\1&0&0\\2&0&1\end{pmatrix},\quad
+Q^{-1}=\begin{pmatrix}0&1&0\\1&0&0\\0&-2&1\end{pmatrix},\quad |Q|=-1}
+\else \answerarea[8] \fi%

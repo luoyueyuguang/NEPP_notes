@@ -1,501 +1,705 @@
 \section{中央处理器（CPU）}
 
-\subsection{CPU 的功能与基本结构}
+一条 \texttt{add R1, R2, R3} 在 CPU 里要走完这样一串动作：PC 把地址送到 MAR，主存把指令送回 MDR、再送进 IR；译码器认出这是加法，控制器依次打开寄存器堆的读口，把 R2、R3 送到 ALU，最后把结果写回 R1。数据经过的部件和连线叫\textbf{数据通路}，每一步“谁开门、谁打入、谁驱动总线”的信号叫\textbf{控制信号}。这一章说到底只回答两个问题：路怎么铺，信号怎么发。
 
-\begin{mydef}{CPU 的组成}{cpu-structure}
-CPU 由\textbf{运算器（ALU）}和\textbf{控制器（CU）}两大部分组成：
+同一条路可以有不同的走法。每条指令走完再走下一条，是单周期或多周期实现；让多条指令的不同阶段在时间上错开，是流水线。路还是那条路，变的是节奏；节奏一变，吞吐率、冒险和控制器的复杂度都跟着变。
+
+\subsection{指令周期与定时}
+
+CPU 的时间分成三层。最细的一层是\textbf{时钟周期}（节拍），由主频决定：1\,GHz 的 CPU，一个时钟周期就是 1\,ns。若干时钟周期组成一个\textbf{机器周期}，通常对应一次总线事务或一次主存访问；比如一次访存要 4 个时钟周期，机器周期就是 4\,ns。若干机器周期再组成一条指令的\textbf{指令周期}。三层是包含关系，不是同一个东西。
+
+一条指令的指令周期一般分成四段：
+
 \begin{itemize}
-    \item \textbf{运算器}：执行算术和逻辑运算。核心部件：ALU、累加器 ACC、通用寄存器组、状态寄存器 PSW（标志位：ZF/CF/OF/SF）。
-    \item \textbf{控制器}：取指令、分析指令、执行指令，控制各部件协调工作。核心部件：PC（程序计数器）、IR（指令寄存器）、ID（指令译码器）、时序发生器、微操作信号发生器。
+  \item \textbf{取指}：PC$\to$MAR，发读命令；主存把指令送到 MDR，再送入 IR；PC 加上本条指令的长度（定长指令就是 $+4$）。
+  \item \textbf{间址}：只有间接寻址才需要。把指令中的形式地址送 MAR，再读一次主存，得到真正的有效地址。
+  \item \textbf{执行}：按操作码做运算、访存或转移。不同指令在这里差别最大。
+  \item \textbf{中断}：仅当本条指令执行完、且有可响应的中断请求时进入。保存断点、关中断、取中断服务程序入口。
 \end{itemize}
-CPU 与主存通过 MAR（存储器地址寄存器）和 MDR（存储器数据寄存器）交互。
-\end{mydef}
 
-\begin{conclusion}{CPU 中的专用寄存器}{cpu-registers}
-\begin{tablebox}{CPU 主要寄存器}
-\centering
-\begin{tabularx}{\linewidth}{|p{3.6cm}|p{2.0cm}|X|}
-\hline
-寄存器 & 缩写 & 功能 \\
-\hline
-程序计数器 & PC & 存放下一条指令的地址，自动 +1（或 + 指令长度）\\
-指令寄存器 & IR & 存放当前执行的指令 \\
-存储器地址寄存器 & MAR & 存放访存地址（连接地址总线）\\
-存储器数据寄存器 & MDR & 存放与主存交换的数据（连接数据总线）\\
-累加器 & ACC & 存放 ALU 运算结果 \\
-程序状态字 & PSW & 存放标志位（ZF/CF/OF/SF/IF）\\
-通用寄存器 & R0-Rn & 存放操作数和中间结果 \\
-\hline
-\end{tabularx}
-\end{tablebox}
-\textbf{408 常考：}哪些寄存器程序员可见（通用寄存器、PSW、PC 部分可见），哪些透明（MAR、MDR、IR）。
-\end{conclusion}
+注意间址段和中断段不是每条指令都有。寄存器型指令可能只有取指和执行，间接寻址的访存指令会多出一个间址段，响应中断时还要再加一段。所以“指令周期”是一个笼统的说法，具体长度随指令而变。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \draw[thick,Navy!70] (-5.6,0) -- (5.6,0);
-  \node[font=\scriptsize,black!70] at (0,0.26){CPU 内部数据通路};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.5cm,minimum height=0.7cm] (pc) at (-4.4,1.2){PC};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.5cm,minimum height=0.7cm] (ir) at (-2.2,1.2){IR};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.5cm,minimum height=0.7cm] (mar) at (0.0,1.2){MAR};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.5cm,minimum height=0.7cm] (mdr) at (2.2,1.2){MDR};
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=1.9cm,minimum height=0.7cm] (acc) at (4.4,1.2){ACC};
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.2cm,minimum height=0.7cm] (rf) at (-2.2,-1.2){通用寄存器组};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.6cm,minimum height=0.9cm] (alu) at (4.4,-1.2){ALU};
-  \draw[Navy!70] (pc.south) -- (-4.4,0);
-  \draw[Navy!70] (ir.south) -- (-2.2,0);
-  \draw[Navy!70] (mar.south) -- (0.0,0);
-  \draw[Navy!70] (mdr.south) -- (2.2,0);
-  \draw[Navy!70] (acc.south) -- (4.4,0);
-  \draw[Navy!70] (rf.north) -- (-2.2,0);
-  \draw[Navy!70] (alu.north) -- (4.4,0);
-  \node[font=\scriptsize,black!70,align=center] at (0,-2.0){运算器（ALU/ACC/通用寄存器组/PSW）与控制器（PC/IR/ID）挂靠内部通路，经 MAR/MDR 与主存交互};
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.62cm, y=1cm]
+  % 时间轴
+  \draw[->] (0,-1.25) -- (21.7,-1.25) node[right,font=\tiny]{时钟周期};
+  \foreach \t in {0,1,...,21} { \draw[RuleGray] (\t,-1.25) -- (\t,-1.37); }
+  \foreach \t in {0,5,10,15,20} { \node[below,font=\tiny,MutedText] at (\t,-1.37) {\t}; }
+
+  % I1
+  \fill[Teal!28,draw=Teal!55] (0,1.60) rectangle (3,2.02);
+  \node[font=\tiny] at (1.5,1.81) {取指};
+  \fill[Amber!30,draw=Amber!55] (3,1.60) rectangle (5,2.02);
+  \node[font=\tiny] at (4,1.81) {执行};
+  \node[left,font=\scriptsize] at (-0.1,1.81) {I1};
+
+  % I2
+  \fill[Teal!28,draw=Teal!55] (5,0.55) rectangle (8,0.97);
+  \node[font=\tiny] at (6.5,0.76) {取指};
+  \fill[Navy!18,draw=Navy!45] (8,0.55) rectangle (10,0.97);
+  \node[font=\tiny] at (9,0.76) {间址};
+  \fill[Amber!30,draw=Amber!55] (10,0.55) rectangle (13,0.97);
+  \node[font=\tiny] at (11.5,0.76) {执行};
+  \node[left,font=\scriptsize] at (-0.1,0.76) {I2};
+
+  % I3
+  \fill[Teal!28,draw=Teal!55] (13,-0.95) rectangle (16,-0.53);
+  \node[font=\tiny] at (14.5,-0.74) {取指};
+  \fill[Amber!30,draw=Amber!55] (16,-0.95) rectangle (19,-0.53);
+  \node[font=\tiny] at (17.5,-0.74) {执行};
+  \fill[Burgundy!18,draw=Burgundy!55,dashed] (19,-0.95) rectangle (21,-0.53);
+  \node[font=\tiny] at (20,-0.74) {中断};
+  \node[left,font=\scriptsize] at (-0.1,-0.74) {I3};
+
+  % I2 的指令周期括线
+  \draw[TealDark] (5,0.38) -- (5,0.28) -- (13,0.28) -- (13,0.38);
+  \node[below,font=\tiny,TealDark] at (9,0.24) {I2 的指令周期：8 个时钟周期};
+
+  % 一个时钟周期的标注
+  \draw[<->,Navy!70] (0,2.22) -- (1,2.22);
+  \node[above,font=\tiny,Navy] at (0.5,2.22) {1 拍};
 \end{tikzpicture}
 \end{center}
 
-\subsection{指令执行过程}
-
-\begin{conclusion}{指令周期}{instruction-cycle}
-一条指令的指令周期由取指和执行阶段构成，并可能包含间址阶段；若本条指令执行后检测到可响应的中断，还会进入中断周期：
-\[
-\begin{aligned}
-\text{取指（Fetch）} &\to \text{必要时进行间址（Indirect）} \to \text{执行（Execute）}\\
-&\to \text{若响应中断，则进入中断周期（Interrupt）}
-\end{aligned}
-\]
-\begin{itemize}
-    \item \textbf{取指周期（FE）}：PC$\to$MAR $\to$ 读主存 $\to$ MDR$\to$IR，并把 PC 更新为下一条指令地址。
-    \item \textbf{间址周期（IND）}：若指令含间接寻址，取操作数地址。
-    \item \textbf{执行周期（EX）}：根据操作码执行具体操作。
-    \item \textbf{中断周期（INT）}：保存断点并取得中断服务程序入口；具体由硬件自动完成哪些现场保存操作取决于体系结构。
-\end{itemize}
-
-\begin{attention}
-\textbf{408 常考数据通路分析题}：给定 CPU 数据通路图和控制信号，写出某条指令（如 \texttt{ADD R1, (R2)}）在\textbf{每个时钟周期}的数据流动路径和有效控制信号。
-\end{attention}
-\end{conclusion}
+图上横轴是时钟周期，一条色块就是一段机器周期。I1 是一条简单的寄存器传送指令，只有“取指 + 执行”，占 5 拍；I2 多了间址，占 8 拍；I3 在最后接了中断周期。三个指令周期长度不同，这正是流水线要面对的第一件事：如果每一拍都按最长的指令来定，短指令就亏了；如果按短指令定，长指令又做不完。
 
 \subsection{数据通路}
 
-\begin{mydef}{数据通路}{datapath}
-数据通路是 CPU 中执行单元（ALU、寄存器堆、多路选择器）和它们之间的互连总线。分为：
+从硬件看，CPU 分成运算器和控制器两块。运算器负责算，核心是 ALU、通用寄存器组、PSW 和暂存器 Y/Z；控制器负责发信号，核心是 PC、IR、指令译码器、时序部件和微操作信号发生器。PC、通用寄存器和 PSW 对程序员可见：通用寄存器可以直接读写，PC 通过转移指令改写，PSW 一般只有部分标志位可由程序读写；IR、MAR、MDR、Y、Z 对汇编程序透明，程序看不见它们。考试里问“哪些寄存器程序员可见”，考的就是这条分界线。
+
+数据通路由三样东西构成：能存数的部件（寄存器、存储器）、能算数的部件（ALU、加法器、移位器）、以及把数据从一个部件送到另一个部件的连线与选择器（总线、多路选择器）。按互连方式，常见三种：
+
 \begin{itemize}
-    \item \textbf{单总线结构}：所有部件共享一条内部总线，一个时钟周期只能传送一个数据。结构简单但速度慢。
-    \item \textbf{多总线结构}：多条总线并行传送，速度快但控制复杂。
-    \item \textbf{专用数据通路}：各部件之间有专用连接，并行度高但硬件代价大。
+  \item \textbf{单总线}：所有部件挂在一条内部总线上。一个时钟周期只能有一个数据在总线上跑，因此一条指令要拆成很多拍。
+  \item \textbf{多总线}：两条或三条总线并行传送，一拍能完成多个数据传送，速度快，但线多、驱动器多、芯片面积大。
+  \item \textbf{专用通路}：寄存器堆做成多端口，ALU 输入直接连寄存器输出，不再绕公共总线。现代 CPU 基本是这种结构。
 \end{itemize}
-\end{mydef}
 
-\subsection{控制器}
-
-\begin{conclusion}{硬布线控制器 vs 微程序控制器}{hardwire-microprogram}
-\begin{tablebox}{两种控制器对比}
-\centering
-\begin{tabular}{|l|c|c|}
-\hline
- & 硬布线控制器 & 微程序控制器 \\
-\hline
-实现方式 & 组合逻辑电路 & 微程序（控制存储器 CM）\\
-速度 & 快 & 较慢（需多次读 CM）\\
-可修改性 & 困难（需重新设计电路）& 容易（修改微程序）\\
-设计复杂度 & 复杂（需化简逻辑表达式）& 规整 \\
-典型应用 & RISC & CISC \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-\textbf{微程序控制器的核心概念：}
-\begin{itemize}
-    \item \textbf{微指令}：控制存储器中的一个字，控制一个时钟周期内的所有微操作。
-    \item \textbf{微程序}：实现一条机器指令的微指令序列。
-    \item \textbf{CM（控制存储器）}：存放全部微程序（通常在 CPU 内部 ROM）。
-    \item \textbf{$\mu$PC（微程序计数器）}：顺序执行微程序时 +1；遇到转移微指令时加载新地址。
-\end{itemize}
-\end{conclusion}
+先看单总线。图里上半部分是取指要用的部件，下半部分是执行要用的部件，中间那条粗线就是内部总线。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.0cm,minimum height=0.8cm,align=center] (mpc) at (-3.0,1.0){$\mu$PC\\微程序计数器};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.4cm,minimum height=1.0cm,align=center] (cm) at (-0.1,1.0){CM 控制存储器\\（存放微程序）};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.9cm,minimum height=0.8cm,align=center] (ins) at (3.1,1.0){微指令\\控制字段 | 判别 | 下地址};
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.4cm,minimum height=0.8cm,align=center] (ctl) at (6.2,1.0){微操作控制信号};
-  \draw[->] (mpc) -- (cm);
-  \draw[->] (cm) -- (ins);
-  \draw[->] (ins) -- (ctl);
-  \node[font=\scriptsize,black!70,align=center] at (1.4,-0.4){微指令的下地址字段决定下一条微指令（$\mu$PC）的取值；一条机器指令由一段微程序实现};
-\end{tikzpicture}
-\end{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  comp/.style={draw=RuleGray, fill=SoftBlue, rounded corners=1.5pt, align=center, inner sep=2pt},
+  reg/.style={draw=RuleGray, fill=SoftGray, rounded corners=1.5pt, align=center, inner sep=2pt}]
 
-\begin{conclusion}{微指令的编码方式}{microinstruction-encoding}
-\begin{itemize}
-    \item \textbf{直接编码}：微指令的每一位直接控制一个微操作。简单快速，但微指令字长过长。
-    \item \textbf{字段直接编码}：互斥的微操作放在同一字段，通过译码器选择。折中方案，408 常考。
-    \item \textbf{字段间接编码}：一个字段的含义由另一个字段的值决定。进一步缩短字长但译码更复杂。
-\end{itemize}
+  % 总线
+  \draw[line width=2.4pt, Navy!45] (-7.3,0) -- (7.3,0);
+  \node[anchor=south east, text=Navy, font=\scriptsize] at (7.3,0.02) {内部总线};
 
-\textbf{微指令格式：}
-\begin{itemize}
-    \item \textbf{水平型微指令}：一次能控制多个并行微操作，字长较长。
-    \item \textbf{垂直型微指令}：类似机器指令格式，一次只控制一个微操作，需多步完成一条机器指令。
-\end{itemize}
-\end{conclusion}
+  % 上方部件
+  \node[reg, minimum width=1.1cm, minimum height=0.55cm] (pc)  at (-6.3,1.25) {PC};
+  \node[reg, minimum width=1.1cm, minimum height=0.55cm] (mar) at (-4.4,1.25) {MAR};
+  \node[reg, minimum width=1.4cm, minimum height=0.55cm] (mdr) at (-1.6,1.25) {MDR};
+  \node[reg, minimum width=1.5cm, minimum height=0.55cm] (ir)  at (0.9,1.25) {IR};
+  \node[comp, minimum width=3.2cm, minimum height=1.1cm] (mem) at (-3.0,3.3) {主存};
+  \node[comp, minimum width=2.4cm, minimum height=1.1cm] (cu) at (3.9,1.6) {控制器\\（硬布线 / 微程序）};
 
-\subsection{指令流水线}
+  % 下方部件
+  \node[comp, minimum width=2.3cm, minimum height=1.0cm] (rf) at (-6.1,-1.35) {通用寄存器组\\（R0--Rn）};
+  \node[reg, minimum width=0.9cm, minimum height=0.55cm] (y) at (-3.1,-1.35) {Y};
+  \node[comp, minimum width=1.6cm, minimum height=1.2cm] (alu) at (-1.1,-1.45) {ALU};
+  \node[reg, minimum width=0.9cm, minimum height=0.55cm] (z) at (1.2,-1.35) {Z};
+  \node[comp, minimum width=1.4cm, minimum height=0.75cm] (psw) at (3.6,-1.35) {PSW};
 
-\begin{mydef}{流水线}{pipeline}
-将指令执行过程分解为多个子过程，每个子过程由独立的硬件部件完成。多条指令的不同阶段在时间上重叠执行，提高 CPU 吞吐率（非单条指令执行速度）。
-\end{mydef}
+  % 挂到总线
+  \foreach \b in {pc,mar,mdr,ir} { \draw[Navy!55] (\b.south) -- (\b.south |- 0,0); }
+  \foreach \b in {rf,y} { \draw[Navy!55] (\b.north) -- (\b.north |- 0,0); }
+  \draw[Navy!55] (alu.north) -- (alu.north |- 0,0);
 
-\begin{conclusion}{经典五级流水线}{five-stage-pipeline}
-\[
-\begin{aligned}
-&\text{IF（取指）}\to\text{ID（译码/读寄存器）}\to\text{EX（执行/计算地址）}\\
-&\hspace{7em}\to\text{MEM（访存）}\to\text{WB（写回）}
-\end{aligned}
-\]
+  % 主存连接
+  \draw[->, Navy!70] (mar.north) -- (mar.north |- mem.south)
+    node[midway,left,font=\tiny]{地址};
+  \draw[->, Navy!70] (mem.south -| mdr.north) -- (mdr.north)
+    node[midway,right,font=\tiny]{数据};
 
-\textbf{流水线性能指标：}
-\begin{itemize}
-    \item \textbf{吞吐率（TP）}：单位时间完成的指令数。理想情况 $TP = \dfrac{1}{\max\{T_i\}}$。
-    \item \textbf{加速比（S）}：$S = \dfrac{\text{非流水线执行时间}}{\text{流水线执行时间}}$。$k$ 段流水线执行 $n$ 条指令：$S = \dfrac{n \cdot k \cdot T}{k \cdot T + (n-1) \cdot T} = \dfrac{nk}{k+n-1}$（各段等长时间 $T$）。
-    \item \textbf{效率（E）}：$E = \dfrac{\text{时空图中有效面积}}{\text{总面积}}$。
-\end{itemize}
-\end{conclusion}
+  % 执行路径
+  \draw[->, Teal, thick] (y.east) -- (alu.west);
+  \draw[->, Teal, thick] (alu.east) -- (z.west);
+  \draw[->, dashed, Burgundy!70] (alu.south) -- ++(0,-0.45) -| (psw.south);
+  \draw[->, Amber, thick] (z.north) -- (z.north |- 0,0);
 
-\begin{center}
-\begin{tikzpicture}[>=stealth, scale=0.95]
-  % 4 条指令 I1..I4 的五级流水线时空图（对角错位 = 时间重叠）
-  \foreach \ins in {1,...,4}{
-    \node[left,font=\scriptsize] at (-0.18,\ins) {I\ins};
-    \foreach \st/\col/\letter in {1/Teal!50/IF,2/Navy!30/ID,3/Amber!45/EX,4/Teal!50/MEM,5/Navy!30/WB}{
-      \pgfmathsetmacro{\x}{(\ins-1+\st-1)*1.15}
-      \fill[\col,draw=black!30] (\x,{\ins-0.31}) rectangle (\x+1.15,{\ins+0.31});
-      \node[font=\scriptsize] at (\x+0.58,\ins) {\letter};
-    }
+  % 控制器
+  \draw[->, Navy!70] (ir.north) -- ++(0,0.6) -| (cu.north);
+  \node[font=\tiny, Navy] at (2.3,2.2) {操作码};
+  \draw[->, dashed, Burgundy!70] (cu.east) -- ++(0.6,0)
+    node[right,font=\tiny]{控制信号};
+
+  % 取指 / 执行路径编号
+  \draw[->, Teal, very thick] (-6.25,0.13) -- (-4.45,0.13);
+  \draw[->, Teal, very thick] (-1.55,0.13) -- (0.85,0.13);
+  \draw[->, Amber, very thick] (-4.9,-0.13) -- (-3.6,-0.13);
+  \foreach \n/\x/\y in {1/-5.35/0.30, 2/-1.98/2.05, 3/-0.35/0.30,
+                        4/-4.25/-0.32, 5/-0.22/-0.98, 6/1.55/-0.85} {
+    \node[circle, draw=RuleGray, fill=white, inner sep=0.9pt, font=\tiny] at (\x,\y) {\n};
   }
-  \node[font=\scriptsize,align=center] at (3.6,4.7){IF$\to$ID$\to$EX$\to$MEM$\to$WB（每段 $T$）};
+
+  % 图例
+  \node[font=\scriptsize, align=left, anchor=north west] at (-7.3,-2.75)
+    {(1) PC$\to$MAR \quad (2) M(MAR)$\to$MDR，PC$+\Delta$ \quad (3) MDR$\to$IR\\
+     (4) R2$\to$Y \quad (5) (R1)+(Y)$\to$Z \quad (6) Z$\to$总线$\to$R1};
 \end{tikzpicture}
 \end{center}
 
-\subsection{流水线冒险（Hazard）}
+读图时先看编号：1 到 3 是取指，4 到 6 是执行；粗线是内部总线，虚线是控制信号。编号与下面的节拍一一对应。
 
-\begin{conclusion}{三种流水线冒险}{pipeline-hazards}
-\begin{enumerate}
-    \item \textbf{结构冒险（Structural Hazard）}：硬件资源冲突——多条指令同时访问同一功能部件（如单端口存储器）。\textbf{解决：}增加硬件资源（如指令 Cache 与数据 Cache 分离）、流水化功能部件。
-    
-    \item \textbf{数据冒险（Data Hazard）}：指令间存在数据依赖。类型：
-    \begin{itemize}
-        \item \textbf{RAW（写后读）}：I1 写入后 I2 才读，但 I2 在 I1 写入前就进入读阶段。
-        \item \textbf{WAW（写后写）}：两条指令写同一位置，顺序错。
-        \item \textbf{WAR（读后写）}：I2 在 I1 读之前就写入。
-    \end{itemize}
-    \textbf{解决：}
-    \begin{itemize}
-        \item \textbf{转发/旁路（Forwarding/Bypassing）}：将 ALU 结果直接从 EX/MEM 流水线寄存器「转发」回 EX 阶段输入，无需等 WB 写回。可解决大部分 RAW。
-        \item \textbf{阻塞/气泡（Stall/Bubble）}：硬件插入空操作周期。LW 指令后紧跟使用该数据的指令时，即使转发也需阻塞 1 个周期（Load-use Hazard）。
-        \item \textbf{编译器调度}：重排指令顺序以消除依赖。
-    \end{itemize}
-    
-    \item \textbf{控制冒险（Control Hazard）}：分支/跳转指令导致 PC 值不确定。\textbf{解决：}
-    \begin{itemize}
-        \item \textbf{分支预测}：静态预测（总是预测不跳转）、动态预测（基于历史的分支预测缓冲器 BHT/BTB）。
-        \item \textbf{延迟分支}：在分支指令后插入不受影响的指令（延迟槽）。
-    \end{itemize}
-\end{enumerate}
-\end{conclusion}
+\newpage
+以 \texttt{ADD R1, R2}（功能是 $R1\leftarrow R1+R2$）为例，单总线要拆成六拍（表中 $\Delta$ 为指令长度）：
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % ===== ① 结构冒险 =====
-  \node[draw,rounded corners=3pt,fill=SoftGray,minimum width=4.8cm,minimum height=4.4cm] at (-5.3,2.2){};
-  \node[font=\scriptsize\bfseries,text=Navy] at (-5.3,4.0){(1) 结构冒险（资源冲突）};
-  \node[font=\scriptsize,align=center,text width=4.3cm] at (-5.3,3.35){多条指令同时访问同一功能部件（如单端口存储器）};
-  \node[draw,fill=SoftAmber,minimum width=1.4cm,minimum height=0.5cm] (a1) at (-6.6,2.5){I1};
-  \node[draw,fill=SoftAmber,minimum width=1.4cm,minimum height=0.5cm] (a2) at (-6.6,1.8){I2};
-  \node[draw,fill=SoftTeal,minimum width=1.8cm,minimum height=0.6cm,align=center] (r1) at (-4.55,2.15){访存部件\\（单端口）};
-  \draw[->,Burgundy!80] (a1.east) -- (r1.west);
-  \draw[->,Burgundy!80] (a2.east) -- (r1.west);
-  \node[font=\tiny,Burgundy!90] at (-4.55,2.93){同一周期冲突};
-  \node[font=\scriptsize,text=TealDark,align=center,text width=4.3cm] at (-5.3,0.8){解决：指令/数据 Cache 分离；功能部件流水化};
-
-  % ===== ② 数据冒险（RAW）=====
-  \node[draw,rounded corners=3pt,fill=SoftGray,minimum width=4.8cm,minimum height=4.4cm] at (0,2.2){};
-  \node[font=\scriptsize\bfseries,text=Navy] at (0,4.0){(2) 数据冒险（RAW 写后读）};
-  \node[font=\scriptsize,align=center,text width=4.3cm] at (0,3.35){I2 在 I1 写入 R1 之前就读 R1（写后读）};
-  \node[draw,fill=SoftAmber,minimum width=3.7cm,minimum height=0.55cm,align=center] (b1) at (0,2.5){I1: add R1,R2,R3（WB 写 R1）};
-  \node[draw,fill=SoftGray,minimum width=3.7cm,minimum height=0.55cm,align=center] (b2) at (0,1.55){I2: sub R4,R1,R5（ID 读 R1）};
-  \draw[->,Burgundy!80] (b1.south) -- (b2.north);
-  \node[font=\tiny,Burgundy!90] at (0,2.02){过早读};
-  \node[font=\scriptsize,text=TealDark,align=center,text width=4.3cm] at (0,0.8){解决：转发/旁路；Load-use 阻塞；编译调度};
-
-  % ===== (3) 控制冒险（分支）=====
-  \node[draw,rounded corners=3pt,fill=SoftGray,minimum width=4.8cm,minimum height=4.4cm] at (5.3,2.2){};
-  \node[font=\scriptsize\bfseries,text=Navy] at (5.3,4.0){(3) 控制冒险（分支）};
-  \node[font=\scriptsize,align=center,text width=4.3cm] at (5.3,3.35){分支指令使下一条指令的 PC 在判定前未知};
-  \node[draw,fill=SoftAmber,minimum width=2.1cm,minimum height=0.55cm,align=center] (c1) at (3.9,2.15){beq（分支）};
-  \node[draw,fill=SoftGray,minimum width=2.1cm,minimum height=0.55cm,align=center] (c2) at (6.4,2.15){下一条指令};
-  \draw[dashed,->,Burgundy!80] (c1.east) -- (c2.west);
-  \node[font=\tiny,Burgundy!90] at (5.15,2.62){PC 未知};
-  \node[font=\scriptsize,text=TealDark,align=center,text width=4.3cm] at (5.3,0.8){解决：分支预测（静态/动态 BHT）；延迟分支};
-\end{tikzpicture}
+\begin{tabular}{@{}clll@{}}
+\toprule
+节拍 & 微操作 & 有效控制信号 & 说明 \\
+\midrule
+$T_0$ & PC$\to$MAR & PCout, MARin & 送出指令地址 \\
+$T_1$ & M(MAR)$\to$MDR，PC$+\Delta$ & MemRead, MDRin, PC$+\Delta$ & 读指令，同时指向下一条 \\
+$T_2$ & MDR$\to$IR & MDRout, IRin & 指令进入指令寄存器 \\
+$T_3$ & R2$\to$Y & R2out, Yin & 先锁存一个操作数 \\
+$T_4$ & (R1)+(Y)$\to$Z & R1out, ALUadd, Zin & 另一个操作数经总线到 ALU \\
+$T_5$ & Z$\to$R1 & Zout, R1in & 结果写回 \\
+\bottomrule
+\end{tabular}
 \end{center}
 
 \begin{attention}
-\textbf{408 最常考的数据冒险场景：} 
-\begin{enumerate}
-    \item 相邻 RAW：\texttt{add R1,R2,R3; sub R4,R1,R5} — 可通过转发解决（无需阻塞）。
-    \item Load-use：\texttt{lw R1,0(R2); add R3,R1,R4} — 必须阻塞 1 个周期（转发不够，数据在 MEM 阶段才就绪）。
-\end{enumerate}
+不同教材对“取指占几拍”的约定并不一致。常见写法把 PC 加一和访存放在同一拍，前提是 PC 自带加一逻辑；如果题给的数据通路里 PC 只能经 ALU 加一，就必须单独占用一拍。做数据通路题时以题图为准，不要背拍数。
 \end{attention}
 
-\subsection{多核处理器基本概念}
+为什么非要 Y 和 Z？因为总线一拍只能送一个数，而 ALU 做加法必须同时拿到两个操作数。做法是先把 R2 锁进 Y，下一拍让 R1 上总线，ALU 的两个输入就都齐了。结果也不能直接写回寄存器堆：它要先锁进 Z，下一拍才能重新驱动总线。Y 是“操作数暂存”，Z 是“结果暂存”，两个都不是程序员能看见的寄存器。
 
-\begin{mydef}{多核处理器}{multi-core}
-在一个芯片上集成多个处理器核心（Core），各核心共享最后一级 Cache 和主存，通过片内互连通信。多核实现的是真正的\textbf{并行}（不是并发）。
+访存指令更长。\texttt{lw R1, 0(R2)} 在执行段要先算地址：R2$\to$Y，(Y)+0$\to$Z，Z$\to$MAR 并发读命令，M(MAR)$\to$MDR，MDR$\to$R1，这一串是五拍；加上取指的三拍，一共八拍。\texttt{sw} 还要先把要写的数据读出来，拍数只多不少。单总线 CPU 的 CPI 很大，主频再高也快不起来，这就是后来要改多总线、改专用通路、再上流水线的直接原因。
 
-\textbf{408 了解即可：} SISD/SIMD/MIMD（Flynn 分类法）、共享 Cache 的一致性协议（MESI 协议基本思想）、Amdahl 定律（加速比上限由不可并行部分决定）。
-\end{mydef}
+多总线的好处可以用一句话概括：把“一拍只能走一个数”的限制放宽。双总线下一拍能同时送两个操作数，三总线还能同时送回结果；如果寄存器堆本身有两个读口一个写口，一条寄存器型指令在 EX 段一拍就能算完。代价是每条总线都要一套驱动器和仲裁，芯片面积、功耗、布线都上去了。
 
-\subsection{408 高频考点速查}
+把这些部件按“一条指令一拍走完”的方式连起来，就是\textbf{单周期数据通路}。取指、译码、执行、访存、写回全在一个时钟周期内完成，CPI 恒为 1。代价是时钟周期必须按最慢的指令（通常是 load）来定，简单的寄存器运算也得陪着等；而且取指和访存如果共用一个存储器，会在同一拍打架，所以单周期 CPU 通常把指令存储器和数据存储器分开。\textbf{多周期}实现把一条指令拆成几个短周期，部件可以复用，时钟周期短了，但 CPI 大于 1。408 的选择题常在这两种组织的 CPI、时钟周期和硬件复用上做对比。
 
-\begin{conclusion}{CPU — 408 常考点}{co5-keypoints}
-\begin{enumerate}
-    \item \textbf{数据通路分析}：给定 CPU 结构图，分析指令执行过程中各周期的数据流动。
-    \item \textbf{流水线性能计算}：吞吐率、加速比、效率的公式和套用。
-    \item \textbf{流水线冒险}：特别是数据冒险（RAW/WAW/WAR）的判别和转发/阻塞方案的时钟周期计算。
-    \item \textbf{微程序控制器}：微指令的编码方式、CM 容量计算、$\mu$PC 的工作过程。
-    \item \textbf{CISC/RISC 在流水线实现上的差异}。
-\end{enumerate}
-\end{conclusion}
+\subsection{控制器}
+
+控制器干两件事：一是决定“这一拍做哪个微操作”，二是把对应的控制信号发出去。前者是时序问题，后者是逻辑问题。按实现方式分硬布线和微程序两类。
 
 \newpage
-\section{习题}
+\subsubsection{硬布线控制器}
 
-\subsection{基础过关题}
+硬布线控制器把控制信号写成指令译码信号、节拍信号和状态标志的组合逻辑函数。比如取指阶段：
 
-\begin{enumerate}
+\[
+\begin{gathered}
+PC_{out}=FE\cdot T_0,\quad MAR_{in}=FE\cdot T_0,\\
+MDR_{out}=FE\cdot T_2,\quad IR_{in}=FE\cdot T_2.
+\end{gathered}
+\]
 
-\item \textbf{（真题风格·选择题）} 下列关于指令流水线设计方法的说法中，\textbf{错误}的是
+其中 $FE$ 是取指周期标志，$T_i$ 是第 $i$ 拍。执行阶段的信号再按操作码分叉，例如
+\mbox{$R1_{in}=ADD\cdot T_5$}。这些乘积项用与门实现，同一信号的各个来源用或门汇总，所以叫“硬布线”。如果指令多、寻址方式多，逻辑表达式会非常庞杂，化简和改版都很痛苦；但它的速度快，信号只经过几级门延迟。RISC 处理器普遍采用硬布线，或者硬布线加少量微码。
+
+硬布线控制器还需要一个节拍发生器：从时钟出发，产生 $T_0,T_1,\dots$，并按指令类型选择节拍序列。取指阶段所有指令共用同一套节拍；进入执行阶段后，不同指令走不同的分支。遇到中断请求，则在指令结束时插入中断周期。
+
+\subsubsection{微程序控制器}
+
+微程序控制器换了一个思路：把每条机器指令要做的微操作编成一段“微程序”，存进控制存储器（CM），执行时一条一条读出来。几个术语要分清：
+
+\begin{itemize}
+  \item \textbf{微命令}：一个控制信号，比如“PC 打入 MAR”。
+  \item \textbf{微操作}：一个不可再分的数据传送或运算，可能需要多个微命令同时有效。
+  \item \textbf{微指令}：一个时钟周期内执行的一组微命令，外加下地址信息和判别信息。
+  \item \textbf{微程序}：实现一条机器指令的微指令序列。
+\end{itemize}
+
+一条微指令通常分三个字段：控制字段（放微命令的编码）、判别测试字段（选择条件转移）、下地址字段（给出后继微指令地址）。控制字段可以再分成若干互斥的小字段，每个小字段经译码后产生一组微命令。
+
 \begin{center}
-\begin{tabular}{ll}
-(A) 指令流水线可以提高 CPU 的吞吐率 \\[6pt]
-(B) 指令流水线可以提高单条指令的执行速度 \\[6pt]
-(C) 指令流水线不能提高单条指令的执行速度 \\[6pt]
-(D) 指令流水线可能会增加指令的执行时间
-\end{tabular}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, scale=1.12,
+  comp/.style={draw=RuleGray, fill=SoftBlue, rounded corners=1.5pt, align=center, inner sep=2pt},
+  reg/.style={draw=RuleGray, fill=SoftGray, rounded corners=1.5pt, align=center, inner sep=2pt}]
+
+  % 结构
+  \node[reg, minimum width=1.5cm, minimum height=0.6cm] (mpc) at (-6.1,1.2) {$\mu$PC};
+  \node[comp, minimum width=1.9cm, minimum height=1.0cm] (cm) at (-3.6,1.2) {CM\\控制存储器};
+  \node[comp, minimum width=4.2cm, minimum height=0.8cm] (mir) at (0.3,1.2) {微指令寄存器};
+  \node[comp, minimum width=2.0cm, minimum height=0.8cm] (dec) at (3.9,1.2) {控制字段译码};
+  \node[reg, minimum width=2.6cm, minimum height=0.8cm] (maf) at (-5.2,-0.8) {微地址形成部件};
+  \node[comp, minimum width=2.2cm, minimum height=0.55cm] (flags) at (-6.4,-2.2) {状态标志};
+
+  \draw[->] (mpc) -- (cm);
+  \draw[->] (cm) -- (mir);
+  \draw[->] (mir) -- (dec);
+  \draw[->] (dec) -- ++(1.2,0) node[right,font=\tiny]{微命令};
+
+  % 下地址 / 判别反馈
+  \draw[->, Navy!70] (mir.south) -- ++(0,-1.6) -| (maf.east);
+  \node[font=\tiny,Navy] at (-1.7,-0.62) {下地址 / 判别字段};
+
+  % 微地址形成 -> μPC
+  \draw[->, Navy!70] (maf.north) -- ++(0,0.55) -| (mpc.south);
+
+  % 状态标志 -> 微地址形成
+  \draw[->] (flags.north) -- ++(0,0.4) -| (maf.south);
+
+  % 微指令格式
+  \draw[fill=SoftGray,draw=RuleGray] (-5.4,-3.25) rectangle (5.4,-2.75);
+  \foreach \x in {-3.85,-2.3,-0.75,0.8,2.2} {
+    \draw[RuleGray] (\x,-3.25) -- (\x,-2.75);
+  }
+  \foreach \x/\lab in {-4.625/1,-3.075/2,-1.525/3,0.025/4} {
+    \node[font=\tiny] at (\x,-3.0) {字段\lab};
+  }
+  \node[font=\tiny] at (1.5,-3.0) {判别};
+  \node[font=\tiny] at (3.8,-3.0) {下地址};
+
+  \node[font=\tiny, anchor=north] at (-4.6,-3.32) {4 个互斥字段（控制字段）};
+  \node[font=\tiny, anchor=north] at (1.5,-3.32) {测试};
+  \node[font=\tiny, anchor=north] at (3.8,-3.32) {后继地址};
+\end{tikzpicture}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(B)
+图的上半部分画的是执行一条微指令的路径：$\mu$PC 给出地址，从 CM 读出微指令送进微指令寄存器；控制字段经译码变成微命令，判别字段和下地址字段送回微地址形成部件，决定下一条微指令从哪里取。下半部分是微指令的位域划分（图中示例把控制字段切成四段）：每段内部的编码只在段内有效，段与段之间可以并行译码。
 
-\textbf{解析：} 流水线通过指令间重叠执行提高吞吐率（单位时间完成的指令数），但单条指令的执行时间（latency）不会缩短——流水段寄存器引入的额外开销甚至可能使单条指令延迟略有增加。选项 (C) 正确，(D) 正确（流水段寄存器带来额外时延）。\else \answerarea \fi
+“互斥”是字段直接编码的关键。同一段里的微命令不会同时需要，所以可以用一个译码器从 $m$ 位编码中选一个；如果字段有 $m$ 位，最多能表示 $2^m$ 个微命令，但通常要留一个编码表示“本段不产生任何微命令”，因此实际最多 $2^m-1$ 个。直接编码则是一位对一个微命令，速度最快，字长也最长；字段间接编码再省一些位，但要多一级译码，速度更慢。
 
-\item \textbf{（真题风格·选择题）} 下列有关指令流水线的叙述中，\textbf{错误}的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 流水段寄存器会增加单条指令的执行时间 \\[6pt]
-(B) 数据冒险可以通过转发技术解决 \\[6pt]
-(C) 控制冒险可以通过分支预测来缓解 \\[6pt]
-(D) 指令流水线可以消除结构冒险
+微指令的格式还分水平型和垂直型。水平型一条微指令能并行控制很多微操作，字长大、微程序短；垂直型更像机器指令，一条只做一两个微操作，字长小、微程序长。实际处理器多用混合型。
+
+控制存储器的容量计算有两个容易混的口径：CM 的字数由微程序地址位数决定，若 $\mu$PC 有 $p$ 位，最多 $2^p$ 条微指令；总容量再乘微指令字长。下地址字段有 $n$ 位，只说明一条微指令能直接给出的地址范围是 $2^n$，不等于 CM 一定有那么大。取指微程序通常是所有机器指令共享的公共段，计算能容纳多少条机器指令时，要先把这段公共开销扣掉。
+
+\begin{tablebox}{硬布线与微程序控制器的对比}
+\centering
+\begin{tabular}{@{}p{2.6cm}p{5.2cm}p{5.2cm}@{}}
+\toprule
+ & 硬布线 & 微程序 \\
+\midrule
+控制信号来源 & 组合逻辑（门电路、PLA）直接产生 & 从 CM 读出微指令，译码后产生 \\
+速度 & 快，几级门延迟 & 较慢，受 CM 访问时间限制 \\
+修改与扩展 & 改指令就要改电路 & 改微程序即可，较规整 \\
+适用 & RISC、指令少而规整 & CISC、指令多而复杂 \\
+\bottomrule
 \end{tabular}
+\end{tablebox}
+
+\subsection{流水线}
+
+单周期 CPU 一条指令一个长周期，周期长度等于最慢那条路径的延迟；多周期 CPU 把指令拆成几段，每段一拍，但同一时刻只有一条指令在跑。流水线把这两件事结合起来：既把指令拆段，又让不同指令的不同段重叠。
+
+按流水对象分，流水线可以是部件级（如浮点运算流水线）、处理机级（指令流水线）或处理机间（宏流水线）；按发射方式分，又有超标量、超流水线和超长指令字。这一节只讨论最基础的处理机级指令流水线。
+
+经典五级流水线把指令执行分成五段：
+
+\begin{itemize}
+  \item \textbf{IF}：取指。PC 送指令存储器，指令进 IR，PC 更新。
+  \item \textbf{ID}：译码，读寄存器堆，生成立即数；同时做冒险检测。
+  \item \textbf{EX}：ALU 运算、计算访存地址、比较分支条件。
+  \item \textbf{MEM}：访存。load 读数据，store 写数据；其他指令空过。
+  \item \textbf{WB}：把结果写回寄存器堆。
+\end{itemize}
+
+每段之间放一个流水段寄存器（IF/ID、ID/EX、EX/MEM、MEM/WB），把上一段的输出锁住，供下一拍使用。时钟周期由最慢的一段加上寄存器开销决定：
+
+\[
+T=\max_i\{d_i\}+t_{\text{reg}},
+\]
+
+其中 $d_i$ 是第 $i$ 段组合逻辑延迟，$t_{\text{reg}}$ 是段寄存器的建立时间、保持时间和时钟偏斜之和。各段延迟越均匀，$T$ 越接近平均值，流水线越划算；某一段特别慢，其他段都得等它。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1cm, y=1cm]
+
+  % ===== (a) 单周期 =====
+  \node[font=\scriptsize\bfseries, text=Navy, anchor=west] at (-6.8,8.0)
+    {(a) 单周期：一条指令占一个长周期，资源不重叠};
+  \foreach \i/\y in {1/6.95,2/6.15,3/5.35} {
+    \fill[Teal!18,draw=Teal!45] ({-6.6+(\i-1)*4.4},\y-0.3) rectangle ({-6.6+\i*4.4},\y+0.3);
+    \node[font=\tiny] at ({-6.6+(\i-1)*4.4+2.2},\y)
+      {I\i：IF$\to$ID$\to$EX$\to$MEM$\to$WB};
+  }
+  \foreach \x in {-2.2,2.2} {
+    \draw[dashed,RuleGray] (\x,4.95) -- (\x,7.35);
+  }
+  \draw[<->,Navy!65] (-6.6,7.4) -- (-2.2,7.4)
+    node[midway,above,font=\tiny]{一个时钟周期 $=5t$};
+  \draw[->] (-6.8,4.55) -- (7.0,4.55) node[right,font=\tiny]{时间};
+  \foreach \x/\lab in {-6.6/0,-2.2/5t,2.2/10t,6.6/15t} {
+    \draw[RuleGray] (\x,4.55) -- (\x,4.43);
+    \node[below,font=\tiny,MutedText] at (\x,4.43) {\lab};
+  }
+
+  % ===== (b) 流水线 =====
+  \node[font=\scriptsize\bfseries, text=Navy, anchor=west] at (-6.8,3.40)
+    {(b) 五级流水线：每段一拍，指令重叠};
+
+  % 结构冒险的列底纹
+  \fill[Burgundy!7] ({-4.5+4*0.95},2.77) rectangle ({-4.5+5*0.95},-0.43);
+
+  % 列标号
+  \foreach \c in {1,...,9} {
+    \node[font=\tiny,MutedText] at ({-4.5+(\c-0.5)*0.95},2.95) {c\c};
+  }
+
+  % 指令行与单元
+  \foreach \i in {1,...,5} {
+    \node[font=\tiny, anchor=east] at (-4.65,{2.60-(\i-1)*0.7}) {I\i};
+    \foreach \s in {1,...,5} {
+      \pgfmathtruncatemacro{\col}{\i+\s-1}
+      \pgfmathtruncatemacro{\sn}{\s}
+      \pgfmathsetmacro{\xc}{-4.5+(\col-0.5)*0.95}
+      \pgfmathsetmacro{\yc}{2.60-(\i-1)*0.7}
+      \ifcase\sn
+      \or \def\cellcol{Teal!22}\def\celltext{IF}
+      \or \def\cellcol{Navy!12}\def\celltext{ID}
+      \or \def\cellcol{Amber!25}\def\celltext{EX}
+      \or \def\cellcol{Burgundy!16}\def\celltext{MEM}
+      \or \def\cellcol{SoftGray}\def\celltext{WB}
+      \fi
+      \fill[\cellcol,draw=RuleGray] ({\xc-0.45},{\yc-0.21}) rectangle ({\xc+0.45},{\yc+0.21});
+      \node[font=\tiny] at (\xc,\yc) {\celltext};
+    }
+  }
+
+  % 结构冒险标注
+  \draw[Burgundy, dashed, thick] ({-4.5+4*0.95},2.77) rectangle ({-4.5+5*0.95},-0.43);
+  \node[font=\tiny, Burgundy, align=left, anchor=west] at (1.0,3.45)
+    {c5：I5 的 IF 与 I2 的 MEM\\同时访问存储器（结构冒险）};
+
+  % 时间轴
+  \draw[->] (-4.7,-0.75) -- (4.3,-0.75) node[right,font=\tiny]{时间（拍）};
+  \foreach \c in {1,...,9} {
+    \draw[RuleGray] ({-4.5+\c*0.95},-0.75) -- ({-4.5+\c*0.95},-0.87);
+  }
+\end{tikzpicture}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(D)
+上半部分把“单周期”画成三个长条：I1 的五个阶段在一个时钟周期内依次走完，然后才轮到 I2，横向占 $5t$。下半部分把同样的五段拆到五个短拍里：I1 在第 1 拍取指，第 2 拍译码，此时 I2 正好进来取指。等到第 5 拍，五条指令分别处在五个不同的段，流水线满载，此后每拍完成一条。填满阶段要 $5$ 拍，排空还要 $4$ 拍，所以 $n$ 条指令的总时间不是 $n$ 拍，而是 $n+4$ 拍。
 
-\textbf{解析：} 结构冒险是由硬件资源冲突引起的（如单端口存储器同时被取指和访存争用），解决手段是增加硬件资源（如分离指令 Cache 和数据 Cache），而非流水线本身能够消除的。转发（forwarding）可解决多数 RAW 数据冒险，分支预测可缓解控制冒险。\else \answerarea \fi
+图里还标了一个结构冒险：第 5 拍 I5 在取指、I2 在访存，如果指令和数据共用一个存储器，两者就要抢端口。解决办法是把指令 Cache 和数据 Cache 分开，或者在取指端加指令缓冲。
 
-\item \textbf{（真题风格·选择题）} 在经典五级顺序流水线（IF、ID、EX、MEM、WB）中，假定已配置常规的 EX/MEM、MEM/WB 转发通路，以下哪种紧邻的数据相关仍需要通过阻塞（插入气泡）解决？
+设流水线有 $k$ 段，各段等长，每段组合逻辑时间为 $t$，段寄存器开销为 $t_r$，时钟周期 $T=t+t_r$。执行 $n$ 条指令：
+
+\[
+T_{\text{pipe}}=(k+n-1)T,
+\qquad
+T_{\text{seq}}=nkt,
+\qquad
+S=\frac{T_{\text{seq}}}{T_{\text{pipe}}}=\frac{nkt}{(k+n-1)T}.
+\]
+
+吞吐率是单位时间完成的指令数：
+
+\[
+TP=\frac{n}{T_{\text{pipe}}}=\frac{n}{(k+n-1)T},
+\qquad
+TP_{\max}=\frac{1}{T}.
+\]
+
+效率是时空图中“有效面积”占“总面积”的比例。每条指令真正干活的时间是 $kt$，占用的时空区是 $kT$，于是
+
+\[
+E=\frac{nkt}{k(k+n-1)T}=\frac{nt}{(k+n-1)T}=\frac{S}{k}.
+\]
+
+如果忽略段寄存器开销，即 $T=t$，三式简化为
+
+\[
+S=\frac{nk}{k+n-1},\qquad
+TP=\frac{n}{(k+n-1)t},\qquad
+E=\frac{n}{k+n-1}.
+\]
+
+这时 $n\to\infty$ 有 $S\to k$、$E\to1$。考虑 $t_r$ 后，加速比的上限变成 $kt/T=k/(1+t_r/t)$，效率的上限是 $t/T$，都达不到理想值。流水级数不是越深越好：段数增加，时钟可以更快，但寄存器开销占比变大，冒险的惩罚拍数也变多。
+
 \begin{center}
-\begin{tabular}{ll}
-(A) 相邻两条 ALU 指令之间的 RAW 冒险 \\[6pt]
-(B) Load 指令与其后紧跟的 ALU 指令之间的 RAW 冒险 \\[6pt]
-(C) 两条 ALU 指令之间的 WAR 冒险 \\[6pt]
-(D) 两条 ALU 指令之间的 WAW 冒险
-\end{tabular}
+\begin{tikzpicture}
+\begin{axis}[
+  width=11cm, height=6.2cm,
+  xlabel={指令条数 $n$}, ylabel={比值},
+  xmin=0, xmax=30, ymin=0, ymax=5.6,
+  domain=1:30, samples=80,
+  axis lines=left,
+  legend style={at={(0.98,0.36)}, anchor=east, draw=RuleGray, font=\scriptsize,
+                fill=white, fill opacity=0.9, text opacity=1},
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  grid=major, grid style={RuleGray!45},
+]
+\addplot[Teal, thick] {5*x/(x+4)};
+\addlegendentry{$S=\dfrac{5n}{n+4}$}
+\addplot[Amber, thick, dashed] {x/(x+4)};
+\addlegendentry{$E=\dfrac{n}{n+4}$}
+\addplot[Navy, dotted, thick, domain=0:30] {5};
+\addlegendentry{$S$ 的上界 $k=5$}
+\end{axis}
+\end{tikzpicture}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(B)
+曲线按 $k=5$、忽略段寄存器开销的理想情况画出。$n$ 很小时加速比低，因为填满流水线的前 $k$ 拍几乎没产出；$n$ 增大后 $S$ 从下方逼近 $k$，效率从下方逼近 1。图中 $n=5$ 时 $S=25/9\approx2.78$，只发挥了约一半的潜力，这说明流水线适合长指令流，不适合几条指令就结束的程序。
 
-\textbf{解析：} 相邻 ALU 指令间的 RAW 可通过转发完全解决——结果在 EX 阶段就绪即可转发到下一拍的 EX 输入。(C)(D) WAR 和 WAW 在经典五级流水线中不会发生（按序写回，且读在写之前）。Load-use 冒险中，lw 的数据在 MEM 阶段才就绪，即使转发也只能送到下一拍的 EX 阶段，因此紧跟的 ALU 指令必须阻塞 1 个周期。\else \answerarea \fi
+\begin{attention}
+流水线提高的是吞吐率，不是单条指令的延迟。实际上因为多了段寄存器，单条指令从进入到离开的时间还略微变长。做题时先看清问的是“执行 $n$ 条指令的总时间”“吞吐率”还是“单条指令延迟”，三者用的公式不同。
+\end{attention}
 
-\item \textbf{（真题风格·选择题）} 以下关于流水线冒险的说法，\textbf{正确}的是
+\subsection{数据冒险与转发}
+
+流水线里，后面的指令可能要用前面指令还没写回的结果，这就是\textbf{数据冒险}。按依赖方向分三种：
+
+\begin{itemize}
+  \item \textbf{RAW}（写后读，真依赖）：I1 写 R1，I2 读 R1。I2 必须等 I1 的结果。
+  \item \textbf{WAR}（读后写，反依赖）：I1 读 R1，I2 写 R1。I1 必须先读到旧值。
+  \item \textbf{WAW}（写后写，输出依赖）：I1、I2 都写 R1，最终必须是 I2 的值。
+\end{itemize}
+
+在按序流动的五级流水线里，读寄存器固定在 ID 段，写寄存器固定在 WB 段，指令又按序推进，所以 WAR 和 WAW 都不会发生：前面的读一定在后面的写之前，前面的写也一定在后面的写之前。只有 RAW 会出问题。WAR 和 WAW 出现在乱序执行、超标量或不同延迟的功能部件之间，靠寄存器重命名消除。
+
+先看两条相邻的 ALU 指令：
+
 \begin{center}
-\begin{tabular}{ll}
-(A) 结构冒险是由于多条指令存在数据依赖引起的 \\[6pt]
-(B) 数据冒险中，WAR 和 WAW 在五级流水线中不会发生 \\[6pt]
-(C) 分支预测可以彻底消除控制冒险 \\[6pt]
-(D) 所有数据冒险都可以通过转发技术消除，无需阻塞
-\end{tabular}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1.3cm, y=1.0cm]
+  \foreach \c in {1,...,6} {
+    \node[font=\tiny,MutedText] at ({\c-0.5},2.85) {c\c};
+  }
+  \node[font=\tiny, anchor=east] at (-0.1,1.95) {I1: add R1,R2,R3};
+  \node[font=\tiny, anchor=east] at (-0.1,0.95) {I2: sub R4,R1,R5};
+
+  % I1
+  \fill[Teal!22,draw=RuleGray] (0,1.67) rectangle (1,2.23);   \node[font=\tiny] at (0.5,1.95){IF};
+  \fill[Navy!12,draw=RuleGray] (1,1.67) rectangle (2,2.23);   \node[font=\tiny] at (1.5,1.95){ID};
+  \fill[Amber!25,draw=RuleGray] (2,1.67) rectangle (3,2.23);  \node[font=\tiny] at (2.5,1.95){EX};
+  \fill[Burgundy!16,draw=RuleGray] (3,1.67) rectangle (4,2.23);\node[font=\tiny] at (3.5,1.95){MEM};
+  \fill[SoftGray,draw=RuleGray] (4,1.67) rectangle (5,2.23);  \node[font=\tiny] at (4.5,1.95){WB};
+
+  % I2
+  \fill[Teal!22,draw=RuleGray] (1,0.67) rectangle (2,1.23);   \node[font=\tiny] at (1.5,0.95){IF};
+  \fill[Navy!12,draw=Burgundy,thick] (2,0.67) rectangle (3,1.23); \node[font=\tiny] at (2.5,0.95){ID};
+  \fill[Amber!25,draw=RuleGray] (3,0.67) rectangle (4,1.23);  \node[font=\tiny] at (3.5,0.95){EX};
+  \fill[Burgundy!16,draw=RuleGray] (4,0.67) rectangle (5,1.23);\node[font=\tiny] at (4.5,0.95){MEM};
+  \fill[SoftGray,draw=RuleGray] (5,0.67) rectangle (6,1.23);  \node[font=\tiny] at (5.5,0.95){WB};
+
+  % 转发路径
+  \draw[->, Teal, thick] (3,2.23) -- (3,2.62) -- (3.5,2.62) -- (3.5,1.25);
+
+  % 标注
+  \node[font=\tiny, Burgundy] at (2.5,0.45) {读到旧 R1};
+  \node[font=\tiny, MutedText] at (4.5,2.42) {c5 才写回};
+\end{tikzpicture}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(B)
+I1 在 c3 的 EX 段末尾算出结果，放进 EX/MEM 寄存器；I2 在 c4 的 EX 段一开头就要用这个结果。转发通路把 EX/MEM 的值直接接到 ALU 的输入端，I2 就不必等 I1 到 c5 写回。注意 I2 在 c3 的 ID 段确实读到的是旧值，但这个旧值在 c4 进 ALU 之前会被多路选择器替换掉，所以不影响结果。
 
-\textbf{解析：} (A) 结构冒险由硬件资源冲突引起，与数据依赖无关。(B) 经典五级流水线按序发射、按序写回，写操作都在 WB 段且只需 1 拍，故 WAR 和 WAW 不可能发生；若引入乱序执行则可能出现。(C) 分支预测只能缓解、不能「彻底」消除控制冒险。(D) Load-use 冒险即使用转发也需阻塞 1 拍。\else \answerarea \fi
+转发不是“把值写回寄存器堆再读出来”，而是在 EX 段入口加一组多路选择器，直接把流水段寄存器里的结果接过来。需要判断三种情况：
 
-\item \textbf{（微程序控制器计算题）} 某微程序控制器的控制存储器（CM）容量为 $256\times 32$ 位（$256$ 个微指令字，每字 $32$ 位）。微操作控制字段采用直接编码，其中下地址字段占 $8$ 位，判别测试字段占 $3$ 位，其余位每位直接对应一个微操作控制信号。试回答：
-\begin{enumerate}
-    \item[(1)] 该微程序控制器最多可控制多少个微操作信号？
-    \item[(2)] 假定 256 个字均可用于各机器指令的专属微程序，每条机器指令固定占用 $5$ 条微指令，不另计共享的取指微程序，则最多可支持多少条机器指令？
-\end{enumerate}
+{\small
+\[
+\begin{aligned}
+\text{转发 A} &=
+\begin{cases}
+\text{EX/MEM}, & \text{EX/MEM.RegWrite}\land \lnot\text{EX/MEM.MemRead}
+                 \land \text{EX/MEM.rd}\neq 0\\
+               & \land \text{EX/MEM.rd}=\text{ID/EX.rs},\\
+\text{MEM/WB}, & \text{MEM/WB.RegWrite}\land \text{MEM/WB.rd}\neq 0
+                 \land \text{MEM/WB.rd}=\text{ID/EX.rs},\\
+\text{不转发}, & \text{其他}.
+\end{cases}
+\end{aligned}
+\]
+}
 
-\ifshowsolutions\par\noindent\textbf{答案：}
+B 操作数（\texttt{rt}）的判断完全对称。两个条件同时成立时，\textbf{EX/MEM 优先}：它是更近的那条指令的结果，MEM/WB 里的值更旧。比如
 
-(1) 每个微指令字 $32$ 位，下地址字段占 $8$ 位，判别测试字段占 $3$ 位，用于直接控制微操作的位数为 $32-8-3=21$ 位。直接编码中每位控制一个微操作，故最多直接控制 $21$ 个微操作信号。
-
-(2) CM 共 $256$ 条微指令。每条机器指令需 $5$ 条微指令（不含取指公操作），故最大机器指令数 $= 256 \div 5 = 51$（向下取整）。
-\else \answerarea \fi
-
-\item \textbf{（流水线性能计算——填空题）} 某经典五级流水线处理器，各段执行时间分别为：IF = 10 ns，ID = 8 ns，EX = 10 ns，MEM = 10 ns，WB = 8 ns。
-\begin{enumerate}
-    \item[(1)] 该流水线的时钟周期应取 \underline{\qquad} ns；
-    \item[(2)] 执行 $1000$ 条指令（不发生阻塞）需要 \underline{\qquad} ns；
-    \item[(3)] 相比非流水线（每条指令 $10+8+10+10+8=46$ ns），加速比为 \underline{\qquad}（保留两位小数）。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-
-(1) 时钟周期 $= \max\{10,8,10,10,8\} = 10$ ns。
-
-(2) $k=5$, $n=1000$：总时间 $= kT + (n-1)T = 5\times 10 + 999\times 10 = 10040$ ns。
-
-(3) 非流水线时间 $= n \times (10+8+10+10+8) = 1000 \times 46 = 46000$ ns。加速比 $S = 46000 / 10040 \approx 4.58$。
-\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格·选择题）} 某计算机的指令流水线由 4 个功能段组成，各段经过的时间分别为 $\Delta t$、$2\Delta t$、$\Delta t$、$3\Delta t$。忽略流水寄存器开销，连续执行 $n$ 条相同指令，则该流水线相对于顺序执行的加速比为
-\begin{center}
-\begin{tabular}{ll}
-(A) $\dfrac{7n}{3n+9}$ & (B) $\dfrac{7n}{3n+6}$ \\[10pt]
-(C) $\dfrac{7n}{3n+3}$ & (D) $\dfrac{7n}{3n+12}$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(A)
-
-\textbf{解析：} 非流水线时间 $T_{\text{seq}} = n\times(\Delta t+2\Delta t+\Delta t+3\Delta t)=7n\Delta t$。流水线时钟周期取最长段 $T=\max\{\Delta t,2\Delta t,\Delta t,3\Delta t\}=3\Delta t$。流水线执行时间 $T_{\text{pipe}} = 4T + (n-1)T = (n+3)T = (n+3)\times 3\Delta t = (3n+9)\Delta t$。加速比 $S = \dfrac{7n\Delta t}{(3n+9)\Delta t} = \dfrac{7n}{3n+9} = \dfrac{7n}{3(n+3)}$。
-
-当 $n$ 较大时 $S$ 趋近于 $7/3$，但本题问有限 $n$ 下的精确表达式，不能用极限值或「最接近」选项代替。故选 (A)。
-\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 在经典五级流水线（IF/ID/EX/MEM/WB）中，考虑以下指令序列：
-\begin{lstlisting}
-I1: lw  R1, 0(R2)
-I2: add R3, R1, R4
-I3: sub R5, R6, R7
-I4: sw  R8, 0(R9)
+\begin{lstlisting}[language=C]
+add R1, R2, R3
+add R1, R1, R4
+add R1, R1, R5
 \end{lstlisting}
-假定寄存器堆允许同一周期先写回、后读出。若仅考虑数据冒险，且不使用转发技术，则 CPU 需要插入的总阻塞（气泡）周期数为
+
+第三条指令要用的是第二条的结果，不是第一条的；如果按 MEM/WB 转发，就会拿到已经被覆盖的旧值。优先级就是为这种“连续写同一寄存器”准备的。条件里的 \texttt{rd}$\neq0$ 也不能省：R0 恒为零，写 R0 没有效果，若不排除，寄存器号相同会误触发转发。
+
+还有一点要注意：如果 EX/MEM 里装的是 load，它暂时只有算出的地址，真正的数据要到 MEM 段末才出来；这种情况不能从 EX/MEM 转发，只能靠下面的 load-use 停顿处理。
+
 \begin{center}
-\begin{tabular}{ll}
-(A) $0$ & (B) $1$ \\[6pt]
-(C) $2$ & (D) $3$
-\end{tabular}
+\begin{tikzpicture}[>=stealth, font=\scriptsize,
+  comp/.style={draw=RuleGray, fill=SoftBlue, rounded corners=1.5pt, align=center, inner sep=2pt}]
+
+  % 流水级
+  \node[comp, minimum width=1.2cm, minimum height=0.65cm] (idex)   at (-6.6,1.5) {ID/EX};
+  \node[comp, minimum width=1.5cm, minimum height=0.65cm] (ex)     at (-4.3,1.5) {EX};
+  \node[comp, minimum width=1.3cm, minimum height=0.65cm] (exmem)  at (-2.1,1.5) {EX/MEM};
+  \node[comp, minimum width=1.3cm, minimum height=0.65cm] (mem)    at (0.1,1.5) {MEM};
+  \node[comp, minimum width=1.3cm, minimum height=0.65cm] (memwb)  at (2.3,1.5) {MEM/WB};
+  \node[comp, minimum width=1.3cm, minimum height=0.65cm] (wb)     at (4.5,1.5) {WB};
+
+  \foreach \a/\b in {idex/ex,ex/exmem,exmem/mem,mem/memwb,memwb/wb} {
+    \draw[->] (\a) -- (\b);
+  }
+
+  % 转发路径
+  \draw[->, Teal, thick] (exmem.north) -- (-2.1,2.4) -- (-4.0,2.4) -- (-4.0,1.83);
+  \node[font=\tiny, TealDark] at (-1.15,2.55) {EX/MEM$\to$EX（新值优先）};
+
+  \draw[->, Navy, thick] (memwb.north) -- (2.3,3.3) -- (-4.6,3.3) -- (-4.6,1.83);
+  \node[font=\tiny, Navy] at (0.8,3.42) {MEM/WB$\to$EX};
+
+  \draw[->, Amber, thick] (memwb.south) -- (2.3,0.55) -- (0.1,0.55) -- (0.1,1.17);
+  \node[font=\tiny, Amber!85!black] at (1.35,0.38) {MEM/WB$\to$MEM（store 数据）};
+
+  % 转发控制
+  \node[comp, minimum width=3.6cm, minimum height=0.7cm] (fwd) at (-1.2,-1.0)
+    {转发控制（比较 rd 与 rs/rt）};
+  \draw[->, dashed, Burgundy!70] (fwd.north) -- (-1.2,-0.15) -- (-4.3,-0.15) -- (-4.3,1.15);
+  \node[font=\tiny, Burgundy] at (-2.5,-0.35) {选择信号};
+
+  % EX 入口三选一
+  \node[comp, minimum width=0.9cm, minimum height=1.5cm, align=center] (mux) at (-2.2,-3.1)
+    {MUX\\3:1};
+  \node[comp, minimum width=1.2cm, minimum height=0.9cm] (alu2) at (0.4,-3.1) {ALU};
+  \draw[->] (mux.east) -- (alu2.west);
+
+  \foreach \y/\lab in {-2.55/00,-3.1/01,-3.65/10} {
+    \draw[->] (-4.6,\y) -- (-2.65,\y);
+    \node[font=\tiny, above] at (-3.55,\y) {\lab};
+  }
+  \draw[->, dashed, Burgundy!70] (-2.2,-4.15) -- (mux.south);
+
+  \node[font=\scriptsize, anchor=north west, align=left] at (-6.6,-4.35)
+    {00：ID/EX 中的原值 \quad 01：EX/MEM 的结果 \quad 10：MEM/WB 的结果\\
+     01 与 10 同时命中时选 01，因为它来自更新的指令};
+\end{tikzpicture}
 \end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}(C)
+上半部分是级间路径：EX/MEM 和 MEM/WB 各有一条回到 EX 入口的通路，store 的数据还可以从 MEM/WB 直接送到 MEM 段。下半部分把 EX 入口的选择器单独放大：三个输入分别是“寄存器堆读出的原值”“上一条指令的 ALU 结果”“再上一条指令的结果”，由转发控制部件给出选择码。通路越多，布线越复杂，所以真实处理器的转发条件都写在专门的控制逻辑里，不会临时用软件判断。
 
-\textbf{解析：} I1（lw）与 I2（add）之间的 RAW：I1 的数据在 MEM 结束才写入，但 I2 在 EX 阶段就需要 R1。无转发时，lw 的结果在 WB 阶段（第 5 拍）才写回寄存器堆，而 add 在 ID 阶段（第 3 拍）就需要读 R1。因此 I2 必须等到 I1 写回完成后才能 ID，需要阻塞 2 个周期。I2-I4 间无数据依赖。I3 和 I4 之间也无依赖（sw 读 R8，I3 不写 R8；sw 读 R9，无人写 R9）。故仅 I1$\to$I2 间需要 2 个气泡。总阻塞 $=2$。\else \answerarea \fi
+\subsubsection{load-use 冒险}
 
-\item \textbf{（真题风格·综合题）} 某 16 位计算机采用单总线 CPU 结构，数据通路示意图如下（文字描述）：
+转发能解决 ALU 指令之间的 RAW，但有一类情况转发也来不及：load 之后紧接着用 load 的结果。
 
-系统包含：PC、MAR、MDR、IR、通用寄存器 R0--R7、ALU、暂存器 Y 和 Z。ALU 有两个输入端 A 和 B（A 来自暂存器 Y，B 来自总线），一个输出端连接到暂存器 Z。所有部件通过单总线交换数据。PC 具有自增功能（PC $\to$ PC+1）。主存储器的读写由 MDR 和 MAR 配合完成。所有控制信号高电平有效。
-
-回答以下问题：
-\begin{enumerate}
-    \item[(1)] 写出取指周期的微操作序列（数据流动路径及有效控制信号）。
-    \item[(2)] 写出指令 \texttt{ADD R1, R2}（功能：R1 $\gets$ R1 + R2）在\textbf{执行周期}的微操作序列。
-    \item[(3)] 写出指令 \texttt{LOAD R3, (R4)}（寄存器间接寻址，功能：R3 $\gets$ Mem[R4]）的\textbf{完整}指令周期微操作（取指 + 执行）。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-
-(1) 取指周期微操作序列（单总线，每次只能传送一个数据）：
-\begin{enumerate}[label=T$\arabic*$:,leftmargin=*]
-    \item PC $\to$ MAR, PC+1 $\to$ PC（PC 送出地址到 MAR，同时自增）
-    \item MEM(MAR) $\to$ MDR（读主存）
-    \item MDR $\to$ IR（指令码送指令寄存器）
-\end{enumerate}
-控制信号：PCout, MARin, PCinc; MemRead, MDRin; MDRout, IRin。
-
-(2) \texttt{ADD R1, R2} 执行周期：
-\begin{enumerate}[label=T$\arabic*$:,leftmargin=*]
-    \item R2 $\to$ Y（通过总线送一个操作数到 ALU 的 A 端暂存器 Y）
-    \item R1 $\to$ B（送另一操作数到 ALU 的 B 端），ALU 做加法，结果 $\to$ Z（暂存到 Z）
-    \item Z $\to$ R1（结果从 Z 写回 R1）
-\end{enumerate}
-控制信号：R2out, Yin; R1out, ALU\_add, Zin; Zout, R1in。
-
-(3) \texttt{LOAD R3, (R4)} 的完整周期：
-\begin{itemize}
-    \item \textbf{取指周期（同(1)）：} 3 拍。
-    \item \textbf{执行周期：}
-    \begin{enumerate}[label=T$\arabic*$:,leftmargin=*]
-        \item R4 $\to$ MAR
-        \item MEM(MAR) $\to$ MDR（读主存）
-        \item MDR $\to$ R3（数据写入目标寄存器）
-    \end{enumerate}
-\end{itemize}
-共计 6 拍。\texttt{(R4)} 是寄存器间接寻址，R4 已直接给出有效地址，不需要再从主存读取一次「间接地址」，因此没有独立的间址周期；R4 $\to$ MAR 是该 LOAD 指令执行周期的一部分。注意：本题假定一次主存读在一拍内完成。
-\else \answerarea \fi
-
-\item \textbf{（综合题·指令流水线分析）} 某经典五级流水线处理器（IF/ID/EX/MEM/WB），执行以下指令序列：
-\begin{lstlisting}
-I1: add  R1, R2, R3    % R1 <- R2 + R3
-I2: lw   R4, 0(R1)     % R4 <- Mem[R1 + 0]
-I3: sub  R5, R1, R6    % R5 <- R1 - R6
-I4: add  R7, R4, R5    % R7 <- R4 + R5
-I5: sw   R7, 0(R8)     % Mem[R8 + 0] <- R7
-\end{lstlisting}
-
-\begin{enumerate}
-    \item[(1)] 指出上述指令序列中存在的所有数据冒险，说明冒险类型。
-    \item[(2)] 若\textbf{不存在}转发机制，需要插入多少个阻塞周期？画出流水线时空图。
-    \item[(3)] 若有完整的数据转发（包括向存储指令的数据输入转发），但紧邻的 Load-use 冒险仍需阻塞 1 拍，需要插入多少个阻塞周期？
-    \item[(4)] 能否在保持程序语义的前提下交换 I3 与 I4？说明理由。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-
-(1) 数据冒险：
-\begin{itemize}
-    \item I1 $\to$ I2（RAW on R1）：I1 在 EX 段末产生 R1，I2 在 EX 段初需要 R1。有转发 $\to$ 转发可解决；无转发 $\to$ 需等待 I1 的 WB。
-    \item I1 $\to$ I3（RAW on R1）：I1 在 EX 段末产生 R1，I3 在 EX 段初需要 R1。同上。
-    \item I2 $\to$ I4（RAW on R4）：I2 在 MEM 段末获得 R4，I4 在 EX 段需要 R4。二者之间隔着 I3，因此在完整转发下不需阻塞；若 I4 紧跟 I2，才构成需要 1 拍阻塞的 Load-use 冒险。
-    \item I3 $\to$ I4（RAW on R5）：I3 在 EX 段末产生 R5，I4 在 EX 段初需要 R5。有转发可解决；无转发需等待 WB。
-    \item I4 $\to$ I5（RAW on R7）：I5 的存储数据 R7 由 I4 写入。无转发时 I5 需等待 I4 的 WB；有转发时向存储指令的数据输入转发（见 (3)）。
-\end{itemize}
-
-(2) 无转发时，消费者必须到 ID 阶段读取到生产者已写回的值。假定 WB 前半拍写、ID 后半拍读，则逐周期安排为：
 \begin{center}
-\small
-\begin{tabular}{|c|l|}
-\hline
-指令 & 所在阶段（数字为周期；ID 后的 $*$ 表示因相关而停留） \\
-\hline
-I1 & IF1, ID2, EX3, MEM4, WB5 \\
-I2 & IF2, ID3$^*$, ID4$^*$, ID5, EX6, MEM7, WB8 \\
-I3 & IF3--5（随前端冻结）, ID6, EX7, MEM8, WB9 \\
-I4 & IF6, ID7$^*$, ID8$^*$, ID9, EX10, MEM11, WB12 \\
-I5 & IF7--9（随前端冻结）, ID10$^*$, ID11$^*$, ID12, EX13, MEM14, WB15 \\
-\hline
-\end{tabular}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1.1cm, y=0.9cm]
+  \foreach \c in {1,...,8} {
+    \node[font=\tiny,MutedText] at ({\c-0.5},3.05) {c\c};
+  }
+  \node[font=\tiny, anchor=east] at (-0.05,2.5) {lw R1,0(R2)};
+  \node[font=\tiny, anchor=east] at (-0.05,1.75) {add R3,R1,R4};
+  \node[font=\tiny, anchor=east] at (-0.05,1.0) {EX 段};
+
+  % lw
+  \fill[Teal!22,draw=RuleGray] (0,2.29) rectangle (1,2.71);   \node[font=\tiny] at (0.5,2.5){IF};
+  \fill[Navy!12,draw=RuleGray] (1,2.29) rectangle (2,2.71);   \node[font=\tiny] at (1.5,2.5){ID};
+  \fill[Amber!25,draw=RuleGray] (2,2.29) rectangle (3,2.71);  \node[font=\tiny] at (2.5,2.5){EX};
+  \fill[Burgundy!16,draw=RuleGray] (3,2.29) rectangle (4,2.71);\node[font=\tiny] at (3.5,2.5){MEM};
+  \fill[SoftGray,draw=RuleGray] (4,2.29) rectangle (5,2.71);  \node[font=\tiny] at (4.5,2.5){WB};
+
+  % add
+  \fill[Teal!22,draw=RuleGray] (1,1.54) rectangle (2,1.96);   \node[font=\tiny] at (1.5,1.75){IF};
+  \fill[Navy!12,draw=RuleGray] (2,1.54) rectangle (3,1.96);   \node[font=\tiny] at (2.5,1.75){ID};
+  \fill[Burgundy!20,draw=Burgundy,thick] (3,1.54) rectangle (4,1.96);
+  \node[font=\tiny] at (3.5,1.75){ID（停）};
+  \fill[Amber!25,draw=RuleGray] (4,1.54) rectangle (5,1.96);  \node[font=\tiny] at (4.5,1.75){EX};
+  \fill[Burgundy!16,draw=RuleGray] (5,1.54) rectangle (6,1.96);\node[font=\tiny] at (5.5,1.75){MEM};
+  \fill[SoftGray,draw=RuleGray] (6,1.54) rectangle (7,1.96);  \node[font=\tiny] at (6.5,1.75){WB};
+
+  % EX 段内容
+  \fill[Amber!18,draw=RuleGray] (2,0.79) rectangle (3,1.21);  \node[font=\tiny] at (2.5,1.0){lw};
+  \fill[Burgundy!10,draw=Burgundy!45,dashed] (3,0.79) rectangle (4,1.21);
+  \node[font=\tiny] at (3.5,1.0){气泡};
+  \fill[Amber!18,draw=RuleGray] (4,0.79) rectangle (5,1.21);  \node[font=\tiny] at (4.5,1.0){add};
+
+  % 转发
+  \draw[->, Teal, thick] (4.0,2.25) -- (4.55,2.25) -- (4.55,1.98);
+  \node[font=\tiny, TealDark, anchor=west] at (5.12,2.45) {MEM/WB$\to$EX};
+
+\end{tikzpicture}
 \end{center}
-I2 等待 I1 写 R1 产生 2 拍阻塞；I4 同时等待 I2 的 R4 和 I3 的 R5，最终由较晚的 I3 写回决定，共产生 2 拍，而不是把两条相关分别相加；I5 等待 I4 写 R7 再产生 2 拍。总阻塞为 $2+2+2=6$ 拍。
 
-(3) 有完整转发时，I1$\to$I2、I1$\to$I3、I3$\to$I4 和 I4$\to$I5 均可旁路。I2 与 I4 之间已有一条 I3，I2 的装入数据在 I4 进入 EX 前已经可用，因此不是「紧邻 Load-use」，总阻塞为 0 拍。
+\texttt{lw} 的数据到 c4 的 MEM 段末尾才从存储器出来，而 \texttt{add} 本来要在 c4 的 EX 段开头就用它，中间差了一拍。转发通路再快，也不能把还没读出的数据送过去。解决办法是让 \texttt{add} 在 ID 段多停一拍：c4 时 PC 和 IF/ID 寄存器冻结，ID/EX 的控制信号清零，往 EX 段塞一个空操作（气泡）；到 c5，\texttt{add} 进入 EX，\texttt{lw} 的结果已经在 MEM/WB 里，从那里转发过来。
 
-(4) 不能交换。I3 写 R5，而 I4 读 R5，二者之间存在真数据相关（RAW）。若令 I4 先执行，它会读到 R5 的旧值并改变 R7 以及随后存入主存的数据，程序语义发生变化。指令调度只能跨越不存在此类依赖的独立指令。
-\else \answerarea \fi
+冒险检测在 ID 段做，条件是
 
-\end{enumerate}
+\[
+\text{ID/EX.MemRead}\land
+\bigl(\text{ID/EX.rt}=\text{IF/ID.rs}\ \lor\ \text{ID/EX.rt}=\text{IF/ID.rt}\bigr).
+\]
 
-\vspace{8pt}
-\noindent\textbf{拓展阅读：}
+前一项说明上一条指令是 load，后一项说明当前指令的源寄存器和 load 的目的寄存器相同。检测到以后，硬件同时做三件事：PC 不更新、IF/ID 不写入、ID/EX 清空。三件事缺一不可，否则要么重复取指，要么把错误指令送进执行段。
+
+转发也不是万能的。若消费者是 \texttt{sw} 且只把 load 的结果当“要写的数据”，数据在 MEM 段才需要，可以从 MEM/WB 直接送到 MEM 段，不必停；但如果 load 的结果被用作 \texttt{sw} 的基址寄存器，地址在 EX 段就要算，仍然要停一拍。判断的关键是“消费者到底在哪一段需要这个值”，而不是看指令的助记符。不过上面的检测条件为了简单，会把 store 数据这种情况也停一拍；只有数据通路额外支持 MEM 段转发时，才能把这一拍省掉。
+
+\subsection{控制冒险}
+
+取指令时 PC 已经指向下一条，但分支指令要等译码、甚至等 ALU 比较完，才知道该不该跳。在结果出来之前取进来的指令可能是错的，这就是\textbf{控制冒险}。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1.25cm, y=1.0cm]
+  \foreach \c in {1,...,7} {
+    \node[font=\tiny,MutedText] at ({\c-0.5},3.85) {c\c};
+  }
+  \node[font=\tiny, anchor=east] at (-0.1,3.3) {beq};
+  \node[font=\tiny, anchor=east] at (-0.1,2.4) {I2（顺序）};
+  \node[font=\tiny, anchor=east] at (-0.1,1.5) {I3（顺序）};
+  \node[font=\tiny, anchor=east] at (-0.1,0.6) {目标指令};
+
+  % beq
+  \fill[Teal!22,draw=RuleGray] (0,3.02) rectangle (1,3.58);    \node[font=\tiny] at (0.5,3.3){IF};
+  \fill[Navy!12,draw=RuleGray] (1,3.02) rectangle (2,3.58);    \node[font=\tiny] at (1.5,3.3){ID};
+  \fill[Amber!25,draw=RuleGray] (2,3.02) rectangle (3,3.58);   \node[font=\tiny] at (2.5,3.3){EX};
+  \fill[Burgundy!16,draw=RuleGray] (3,3.02) rectangle (4,3.58);\node[font=\tiny] at (3.5,3.3){MEM};
+  \fill[SoftGray,draw=RuleGray] (4,3.02) rectangle (5,3.58);   \node[font=\tiny] at (4.5,3.3){WB};
+
+  % I2
+  \fill[Teal!22,draw=RuleGray] (1,2.12) rectangle (2,2.68);    \node[font=\tiny] at (1.5,2.4){IF};
+  \fill[Burgundy!18,draw=Burgundy,thick] (2,2.12) rectangle (3,2.68);
+  \node[font=\tiny, align=center] at (2.5,2.4){ID\\作废};
+
+  % I3
+  \fill[Burgundy!18,draw=Burgundy,thick] (2,1.22) rectangle (3,1.78);
+  \node[font=\tiny, align=center] at (2.5,1.5){IF\\作废};
+
+  % 目标
+  \fill[Teal!22,draw=RuleGray] (3,0.32) rectangle (4,0.88);    \node[font=\tiny] at (3.5,0.6){IF};
+  \fill[Navy!12,draw=RuleGray] (4,0.32) rectangle (5,0.88);    \node[font=\tiny] at (4.5,0.6){ID};
+  \fill[Amber!25,draw=RuleGray] (5,0.32) rectangle (6,0.88);   \node[font=\tiny] at (5.5,0.6){EX};
+
+  % 判定线
+  \draw[Burgundy, dashed, thick] (3,3.75) -- (3,0.18);
+  \node[font=\tiny, Burgundy, anchor=south] at (3.0,4.04) {c3 末：EX 段判定分支};
+
+  % 损失标注
+  \node[font=\tiny, Burgundy] at (1.7,2.82) {损失 2 拍};
+\end{tikzpicture}
+\end{center}
+
+分支在 c3 的 EX 段末尾才判定。此时 c2 取进的 I2 已经进到 ID，c3 取进的 I3 在 IF，两条都得作废；如果分支成立，目标指令从 c4 才开始取。分支不成立时，I2、I3 正好是顺序路径上的指令，不用作废。所以“预测不跳转”在分支不跳时没有代价，跳转时损失 2 拍。
+
+减少损失有三条路：
+
 \begin{itemize}
-    \item Patterson \& Hennessy《计算机组成与设计》第 4 章「处理器」——MIPS 五级流水线的完整数据通路设计和冒险处理。408 的数据通路题几乎均源自此章的习题。
-    \item CS:APP 第 4 章「处理器体系结构」——从顺序 Y86-64 到流水线实现，含转发逻辑的完整推导。
+  \item \textbf{提前判定}：把比较器、目标地址加法器移到 ID 段，判定提前到 c2 末，只损失 1 拍。代价是 ID 段变长，可能拖慢时钟，还要额外的硬件。
+  \item \textbf{预测}：静态预测固定“跳”或“不跳”；动态预测用分支历史表（BHT）记录最近几次的结果，用 2 位饱和计数器区分“强跳、弱跳、弱不跳、强不跳”，再配分支目标缓冲（BTB）缓存目标地址。预测对了没有损失，预测错了按上面的拍数冲刷。
+  \item \textbf{延迟分支}：在指令集中留一个延迟槽，编译器把一条不受分支影响的指令填进去。硬件不冲刷，但指令集和编译器都变复杂了。
 \end{itemize}
+
+控制冒险的代价可以直接计入 CPI。若分支指令占 $f_b$，预测错误率为 $p$，每次错误损失 $b$ 拍，在理想访存、无数据冒险的前提下：
+
+\[
+\text{CPI}=1+f_b\cdot p\cdot b.
+\]
+
+例如分支占 20\%、错误率 10\%、损失 2 拍，CPI 就是 $1+0.2\times0.1\times2=1.04$。这个式子只算控制冒险；如果还有 load-use 停顿，要再加上对应的项。不同来源的停顿不是简单相加，因为它们可能在同一拍重叠，精确值要看流水线时空图。
+
+\subsection{结构冒险与流水线控制}
+
+结构冒险是硬件资源不够用。除了图里画出的“取指和访存抢存储器”，还有两个常见位置：
+
+\begin{itemize}
+  \item \textbf{寄存器堆端口}：ID 段要同时读两个源寄存器，WB 段要写一个目的寄存器。寄存器堆通常做成两读一写；如果同一拍读写同一个寄存器，可以约定“前半拍写、后半拍读”，让 ID 读到新值，否则就要额外停顿或加 WB$\to$ID 转发。
+  \item \textbf{功能部件}：经典五级流水线只有 EX 段用 ALU，不存在冲突；但如果把乘法、除法也放进 EX，或者多条指令同时进 EX，就需要多套功能部件或排队。
+\end{itemize}
+
+流水线控制器处理冒险的动作可以归结为三句话：\textbf{冻结}（PC、IF/ID 不更新）、\textbf{清空}（把 ID/EX 的控制信号清零，插入气泡）、\textbf{转发}（选择更近的结果）。数据冒险用转发加必要的冻结，控制冒险用冲刷加预测，结构冒险只能加资源或改变指令流。
+
+\subsection{从流水线到多核}
+
+单条流水线每拍最多完成一条指令，CPI 的下限是 1。要继续提高吞吐率，就得让一拍发射多条指令，这就是\textbf{超标量}。超标量处理器有多套取指、译码和执行部件，硬件要检查同一拍内多条指令之间的依赖；再配合乱序执行和寄存器重命名，可以把 WAR、WAW 也消掉，让 CPI 小于 1。
+
+按 Flynn 分类，单核标量处理器是 SISD，向量处理器和 GPU 的数据并行部分是 SIMD，多核处理器和多机集群是 MIMD；MISD 在实际中很少见。
+
+再往上就是\textbf{多核}：一个芯片上放多个处理器核，每个核有自己的寄存器和一级 Cache，共享最后一级 Cache 和主存，核间通过片内互连通信。多个核可以同时执行不同的指令流；共享数据时要靠 Cache 一致性协议（如 MESI）维护。
+
+\subsection{把这一章串起来}
+
+数据通路决定一拍能做什么，控制器决定每一拍做什么，流水线把“串行”改成“重叠”。冒险则要看“值什么时候需要、什么时候产生”：ALU 结果在 EX 末产生，消费者在 EX 初需要，差一拍，转发正好补上；load 结果在 MEM 末产生，消费者在 EX 初需要，差两拍，转发补不了，只能停一拍；分支结果在 EX 末产生，而取指在 IF 就要用，差得更远，只能预测或冲刷。
+
+\newpage
+\input{co/exercises/chap5.tex}

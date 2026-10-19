@@ -1,681 +1,523 @@
 \section{输入输出系统}
 
-\subsection{I/O 接口的功能与基本结构}
+先看一个具体场景：程序要从磁盘读 4 KB 数据到内存。CPU 把起始地址和字节数写进磁盘控制器的寄存器，磁盘开始寻道、旋转；数据到达控制器后，DMA 把数据写进主存；整块传完，控制器向 CPU 发一个中断。短短一条读命令背后，既有接口里的端口寄存器，也有总线的争夺和中断现场的保存。本章就按“设备怎样接入—CPU 怎样等—设备怎样通知—数据怎样搬运—磁盘为什么慢”的顺序展开。
 
-I/O 设备种类繁多——键盘、鼠标、显示器、磁盘、网卡等，其工作速度、信号形式、数据格式各不相同。CPU 不能直接与每一种设备直接相连，而是通过\textbf{I/O 接口（I/O Interface）}来实现 CPU 与 I/O 设备之间的数据交换。
+\subsection{从一根导线开始：I/O 接口做什么}
 
-\begin{mydef}{I/O 接口的主要功能}{io-interface-func}
-I/O 接口是连接 CPU（或系统总线）与外部设备的桥梁，其核心功能包括：
-
-\begin{enumerate}
-    \item \textbf{数据缓冲与锁存}：解决 CPU 与外设速度不匹配的问题。接口中的\textbf{数据缓冲寄存器（DBR）}暂存 CPU 与外设之间传送的数据。
-    \item \textbf{地址译码与设备选择}：接收 CPU 发出的地址信号，经译码后选中指定的 I/O 端口（即接口中的某个寄存器）。
-    \item \textbf{信号电平与格式转换}：将外设的非 TTL 电平信号转换为 CPU 可接受的 TTL 电平，进行串—并转换、A/D—D/A 转换等。
-    \item \textbf{传送控制信息}：接收并解释 CPU 发来的控制命令（读/写、启动/停止等），向外设发出操作控制信号。
-    \item \textbf{反映设备状态}：向 CPU 提供设备当前状态（忙/闲、就绪/未就绪、出错等），CPU 通过读状态寄存器来获知。
-    \item \textbf{中断管理}：当外设需要 CPU 服务时，向 CPU 发出中断请求；接口中包含中断屏蔽逻辑和中断类型号（或向量地址）的生成电路。
-\end{enumerate}
-\end{mydef}
-
-\begin{conclusion}{I/O 接口的典型内部结构}{io-interface-structure}
-一个典型的 I/O 接口内部包含以下寄存器（即 I/O 端口）：
-
-\begin{tablebox}{I/O 接口中的典型寄存器}
-\centering
-\begin{tabularx}{\linewidth}{|p{0.31\linewidth}|p{0.25\linewidth}|X|}
-\hline
-寄存器 & 名称 & 功能 \\
-\hline
-\textbf{数据缓冲寄存器（DBR）} & Data Buffer Register & 暂存输入/输出的数据 \\
-\textbf{控制寄存器（CR）} & Control Register & 存放 CPU 发来的控制命令 \\
-\textbf{状态寄存器（SR）} & Status Register & 反映设备当前状态（就绪/忙/出错）\\
-\textbf{设备地址选择电路} & Address Decoder & 识别本接口是否被 CPU 选中 \\
-\hline
-\end{tabularx}
-\end{tablebox}
-
-\noindent 其中数据缓冲寄存器、控制寄存器和状态寄存器都是\textbf{I/O 端口（I/O Port）}，每个端口都有一个独立的地址（端口地址），CPU 通过端口地址来访问它们。
-\end{conclusion}
+键盘按下一次键，产生的是一个或几个电脉冲；CPU 的总线却是并行、电平固定、时序严格的。两者不能直接连在一起。中间那块电路就是 \textbf{I/O 接口}（I/O interface），也叫 I/O 控制器。它的职责可以分成几类：把外设送来的数据锁存住，等 CPU 来取；把 CPU 写来的数据保持住，等外设慢慢消费；把串行信号转成并行、把非 TTL 电平转成 TTL 电平、把模拟量转成数字量；接收 CPU 的读/写命令，向设备发出启动、停止等控制信号；把设备的忙、闲、出错等状态登记下来供 CPU 查询；设备需要服务时，向 CPU 发出中断请求。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.6cm,minimum height=0.9cm,align=center] (cpu) at (-4.5,0){CPU};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=4.4cm,minimum height=2.5cm] (box) at (0,0){};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.8cm,minimum height=0.58cm] (dbr) at (-1.1,0.8){DBR 数据缓冲};
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=1.5cm,minimum height=0.58cm] (cr) at (1.2,0.8){CR 控制};
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.5cm,minimum height=0.58cm] (sr) at (0.05,0.05){SR 状态};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.3cm,minimum height=0.58cm] (dec) at (0.05,-0.7){地址译码/设备选择};
-  \node[font=\scriptsize,black!70] at (0,1.45){I/O 接口（含多个 I/O 端口）};
-  \draw[<->,thick,Navy!70] (cpu) -- (box);
-  \draw[<->,thick,Teal!70] (box) -- (4.5,0);
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=1.8cm,minimum height=0.9cm,align=center] (dev) at (4.5,0){外部设备};
+  % CPU
+  \node[draw, rounded corners=2pt, fill=SoftBlue, minimum width=1.5cm, minimum height=2.4cm, align=center] (cpu) at (-6.3,0.3) {CPU};
+  % interface
+  \draw[rounded corners=3pt, fill=SoftGray, draw=MutedText!55] (-4.0,-1.9) rectangle (2.2,2.1);
+  \node[font=\scriptsize\bfseries, text=Navy] at (-0.9,1.85) {I/O 接口};
+  % bus arrows
+  \draw[->, Navy!70, thick] (-5.55,1.35) -- (-4.0,1.35) node[midway, above, font=\tiny]{地址};
+  \draw[<->, Teal!70, thick] (-5.55,0.45) -- (-4.0,0.45) node[midway, above, font=\tiny]{数据};
+  \draw[<->, Burgundy!70, thick] (-5.55,-0.45) -- (-4.0,-0.45) node[midway, above, font=\tiny]{控制};
+  % registers
+  \node[draw, rounded corners=1pt, fill=SoftTeal, minimum width=3.0cm, minimum height=0.55cm] (dbr) at (-1.0,1.25) {DBR 数据缓冲};
+  \node[draw, rounded corners=1pt, fill=SoftBlue, minimum width=3.0cm, minimum height=0.55cm] (sr) at (-1.0,0.40) {SR 状态};
+  \node[draw, rounded corners=1pt, fill=SoftAmber, minimum width=3.0cm, minimum height=0.55cm] (cr) at (-1.0,-0.45) {CR 控制};
+  \node[draw, rounded corners=1pt, fill=SoftGray, minimum width=3.0cm, minimum height=0.55cm] (dec) at (-1.0,-1.35) {地址译码 / 端口选择};
+  % decoder from address bus
+  \draw[->] (-4.0,1.35) -- (-3.2,1.35) -- (-3.2,-1.35) -- (dec.west);
+  % device
+  \node[draw, rounded corners=2pt, fill=SoftGray, minimum width=1.7cm, minimum height=3.0cm, align=center] (dev) at (4.5,0.3) {外部\\设备};
+  % device signals
+  \draw[<->, Teal!70, thick] (dbr.east) -- (3.65,1.25) -- (3.65,1.0) -- (dev.west);
+  \draw[->, Navy!70, thick] (3.65,0.30) -- (sr.east);
+  \draw[->, Burgundy!70, thick] (cr.east) -- (3.65,-0.45) -- (3.65,-0.2) -- (dev.west);
+  \node[font=\tiny, above] at (2.0,1.30){数据};
+  \node[font=\tiny, above] at (2.0,0.43){状态};
+  \node[font=\tiny, below] at (2.0,-0.50){控制};
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-\textbf{408 常考点——I/O 端口 vs I/O 接口：}
-\begin{itemize}
-    \item \textbf{I/O 接口}是一个功能实体（一块电路或芯片），通常包含多个\textbf{I/O 端口}。
-    \item \textbf{I/O 端口}是 I/O 接口中\textbf{可被 CPU 直接访问的寄存器}，每个端口有独立地址。
-    \item 选择题典型陷阱：「一个 I/O 接口就是一个 I/O 端口」——错误，一个接口通常包含多个端口（数据端口 + 控制端口 + 状态端口）。
-\end{itemize}
-\end{attention}
+图里 CPU 一侧只有地址、数据、控制三组总线。地址送到译码器，译码器判断这次访问的是不是本接口、以及是接口里的哪一个寄存器；数据端口负责搬数据，状态端口只读，控制端口只写。设备一侧的时序可能和 CPU 完全不同，接口负责把两边的节奏对上。图中把数据、状态、控制画成三条独立的线，实际接口可能把它们复用在更少的引脚上，但“CPU 通过端口访问接口”这一点不变。
 
-\subsection{I/O 端口编址方式}
+能被 CPU 用指令直接访问的寄存器叫 \textbf{I/O 端口}（I/O port）。一个接口通常有多个端口：数据端口、状态端口、控制端口，每个端口有自己的端口地址。接口是电路实体，端口是实体里“能被寻址的格子”。408 选择题常拿“一个接口就是一个端口”做干扰项，实际上一个接口往往包含三个以上的端口。
 
-CPU 如何访问 I/O 端口？关键问题是：I/O 端口的地址与主存地址的关系——两者如何编址？408 考试要求熟练掌握两种编址方式及其对比。
-
-\begin{mydef}{统一编址 vs 独立编址}{io-addressing}
-I/O 端口的编址方式决定了 CPU 通过什么指令和什么地址空间来访问 I/O 端口。
-
-\begin{enumerate}
-    \item \textbf{统一编址（存储器映射 I/O，Memory-Mapped I/O）}：
-    \begin{itemize}
-        \item I/O 端口地址与主存地址\textbf{统一编址}，即把 I/O 端口看作主存的一个单元（或区域）。
-        \item CPU 用\textbf{访问存储器的指令}（如 LOAD/STORE、MOV）来访问 I/O 端口——无需专用 I/O 指令。
-        \item \textbf{优点}：指令丰富、编程灵活；不需专门的 I/O 指令和 I/O 控制信号。
-        \item \textbf{缺点}：I/O 端口占用了一部分主存地址空间，减少了可用的内存容量；访问 I/O 时地址译码可能更复杂（因为地址范围大了）。
-        \item 典型代表：ARM 系列、MIPS、Motorola 68K。
-    \end{itemize}
-
-    \item \textbf{独立编址（I/O 映射 I/O，Port-Mapped I/O / Isolated I/O）}：
-    \begin{itemize}
-        \item I/O 端口地址与主存地址\textbf{分开编址}，各有一套地址空间，互不重叠。
-        \item CPU 使用\textbf{专用的 I/O 指令}（如 x86 中的 IN、OUT）来访问 I/O 端口；使用访存指令（如 MOV）来访问内存。CPU 通过不同的控制信号（$\overline{\text{MEMR}}/\overline{\text{MEMW}}$ vs $\overline{\text{IOR}}/\overline{\text{IOW}}$）来区分。
-        \item \textbf{优点}：不占用主存地址空间；I/O 地址空间较小，译码简单；程序易读（I/O 操作一眼可辨）。
-        \item \textbf{缺点}：需要专门的 I/O 指令（指令种类少、功能受限）；需要额外的控制信号线。
-        \item 典型代表：x86（Intel 8086 系列）。
-    \end{itemize}
-\end{enumerate}
-\end{mydef}
-
-\begin{tablebox}{统一编址与独立编址的对比}
-\centering
-\small
-\begin{tabularx}{\linewidth}{|p{3.0cm}|X|X|}
-\hline
-比较项 & 统一编址（Memory-Mapped I/O）& 独立编址（Port-Mapped I/O）\\
-\hline
-地址空间 & I/O 与主存统一编址 & I/O 与主存各自独立 \\
-访问指令 & 访存指令（LOAD/STORE 等）& 专用 I/O 指令（IN/OUT）\\
-优点 & 指令丰富，编程灵活 & 不占主存空间，译码简单 \\
-缺点 & 占用主存地址空间 & 需要专用指令，功能受限 \\
-典型架构 & ARM、MIPS & x86 \\
-\hline
-\end{tabularx}
-\end{tablebox}
-
-\begin{attention}
-\textbf{408 常考点——两种编址方式的核心区别：}
-\begin{itemize}
-    \item 最本质的区分标准：\textbf{CPU 使用什么类型的指令来访问 I/O 端口}。用访存指令 $\to$ 统一编址；用专用 I/O 指令 $\to$ 独立编址。
-    \item 注意：x86 实际上两种方式都支持（早期 x86 以独立编址为主，但也可以通过 Memory-Mapped I/O 将部分外设映射到内存空间），但 408 考试中通常将 x86 归类为独立编址的典型代表。
-    \item 判断题陷阱：「统一编址方式中，I/O 端口不需要地址」——错误，统一编址中 I/O 端口同样有地址，只是与主存共用地址空间而已。
-\end{itemize}
-\end{attention}
-
-\subsection{I/O 控制方式：程序查询（轮询）}
-
-计算机发展过程中，I/O 控制方式经历了从简单到复杂的演变：程序查询 $\to$ 程序中断 $\to$ DMA $\to$ 通道/IO 处理器。每一种方式都为了解决前一种方式的不足而提出。
-
-\begin{mydef}{程序查询方式（轮询，Polling）}{programmed-io}
-程序查询方式是最简单的 I/O 控制方式。CPU 通过执行一段 I/O 查询程序，不断检测外设的状态寄存器，当设备就绪时执行数据传送；若设备未就绪，则 CPU 原地等待（或循环检测）。
-
-\textbf{工作流程：}
-\begin{enumerate}
-    \item CPU 向 I/O 接口发出读/写命令，启动外设。
-    \item CPU 反复读取状态寄存器，检测「就绪（Ready）」位。
-    \item 就绪后，CPU 执行数据传送（从数据缓冲寄存器读出/写入）。
-    \item 若还有数据需传送，回到步骤 1；否则结束。
-\end{enumerate}
-\end{mydef}
-
-\begin{conclusion}{程序查询方式的特点}{polling-features}
-\begin{itemize}
-    \item \textbf{CPU 与外设串行工作}：CPU 在查询等待期间不能做其他有用工作，效率极低。
-    \item \textbf{硬件开销最小}：不需要额外的中断控制逻辑或 DMA 控制器，仅需基本 I/O 接口电路。
-    \item \textbf{适用于慢速外设和简单系统}：如单片机中对LED、按键的检测。
-    \item \textbf{「独占式查询」}：CPU 完全被 I/O 操作占用，不适用于多任务系统。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-408 选择题中，程序查询方式的核心特征是「\textbf{CPU 与外设串行工作、CPU 主动查询}」。这是它与中断方式（CPU 与外设可部分并行）和 DMA 方式（CPU 与外设高度并行）的根本区别。
-\end{attention}
-
-\subsection{I/O 控制方式：程序中断}
-
-程序查询方式的最大问题是 CPU 必须「原地踏步」等待慢速外设。中断方式的核心思想是：当外设准备好时\textbf{主动通知 CPU}，CPU 在此期间可以做其他事情。这实现了 CPU 与外设的\textbf{部分并行}。
-
-\begin{mydef}{程序中断的基本概念}{interrupt-basics}
-\textbf{程序中断}是指在计算机执行程序的过程中，当出现异常情况或特殊请求（外设就绪、运算溢出、非法指令等）时，CPU 暂停当前程序的执行，转去执行相应的中断服务程序（Interrupt Service Routine，ISR），处理完毕后再返回原程序继续执行。
-
-这一过程与「子程序调用」类似，但中断是\textbf{随机发生}的（由外部事件触发），而非由程序主动安排。
-
-\textbf{中断的分类（按来源）：}
-\begin{enumerate}
-    \item \textbf{外部中断（硬件中断）}：来自 CPU 外部（如 I/O 设备、时钟、电源故障等），可进一步分为可屏蔽中断和不可屏蔽中断（NMI）。
-    \item \textbf{内部中断（异常）}：来自 CPU 内部，由指令执行引发（如除零、溢出、非法指令、缺页等）。在 CS:APP 术语中称为「异常」（Exception）。
-\end{enumerate}
-\end{mydef}
-
-\begin{conclusion}{中断与异常的对比}{interrupt-vs-exception}
-\begin{tablebox}{中断（Interrupt）vs 异常（Exception）}
-\centering
-\small
-\begin{tabularx}{\linewidth}{|l|X|X|}
-\hline
-比较项 & 中断（硬件中断）& 异常（Fault/Trap/Abort）\\
-\hline
-触发来源 & CPU 外部（I/O 设备等）& CPU 内部（指令执行）\\
-是否异步 & 异步（与当前指令无关）& 同步（由当前指令引起）\\
-返回位置 & 通常为下一条指令 & 故障可重启当前指令；陷阱返回下一条；终止通常不返回\\
-典型例子 & 键盘输入、磁盘 I/O 完成 & 除零、缺页、系统调用 \\
-CS:APP 分类 & 中断 & 故障（Fault）/陷阱（Trap）/终止（Abort）\\
-\hline
-\end{tabularx}
-\end{tablebox}
-\end{conclusion}
-
-\subsubsection{中断向量表}
-
-\begin{mydef}{中断向量与中断向量表}{interrupt-vector-table}
-当 CPU 响应某个中断时，需要知道对应的中断服务程序（ISR）的入口地址。这个信息通过\textbf{中断向量表（Interrupt Vector Table，IVT）}来获得。
-
-\begin{itemize}
-    \item \textbf{中断类型号（中断向量号）}：为每一种中断源分配的唯一编号（通常为 8 位，即 0--255）。
-    \item \textbf{中断向量}：即中断服务程序的\textbf{入口地址}（CS:IP 或一个完整的内存地址）。每个中断向量通常占 4 字节（段地址 2B + 偏移地址 2B，实模式下）或 8 字节（保护模式/64 位模式下）。
-    \item \textbf{中断向量表}：将所有中断向量按中断类型号为索引集中存储在一个连续的内存区域中。通常位于内存的\textbf{低地址区}（x86 实模式下为 0--1023，即 $4\times 256$ 字节）。
-\end{itemize}
-
-\textbf{中断向量地址的计算（x86 实模式）：}
-\[
-\text{中断向量表基址} + \text{中断类型号} \times 4
-\]
-即：取中断类型号为 $n$，则中断向量存放在内存地址 $n\times 4$ 处（4 字节：前 2 字节为 IP，后 2 字节为 CS）。
-\end{mydef}
+端口地址怎么放进地址空间，有两种做法。第一种是\textbf{统一编址}，也叫存储器映射 I/O：把端口地址安排在主存地址空间里，CPU 用普通的取数、存数指令访问端口，不需要专门的 I/O 指令。ARM、MIPS、RISC-V 通常采用这种方式。它的好处是指令多、寻址方式多，指针、数组、结构体都能直接指向端口；代价是端口占掉了一部分地址空间，可编址的主存范围相应减少。第二种是\textbf{独立编址}，也叫 I/O 映射 I/O：主存和端口各有一套地址空间，CPU 用专门的 I/O 指令（x86 的 \texttt{IN}、\texttt{OUT}）访问端口，用访存指令访问主存，并通过 \texttt{MEMR/MEMW} 与 \texttt{IOR/IOW} 等控制信号区分。它的好处是不占主存地址空间、端口地址位数少、译码简单；代价是需要专门的指令和引脚。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[font=\scriptsize,black!70] at (2.2,1.75){中断向量表（内存低地址区，实模式）};
-  \node[draw,rounded corners=1pt,fill=SoftGray,minimum width=4.4cm,minimum height=0.5cm,align=center] (e0) at (1.7,1.2){类型号 0（IP : CS）};
-  \node[draw,rounded corners=1pt,fill=SoftGray,minimum width=4.4cm,minimum height=0.5cm,align=center] (e1) at (1.7,0.65){类型号 1（IP : CS）};
-  \node[draw,rounded corners=1pt,fill=SoftGray,minimum width=4.4cm,minimum height=0.5cm,align=center] (e2) at (1.7,0.1){类型号 2（IP : CS）};
-  \node[font=\scriptsize,black!70] at (1.7,-0.35){$\vdots$};
-  \node[draw,rounded corners=1pt,fill=SoftAmber,minimum width=4.4cm,minimum height=0.5cm,align=center] (en) at (1.7,-0.9){类型号 $n$（IP : CS）};
-  \node[font=\scriptsize,black!70] at (-1.4,1.2){地址 $0$};
-  \node[font=\scriptsize,black!70] at (-1.4,0.65){地址 $4$};
-  \node[font=\scriptsize,black!70] at (-1.4,0.1){地址 $8$};
-  \node[font=\scriptsize,black!70] at (-1.4,-0.9){地址 $n\times 4$};
-  \node[font=\scriptsize,black!70,align=center] at (0.2,-1.7){每个表项 4 字节 $=$ 中断服务程序入口地址（偏移 IP + 段基址 CS）};
-  \node[font=\scriptsize,black!70,align=center] at (0.2,-2.2){中断向量 $=$ 入口地址，不是类型号本身};
+  % unified
+  \node[font=\bfseries, text=Navy] at (1.8,4.5) {统一编址};
+  \draw[rounded corners=2pt, fill=SoftGray, draw=MutedText!55] (0.3,0.2) rectangle (3.3,4.1);
+  \fill[SoftAmber, draw=Amber!60] (0.3,2.9) rectangle (3.3,4.1);
+  \node at (1.8,3.5) {I/O 端口};
+  \node[align=center] at (1.8,1.55) {主存\\（同一地址空间）};
+  \node[font=\tiny, text=MutedText, align=center] at (1.8,-0.35) {用访存指令\\LD/ST/MOV};
+  \node[font=\tiny, anchor=east] at (0.2,4.05){高};
+  \node[font=\tiny, anchor=east] at (0.2,0.25){0};
+  % separate
+  \node[font=\bfseries, text=Navy] at (8.2,4.5) {独立编址};
+  \draw[rounded corners=2pt, fill=SoftGray, draw=MutedText!55] (6.2,0.2) rectangle (8.2,4.1);
+  \node[align=center] at (7.2,2.15){主存};
+  \draw[rounded corners=2pt, fill=SoftAmber, draw=Amber!60] (8.8,0.2) rectangle (10.8,2.6);
+  \node[align=center] at (9.8,1.4){I/O\\端口};
+  \node[font=\tiny] at (7.2,-0.35){MOV};
+  \node[font=\tiny] at (9.8,-0.35){IN/OUT};
+  \node[font=\tiny, text=MutedText, align=center] at (8.2,-0.95){两套地址空间\\控制信号不同};
+  \node[font=\tiny, anchor=east] at (6.1,4.05){高};
+  \node[font=\tiny, anchor=east] at (6.1,0.25){0};
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-\textbf{408 重要考点——中断向量表：}
-\begin{itemize}
-    \item 中断向量 = 中断服务程序入口地址，\textbf{不是}向量号/类型号本身。
-    \item 中断向量表\textbf{在内存中的位置}（通常是低地址区 0--1023）和\textbf{每个表项的大小}需要记住。
-    \item 常考计算：已知中断类型号 $n$ 和向量表基址，求该中断向量的存储地址：$\text{Address} = \text{Base} + n \times 4$（实模式）。
-\end{itemize}
-\end{attention}
+图左边是一套地址空间，I/O 端口只是其中一段，CPU 不需要知道自己访问的是内存还是端口，地址译码会把它送到正确的地方。图右边是两套地址空间，数值相同的地址在两边各有一个，靠指令和 \texttt{IOW/IOR} 这类信号区分。所以独立编址时，端口地址和某个主存地址数值相同并不会冲突；反过来，统一编址也不是“端口没有地址”，只是端口和主存共用一套地址。
 
-\subsubsection{中断响应过程}
+\subsection{程序查询：CPU 守着设备}
 
-这是 408 的\textbf{核心考点}之一，要求完整掌握 CPU 响应中断的硬件操作序列。
-
-\begin{conclusion}{CPU 响应中断的完整过程（硬件自动完成）}{interrupt-response}
-\textbf{「中断响应周期」}是指从 CPU 接收到中断请求信号到开始执行中断服务程序第一条指令之间的硬件操作序列。以下步骤由 CPU 硬件自动完成（不需程序干预）：
-
-\[
-\boxed{\textbf{中断响应七步曲}}
-\]
-
-\begin{enumerate}
-    \item \textbf{关中断}：CPU 自动清除中断允许标志（IF = 0），禁止在本次中断响应过程中再响应新的中断请求。
-    \item \textbf{保护断点}：将当前程序的\textbf{程序计数器（PC/IP）}和\textbf{程序状态字（PSW/FLAGS）}压入堆栈保存，以便中断处理完毕后能正确返回。
-    \item \textbf{识别中断源}：CPU 通过中断控制器（如 8259A PIC）获取当前请求中断的\textbf{中断类型号}。中断控制器根据优先级裁决，将最高优先级的中断类型号发送给 CPU。
-    \item \textbf{获取中断向量}：根据中断类型号 $n$，从中断向量表中读出对应的中断服务程序入口地址（中断向量）。
-    \item \textbf{转入中断服务程序}：将中断向量加载到 PC/IP 和 CS（或相应寄存器），CPU 开始执行 ISR 的第一条指令。
-    \item \textbf{执行中断服务程序}：ISR 通常包含保护现场（PUSH 各寄存器）、中断处理核心逻辑、恢复现场（POP 各寄存器）。
-    \item \textbf{返回断点}：执行 IRET（中断返回指令），从堆栈中弹出并恢复保存的 PSW 和 PC/IP；IF 按中断前保存的值恢复。若中断前 IF=1，返回后才重新允许可屏蔽中断，不能表述为 IRET 无条件将 IF 置 1。
-\end{enumerate}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频考点精细辨析：}
-\begin{itemize}
-    \item \textbf{「保护断点」vs「保护现场」}：\textbf{前者由 CPU 硬件自动完成}（压栈 PSW + PC/IP）；\textbf{后者由 ISR 开头/结尾的 PUSH/POP 指令完成}——这是两种不同层次的操作，408 选择题中经常把两者混淆来考。
-    \item \textbf{中断向量表的初始化}：由操作系统在启动时完成。ISR 的入口地址由 OS 写入中断向量表（不全是硬件行为）。
-    \item \textbf{中断类型号的来源}：由\textbf{中断控制器}或\textbf{中断接口电路}提供，CPU 根据该类型号查向量表。
-    \item 关中断是为了保证中断响应过程不被嵌套打断（避免断点/现场信息被破坏）。但可以在 ISR 中适当位置\textbf{开中断}以支持多重中断（见下文）。
-\end{itemize}
-\end{attention}
-
-\subsubsection{多重中断与中断嵌套}
-
-\begin{mydef}{多重中断}{nested-interrupts}
-\textbf{多重中断（中断嵌套）}是指 CPU 在执行某个中断服务程序的过程中，又响应了新的、优先级更高的中断请求，形成中断嵌套。
-
-实现多重中断的关键条件：
-\begin{enumerate}
-    \item 在 ISR 中适当时机（通常在保护现场之后）执行\textbf{开中断}指令（STI，IF = 1），允许响应新的中断请求。
-    \item 中断系统必须有\textbf{优先级裁决机制}：只有优先级更高的中断请求才能打断当前 ISR（同级或低级中断被屏蔽）。
-\end{enumerate}
-\end{mydef}
-
-\begin{conclusion}{多重中断的嵌套执行示意}{nested-interrupt-flow}
-设优先级：$A > B > C$（$A$ 最高，$C$ 最低）。执行序列如下：
-
-一种合法的嵌套序列可简写为
-\[
-\text{主程序}\to \mathrm{ISR}_C\to \mathrm{ISR}_A\to
-\mathrm{ISR}_C\to \mathrm{ISR}_B\to \mathrm{ISR}_C\to\text{主程序}.
-\]
-含义是：$C$ 执行过程中 $A$ 请求到来，因 $A>C$，CPU 暂停 $C$ 转去处理 $A$；$A$ 返回 $C$ 后，若 $B$ 请求到来，因 $B>C$，CPU 又可嵌套执行 $B$。ISR 返回时总是先恢复被它直接打断的上下文，不能跨层返回。
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 常考辨析——实现可嵌套多重中断的必要条件：}
-\begin{enumerate}
-    \item 保护必要现场后，\textbf{必须在 ISR 中适时重新允许中断，或由硬件提供等效的分级嵌套机制}，否则更高优先级请求不能打断当前 ISR；不允许嵌套的单级中断系统没有这一要求。
-    \item \textbf{必须有中断优先级裁决}（只有优先级更高的请求才能获得响应）。
-    \item 注意：在保护现场之前\textbf{不能开中断}——否则如果新中断修改了寄存器，恢复现场时会用被改写的值覆盖 ISR 的现场，导致原程序执行出错。
-\end{enumerate}
-\end{attention}
-
-\subsection{I/O 控制方式：DMA（直接存储器访问）}
-
-程序查询和程序中断方式的共同问题是：数据的传送仍然需要 CPU 执行指令来完成（读端口$\to$写内存，或者读内存$\to$写端口）。当需要高速大批量数据传送时（如磁盘读写），CPU 的指令执行开销成为瓶颈。DMA 方式通过\textbf{专门的硬件控制器}直接实现内存与外设之间的数据传送，CPU 仅在传送开始和结束时进行干预。
-
-\begin{mydef}{DMA 方式的基本原理}{dma-basics}
-\textbf{DMA（Direct Memory Access，直接存储器访问）}是指外部设备通过\textbf{DMA 控制器（DMAC）}直接与主存储器进行数据交换，数据传送过程\textbf{不经过 CPU}（CPU 不参与逐字节/逐字的传送），从而大幅提升传送速率。
-
-\textbf{DMA 控制器的基本组成：}
-\begin{enumerate}
-    \item \textbf{地址寄存器（AR）}：存放要访问的内存单元地址（初始值由 CPU 设定，每传送一个数据自动递增或递减）。
-    \item \textbf{字计数器（WC）}：存放要传送的数据字数（初始值由 CPU 设定，每传送一个数据自动减 1，减到 0 时传送结束）。
-    \item \textbf{数据缓冲寄存器（DR）}：暂存每次传送的数据。
-    \item \textbf{控制/状态逻辑}：接收 CPU 发来的控制命令，发出 DMA 请求（DREQ）和总线请求（HOLD/BR），接收 DMA 响应（HLDA/BG）。
-\end{enumerate}
-\end{mydef}
-
-\subsubsection{DMA 传送过程}
-
-这是 408 的另一个\textbf{核心考点}。DMA 传送过程分为三个阶段：预处理、数据传送、后处理。
-
-\begin{conclusion}{DMA 传送的三阶段}{dma-three-stages}
-
-\boxed{\textbf{阶段一：预处理（初始化，CPU 完成）}}
-\begin{enumerate}
-    \item CPU 执行 I/O 指令，对 DMAC 进行初始化：
-    \begin{itemize}
-        \item 将内存起始地址写入 DMAC 的地址寄存器（AR）；
-        \item 将传送字数写入 DMAC 的字计数器（WC）；
-        \item 设置读/写方向和传送模式。
-    \end{itemize}
-    \item CPU 向 I/O 接口发出启动命令，外设开始准备数据。
-    \item CPU 继续执行原来的程序（与外设并行工作）。
-\end{enumerate}
-
-\boxed{\textbf{阶段二：数据传送（DMAC 完成，CPU 不参与）}}
-\begin{enumerate}
-    \item 外设准备就绪，向 DMAC 发出\textbf{DMA 请求（DREQ）}。
-    \item DMAC 向 CPU 发出\textbf{总线请求（HOLD 或 BR）}——请求 CPU 让出总线控制权。
-    \item CPU 在当前总线周期结束后，释放总线控制权（将地址总线、数据总线、控制总线置为高阻态），向 DMAC 发出\textbf{总线响应（HLDA 或 BG）}。
-    \item DMAC 接管总线，向外设发出 DMA 应答（DACK），然后：
-    \begin{itemize}
-        \item 将 AR 的内容送到地址总线（给出内存地址）；
-        \item 发出读/写控制信号；
-        \item 在内存与外设之间完成一个数据字的传送；
-        \item AR $\leftarrow$ AR + 1（或 -1），WC $\leftarrow$ WC - 1。
-    \end{itemize}
-    \item 若 WC $\neq$ 0 且外设继续就绪，重复步骤 4（继续传送下一个数据）；若 WC = 0，则传送完毕。
-    \item DMAC 撤销总线请求，将总线控制权交还 CPU。
-\end{enumerate}
-
-\boxed{\textbf{阶段三：后处理（CPU 完成）}}
-\begin{enumerate}
-    \item 当 WC = 0 时，DMAC 向 CPU 发出\textbf{中断请求}（注意：这是 DMA 传送结束的中断信号，不同于阶段二中每传送一个字的中断）。
-    \item CPU 响应中断，执行中断服务程序：
-    \begin{itemize}
-        \item 检查传送过程中是否有错误；
-        \item 决定是否启动下一次 DMA 传送。
-    \end{itemize}
-\end{enumerate}
-\end{conclusion}
+最简单的一种 I/O 控制方式是程序查询。以打印机输出一个字符为例：接口里有一个“忙”位，CPU 先反复读状态端口；忙就继续读，直到状态变成“就绪”，再把字符写到数据端口。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.3cm,minimum height=0.85cm,align=center] (s1) at (0,1.0){(1) 预处理\\（CPU 完成）};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.3cm,minimum height=0.85cm,align=center] (s2) at (2.9,1.0){(2) 数据传送\\（DMAC 完成）};
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.3cm,minimum height=0.85cm,align=center] (s3) at (5.8,1.0){(3) 后处理\\（CPU 完成）};
-  \draw[->] (s1) -- (s2);
-  \draw[->] (s2) -- (s3);
-  \node[align=center,font=\scriptsize,black!70] at (0,-0.05){CPU 写 DMAC 寄存器\\初始化地址寄存器、字计数器};
-  \node[align=center,font=\scriptsize,black!70] at (2.9,-0.05){DMAC 请求并接管总线\\每传一数据数 AR+1、WC-1};
-  \node[align=center,font=\scriptsize,black!70] at (5.8,-0.05){块结束后 DMAC 仅发一次中断\\CPU 检查结果、决定下次传送};
+  \node[draw, rounded corners=2pt, fill=SoftGray, minimum width=3.4cm, minimum height=0.55cm] (start) at (0,0) {开始};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, minimum width=3.4cm, minimum height=0.55cm] (init) at (0,-1.0) {启动设备，准备数据};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, minimum width=3.4cm, minimum height=0.55cm] (read) at (0,-2.2) {读状态端口};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, minimum width=3.4cm, minimum height=0.6cm] (ready) at (0,-3.45) {设备就绪？};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, minimum width=3.2cm, minimum height=0.55cm] (xfer) at (4.2,-3.45) {读/写数据端口};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, minimum width=3.2cm, minimum height=0.6cm] (more) at (4.2,-2.05) {还有数据？};
+  \node[draw, rounded corners=2pt, fill=SoftGray, minimum width=3.2cm, minimum height=0.55cm] (end) at (4.2,-0.85) {结束};
+  \draw[->] (start.south) -- (init.north);
+  \draw[->] (init.south) -- (read.north);
+  \draw[->] (read.south) -- (ready.north);
+  \draw[->] (ready.east) -- (xfer.west) node[midway, above]{是};
+  \draw[->] (xfer.north) -- (more.south);
+  \draw[->] (more.west) -- (read.east) node[midway, above]{是};
+  \draw[->] (more.north) -- (end.south) node[midway, right]{否};
+  \draw[->] (ready.west) -- (-2.6,-3.45) -- (-2.6,-2.2) -- (read.west);
+  \node[font=\tiny, text=MutedText, anchor=east] at (-2.65,-2.85){忙，继续查};
+  \node[font=\tiny, text=MutedText, align=center] at (1.8,-4.55){查询循环由 CPU 执行；等待期间 CPU 不能转去运行别的程序};
 \end{tikzpicture}
 \end{center}
 
-\begin{attention}
-\textbf{408 核心考点——DMA 预处理与后处理由 CPU 完成，数据传送由 DMAC 完成：}
-\begin{itemize}
-    \item \textbf{预处理}：CPU 初始化 DMAC 的 AR、WC 等寄存器（通过 I/O 指令写 DMAC 的端口）。
-    \item \textbf{数据传送}：完全由 DMAC 硬件完成，CPU\textbf{不参与}每一个字的传送。
-    \item \textbf{后处理}：DMAC 向 CPU 发中断请求（\textbf{仅一次}，而非每传送一个字就中断一次），CPU 检查传送结果。
-    \item 选择题典型陷阱：「DMA 方式中，CPU 完全不参与任何工作」——错误，CPU 参与了预处理和后处理。
-\end{itemize}
-\end{attention}
+图里的循环就是程序查询的全部工作：读状态、判断、传送、再判断。设备慢的时候，CPU 大部分时间耗在“读状态—判断”这两步上，真正传送数据只是一瞬间。它不需要中断控制器，也不需要 DMA 控制器，硬件最省；代价是 CPU 和外设串行工作，CPU 的算力被白白占住。它适合单片机控制按键、LED 这类简单场合，或者设备速度本来就和 CPU 匹配的专用系统。
 
-\subsubsection{DMA 与中断的区别}
+有些实现会在查询循环里插入其他任务，隔一段时间查一次，这叫定时查询；但它仍然是 CPU 主动去问设备，设备不能反过来通知 CPU。只要设备没有“主动敲门”的能力，CPU 就必须在某个时刻停下来检查。
 
-\begin{conclusion}{DMA 方式与程序中断方式的全面对比}{dma-vs-interrupt}
-\begin{tablebox}{DMA 与程序中断的对比（408 高频综合考点）}
+\subsection{中断：让设备主动找 CPU}
+
+程序查询的问题在于 CPU 必须守着设备。中断换了一个方向：设备准备好时，向 CPU 发一个中断请求；CPU 在完成当前指令后，暂停主程序，转去执行该设备的中断服务程序（ISR），处理完再返回。设备准备数据的那段时间，CPU 可以继续执行别的程序，因此 CPU 与外设是部分并行的。
+
+中断源不只有 I/O 设备。时钟、电源故障、存储器校验错也会发中断；除零、溢出、缺页、非法指令、系统调用则来自 CPU 内部。408 通常把前者叫\textbf{中断}（外中断），后者叫\textbf{异常}（内中断）。外中断是异步的，和当前指令没有关系；异常是同步的，由当前指令触发。外中断里，可以被 \texttt{IF} 标志屏蔽的称为可屏蔽中断，键盘、磁盘等通常走这一类；电源故障、存储器校验错等用不可屏蔽中断（NMI），不受 \texttt{IF} 限制。
+
+按 CPU 获得服务程序入口的方式，还可分为向量中断和非向量中断。向量中断由中断控制器在响应周期给出中断类型号，CPU 据此查表；非向量中断则由软件轮流查询各个设备，确定是谁发的请求。408 主要考向量中断。
+
+\subsubsection{中断响应：CPU 在什么时候、做什么}
+
+CPU 不是一看到请求就立刻停下来。对可屏蔽中断，通常要同时满足几个条件：中断源有请求且未被屏蔽；CPU 处于开中断状态（\texttt{IF}=1）；当前指令已经执行完；没有复位等更紧急的事件。为什么不在指令中间响应？因为响应中断要保存一个能正确恢复的断点，指令中间的状态（比如写回还没完成、流水线里还有未提交的指令）很难用一个 PC 值表示。异常则不同，它由当前指令的执行结果触发，CPU 会在指令执行过程中或结束时按异常类型处理。
+
+响应时，CPU 硬件会自动做一串操作，这段过程常称为\textbf{中断响应周期}；这串操作不是程序里的某条指令，所以又被称为\textbf{中断隐指令}：
+
+\begin{enumerate}
+  \item \textbf{关中断}。对可屏蔽中断，硬件清 \texttt{IF}，防止响应过程本身又被另一个中断打断。
+  \item \textbf{保存断点}。把当前程序的 PC（指向下一条要执行的指令）压入堆栈；很多机器连同 PSW/FLAGS 一起保存。x86 在响应中断时依次压入 FLAGS、CS、IP，返回时再由 \texttt{IRET} 弹出。
+  \item \textbf{识别中断源}。有多个设备同时请求时，中断控制器按优先级选出最高的一个，在中断响应周期把它的中断类型号送给 CPU。
+  \item \textbf{查中断向量表}。以类型号为索引，从向量表中取出服务程序入口地址，装入 PC（以及代码段寄存器），CPU 随即转到 ISR。
+\end{enumerate}
+
+进入 ISR 之后，还有两件事由软件完成：开头用 \texttt{PUSH} 保存本程序要用的通用寄存器，这叫\textbf{保护现场}；结尾用 \texttt{POP} 恢复，再执行 \texttt{IRET} 返回。保护现场是 ISR 的责任，不是硬件的责任。硬件保存的是“断点”，软件保存的是“现场”，两者层次不同，考试里经常被混在一起。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, xscale=0.88]
+  \draw[->] (0,4.6) -- (15.2,4.6) node[right, font=\tiny]{时间};
+  \node[anchor=east, font=\tiny] at (-0.2,4.0){主程序/ISR};
+  \fill[SoftBlue, draw=Navy!40] (0,3.4) rectangle (4.0,4.2);
+  \node[font=\tiny] at (2.0,3.8){I1, I2（主程序）};
+  \fill[SoftAmber, draw=Amber!55] (4.0,3.4) rectangle (5.2,4.2);
+  \node[font=\tiny] at (4.6,3.8){响应};
+  \fill[SoftTeal, draw=Teal!45] (5.2,3.4) rectangle (12.0,4.2);
+  \node[font=\tiny] at (8.6,3.8){中断服务程序 ISR};
+  \fill[SoftBlue, draw=Navy!40] (12.0,3.4) rectangle (14.8,4.2);
+  \node[font=\tiny] at (13.4,3.8){I3};
+  % request
+  \draw[thick, Navy!70] (0,2.6) -- (3.2,2.6) -- (3.2,2.95) -- (3.8,2.95) -- (3.8,2.6) -- (14.8,2.6);
+  \node[font=\tiny, anchor=west] at (0.1,2.65){中断请求};
+  \draw[->, Navy!70] (3.5,2.95) -- (3.5,3.35);
+  % dashed boundary
+  \draw[dashed, Burgundy!70] (4.0,0.7) -- (4.0,4.45);
+  % IF
+  \draw[thick, Teal!80] (0,1.5) -- (4.0,1.5) -- (4.0,1.2) -- (6.0,1.2) -- (6.0,1.5) -- (12.0,1.5) -- (12.0,1.5) -- (14.8,1.5);
+  \node[font=\tiny, above] at (2.0,1.52){IF=1};
+  \node[font=\tiny, below] at (5.0,1.2){IF=0};
+  \node[font=\tiny, above] at (7.5,1.52){ISR 开中断};
+  \node[font=\tiny, anchor=east] at (-0.2,1.5){IF};
+  % notes
+  \node[font=\tiny, text=MutedText, anchor=west] at (0,0.55){(1) 关中断、保存断点；(2) 取中断类型号、查向量表；};
+  \node[font=\tiny, text=MutedText, anchor=west] at (0,0.15){(3) ISR 保护现场、开中断；(4) 恢复现场、\texttt{IRET} 返回。};
+\end{tikzpicture}
+\end{center}
+
+图里最关键的是那条竖直虚线：请求可以在 I2 执行到一半时到达，但 CPU 要等 I2 结束才响应，保存的返回地址指向 I3，而不是 I2 的中间。响应阶段 \texttt{IF} 被清 0；ISR 在保存好通用寄存器后重新开中断，才能允许更高优先级的中断嵌套。\texttt{IRET} 返回时恢复的是中断前的 \texttt{IF}，不是无条件把它置 1；如果中断前 \texttt{IF}=0，返回后仍然是 0。
+
+\subsubsection{中断向量表：类型号到入口地址}
+
+中断类型号只是一个编号，真正要跳到哪里由中断向量表给出。表可以放在内存的固定区域，每个表项存放对应 ISR 的入口地址（或入口地址信息）。x86 的中断类型号是 8 位，实模式表最多 256 项；表固定在低地址 \texttt{0}～\texttt{0x3FF}，每个表项 4 字节，前 2 字节是 IP、后 2 字节是 CS。32 位保护模式下用的是中断描述符表 IDT，每个表项 8 字节，里面是门描述符，包含段选择子和偏移，不是直接的一个线性地址；64 位模式下每个表项为 16 字节。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw[rounded corners=2pt, fill=SoftGray, draw=MutedText!55] (0,0) rectangle (5.0,4.8);
+  \node[font=\bfseries, text=Navy] at (2.5,4.5){中断向量表};
+  \foreach \y/\lab in {3.7/0,3.0/1,2.3/\vdots,0.9/\vdots,0.2/N-1} {
+    \draw[RuleGray] (0.2,\y-0.28) rectangle (4.8,\y+0.28);
+    \node[font=\tiny] at (2.5,\y){表项 \lab};
+  }
+  \fill[SoftAmber, draw=Amber!60] (0.2,1.32) rectangle (4.8,1.88);
+  \node[font=\tiny] at (2.5,1.6){表项 $n$：ISR 入口地址};
+  \node[anchor=east, font=\tiny] at (-0.1,3.7){base};
+  \node[anchor=east, font=\tiny] at (-0.1,3.0){base$+L$};
+  \node[anchor=east, font=\tiny] at (-0.1,1.6){base$+nL$};
+  \node[draw, rounded corners=1pt, fill=SoftTeal, minimum width=1.8cm, minimum height=0.5cm] (n) at (-1.9,1.6){类型号 $n$};
+  \draw[->, Teal!70, thick] (n.east) -- (0.1,1.6);
+  \node[draw, rounded corners=1pt, fill=SoftBlue, minimum width=2.3cm, minimum height=0.75cm, align=center] (isr) at (7.3,1.6){ISR 入口\\（装入 PC）};
+  \draw[->, Navy!70, thick] (5.1,1.6) -- (isr.west);
+  \node[font=\tiny, text=MutedText, align=center] at (2.5,-0.55){地址 $=$ 基址 $+$ 类型号 $\times L$；$L$ 为每个表项字节数};
+  \node[font=\tiny, text=MutedText, align=center] at (2.5,-1.05){中断向量是入口地址，不是类型号本身};
+\end{tikzpicture}
+\end{center}
+
+图里类型号 $n$ 只是查表的索引，表项里放的是入口地址或入口地址信息。若表项长度为 $L$，第 $n$ 项的首地址就是 $\text{基址}+nL$；实模式 $L=4$，32 位保护模式 IDT 的 $L=8$，64 位模式为 $16$。408 计算题常把 $L$ 直接写出来，按这个式子算即可。表本身由操作系统在启动时初始化，硬件只负责按类型号去查。
+
+\subsubsection{多重中断：谁能打断谁}
+
+如果 ISR 一直关着中断，高优先级的设备也只能等当前 ISR 做完。要支持多重中断（中断嵌套），需要两个条件：一是 ISR 在保护现场之后重新开中断；二是中断系统有优先级裁决，只有优先级更高的请求才能打断当前 ISR。优先级可以用硬件排队电路实现，也可以用中断控制器里的屏蔽寄存器设置；同级或更低级的请求只能挂起，等当前 ISR 返回后再处理。
+
+为什么一定要先保护现场再开中断？假设 ISR 还没有保存寄存器就开了中断，嵌套进来的 ISR 可能改写同一组寄存器；等嵌套返回时，外层 ISR 原来的值已经丢了，恢复现场就会把错误的值写回主程序。堆栈在这里起关键作用：每进入一层中断，断点和现场依次压栈；返回时按后进先出弹出，所以嵌套层次越深，栈越深。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw[->] (0,4.8) -- (12.5,4.8) node[right, font=\tiny]{时间};
+  \node[anchor=east, font=\tiny] at (-0.2,4.2){主程序};
+  \fill[SoftBlue, draw=Navy!40] (0,3.9) rectangle (2.0,4.5);
+  \node[font=\tiny] at (1.0,4.2){主};
+  \fill[SoftBlue, draw=Navy!40] (10.5,3.9) rectangle (12.0,4.5);
+  \node[font=\tiny] at (11.25,4.2){主};
+  \node[anchor=east, font=\tiny] at (-0.2,3.2){ISR$_L$};
+  \fill[SoftTeal, draw=Teal!40] (2.0,2.9) rectangle (4.0,3.5);
+  \node[font=\tiny] at (3.0,3.2){L};
+  \fill[SoftTeal, draw=Teal!40] (8.0,2.9) rectangle (10.5,3.5);
+  \node[font=\tiny] at (9.25,3.2){L 继续};
+  \node[anchor=east, font=\tiny] at (-0.2,2.2){ISR$_M$};
+  \fill[SoftAmber, draw=Amber!50] (4.0,1.9) rectangle (5.5,2.5);
+  \node[font=\tiny] at (4.75,2.2){M};
+  \fill[SoftAmber, draw=Amber!50] (7.0,1.9) rectangle (8.0,2.5);
+  \node[font=\tiny] at (7.5,2.2){M};
+  \node[anchor=east, font=\tiny] at (-0.2,1.2){ISR$_H$};
+  \fill[SoftGray, draw=MutedText!50] (5.5,0.9) rectangle (7.0,1.5);
+  \node[font=\tiny] at (6.25,1.2){H};
+  % requests and returns
+  \draw[->, Burgundy!80] (2.0,3.85) -- (2.0,3.55);
+  \node[font=\tiny, text=Burgundy, anchor=west] at (2.05,3.75){L 请求};
+  \draw[->, Burgundy!80] (4.0,2.85) -- (4.0,2.55);
+  \node[font=\tiny, text=Burgundy, anchor=west] at (4.05,2.75){M 请求};
+  \draw[->, Burgundy!80] (5.5,1.85) -- (5.5,1.55);
+  \node[font=\tiny, text=Burgundy, anchor=west] at (5.55,1.75){H 请求};
+  \draw[->, dashed, Teal!70] (7.0,1.5) -- (7.0,1.9);
+  \draw[->, dashed, Teal!70] (8.0,2.5) -- (8.0,2.9);
+  \draw[->, dashed, Teal!70] (10.5,3.5) -- (10.5,3.9);
+  \node[font=\tiny, text=MutedText, align=center] at (6.0,-0.1){栈：L 断点 $\to$ M 断点 $\to$ H 断点；返回时逆序弹出};
+\end{tikzpicture}
+\end{center}
+
+图里优先级是 $H>M>L$。L 先被响应；M 比 L 高，嵌套进 L；H 又比 M 高，嵌套进 M。H 执行期间如果有更低优先级的请求，它只能挂起，等 H 返回、M 也返回之后才有机会。虚线是返回路径：H 返回 M，M 返回 L，L 最后返回主程序。实际机器还会用屏蔽字临时改变某些源的优先级，但“高优先级可嵌套、低优先级挂起、同级不嵌套”这条规则不变。
+
+\subsection{DMA：把搬数据交给硬件}
+
+中断方式虽然让 CPU 不用守着设备，但每传送一个字/字节，CPU 仍要进一次 ISR，执行保护现场、取数、存数、恢复现场这一串指令。磁盘不是按字节慢慢来的：一块 4 KB 的数据可能在很短的时间内连续到达。如果按 4 B 一次中断，4 KB 就是 1024 次中断；每次哪怕只花 100 个时钟周期，也要十万多个周期。DMA 的思路是把“逐字搬运”从 CPU 的指令流里拿掉，交给专门的 DMA 控制器（DMAC）。
+
+DMAC 里通常有三组关键寄存器：地址寄存器 AR 存放当前要访问的主存地址；字计数器 WC 存放还剩多少个字/字节要传；数据缓冲寄存器 DR 暂存一次传送的数据。此外还有控制/状态逻辑，用来接收 CPU 的命令、产生总线请求、在结束时发中断。设备侧用 DREQ（DMA 请求）和 DACK（DMA 应答）握手；系统侧用 HOLD（或 BR）向 CPU 申请总线，CPU 用 HLDA（或 BG）表示可以让出。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, rounded corners=2pt, fill=SoftBlue, minimum width=2.0cm, minimum height=1.2cm] (cpu) at (-6.0,2.2) {CPU};
+  \node[draw, rounded corners=2pt, fill=SoftGray, minimum width=2.2cm, minimum height=1.2cm] (mem) at (5.2,2.2) {主存};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, minimum width=2.6cm, minimum height=1.6cm, align=center] (dmac) at (0,0) {DMAC\\AR / WC / DR\\控制逻辑};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, minimum width=2.2cm, minimum height=1.2cm] (dev) at (5.2,-2.4) {外设};
+  % system bus
+  \draw[Navy!70, thick] (-4.0,1.2) -- (4.0,1.2);
+  \node[font=\tiny, above] at (0,1.2){系统总线（地址/数据/控制）};
+  \draw[<->, Navy!70] (cpu.east) -- (-4.0,2.2) -- (-4.0,1.2);
+  \draw[<->, Navy!70] (mem.west) -- (4.0,2.2) -- (4.0,1.2);
+  \draw[<->, Teal!70, thick] (dmac.north) -- (0,1.2);
+  % control handshake
+  \draw[->, Burgundy!70] (-4.6,2.0) -- (-1.4,0.75);
+  \node[font=\tiny, text=Burgundy, above] at (-3.0,1.5){HOLD/BR};
+  \draw[->, Burgundy!70] (-1.4,0.45) -- (-4.6,1.7);
+  \node[font=\tiny, text=Burgundy, below] at (-3.0,0.95){HLDA/BG};
+  % device handshake
+  \draw[<->, Amber!80, thick] (dmac.east) -- (dev.west);
+  \node[font=\tiny, text=Amber, above] at (2.7,-0.8){数据 / DREQ / DACK};
+  % end interrupt
+  \draw[->, Burgundy!70] (dmac.south) -- (0,-3.4) -- (-6.0,-3.4) -- (cpu.south);
+  \node[font=\tiny, text=Burgundy, below] at (-3.0,-3.4){整块结束中断};
+  \node[font=\tiny, text=MutedText, align=center] at (0.0,-4.2){数据由 DMAC 在设备与主存之间搬运，不经过 CPU 通用寄存器；DMA 期间 CPU 让出总线};
+\end{tikzpicture}
+\end{center}
+
+图里 CPU 和 DMAC 之间只有总线请求/允许和结束中断几根控制线。真正搬数据时，DMAC 把 AR 送到地址总线，发出 \texttt{MEMR/MEMW} 和 \texttt{IOR/IOW}，数据从设备经 DMAC 的数据缓冲（或直接经总线）写入主存。说“DMA 不经过 CPU”，准确含义是不靠 CPU 执行逐字搬运指令、不经过 CPU 通用寄存器；数据经过 DMAC 的缓冲寄存器是允许的，不要把它理解成“任何缓冲都不能经过”。
+
+DMA 传送分三段。第一段是\textbf{预处理}，由 CPU 完成：把主存起始地址写入 AR，把传送字数写入 WC，设置方向，然后启动设备；之后 CPU 就可以去执行别的程序。第二段是\textbf{数据传送}，由 DMAC 完成：设备准备好一个数据，发 DREQ；DMAC 向 CPU 发 HOLD；CPU 在当前总线周期结束后让出总线，回 HLDA；DMAC 回 DACK，把 AR 送上地址总线，完成一次读/写；然后 AR 加 1（或减 1），WC 减 1。若 WC 不为 0，继续下一个数据；若 WC 为 0，进入第三段。第三段是\textbf{后处理}，DMAC 向 CPU 发中断，CPU 执行 ISR 检查状态、处理错误、决定是否启动下一块。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \draw[->] (0,4.2) -- (12.5,4.2) node[right, font=\tiny]{时间};
+  \node[anchor=east, font=\tiny] at (-0.2,3.6){CPU};
+  \fill[SoftBlue, draw=Navy!40] (0,3.3) rectangle (2.2,3.9);
+  \node[font=\tiny] at (1.1,3.6){预处理};
+  \fill[SoftGray, draw=MutedText!40] (2.2,3.3) rectangle (9.0,3.9);
+  \node[font=\tiny] at (5.6,3.6){执行其他程序};
+  \fill[SoftBlue, draw=Navy!40] (9.0,3.3) rectangle (11.5,3.9);
+  \node[font=\tiny] at (10.25,3.6){后处理};
+  \node[anchor=east, font=\tiny] at (-0.2,2.5){总线};
+  \fill[SoftGray, draw=MutedText!40] (0,2.2) rectangle (2.2,2.8);
+  \node[font=\tiny] at (1.1,2.5){CPU};
+  \fill[SoftTeal, draw=Teal!40] (2.2,2.2) rectangle (9.0,2.8);
+  \node[font=\tiny] at (5.6,2.5){DMAC 占用};
+  \fill[SoftGray, draw=MutedText!40] (9.0,2.2) rectangle (11.5,2.8);
+  \node[font=\tiny] at (10.25,2.5){CPU};
+  \node[anchor=east, font=\tiny] at (-0.2,1.4){DMAC};
+  \fill[SoftAmber, draw=Amber!50] (2.2,1.1) rectangle (9.0,1.7);
+  \node[font=\tiny] at (5.6,1.4){DREQ$\to$HOLD$\to$HLDA$\to$DACK，逐字传送};
+  \foreach \x in {2.8,3.4,4.0,4.6,5.2,5.8,6.4,7.0,7.6,8.2,8.8} {
+    \draw[Teal!80] (\x,1.7) -- (\x,2.2);
+  }
+  \node[font=\tiny, text=MutedText, align=center] at (2.2,0.6){CPU 当前\\总线周期结束};
+  \draw[->] (2.2,0.85) -- (2.2,1.05);
+  \node[font=\tiny, text=MutedText, align=center] at (9.0,0.6){WC$=0$\\申请中断};
+  \draw[->] (9.0,0.85) -- (9.0,1.05);
+  \node[font=\tiny, text=MutedText] at (6.0,0.25){每传一个字：AR$\leftarrow$AR$\pm1$，WC$\leftarrow$WC$-1$};
+\end{tikzpicture}
+\end{center}
+
+图里上排是 CPU 在做什么，中排是谁占着总线，下排是 DMAC 的动作。预处理和后处理由 CPU 执行指令完成；中间一长段数据传送，CPU 不执行搬运指令，但总线被 DMAC 按字逐个占用。注意边界：DMA 的总线请求（HOLD/BR）是在\textbf{总线周期}边界被采样并让出总线的，不必等一条指令执行完；可屏蔽中断才是在\textbf{指令周期}边界响应。这个粒度差别是 408 选择题的常见考点。
+
+DMAC 与 CPU 争用总线有三种典型策略。\textbf{停止 CPU 访存}（成组传送）是 DMAC 一旦获得总线就一直占着，直到整块数据传完才释放；传送期间 CPU 不能访存，若当前指令和数据都在 Cache 中命中、且不需要写主存，还可以继续执行，一旦需要访存就被挡住。\textbf{周期挪用}（也叫周期窃取）是每传一个字（或几个字）申请一次总线，传完立即释放；CPU 的访存可能被推迟一个或几个周期，但在两次挪用之间仍可访存。\textbf{交替访存}把总线时间切成固定时隙，CPU 和 DMAC 轮流使用，不需要每次申请/释放，但两边都只能拿到一部分带宽。
+
+周期挪用容易被误解成“只用 CPU 空闲的总线周期”。它不是：即使 CPU 正在使用总线，DMAC 也可以在当前总线周期结束后把下一个周期“借”走，CPU 的访存因此被推迟。它之所以叫“挪用”，正是因为它会打断 CPU 的正常访存节奏，只是每次只借一点点。
+
+\begin{tablebox}{DMA 与程序中断方式的对比}
 \centering
 \small
-\begin{tabularx}{\linewidth}{|p{0.26\linewidth}|X|X|}
+\begin{tabularx}{\linewidth}{|p{2.4cm}|X|X|}
 \hline
-比较项 & 程序中断方式 & DMA 方式 \\
+比较项 & 程序中断 & DMA \\
 \hline
-\textbf{数据传送单位} & 以字或字节为单位 & 以数据块为单位 \\
-\textbf{数据传送路径} & CPU（外设 $\leftrightarrow$ CPU $\leftrightarrow$ 内存）& 不经 CPU（外设 $\leftrightarrow$ 内存）\\
-\textbf{CPU 参与程度} & 每传送一个数据都需 CPU 执行 ISR & 只在预处理和后处理时参与 \\
-\textbf{中断请求} & 每完成一个数据传送请求一次中断 & 整个数据块传送结束后才请求一次中断 \\
-\textbf{适用场景} & 低速/中速字符设备（键盘、鼠标）& 高速块设备（磁盘、网卡、显卡）\\
-\textbf{CPU 与外设并行} & 部分并行（CPU 可在数据传送间工作）& 高度并行，但访问主存/总线时仍可能与 CPU 竞争\\
-\textbf{硬件开销} & 需要中断控制器（PIC/APIC）& 需要 DMA 控制器（DMAC）\\
-\textbf{是否窃取总线周期} & 否 & 是（周期挪用/周期窃取）\\
+数据传送者 & CPU 执行 ISR 逐字搬运 & DMAC 硬件搬运 \\
+传送单位 & 字/字节（有缓冲时可成块） & 数据块 \\
+数据路径 & 设备$\leftrightarrow$CPU$\leftrightarrow$主存 & 设备$\leftrightarrow$主存（可经 DMAC 缓冲） \\
+CPU 参与 & 每次事件都要进入 ISR & 只在预处理和后处理参与 \\
+中断次数 & 通常每个字/字节一次 & 整块结束一次 \\
+响应边界 & 指令周期结束 & 总线周期结束 \\
+适用设备 & 键盘、打印机等慢速设备 & 磁盘、网卡等高速块设备 \\
 \hline
 \end{tabularx}
 \end{tablebox}
-\end{conclusion}
 
-\begin{conclusion}{DMA 中的数据传送方式（周期挪用）}{cycle-stealing}
-DMA 传送需要占用总线。根据 DMAC 与 CPU 对总线的使用方式，分为三种策略：
+比 DMA 更进一步的方案是\textbf{通道}（channel），也叫 I/O 处理器（IOP）。通道有自己的指令系统，能执行存放在主存里的通道程序，一组通道命令字（CCW）可以描述“从哪个设备读、读到哪、传多少、下一步做什么”。CPU 只需发一条启动 I/O 的命令，通道就能独立完成一批数据块的传送，结束时再中断 CPU。DMA 只是一个硬件控制器，通道则是一个能执行程序的处理器；选择通道一次服务一个高速设备，数组多路通道可以交错服务多个高速设备，字节多路通道则轮流为多个低速设备服务。
 
-\begin{enumerate}
-    \item \textbf{周期挪用（Cycle Stealing）}：DMAC 每传送一个字申请并取得一个总线周期，传送后立即释放总线。若 CPU 此时也需要总线，CPU 的访存会被推迟一个周期；它不等同于只利用 CPU 空闲总线周期的透明 DMA。
-    \item \textbf{停止 CPU 访问内存（Burst / Block Mode）}：DMAC 申请总线后，一直占用直到整个数据块传送完毕才释放。传送期间 CPU 不能访问内存（但可以继续使用 Cache 中的指令和数据）。适用于高速大批量传送。
-    \item \textbf{DMA 与 CPU 交替访存}：将总线时间分成固定的两个部分，轮流分配给 CPU 和 DMAC。不需要总线申请和释放过程，但总线利用率可能不高。
-\end{enumerate}
-\end{conclusion}
+\subsection{磁盘：机械运动的代价}
 
-\begin{formula}{DMA 传送时间计算}{dma-time}
-408 考试中可能出现 DMA 传送时间相关的计算题。
+磁盘和内存最大的不同是它有机械运动。若干盘片叠在同一根主轴上，每个盘面有一个磁头，所有磁头装在同一组臂上一起径向移动。盘面被分成许多同心圆，叫\textbf{磁道}；每条磁道又分成若干\textbf{扇区}；不同盘面上半径相同的磁道组成一个\textbf{柱面}。读写的最小单位是扇区，常见 512 B 或 4 KB。
 
-设传送一个字所需的时间为 $t$（即一个总线周期），数据块大小为 $N$ 个字，则 DMA 数据传送阶段的时间为：
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  % top view
+  \begin{scope}[shift={(0,0)}]
+    \foreach \r in {0.6,1.1,1.6,2.1,2.6} {
+      \draw[MutedText!55] (0,0) circle (\r);
+    }
+    \foreach \a in {0,30,...,330} {
+      \draw[MutedText!45] (\a:0.6) -- (\a:2.6);
+    }
+    \fill[SoftAmber, draw=Amber!70] (20:1.6) arc (20:50:1.6) -- (50:2.1) arc (50:20:2.1) -- cycle;
+    \node[font=\tiny] at (35:2.35){扇区};
+    \draw[->, Navy!70] (2.9,0.5) -- (2.15,0.5);
+    \node[font=\tiny, anchor=west] at (2.9,0.5){磁道};
+    \draw[thick, Navy!70] (4.4,0.2) -- (2.1,0.2);
+    \fill (2.1,0.2) circle (2pt);
+    \node[font=\tiny, anchor=west] at (4.4,0.2){磁头/臂};
+    \draw[->, Burgundy!80] (4.4,-0.8) -- (2.4,-0.8);
+    \node[font=\tiny, below] at (3.4,-0.8){寻道：径向移动};
+    \node[font=\tiny, text=MutedText] at (0,-3.2){盘面俯视：同心圆是磁道，楔形是扇区};
+  \end{scope}
+  % side view
+  \begin{scope}[shift={(8.8,0)}]
+    \draw[thick] (0,-2.4) -- (0,2.4);
+    \foreach \y in {-1.6,-0.5,0.6,1.7} {
+      \draw[fill=SoftGray, draw=MutedText!60] (-1.7,\y) ellipse (1.7 and 0.22);
+      \draw[thick, Navy!70] (1.7,\y) -- (2.9,\y);
+      \fill (1.7,\y) circle (2pt);
+    }
+    \draw[thick, Navy!70] (2.9,-1.8) -- (2.9,1.9);
+    \node[font=\tiny, anchor=west] at (3.0,0){磁头组};
+    \node[font=\tiny, anchor=west] at (0.1,2.5){主轴};
+    \node[font=\tiny] at (-1.0,-2.8){盘片};
+    \draw[dashed, Teal!70] (1.7,-2.1) -- (1.7,2.1);
+    \node[font=\tiny, text=Teal, anchor=south] at (1.7,2.05){同一柱面};
+    \node[font=\tiny, text=MutedText] at (0,-3.2){侧视：所有磁头一起移动};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
+
+图左边是盘面俯视：磁头沿半径方向移动，改变它所在的磁道，这就是寻道；盘片旋转，把目标扇区带到磁头下面。图右边是侧视：几片盘片共用主轴，所有磁头固定在同一个臂组上，所以它们同时位于同一柱面。切换磁头只需要电子选择，不需要机械移动；因此磁盘地址通常按“柱面号—磁头号—扇区号”排列，先把同一柱面的所有磁道用完，再移动到下一个柱面，减少寻道次数。
+
+磁盘容量可以按几何参数算：
 \[
-\boxed{T_{\text{DMA data transfer}} = N \times t}
+\text{容量}=\text{盘面数}\times\text{柱面数}\times\text{每道扇区数}\times\text{每扇区字节数}.
 \]
-注意：预处理时间和后处理时间不计入数据传送阶段。
+柱面数就是每个盘面的磁道数。408 题通常假设每条磁道的扇区数相同；真实磁盘常用区域记录（ZBR），外圈磁道扇区更多，但考试一般不涉及。
 
-\textbf{典型计算场景：} 比较中断方式和 DMA 方式下完成相同数据传送所需的 CPU 时间开销。中断方式下每传送一个字 CPU 都要执行 ISR（约几十到几百条指令）；DMA 方式下 CPU 只在开始和结束时各执行少量指令。
+读一个扇区要等三件事：把磁头移到目标磁道，叫\textbf{寻道时间}；等目标扇区转到磁头下面，叫\textbf{旋转延迟}；把扇区内容读出来，叫\textbf{传输时间}。总存取时间是三者之和：
+\begin{formula}{磁盘存取时间与传输率}{disk-access}
+\[
+T_{\text{access}}=T_{\text{seek}}+T_{\text{rot}}/2+T_{\text{transfer}},
+\qquad T_{\text{rot}}=\frac{60}{r},
+\qquad T_{\text{transfer}}=\frac{k}{S}T_{\text{rot}}.
+\]
+其中 $r$ 是转速（$\mathrm{r/min}$），$S$ 是每道扇区数，$k$ 是本次连续读取的扇区数，$T_{\text{rot}}$ 是转一圈的时间。持续传输率为
+\[
+R=S\cdot B\cdot\frac{r}{60},
+\]
+$B$ 是每扇区字节数。
 \end{formula}
 
-\subsection{I/O 控制方式：通道方式与 I/O 处理器}
+平均旋转延迟取半圈，前提是目标扇区在圆周上的位置随机，平均要等半圈；最大旋转延迟是一整圈。传输时间按“本次读的扇区数占整道扇区数的比例”乘一圈时间，不是按数据总线宽度算。若连续读同一磁道的 $k$ 个扇区，寻道和旋转延迟只付一次；若跨磁道，还要加上新的寻道和旋转。平均寻道时间与请求分布、初始磁头位置和调度算法都有关，题目通常直接给出；不要把它当成最大寻道时间的一半。
 
-\begin{mydef}{通道方式}{channel-mode}
-\textbf{通道（Channel）}是一个具有\textbf{特殊功能的处理器}（或称为 I/O 处理器，IOP），它有自己的指令系统（通道指令），专门负责 I/O 操作的管理和控制。CPU 只需向通道发出 I/O 命令（通道程序），通道即可独立完成整个 I/O 操作，操作完成后向 CPU 发中断。
-
-\begin{itemize}
-    \item 通道的出现进一步将 CPU 从 I/O 管理的繁重任务中解放出来。
-    \item 通道执行的程序称为\textbf{通道程序}（存放在主存中），由一系列通道命令字（CCW）组成。
-    \item 通道与 DMA 的区别：DMA 控制器只能实现简单的数据传送（固定源/目标地址，连续传送），而通道可以执行复杂的通道程序（如查找、分支转移等）。
-\end{itemize}
-\end{mydef}
+举个数值例子。某磁盘转速 $5400\ \mathrm{r/min}$，平均寻道时间 $10\ \mathrm{ms}$，每道 200 个扇区，每扇区 512 B。转一圈的时间是
+\[
+T_{\text{rot}}=\frac{60}{5400}\ \mathrm{s}=11.11\ \mathrm{ms},
+\]
+平均旋转延迟是 $5.56\ \mathrm{ms}$。读一个扇区的传输时间是
+\[
+T_{\text{transfer}}=\frac{1}{200}\times 11.11\ \mathrm{ms}=0.0556\ \mathrm{ms},
+\]
+所以平均存取时间约为 $10+5.56+0.056=15.61\ \mathrm{ms}$。持续传输率为
+\[
+R=200\times 512\times\frac{5400}{60}
+=9.216\times10^{6}\ \mathrm{B/s}=9.216\ \mathrm{MB/s}.
+\]
+如果一次读完整条磁道（200 个扇区），传输时间变成 $11.11\ \mathrm{ms}$，寻道和旋转仍只付一次；单扇区读时传输只占很小一部分，这就是大块 I/O 能摊薄机械开销的原因。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=2.0cm,minimum height=0.9cm,align=center] (cpu) at (-1.5,2.2){CPU};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.8cm,minimum height=0.9cm,align=center] (mem) at (1.5,2.2){主存\\（通道程序 / CCW）};
-  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=4.8cm,minimum height=1.15cm,align=center] (chan) at (0,0){通道（I/O 处理器，IOP）\\\scriptsize 执行通道程序，独立管理 I/O};
-  \draw[<->,thick,Navy!70] (cpu.south) -- (-1.2,0.58);
-  \draw[<->,thick,Teal!70] (mem.south) -- (1.2,0.58);
-  \node[font=\scriptsize,MutedText,anchor=east] at (-1.75,0.92){命令 / 中断};
-  \node[font=\scriptsize,MutedText,anchor=west] at (1.75,0.92){CCW / 数据};
-  \draw[->,thick,Teal!70] (-0.6,-0.58) -- (-0.6,-1.1);
-  \draw[thick,Teal!70] (-3.4,-1.1) -- (3.4,-1.1);
-  \node[font=\scriptsize,MutedText,anchor=west] at (-3.4,-0.82){通道总线};
-  \draw[->,thick,Teal!70] (-2.8,-1.1) -- (-2.8,-1.6);
-  \draw[->,thick,Teal!70] (0,-1.1) -- (0,-1.6);
-  \draw[->,thick,Teal!70] (2.8,-1.1) -- (2.8,-1.6);
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.0cm,minimum height=0.8cm,align=center] (dc1) at (-2.8,-2.0){设备控制器 1};
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.0cm,minimum height=0.8cm,align=center] (dc2) at (0,-2.0){设备控制器 2};
-  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.0cm,minimum height=0.8cm,align=center] (dc3) at (2.8,-2.0){设备控制器 3};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.7cm,align=center] (d1) at (-2.8,-3.4){设备 1};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.7cm,align=center] (d2) at (0,-3.4){设备 2};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.6cm,minimum height=0.7cm,align=center] (d3) at (2.8,-3.4){设备 3};
-  \draw[->,thick,Burgundy!70] (dc1.south) -- (d1.north);
-  \draw[->,thick,Burgundy!70] (dc2.south) -- (d2.north);
-  \draw[->,thick,Burgundy!70] (dc3.south) -- (d3.north);
-  \node[font=\scriptsize,black!70,align=center] at (0,-4.35){选择通道：一次只为一个高速设备服务；\ 字节多路通道：可轮流为多个低速设备服务};
+\begin{tikzpicture}[font=\scriptsize]
+  \draw[->] (0,0) -- (10.5,0) node[right, font=\tiny]{时间};
+  \node[anchor=east, font=\tiny] at (-0.1,2.2){随机读 1 个扇区};
+  \fill[SoftBlue, draw=Navy!50] (0,1.8) rectangle (3.2,2.6);
+  \node[font=\tiny] at (1.6,2.2){寻道 10 ms};
+  \fill[SoftTeal, draw=Teal!50] (3.2,1.8) rectangle (5.0,2.6);
+  \node[font=\tiny] at (4.1,2.2){旋转 5.56};
+  \fill[SoftAmber, draw=Amber!60] (5.0,1.8) rectangle (5.5,2.6);
+  \node[font=\tiny, above] at (5.25,2.65){0.06 ms};
+  \node[anchor=east, font=\tiny] at (-0.1,1.0){顺序读整道};
+  \fill[SoftBlue, draw=Navy!50] (0,0.6) rectangle (3.2,1.4);
+  \node[font=\tiny] at (1.6,1.0){寻道 10 ms};
+  \fill[SoftTeal, draw=Teal!50] (3.2,0.6) rectangle (5.0,1.4);
+  \node[font=\tiny] at (4.1,1.0){旋转 5.56};
+  \fill[SoftAmber, draw=Amber!60] (5.0,0.6) rectangle (9.6,1.4);
+  \node[font=\tiny] at (7.3,1.0){传输 11.11 ms};
+  \node[font=\tiny, text=MutedText] at (5.2,-0.35){示意：传输段按可见宽度画出，不按比例};
 \end{tikzpicture}
 \end{center}
 
-\begin{conclusion}{四种 I/O 控制方式的演进}{io-evolution}
-从 CPU 参与程度和并行性两个维度来看四种方式的演进：
+图里上条是随机读一个扇区，寻道和旋转占掉了几乎全部时间；下条是顺序读整道，传输段变长，但寻道和旋转没有重复支付。实际磁盘的传输时间比例取决于块大小和磁道容量，图中把极短的传输段画宽了，只为了让你看清三段结构。
+
+当多个 I/O 请求排队时，先服务谁会影响总寻道距离。\textbf{FCFS} 按到达顺序服务，公平但磁头可能来回跑；\textbf{SSTF} 每次选离当前磁头最近的请求，寻道距离短，但远处的请求可能长期得不到服务；\textbf{SCAN} 像电梯，先沿一个方向服务沿途请求，到端点再反向；\textbf{C-SCAN} 只在一个方向服务，回程直接回到起点，等待时间更均匀；\textbf{LOOK} 是 SCAN 的变体，到了最远的请求就反向，不必走到盘边。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=13cm, height=7cm,
+  xlabel={服务次序},
+  ylabel={柱面号},
+  xmin=0, xmax=8, ymin=0, ymax=200,
+  xtick={0,...,8}, ytick={0,50,100,150,200},
+  grid=major, grid style={RuleGray!60},
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  legend style={font=\tiny, draw=RuleGray, fill=white, fill opacity=0.9, text opacity=1},
+  legend pos=north east,
+  axis lines=left,
+]
+\addplot[Navy, thick, mark=*, mark size=1.5pt] coordinates {
+  (0,53) (1,98) (2,183) (3,37) (4,122) (5,14) (6,124) (7,65) (8,67)
+};
+\addlegendentry{FCFS，总移动 640}
+\addplot[Teal, thick, mark=square*, mark size=1.5pt] coordinates {
+  (0,53) (1,65) (2,67) (3,37) (4,14) (5,98) (6,122) (7,124) (8,183)
+};
+\addlegendentry{SSTF，总移动 236}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+图里纵轴是柱面号，横轴是服务次序，相邻两点的垂直距离就是这次要移动的磁道数。FCFS 的折线来回跳，总移动 640 个柱面；SSTF 先做离当前磁头最近的请求，折线短得多，总移动 236 个柱面。SSTF 的代价是可能饿死远端请求，所以实际系统常用 SCAN/C-SCAN 一类有方向约束的算法。图只反映寻道，不含旋转延迟；真正的调度还要考虑请求到达时刻和目标扇区的旋转位置。
+
+把前面的部件串起来，一次磁盘读的完整路径大致如下。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+  \node[draw, rounded corners=2pt, fill=SoftBlue, text width=3.0cm, align=center, minimum height=1.1cm] (s1) at (0,0) {(1) 进程 read\\陷入内核};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, text width=3.0cm, align=center, minimum height=1.1cm] (s2) at (3.9,0) {(2) 查页表/Cache\\构造 I/O 请求};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, text width=3.0cm, align=center, minimum height=1.1cm] (s3) at (7.8,0) {(3) 控制器寻道、旋转\\数据进控制器缓冲};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, text width=3.0cm, align=center, minimum height=1.1cm] (s4) at (7.8,-2.0) {(4) DMAC 取得总线\\写入主存};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, text width=3.0cm, align=center, minimum height=1.1cm] (s5) at (3.9,-2.0) {(5) 整块传完\\DMAC 发中断};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, text width=3.0cm, align=center, minimum height=1.1cm] (s6) at (0,-2.0) {(6) CPU 处理中断\\唤醒进程};
+  \draw[->] (s1) -- (s2);
+  \draw[->] (s2) -- (s3);
+  \draw[->] (s3) -- (s4);
+  \draw[->] (s4) -- (s5);
+  \draw[->] (s5) -- (s6);
+  \node[font=\tiny, text=MutedText, above] at (0,0.8){CPU/OS};
+  \node[font=\tiny, text=MutedText, above] at (3.9,0.8){CPU/OS};
+  \node[font=\tiny, text=MutedText, above] at (7.8,0.8){磁盘控制器};
+  \node[font=\tiny, text=MutedText, below] at (7.8,-2.8){DMAC};
+  \node[font=\tiny, text=MutedText, below] at (3.9,-2.8){DMAC};
+  \node[font=\tiny, text=MutedText, below] at (0,-2.8){CPU/OS};
+\end{tikzpicture}
+\end{center}
+
+图里 CPU 只在第 (1)、(2)、(6) 步执行指令；第 (3) 步是磁盘控制器和机械运动；第 (4) 步是 DMAC 搬数据；第 (5) 步是一次中断。慢在机械，快在电子，所以磁盘 I/O 不适合让 CPU 逐字查询或逐字中断，而要用 DMA 把数据成块搬走。若数据已经在页缓存中，第 (3)～(5) 步不会发生，这里讨论的是缓存未命中的情况。
+
+固态硬盘（SSD）没有磁头和盘片，随机读不需要寻道和旋转，延迟主要来自闪存读、地址映射（FTL）、垃圾回收和写放大。它以页为单位读写、以块为单位擦除，随机写比随机读更贵。408 里要区分：磁盘是直接存取，访问时间与位置有关；SSD 是随机存取，但仍有读写粒度和擦除块的限制。
+
+\subsection{几种 I/O 控制方式放在一起看}
 
 \begin{tablebox}{四种 I/O 控制方式的对比}
 \centering
 \small
-\begin{tabularx}{\linewidth}{|p{0.23\linewidth}|X|X|X|X|}
+\begin{tabularx}{\linewidth}{|p{2.0cm}|X|X|X|X|}
 \hline
-特点 & 程序查询 & 程序中断 & DMA & 通道 \\
+ & 程序查询 & 程序中断 & DMA & 通道 \\
 \hline
-数据传送单位 & 字/字节 & 字/字节 & 数据块 & 数据块/多个块 \\
-是否经 CPU 传送数据 & 是 & 是 & 否 & 否 \\
-CPU 干预频度 & 全程 & 每传送一字 & 仅开始和结束 & 仅开始和结束 \\
-CPU 与外设并行度 & 无 & 部分并行 & 高度并行 & 高度并行 \\
-是否有专用处理器 & 否 & 否 & 否（仅有控制器）& 是（I/O 处理器）\\
-硬件复杂度 & 最低 & 低 & 中 & 高 \\
+数据传送控制 & CPU 执行查询/传送指令 & CPU 执行 ISR & DMAC 硬件 & 通道程序（IOP） \\
+传送单位 & 字/字节 & 字/字节（或缓冲块） & 数据块 & 一组数据块 \\
+CPU 干预 & 全程等待 & 每次事件 & 预处理、后处理 & 启动、结束 \\
+数据路径 & 设备$\leftrightarrow$CPU$\leftrightarrow$主存 & 同左 & 设备$\leftrightarrow$主存 & 设备$\leftrightarrow$主存 \\
+并行程度 & 无 & 部分 & 高 & 高 \\
+典型场景 & 单片机按键、LED & 键盘、打印机 & 磁盘、网卡 & 大型机多设备 \\
 \hline
 \end{tabularx}
 \end{tablebox}
-\end{conclusion}
 
-\subsection{408 高频考点与答题策略}
-
-\begin{conclusion}{本章 408 核心考点总结}{chap7-keypoints}
-\begin{enumerate}
-    \item \textbf{I/O 端口编址方式}：统一编址（用访存指令）vs 独立编址（用专用 I/O 指令）——本质区别在于 CPU 使用什么指令访问 I/O 端口。典型选择题陷阱：混淆端口与接口、混淆指令类型。
-    \item \textbf{中断响应过程（七步曲）}：关中断 $\to$ 保护断点（PSW + PC 自动压栈）$\to$ 识别中断源（获取中断类型号）$\to$ 查向量表获取 ISR 入口 $\to$ 执行 ISR $\to$ 恢复现场 $\to$ 中断返回（IRET）。\textbf{保护断点由硬件完成，保护现场由软件（ISR 指令）完成}，是常见的辨析点。
-    \item \textbf{中断向量表}：向量表在内存低地址区（0--1023），每个向量占 4 字节（实模式 8086），地址 = 类型号 $\times$ 4。中断向量 = ISR 入口地址（$\neq$ 类型号）。
-    \item \textbf{多重中断}：ISR 中开中断 + 优先级裁决 = 可实现嵌套。注意：保护现场前不能开中断。
-    \item \textbf{DMA 三阶段}：预处理（CPU 初始化 DMAC 寄存器）$\to$ 数据传送（DMAC 控制，CPU 不参与）$\to$ 后处理（DMAC 发中断，CPU 检查结果）。
-    \item \textbf{DMA 与中断的区别}：在 408 的典型模型中，DMA 通常在数据块传送结束时才发一次中断（中断驱动 I/O 则常按字中断）；DMA 数据不经过 CPU 通用寄存器，也不由 CPU 指令逐字搬运；CPU 在\textbf{当前总线周期结束}的边界响应 DMA 总线请求，而可屏蔽中断通常在\textbf{当前指令周期结束}后响应。
-    \item \textbf{周期挪用}：DMAC 在需要时暂停 CPU 的一次或若干总线周期，取得总线并完成数据传送，造成 CPU 的访存停顿；这不等同于只使用 CPU 空闲总线周期的透明 DMA。
-\end{enumerate}
-\end{conclusion}
+从查询到中断，变化的是“谁主动”：CPU 不用守着设备，设备可以发请求。从中断到 DMA，变化的是“谁搬数据”：CPU 不再逐字执行传送指令，DMAC 直接在主存和设备之间搬。从 DMA 到通道，变化的是“谁执行 I/O 程序”：DMAC 只会按固定参数搬一块，通道能执行通道程序、串联多个操作、管理多台设备。四者的硬件复杂度和 CPU 开销依次变化，适用场景也不同。
 
 \begin{attention}
-\textbf{常见易错点：}
+本章最容易混淆的几处：
 \begin{itemize}
-    \item DMA 传送的逻辑端点是「外设 $\leftrightarrow$ 主存」，数据\textbf{不经过 CPU 通用寄存器}，CPU 也不执行逐字搬运指令。DMAC 负责地址、计数和总线控制；具体实现可以设置数据缓冲寄存器暂存一次传送的数据，因此不能绝对断言数据从不经过 DMAC 内部缓冲。
-    \item 中断响应周期中，CPU 通常完成当前指令后才检查可屏蔽中断请求，即在\textbf{指令周期结束}时响应；DMA 总线请求则在\textbf{当前总线周期结束}的边界响应，因而可能在一条指令尚未完成时取得后续总线周期。周期挪用还可能使 CPU 的后续访存等待，并不要求总线原本处于空闲状态。
-    \item 通道与 DMA 的区别不在传送速度，而在于通道是一个\textbf{有指令系统的处理器}（可执行通道程序），DMA 只是一个\textbf{硬件控制器}。
-    \item 对于「中断隐指令」——它实际上并不是一条真正的机器指令，而是 CPU 在中断响应周期中由硬件自动执行的一系列操作（保护断点、获取中断向量等），408 中可能以「不属于指令系统中的指令」来描述。
+  \item 中断向量是服务程序的入口地址，不是中断类型号；类型号只是查表的索引。
+  \item 保护断点（PC、PSW）由硬件在响应时完成；保护现场（通用寄存器）由 ISR 用 \texttt{PUSH} 完成。
+  \item DMA 数据不经过 CPU 通用寄存器，但可以经过 DMAC 的数据缓冲；不要理解成“绝对不经过任何缓冲”。
+  \item DMA 请求在总线周期边界被采样，可屏蔽中断在指令边界被响应；两者粒度不同。
+  \item 周期挪用是“借一个或几个总线周期”，不是“只用总线空闲周期”；CPU 的访存可能被推迟。
+  \item 统一编址不是“端口没有地址”，而是端口和主存共用地址空间；独立编址下地址数值相同也不会冲突。
+  \item 平均旋转延迟是半圈；一个扇区的传输时间是整圈时间除以每道扇区数，不是按数据总线宽度算。
+  \item \texttt{IRET} 恢复中断前的 \texttt{IF}，不是无条件开中断；中断前 \texttt{IF}=0 时，返回后仍为 0。
 \end{itemize}
 \end{attention}
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}[leftmargin=*]
-
-\item \textbf{（真题风格·选择题）} 下列有关 I/O 接口的叙述中，\textbf{错误}的是
-
-\begin{center}
-\begin{tabular}{l}
-(A) 状态寄存器和控制寄存器可以合用同一个寄存器（不同位段） \\[4pt]
-(B) I/O 端口是指 I/O 接口中 CPU 可访问的寄存器 \\[4pt]
-(C) 独立编址方式下，I/O 端口地址和主存地址可以相同 \\[4pt]
-(D) 统一编址方式下，CPU 不能用访存指令访问 I/O 端口
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(D)
-
-\textbf{解析：} (D) 是\textbf{错误}的——统一编址（Memory-Mapped I/O）的精髓恰恰是将 I/O 端口映射到主存地址空间，CPU 用\textbf{普通访存指令}（LOAD/STORE）访问 I/O 端口，不需要专门的 I/O 指令。这是「统一」二字的含义。(A) 正确：若接口定义允许读状态和写控制复用同一地址的不同位段，就可以减少独立的可寻址寄存器/端口；但读写语义和各位定义必须由接口明确规定。(B) 正确：I/O 端口是 I/O 接口中 CPU 可寻址访问的寄存器。(C) 正确：独立编址下 I/O 地址空间与主存地址空间相互独立，即使地址数值相同也走不同译码通路，不会冲突。\textbf{对比速记：}统一编址 $\to$ 访存指令访问 I/O（ARM/MIPS）；独立编址 $\to$ 专用 I/O 指令 IN/OUT（x86）。\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} I/O 指令实现的数据传送通常发生在
-
-\begin{center}
-\begin{tabular}{ll}
-(A) I/O 端口和 I/O 设备之间 & (B) 通用寄存器和 I/O 设备之间 \\[6pt]
-(C) I/O 端口之间 & (D) 通用寄存器和 I/O 端口之间
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(D)
-
-\textbf{解析：} I/O 指令（如 x86 的 IN/OUT）的本质是在\textbf{通用寄存器和 I/O 端口之间}搬数据。完整 I/O 路径为：
-\[
-\text{CPU 通用寄存器}\;\overset{\text{I/O 指令}}{\longleftrightarrow}\;\text{I/O 端口（接口寄存器）}\;\overset{\text{控制器}}{\longleftrightarrow}\;\text{I/O 设备本体}
-\]
-(A) 错误——端口和设备之间的数据流是控制器自动处理的，不是 I/O 指令直接驱动。(B) 错误——CPU 不能直接访问 I/O 设备内部硬件状态，必须经端口中转。(C) 错误——端口之间不会直接互相搬数据，需经 CPU 中转（端口$\to$寄存器$\to$另一个端口）。\textbf{口诀：}IN/OUT 指令只负责「寄存器$\leftrightarrow$端口」，端口以下的交互由控制器自治。\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 下列关于多重中断系统的叙述中，\textbf{错误}的是
-
-\begin{center}
-\begin{tabular}{l}
-(A) 在一条指令执行结束时响应中断 \\[4pt]
-(B) 中断处理期间 CPU 处于关中断状态 \\[4pt]
-(C) 中断请求的产生与当前正在执行的指令无关 \\[4pt]
-(D) CPU 通过采样中断请求信号来检测是否有中断请求
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(B)
-
-\textbf{解析：} 关键区分「单级中断」与「多重中断」。多重中断允许嵌套——必须在 ISR 内\textbf{适当时机开中断}（保护现场之后、恢复现场之前），让更高优先级中断能够打断当前 ISR。所以 ISR 期间 CPU 既有关中断阶段也有开中断阶段，并非「全程关中断」。(B) 把单级中断的行为套到多重中断上是错误的。(A) 正确——中断响应必须在指令边界，以保证断点信息完整保存。(C) 正确——外中断由外部设备触发，与 CPU 当前跑哪条指令无关（这是中断区别于异常的核心特征）。(D) 正确——CPU 在中断响应周期采样中断请求引脚。\textbf{多重中断标准时序：}关中断$\to$保护现场$\to$开中断$\to$处理（可嵌套）$\to$关中断$\to$恢复现场$\to$IRET 返回。\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 下列关于中断 I/O 方式和 DMA 方式比较的叙述中，\textbf{错误}的是
-
-\begin{center}
-\begin{tabular}{l}
-(A) 中断 I/O 方式请求的是 CPU 时间，DMA 方式请求的是总线使用权 \\[4pt]
-(B) 中断 I/O 方式在指令执行结束后响应，DMA 方式在总线事务结束后响应 \\[4pt]
-(C) 中断 I/O 方式下数据传送由软件完成，DMA 方式下数据传送由硬件完成 \\[4pt]
-(D) 中断 I/O 方式适用于所有外部设备，DMA 方式仅适用于快速外部设备
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(D)
-
-\textbf{解析：} (D) 中有两个绝对化判断都不准确：(1)「中断适用于\textbf{所有}外设」——高速设备若为每个字或很小批次频繁中断，会使 CPU 承担过高的中断与软件搬运开销，工程上通常改用 DMA 等块传送机制。(2)「DMA \textbf{仅}适用于快速外设」——DMA 的本质优势是块传送时减少 CPU 参与；只要设备和系统支持相应 DMA 协议，是否采用还取决于传输粒度和开销，并非只由设备速度决定。(A) 正确——两种方式请求的核心资源不同：中断请求 CPU 处理，DMA 请求总线使用权。(B) 正确——典型 408 模型中，中断在指令边界响应，DMA 在总线周期边界获得传送机会。(C) 正确——中断方式由 CPU 执行 ISR/驱动代码完成数据搬运或协调，DMA 则由控制器硬件完成块传送。\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 下列关于 DMA 方式的叙述中，正确的是
-
-\begin{center}
-\begin{tabular}{l}
-I.\ \ DMA 传送前由设备驱动程序设置传送参数 \\[4pt]
-II.\ \ 数据传送前由 DMA 控制器请求总线使用权 \\[4pt]
-III.\ 数据传送由 DMA 控制器直接控制总线完成 \\[4pt]
-IV.\ \ DMA 传送结束后的处理由中断服务程序完成
-\end{tabular}
-\end{center}
-
-\begin{center}
-\begin{tabular}{ll}
-(A) 仅 I、II & (B) 仅 I、II、III \\[6pt]
-(C) 仅 II、III、IV & (D) I、II、III、IV
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(D)
-
-\textbf{解析：} 这是 408 少见的「全选」题，覆盖 DMA 三阶段。\textbf{预处理}（I）：CPU 执行设备驱动程序，设置 DMAC 的源/目的地址、字节数、方向等参数。\textbf{数据传送}（II + III）：DMA 控制器向总线仲裁器申请使用权，取得总线后直接在设备与主存之间搬运数据，CPU 不逐字参与。\textbf{后处理}（IV）：数据块传送结束，DMAC 向 CPU 发中断请求，CPU 执行中断服务程序完成收尾。\textbf{关键区分：}驱动程序在预处理阶段设置参数，中断服务程序在后处理阶段处理完成；DMA 的数据传送阶段由硬件控制。
-\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[leftmargin=*,resume]
-
-\item \textbf{（真题风格·选择题）} 若设备采用周期挪用 DMA 方式进行输入输出，每次 DMA 传送的数据块大小为 512 字节，相应的 I/O 接口中有一个 32 位数据缓冲寄存器，对于数据输入过程，下列叙述中\textbf{错误}的是
-
-\begin{center}
-\begin{tabular}{l}
-(A) 每准备好 32 位数据，DMA 控制器就发出一次总线请求 \\[4pt]
-(B) 若 CPU 和 DMA 控制器同时请求总线，DMA 控制器优先级更高 \\[4pt]
-(C) 在整个数据块的传送过程中，CPU 不可以访问主存 \\[4pt]
-(D) 数据块传送结束后，DMA 控制器向 CPU 发出中断请求
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(C)
-
-\textbf{解析：} \textbf{核心概念——周期挪用 vs 停止 CPU：}
-
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-方式 & 占用粒度 & CPU 能否访存 & 适用场景 \\
-\hline
-\textbf{周期挪用} & 每次 1 个总线周期 & 非挪用周期\textbf{可以}访存 & 中速 I/O（磁盘、网卡）\\
-停止 CPU & 整块一直占用 & 整块期间\textbf{不可以}访存 & 极高速 I/O \\
-\hline
-\end{tabular}
-\end{center}
-
-(C) 描述的是「停止 CPU」方式而非题面规定的「周期挪用」。周期挪用中 DMA 每次搬 32 位（4 字节）只占用 1 个总线周期——512 字节共需 128 次挪用，其余大量周期 CPU 均可正常访问主存。(A) 正确：32 位缓冲满即发请求，$512/4=128$ 次。(B) 正确：DMA 优先级高于 CPU——设备数据等不起，丢了就永久丢失；CPU 让一个周期影响微乎其微。(D) 正确：数据块传完，DMAC 发中断触发后处理。\textbf{「挪用」二字的精髓：}借一个周期就还，不是霸占整段时间。\else \answerarea \fi
-
-\item \textbf{（真题风格·选择题）} 下列关于 I/O 控制方式的叙述中，\textbf{错误}的是
-
-\begin{center}
-\begin{tabular}{l}
-(A) 程序查询方式中，CPU 通过执行查询程序完成 I/O 操作 \\[4pt]
-(B) 程序中断方式中，CPU 通过执行中断服务程序完成数据传送 \\[4pt]
-(C) DMA 方式中，CPU 通过执行 DMA 传送程序完成数据传送 \\[4pt]
-(D) 对于 SSD 和网络适配器等高速设备，一般采用 DMA 方式进行 I/O
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{答案：}(C)
-
-\textbf{解析：} (C) 是经典「矛盾说法」——DMA 方式的核心恰恰是「\textbf{绕过 CPU 让 DMA 控制器自己搬}」。没有「DMA 传送程序」这种东西：传送阶段是 DMA 控制器的硬件电路在自动控总线搬数据，CPU 全程不执行任何与传送相关的指令。(A) 正确：程序查询由 CPU 轮询状态寄存器 + IN/OUT 完成。(B) 正确：中断方式由 CPU 在 ISR 中用 IN/OUT 逐字节搬——传送主体仍是 CPU。(D) 正确：SSD（数百 MB/s～GB/s）和万兆网卡只有 DMA 能胜任。\textbf{三种方式 CPU 参与度对比：}程序查询——全程 CPU 软件；程序中断——每字节中断一次（CPU 执行 ISR）；DMA——仅头尾 CPU 参与，传送阶段硬件自动。\else \answerarea \fi
-
-\item \textbf{（真题风格·综合题）} 某计算机的 CPU 主频为 500 MHz，CPI 为 1.5。某外设通过中断方式进行数据输入，每次中断传送 4 字节，每次中断处理（包括保护/恢复现场和实际数据传送）共需执行 100 条指令。外设的数据传输率为 2 MB/s。
-
-\begin{enumerate}
-    \item[(1)] 每秒需要多少次中断？每次中断处理的 CPU 时间是多少？
-    \item[(2)] CPU 用于该外设 I/O 处理的时间占 CPU 总时间的百分比是多少？
-    \item[(3)] 若改为 DMA 方式，DMA 预处理需 CPU 执行 20 条指令（CPI = 1.5），后处理（中断处理）需执行 40 条指令（CPI = 2.0），DMA 采用周期挪用方式，每次 DMA 传送 4096 字节的数据块。求 DMA 方式下 CPU 用于该外设的时间百分比，并与 (2) 比较，说明 DMA 的优势。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-
-(1) 外设速率 2 MB/s，每次中断传 4 B，故每秒中断次数 $=2\times10^{6}/4=5\times10^{5}=50$ 万次。
-
-每次中断处理 100 条指令 $\times$ CPI 1.5 $=150$ 个时钟周期。时钟周期 $T=1/500\ \text{MHz}=2$ ns，每次中断时间 $=150\times2=300$ ns。
-
-(2) 每秒总中断处理时间 $=5\times10^{5}\times300\ \text{ns}=0.15$ s。CPU 时间占比 $=0.15/1.0=15\%$。
-
-(3) DMA 方式下，每秒需传 $2\times10^{6}/4096\approx 488.3$ 个数据块，即每秒约 489 次 DMA 传送。
-
-每次 DMA 的 CPU 开销：
-\begin{itemize}
-    \item 预处理：20 条 $\times$ 1.5 $=30$ 个时钟周期 $\to 30\times 2\ \text{ns}=60$ ns
-    \item 后处理：40 条 $\times$ 2.0 $=80$ 个时钟周期 $\to 80\times 2\ \text{ns}=160$ ns
-    \item 合计：$60+160=220$ ns/次
-\end{itemize}
-
-每秒 CPU 开销 $=489\times 220\ \text{ns}\approx 1.076\times 10^{-4}$ s。CPU 时间占比 $\approx 0.0108\%$。
-
-\textbf{对比：}中断方式 CPU 占比 $15\%$，DMA 方式仅约 $0.01\%$——DMA 将 CPU 从 I/O 处理中解放了约 1400 倍。优势根源：(1) DMA 每次传 4096 字节而非 4 字节（块粒度大 1024 倍），中断次数从 50 万次降至约 489 次；(2) CPU 只在块传送的头尾参与，中间由 DMAC 硬件自动完成。\textbf{核心结论：}数据块越大、设备速率越高，DMA 的优势越显著。
-\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
-\noindent\textbf{拓展阅读：}
-\begin{itemize}
-    \item \textbf{Patterson \& Hennessy《计算机组成与设计》}第 5 章 5.5--5.6 节——DMA 与 I/O 总线的详细工作流程，包含周期挪用（Cycle Stealing）的时序分析。
-    \item \textbf{Bryant \& O'Hallaron《深入理解计算机系统》（CS:APP）}第 8 章「异常控制流」——8.1 节（异常）、8.5 节（信号），从 OS 视角理解中断、陷阱、故障和终止的分类与处理。
-    \item \textbf{CodeBrick 408 真题可视化}（codebrick.tech）——DMA 方式共 10 道真题（累计 41 分），程序中断方式共 10 道，I/O 接口共 5 道，均配交互式可视化演示。
-\end{itemize}
+\input{co/exercises/chap7.tex}

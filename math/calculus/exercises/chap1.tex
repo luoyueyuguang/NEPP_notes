@@ -1,0 +1,381 @@
+\section{习题}
+
+\subsection{本章速览}
+
+\begin{itemize}
+  \item \textbf{数列极限}：$\lim\limits_{n\to\infty}x_n=A$ 指 $n$ 充分大后 $x_n$ 与 $A$ 任意接近（$\varepsilon$-$N$ 语言）。收敛数列必有界，但有界数列未必收敛（如 $(-1)^n$）。
+  \item \textbf{函数极限}：$x\to x_0$ 时考察的是去心邻域 $0<|x-x_0|<\delta$，$f(x_0)$ 是否有定义、取什么值都不影响极限。极限存在的充要条件是左右极限都存在且相等。
+  \item \textbf{等价无穷小}（$x\to0$）：$\sin x\sim x$，$\tan x\sim x$，$1-\cos x\sim \dfrac{x^2}{2}$，$\ln(1+x)\sim x$，$e^x-1\sim x$，$(1+x)^{\alpha}-1\sim \alpha x$。代换只能对\textbf{乘除因子}整体进行；加减项要先提出主部或展开到足够阶。
+  \item \textbf{夹逼与单调有界}：若 $y_n\le x_n\le z_n$ 且两端趋于同一极限，则中间也趋于该极限；单调有界数列必收敛。递推数列 $x_{n+1}=f(x_n)$ 必须先证明收敛，才能设极限 $A$ 并解 $A=f(A)$。
+  \item \textbf{洛必达法则}：只适用于 $\dfrac{0}{0}$、$\dfrac{\infty}{\infty}$ 型，且要求 $\lim\dfrac{f'}{g'}$ 存在或为无穷；若 $\lim\dfrac{f'}{g'}$ 不存在，原极限仍可能存在，不能据此断言原极限不存在。
+  \item \textbf{连续与间断}：$f$ 在 $x_0$ 连续 $\Leftrightarrow \lim\limits_{x\to x_0}f(x)=f(x_0)$。左右极限都存在的是第一类间断点（相等为可去，不等为跳跃）；至少一侧极限不存在的是第二类（无穷或振荡）。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 判断下列说法是否正确：正确的说明理由，错误的举出一个反例。
+\begin{enumerate}
+  \item[(1)] 若 $\lim\limits_{n\to\infty}a_n$ 存在，则数列 $\{a_n\}$ 有界；
+  \item[(2)] 若数列 $\{a_n\}$ 有界，则 $\{a_n\}$ 收敛；
+  \item[(3)] 若 $\lim\limits_{x\to x_0}f(x)$ 存在，则 $f$ 在 $x_0$ 处连续；
+  \item[(4)] 若 $f$ 在 $x_0$ 处连续，则 $|f|$ 在 $x_0$ 处连续。
+\end{enumerate}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 前两问围绕“收敛 $\Rightarrow$ 有界”这一单向结论；后两问抓住连续定义中“极限值等于函数值”这一条，以及绝对值函数的连续性。
+
+(1) 正确。设 $\lim\limits_{n\to\infty}a_n=A$，取 $\varepsilon=1$，存在 $N$，当 $n>N$ 时 $|a_n|<|A|+1$。前 $N$ 项只有有限个，取
+\[
+M=\max\bigl\{|a_1|,|a_2|,\dots,|a_N|,\ |A|+1\bigr\},
+\]
+则对一切 $n$ 都有 $|a_n|\le M$。
+
+(2) 错误。反例 $a_n=(-1)^n$ 有界，但子列 $a_{2k}=1$、$a_{2k+1}=-1$ 趋于不同的值，故不收敛。
+
+(3) 错误。极限存在只刻画去心邻域，与 $f(x_0)$ 无关。反例：
+\[
+f(x)=\begin{cases}\dfrac{\sin x}{x}, & x\ne 0,\\[6pt] 0, & x=0,\end{cases}
+\qquad \lim_{x\to0}f(x)=1\ne f(0).
+\]
+$f$ 在 $x=0$ 处是间断点。
+
+(4) 正确。由连续的定义，$\lim\limits_{x\to x_0}f(x)=f(x_0)$，而
+\[
+\bigl||f(x)|-|f(x_0)|\bigr|\le|f(x)-f(x_0)|\to 0,
+\]
+故 $\lim\limits_{x\to x_0}|f(x)|=|f(x_0)|$，即 $|f|$ 在 $x_0$ 处连续。
+
+\boxed{\text{答案：(1) 正确；(2) 错误；(3) 错误；(4) 正确。}}
+
+\else \answerarea[10] \fi%
+
+\textbf{2.} 求极限 $\displaystyle\lim_{x\to 0}\frac{x-\sin x}{x^2\ln(1+x)}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 分子分母都是无穷小，先判断阶。分母中的 $\ln(1+x)\sim x$，所以分母是 $x^3$ 阶；分子到 $x^3$ 项才出现非零主部，用泰勒展开。
+
+当 $x\to0$ 时，$\ln(1+x)=x+o(x)$，故
+\[
+x^2\ln(1+x)=x^3+o(x^3)\sim x^3 .
+\]
+又
+\[
+\sin x=x-\frac{x^3}{6}+o(x^3)\quad\Longrightarrow\quad x-\sin x=\frac{x^3}{6}+o(x^3).
+\]
+于是
+\[
+\lim_{x\to0}\frac{x-\sin x}{x^2\ln(1+x)}
+=\lim_{x\to0}\frac{\frac{x^3}{6}+o(x^3)}{x^3+o(x^3)}
+=\frac{1}{6}.
+\]
+注意分子是两无穷小之差，不能把 $\sin x$ 直接换成 $x$ 得到 $0$；必须展开到首个不抵消的阶（这里是三阶）。
+
+\boxed{\textbf{答案：}\dfrac{1}{6}}
+
+\else \answerarea[8] \fi%
+
+\textbf{3.} 用夹逼定理求极限
+\[
+\lim_{n\to\infty}\left(\frac{1}{\sqrt{n^2+1}}+\frac{1}{\sqrt{n^2+2}}+\cdots+\frac{1}{\sqrt{n^2+n}}\right).
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 和式共 $n$ 项，把每一项都换成最大项与最小项，得到只含 $n$ 的界。
+
+记 $\displaystyle S_n=\sum_{k=1}^{n}\frac{1}{\sqrt{n^2+k}}$。对 $1\le k\le n$ 有
+\[
+\frac{1}{\sqrt{n^2+n}}\le\frac{1}{\sqrt{n^2+k}}\le\frac{1}{\sqrt{n^2+1}},
+\]
+共 $n$ 项求和得
+\[
+\frac{n}{\sqrt{n^2+n}}\le S_n\le\frac{n}{\sqrt{n^2+1}}.
+\]
+而
+\[
+\lim_{n\to\infty}\frac{n}{\sqrt{n^2+n}}
+=\lim_{n\to\infty}\frac{1}{\sqrt{1+\frac1n}}=1,
+\qquad
+\lim_{n\to\infty}\frac{n}{\sqrt{n^2+1}}
+=\lim_{n\to\infty}\frac{1}{\sqrt{1+\frac{1}{n^2}}}=1.
+\]
+两端极限相同，由夹逼定理得 $\lim\limits_{n\to\infty}S_n=1$。
+
+\boxed{\textbf{答案：}1}
+
+\else \answerarea[8] \fi%
+
+\textbf{4.} 求极限 $\displaystyle\lim_{n\to\infty}\bigl(\sqrt{n^2+n}-n\bigr)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} $\infty-\infty$ 型，分子有理化把差化成商，再同除以 $n$。
+
+\[
+\sqrt{n^2+n}-n
+=\frac{(\sqrt{n^2+n}-n)(\sqrt{n^2+n}+n)}{\sqrt{n^2+n}+n}
+=\frac{n}{\sqrt{n^2+n}+n}.
+\]
+分子分母同除以 $n>0$：
+\[
+\frac{n}{\sqrt{n^2+n}+n}
+=\frac{1}{\sqrt{1+\frac1n}+1}\longrightarrow\frac{1}{1+1}=\frac12 .
+\]
+也可直接提出主部：$\sqrt{n^2+n}=n\sqrt{1+\frac1n}=n\Bigl(1+\frac{1}{2n}+o\bigl(\frac1n\bigr)\Bigr)$，同样得 $\frac12$。
+
+\boxed{\textbf{答案：}\dfrac{1}{2}}
+
+\else \answerarea[8] \fi%
+
+\textbf{5.} 求函数 $\displaystyle f(x)=\frac{x^2-1}{x^2-3x+2}$ 的间断点，并指出其类型。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 有理函数的间断点只可能出现在分母为零的点；再分别看该点处极限是否存在、是否等于函数值。
+
+分母 $x^2-3x+2=(x-1)(x-2)$，故可疑点为 $x=1$、$x=2$，且 $f$ 在这两点均无定义。分子 $x^2-1=(x-1)(x+1)$，于是当 $x\ne1$ 时
+\[
+f(x)=\frac{(x-1)(x+1)}{(x-1)(x-2)}=\frac{x+1}{x-2}.
+\]
+
+在 $x=1$ 处：
+\[
+\lim_{x\to1}f(x)=\lim_{x\to1}\frac{x+1}{x-2}=\frac{2}{-1}=-2,
+\]
+极限存在但 $f(1)$ 无定义，故 $x=1$ 是\textbf{可去间断点}（第一类）。
+
+在 $x=2$ 处：分子 $x+1\to3\ne0$，分母 $x-2\to0$，故
+\[
+\lim_{x\to2}f(x)=\infty,
+\]
+极限不存在（且为无穷大），故 $x=2$ 是\textbf{无穷间断点}（第二类）。
+
+\boxed{\text{答案：$x=1$ 为可去间断点（第一类）；$x=2$ 为无穷间断点（第二类）。}}
+
+\else \answerarea[10] \fi%
+
+\subsection{综合提高题}
+
+\textbf{6.} 设 $x_1=\sqrt2$，$x_{n+1}=\sqrt{2+x_n}$（$n=1,2,\dots$）。证明数列 $\{x_n\}$ 收敛，并求其极限。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 递推式含根号，先猜极限满足 $A=\sqrt{2+A}$，得 $A=2$；再用“有界 $+$ 单调”证明收敛。界 $2$ 由归纳法验证，单调性用 $x_{n+1}^2-x_n^2$ 的符号判断。
+
+\textbf{第一步：证明 $0<x_n<2$。} $x_1=\sqrt2<2$。若 $0<x_n<2$，则 $2<2+x_n<4$，从而
+\[
+\sqrt2<x_{n+1}=\sqrt{2+x_n}<2 .
+\]
+由归纳法，对一切 $n$ 有 $0<x_n<2$，即数列有界。
+
+\textbf{第二步：证明单调递增。} 因为 $x_n>0$，比较平方即可：
+\[
+x_{n+1}^2-x_n^2=(2+x_n)-x_n^2=(2-x_n)(1+x_n).
+\]
+由 $x_n<2$ 知 $2-x_n>0$，又 $1+x_n>0$，故 $x_{n+1}^2-x_n^2>0$，即 $x_{n+1}>x_n$。所以 $\{x_n\}$ 单调递增有上界。
+
+\textbf{第三步：求极限。} 由单调有界定理，$\lim\limits_{n\to\infty}x_n=A$ 存在，且 $\sqrt2\le A\le 2$。因 $\sqrt{\ \cdot\ }$ 连续，对递推式两边取极限：
+\[
+A=\sqrt{2+A}\quad\Longrightarrow\quad A^2-A-2=0\quad\Longrightarrow\quad (A-2)(A+1)=0 .
+\]
+故 $A=2$ 或 $A=-1$。由 $A\ge\sqrt2>0$ 舍去 $-1$，得 $A=2$。
+
+\boxed{\text{答案：数列收敛，$\lim\limits_{n\to\infty}x_n=2$。}}
+
+\else \answerarea[12] \fi%
+
+\textbf{7.} 求极限 $\displaystyle\lim_{x\to0}\left(\frac{1+\tan x}{1+\sin x}\right)^{\frac{1}{x^3}}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 底数趋于 $1$、指数趋于 $\infty$，是 $1^\infty$ 型。把底数写成 $1+u$（$u\to0$），利用 $\ln(1+u)\sim u$ 把指数上的极限化为 $\dfrac{u}{x^3}$。
+
+令
+\[
+u=\frac{1+\tan x}{1+\sin x}-1=\frac{\tan x-\sin x}{1+\sin x},
+\]
+当 $x\to0$ 时 $u\to0$，且 $1+\sin x\to1$，所以 $u\sim \tan x-\sin x$。
+
+先化简 $\tan x-\sin x$：
+\[
+\tan x-\sin x=\tan x\,(1-\cos x)\sim x\cdot\frac{x^2}{2}=\frac{x^3}{2}\qquad(x\to0).
+\]
+因此
+\[
+u\sim\frac{x^3}{2},\qquad \frac{u}{x^3}\to\frac12 .
+\]
+原式为 $1^\infty$ 型，取对数：
+\[
+\ln L=\lim_{x\to0}\frac{\ln(1+u)}{x^3}
+=\lim_{x\to0}\frac{u}{x^3}\cdot\frac{\ln(1+u)}{u}
+=\frac12\cdot 1=\frac12,
+\]
+其中用到 $\ln(1+u)\sim u$。故
+\[
+L=e^{1/2}=\sqrt e .
+\]
+
+\boxed{\textbf{答案：}\sqrt e}
+
+\else \answerarea[10] \fi%
+
+\textbf{8.} 求极限 $\displaystyle\lim_{x\to0}\left(\frac{1}{x^2}-\frac{1}{x\tan x}\right)$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} $\infty-\infty$ 型，先通分化为 $\dfrac00$，再用洛必达；求导后出现的 $\tan^2x$ 与分母中的 $x\tan x$ 用等价无穷小化简，避免反复求导。
+
+通分：
+\[
+\frac{1}{x^2}-\frac{1}{x\tan x}
+=\frac{\tan x-x}{x^2\tan x}.
+\]
+当 $x\to0$ 时分子、分母都趋于 $0$，且分母在去心邻域内不为零，满足洛必达法则的条件。求导得
+\[
+\lim_{x\to0}\frac{\tan x-x}{x^2\tan x}
+=\lim_{x\to0}\frac{\sec^2x-1}{2x\tan x+x^2\sec^2x}
+=\lim_{x\to0}\frac{\tan^2x}{2x\tan x+x^2\sec^2x}.
+\]
+分子分母同除以 $x^2$，并利用 $\dfrac{\tan x}{x}\to1$、$\sec^2x\to1$：
+\[
+\lim_{x\to0}\frac{\left(\frac{\tan x}{x}\right)^2}{2\cdot\frac{\tan x}{x}+\sec^2x}
+=\frac{1^2}{2\cdot1+1}=\frac13 .
+\]
+\textbf{另解（泰勒）：} $\tan x=x+\dfrac{x^3}{3}+o(x^3)$，故 $\tan x-x\sim\dfrac{x^3}{3}$，而 $x^2\tan x\sim x^3$，同样得 $\dfrac13$。
+
+\boxed{\textbf{答案：}\dfrac{1}{3}}
+
+\else \answerarea[10] \fi%
+
+\textbf{9.} 求函数 $\displaystyle f(x)=\frac{1}{1-e^{\frac{x}{x-1}}}$ 的间断点，并指出其类型。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 间断点为 $x=0$（分母为零）与 $x=1$（指数无定义）。由于含 $e^{\frac{x}{x-1}}$，必须分左右两侧考察：$x\to1$ 时指数分别趋于 $-\infty$ 与 $+\infty$。
+
+(1) $x=0$ 处。当 $x\to0^+$ 时，$x>0$、$x-1<0$，故 $\dfrac{x}{x-1}\to0^-$，$e^{\frac{x}{x-1}}\to1^-$，分母 $1-e^{\frac{x}{x-1}}\to0^+$，从而 $f(x)\to+\infty$。
+当 $x\to0^-$ 时，$\dfrac{x}{x-1}\to0^+$，分母 $\to0^-$，从而 $f(x)\to-\infty$。
+左右极限都为无穷大（不存在），故 $x=0$ 是\textbf{无穷间断点}（第二类）。
+
+(2) $x=1$ 处。当 $x\to1^-$ 时，$x-1<0$，$\dfrac{x}{x-1}\to-\infty$，$e^{\frac{x}{x-1}}\to0$，故
+\[
+\lim_{x\to1^-}f(x)=\frac{1}{1-0}=1 .
+\]
+当 $x\to1^+$ 时，$\dfrac{x}{x-1}\to+\infty$，$e^{\frac{x}{x-1}}\to+\infty$，故
+\[
+\lim_{x\to1^+}f(x)=\frac{1}{1-(+\infty)}=0 .
+\]
+左右极限都存在但不相等，故 $x=1$ 是\textbf{跳跃间断点}（第一类）。
+
+\boxed{\text{答案：$x=0$ 为无穷间断点（第二类）；$x=1$ 为跳跃间断点（第一类）}}
+
+\else \answerarea[12] \fi%
+
+\subsection{真题风格与综合训练}
+
+\textbf{10.} \boxed{\textbf{真题风格}}（选择题）当 $x\to0$ 时，下列无穷小中\textbf{阶数最高}的是（\quad）
+
+\begin{center}
+\begin{tabular}{ll}
+(A) $1-\cos x$ & (B) $x-\sin x$ \\[4pt]
+(C) $\sqrt{1+x^2}-1$ & (D) $e^{x^2}-1-x^2$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} “阶数”指无穷小关于 $x$ 的幂次，逐个展开到首个非零项。
+
+(A) $1-\cos x\sim\dfrac{x^2}{2}$，是 $2$ 阶无穷小。
+
+(B) $\sin x=x-\dfrac{x^3}{6}+o(x^3)$，故 $x-\sin x\sim\dfrac{x^3}{6}$，是 $3$ 阶无穷小。
+
+(C) 由 $(1+u)^{\frac12}-1\sim\dfrac{u}{2}$（$u=x^2$），得 $\sqrt{1+x^2}-1\sim\dfrac{x^2}{2}$，是 $2$ 阶无穷小。
+
+(D) $e^{x^2}=1+x^2+\dfrac{x^4}{2}+o(x^4)$，故 $e^{x^2}-1-x^2\sim\dfrac{x^4}{2}$，是 $4$ 阶无穷小。
+
+四者中阶数最高的是 (D)。
+
+\boxed{\textbf{答案：}(D)}
+
+\else \answerarea[8] \fi%
+
+\textbf{11.} \boxed{\textbf{真题风格}}（填空题）设 $\displaystyle\lim_{x\to0}\frac{\sin 6x+xf(x)}{x^3}=0$，则 $\displaystyle\lim_{x\to0}\frac{6+f(x)}{x^2}=\underline{\hspace{2.5cm}}$。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 已知极限为零，说明分子是比 $x^3$ 高阶的无穷小。把 $\sin 6x$ 展开到 $x^3$ 项，从中解出 $f(x)$ 的主部。
+
+由 $\sin u=u-\dfrac{u^3}{6}+o(u^3)$，取 $u=6x$：
+\[
+\sin 6x=6x-\frac{(6x)^3}{6}+o(x^3)=6x-36x^3+o(x^3).
+\]
+代入已知条件：
+\[
+\frac{\sin 6x+xf(x)}{x^3}
+=\frac{x\bigl(6+f(x)\bigr)-36x^3+o(x^3)}{x^3}\to0 .
+\]
+于是
+\[
+\frac{x\bigl(6+f(x)\bigr)}{x^3}=36+o(1),
+\]
+约去分子中的 $x$ 与分母中的 $x^3$ 之一，得
+\[
+\frac{6+f(x)}{x^2}=36+o(1)\longrightarrow 36 .
+\]
+\textbf{注：} 关键是“已知极限为零”只能推出分子为 $o(x^3)$，移项时必须保留 $36x^3$ 这一主部，不能直接把 $\sin 6x$ 换成 $6x$（那样会得到错误的 $0$）。
+
+\boxed{\textbf{答案：}36}
+
+\else \answerarea[8] \fi%
+
+\textbf{12.} \boxed{\textbf{真题风格}}（解答题）设
+\[
+f(x)=\lim_{n\to\infty}\frac{x^{2n-1}+ax^2+bx}{x^{2n}+1},
+\]
+其中 $a,b$ 为常数。求 $a,b$，使 $f(x)$ 在 $x=1$ 与 $x=-1$ 处都连续。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：} 先按 $|x|<1$、$|x|>1$、$|x|=1$ 三种情形分别求出 $f(x)$ 的表达式，再对 $x=\pm1$ 使用“左极限 $=$ 右极限 $=$ 函数值”。
+
+\textbf{第一步：求 $f(x)$ 的分段表达式。}
+
+当 $|x|<1$ 时，$x^{2n}\to0$、$x^{2n-1}\to0$，故
+\[
+f(x)=ax^2+bx .
+\]
+当 $|x|>1$ 时，分子分母同除以 $x^{2n}$：
+\[
+\frac{x^{2n-1}+ax^2+bx}{x^{2n}+1}
+=\frac{\frac1x+ax^{2-2n}+bx^{1-2n}}{1+x^{-2n}}\longrightarrow\frac1x ,
+\]
+故 $f(x)=\dfrac1x$。
+当 $x=1$ 时，$x^{2n}=1$，故 $f(1)=\dfrac{1+a+b}{2}$；当 $x=-1$ 时，$x^{2n}=1$、$x^{2n-1}=-1$，故 $f(-1)=\dfrac{-1+a-b}{2}$。
+
+\textbf{第二步：在 $x=1$ 处连续。} 左极限（$|x|<1$ 一支）为 $a+b$，右极限（$|x|>1$ 一支）为 $1$，函数值为 $\dfrac{1+a+b}{2}$。连续要求
+\[
+a+b=1,\qquad \frac{1+a+b}{2}=1 .
+\]
+第二式即 $a+b=1$，与第一式一致，故得
+\[
+a+b=1. \tag{1}
+\]
+
+\textbf{第三步：在 $x=-1$ 处连续。} 左极限（$|x|>1$ 一支）为 $\dfrac{1}{-1}=-1$，右极限（$|x|<1$ 一支）为 $a-b$，函数值为 $\dfrac{-1+a-b}{2}$。连续要求
+\[
+a-b=-1,\qquad \frac{-1+a-b}{2}=-1 .
+\]
+第二式同样等价于 $a-b=-1$，故
+\[
+a-b=-1. \tag{2}
+\]
+联立 (1)(2) 解得 $a=0$，$b=1$。
+
+\textbf{第四步：验证。} 此时 $f(x)=x\ (|x|<1)$，$f(x)=\dfrac1x\ (|x|>1)$，$f(1)=1$，$f(-1)=-1$。在 $x=1$ 处左右极限均为 $1=f(1)$，在 $x=-1$ 处左右极限均为 $-1=f(-1)$，确实连续。
+
+\boxed{\text{答案：$a=0$，$b=1$。}}
+
+\else \answerarea[12] \fi%

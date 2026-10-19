@@ -1,0 +1,201 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}[leftmargin=*]
+
+    \item \textbf{（单项选择题）}
+    某计算机指令字长 16 位，采用扩展操作码，二地址指令的格式为「4 位基本操作码 + 两个 6 位地址码」。若该机已有 12 条二地址指令和 254 条一地址指令，则零地址指令最多可有（\quad）条。
+    \begin{enumerate}[label=(\Alph*)]
+        \item $64$
+        \item $128$
+        \item $256$
+        \item $512$
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{解析：} 4 位基本操作码共有 $2^4=16$ 个编码，12 条二地址指令占用 12 个，还剩 $16-12=4$ 个。一地址指令把这 4 个编码与第一个 6 位地址字段拼接成 10 位操作码，故一地址指令最多有 $4\times2^6=256$ 条；已用 254 条，还剩 $256-254=2$ 个一地址操作码。零地址指令再把第二个 6 位地址字段并入操作码，因此最多有 $2\times2^6=128$ 条。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+    \vspace{8pt}
+
+    \item \textbf{（单项选择题）}
+    某机按字节编址，指令字长 2 字节。一条采用相对寻址的转移指令存放在 \texttt{2000H}、\texttt{2001H} 两个单元中，其 8 位形式地址字段为补码 \texttt{F6H}。取指完成后 PC 的内容为 \texttt{2002H}。该转移指令的转移目标地址是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{1FF8H}
+        \item \texttt{200CH}
+        \item \texttt{1FF6H}
+        \item \texttt{20F8H}
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{解析：} 相对寻址以「取指后已更新的 PC」为基准，即 $EA=(PC)+A$。8 位补码 $\texttt{F6H}=11110110_2$ 的符号位为 1，其值为 $-(00001010_2)=-10=-0\texttt{AH}$。于是
+    \[
+    EA=\texttt{2002H}-\texttt{000AH}=\texttt{1FF8H}.
+    \]
+    若把 \texttt{F6H} 当作无符号数 $246$ 直接相加，会得到 \texttt{20F8H}，这正是选项 (D) 的错误来源；相对位移必须按补码解释。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+    \vspace{8pt}
+
+    \item \textbf{（单项选择题）}
+    下列关于寻址方式的叙述中，正确的是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
+        \item 立即寻址的操作数直接包含在指令中，取操作数时不需要访问主存
+        \item 直接寻址的有效地址等于形式地址所指主存单元的内容
+        \item 寄存器间接寻址中，操作数存放在地址码字段指定的寄存器中
+        \item 变址寻址中，变址寄存器的内容由指令的形式地址字段给出
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{解析：} 立即寻址的地址码字段本身就是操作数，取操作数不访存，(A) 正确。直接寻址的有效地址就是形式地址，$EA=A$；把该单元的内容再当地址的是间接寻址，(B) 错。寄存器间接寻址中寄存器存放的是操作数的地址，操作数在主存中，(C) 错。变址寻址的形式地址是固定基准或偏移，变址寄存器的内容由程序修改，并非由指令字段直接给出，(D) 错。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+    \vspace{8pt}
+
+    \item \textbf{（填空题）}
+    某机按字节编址，采用一次间接寻址。某指令的形式地址字段为 \texttt{3000H}，主存 \texttt{3000H} 单元的内容为 \texttt{4000H}，而 \texttt{4000H} 单元存放着该指令所需的操作数。则有效地址 $EA=$ \underline{\hspace{2cm}}，取该操作数需要访问主存 \underline{\hspace{1cm}} 次（不计取指访存）。
+
+    \ifshowsolutions\par\noindent\textbf{解析：} 一次间接寻址先用形式地址访问主存，读出真正的有效地址：$EA=(\texttt{3000H})=\texttt{4000H}$。随后还要按 $EA$ 再访问一次主存取出操作数，所以取操作数共访存 2 次。第一次读的是「地址」，第二次读的才是「操作数」，这是间接寻址访存次数多的原因。\boxed{\text{\textbf{答案：}\texttt{4000H}；2}}\else \answerarea \fi
+
+    \vspace{8pt}
+
+    \item \textbf{（单项选择题）}
+    下列关于 CISC 与 RISC 的叙述中，错误的是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
+        \item RISC 通常采用定长指令，指令译码和流水线控制较为简单
+        \item CISC 的指令长度和寻址方式通常比 RISC 更多样
+        \item 典型 load-store 型 RISC 中，只有取数/存数指令访问数据存储器
+        \item CISC 一定采用微程序控制，RISC 一定采用硬布线控制
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{解析：} (A) 是 RISC 的典型特征：定长、格式规整，便于在取指阶段就完成译码并安排流水。(B) 也符合两类机器的常见设计取向。(C) 描述的是 load-store 结构：运算类指令只在寄存器之间进行，访存由 LOAD/STORE 完成。(D) 错在「一定」：控制器用微程序还是硬布线是具体实现的选择，早期 RISC 多用硬布线，但 CISC 也可用硬布线，现代处理器还常把 CISC 指令翻译成类 RISC 微操作，不能一概而论。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
+
+    \vspace{8pt}
+
+    \item \textbf{（填空题）}
+    零地址指令不显式给出操作数地址，其操作数通常隐含在 \underline{\hspace{2.5cm}} 中；一地址指令通常把另一个操作数隐含在 \underline{\hspace{2cm}} 中。
+
+    \ifshowsolutions\par\noindent\textbf{解析：} 零地址指令常见于堆栈计算机，操作数默认取自栈顶（如栈顶两个元素相加后结果压回栈顶）；没有操作数的 NOP 也属于零地址指令。一地址指令只有一个地址码，另一个操作数习惯上取自累加寄存器 ACC，运算结果通常也写回 ACC，例如 \texttt{ADD A} 表示 $(ACC)+ (A)\to ACC$。\boxed{\text{\textbf{答案：}栈顶（堆栈）；累加寄存器 ACC}}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[leftmargin=*]
+
+    \item \textbf{（单项选择题）}
+    某机指令字长 16 位，采用扩展操作码，每个地址码字段均为 4 位，可安排三地址、二地址、一地址和零地址指令。现已有 12 条三地址指令、40 条二地址指令和 200 条一地址指令，则零地址指令最多可有（\quad）条。
+    \begin{enumerate}[label=(\Alph*)]
+        \item $184$
+        \item $2944$
+        \item $6144$
+        \item $384$
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{解析：} 逐层计算可用操作码前缀。三地址指令占 4 位基本操作码，$2^4=16$ 个编码中用去 12 个，剩 4 个。二地址指令每用 1 个剩余前缀并拼接 1 个 4 位地址字段，共 $4\times2^4=64$ 个操作码；用去 40 个，剩 24 个。一地址指令再拼接 1 个 4 位字段，共 $24\times2^4=384$ 个；用去 200 个，剩 184 个。零地址指令把最后一个 4 位地址字段也并入操作码，故最多 $184\times2^4=2944$ 条。选项 (A) 漏掉了最后一次扩展，(C) 忘记扣除已用的一地址指令。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+    \vspace{8pt}
+
+    \item \textbf{（单项选择题）}
+    某 RISC 机采用 32 位定长指令，按字节编址，指令按字边界对齐。一条转移指令采用 PC 相对寻址：16 位偏移字段为补码，左移 2 位后与「本指令地址 $+4$」相加得到目标地址。该指令存放在从 \texttt{2000H} 开始的单元中，偏移字段为 \texttt{FFF8H}，则转移目标地址是（\quad）。
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{1FE4H}
+        \item \texttt{1FFCH}
+        \item \texttt{1FE0H}
+        \item \texttt{2024H}
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{解析：} 16 位补码 $\texttt{FFF8H}$ 的值为 $-8$。由于指令按字（4 字节）对齐，偏移字段以「字」为单位编码，左移 2 位后得到字节偏移
+    \[
+    -8\times4=-32=-\texttt{20H}.
+    \]
+    32 位定长指令占 4 字节，取指后 $PC=\texttt{2000H}+4=\texttt{2004H}$，故目标地址为
+    \[
+    \texttt{2004H}-\texttt{20H}=\texttt{1FE4H}.
+    \]
+    选项 (B) 忘记左移 2 位，选项 (C) 既未左移又漏掉 $+4$，选项 (D) 把负偏移当正数相加。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+    \vspace{8pt}
+
+    \item \textbf{（综合应用题）}
+    某计算机指令字长 16 位，采用扩展操作码。二地址指令的格式为「4 位基本操作码 + 两个 6 位地址码」，一地址指令和零地址指令依次利用地址码字段继续扩展。设该机已有 14 条二地址指令。
+    \begin{enumerate}
+        \item[(1)] 若一地址指令有 120 条，零地址指令最多有多少条？
+        \item[(2)] 若要求零地址指令不少于 100 条，一地址指令最多有多少条？
+        \item[(3)] 给出一种具体的操作码分配方案，并说明为什么此时二地址操作码 \texttt{1111} 不能再单独表示一条二地址指令。
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{解析：}
+    \textbf{（1）} 基本操作码 4 位，共 16 个编码；14 条二地址指令用去 14 个，剩 $16-14=2$ 个前缀。一地址指令的操作码为「剩余 4 位前缀 + 6 位」，共 $2\times2^6=128$ 个；用去 120 个后还剩 8 个。零地址指令的操作码为「剩余一地址前缀 + 最后 6 位」，故最多
+    \[
+    8\times2^6=512\ \text{条}.
+    \]
+
+    \textbf{（2）} 设一地址指令用 $n$ 条，则可用于零地址的一地址前缀有 $128-n$ 个，每个前缀可扩展出 $2^6=64$ 条零地址指令，故零地址指令数为 $64(128-n)$。要求
+    \[
+    64(128-n)\geqslant 100\ \Longrightarrow\ 128-n\geqslant 1.5625.
+    \]
+    前缀个数为整数，故 $128-n\geqslant2$，即 $n\leqslant126$。当 $n=126$ 时，剩 2 个前缀，零地址指令有 $2\times64=128$ 条，满足要求；当 $n=127$ 时只剩 64 条，不满足。因此一地址指令最多 126 条。
+
+    \textbf{（3）} 一种分配如下：二地址指令操作码取 \texttt{0000}～\texttt{1101}；一地址指令取 \texttt{1110 000000}～\texttt{1111 110111}，共 120 个；剩下 \texttt{1111 111000}～\texttt{1111 111111} 这 8 个前缀各再拼接最后 6 位，得到 $8\times2^6=512$ 条零地址指令，其操作码形如 \texttt{1111 111xxx xxxxxx}。这里 \texttt{1111} 已被保留为一地址指令的扩展前缀：若它同时又单独作为一条二地址指令的操作码，译码器看到前 4 位为 \texttt{1111} 时就无法判断后面的 6 位是地址码 $A_1$ 还是扩展操作码的一部分。也就是说，短操作码不能成为长操作码的前缀，这与哈夫曼编码的前缀性质相同。
+
+    \begin{center}
+    \fbox{\parbox{0.94\linewidth}{\textbf{答案：}(1) 最多 512 条；(2) 最多 126 条；(3) 二地址 \texttt{0000}～\texttt{1101}，一地址 \texttt{1110 000000}～\texttt{1111 110111}，零地址 \texttt{1111 111xxx xxxxxx}；\texttt{1111} 是扩展前缀，若再作完整操作码会产生前缀歧义。}}
+    \end{center}
+    \else \answerarea[10] \fi
+
+    \vspace{8pt}
+
+    \item \textbf{（综合应用题）}
+    某程序分别在两台机器上运行。CISC 机 M1：编译后共 $2.0\times10^{6}$ 条指令，平均 CPI 为 $4.0$，主频 $2.0$ GHz。RISC 机 M2：同一程序编译后共 $3.0\times10^{6}$ 条指令，平均 CPI 为 $1.5$，主频 $2.0$ GHz。两机的 CPI 均已包含流水线停顿，忽略 I/O 等待。
+    \begin{enumerate}
+        \item[(1)] 分别求程序在 M1、M2 上的执行时间（单位：ms）。
+        \item[(2)] 求 M2 相对 M1 的加速比。
+        \item[(3)] 分别求两机的 MIPS。
+        \item[(4)] 若 M2 的主频提高到 $2.5$ GHz、CPI 不变，重算 M2 的执行时间与加速比。
+        \item[(5)] 结合 (1)～(3) 说明：为什么 M2 的指令条数更多，却仍然可能更快？能否仅凭 MIPS 判断两台机器谁更快？
+    \end{enumerate}
+
+    \ifshowsolutions\par\noindent\textbf{解析：}
+    计数口径：执行时间 $T=I\times\mathrm{CPI}\times\frac{1}{f}$，其中 $I$ 为指令条数、$f$ 为主频；MIPS $=\dfrac{f}{\mathrm{CPI}\times10^{6}}$，等价于 $\dfrac{I}{T\times10^{6}}$。
+
+    \textbf{（1）} M1 的总周期数为
+    \[
+    I_1\times\mathrm{CPI}_1=2.0\times10^{6}\times4.0=8.0\times10^{6},
+    \]
+    \[
+    T_1=\frac{8.0\times10^{6}}{2.0\times10^{9}}\ \mathrm{s}=4.0\times10^{-3}\ \mathrm{s}=4.0\ \mathrm{ms}.
+    \]
+    M2 的总周期数为
+    \[
+    I_2\times\mathrm{CPI}_2=3.0\times10^{6}\times1.5=4.5\times10^{6},
+    \]
+    \[
+    T_2=\frac{4.5\times10^{6}}{2.0\times10^{9}}\ \mathrm{s}=2.25\times10^{-3}\ \mathrm{s}=2.25\ \mathrm{ms}.
+    \]
+
+    \textbf{（2）} 加速比
+    \[
+    S=\frac{T_1}{T_2}=\frac{4.0}{2.25}=\frac{16}{9}\approx1.78.
+    \]
+
+    \textbf{（3）} M1 的 MIPS 为
+    \[
+    \frac{2.0\times10^{9}}{4.0\times10^{6}}=500,
+    \]
+    M2 的 MIPS 为
+    \[
+    \frac{2.0\times10^{9}}{1.5\times10^{6}}=\frac{4000}{3}\approx1333.3.
+    \]
+
+    \textbf{（4）} 主频变为 $2.5$ GHz 后，CPI 与指令条数不变：
+    \[
+    T_2'=\frac{4.5\times10^{6}}{2.5\times10^{9}}\ \mathrm{s}=1.8\times10^{-3}\ \mathrm{s}=1.8\ \mathrm{ms},
+    \]
+    \[
+    S'=\frac{4.0}{1.8}=\frac{20}{9}\approx2.22.
+    \]
+
+    \textbf{（5）} 决定执行时间的是「总周期数 $\times$ 时钟周期」，即 $I\times\mathrm{CPI}/f$，而不是单独的指令条数。CISC 的一条指令往往完成更复杂的操作，因此程序所需指令少，但平均每条指令要花更多周期；RISC 指令简单、条数多，但 CPI 小、主频容易做高。本题中 M2 的指令条数虽然是 M1 的 $1.5$ 倍，总周期数却只有 M1 的 $4.5/8.0=56.25\%$，所以在同主频下更快。MIPS 只反映每秒执行多少条指令，不反映每条指令做了多少工作，跨指令系统比较 MIPS 没有意义；判断快慢必须回到执行时间。
+
+    \begin{center}
+    \fbox{\parbox{0.94\linewidth}{\textbf{答案：}(1) M1 为 4.0 ms，M2 为 2.25 ms；(2) $16/9\approx1.78$；(3) M1 为 500 MIPS，M2 约为 1333.3 MIPS；(4) 1.8 ms，$20/9\approx2.22$；(5) 执行时间由 $I\times\mathrm{CPI}/f$ 决定，M2 总周期数更少；MIPS 不能跨指令系统比较。}}
+    \end{center}
+    \else \answerarea[10] \fi
+
+\end{enumerate}

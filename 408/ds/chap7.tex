@@ -1,1081 +1,1110 @@
 \section{排序}
 
-\subsection{排序的基本概念}
+把 $n$ 个记录按关键字排成非递减序列，看起来只是比较和交换，实际要同时考虑三件事：比较多少次、搬动多少数据、关键字相同的记录会不会被拆散。以考生成绩表为例，总分相同的两个人原本按准考证号排列；如果排序后他们的先后次序变了，名次就会跟着变，这正是稳定性要解决的问题。
 
-\begin{mydef}{排序}{sorting-def}
-排序（Sorting）是将一个数据元素的任意序列重新排列成一个按关键字有序的序列。设含 $n$ 个记录的序列为
-\[
-\{R_1,R_2,\ldots,R_n\},
-\]
-其对应的关键字序列为 $\{k_1,k_2,\ldots,k_n\}$。排序即确定一种排列 $p(1),p(2),\ldots,p(n)$ 使得
+设待排序的记录为 $R_1,R_2,\dots,R_n$，对应的关键字为 $k_1,k_2,\dots,k_n$。排序就是确定一个排列 $p(1),p(2),\dots,p(n)$，使
 \[
 k_{p(1)}\leqslant k_{p(2)}\leqslant\cdots\leqslant k_{p(n)}.
 \]
-\end{mydef}
+如果 $k_i=k_j$ 且 $i<j$，排序后 $R_i$ 仍然排在 $R_j$ 前面，就称这个排序算法是\textbf{稳定的}；否则称它是\textbf{不稳定的}。注意稳定性只对关键字相等的记录有意义，关键字各不相同时无所谓稳定与否。
 
-\begin{mydef}{排序的稳定性}{stability}
-若待排序记录中存在两个或两个以上关键字相等的记录 $R_i$ 与 $R_j$（$i<j$，即 $R_i$ 在序列中先于 $R_j$），排序后二者的相对次序保持不变（即 $R_i$ 仍在 $R_j$ 之前），则称该排序算法是\textbf{稳定的}；否则称\textbf{不稳定的}。
-\end{mydef}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 左：稳定
+  \node[anchor=west,font=\bfseries] at (-7.4,3.2) {稳定};
+  \node[anchor=west,text=MutedText] at (-7.4,2.6) {排序前};
+  \foreach \i/\v/\t in {0/3/A,1/1/B,2/3/C,3/2/D}
+    \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.5cm,fill=SoftGray] at (\i*1.1-6.4,2.0) {$(\v,\t)$};
+  \node[anchor=west,text=MutedText] at (-7.4,1.05) {排序后};
+  \foreach \i/\v/\t in {0/1/B,1/2/D,2/3/A,3/3/C}
+    \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.5cm,fill=SoftTeal] at (\i*1.1-6.4,0.45) {$(\v,\t)$};
 
-\begin{attention}
-\textbf{稳定性是 408 高频考点。} 408 选择题常给出一组记录，要求判断某排序算法执行后相同关键字记录的相对次序。稳定的算法：直接插入排序、冒泡排序、归并排序、基数排序。不稳定的：希尔排序、简单选择排序、快速排序、堆排序。
-\end{attention}
+  \node[text=MutedText] at (-4.9,-0.5) {两个 3 仍按 $A,C$ 排列};
 
-\begin{formula}{内部排序与外部排序}{internal-external}
-\begin{itemize}
-    \item \textbf{内部排序}：排序过程中全部记录存放在内存。本章第2--7节均属内部排序。
-    \item \textbf{外部排序}：待排序记录数量太大，无法一次全部装入内存，排序过程中需在内、外存之间多次交换数据。典型场景：大文件排序。
-\end{itemize}
-\textbf{排序算法的评价指标：}
-\begin{itemize}
-    \item \textbf{时间复杂度}：比较次数 + 移动次数。
-    \item \textbf{空间复杂度}：除存储待排序记录之外所需的辅助空间。
-    \item \textbf{稳定性}：见上文。
-\end{itemize}
+  % 右：不稳定
+  \node[anchor=west,font=\bfseries] at (1.0,3.2) {不稳定};
+  \node[anchor=west,text=MutedText] at (1.0,2.6) {排序前};
+  \foreach \i/\v/\t in {0/3/A,1/1/B,2/3/C,3/2/D}
+    \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.5cm,fill=SoftGray] at (\i*1.1+2.0,2.0) {$(\v,\t)$};
+  \node[anchor=west,text=MutedText] at (1.0,1.05) {排序后};
+  \foreach \i/\v/\t in {0/1/B,1/2/D,2/3/C,3/3/A}
+    \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.5cm,fill=SoftAmber] at (\i*1.1+2.0,0.45) {$(\v,\t)$};
 
-408 考试中，内部排序是绝对重点，外部排序仅考查基本概念与简单计算。
-\end{formula}
+  \node[text=MutedText] at (3.6,-0.5) {$C$ 跑到了 $A$ 前面};
+\end{tikzpicture}
+\end{center}
+
+图里每个二元组是“关键字, 记录编号”。左右两边的输入完全一样，区别只在两个关键字为 3 的记录 $A$、$C$ 排序后的相对次序：左边保持 $A$ 在 $C$ 前，右边把 $C$ 放到了 $A$ 前。实际应用中，若原序列本身按某个次要关键字有序，稳定排序可以保住这个次序，不必再排一次。
+
+按数据是否全部放进内存，排序分为\textbf{内部排序}和\textbf{外部排序}。内部排序的全部记录都在内存中，本章前面的插入、交换、选择、归并、基数排序都属于这一类；外部排序处理的是内存装不下的大文件，排序过程中要反复读写外存，做法一般是“先在内存中生成若干有序的初始归并段，再反复归并”。评价一个内部排序算法，主要看时间复杂度（比较次数与移动次数之和）、辅助空间和稳定性；外部排序还要看读写外存的次数，因为磁盘 I/O 通常比内存中的比较慢几个数量级。
 
 \subsection{插入排序}
 
-\subsubsection{直接插入排序（Straight Insertion Sort）}
+插入排序维护一个已经有序的前缀，每次把后面的一个记录插进这个前缀。它和整理扑克牌一样：左手是排好的牌，右手摸到新牌后，从右往左找位置插进去，后面的牌依次让位。
 
-\begin{conclusion}{直接插入排序——算法原理与代码}{straight-insertion}
-核心思想：将待排序记录逐个插入到已排好序的有序序列中。类似打扑克牌时理牌的过程。
+这里有一个贯穿始终的不变式：进入第 $i$ 趟时，前缀 $A[0..i-1]$ 已经有序；把 $A[i]$ 插进去后，前缀扩大到 $A[0..i]$，仍然有序。从 $i=1$ 做到 $i=n-1$，整个数组就排好了。插入排序是稳定的、原地的，在序列基本有序时非常快；代价是元素的后移，最坏情况下每趟都要搬动整个前缀。
+
+\subsubsection{直接插入排序}
+
+以 $\{49,38,65,97,76,13,27,49'\}$ 为例，带撇的 $49'$ 表示关键字同为 49 的另一个记录。初始时把第一个元素 49 看作已排好的前缀，随后依次插入 38、65、97、76、13、27、49'：
+\[
+\begin{aligned}
+&49\mid 38\;65\;97\;76\;13\;27\;49'\\
+\to\;&38\;49\mid 65\;97\;76\;13\;27\;49'\\
+\to\;&38\;49\;65\mid 97\;76\;13\;27\;49'\\
+\to\;&38\;49\;65\;97\mid 76\;13\;27\;49'\\
+\to\;&38\;49\;65\;76\;97\mid 13\;27\;49'\\
+\to\;&13\;38\;49\;65\;76\;97\mid 27\;49'\\
+\to\;&13\;27\;38\;49\;65\;76\;97\mid 49'\\
+\to\;&13\;27\;38\;49\;49'\;65\;76\;97.
+\end{aligned}
+\]
+竖线左边是已排序前缀。插入 76 时，97 后移一格；插入 13 时，前缀里的元素全部后移；插入 49' 时，它停在 49 的后面，因为循环条件用的是严格大于。
 
 \begin{lstlisting}[language=C]
-// 直接插入排序（升序）
 void InsertSort(int A[], int n) {
-    int i, j, temp;
-    for (i = 1; i < n; i++) {           // A[0..i-1] 有序，插入 A[i]
-        temp = A[i];                     // 暂存待插入记录
-        for (j = i - 1; j >= 0 && A[j] > temp; j--)
-            A[j + 1] = A[j];             // 大于 temp 的记录后移
-        A[j + 1] = temp;                // 插入到正确位置
+    for (int i = 1; i < n; i++) {
+        int temp = A[i], j = i - 1;
+        while (j >= 0 && A[j] > temp) {   // 严格大于才后移
+            A[j + 1] = A[j];
+            j--;
+        }
+        A[j + 1] = temp;
     }
 }
 \end{lstlisting}
 
-\textbf{算法过程（以 $[5,2,4,6,1,3]$ 为例）：}
 \begin{center}
-\small
-\begin{tabular}{|c|c|l|}
-\hline
-$i$ & 哨兵 & 当前序列 \\
-\hline
-初始 & -- & \texttt{[5 | 2, 4, 6, 1, 3]} \\
-1 & 2 & \texttt{[2, 5 | 4, 6, 1, 3]} \\
-2 & 4 & \texttt{[2, 4, 5 | 6, 1, 3]} \\
-3 & 6 & \texttt{[2, 4, 5, 6 | 1, 3]} \\
-4 & 1 & \texttt{[1, 2, 4, 5, 6 | 3]} \\
-5 & 3 & \texttt{[1, 2, 3, 4, 5, 6]} \\
-\hline
-\end{tabular}
+\begin{tikzpicture}[font=\scriptsize]
+  % 初始
+  \foreach \i/\v in {0/49,1/38,2/65,3/97,4/76,5/13,6/27,7/49'} {
+    \ifnum\i=0 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,5.4) {$\v$};
+  }
+  \node[anchor=east] at (-3.55,5.4) {初始};
+  % i=1
+  \foreach \i/\v in {0/38,1/49,2/65,3/97,4/76,5/13,6/27,7/49'} {
+    \ifnum\i<2 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=0 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,4.75) {$\v$};
+  }
+  \node[anchor=east] at (-3.55,4.75) {$i=1$};
+  % i=2
+  \foreach \i/\v in {0/38,1/49,2/65,3/97,4/76,5/13,6/27,7/49'} {
+    \ifnum\i<3 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=2 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,4.10) {$\v$};
+  }
+  \node[anchor=east] at (-3.55,4.10) {$i=2$};
+  % i=3
+  \foreach \i/\v in {0/38,1/49,2/65,3/97,4/76,5/13,6/27,7/49'} {
+    \ifnum\i<4 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=3 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,3.45) {$\v$};
+  }
+  \node[anchor=east] at (-3.55,3.45) {$i=3$};
+  % i=4
+  \foreach \i/\v in {0/38,1/49,2/65,3/76,4/97,5/13,6/27,7/49'} {
+    \ifnum\i<5 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=3 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,2.80) {$\v$};
+  }
+  \node[anchor=east] at (-3.55,2.80) {$i=4$};
+  % i=5
+  \foreach \i/\v in {0/13,1/38,2/49,3/65,4/76,5/97,6/27,7/49'} {
+    \ifnum\i<6 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=0 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,2.15) {$\v$};
+  }
+  \node[anchor=east] at (-3.55,2.15) {$i=5$};
+  % i=6
+  \foreach \i/\v in {0/13,1/27,2/38,3/49,4/65,5/76,6/97,7/49'} {
+    \ifnum\i<7 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=1 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,1.50) {$\v$};
+  }
+  \node[anchor=east] at (-3.55,1.50) {$i=6$};
+  % i=7
+  \foreach \i/\v in {0/13,1/27,2/38,3/49,4/49',5/65,6/76,7/97} {
+    \ifnum\i<8 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=4 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,0.85) {$\v$};
+  }
+  \node[anchor=east] at (-3.55,0.85) {$i=7$};
+  % 图例
+  \node[draw=RuleGray,rectangle,minimum width=0.45cm,minimum height=0.28cm,fill=SoftTeal,inner sep=0pt] at (-1.5,0.15) {};
+  \node[anchor=west] at (-1.2,0.15) {已排序前缀};
+  \node[draw=RuleGray,rectangle,minimum width=0.45cm,minimum height=0.28cm,fill=SoftAmber,inner sep=0pt] at (1.4,0.15) {};
+  \node[anchor=west] at (1.7,0.15) {本趟插入的记录};
+\end{tikzpicture}
 \end{center}
 
-\textbf{复杂度分析：}
-\begin{itemize}
-    \item 最好情况（初始有序）：每趟只比较 1 次，不移动，共 $n-1$ 次比较 $\Rightarrow O(n)$。
-    \item 最坏情况（初始逆序）：第 $i$ 趟比较 $i$ 次，共 $\sum_{i=1}^{n-1}i = n(n-1)/2$ 次比较；移动次数同量级 $\Rightarrow O(n^2)$。
-    \item 平均情况：$O(n^2)$。
-\end{itemize}
-\textbf{空间复杂度}：$O(1)$（仅一个辅助变量 \texttt{temp}）。\textbf{稳定性}：稳定（判断条件 \texttt{A[j] > temp} 保证相等时不移位）。
-\end{conclusion}
+图里每一行是插入 $A[i]$ 之后的数组状态，浅色格子是已排序前缀，深色格子是刚插入的记录。可以看到插入排序只做“后移”和“填回”两种动作，前缀之外的元素从不被访问。
 
-\subsubsection{折半插入排序（Binary Insertion Sort）}
+直接插入排序的比较次数和初始序列关系很大。最好情况是初始已经有序：每趟只比较一次就发现不用后移，共 $n-1$ 次比较，移动 0 次，时间 $O(n)$。最坏情况是初始逆序：第 $i$ 趟要比较 $i$ 次，总比较次数
+\[
+\sum_{i=1}^{n-1} i=\frac{n(n-1)}{2},
+\]
+后移次数也是 $\frac{n(n-1)}{2}$；若把每次暂存 \texttt{temp} 和最后回填也算作移动，还要再加 $2(n-1)$ 次。平均情况下比较和后移都约为 $\frac{n^2}{4}$，时间复杂度仍是 $O(n^2)$。辅助空间只有一个 \texttt{temp}，为 $O(1)$。循环条件是 \texttt{A[j] > temp}，等于时不后移，所以直接插入排序稳定。
 
-\begin{conclusion}{折半插入排序}{binary-insertion}
-在直接插入排序中，查找插入位置时使用\textbf{二分查找}代替顺序查找，以减少比较次数。但移动次数不变。
+若数组从下标 1 开始，常见写法是把 $A[0]$ 当作\textbf{哨兵}：把待插入记录本身存进 $A[0]$，内层循环就可以省掉 \texttt{j >= 0} 的判断，因为比较到下标 0 时 \texttt{A[0] > temp} 为假，循环自然停止。408 题里看到 $A[0]$ 不参与排序结果，就是这种带哨兵的写法；此时元素存放在 $A[1..n]$，有效长度是 $n$。
+
+\subsubsection{折半插入排序}
+
+折半插入排序只改“找位置”这一步。既然前缀 $A[0..i-1]$ 已经有序，插入 $A[i]$ 时可以用二分查找确定它应该落在哪里，而不必从后往前逐个比较。
 
 \begin{lstlisting}[language=C]
 void BinInsertSort(int A[], int n) {
-    int i, j, low, high, mid, temp;
-    for (i = 1; i < n; i++) {
-        temp = A[i];
-        low = 0; high = i - 1;
-        while (low <= high) {            // 二分查找插入位置
-            mid = (low + high) / 2;
+    for (int i = 1; i < n; i++) {
+        int temp = A[i];
+        int low = 0, high = i - 1;
+        while (low <= high) {                // 在前缀中折半查找
+            int mid = (low + high) / 2;
             if (A[mid] > temp) high = mid - 1;
-            else               low  = mid + 1;  // 相等时插在后面 $\to$ 稳定
+            else               low  = mid + 1;  // 相等时插到后面
         }
-        for (j = i - 1; j >= low; j--)   // 统一后移
+        for (int j = i - 1; j >= low; j--)   // 统一后移
             A[j + 1] = A[j];
         A[low] = temp;
     }
 }
 \end{lstlisting}
 
-\textbf{复杂度分析：}
-\begin{itemize}
-    \item 每次插入的折半查找比较次数为 $O(\log i)$；总比较次数最坏为 $O(n\log n)$（具体次数取决于查找区间和实现细节，不能用上述求和式作为所有输入的精确值）。
-    \item 移动次数：仍为 $O(n^2)$（最坏和平均）。
-    \item 总时间复杂度：仍为 $O(n^2)$，因为移动仍是瓶颈。
-\end{itemize}
-\textbf{稳定性}：稳定（当 \texttt{A[mid] == temp} 时，继续在右半区查找，保证相对次序不变）。
-\end{conclusion}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 数组
+  \foreach \i/\v in {0/13,1/27,2/38,3/49,4/65,5/76,6/97}
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=SoftGray,inner sep=0pt] (a\i) at (\i*0.95-3.3,3.4) {$\v$};
+  \node[anchor=west] at (-5.7,3.4) {待插入 $50$：};
+  % 第1步
+  \foreach \i/\v in {0/13,1/27,2/38,3/49,4/65,5/76,6/97} {
+    \def\fc{Teal!14}
+    \ifnum\i=3 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.95-3.3,1.9) {$\v$};
+  }
+  \draw[->,Teal] (-3.3,1.55) -- (-3.3,1.25); \node[Teal,anchor=north] at (-3.3,1.2) {low};
+  \draw[->,Amber] (-0.45,1.55) -- (-0.45,1.25); \node[Amber,anchor=north] at (-0.45,1.2) {mid};
+  \draw[->,Burgundy] (2.4,1.55) -- (2.4,1.25); \node[Burgundy,anchor=north] at (2.4,1.2) {high};
+  \node[anchor=west,text=MutedText] at (3.6,1.9) {$49\leqslant 50$，去右半};
+  % 第2步
+  \foreach \i/\v in {0/13,1/27,2/38,3/49,4/65,5/76,6/97} {
+    \def\fc{SoftGray}
+    \ifnum\i>3 \def\fc{Teal!14}\fi
+    \ifnum\i=5 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.95-3.3,0.4) {$\v$};
+  }
+  \draw[->,Teal] (0.5,0.05) -- (0.5,-0.25); \node[Teal,anchor=north] at (0.5,-0.3) {low};
+  \draw[->,Amber] (1.45,0.05) -- (1.45,-0.25); \node[Amber,anchor=north] at (1.45,-0.3) {mid};
+  \draw[->,Burgundy] (2.4,0.05) -- (2.4,-0.25); \node[Burgundy,anchor=north] at (2.4,-0.3) {high};
+  \node[anchor=west,text=MutedText] at (3.6,0.4) {$76>50$，去左半};
+  % 第3步
+  \foreach \i/\v in {0/13,1/27,2/38,3/49,4/65,5/76,6/97} {
+    \def\fc{SoftGray}
+    \ifnum\i=4 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.95-3.3,-1.1) {$\v$};
+  }
+  \draw[->,Teal] (0.5,-1.45) -- (0.5,-1.75); \node[Teal,anchor=north] at (0.5,-1.8) {$low=high=mid=4$};
+  \node[anchor=west,text=MutedText] at (3.6,-1.1) {$65>50$，$high$ 左移后 $low=4$};
+  % 结果
+  \foreach \i/\v in {0/13,1/27,2/38,3/49,4/50,5/65,6/76,7/97} {
+    \ifnum\i=4 \def\fc{SoftTeal}\else\def\fc{SoftGray}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.95-3.3,-2.5) {$\v$};
+  }
+  \node[text=MutedText,align=center] at (0,-3.15) {在下标 4 处插入，65、76、97 后移};
+\end{tikzpicture}
+\end{center}
 
-\subsubsection{希尔排序（Shell Sort）}
+图里把一次折半查找拆成三步：区间从 $[0,6]$ 缩到 $[4,6]$，再缩到 $[4,4]$，最后 $low$ 停在 4。待插入的 50 落在 49 和 65 之间，后面的 65、76、97 仍要逐个后移一格。每一行中浅蓝格子是当前查找区间，深色格子是这个区间的中点；比较完中点后，区间缩到左半或右半，下一行画的就是缩小后的区间。
 
-\begin{conclusion}{希尔排序——缩小增量排序}{shell-sort}
-希尔排序是对直接插入排序的改进：先将整个序列按某个\textbf{增量} $d$ 分成若干子序列，分别进行直接插入排序；然后缩小增量，再进行排序；直至增量 $d=1$ 时，整体做一次直接插入排序。
+折半查找每趟最多比较 $\lceil\log_2(i+1)\rceil$ 次，$n$ 趟累计的比较次数为 $\Theta(n\log n)$，比直接插入排序的 $\Theta(n^2)$ 少。但找到位置之后，后移的元素个数没有变：前缀中大于 \texttt{temp} 的元素仍然要全部后移。所以移动次数的最坏情况仍是 $\Theta(n^2)$，总时间复杂度还是 $O(n^2)$，只是常数中的比较部分小了。折半插入排序的循环在 \texttt{A[mid] == temp} 时令 \texttt{low = mid + 1}，把相等记录插在后面，因此它也是稳定的。它适合比较操作很贵、移动相对便宜的场合；408 若问“折半插入减少了什么”，答案只是比较次数。
+
+\subsubsection{希尔排序}
+
+希尔排序（缩小增量排序）换了一个思路：先让相隔较远的元素大致归位，使序列变得“基本有序”，最后再做一次直接插入排序时，后移的距离就会短很多。
+
+具体做法是取一个增量 $d$，把下标相差 $d$ 的记录看成一组，例如 $A[i],A[i+d],A[i+2d],\dots$ 为一组；对每组分别做直接插入排序。然后缩小 $d$，重复上述过程，直到 $d=1$，此时整个序列做一次普通的直接插入排序。注意分组不是把数组切成连续的三段，而是按固定间隔“跳着”取元素。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+  % d=5
+  \foreach \i/\v in {0/49,1/38,2/65,3/97,4/76,5/13,6/27,7/49',8/55,9/4} {
+    \pgfmathsetmacro{\g}{int(mod(\i,5))}
+    \ifcase\g
+      \def\fc{Teal!18}\def\dc{Teal}
+    \or \def\fc{Amber!18}\def\dc{Amber}
+    \or \def\fc{Burgundy!18}\def\dc{Burgundy}
+    \or \def\fc{Navy!14}\def\dc{Navy}
+    \or \def\fc{CodeGreen!18}\def\dc{CodeGreen}
+    \fi
+    \node[draw=\dc,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] (a\i) at (\i*0.82-3.7,2.9) {$\v$};
+  }
+  \node[anchor=east] at (-4.25,2.9) {$d=5$};
+  % 同组弧线
+  \foreach \g/\c in {0/Teal,1/Amber,2/Burgundy,3/Navy,4/CodeGreen} {
+    \pgfmathsetmacro{\dy}{-0.55-0.16*\g}
+    \draw[\c,thick] (a\g.south) .. controls +(0,\dy) and +(0,\dy) .. (a\the\numexpr\g+5\relax.south);
+  }
+  % d=3（第一趟结果）
+  \foreach \i/\v in {0/13,1/27,2/49',3/55,4/4,5/49,6/38,7/65,8/97,9/76} {
+    \pgfmathsetmacro{\g}{int(mod(\i,3))}
+    \ifcase\g
+      \def\fc{Teal!18}\def\dc{Teal}
+    \or \def\fc{Amber!18}\def\dc{Amber}
+    \or \def\fc{Burgundy!18}\def\dc{Burgundy}
+    \fi
+    \node[draw=\dc,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] (b\i) at (\i*0.82-3.7,0.35) {$\v$};
+  }
+  \node[anchor=east] at (-4.25,0.35) {$d=3$};
+  \node[anchor=west,text=MutedText,align=left] at (4.6,2.9) {同色为一组\\每组内部插入排序};
+  \node[anchor=west,text=MutedText,align=left] at (4.6,0.35) {第一趟结果\\$49'$ 已到 $49$ 前};
+\end{tikzpicture}
+\end{center}
+
+图的上排是初始序列按 $d=5$ 分组：下标 $0,5$ 一组，$1,6$ 一组，依此类推，弧线连接同一组的元素；下排是 $d=5$ 这一趟排完后的序列，再按 $d=3$ 重新分组。分组会随增量改变，同一个记录在不同趟可能落到不同的组里。
+
+仍以 $\{49,38,65,97,76,13,27,49',55,4\}$ 为例。$d=5$ 时五组分别是 $(49,13)$、$(38,27)$、$(65,49')$、$(97,55)$、$(76,4)$，组内排序后得到
+\[
+\{13,27,49',55,4,49,38,65,97,76\}.
+\]
+接着取 $d=3$，三组为 $(13,55,38,76)$、$(27,4,65)$、$(49',49,97)$，排完得到
+\[
+\{13,4,49',38,27,49,55,65,97,76\}.
+\]
+最后 $d=1$ 做一次直接插入排序，得到
+\[
+\{4,13,27,38,49',49,55,65,76,97\}.
+\]
+原来 49 排在 49' 前面，最终 49' 却跑到了 49 前面。原因是 $d=5$ 时 49 和 49' 被分进了不同的组，排序后它们的相对次序就变了；后面的趟都是稳定排序，无法把这个次序改回来。所以希尔排序\textbf{不稳定}。
 
 \begin{lstlisting}[language=C]
 void ShellSort(int A[], int n) {
-    int d, i, j, temp;
-    for (d = n / 2; d >= 1; d /= 2) {    // 增量序列，每次减半
-        for (i = d; i < n; i++) {         // 对各子表插入排序
-            temp = A[i];
-            for (j = i - d; j >= 0 && A[j] > temp; j -= d)
+    for (int d = n / 2; d >= 1; d /= 2) {   // 增量每次减半
+        for (int i = d; i < n; i++) {
+            int temp = A[i], j = i - d;
+            while (j >= 0 && A[j] > temp) { // 组内直接插入
                 A[j + d] = A[j];
+                j -= d;
+            }
             A[j + d] = temp;
         }
     }
 }
 \end{lstlisting}
 
-\textbf{关键理解：}
-\begin{itemize}
-    \item 增量序列的选择影响效率。常用的有 $d_1=n/2$，$d_{k+1}=\lfloor d_k/2\rfloor$（希尔原始增量）；更好的有 Hibbard 增量 $1,3,7,\ldots,2^k-1$。
-    \item 当 $d=1$ 时就是一次直接插入排序，但由于前面的预处理使序列「基本有序」，最后一次排序工作量大减。
-\end{itemize}
-
-\textbf{复杂度分析：}
-\begin{itemize}
-    \item 时间复杂度：高度依赖增量序列，不能脱离增量和输入分布给出统一的“平均复杂度”。希尔原始增量的最坏复杂度为 $O(n^2)$，Hibbard 增量可得到更好的上界；408 题目若要求精确复杂度，应以题设指定的增量序列和教材结论为准。
-    \item 空间复杂度：$O(1)$。
-    \item \textbf{稳定性：不稳定。} 相同关键字可能被分到不同子序列中，相对次序可能改变。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 常考——希尔排序的手工模拟：} 给出初始序列和增量序列，要求写出每趟排序后的结果。注意不同增量下子序列的划分方式：第 $i$ 个子序列的下标为 $i, i+d, i+2d, \ldots$。同组内元素进行直接插入排序，不同组之间交替进行。
-\end{attention}
-
-\begin{examplebox}
-对序列
-\[
-\{49,38,65,97,76,13,27,49',55,4\}
-\]
-进行希尔排序，增量依次取 $5,3,1$。第一趟 $d=5$ 时，子序列为
-\[
-\begin{gathered}
-\{49,13\},\quad \{38,27\},\quad \{65,49'\},\\
-\{97,55\},\quad \{76,4\}.
-\end{gathered}
-\]
-各子序列分别完成直接插入排序后，整体序列为
-\[
-\{13,27,49',55,4,49,38,65,97,76\}.
-\]
-此时 $49$ 和 $49'$ 的相对次序已经改变，因此希尔排序\textbf{不稳定}。
-\end{examplebox}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 下标
-\foreach \nn in {0,...,9}
-  \node[font=\scriptsize,black!60] at (\nn*1.0-4.5,0.7) {\nn};
-% 数值（按 d=5 子序列分组着色）
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Teal!18] (g0) at (0*1.0-4.5,0) {49};
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Amber!18] (g1) at (1*1.0-4.5,0) {38};
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Burgundy!18] (g2) at (2*1.0-4.5,0) {65};
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Navy!18] (g3) at (3*1.0-4.5,0) {97};
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=CodeGreen!18] (g4) at (4*1.0-4.5,0) {76};
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Teal!18] (g5) at (5*1.0-4.5,0) {13};
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Amber!18] (g6) at (6*1.0-4.5,0) {27};
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Burgundy!18] (g7) at (7*1.0-4.5,0) {$49'$};
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=Navy!18] (g8) at (8*1.0-4.5,0) {55};
-\node[draw,rectangle,minimum width=0.9cm,minimum height=0.6cm,fill=CodeGreen!18] (g9) at (9*1.0-4.5,0) {4};
-% 组内对应（下方弧线，同色为一组）
-\draw[Teal] (g0.south) .. controls +(0,-0.9) and +(0,-0.9) .. (g5.south);
-\draw[Amber] (g1.south) .. controls +(0,-0.9) and +(0,-0.9) .. (g6.south);
-\draw[Burgundy] (g2.south) .. controls +(0,-0.9) and +(0,-0.9) .. (g7.south);
-\draw[Navy] (g3.south) .. controls +(0,-0.9) and +(0,-0.9) .. (g8.south);
-\draw[CodeGreen] (g4.south) .. controls +(0,-0.9) and +(0,-0.9) .. (g9.south);
-\node[align=center,font=\scriptsize,black!70] at (0,-2.2){希尔排序 $d=5$：下标相差 $5$ 的元素（同色）构成同一子序列，各子序列分别做直接插入排序\\第一趟结果为 $\{13,27,49',55,4,49,38,65,97,76\}$——$49$ 与 $49'$ 次序改变（\textbf{不稳定}）};
-\end{tikzpicture}
-\end{center}
+希尔排序的时间复杂度取决于增量序列，不能用一个统一的式子写完。取初始增量 $d=\lfloor n/2\rfloor$、之后每次减半直到 1 时，最坏情况是 $O(n^2)$；改用 Hibbard 增量 $1,3,7,\dots,2^k-1$，最坏可降到 $O(n^{3/2})$；Sedgewick 增量还能更好。平均情况下它通常明显快于直接插入排序，经验上常被写成 $O(n^{1.3})$ 左右，但这不是对所有增量序列都成立的严格结论。408 一般只要求会按给定增量手工模拟，并记住“依赖增量、通常优于 $O(n^2)$、最坏仍可能到 $O(n^2)$、不稳定、空间 $O(1)$”。
 
 \subsection{交换排序}
 
-\subsubsection{冒泡排序（Bubble Sort）}
+交换排序通过交换逆序的元素对来逐步消除逆序。冒泡排序只交换相邻元素，快速排序则把元素交换到离枢轴较远的位置，因此两者的常数和适用场景差别很大。
 
-\begin{conclusion}{冒泡排序——算法原理与代码}{bubble-sort}
-每趟从前往后两两比较相邻元素，若逆序则交换。每趟可将当前未排序部分的最大元素「冒」到最后。若某一趟没有发生交换，说明已有序，可提前结束。
+\subsubsection{冒泡排序}
+
+冒泡排序每趟从前往后扫描，比较相邻的两个元素，逆序就交换。一趟下来，当前未排序部分的最大元素会被一路“冒”到最后。下一趟的扫描范围就可以缩短一格。
+
+以 $\{6,2,8,4,9,1,7\}$ 为例：
+\[
+\begin{aligned}
+&6\;2\;8\;4\;9\;1\;7\\
+\to\;&2\;6\;4\;8\;1\;7\mid 9\\
+\to\;&2\;4\;6\;1\;7\mid 8\;9\\
+\to\;&2\;4\;1\;6\mid 7\;8\;9\\
+\to\;&2\;1\;4\mid 6\;7\;8\;9\\
+\to\;&1\;2\;4\;6\;7\;8\;9.
+\end{aligned}
+\]
+第一趟把 9 送到末尾，第二趟把 8 送到倒数第二格，依此类推。第五趟结束后整个序列已经有序，第六趟扫描时没有发生任何交换，算法就可以提前结束。
 
 \begin{lstlisting}[language=C]
 void BubbleSort(int A[], int n) {
-    int i, j, temp;
-    bool swapped;
-    for (i = 0; i < n - 1; i++) {
-        swapped = false;
-        for (j = 0; j < n - 1 - i; j++) {  // 每趟缩小比较范围
-            if (A[j] > A[j + 1]) {          // 升序，注意不是 >=
-                temp = A[j];
-                A[j] = A[j + 1];
-                A[j + 1] = temp;
+    for (int i = 0; i < n - 1; i++) {
+        bool swapped = false;
+        for (int j = 0; j < n - 1 - i; j++) {
+            if (A[j] > A[j + 1]) {        // 严格大于才交换
+                int t = A[j]; A[j] = A[j + 1]; A[j + 1] = t;
                 swapped = true;
             }
         }
-        if (!swapped) break;                // 本趟无交换，已有序
+        if (!swapped) break;               // 本趟无交换，已有序
     }
 }
 \end{lstlisting}
 
-\textbf{复杂度分析：}
-\begin{itemize}
-    \item 最好情况（初始有序）：比较 $n-1$ 次，移动 $0$ 次 $\Rightarrow O(n)$。
-    \item 最坏情况（初始逆序）：比较 $\frac{n(n-1)}{2}$ 次，移动 $\frac{3n(n-1)}{2}$ 次（每次交换 3 步）$\Rightarrow O(n^2)$。
-\end{itemize}
-\textbf{空间复杂度}：$O(1)$。\textbf{稳定性}：稳定（严格大于才交换，\texttt{A[j] > A[j+1]} 而非 \texttt{>=}）。
-\end{conclusion}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+  \foreach \i/\v in {0/6,1/2,2/8,3/4,4/9,5/1,6/7} {
+    \node[draw=RuleGray,rectangle,minimum width=0.82cm,minimum height=0.45cm,fill=white,inner sep=0pt] at (\i*0.9-3.0,4.2) {$\v$};
+  }
+  \node[anchor=east] at (-3.5,4.2) {初始};
+  \foreach \i/\v in {0/2,1/6,2/4,3/8,4/1,5/7,6/9} {
+    \ifnum\i>5 \def\fc{Burgundy!18}\else\def\fc{white}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.82cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.9-3.0,3.45) {$\v$};
+  }
+  \node[anchor=east] at (-3.5,3.45) {第 1 趟};
+  \foreach \i/\v in {0/2,1/4,2/6,3/1,4/7,5/8,6/9} {
+    \ifnum\i>4 \def\fc{Burgundy!18}\else\def\fc{white}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.82cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.9-3.0,2.70) {$\v$};
+  }
+  \node[anchor=east] at (-3.5,2.70) {第 2 趟};
+  \foreach \i/\v in {0/2,1/4,2/1,3/6,4/7,5/8,6/9} {
+    \ifnum\i>3 \def\fc{Burgundy!18}\else\def\fc{white}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.82cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.9-3.0,1.95) {$\v$};
+  }
+  \node[anchor=east] at (-3.5,1.95) {第 3 趟};
+  \foreach \i/\v in {0/2,1/1,2/4,3/6,4/7,5/8,6/9} {
+    \ifnum\i>2 \def\fc{Burgundy!18}\else\def\fc{white}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.82cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.9-3.0,1.20) {$\v$};
+  }
+  \node[anchor=east] at (-3.5,1.20) {第 4 趟};
+  \foreach \i/\v in {0/1,1/2,2/4,3/6,4/7,5/8,6/9} {
+    \node[draw=RuleGray,rectangle,minimum width=0.82cm,minimum height=0.45cm,fill=SoftTeal,inner sep=0pt] at (\i*0.9-3.0,0.45) {$\v$};
+  }
+  \node[anchor=east] at (-3.5,0.45) {第 5 趟};
+  \node[anchor=west,text=MutedText,align=left] at (3.6,3.45) {9 就位};
+  \node[anchor=west,text=MutedText,align=left] at (3.6,2.70) {8 就位};
+  \node[anchor=west,text=MutedText,align=left] at (3.6,1.95) {7 就位};
+  \node[anchor=west,text=MutedText,align=left] at (3.6,1.20) {6 就位};
+  \node[anchor=west,text=MutedText,align=left] at (3.6,0.45) {第 6 趟无交换\\提前结束};
+\end{tikzpicture}
+\end{center}
 
-\subsubsection{快速排序（Quick Sort）}
+图里右侧深色格子是每趟结束后已经落到最终位置的元素。每趟只保证一个最大值就位，前面部分可能仍然乱；第五趟结束后整个序列已经有序，但算法还要再扫一趟确认没有交换才能停。
 
-\begin{conclusion}{快速排序——算法原理}{quick-sort}
-快速排序是实际应用中最快的通用内排序算法之一。核心思想是\textbf{分治}：
-\begin{enumerate}
-    \item \textbf{划分（Partition）}：从序列中选一个\textbf{枢轴（pivot）}，将序列分为左右两部分——左边全部 $\leqslant$ pivot，右边全部 $\geqslant$ pivot。pivot 落位到最终位置。
-    \item 递归地对左右子序列进行快速排序。
-\end{enumerate}
-\end{conclusion}
+冒泡排序最好情况是初始有序：第一趟比较 $n-1$ 次、不交换，直接结束，时间 $O(n)$。最坏情况是初始逆序：比较次数为
+\[
+\sum_{i=1}^{n-1}(n-i)=\frac{n(n-1)}{2},
+\]
+每次比较都交换，一次交换要 3 次赋值，移动次数为 $\frac{3n(n-1)}{2}$，时间 $O(n^2)$。平均也是 $O(n^2)$，辅助空间 $O(1)$。
 
-\begin{formula}{一趟划分（Partition）过程——Lomuto 版}{partition-lomuto}
-以第一个元素为枢轴。交替从右找小、从左找大，直到两指针相遇。
+冒泡排序的稳定性由交换条件决定。写 \texttt{A[j] > A[j+1]} 时，相等元素不会交换，相对次序不变；若写成 \texttt{>=}，相等的两个元素也会交换，排序就不稳定了。这一点和直接插入排序的 \texttt{>} 是同一个道理。
+
+\subsubsection{快速排序}
+
+快速排序把排序拆成“划分”和“递归”两步。划分选一个枢轴（pivot），把序列重新排列成“左边都不大于枢轴，右边都不小于枢轴”，枢轴本身落到最终位置；然后对左右两段分别递归。
+
+以 $\{49,38,65,97,76,13,27,49'\}$ 为例，取第一个元素 49 为枢轴。先从右往左找第一个小于 49 的 27，把它填到左端的坑里；再从左往右找第一个大于 49 的 65，填到右端的坑里；继续右找小、左找大，直到两个指针相遇，最后把 49 放进相遇处的坑。一趟划分后序列变成
+\[
+\{27,38,13\}\;49\;\{76,97,65,49'\},
+\]
+49 落在下标 3，左边三个元素都小于它，右边四个元素都不小于它。注意左右两段内部还没有排好，只是被分到了枢轴两边。
 
 \begin{lstlisting}[language=C]
 int Partition(int A[], int low, int high) {
-    int pivot = A[low];                    // 选第一个元素为枢轴
+    int pivot = A[low];                    // 取第一个元素为枢轴
     while (low < high) {
-        while (low < high && A[high] >= pivot) // 从右找小于 pivot 的
-            high--;
-        A[low] = A[high];                  // 将小数移到左边
-        while (low < high && A[low] <= pivot)  // 从左找大于 pivot 的
-            low++;
-        A[high] = A[low];                  // 将大数移到右边
+        while (low < high && A[high] >= pivot) high--;
+        A[low] = A[high];                  // 右边的小数填左坑
+        while (low < high && A[low] <= pivot) low++;
+        A[high] = A[low];                  // 左边的大数填右坑
     }
-    A[low] = pivot;                        // pivot 落位
-    return low;                            // 返回枢轴最终位置
+    A[low] = pivot;                        // 枢轴落位
+    return low;
 }
 \end{lstlisting}
 
-\textbf{划分过程演示（挖坑法，pivot = A[low] = 49）：}
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % 挖坑法一趟划分：6 行数组状态（pivot=49）。
-  % 行0（初始）8 格
-  \foreach \i/\v in {0/49,1/38,2/65,3/97,4/76,5/13,6/27,7/49'}{
-    \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,2.75) {$\v$};
+\begin{tikzpicture}[font=\scriptsize]
+  % 初始
+  \foreach \i/\v in {0/49,1/38,2/65,3/97,4/76,5/13,6/27,7/49'} {
+    \ifnum\i=0 \def\fc{SoftAmber}\else\def\fc{white}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,3.6) {$\v$};
   }
-  % 行1：0=27(移入), 1=38,2=65,3=97,4=76,5=13,6=27(坑),7=49'
-  \foreach \i/\v in {0/27,1/38,2/65,3/97,4/76,5/13,6/27,7/49'}{
-    \ifnum\i=0\relax
-      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=Amber!55] at (\i*0.7-2.5,1.6) {$\v$};
-    \else
-      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,1.6) {$\v$};
-    \fi
+  \node[anchor=east] at (-3.55,3.6) {初始};
+  \node[anchor=west,text=MutedText] at (3.6,3.6) {pivot$=49$，low$=0$，high$=7$};
+  % 右找小
+  \foreach \i/\v in {0/27,1/38,2/65,3/97,4/76,5/13,6/坑,7/49'} {
+    \ifnum\i=0 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=6 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,2.7) {\ifnum\i=6 坑\else$\v$\fi};
   }
-  % 行2：0=27,1=38,2=65,3=97,4=76,5=13,6=65(移入),7=49'
-  \foreach \i/\v in {0/27,1/38,2/65,3/97,4/76,5/13,6/65,7/49'}{
-    \ifnum\i=6\relax
-      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=Amber!55] at (\i*0.7-2.5,0.45) {$\v$};
-    \else
-      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,0.45) {$\v$};
-    \fi
+  \node[anchor=east] at (-3.55,2.7) {右找小};
+  \node[anchor=west,text=MutedText] at (3.6,2.7) {$A[6]=27<49$，填入下标 0};
+  % 左找大
+  \foreach \i/\v in {0/27,1/38,2/坑,3/97,4/76,5/13,6/65,7/49'} {
+    \ifnum\i=6 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=2 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,1.8) {\ifnum\i=2 坑\else$\v$\fi};
   }
-  % 行3：0=27,1=38,2=13(移入),3=97,4=76,5=13,6=65,7=49'
-  \foreach \i/\v in {0/27,1/38,2/13,3/97,4/76,5/13,6/65,7/49'}{
-    \ifnum\i=2\relax
-      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=Amber!55] at (\i*0.7-2.5,-0.7) {$\v$};
-    \else
-      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,-0.7) {$\v$};
-    \fi
+  \node[anchor=east] at (-3.55,1.8) {左找大};
+  \node[anchor=west,text=MutedText] at (3.6,1.8) {$A[2]=65>49$，填入下标 6};
+  % 右找小
+  \foreach \i/\v in {0/27,1/38,2/13,3/97,4/76,5/坑,6/65,7/49'} {
+    \ifnum\i=2 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=5 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,0.9) {\ifnum\i=5 坑\else$\v$\fi};
   }
-  % 行4：0=27,1=38,2=13,3=97,4=76,5=97(移入),6=65,7=49'
-  \foreach \i/\v in {0/27,1/38,2/13,3/97,4/76,5/97,6/65,7/49'}{
-    \ifnum\i=5\relax
-      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=Amber!55] at (\i*0.7-2.5,-1.85) {$\v$};
-    \else
-      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,-1.85) {$\v$};
-    \fi
+  \node[anchor=east] at (-3.55,0.9) {右找小};
+  \node[anchor=west,text=MutedText] at (3.6,0.9) {$A[5]=13<49$，填入下标 2};
+  % 左找大
+  \foreach \i/\v in {0/27,1/38,2/13,3/坑,4/76,5/97,6/65,7/49'} {
+    \ifnum\i=5 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=3 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,0.0) {\ifnum\i=3 坑\else$\v$\fi};
   }
-  % 行5（落位）：0=27,1=38,2=13,3=49(落位),4=76,5=97,6=65,7=49'
-  \foreach \i/\v in {0/27,1/38,2/13,3/49,4/76,5/97,6/65,7/49'}{
-    \ifnum\i=3\relax
-      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=Amber!80] at (\i*0.7-2.5,-3.0) {$\v$};
-    \else
-      \node[draw,rectangle,minimum width=0.66cm,minimum height=0.48cm,inner sep=0pt,fill=SoftGray] at (\i*0.7-2.5,-3.0) {$\v$};
-    \fi
+  \node[anchor=east] at (-3.55,0.0) {左找大};
+  \node[anchor=west,text=MutedText] at (3.6,0.0) {$A[3]=97>49$，填入下标 5};
+  % 相遇
+  \foreach \i/\v in {0/27,1/38,2/13,3/49,4/76,5/97,6/65,7/49'} {
+    \ifnum\i=3 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.78cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.82-3.0,-0.9) {$\v$};
   }
-  % 下标
-  \foreach \i in {0,1,2,3,4,5,6,7}{
-    \node[font=\scriptsize,black!60] at (\i*0.7-2.5,3.15) {\i};
-  }
-  \node[font=\scriptsize,black!60] at (-2.9,3.15) {\texttt{idx}};
-  % 指针：行0 low0 high7
-  \draw[Teal,->] (0*0.7-2.5,2.45) -- (0*0.7-2.5,2.65); \node[Teal,font=\scriptsize] at (0*0.7-2.5,2.2) {low};
-  \draw[red,->] (7*0.7-2.5,2.45) -- (7*0.7-2.5,2.65); \node[red,font=\scriptsize] at (7*0.7-2.5,2.2) {high};
-  % 行1：low0 high6
-  \draw[Teal,->] (0*0.7-2.5,1.3) -- (0*0.7-2.5,1.5); \node[Teal,font=\scriptsize] at (0*0.7-2.5,1.05) {low};
-  \draw[red,->] (6*0.7-2.5,1.3) -- (6*0.7-2.5,1.5); \node[red,font=\scriptsize] at (6*0.7-2.5,1.05) {high};
-  % 行2：low2 high6
-  \draw[Teal,->] (2*0.7-2.5,0.15) -- (2*0.7-2.5,0.35); \node[Teal,font=\scriptsize] at (2*0.7-2.5,-0.1) {low};
-  \draw[red,->] (6*0.7-2.5,0.15) -- (6*0.7-2.5,0.35); \node[red,font=\scriptsize] at (6*0.7-2.5,-0.1) {high};
-  % 行3：low2 high5
-  \draw[Teal,->] (2*0.7-2.5,-1.0) -- (2*0.7-2.5,-0.8); \node[Teal,font=\scriptsize] at (2*0.7-2.5,-1.25) {low};
-  \draw[red,->] (5*0.7-2.5,-1.0) -- (5*0.7-2.5,-0.8); \node[red,font=\scriptsize] at (5*0.7-2.5,-1.25) {high};
-  % 行4：low3 high5
-  \draw[Teal,->] (3*0.7-2.5,-2.15) -- (3*0.7-2.5,-1.95); \node[Teal,font=\scriptsize] at (3*0.7-2.5,-2.4) {low};
-  \draw[red,->] (5*0.7-2.5,-2.15) -- (5*0.7-2.5,-1.95); \node[red,font=\scriptsize] at (5*0.7-2.5,-2.4) {high};
-  % 行5：low=high=3（相遇）
-  \draw[Teal,->] (3*0.7-2.5,-3.3) -- (3*0.7-2.5,-3.1); \node[Teal,font=\scriptsize] at (3*0.7-2.5,-3.55) {low=high};
-  % 右侧步骤说明（与各行 y 对齐）
-  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,2.75) {\textbf{初始}：pivot$=$49，low$=$0，high$=$7};
-  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,1.6) {\textbf{右找小}：A[high]$=27<49$，填入左坑};
-  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,0.45) {\textbf{左找大}：A[low]$=65>49$，填入右坑};
-  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,-0.7) {\textbf{右找小}：A[high]$=13<49$，填入左坑};
-  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,-1.85) {\textbf{左找大}：A[low]$=97>49$，填入右坑};
-  \node[align=left,font=\scriptsize,black!70,anchor=west] at (3.3,-3.0) {\textbf{相遇}：low$=$high$=$3，枢轴 49 落位};
+  \node[anchor=east] at (-3.55,-0.9) {相遇};
+  \node[anchor=west,text=MutedText] at (3.6,-0.9) {low$=$high$=3$，49 落位};
 \end{tikzpicture}
 \end{center}
-\end{formula}
 
-\begin{conclusion}{快速排序——完整代码}{quick-sort-code}
+图里“坑”表示这个位置的值已经被移到别处，等待别处的元素填回来。每一行只移动一个元素，指针向中间收缩；最后两个指针相遇的位置就是枢轴的最终位置。整个划分过程中，49 只在一开始被取出，最后才放回，中间一直以它的值参与比较，但不再被搬动。
+
 \begin{lstlisting}[language=C]
 void QuickSort(int A[], int low, int high) {
     if (low < high) {
-        int pivotpos = Partition(A, low, high);
-        QuickSort(A, low, pivotpos - 1);   // 左半部分递归
-        QuickSort(A, pivotpos + 1, high);  // 右半部分递归
+        int p = Partition(A, low, high);
+        QuickSort(A, low, p - 1);
+        QuickSort(A, p + 1, high);
     }
 }
 \end{lstlisting}
-\end{conclusion}
 
-\begin{formula}{快速排序——复杂度分析}{quick-sort-complexity}
-设 $T(n)$ 为排序 $n$ 个记录所需时间，一趟 Partition 需要 $O(n)$ 时间。
+划分过程从两端向中间扫描，每趟划分对长度为 $m$ 的区间做 $O(m)$ 次比较和移动，因此总时间取决于递归树的样子。如果每次枢轴都落在中间，递归树近似平衡：
+\[
+T(n)=2T(n/2)+O(n)\quad\Longrightarrow\quad T(n)=O(n\log n).
+\]
+如果每次枢轴都是当前区间的最小或最大值，例如初始序列已经有序、又固定取第一个元素作枢轴，那么每次划分只减少一个元素：
+\[
+T(n)=T(n-1)+O(n)\quad\Longrightarrow\quad T(n)=O(n^2).
+\]
+平均情况下，枢轴大致落在中间附近，可以证明 $T(n)=O(n\log n)$。
 
-\begin{itemize}
-    \item \textbf{最好情况}（每次划分均匀，pivot 恰在中位）：
-    \[
-    T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n).
-    \]
-    \item \textbf{最坏情况}（每次划分极不均衡，如初始有序/逆序且 pivot 固定选首元素）：
-    \[
-    T(n) = T(n-1) + O(n) \;\Longrightarrow\; T(n) = O(n^2).
-    \]
-    \item \textbf{平均情况}：假设 pivot 等概率落在任一位置，可以证明 $T(n) = O(n\log n)$。
-\end{itemize}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 左：平衡
+  \node[font=\bfseries] at (-5.0,4.0) {划分均匀};
+  \node[draw,rounded corners,fill=SoftTeal,minimum width=0.9cm] (r) at (-5.0,3.1) {49};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.8cm] (l) at (-6.4,1.8) {27};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.8cm] (rr) at (-3.6,1.8) {76};
+  \node[draw,rounded corners,fill=white,minimum width=0.7cm] (ll) at (-7.2,0.5) {13};
+  \node[draw,rounded corners,fill=white,minimum width=0.7cm] (lr) at (-5.6,0.5) {38};
+  \node[draw,rounded corners,fill=white,minimum width=0.7cm] (rl) at (-4.4,0.5) {49'};
+  \node[draw,rounded corners,fill=white,minimum width=0.7cm] (rrr) at (-2.8,0.5) {97};
+  \node[draw,rounded corners,fill=white,minimum width=0.7cm] (rll) at (-4.4,-0.8) {65};
+  \draw[->] (r) -- (l); \draw[->] (r) -- (rr);
+  \draw[->] (l) -- (ll); \draw[->] (l) -- (lr);
+  \draw[->] (rr) -- (rl); \draw[->] (rr) -- (rrr);
+  \draw[->] (rl) -- (rll);
+  \node[text=MutedText,align=center] at (-5.0,-1.7) {每层总代价 $O(n)$\\深度 $O(\log n)$};
 
-\textbf{空间复杂度：} 递归工作栈深度。最好 $\lceil\log_2 (n+1)\rceil = O(\log n)$；最坏 $O(n)$（需 $n-1$ 次递归调用）；平均 $O(\log n)$。
+  % 右：倾斜
+  \node[font=\bfseries] at (4.2,4.0) {划分极不均衡};
+  \node[draw,rounded corners,fill=SoftTeal,minimum width=0.9cm] (s0) at (2.4,3.1) {13};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.9cm] (s1) at (3.3,2.35) {27};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.9cm] (s2) at (4.2,1.6) {38};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.9cm] (s3) at (5.1,0.85) {49};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.9cm] (s4) at (5.9,0.10) {49'};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.9cm] (s5) at (6.6,-0.65) {65};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.9cm] (s6) at (7.1,-1.40) {76};
+  \node[draw=RuleGray,rounded corners,fill=white,minimum width=0.9cm] (s7) at (7.4,-2.15) {97};
+  \draw[->] (s0) -- (s1); \draw[->] (s1) -- (s2); \draw[->] (s2) -- (s3);
+  \draw[->] (s3) -- (s4); \draw[->] (s4) -- (s5); \draw[->] (s5) -- (s6);
+  \draw[->] (s6) -- (s7);
+  \node[text=MutedText,align=center] at (4.2,-2.8) {每次只少一个元素\\深度 $n-1$，时间 $O(n^2)$};
+\end{tikzpicture}
+\end{center}
 
-\textbf{稳定性：不稳定。} Partition 过程中，跳跃式交换会打乱相同关键字的相对次序。
-\end{formula}
+图里每个结点是一次划分选出的枢轴。左边枢轴接近中点，树高约 $\log_2 n$，每层所有子区间的长度和不超过 $n$，所以每层代价 $O(n)$；右边初始有序时每次枢轴都是区间最小值，树退化成一条链，高度 $n-1$，总代价 $O(n^2)$。这就是“快排最怕初始基本有序”的原因。
 
-\begin{attention}
-\textbf{408 核心考点——快排的 Partition：}
-\begin{itemize}
-    \item \textbf{给定序列，写出每趟排序后的结果。} 若题目把“一趟”定义为一次 Partition，则一趟结束时 pivot 落位、左右子序列分开；若按递归树的一层计趟数，则应明确这是递归深度，二者不能混用。
-    \item \textbf{最坏情况的触发条件}：初始序列基本有序或基本逆序，且 pivot 选法固定（如始终选第一个/最后一个）时退化为 $O(n^2)$。优化方法：随机选 pivot、三数取中。
-    \item \textbf{递归次数 $\neq$ 比较次数}：递归深度 = 栈深度，每趟比较次数 $\approx$ 子序列长度。
-    \item \textbf{快排的划分次数与递归深度要分开：}总 Partition 次数在平衡和随机情形通常为 $\Theta(n)$，最坏为 $n-1$；递归深度最好/平均约为 $O(\log n)$，最坏为 $O(n)$。
-\end{itemize}
-\end{attention}
+快速排序的最好和平均时间复杂度为 $O(n\log n)$，最坏为 $O(n^2)$。空间开销来自递归工作栈：划分均匀时栈深 $O(\log n)$，最坏时栈深 $O(n)$，平均 $O(\log n)$。快速排序不稳定，因为划分时的填坑/交换是跳跃式的。一个最小的反例是 $\{5,5',2,6,1\}$，取首元素 5 为枢轴，一趟划分后得到 $\{1,5',2,5,6\}$，两个 5 的次序已经反了。
+
+实际实现中常用随机选枢轴或“三数取中”来避免最坏情况；408 题目若没有特别说明，一般按“取第一个元素”处理。还有一点容易混：有的题把一次划分叫“一趟”，有的题把递归树的一层叫“一趟”，两种口径的趟数不同，做题时先看题干怎么定义。
 
 \subsection{选择排序}
 
-\subsubsection{简单选择排序（Simple Selection Sort）}
+选择排序每趟从尚未排序的部分中选出最小（或最大）的记录，放到这部分的前端。简单选择排序用线性扫描找最小元，堆排序则用堆来加速找最小元的过程。
 
-\begin{conclusion}{简单选择排序}{simple-selection}
-每趟从待排序部分选出最小元素，与待排序部分的第一个元素交换。
+\subsubsection{简单选择排序}
+
+以 $\{5,8,2,9,1,7\}$ 为例。第一趟在全部 6 个元素中找最小值 1，与第一个元素 5 交换，得到 $\{1,8,2,9,5,7\}$；第二趟在剩下的 $\{8,2,9,5,7\}$ 中找最小值 2，与 8 交换，得到 $\{1,2,8,9,5,7\}$；继续下去，直到前 $n-1$ 个位置都确定。
 
 \begin{lstlisting}[language=C]
 void SelectSort(int A[], int n) {
-    int i, j, min, temp;
-    for (i = 0; i < n - 1; i++) {
-        min = i;
-        for (j = i + 1; j < n; j++)
+    for (int i = 0; i < n - 1; i++) {
+        int min = i;
+        for (int j = i + 1; j < n; j++)
             if (A[j] < A[min]) min = j;
         if (min != i) {
-            temp = A[i]; A[i] = A[min]; A[min] = temp;
+            int t = A[i]; A[i] = A[min]; A[min] = t;
         }
     }
 }
 \end{lstlisting}
 
-\textbf{复杂度分析：}
-\begin{itemize}
-    \item 比较次数：$\sum_{i=0}^{n-2}(n-1-i)=\frac{n(n-1)}{2}$，与初始序列无关——始终 $O(n^2)$。
-    \item 移动次数：最好 $0$，最坏 $3(n-1)$ 次。
-\end{itemize}
-\textbf{空间复杂度：}$O(1)$。\textbf{稳定性：不稳定。} 例如 $[5,5',2] \to [2,5',5]$，第一个 5 被换到了后面。
-\end{conclusion}
-
-\subsubsection{堆排序（Heap Sort）}
-
-\begin{mydef}{堆}{heap-def}
-堆是一棵\textbf{完全二叉树}，且满足任一非叶结点的关键字均不大于（或不小于）其左右孩子结点的关键字。
-\begin{itemize}
-    \item \textbf{小根堆（Min-Heap）}：$A[i]\leqslant A[2i+1]$ 且 $A[i]\leqslant A[2i+2]$（根最小）。
-    \item \textbf{大根堆（Max-Heap）}：$A[i]\geqslant A[2i+1]$ 且 $A[i]\geqslant A[2i+2]$（根最大）。
-\end{itemize}
-堆排序通常用\textbf{大根堆}实现升序排序。
-\end{mydef}
-
-\begin{formula}{堆的存储}{heap-storage}
-完全二叉树适合顺序存储（数组）。对下标从 $0$ 开始的数组 $A[0..n-1]$：
-\begin{itemize}
-    \item $A[i]$ 的左孩子：$A[2i+1]$；右孩子：$A[2i+2]$。
-    \item $A[i]$ 的双亲：$A[\lfloor (i-1)/2\rfloor]$。
-    \item 第一个非叶结点下标：$\lfloor n/2\rfloor - 1$。
-    \item 第一个叶子结点下标：$\lfloor n/2\rfloor$。
-\end{itemize}
-\textbf{408 注意：} 408 教材可能用下标 $1$ 开始（$A[1..n]$），此时左孩子 $2i$，右孩子 $2i+1$，双亲 $\lfloor i/2\rfloor$，考场上务必看清下标约定。
-\end{formula}
-
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 完全二叉树
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n0) at (0,2.2) {4};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n1) at (-1.9,0.8) {10};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n2) at (1.9,0.8) {3};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n3) at (-2.9,-0.6) {5};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n4) at (-0.9,-0.6) {1};
-\node[draw,circle,minimum size=0.7cm,fill=Teal!15] (n5) at (1.0,-0.6) {2};
-\draw (n0) -- (n1);
-\draw (n0) -- (n2);
-\draw (n1) -- (n3);
-\draw (n1) -- (n4);
-\draw (n2) -- (n5);
-% 数组下标
-\node[font=\scriptsize,black!60] at (0,-1.5){下标};
-\foreach \nn in {0,...,5} {
-  \node[font=\scriptsize,black!60] (idx\nn) at (\nn*1.0-2.5,-1.9) {\nn};
-}
-% 数组值
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v0) at (0*1.0-2.5,-2.6) {4};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v1) at (1*1.0-2.5,-2.6) {10};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v2) at (2*1.0-2.5,-2.6) {3};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v3) at (3*1.0-2.5,-2.6) {5};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v4) at (4*1.0-2.5,-2.6) {1};
-\node[draw,rectangle,minimum width=0.85cm,minimum height=0.6cm,fill=SoftGray] (v5) at (5*1.0-2.5,-2.6) {2};
-\node[align=center,font=\scriptsize,black!70] at (0,-3.5){完全二叉树的顺序存储：数组 $A[0..5]$ 与树一一对应\\下标 $i$ 的左孩子为 $2i+1$、右孩子为 $2i+2$（如 $A[1]=10$ 的孩子为 $A[3]=5$、$A[4]=1$）};
+\begin{tikzpicture}[font=\scriptsize]
+  \foreach \i/\v in {0/5,1/8,2/2,3/9,4/1,5/7} {
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=white,inner sep=0pt] at (\i*0.95-2.8,3.5) {$\v$};
+  }
+  \node[anchor=east] at (-3.4,3.5) {初始};
+  \foreach \i/\v in {0/1,1/8,2/2,3/9,4/5,5/7} {
+    \ifnum\i=0 \def\fc{SoftAmber}\else\def\fc{white}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.95-2.8,2.7) {$\v$};
+  }
+  \node[anchor=east] at (-3.4,2.7) {第 1 趟};
+  \foreach \i/\v in {0/1,1/2,2/8,3/9,4/5,5/7} {
+    \ifnum\i<2 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=1 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.95-2.8,1.9) {$\v$};
+  }
+  \node[anchor=east] at (-3.4,1.9) {第 2 趟};
+  \foreach \i/\v in {0/1,1/2,2/5,3/9,4/8,5/7} {
+    \ifnum\i<3 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=2 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.95-2.8,1.1) {$\v$};
+  }
+  \node[anchor=east] at (-3.4,1.1) {第 3 趟};
+  \foreach \i/\v in {0/1,1/2,2/5,3/7,4/8,5/9} {
+    \ifnum\i<4 \def\fc{SoftTeal}\else\def\fc{white}\fi
+    \ifnum\i=3 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.95-2.8,0.3) {$\v$};
+  }
+  \node[anchor=east] at (-3.4,0.3) {第 4 趟};
+  \node[anchor=west,text=MutedText,align=left] at (3.3,2.7) {找最小值 1\\与 5 交换};
+  \node[anchor=west,text=MutedText,align=left] at (3.3,1.1) {每趟只交换一次\\但比较次数固定};
 \end{tikzpicture}
 \end{center}
 
-\begin{conclusion}{向下调整算法（\texttt{HeapAdjust} / \texttt{SiftDown}）}{heap-adjust}
-假设以 $A[k]$ 为根的子树，除 $A[k]$ 本身外，\textbf{左右子树均已满足堆性质}。调整 $A[k]$ 下沉到合适位置，使整棵子树满足堆性质。
+图里浅色格子是已经确定的位置，深色格子是本趟找到的最小值。简单选择排序的交换次数很少，最多 $n-1$ 次；但无论初始序列如何，第 $i$ 趟都要在剩下 $n-i$ 个元素中扫一遍，比较次数固定为
+\[
+\sum_{i=0}^{n-2}(n-1-i)=\frac{n(n-1)}{2},
+\]
+所以最好、平均、最坏时间都是 $O(n^2)$。移动次数最好为 0（已经有序，不需要交换），最坏为 $3(n-1)$ 次赋值。辅助空间 $O(1)$。
+
+简单选择排序不稳定。反例是 $\{5,5',2\}$：第一趟找到最小值 2，与第一个 5 交换，得到 $\{2,5',5\}$，两个 5 的次序反了。
+
+\subsubsection{堆排序}
+
+堆是一棵\textbf{完全二叉树}，并且每个非叶结点都不小于它的孩子（\textbf{大根堆}），或者都不大于它的孩子（\textbf{小根堆}）。大根堆的根是整棵树的最大值，小根堆的根是最小值。完全二叉树适合顺序存储：把结点按层序放进数组，父子关系可以直接用下标算出来。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 树
+  \node[draw,circle,minimum size=0.75cm,fill=SoftBlue] (n0) at (0,3.2) {4};
+  \node[draw,circle,minimum size=0.75cm,fill=SoftBlue] (n1) at (-2.0,1.9) {10};
+  \node[draw,circle,minimum size=0.75cm,fill=SoftBlue] (n2) at (2.0,1.9) {3};
+  \node[draw,circle,minimum size=0.75cm,fill=SoftBlue] (n3) at (-3.0,0.6) {5};
+  \node[draw,circle,minimum size=0.75cm,fill=SoftBlue] (n4) at (-1.0,0.6) {1};
+  \node[draw,circle,minimum size=0.75cm,fill=SoftBlue] (n5) at (1.0,0.6) {2};
+  \draw (n0) -- (n1); \draw (n0) -- (n2);
+  \draw (n1) -- (n3); \draw (n1) -- (n4); \draw (n2) -- (n5);
+  % 下标
+  \node[font=\tiny,text=MutedText] at (0.32,3.52) {0};
+  \node[font=\tiny,text=MutedText] at (-1.68,2.22) {1};
+  \node[font=\tiny,text=MutedText] at (2.32,2.22) {2};
+  \node[font=\tiny,text=MutedText] at (-3.32,0.92) {3};
+  \node[font=\tiny,text=MutedText] at (-0.68,0.92) {4};
+  \node[font=\tiny,text=MutedText] at (1.32,0.92) {5};
+  % 数组
+  \foreach \i/\v in {0/4,1/10,2/3,3/5,4/1,5/2}
+    \node[draw=RuleGray,rectangle,minimum width=0.9cm,minimum height=0.5cm,fill=SoftGray,inner sep=0pt] (a\i) at (\i*1.05-2.6,-1.6) {$\v$};
+  \foreach \i in {0,1,2,3,4,5}
+    \node[font=\tiny,text=MutedText] at (\i*1.05-2.6,-1.15) {\i};
+  \node[anchor=west,text=MutedText,align=left] at (3.8,1.9) {下标 $i$ 的左孩子是 $2i+1$\\右孩子是 $2i+2$\\双亲是 $\lfloor(i-1)/2\rfloor$};
+  \node[anchor=west,text=MutedText,align=left] at (3.8,-1.6) {$A[1]=10$ 的孩子是\\$A[3]=5$、$A[4]=1$};
+\end{tikzpicture}
+\end{center}
+
+图里同一棵完全二叉树的两种看法：上面是树，下面是数组。树上的小数字是数组下标，按层序一一对应。下标从 0 开始时，$i$ 的左孩子是 $2i+1$、右孩子是 $2i+2$、双亲是 $\lfloor(i-1)/2\rfloor$；最后一个非叶结点是 $\lfloor n/2\rfloor-1$，叶子从 $\lfloor n/2\rfloor$ 开始。408 教材也常用下标从 1 开始，那时左孩子是 $2i$、右孩子是 $2i+1$、双亲是 $\lfloor i/2\rfloor$，最后一个非叶结点是 $\lfloor n/2\rfloor$，做题前要先看清题目用的是哪一种。
+
+堆的核心操作是\textbf{向下调整}（下沉）。假设以 $A[k]$ 为根的左右子树都已经是堆，只有 $A[k]$ 可能违反堆序，那么把 $A[k]$ 与较大的孩子交换，再沿着这条路径继续向下，直到它不小于两个孩子或者到达叶子。对长度为 $n$ 的堆，一次下沉最多走 $\lfloor\log_2 n\rfloor$ 层，每层最多比较两次（选较大的孩子、与根比较），所以是 $O(\log n)$。
 
 \begin{lstlisting}[language=C]
-// 大根堆向下调整：将 A[k] 向下调整到合适位置
-void HeapAdjust(int A[], int k, int n) {
-    int temp = A[k];                     // 暂存根结点
-    for (int i = 2 * k + 1; i < n; i = 2 * i + 1) {
-        // i 指向左孩子；选较大的孩子
-        if (i + 1 < n && A[i] < A[i + 1])  // 右孩子存在且更大
-            i++;
-        if (temp >= A[i]) break;          // 已满足堆性质
-        A[k] = A[i];                      // 大孩子上移
-        k = i;                            // 继续向下筛选
+// 大根堆的向下调整，堆的大小为 n
+void SiftDown(int A[], int k, int n) {
+    int temp = A[k];
+    for (int i = 2 * k + 1; i < n; i = 2 * k + 1) {
+        if (i + 1 < n && A[i] < A[i + 1]) i++;  // 选较大的孩子
+        if (temp >= A[i]) break;                // 已满足堆序
+        A[k] = A[i];
+        k = i;
     }
     A[k] = temp;
 }
 \end{lstlisting}
 
-\textbf{时间复杂度：} 每次调整沿树高下降，比较次数 $\leqslant 2\lfloor\log_2 n\rfloor$，即 $O(\log n)$。
-\end{conclusion}
-
-\begin{conclusion}{建堆过程}{build-heap}
-从最后一个非叶结点（$\lfloor n/2\rfloor - 1$，下标 0 开始）开始，向前遍历到根，对每个结点执行一次向下调整。
+建堆时，叶子本身可以看作大小为 1 的堆，所以从最后一个非叶结点开始，依次向前对每个结点做一次下沉。这样处理到根时，根的左右子树都已经是堆，正好满足下沉的前提。
 
 \begin{lstlisting}[language=C]
 void BuildMaxHeap(int A[], int n) {
     for (int i = n / 2 - 1; i >= 0; i--)
-        HeapAdjust(A, i, n);
+        SiftDown(A, i, n);
 }
 \end{lstlisting}
 
-\textbf{建堆时间复杂度：$O(n)$。}
-
-\boxed{\textbf{例}} 序列 $\{4,10,3,5,1,2\}$（$n=6$）建大根堆过程：
 \begin{center}
-\ttfamily\small
-第一个非叶：$i=2$（值为 3），子树 $\{3,2\}$ 已满足大根堆 $\checkmark$\\
-$i=1$（值为 10），子树 $\{10,5,1\}$ 满足 $\checkmark$\\
-$i=0$（值为 4），调整：4 与 10 交换 $\to$ $\{10,4,3,5,1,2\}$；\\
-\hspace*{4em}4 再与 5 交换 $\to$ $\{10,5,3,4,1,2\}$ ——建堆完成。
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 左：初始
+  \node[font=\bfseries] at (-4.2,4.0) {初始完全二叉树};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftAmber] (a0) at (-4.2,3.1) {4};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftBlue] (a1) at (-5.4,1.9) {10};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftBlue] (a2) at (-3.0,1.9) {3};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftBlue] (a3) at (-6.0,0.7) {5};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftBlue] (a4) at (-4.8,0.7) {1};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftBlue] (a5) at (-3.6,0.7) {2};
+  \draw (a0) -- (a1); \draw (a0) -- (a2);
+  \draw (a1) -- (a3); \draw (a1) -- (a4); \draw (a2) -- (a5);
+  \draw[Burgundy,thick,->] (a0) -- (a1);
+  \draw[Burgundy,thick,->] (a1) -- (a3);
+  % 右：调整后
+  \node[font=\bfseries] at (3.8,4.0) {从根下沉后};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (b0) at (3.8,3.1) {10};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftTeal] (b1) at (2.6,1.9) {5};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftBlue] (b2) at (5.0,1.9) {3};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftAmber] (b3) at (2.0,0.7) {4};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftBlue] (b4) at (3.2,0.7) {1};
+  \node[draw,circle,minimum size=0.7cm,fill=SoftBlue] (b5) at (4.4,0.7) {2};
+  \draw (b0) -- (b1); \draw (b0) -- (b2);
+  \draw (b1) -- (b3); \draw (b1) -- (b4); \draw (b2) -- (b5);
+  \node[text=MutedText,align=center] at (-0.2,0.0) {4 先与 10 交换\\再与 5 交换};
+\end{tikzpicture}
 \end{center}
-\end{conclusion}
 
-\begin{conclusion}{堆排序——完整算法}{heap-sort}
-堆排序分为两步：（1） 建初堆（$O(n)$）；（2） 反复输出堆顶，将堆尾元素移至堆顶后向下调整（$n-1$ 次，每次 $O(\log n)$）。
+图里左边是初始数组 $\{4,10,3,5,1,2\}$ 对应的完全二叉树，红色箭头是 4 下沉的路径：4 比两个孩子 10、3 中的较大者 10 小，交换；到了 10 原来的位置，4 又比两个孩子 5、1 中的较大者 5 小，再交换；到叶子时停止。右边是调整后的树，根 10 已经是最大值。建堆从下标 2 的结点开始，但 3 已经大于它的孩子 2，不需要动；下标 1 的 10 也满足堆序；最后才处理根。
+
+建堆的总时间复杂度是 $O(n)$，不是 $O(n\log n)$。直观上，越靠近叶子的结点越多，但它们下沉的距离越短；第 $h$ 层的结点数约为 $n/2^{h+1}$，每个最多下沉 $h$ 层，总和
+\[
+\sum_{h\geqslant 0}\frac{n}{2^{h+1}}\cdot O(h)=O(n)\sum_{h\geqslant 0}\frac{h}{2^h}=O(n).
+\]
+真正排序时，先把数组建成大根堆，然后重复“把堆顶与当前堆的最后一个元素交换，堆的大小减 1，再对新堆顶下沉”。每交换一次，最大值就落到数组末尾的已排序区。
 
 \begin{lstlisting}[language=C]
 void HeapSort(int A[], int n) {
-    BuildMaxHeap(A, n);                  // （1） 建大根堆
+    BuildMaxHeap(A, n);
     for (int i = n - 1; i > 0; i--) {
-        // 交换堆顶和堆尾（当前未排序部分最后一个）
-        int temp = A[0]; A[0] = A[i]; A[i] = temp;
-        HeapAdjust(A, 0, i);             // （2） 调整剩余 i 个元素为新堆
+        int t = A[0]; A[0] = A[i]; A[i] = t;  // 堆顶换到末尾
+        SiftDown(A, 0, i);                    // 剩余 i 个元素恢复成堆
     }
 }
 \end{lstlisting}
 
-\boxed{\textbf{例}} 续上例建堆后 $\{10,5,3,4,1,2\}$：\\
-输出 10，堆尾 2 移至堆顶 $\{2,5,3,4,1\}$ $\to$ 调整 $\{5,4,3,2,1\}$；\\
-输出 5，堆尾 1 移至堆顶 $\{1,4,3,2\}$ $\to$ 调整 $\{4,2,3,1\}$；\\
-依此类推，最终得 $\{1,2,3,4,5,10\}$。
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+  \foreach \i/\v in {0/10,1/5,2/3,3/4,4/1,5/2} {
+    \ifnum\i=0 \def\fc{SoftAmber}\else\def\fc{SoftBlue}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.82cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.9-2.7,2.6) {$\v$};
+  }
+  \node[anchor=east] at (-3.2,2.6) {建堆后};
+  \foreach \i/\v in {0/5,1/4,2/3,3/2,4/1,5/10} {
+    \ifnum\i=5 \def\fc{Burgundy!18}\else\def\fc{SoftBlue}\fi
+    \ifnum\i=0 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.82cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.9-2.7,1.8) {$\v$};
+  }
+  \node[anchor=east] at (-3.2,1.8) {输出 10};
+  \foreach \i/\v in {0/4,1/2,2/3,3/1,4/5,5/10} {
+    \ifnum\i>3 \def\fc{Burgundy!18}\else\def\fc{SoftBlue}\fi
+    \ifnum\i=0 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.82cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.9-2.7,1.0) {$\v$};
+  }
+  \node[anchor=east] at (-3.2,1.0) {输出 5};
+  \foreach \i/\v in {0/3,1/2,2/1,3/4,4/5,5/10} {
+    \ifnum\i>2 \def\fc{Burgundy!18}\else\def\fc{SoftBlue}\fi
+    \ifnum\i=0 \def\fc{SoftAmber}\fi
+    \node[draw=RuleGray,rectangle,minimum width=0.82cm,minimum height=0.45cm,fill=\fc,inner sep=0pt] at (\i*0.9-2.7,0.2) {$\v$};
+  }
+  \node[anchor=east] at (-3.2,0.2) {输出 4};
+  \node[anchor=west,text=MutedText,align=left] at (3.0,2.6) {堆顶 10 与末尾 2 交换\\前 5 个元素重新下沉};
+  \node[anchor=west,text=MutedText,align=left] at (3.0,1.0) {深色是已排序区\\它的长度每趟增加 1};
+\end{tikzpicture}
+\end{center}
 
-\textbf{复杂度分析：}
-\begin{itemize}
-    \item 时间复杂度：建堆 $O(n)$ + $n-1$ 次调整 $O(n\log n) = O(n\log n)$。最好/最坏/平均均为 $O(n\log n)$。
-    \item 空间复杂度：$O(1)$（仅用一个辅助变量）。
-    \item \textbf{稳定性：不稳定。} 堆排序中元素沿着树中路径跳跃移动，相同关键字相对次序可能改变。
-\end{itemize}
-\end{conclusion}
+图里每一行是一次“取最大值”的结果：堆顶与当前堆的末尾交换后，末尾变成已排序区（深色），前 $i$ 个元素重新下沉成堆。堆排序一共做 $n-1$ 次交换和下沉，每次 $O(\log n)$，加上建堆的 $O(n)$，总时间为 $O(n\log n)$，并且最好、平均、最坏都是这个量级。辅助空间只有几个临时变量，为 $O(1)$。
 
-\begin{attention}
-\textbf{408 核心考点——堆排序：}
-\begin{itemize}
-    \item \textbf{建堆过程的手工模拟}：给定初始序列，逐步画出完全二叉树并自底向上调整。
-    \item \textbf{堆排序各趟结果}：交换堆顶与堆尾 $\to$ 剩余元素重新调整为堆。每趟确定一个最大元素在末尾。
-    \item \textbf{堆的插入与删除}（堆本身的操作，不一定是堆排序）：
-    \begin{itemize}
-        \item 插入：新元素放末尾，然后\textbf{向上调整}（上浮）；
-        \item 删除堆顶：堆尾元素移置堆顶，然后\textbf{向下调整}。
-    \end{itemize}
-    \item \textbf{建堆 $O(n)$ 的证明思路}：第 $h$ 层最多 $2^{h-1}$ 个结点，每结点最多下移 $(H-h)$ 层（$H=\lfloor\log_2 n\rfloor + 1$），总调整次数 $\sum_{h=1}^H 2^{h-1}(H-h) = O(n)$。
-\end{itemize}
-\end{attention}
+堆排序不稳定。反例是 $\{5,5',3\}$：它已经是大根堆，第一次把堆顶 5 与末尾 3 交换，得到 $\{3,5',5\}$；下沉后变成 $\{5',3,5\}$；最后得到 $\{3,5',5\}$，5' 跑到了 5 前面。原因是堆顶和堆尾的交换是远距离的，相等关键字的相对次序无法保证。
 
-\subsection{归并排序（Merge Sort）}
+堆本身还支持两种常用操作。\textbf{插入}：把新记录放到数组末尾，然后\textbf{向上调整}（上浮），与双亲比较，比双亲大就交换，直到满足堆序，代价 $O(\log n)$。\textbf{删除堆顶}：把最后一个记录移到堆顶，堆的大小减 1，再对堆顶下沉，代价也是 $O(\log n)$。这两种操作只影响一条从根到叶（或从叶到根）的路径，所以不需要重建整个堆。
 
-\begin{conclusion}{二路归并排序——原理与代码}{merge-sort}
-归并排序是分治法的又一典型。基本思想：将两个（或以上）有序表合并为一个新的有序表。
+\subsection{归并排序}
 
-\textbf{二路归并（Merge）——合并两个相邻有序段：}
+归并排序把两个已经有序的段合并成一个有序段。二路归并是最基本的形式：两个指针分别指向两段的开头，每次取较小的那个放到辅助数组，直到一段取完，再把另一段剩下的元素直接复制过去。
 
 \begin{lstlisting}[language=C]
-// 将 A[low..mid] 和 A[mid+1..high] 两个有序段合并为一段
 void Merge(int A[], int low, int mid, int high) {
-    int *B = (int*)malloc((high - low + 1) * sizeof(int));
+    int *B = (int *)malloc((high - low + 1) * sizeof(int));
     int i = low, j = mid + 1, k = 0;
-    while (i <= mid && j <= high) {      // 两段均未取完
-        if (A[i] <= A[j]) B[k++] = A[i++];  // 注意 <= 保证稳定性
+    while (i <= mid && j <= high) {
+        if (A[i] <= A[j]) B[k++] = A[i++];  // 相等时先取左段
         else              B[k++] = A[j++];
     }
-    while (i <= mid)  B[k++] = A[i++];   // 剩余左段
-    while (j <= high) B[k++] = A[j++];   // 剩余右段
-    for (i = low, k = 0; i <= high; i++, k++)
-        A[i] = B[k];
+    while (i <= mid)  B[k++] = A[i++];
+    while (j <= high) B[k++] = A[j++];
+    for (i = low, k = 0; i <= high; i++, k++) A[i] = B[k];
+    free(B);
+}
+
+void MergeSort(int A[], int low, int high) {
+    if (low < high) {
+        int mid = (low + high) / 2;
+        MergeSort(A, low, mid);
+        MergeSort(A, mid + 1, high);
+        Merge(A, low, mid, high);
+    }
+}
+\end{lstlisting}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 左段
+  \foreach \i/\v in {0/38,1/49,2/65,3/97}
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=SoftTeal,inner sep=0pt] (l\i) at (\i*0.95,2.1) {$\v$};
+  \node[anchor=east] at (-0.6,2.1) {左段};
+  \node[Teal,above] at (l0.north) {$i$};
+  % 右段
+  \foreach \i/\v in {0/13,1/27,2/76}
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=SoftAmber,inner sep=0pt] (r\i) at (\i*0.95+4.6,2.1) {$\v$};
+  \node[anchor=west] at (7.8,2.1) {右段};
+  \node[Amber,above] at (r0.north) {$j$};
+  % 输出
+  \foreach \i/\v/\c in {0/13/Amber,1/27/Amber,2/38/Teal,3/49/Teal,4/65/Teal,5/76/Amber,6/97/Teal}
+    \node[draw=RuleGray,rectangle,minimum width=0.85cm,minimum height=0.45cm,fill=\c!18,inner sep=0pt] (o\i) at (\i*0.95,0.4) {$\v$};
+  \node[anchor=east] at (-0.6,0.4) {合并结果};
+  \node[anchor=west,text=MutedText,align=left] at (7.2,0.4) {每次比较两段首元素\\取较小者，相等取左段};
+\end{tikzpicture}
+\end{center}
+
+图里左右两段各自有序，两个指针从段首开始，比较 38 和 13，取 13；再比较 38 和 27，取 27；再比较 38 和 76，取 38……输出格的底色表示它来自哪一段。某一侧取完后，另一侧剩下的元素直接搬过去，不再比较。合并两个长度分别为 $p,q$ 的段，最多比较 $p+q-1$ 次，移动 $p+q$ 个记录。
+
+递归的归并排序把数组对半切开，分别排序，再合并。递归式
+\[
+T(n)=2T(n/2)+O(n)
+\]
+的解是 $T(n)=O(n\log n)$。也可以自底向上实现：第一趟把相邻的两个长度为 1 的段合并成长度为 2 的段，第二趟合并成长度为 4 的段，依此类推，直到段长不小于 $n$。归并趟数为 $\lceil\log_2 n\rceil$，与初始序列无关；每一趟都要扫描并移动全部 $n$ 个记录，所以每趟 $O(n)$。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 叶
+  \foreach \i/\v in {0/49,1/38,2/65,3/97,4/76,5/13,6/27}
+    \node[draw=RuleGray,rectangle,minimum width=0.7cm,minimum height=0.42cm,fill=SoftGray,inner sep=0pt] at (\i*1.4-4.2,0) {$\v$};
+  % 第一层
+  \node[draw=RuleGray,rectangle,minimum width=1.4cm,minimum height=0.42cm,fill=SoftTeal,inner sep=0pt] (m0) at (-3.5,-1.5) {38,49};
+  \node[draw=RuleGray,rectangle,minimum width=1.4cm,minimum height=0.42cm,fill=SoftTeal,inner sep=0pt] (m1) at (-0.7,-1.5) {65,97};
+  \node[draw=RuleGray,rectangle,minimum width=1.4cm,minimum height=0.42cm,fill=SoftTeal,inner sep=0pt] (m2) at (2.1,-1.5) {13,76};
+  \node[draw=RuleGray,rectangle,minimum width=0.7cm,minimum height=0.42cm,fill=SoftTeal,inner sep=0pt] (m3) at (4.2,-1.5) {27};
+  % 第二层
+  \node[draw=RuleGray,rectangle,minimum width=2.8cm,minimum height=0.42cm,fill=SoftBlue,inner sep=0pt] (n0) at (-2.1,-3.0) {38,49,65,97};
+  \node[draw=RuleGray,rectangle,minimum width=2.4cm,minimum height=0.42cm,fill=SoftBlue,inner sep=0pt] (n1) at (3.15,-3.0) {13,27,76};
+  % 第三层
+  \node[draw=RuleGray,rectangle,minimum width=5.2cm,minimum height=0.42cm,fill=SoftAmber,inner sep=0pt] (root) at (0.5,-4.5) {13,27,38,49,65,76,97};
+  % 连线
+  \foreach \a in {0,1} \draw[->] (\a*1.4-4.2,-0.25) -- (m0.north);
+  \foreach \a in {2,3} \draw[->] (\a*1.4-4.2,-0.25) -- (m1.north);
+  \foreach \a in {4,5} \draw[->] (\a*1.4-4.2,-0.25) -- (m2.north);
+  \draw[->] (6*1.4-4.2,-0.25) -- (m3.north);
+  \draw[->] (m0.south) -- (n0.north); \draw[->] (m1.south) -- (n0.north);
+  \draw[->] (m2.south) -- (n1.north); \draw[->] (m3.south) -- (n1.north);
+  \draw[->] (n0.south) -- (root.north); \draw[->] (n1.south) -- (root.north);
+  % 标注
+  \node[anchor=east,text=MutedText] at (-5.2,0) {段长 1};
+  \node[anchor=east,text=MutedText] at (-5.2,-1.5) {2};
+  \node[anchor=east,text=MutedText] at (-5.2,-3.0) {4};
+  \node[anchor=east,text=MutedText] at (-5.2,-4.5) {8};
+  \node[anchor=west,text=MutedText] at (5.4,-1.5) {第 1 趟};
+  \node[anchor=west,text=MutedText] at (5.4,-3.0) {第 2 趟};
+  \node[anchor=west,text=MutedText] at (5.4,-4.5) {第 3 趟};
+\end{tikzpicture}
+\end{center}
+
+图里同一层的方框是这一趟归并后的有序段，方框里的逗号分隔各元素。7 个记录经过 $1\to2\to4\to8$ 三次段长翻倍，最后合成一个有序段；每层所有方框的长度和都等于 7，所以每层的工作量是 $O(n)$。归并树的高度为 $\lceil\log_2 n\rceil$，这就是归并排序的趟数。
+
+归并排序的时间复杂度在最好、平均、最坏情况下都是 $O(n\log n)$。最好情况下比较次数少一些（两段交错得少，一段很快取完）；最坏情况下比较次数为 $\Theta(n\log n)$（$n=2^k$ 时恰为 $n\log_2 n-n+1$），量级不变。辅助数组需要 $n$ 个记录的空间，递归栈还需要 $O(\log n)$，总空间为 $O(n)$。合并时用 \texttt{A[i] <= A[j]} 保证相等时先取左段，所以归并排序稳定。它的代价是额外的 $O(n)$ 空间，这也是内部排序中“用空间换稳定”的典型。
+
+\subsection{基数排序}
+
+基数排序不比较关键字的大小，而是把关键字拆成若干位，按位分配和收集。以十进制整数为例，每个关键字可以看成 $d$ 位数字，每一位有 $r=10$ 种取值。最低位优先（LSD）的做法是：先按个位把记录分配到 10 个队列，再依次收集；然后按十位分配、收集；直到最高位。每趟分配和收集都必须稳定，否则前一趟排好的次序会被打乱。
+
+以 $\{278,109,63,930,589,184,505,269,8,83\}$ 为例，个位分配的结果是：0 号队列有 930，3 号有 63、83，4 号有 184，5 号有 505，8 号有 278、8，9 号有 109、589、269。按队列编号从小到大收集，得到
+\[
+\{930,63,83,184,505,278,8,109,589,269\}.
+\]
+十位再分配、收集，得到
+\[
+\{505,8,109,930,63,269,278,83,184,589\}.
+\]
+最后按百位分配、收集，得到
+\[
+\{8,63,83,109,184,269,278,505,589,930\}.
+\]
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 输入
+  \foreach \i/\v in {0/278,1/109,2/63,3/930,4/589,5/184,6/505,7/269,8/8,9/83}
+    \node[draw=RuleGray,rectangle,minimum width=1.05cm,minimum height=0.42cm,fill=SoftGray,inner sep=0pt] at (\i*1.25-5.6,3.2) {$\v$};
+  \node[anchor=east,text=MutedText] at (-6.5,3.2) {输入};
+  % 桶
+  \foreach \d in {0,...,9} {
+    \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=SoftBlue,inner sep=0pt] at (\d*1.25-5.6,1.8) {$\d$};
+  }
+  \node[anchor=east,text=MutedText] at (-6.5,1.8) {个位};
+  % 桶内元素
+  \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=white,inner sep=0pt] at (0*1.25-5.6,1.1) {930};
+  \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=white,inner sep=0pt] at (3*1.25-5.6,1.1) {63};
+  \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=white,inner sep=0pt] at (3*1.25-5.6,0.5) {83};
+  \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=white,inner sep=0pt] at (4*1.25-5.6,1.1) {184};
+  \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=white,inner sep=0pt] at (5*1.25-5.6,1.1) {505};
+  \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=white,inner sep=0pt] at (8*1.25-5.6,1.1) {278};
+  \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=white,inner sep=0pt] at (8*1.25-5.6,0.5) {8};
+  \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=white,inner sep=0pt] at (9*1.25-5.6,1.1) {109};
+  \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=white,inner sep=0pt] at (9*1.25-5.6,0.5) {589};
+  \node[draw=RuleGray,rectangle,minimum width=1.0cm,minimum height=0.38cm,fill=white,inner sep=0pt] at (9*1.25-5.6,-0.1) {269};
+  % 输出
+  \foreach \i/\v in {0/930,1/63,2/83,3/184,4/505,5/278,6/8,7/109,8/589,9/269}
+    \node[draw=RuleGray,rectangle,minimum width=1.05cm,minimum height=0.42cm,fill=SoftTeal,inner sep=0pt] at (\i*1.25-5.6,-1.6) {$\v$};
+  \node[anchor=east,text=MutedText] at (-6.5,-1.6) {收集};
+  \node[anchor=west,text=MutedText,align=left] at (6.9,1.1) {同一桶内保持\\原来的相对次序};
+\end{tikzpicture}
+\end{center}
+
+图里上方是输入序列，中间是按个位分成的 10 个队列，下方是按队列编号从小到大收集的结果。注意 3 号桶里 63 在 83 前面，8 号桶里 278 在 8 前面，9 号桶里 109、589、269 的次序也没有变——这正是“分配和收集稳定”的含义。若某一趟不稳定，比如把 83 放到了 63 前面，那么下一趟按十位排序后，个位的信息就被破坏了。
+
+下面的数组版用计数排序完成每一趟“分配”和“收集”：先数出每个桶有多少个记录，算出每个桶在辅助数组中的起始位置，再按原序把记录放进对应的桶。链式版只是把辅助数组换成队列指针，思路相同。
+
+\newpage
+\begin{lstlisting}[language=C]
+void RadixSort(int A[], int n, int d) {
+    int *B = (int *)malloc(n * sizeof(int));
+    int cnt[10], pos[10];
+    int radix = 1;
+    for (int p = 0; p < d; p++) {
+        for (int r = 0; r < 10; r++) cnt[r] = 0;
+        for (int i = 0; i < n; i++)          // 统计每个桶的记录数
+            cnt[(A[i] / radix) % 10]++;
+        pos[0] = 0;
+        for (int r = 1; r < 10; r++)         // 每个桶的起始下标
+            pos[r] = pos[r - 1] + cnt[r - 1];
+        for (int i = 0; i < n; i++) {        // 按原序放入，保证稳定
+            int r = (A[i] / radix) % 10;
+            B[pos[r]++] = A[i];
+        }
+        for (int i = 0; i < n; i++) A[i] = B[i];
+        radix *= 10;
+    }
     free(B);
 }
 \end{lstlisting}
 
-\textbf{递归归并排序：}
-
-\begin{lstlisting}[language=C]
-void MergeSort(int A[], int low, int high) {
-    if (low < high) {
-        int mid = (low + high) / 2;
-        MergeSort(A, low, mid);          // 左半排序
-        MergeSort(A, mid + 1, high);     // 右半排序
-        Merge(A, low, mid, high);        // 合并
-    }
-}
-\end{lstlisting}
-
-\textbf{复杂度分析：}
+设关键字有 $d$ 位、基数为 $r$、记录数为 $n$。每趟分配要扫描 $n$ 个记录，收集要扫描 $r$ 个队列并把 $n$ 个记录接起来，所以每趟 $O(n+r)$，$d$ 趟共
 \[
-T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \;\Longrightarrow\; T(n) = O(n\log n).
+O\bigl(d(n+r)\bigr).
 \]
-\begin{itemize}
-    \item 时间复杂度：$O(n\log n)$，与初始序列无关——每趟归并均需 $O(n)$，共 $\lceil\log_2 n\rceil$ 趟。
-    \item 空间复杂度：$O(n)$（归并过程需要辅助数组）。
-    \item \textbf{稳定性：稳定。} Merge 中 \texttt{A[i] <= A[j]} 保证左段元素优先，相等时不改变相对次序。
-\end{itemize}
-\end{conclusion}
+若 $d$ 和 $r$ 都可以看作常数，基数排序是线性的 $O(n)$。辅助空间包括 $r$ 个队列的头尾指针；若记录用链结点串起来，还要 $n$ 个指针域，合计 $O(n+r)$。基数排序稳定，前提是每一趟的分配和收集都稳定。
 
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 第 0 层：单元素段
-\foreach \nn/\val in {0/49,1/38,2/65,3/97,4/76,5/13,6/27}
-  \node[draw,rectangle,fill=Amber!25,minimum height=0.5cm] (s\nn) at (\nn*1.0-3.0,0) {\val};
-% 第 1 趟
-\node[draw,rectangle,fill=Teal!25,minimum height=0.5cm] (t10) at (-2.5,-1.6) {38,49};
-\node[draw,rectangle,fill=Teal!25,minimum height=0.5cm] (t11) at (-0.5,-1.6) {65,97};
-\node[draw,rectangle,fill=Teal!25,minimum height=0.5cm] (t12) at (1.5,-1.6) {13,76};
-\node[draw,rectangle,fill=Teal!25,minimum height=0.5cm] (t13) at (3.0,-1.6) {27};
-\draw[->] (s0) -- (t10);
-\draw[->] (s1) -- (t10);
-\draw[->] (s2) -- (t11);
-\draw[->] (s3) -- (t11);
-\draw[->] (s4) -- (t12);
-\draw[->] (s5) -- (t12);
-\draw[->] (s6) -- (t13);
-% 第 2 趟
-\node[draw,rectangle,fill=Navy!20,minimum height=0.5cm] (t20) at (-1.5,-3.2) {38,49,65,97};
-\node[draw,rectangle,fill=Navy!20,minimum height=0.5cm] (t21) at (2.25,-3.2) {13,27,76};
-\draw[->] (t10) -- (t20);
-\draw[->] (t11) -- (t20);
-\draw[->] (t12) -- (t21);
-\draw[->] (t13) -- (t21);
-% 第 3 趟
-\node[draw,rectangle,fill=Burgundy!22,minimum height=0.5cm] (t30) at (0.4,-4.8) {13,27,38,49,65,76,97};
-\draw[->] (t20) -- (t30);
-\draw[->] (t21) -- (t30);
-\node[align=center,font=\scriptsize,black!70] at (0.4,-5.6){二路归并排序（段长 $1\to2\to4\to8$）：共 $\lceil\log_2 7\rceil=3$ 趟得到有序序列};
-\end{tikzpicture}
-\end{center}
+基数排序还有最高位优先（MSD）的版本：先按最高位分组，再对每组递归地排下一位。MSD 不要求全局稳定，但实现更复杂，408 主要考 LSD。基数排序不是基于比较的排序，所以不受“比较排序最坏 $\Omega(n\log n)$”下界的限制；它的代价是要把关键字拆成位，并且位的取值范围不能太大，否则 $r$ 个队列的开销会超过比较排序。
 
-\begin{attention}
-\textbf{408 常考——归并排序各趟结果：} 给定初始序列，写出每趟归并后的结果。例如 $\{49,38,65,97,76,13,27\}$：\\
-趟1（段长1$\to$2）：$\{38,49,\;65,97,\;13,76,\;27\}$（最后一段只有 27 单独成段）\\
-趟2（段长2$\to$4）：$\{38,49,65,97,\;13,27,76\}$\\
-趟3（段长4$\to$8）：$\{13,27,38,49,65,76,97\}$
+\subsection{内部排序方法的比较}
 
-另外，归并排序也可用迭代（非递归）实现（自底向上），程序结构适合用 \texttt{for} 循环控制段长逐步翻倍。
-\end{attention}
+把前面几种内部排序放在一起，可以看到它们在最好/平均/最坏时间、辅助空间和稳定性上的取舍。
 
-\subsection{基数排序（Radix Sort）}
-
-\begin{mydef}{基数排序}{radix-sort}
-基数排序是一种\textbf{不基于比较}的排序算法。它借助\textbf{多关键字排序}思想，将单关键字按各位的值进行排序。
-\end{mydef}
-
-\begin{conclusion}{基数排序原理}{radix-principle}
-以十进制整数为例。设每个关键字由 $d$ 位十进制数字组成，每位的取值范围为 $[0,9]$（即基数 $r=10$）。
-
-\textbf{两种策略：}
-\begin{itemize}
-    \item \textbf{最高位优先（MSD, Most Significant Digit）}：先按最高位排，再递归对各组排次高位。
-    \item \textbf{最低位优先（LSD, Least Significant Digit）}：先按最低位排，再排次低位……最后排最高位。LSD 需要每趟排序是稳定的。
-\end{itemize}
-
-\textbf{LSD 基数排序过程（以 $\{278,109,63,930,589,184,505,269,8,83\}$ 为例）：}
-\begin{center}
-\begin{enumerate}
-    \item 第一趟（个位）：按个位数分配到 10 个队列（0--9），收集。\\
-    结果：$\{930, 63, 83, 184, 505, 278, 8, 109, 589, 269\}$。
-    \item 第二趟（十位）：按十位数分配、收集。\\
-    结果：$\{505, 8, 109, 930, 63, 269, 278, 83, 184, 589\}$。
-    \item 第三趟（百位）：按百位数分配、收集。\\
-    结果：$\{8, 63, 83, 109, 184, 269, 278, 505, 589, 930\}$（有序）。
-\end{enumerate}
-\end{center}
-\textbf{关键：} 每趟的分配和收集必须是\textbf{稳定的}（通常用队列实现，先进先出），否则前一趟的排序成果会被破坏。
-\end{conclusion}
-
-\begin{conclusion}{基数排序复杂度分析}{radix-complexity}
-设待排序记录数为 $n$，关键字有 $d$ 位，基数为 $r$（每位有 $r$ 种取值）。
-
-\begin{itemize}
-    \item \textbf{时间复杂度}：$O(d(n+r))$。每趟分配 $O(n)$（扫描全部记录），收集 $O(r)$（扫描每个队列）。共 $d$ 趟。
-    \item \textbf{空间复杂度}：$O(r)$（$r$ 个队列的头尾指针）+ $O(n)$（队列结点）$= O(n+r)$。
-    \item \textbf{稳定性}：稳定（若每趟采用的分配/收集方法保持稳定）。
-\end{itemize}
-
-\textbf{适用场景：}
-\begin{itemize}
-    \item 关键字可分解为多个独立「位」，且每位取值范围不大。
-    \item $d$ 较小、$r$ 较小、$n$ 较大时效率优于基于比较的 $O(n\log n)$。
-    \item 典型应用：字符串排序、多关键字排序（如先按班级排再按成绩排）。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-408 常考——基数排序不是基于比较的排序，其复杂度可以突破基于比较的 $\Omega(n\log n)$ 下界！排序趟数取决于关键字的位数（或「基数分解」方式），每趟排序不改变相同关键字记录的相对次序。
-\end{attention}
-
-\subsection{各种内部排序算法的比较}
-
-\begin{tablebox}{内部排序算法综合比较表}
+\begin{tablebox}{内部排序算法比较}
 \centering
 \small
-\begin{tabular}{|l|c|c|c|c|c|}
-\hline
-算法 & 最好时间 & 平均时间 & 最坏时间 & 空间 & 稳定性 \\
-\hline
+\begin{tabular}{lcccccc}
+\toprule
+算法 & 最好时间 & 平均时间 & 最坏时间 & 辅助空间 & 稳定性 \\
+\midrule
 直接插入排序 & $O(n)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & 稳定 \\
 折半插入排序 & $O(n\log n)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & 稳定 \\
-希尔排序 & 依增量而定 & 依增量/输入而定 & $O(n^2)$ & $O(1)$ & 不稳定 \\
-\hline
+希尔排序 & 依赖增量 & 依赖增量 & $O(n^2)$ & $O(1)$ & 不稳定 \\
 冒泡排序 & $O(n)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & 稳定 \\
-快速排序 & $O(n\log n)$ & $O(n\log n)$ & $O(n^2)$ & \shortstack{平均 $O(\log n)$\\最坏 $O(n)$} & 不稳定 \\
-\hline
+快速排序 & $O(n\log n)$ & $O(n\log n)$ & $O(n^2)$ & 平均 $O(\log n)$，最坏 $O(n)$ & 不稳定 \\
 简单选择排序 & $O(n^2)$ & $O(n^2)$ & $O(n^2)$ & $O(1)$ & 不稳定 \\
 堆排序 & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ & $O(1)$ & 不稳定 \\
-\hline
 归并排序 & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ & $O(n)$ & 稳定 \\
-\hline
 基数排序 & $O(d(n+r))$ & $O(d(n+r))$ & $O(d(n+r))$ & $O(n+r)$ & 稳定 \\
-\hline
+\bottomrule
 \end{tabular}
 \end{tablebox}
 
-\begin{conclusion}{排序算法选择策略}{sorting-choice}
-\begin{enumerate}
-    \item \textbf{$n$ 较小时}（如 $n\leqslant 50$）：直接插入排序或简单选择排序。移动次数：直接插入 $>$ 直接选择，但直接选择比较次数固定。
-    \item \textbf{$n$ 较大时}：选 $O(n\log n)$ 算法。
-    \begin{itemize}
-        \item \textbf{快速排序}：平均最快，是通用内排序的首选。但初始基本有序时退化，需用随机化或三数取中优化。
-        \item \textbf{堆排序}：不会退化，辅助空间少（$O(1)$），但实际常数因子较大，通常比快排慢。适合空间受限且需保证 $O(n\log n)$ 的场景。
-        \item \textbf{归并排序}：稳定，适合外部排序的基础。但需要 $O(n)$ 辅助空间。
-    \end{itemize}
-    \item \textbf{初始序列基本有序}：直接插入排序或冒泡排序可达 $O(n)$。
-    \item \textbf{记录规模大、关键字位数少}：基数排序可能优于 $O(n\log n)$。
-    \item \textbf{要求稳定}：直接插入、冒泡、归并、基数排序。
-\end{enumerate}
-\end{conclusion}
+表里的“最好时间”按比较和移动的总量来算。折半插入排序即使初始有序，也要为每个元素做一次折半查找，比较次数是 $\Theta(n\log n)$，所以最好情况不是 $O(n)$；但它的移动次数为 0，实际运行仍然很快。希尔排序的最坏 $O(n^2)$ 是就 $d=\lfloor n/2\rfloor,\lfloor n/4\rfloor,\dots$ 这个增量序列而言的，换增量序列上界会变。
 
-\begin{attention}
-\textbf{408 高频选择题考点——排序趟数：}
-\begin{itemize}
-    \item 冒泡排序趟数与初始序列有关：最好 1 趟（无交换即停），最坏 $n-1$ 趟。
-    \item 快速排序的递归树深度与初始序列有关（最好/平均约 $\log_2 n$，最坏为 $n$）；若按一次 Partition 计“趟”，总划分次数不能写成 $O(\log n)$。
-    \item 简单选择排序/堆排序每趟确定 1 个元素的最终位置：共 $n-1$ 趟。
-    \item 归并排序趟数 = $\lceil\log_2 n\rceil$，与初始序列无关。
-    \item 基数排序趟数 = 关键字位数 $d$。
-\end{itemize}
-\end{attention}
+怎么选算法，可以先看数据规模和初始状态。$n$ 很小时（例如几十个记录），直接插入排序和简单选择排序的常数小，反而比快排、归并快；若初始基本有序，直接插入或冒泡可以做到 $O(n)$，而简单选择排序仍要做满 $n(n-1)/2$ 次比较。$n$ 较大时，快速排序的平均常数最小，是通用内部排序的首选；但它最坏会退化到 $O(n^2)$，对初始有序的序列要特别小心。堆排序的最坏时间有保证，辅助空间只有 $O(1)$，适合空间紧张又要求稳定性能的场合，代价是常数比快排大。归并排序稳定，时间也稳定在 $O(n\log n)$，但需要 $O(n)$ 的辅助空间，常用在外部排序和链表排序中。若关键字可以拆成位数不多的“位”，基数排序可以做到线性，但它依赖关键字的表示形式。
 
-\subsection{外部排序（External Sorting）}
-
-\begin{mydef}{外部排序}{external-sort}
-外部排序指待排序文件太大，无法一次全部装入内存，需要多次在内存与外存之间交换数据。通常采用\textbf{归并排序}的思想。
-\end{mydef}
-
-\begin{conclusion}{外部排序基本过程}{external-process}
-以二路平衡归并为例：
-\begin{enumerate}
-    \item 将大文件按内存缓冲区大小分成若干段，每段读入内存进行内部排序，得到若干\textbf{初始归并段（run）}，写回外存。
-    \item 对归并段进行多趟归并，每趟将归并段两两合并，段数减少，段长增大，直到只剩一个归并段（有序文件）。
-\end{enumerate}
-
-\textbf{总时间 = 内部排序时间 + 外存读写时间 + 内部归并时间。} 其中外存 I/O 时间通常占主导。
-
-\textbf{增大归并路数 $k$} 可减少归并趟数（趟数 $=\lceil\log_k m\rceil$，$m$ 为初始段数），但增大 $k$ 会使每趟内部归并时选最小元的代价变大——需用败者树优化。
-\end{conclusion}
+要求稳定时，可以选择直接插入、冒泡、归并、基数排序；希尔、简单选择、快速、堆排序都不稳定。这个结论不要只背表，最好能各举一个反例：希尔是远距离分组，简单选择是把最小值换到前面，快速是填坑时跨过相等元素，堆是堆顶与堆尾交换。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  % 初始归并段
-  \node[draw,rectangle,fill=Amber!25,minimum width=1.1cm,minimum height=0.6cm] (r1) at (0,0){$R_1$};
-  \node[draw,rectangle,fill=Amber!25,minimum width=1.1cm,minimum height=0.6cm] (r2) at (2,0){$R_2$};
-  \node[draw,rectangle,fill=Amber!25,minimum width=1.1cm,minimum height=0.6cm] (r3) at (4,0){$R_3$};
-  \node[draw,rectangle,fill=Amber!25,minimum width=1.1cm,minimum height=0.6cm] (r4) at (6,0){$R_4$};
-  % 第一趟
-  \node[draw,rectangle,fill=Teal!25,minimum width=1.4cm,minimum height=0.6cm] (m1) at (1,-2){$R_{12}$};
-  \node[draw,rectangle,fill=Teal!25,minimum width=1.4cm,minimum height=0.6cm] (m2) at (5,-2){$R_{34}$};
-  % 第二趟
-  \node[draw,rectangle,fill=Navy!18,minimum width=1.8cm,minimum height=0.6cm] (fin) at (3,-4){$R_{1234}$};
-  % 箭头
-  \draw[->] (r1.south) -- (m1.north);
-  \draw[->] (r2.south) -- (m1.north);
-  \draw[->] (r3.south) -- (m2.north);
-  \draw[->] (r4.south) -- (m2.north);
-  \draw[->] (m1.south) -- (fin.north);
-  \draw[->] (m2.south) -- (fin.north);
-  % 阶段标注
-  \node[font=\scriptsize,black!70] at (3,1.2){初始归并段（内部排序生成）};
-  \node[font=\scriptsize,black!70] at (3,-1.1){第 1 趟：二路归并};
-  \node[font=\scriptsize,black!70] at (3,-3.0){第 2 趟：二路归并};
-  \node[font=\scriptsize,black!70] at (3,-4.6){有序文件（趟数 $\lceil\log_2 4\rceil=2$）};
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 根
+  \node[draw,rounded corners,fill=SoftTeal,minimum width=1.1cm] (r) at (0,3.2) {$a<b$?};
+  % 第二层
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=1.1cm] (l) at (-3.2,1.8) {$b<c$?};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=1.1cm] (rr) at (3.2,1.8) {$a<c$?};
+  % 叶子
+  \node[draw=RuleGray,rounded corners,fill=white,minimum width=1.15cm] (l1) at (-4.8,0.4) {$a<b<c$};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=1.1cm] (l2) at (-1.5,0.4) {$a<c$?};
+  \node[draw=RuleGray,rounded corners,fill=white,minimum width=1.15cm] (l21) at (-2.4,-1.0) {$a<c<b$};
+  \node[draw=RuleGray,rounded corners,fill=white,minimum width=1.15cm] (l22) at (-0.6,-1.0) {$c<a<b$};
+  \node[draw=RuleGray,rounded corners,fill=white,minimum width=1.15cm] (r1) at (1.7,0.4) {$b<a<c$};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=1.1cm] (r2) at (4.6,0.4) {$b<c$?};
+  \node[draw=RuleGray,rounded corners,fill=white,minimum width=1.15cm] (r21) at (3.8,-1.0) {$b<c<a$};
+  \node[draw=RuleGray,rounded corners,fill=white,minimum width=1.15cm] (r22) at (5.6,-1.0) {$c<b<a$};
+  % 边
+  \draw[->] (r) -- node[above left]{是} (l);
+  \draw[->] (r) -- node[above right]{否} (rr);
+  \draw[->] (l) -- node[above left]{是} (l1);
+  \draw[->] (l) -- node[above right]{否} (l2);
+  \draw[->] (l2) -- node[above left]{是} (l21);
+  \draw[->] (l2) -- node[above right]{否} (l22);
+  \draw[->] (rr) -- node[above left]{是} (r1);
+  \draw[->] (rr) -- node[above right]{否} (r2);
+  \draw[->] (r2) -- node[above left]{是} (r21);
+  \draw[->] (r2) -- node[above right]{否} (r22);
+  \node[text=MutedText,align=center] at (0,-2.2) {3 个元素有 $3!=6$ 种排列，判定树至少 6 个叶子\\高度至少 $\lceil\log_2 6\rceil=3$};
 \end{tikzpicture}
 \end{center}
 
-\begin{conclusion}{败者树（Loser Tree）}{loser-tree}
-败者树是一棵完全二叉树，用于在 $k$ 路归并中高效选出 $k$ 个归并段当前首记录中的最小值。
+图里是一棵比较判定树：每个内部结点是一次两两比较，每个叶子是一种可能的排列。3 个元素有 6 种排列，所以树至少要有 6 个叶子；二叉树高度为 $h$ 时最多有 $2^h$ 个叶子，因此 $h\geqslant\lceil\log_2 6\rceil=3$。推广到 $n$ 个元素，判定树至少有 $n!$ 个叶子，高度至少 $\lceil\log_2(n!)\rceil=\Theta(n\log n)$。这就是基于比较的排序最坏情况下界 $\Omega(n\log n)$ 的来源；堆排序和归并排序达到了这个量级，而基数排序因为不靠比较，可以突破这个下界。
 
-\begin{itemize}
-    \item \textbf{结构}：$k$ 个叶结点对应 $k$ 个归并段的当前元素；$k-1$ 个内部结点存放「失败者」（即比较中较大者）。树根上方额外放一个结点存放最终胜者（最小值）。
-    \item \textbf{重建}：输出胜者后，从对应叶结点到根路径上重赛，每次只需比较兄弟结点（或当前值与父结点值）。每选一个最小元需要沿路径进行 $O(\log k)$ 次比较。
-    \item 与 \textbf{胜者树（Winner Tree）} 的区别：败者树中兄弟结点比较后「失败者」留存在父结点，重建时只需与路径上的父结点（保存的失败者）比较即可，比胜者树少访问兄弟结点，效率略高。
-\end{itemize}
+还有几个和“趟数”有关的结论容易混。冒泡排序最多 $n-1$ 趟，最好 1 趟（第一趟无交换就结束）；简单选择排序和堆排序都是 $n-1$ 趟，每趟确定一个元素的最终位置；归并排序是 $\lceil\log_2 n\rceil$ 趟，与初始序列无关；基数排序是 $d$ 趟，$d$ 是关键字的位数；希尔排序的趟数等于增量序列的长度；快速排序的划分次数等于递归树的内部结点数，平衡或随机时约为 $\Theta(n)$，最坏为 $n-1$；递归深度最好/平均为 $O(\log n)$，最坏为 $O(n)$。比较这些数字时，先确认题目说的“一趟”是划分次数还是递归层数。
 
-\textbf{败者树的比较次数：} 初始建立败者树需要 $O(k)$ 次比较；之后每输出一个记录，沿路径重赛需要 $O(\log k)$ 次比较。总记录数为 $N$ 时，总复杂度为 $O(N\log k)$，比较次数约为 $O(N\log k)$（忽略末段不足 $k$ 路等边界差异）。
-\end{conclusion}
+\subsection{外部排序}
 
-\begin{conclusion}{置换--选择排序（Replacement-Selection Sort）}{replacement-selection}
-产生初始归并段的算法。目的：在内存缓冲区大小受限的情况下，生成尽可能长的初始归并段（减少段数 $m$，进而减少归并趟数）。
+内部排序要求所有记录同时放在内存里。如果文件有几十 GB，内存只有几百 MB，就不可能一次装下。外部排序的做法是：先把文件分成若干块，每块读入内存做内部排序，得到一个有序的\textbf{初始归并段}（run），写回外存；然后对这些归并段反复做多路归并，直到只剩一个有序文件。
 
-\textbf{基本思想：} 在内存中维护一个大小为 $W$ 的缓冲区（即堆）。
-\begin{enumerate}
-    \item 读入 $W$ 个记录建立小根堆。
-    \item 输出堆顶（当前段的最小记录）到当前初始段。
-    \item 读入下一记录，若其关键字 $\geqslant$ 刚输出的记录，则插入堆中继续参与当前段；否则标记为「下一段」暂存。
-    \item 堆空时当前段结束，用「下一段」暂存记录建新堆，开始新归并段。
-\end{enumerate}
-\textbf{效果：} 当输入接近有序时，可生成远大于缓冲区 $W$ 的初始归并段，显著减少段数。
-\end{conclusion}
+设文件有 $N$ 个记录，内存缓冲区一次能容纳 $w$ 个记录，则初始归并段的个数约为
+\[
+m=\left\lceil\frac{N}{w}\right\rceil.
+\]
+若采用 $k$ 路平衡归并，每趟把 $k$ 个段合并成一个，段数变为原来的约 $1/k$，需要的趟数为
+\[
+t=\lceil\log_k m\rceil.
+\]
+例如 $m=100$、$k=4$ 时，$4^3=64<100$，$4^4=256\geqslant100$，所以需要 4 趟，而不是 3 趟。
 
-\begin{conclusion}{最佳归并树（Optimal Merge Tree）}{optimal-merge-tree}
-当各初始归并段的\textbf{长度不相等}时，以归并段长度为权，建立一棵带权路径长度（WPL）最小的 $k$ 叉 Huffman 树，称为\textbf{最佳归并树}。按此树的归并顺序可使总 I/O 次数最少。
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 初始段
+  \foreach \i in {1,...,9}
+    \node[draw=RuleGray,rectangle,minimum width=0.8cm,minimum height=0.42cm,fill=SoftGray,inner sep=0pt] (r\i) at (\i*1.35-7.0,4.0) {$R_{\i}$};
+  \node[anchor=east,text=MutedText] at (-7.6,4.0) {初始段};
+  % 第一趟
+  \node[draw=RuleGray,rectangle,minimum width=2.2cm,minimum height=0.45cm,fill=SoftTeal,inner sep=0pt] (s1) at (-4.3,2.2) {$R_{1..3}$};
+  \node[draw=RuleGray,rectangle,minimum width=2.2cm,minimum height=0.45cm,fill=SoftTeal,inner sep=0pt] (s2) at (0.0,2.2) {$R_{4..6}$};
+  \node[draw=RuleGray,rectangle,minimum width=2.2cm,minimum height=0.45cm,fill=SoftTeal,inner sep=0pt] (s3) at (4.3,2.2) {$R_{7..9}$};
+  % 第二趟
+  \node[draw=RuleGray,rectangle,minimum width=3.0cm,minimum height=0.45cm,fill=SoftAmber,inner sep=0pt] (t) at (0.0,0.4) {$R_{1..9}$};
+  % 连线
+  \foreach \i in {1,2,3} \draw[->] (r\i.south) -- (s1.north);
+  \foreach \i in {4,5,6} \draw[->] (r\i.south) -- (s2.north);
+  \foreach \i in {7,8,9} \draw[->] (r\i.south) -- (s3.north);
+  \draw[->] (s1.south) -- (t.north); \draw[->] (s2.south) -- (t.north); \draw[->] (s3.south) -- (t.north);
+  \node[anchor=west,text=MutedText,align=left] at (5.6,2.2) {第 1 趟\\每 3 段合并};
+  \node[anchor=west,text=MutedText,align=left] at (2.6,0.4) {第 2 趟\\3 段合并成 1 段};
+  \node[text=MutedText] at (0,5.0) {$t=\lceil\log_3 9\rceil=2$};
+\end{tikzpicture}
+\end{center}
 
-\begin{itemize}
-    \item 对于 $k$ 路归并，若初始段数 $m$ 不满足 $(m-1)\bmod(k-1)=0$（即不是严格 $k$ 叉 Huffman 树），需添加长度为 $0$ 的虚拟段补足。
-    \item \textbf{总磁盘 I/O 次数 = $2\times \mathrm{WPL}$}（每归并一次，每个记录读写各一次。\textit{注：408 有时只统计归并趟数对应的读写次数}）。
-\end{itemize}
+图里 9 个初始归并段经过两趟 3 路归并合成一个有序文件：第一趟每 3 个段合成一段，得到 3 个更长的段；第二趟把这 3 个段合成一个。每一趟都要把全部 $N$ 个记录从外存读一遍、再写一遍，所以归并阶段的 I/O 次数为 $2Nt$；若把生成初始段时的一次读、一次写也算上，总 I/O 为
+\[
+2N(t+1)=2N\bigl(1+\lceil\log_k m\rceil\bigr).
+\]
+外部排序的总时间由三部分组成：生成初始段时的内部排序时间、外存读写时间、归并时的内部比较时间。三者中外存读写通常占主导，所以减少归并趟数比减少比较次数更重要。
 
-\textbf{408 常考：} 给定若干归并段长度和归并路数 $k$，计算最佳归并树的 WPL 或总 I/O 次数。
-\end{conclusion}
+增大 $k$ 可以减少趟数，但 $k$ 路归并需要 $k$ 个输入缓冲区和 1 个输出缓冲区，内存中至少要能放下 $k+1$ 个块；$k$ 太大时每个缓冲区变小，I/O 的块数反而增加。另一个限制是内部归并的代价：如果每输出一个记录都线性扫描 $k$ 个段的首元素，最多需要 $k-1$ 次比较，一整趟最多约 $(k-1)N$ 次比较，$k$ 增大后这部分会变得很重。\textbf{败者树}就是用来把“选最小”的代价降到 $O(\log k)$ 的。
 
-\subsection{408 高频考点速查}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 叶子
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.8cm] (l1) at (0,0) {15};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.8cm] (l2) at (2,0) {8};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.8cm] (l3) at (4,0) {23};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.8cm] (l4) at (6,0) {12};
+  % 内部结点
+  \node[draw,circle,fill=SoftAmber,minimum size=0.65cm] (p1) at (1,1.2) {15};
+  \node[draw,circle,fill=SoftAmber,minimum size=0.65cm] (p2) at (5,1.2) {23};
+  \node[draw,circle,fill=SoftAmber,minimum size=0.65cm] (p3) at (3,2.4) {12};
+  \node[draw,rectangle,fill=SoftTeal,minimum width=0.9cm,minimum height=0.45cm] (ch) at (3,3.5) {冠军 8};
+  % 边
+  \draw (l1) -- (p1); \draw (l2) -- (p1);
+  \draw (l3) -- (p2); \draw (l4) -- (p2);
+  \draw (p1) -- (p3); \draw (p2) -- (p3);
+  \draw[->] (p3) -- (ch);
+  % 重赛路径
+  \draw[dashed,Burgundy,thick] (l2) -- (p1) -- (p3) -- (ch);
+  % 标注
+  \node[anchor=east,text=MutedText,align=right] at (-0.5,0) {段 1};
+  \node[text=MutedText] at (2.0,-0.75) {段 2 改成 30};
+  \node[anchor=east,text=MutedText,align=right] at (0.5,1.6) {失败者 15};
+  \node[anchor=west,text=MutedText] at (5.5,1.6) {失败者 23};
+  \node[anchor=west,text=MutedText] at (3.5,2.4) {失败者 12};
+  \node[anchor=west,text=MutedText,align=left] at (4.2,3.5) {每次只需沿虚线\\重赛 $\lceil\log_2 k\rceil$ 次};
+\end{tikzpicture}
+\end{center}
 
-\begin{conclusion}{排序——408 选择题常考点}{sort-408-keypoints}
-\begin{enumerate}
-    \item \textbf{稳定性判断}：会背表还不够——要能根据算法过程推理解释。希尔排序（跳跃分组）、快排（跳跃交换）、堆排序（沿树跳跃）、简单选择（远距离交换）不稳定。
-    \item \textbf{快排的 Partition}：给定序列和 pivot 选法，写出每趟 Partition 结果（pivot 落位）。
-    \item \textbf{堆排序之建堆与调整}：给定序列，画出完全二叉树，模拟自底向上建堆过程。写出每趟排序后序列。
-    \item \textbf{各排序算法的趟/轮次}：冒泡、快排与初始序列相关；归并、基数与初始序列无关。
-    \item \textbf{时间复杂度对比}：哪些是 $O(n\log n)$？哪些最好可 $O(n)$？哪三个 $O(n^2)$？
-    \item \textbf{基于比较的排序下界}：基于比较的排序算法最坏情况时间下界为 $\Omega(n\log n)$。因此堆排序和归并排序在比较模型中是最优的。基数排序突破此下界因为它不基于比较。
-    \item \textbf{外部排序的败者树与最佳归并树}：概念辨析与简单计算。
-\end{enumerate}
-\end{conclusion}
+图里 $k=4$ 个叶子是 4 个归并段的当前首记录，内部结点保存比较的失败者，冠军单独放在根的上方。初始时 15 与 8 比较，8 胜、15 留在左内部结点；23 与 12 比较，12 胜、23 留在右内部结点；8 与 12 比较，8 胜、12 留在根结点，冠军为 8。若段 2 的下一个记录变成 30，只需沿虚线从叶子走到根：30 与结点里的 15 比较，15 胜、30 留下；15 再与根里的 12 比较，12 胜、15 留下；冠军变为 12。整条路径只有 2 次比较，而不是重新扫描 4 个段。
+
+败者树的叶结点数为 $k$，内部结点数为 $k-1$，树高为 $\lceil\log_2 k\rceil$。初始建树需要 $k-1$ 次比较；此后每输出一个记录，沿叶到根的路径重赛，最多 $\lceil\log_2 k\rceil$ 次比较。归并 $N$ 个记录的总比较次数约为 $N\lceil\log_2 k\rceil$，比线性扫描的 $N(k-1)$ 小得多。\textbf{胜者树}也能做同样的事，但胜者树的内部结点保存胜者，重赛时要访问兄弟结点才能知道另一个候选者；败者树保存失败者，胜者可以直接和父结点中保存的失败者比较，访问的结点更少，这是它名字的由来。
+
+初始归并段的长度不一定等于缓冲区大小。\textbf{置换-选择排序}可以在缓冲区只有 $W$ 个记录时，生成比 $W$ 长得多的归并段：先把 $W$ 个记录建成小根堆，输出堆顶（当前段的最小值）；读入下一个记录，如果它不小于刚输出的记录，就插入堆中继续参与当前段，否则暂存起来留给下一段；堆空时当前段结束，用暂存的记录建新堆，开始下一段。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=4.2cm,minimum height=0.55cm] (init) at (0,3.4) {读入 $W$ 个记录，建小根堆};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=4.2cm,minimum height=0.55cm] (out) at (0,2.0) {输出堆顶，记为 $last$};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=4.2cm,minimum height=0.55cm] (read) at (0,0.6) {读入下一记录 $x$};
+  \node[draw,rounded corners,fill=SoftAmber,minimum width=2.4cm,minimum height=0.6cm] (cmp) at (0,-1.1) {$x\geqslant last$?};
+  \node[draw,rounded corners,fill=SoftTeal,minimum width=2.2cm,minimum height=0.55cm] (yes) at (-3.6,-1.1) {插入堆};
+  \node[draw,rounded corners,fill=SoftAmber,minimum width=2.6cm,minimum height=0.8cm,align=center] (no) at (4.0,-1.1) {暂存到下一段\\堆空时用它建新堆};
+  \draw[->] (init) -- (out);
+  \draw[->] (out) -- (read);
+  \draw[->] (read) -- (cmp);
+  \draw[->] (cmp) -- node[above]{是} (yes);
+  \draw[->] (cmp) -- node[above]{否} (no);
+  \draw[->] (yes.north) |- (out.west);
+  \draw[->] (no.north) |- (init.east);
+  \node[text=MutedText,align=center] at (0,-2.8) {随机输入时，平均段长约为 $2W$；\\输入已经有序时，整个文件可以成为一个段};
+\end{tikzpicture}
+\end{center}
+
+图里是置换-选择的流程：判断“新记录是否不小于上次输出”是核心，满足就继续留在当前段，不满足就推迟到下一段。因为推迟的记录不参与当前堆，堆中始终有记录可输出，所以一个段可以超过缓冲区容量。对随机排列的输入，段的平均长度约为 $2W$；输入已经升序时，所有记录都能留在同一个段中，段长为 $N$；输入逆序时，每读入一个记录都要推迟，段长退化为 $W$。
+
+当各初始归并段的长度不相等时，归并的先后顺序会影响总 I/O。把归并段看成带权叶子，权值是段长，构造一棵 $k$ 叉 Huffman 树，使带权路径长度
+\[
+\mathrm{WPL}=\sum_{i=1}^{m} w_i\,l_i
+\]
+最小，其中 $w_i$ 是第 $i$ 段的长度，$l_i$ 是它在树中的深度。这棵树叫\textbf{最佳归并树}，按它自底向上归并，总读写次数为 $2\,\mathrm{WPL}$。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  % 内部结点
+  \node[draw,circle,fill=SoftTeal,minimum size=0.7cm] (root) at (0,3.6) {121};
+  \node[draw,circle,fill=SoftAmber,minimum size=0.65cm] (n32) at (0,2.0) {32};
+  \node[draw,circle,fill=SoftAmber,minimum size=0.65cm] (n59) at (4.0,2.0) {59};
+  \node[draw,circle,fill=SoftAmber,minimum size=0.6cm] (n11) at (0,0.2) {11};
+  % 叶子
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.65cm] (w30) at (-3.2,2.0) {30};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.65cm] (w9) at (-1.6,0.2) {9};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.65cm] (w12) at (1.6,0.2) {12};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.65cm] (w2) at (-1.2,-1.4) {2};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.65cm] (w3) at (-0.4,-1.4) {3};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.65cm] (w6) at (0.4,-1.4) {6};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.65cm] (w17) at (2.8,-1.4) {17};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.65cm] (w18) at (4.0,-1.4) {18};
+  \node[draw,rounded corners,fill=SoftBlue,minimum width=0.65cm] (w24) at (5.2,-1.4) {24};
+  % 边
+  \draw (root) -- (w30); \draw (root) -- (n32); \draw (root) -- (n59);
+  \draw (n32) -- (w9); \draw (n32) -- (n11); \draw (n32) -- (w12);
+  \draw (n11) -- (w2); \draw (n11) -- (w3); \draw (n11) -- (w6);
+  \draw (n59) -- (w17); \draw (n59) -- (w18); \draw (n59) -- (w24);
+\end{tikzpicture}
+\end{center}
+
+图里是 9 个归并段、3 路归并的最佳归并树，叶子上的数字是段长，圆圈里的数字是合并后的段长。构造过程和 Huffman 树一样：每次取权值最小的 3 个结点合并，$2+3+6=11$，$9+11+12=32$，$17+18+24=59$，最后 $30+32+59=121$。按这棵树归并，WPL 为
+\[
+30\times1+(9+12+17+18+24)\times2+(2+3+6)\times3
+=30+160+33=223,
+\]
+总读写次数为 $2\times223=446$。
+
+如果初始段数 $m$ 不满足 $(m-1)\bmod(k-1)=0$，这棵树就不是严格的 $k$ 叉树，最后一层会有“缺孩子”的结点，Huffman 构造不能直接进行。这时要补若干个长度为 0 的虚拟段，把段数凑到满足条件为止。需要补的个数为
+\[
+(k-1)-\bigl((m-1)\bmod(k-1)\bigr).
+\]
+例如 $m=8$、$k=3$ 时，$(8-1)\bmod2=1$，需要补 1 个长度为 0 的段，按 9 个段构造；虚拟段不贡献 WPL，只是把树补成满 3 叉树。$m=9$、$k=3$ 时 $(9-1)\bmod2=0$，不需要补段，正好是图里的情况。
 
 \newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（单项选择题）} 以下排序算法中，\textbf{不稳定}的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 直接插入排序 & (B) 冒泡排序 \\[4pt]
-(C) 归并排序 & (D) 快速排序
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 直接插入、冒泡和采用“相等时先取左段”的归并排序均可稳定；快速排序的远距离交换可能改变相等关键字的相对次序。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\item \textbf{（单项选择题）} 对 $n$ 个记录进行快速排序，平均情况下的时间复杂度为
-\begin{center}
-\begin{tabular}{ll}
-(A) $O(n)$ & (B) $O(n\log n)$ \\[6pt]
-(C) $O(n^2)$ & (D) $O(\log n)$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 在枢轴位置近似均匀的平均模型下，递推为 $T(n)=T(k)+T(n-k-1)+O(n)$，期望为 $O(n\log n)$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（单项选择题）} 堆排序中，对 $n$ 个元素的序列建初堆，时间复杂度为
-\begin{center}
-\begin{tabular}{ll}
-(A) $O(1)$ & (B) $O(n)$ \\[6pt]
-(C) $O(n\log n)$ & (D) $O(n^2)$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 自底向上建堆时，大量靠近叶子的结点只需很少调整，所有下沉距离之和为 $O(n)$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（单项选择题）} 初始序列基本有序时，以下排序算法中效率最高的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 快速排序 & (B) 直接插入排序 \\[4pt]
-(C) 简单选择排序 & (D) 堆排序
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 直接插入排序的移动和比较次数与逆序程度相关，序列基本有序时接近 $O(n)$；选择排序和堆排序不能利用这一性质，固定首元素枢轴的快排还可能退化。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（填空题）} 基于比较的排序算法在最坏情况下的时间下界为 \underline{\qquad\qquad}（用大 $O$ 或大 $\Omega$ 记法）。
-
-\ifshowsolutions\par\noindent\textbf{答案：} $\Omega(n\log n)$。比较决策树至少有 $n!$ 个叶结点，其高度不小于 $\lceil\log_2(n!)\rceil=\Omega(n\log n)$。\else \answerarea \fi
-
-\item \textbf{（填空题）} 希尔排序的最后一趟增量必须为 \underline{\qquad\qquad}。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 1。最后必须对整个序列执行一次普通插入排序式的相邻间隔整理，才能保证全局有序。\else \answerarea \fi
-
-\item \textbf{（填空题）} 对序列 $\{6,5,3,1,8,7,2,4\}$ 进行二路归并排序，第一趟归并后的序列为 \underline{\qquad\qquad}。
-
-\ifshowsolutions\par\noindent\textbf{答案：} $\{5,6,1,3,7,8,2,4\}$。第一趟把相邻的单元素段两两归并。\else \answerarea \fi
-
-\item \textbf{（简答题）} 简述堆排序中建堆过程为什么可以达到 $O(n)$ 的时间复杂度而非 $O(n\log n)$。给出证明思路即可。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 不能把每个结点都按高度 $\log n$ 估计。高度至少为 $h$ 的结点数至多约为 $n/2^{h+1}$，故全部下沉工作量满足
-\[
-\sum_{h\geqslant 0} O\!\left(\frac{n}{2^{h+1}}h\right)
-=O(n)\sum_{h\geqslant0}\frac{h}{2^{h+1}}=O(n).
-\]
-因此自底向上建堆是 $O(n)$，而逐个插入建堆才通常按 $O(n\log n)$ 上界估计。\else \answerarea \fi
-
-\item \textbf{（算法设计）} 编写算法，用单链表实现直接插入排序。说明时间与空间复杂度。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-\begin{lstlisting}[language=C]
-void ListInsertSort(LinkList L) {
-    LNode *p = L->next;
-    L->next = NULL;                    // 已排序链初始为空
-    while (p) {
-        LNode *next = p->next;
-        LNode *q = L;
-        while (q->next && q->next->data <= p->data)
-            q = q->next;               // 相等时插到已有相等结点之后
-        p->next = q->next;
-        q->next = p;
-        p = next;
-    }
-}
-\end{lstlisting}
-最坏时间复杂度 $O(n^2)$，最好 $O(n)$，辅助空间 $O(1)$；使用“$\leqslant$”越过已有相等结点可保持稳定性。\else \answerarea \fi
-
-\item \textbf{（算法设计）} 编写算法，将两个按升序排列的整型数组 $A[0..m-1]$ 与 $B[0..n-1]$ 归并到数组 $C[0..m+n-1]$ 中。要求 $O(m+n)$ 时间。
-
-\ifshowsolutions\par\noindent\textbf{解析：}
-\begin{lstlisting}[language=C]
-void MergeArray(int A[], int m, int B[], int n, int C[]) {
-    int i = 0, j = 0, k = 0;
-    while (i < m && j < n)
-        C[k++] = (A[i] <= B[j]) ? A[i++] : B[j++];
-    while (i < m) C[k++] = A[i++];
-    while (j < n) C[k++] = B[j++];
-}
-\end{lstlisting}
-每个元素只复制一次，时间复杂度 $O(m+n)$；除输出数组外辅助空间为 $O(1)$。相等时先取 A 可保持跨段稳定性。\else \answerarea \fi
-
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（真题风格，单项选择题）} 对序列 $\{45,38,66,90,88,10,25,45'\}$ 采用本章给出的“以首元素为枢轴、从右找小再从左找大”的交替填坑 Partition 算法进行一趟划分，得到的序列是
-\begin{center}
-\begin{tabular}{ll}
-(A) $\{10,25,38,45,88,90,66,45'\}$ & (B) $\{25,38,10,45,88,90,66,45'\}$ \\[6pt]
-(C) $\{10,38,25,45',45,90,66,88\}$ & (D) $\{25,38,10,45',45,90,88,66\}$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 按指定填坑法，右侧先找到25填入首位置，左侧再找到66移到右侧空位；随后10移到左侧，最终两指针在下标3相遇并放回枢轴，得到 $\{25,38,10,45,88,90,66,45'\}$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（真题风格，单项选择题）} 已知序列 $\{12,10,15,8,20,6,25,18\}$，将其调整为一个小根堆，则调整后堆对应的序列是
-\begin{center}
-\begin{tabular}{ll}
-(A) $\{6,8,12,10,20,15,25,18\}$ & (B) $\{6,8,15,10,20,12,25,18\}$ \\[6pt]
-(C) $\{6,10,12,8,20,15,25,18\}$ & (D) $\{6,8,12,15,20,10,25,18\}$
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 自最后一个非叶结点向根调整：先把15与6交换，再把10与8交换，最后把根12与较小孩子6交换，得到 $\{6,8,12,10,20,15,25,18\}$。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
-
-\item \textbf{（真题风格，单项选择题）} 以下关于堆排序的说法中，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 堆排序是稳定的 & \\[4pt]
-(B) 堆排序在最坏情况下的时间复杂度为 $O(n\log n)$ & \\[4pt]
-(C) 建堆的时间复杂度为 $O(\log n)$ & \\[4pt]
-(D) 堆排序每趟确定一个最小元素放在末尾
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 堆排序不稳定；建堆为 $O(n)$；使用大根堆升序排序时，每趟把当前最大元素放到末尾。其最好、平均和最坏时间均为 $O(n\log n)$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 设待排序记录的关键字序列为 $\{49,38,65,97,76,13,27,49'\}$。
-\begin{enumerate}
-    \item[(1)] 以第一个元素 49 为枢轴，写出一趟快速排序（Partition）的结果；
-    \item[(2)] 写出快速排序各趟排序完成后的完整序列；
-    \item[(3)] 写出归并排序（二路）各趟归并后的完整序列；
-    \item[(4)] 分析上述两种算法中 $49$ 与 $49'$ 的相对次序变化，说明算法的稳定性。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：} 按本章首元素枢轴的交替填坑算法：
-
-(1) 第一趟为
-\[
-\{27,38,13,49,76,97,65,49'\}.
-\]
-
-(2) 按递归先处理左区间、再处理右区间，每次 Partition 后的完整序列依次为
-\[
-\begin{aligned}
-&\{27,38,13,49,76,97,65,49'\},\\
-&\{13,27,38,49,76,97,65,49'\},\\
-&\{13,27,38,49,49',65,76,97\},\\
-&\{13,27,38,49,49',65,76,97\}.
-\end{aligned}
-\]
-最后一次划分没有改变可见序列。
-
-(3) 二路归并各趟为
-\[
-\begin{aligned}
-d=1:&\ \{38,49,65,97,13,76,27,49'\},\\
-d=2:&\ \{38,49,65,97,13,27,49',76\},\\
-d=4:&\ \{13,27,38,49,49',65,76,97\}.
-\end{aligned}
-\]
-
-(4) 在这组特定数据和这次执行中，两种算法都恰好保持了 $49$ 在 $49'$ 之前；但“某一次没有改变”不能证明算法稳定。归并时相等关键字总是先取左段，因而可保证稳定；快速排序的跨区移动在其他输入上可能改变相等元素次序，所以快速排序仍是不稳定算法。\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 设有关键字序列 $\{10,18,4,3,6,12,1,9,15,8\}$。
-\begin{enumerate}
-    \item[(1)] 画出建初堆（大根堆）的过程（每步调整后画出对应的完全二叉树）；
-    \item[(2)] 写出堆排序输出前 3 个最大元素后剩余元素构成的堆序列；
-    \item[(3)] 写出希尔排序（增量序列 $5,3,1$）每趟排序后的序列。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) 自底向上建成的大根堆的层序序列为
-\[
-\{18,15,12,10,8,4,1,9,3,6\}.
-\]
-各次向下调整都选择两个孩子中的较大者交换，直至恢复堆序。
-
-(2) 依次输出18、15、12后，尚未排序部分构成的堆为
-\[
-\{10,9,4,6,8,3,1\},
-\]
-数组尾部已就位部分为 $\{12,15,18\}$。
-
-(3) 希尔排序各趟结果为
-\[
-\begin{aligned}
-d=5:&\ \{10,1,4,3,6,12,18,9,15,8\},\\
-d=3:&\ \{3,1,4,8,6,12,10,9,15,18\},\\
-d=1:&\ \{1,3,4,6,8,9,10,12,15,18\}.
-\end{aligned}
-\]
-\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 有 8 个初始归并段，各段记录数依次为 $\{9,30,12,18,3,24,6,15\}$。
-\begin{enumerate}
-    \item[(1)] 采用 3 路平衡归并，画出最佳归并树（即三叉 Huffman 树）；
-    \item[(2)] 计算最佳归并树的 WPL，并说明总 I/O 次数与 WPL 的关系；
-    \item[(3)] 若归并过程中每趟需在 $k$ 个归并段中选最小值，简述败者树在 $k$ 较大时的优势。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：} 3 路 Huffman 树要求叶结点数满足 $(n-1)\bmod(3-1)=0$。原有8段不满足，先补一个长度为0的虚段，再反复合并三个最小权值：
-\[
-0+3+6=9,\quad9+9+12=30,\quad15+18+24=57,
-\quad30+30+57=117.
-\]
-因此
-\[
-\mathrm{WPL}=9+30+57+117=213.
-\]
-若以“记录被读一次或写一次”为一次 I/O 单位，每层归并对参与记录各读、写一次，总记录 I/O 量为 $2\times\mathrm{WPL}=426$；若磁盘按块计数，还需再结合每块记录数换算。败者树建立后，每输出一个最小记录只需沿树调整 $O(\log k)$ 次比较，比逐次线性扫描 $k$ 个段的 $O(k)$ 比较更适合较大的 $k$。\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 给定 $n$ 个元素的序列。
-\begin{enumerate}
-    \item[(1)] 若要求排序算法是稳定的、时间复杂度 $O(n\log n)$ 且在最坏情况下不退化，应选用哪种排序算法？说明理由。
-    \item[(2)] 若所有记录的关键字均不相同但已知序列基本有序（仅有个别元素不在正确位置），从时间效率角度应选哪种排序算法？说明理由。
-    \item[(3)] 若空间极其有限（要求 $O(1)$ 额外空间），且要求在最坏情况下保证 $O(n\log n)$ 时间，应选哪种排序算法？
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) 选归并排序：稳定，最好、平均和最坏时间均为 $O(n\log n)$；代价是需要 $O(n)$ 辅助数组空间。
-(2) 选直接插入排序：其比较和移动次数与逆序程度相关，基本有序时接近 $O(n)$。
-(3) 选堆排序：额外空间 $O(1)$，最坏时间保证 $O(n\log n)$；它不稳定，但题设没有要求稳定性。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
-\noindent\textbf{拓展阅读：}
-\begin{itemize}
-    \item 邓俊辉《数据结构（C++语言版）》第 10 章「排序」——快速排序的三种轴点选取策略（随机法、三者取中法），$k$-选取问题与选取中位数算法，希尔排序的增量序列理论分析，以及外部排序的完整讨论。
-    \item Sedgewick《算法》第 2.1 节「初级排序算法」（选择/插入/希尔），第 2.2 节「归并排序」，第 2.3 节「快速排序」，第 2.4 节「优先队列」（堆与堆排序）——对每种算法的性能和稳定性有深入的实验分析和数学推导，第 2.5 节亦有排序算法综合对比。
-\end{itemize}
+\input{ds/exercises/chap7.tex}

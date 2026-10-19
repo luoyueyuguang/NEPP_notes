@@ -1,917 +1,493 @@
 \section{综合专题}
 
-\begin{attention}
-\textbf{本章定位：} 408 操作系统综合应用题可能在一个明确场景中联合考查进程、内存、文件、I/O 或同步机制。本章按专题组织训练；凡涉及时间线，必须先把事件发生时刻、阻塞时长、就绪队列规则和计数口径写清楚，才能得到唯一答案。
-\end{attention}
+408 的操作系统综合题很少只考一章。题面给一个场景：三个进程同时到达，其中一个执行到第 3 ms 时发生缺页，缺页要从磁盘调页；另一个进程正在读文件，文件块散落在不同磁道。最后问某个进程的完成时刻、平均周转时间，或者这次访存的有效访问时间。
 
-\subsection{专题一：进程调度 + 内存管理 + 文件系统的综合突破}
+单章的公式都会用，仍然容易算错，原因是中间结果不能直接相加。调页的 10 ms 与 CPU 运行重叠；缺页返回的进程要重新排队；文件索引块本身也占用磁盘请求。下面按“时间线—资源—地址转换—文件到磁盘”的顺序，把这四本账拆开，再合起来。
 
-进程调度和请求分页可以出现在同一场景中，但这类题比单独计算调度或页面置换多一层事件依赖：进程只有占用 CPU 时才能发起访存；缺页后会阻塞；调页完成后还要按题设规则重新进入就绪队列。
+\subsection{时间线：CPU、磁盘和就绪队列}
 
-\begin{conclusion}{跨模块时间线的建模规则}{synth-proc-mem}
-一道“调度 $+$ 缺页”的题若要有唯一答案，至少应明确以下条件：
-\begin{enumerate}
-    \item 一次页面引用是否占用一个完整 CPU 时间单位，缺页发生在该时间单位的开始还是结束；
-    \item 缺页 I/O 的持续时间，以及调页期间磁盘能否并行处理其他进程的缺页；
-    \item 调页完成后，进程进入就绪队列队首还是队尾，未用完的时间片是否保留；
-    \item 页面引用在缺页处理后是否已经完成，还是必须重新调度后再执行一次；
-    \item 页框采用固定分配还是可变分配，置换范围是局部还是全局。
-\end{enumerate}
+先看一个能手算完的例子。P1、P2、P3 在 $t=0$ 同时到达，按 P1、P2、P3 的顺序进入就绪队列，时间片 $q=4$ ms。P1 需要 6 ms CPU，执行到第 3 ms 时访问的页不在内存，缺页处理需要磁盘传输 10 ms；P2 需要 5 ms，P3 需要 2 ms。假定缺页处理程序本身的 CPU 时间可以忽略，调页期间 CPU 可以运行其他进程，P1 的页调回后排到就绪队列队尾。
 
-若题目漏掉其中会改变时间线的条件，就不能自行假设出唯一的周转时间。规范的解题表应逐事件记录“当前运行进程、就绪队列、阻塞集合、页框内容、剩余时间片”，并且只允许当前运行进程发起页面访问。建议先独立算出每个进程在给定页框下的置换过程，再把缺页事件嵌入调度时间线，以减少漏算和重复执行。
-\end{conclusion}
-
-\subsection{专题二：页表 + TLB + Cache + 缺页的完整访问流程}
-
-\begin{attention}
-\textbf{这是一类典型的跨科综合训练。} 题目可给定一个虚拟地址，要求模拟从 TLB 查找 $\to$ 页表查询 $\to$ 缺页处理 $\to$ Cache 访问的完整路径，计算总访问时间或判断每一步是否命中，融合组成原理（Cache、TLB）和操作系统（页表、缺页）的知识。
-\end{attention}
-
-\begin{conclusion}{完整存储访问流程}{memory-access-pipeline}
-\boxed{\textbf{例2}} 某计算机系统按字节编址，虚拟地址 32 位，物理地址 28 位，页面大小 4 KB。TLB 采用全相联映射，共 16 个表项。Cache 采用直接映射，共 64 行，行大小 64 B。页表采用两级页表结构，页目录基址寄存器（PDBR）指向一级页表首地址。
-
-当前 TLB 内容如下（均为有效项）：
-
-\begin{tablebox}{TLB 内容}
-\centering
-\begin{tabular}{|c|c|c|}
-\hline
-虚页号 & 实页框号 & 访问位 \\
-\hline
-0x00012 & 0x00456 & 1 \\
-0x00013 & 0x00321 & 0 \\
-0x00014 & 0x00123 & 1 \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-系统当前无空闲页框。页面置换采用\textbf{全局 CLOCK 算法}。
-
-\textbf{问：} 当 CPU 执行指令 \texttt{mov eax, [0x00012345]} （读操作，32 位数据）时：
-\begin{enumerate}
-    \item[(1)] 写出虚拟地址的结构划分（虚页号位数、页内偏移位数）。
-    \item[(2)] 该访存是否 TLB 命中？若命中，给出物理地址；若不命中，说明接下来访问页表的步骤。
-    \item[(3)] 若发生缺页，描述 CLOCK 算法的处理过程。
-    \item[(4)] 给出最终访问 Cache 时的 Cache 行号、标记字段和块内偏移。
-\end{enumerate}
-
-\textbf{分步求解：}
-
-\textbf{Step 1：虚拟地址结构。}
-页面大小 $= 4\text{ KB} = 2^{12}$ B，故\textbf{页内偏移占 12 位}。
-虚页号位数 $= 32 - 12 = \mathbf{20}$ 位。
-
-\textbf{Step 2：TLB 查询。}
-虚拟地址 \texttt{0x00012345}：
-\begin{itemize}
-    \item 页内偏移 = 低 12 位 = \texttt{0x345}（即 $345_{16}$）
-    \item 虚页号 = 高 20 位 = \texttt{0x00012}
-\end{itemize}
-查 TLB：虚页号 \texttt{0x00012} 命中！对应实页框号 \texttt{0x00456}。
-\begin{itemize}
-    \item 物理地址 = 实页框号 \texttt{0x00456} $\times$ $2^{12}$ + 页内偏移 \texttt{0x345}
-    \item $= \texttt{0x00456000} + \texttt{0x345} = \texttt{0x00456345}$
-\end{itemize}
-
-\textbf{Step 3：缺页处理（本例未发生，但作为考点展示完整流程）。}
-
-若 TLB 不命中，则进行\textbf{页表查询}（两级页表）：
-\begin{itemize}
-    \item 虚拟地址 32 位：一级页号（10 位）| 二级页号（10 位）| 页内偏移（12 位）
-    \item 从 PDBR 获取一级页表基址，用一级页号查一级页表，得到二级页表基址。
-    \item 用二级页号查二级页表，得到页表项（含实页框号和有效位等）。
-    \item 若有效位为 0 $\to$ \textbf{缺页异常}，进入缺页处理。
-\end{itemize}
-
-\textbf{缺页处理（CLOCK 算法）：}
-\begin{enumerate}
-    \item 操作系统选择一个页框淘汰（CLOCK 算法维护一个循环队列和访问位）：
-    \begin{itemize}
-        \item 指针指向当前候选页框。若访问位 = 0，淘汰该页；若访问位 = 1，置 0 并移动指针继续扫描。
-    \end{itemize}
-    \item 若被淘汰页为脏页（修改过），先写回磁盘。
-    \item 从磁盘读入所需页面到该页框。
-    \item 更新页表项（置有效位 = 1，填实页框号），更新 TLB。
-    \item 返回用户程序，重新执行导致缺页的指令。
-\end{enumerate}
-
-\textbf{Step 4：Cache 访问。}
-物理地址 \texttt{0x00456345}（28 位）。
-
-Cache 结构分析：
-\begin{itemize}
-    \item 总行数 = 64 = $2^6$，故\textbf{行索引占 6 位}。
-    \item 行大小 = 64 B = $2^6$，故\textbf{块内偏移占 6 位}。
-    \item 标记位 = 物理地址位数 $-$ 索引位 $-$ 块内偏移位 $= 28 - 6 - 6 = 16$ 位。
-\end{itemize}
-
-物理地址 \texttt{0x00456345} 二进制拆分：
-\begin{itemize}
-    \item 块内偏移（低 6 位）：\texttt{0x05} = 5
-    \item 索引（中 6 位）：\texttt{0x0D} = 13
-    \item 标记（高 16 位）：\texttt{0x00456345} $\gg$ 12 = \texttt{0x00456}，按 16 位字段补前导零为 \texttt{0x0456}。
-\end{itemize}
-
-\textbf{结论：} Cache 行号 = 13，标记 = \texttt{0x0456}，块内偏移 = 5。由于是 32 位读，访问字节 5--8。去 Cache 第 13 行比较标记字段，若相等则命中，直接取数据；否则缺失，从主存加载 64 B 到该行。
-
-\begin{attention}
-\textbf{408 关键辨析：}
-\begin{itemize}
-    \item \textbf{TLB 是页表的高速缓存}（映射虚页号 $\to$ 实页框号）；\textbf{Cache 是主存的高速缓存}（映射物理地址 $\to$ 数据）。两者处于不同层次。
-    \item \textbf{访问顺序：}虚拟地址 $\to$ TLB（或页表）得到物理地址 $\to$ Cache（或主存）得到数据。
-    \item TLB 命中时\textbf{不需要访问页表}，从而省去一次甚至两次内存访问（两级页表）。
-    \item 缺页时发生磁盘 I/O，耗时通常在 ms 级，远大于 Cache/TLB 缺失（ns 级）。
-\end{itemize}
-\end{attention}
-\end{conclusion}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, node distance=0.8cm, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=2.0cm, minimum height=0.55cm] (va) at (0,0) {虚拟地址};
-\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.55cm] (tlb) at (2.7,0) {TLB 查找};
-\node[draw, rectangle, fill=SoftAmber, minimum width=2.0cm, minimum height=0.55cm] (pt) at (5.4,0) {页表（或缺页）};
-\node[draw, rectangle, fill=SoftTeal, minimum width=2.0cm, minimum height=0.55cm] (cac) at (8.1,0) {Cache 查找};
-\node[draw, rectangle, fill=SoftGray, minimum width=2.0cm, minimum height=0.55cm] (mem) at (10.8,0) {主存/磁盘};
-\draw[->] (va) -- (tlb);
-\draw[->] (tlb) -- (pt);
-\draw[->] (pt) -- (cac);
-\draw[->] (cac) -- (mem);
-\node[font=\scriptsize, black!60] at (5.4,-0.95) {命中则直接取数据；缺失则逐步向下（访存次数逐步增加）};
-\end{tikzpicture}
-\end{center}
-
-\subsection{专题三：死锁与银行家算法的变体}
-
-\begin{conclusion}{银行家算法核心回顾}{banker-review}
-银行家算法（Dijkstra, 1965）通过\textbf{安全性检测}判断当前系统是否处于安全状态。
-
-\textbf{数据结构：}
-\begin{itemize}
-    \item $\text{Available}[m]$：每种资源的当前可用数量。
-    \item $\text{Max}[n][m]$：每个进程对每种资源的最大需求。
-    \item $\text{Allocation}[n][m]$：每个进程当前已分配的资源。
-    \item $\text{Need}[n][m] = \text{Max} - \text{Allocation}$。
-\end{itemize}
-
-\textbf{安全性算法}：反复寻找一个 Need $\le$ Work 的未完成进程，将其 Allocation 加到 Work 中。若所有进程均能被完成，则系统安全，且找到的进程序列即为\textbf{安全序列}。
-\end{conclusion}
-
-\begin{conclusion}{银行家算法安全性检测（完整示例）}{banker-safe-example}
-5 个进程 P0--P4、3 类资源 A、B、C，当前 Available $=(3,3,2)$。各进程的 Allocation 与 Max 如下：
-
-\begin{tablebox}{Max 与 Allocation}
+\begin{tablebox}{时间线推演（$q=4$ ms）}
 \centering
 \small
-\begin{tabular}{|c|ccc|ccc|}
+\begin{tabularx}{\linewidth}{|c|c|X|}
 \hline
-进程 & \multicolumn{3}{c|}{Allocation} & \multicolumn{3}{c|}{Max} \\
- & A & B & C & A & B & C \\
+区间/ms & 占用 CPU & 发生的事 \\
 \hline
-P0 & 0 & 1 & 0 & 7 & 5 & 3 \\
-P1 & 2 & 0 & 0 & 3 & 2 & 2 \\
-P2 & 3 & 0 & 2 & 9 & 0 & 2 \\
-P3 & 2 & 1 & 1 & 2 & 2 & 2 \\
-P4 & 0 & 0 & 2 & 4 & 3 & 3 \\
+0--3 & P1 & $t=3$ 时 P1 缺页，转入阻塞，磁盘开始传输（3--13） \\
+3--7 & P2 & P2 用完 4 ms 时间片，剩余 1 ms，回就绪队列 \\
+7--9 & P3 & P3 完成，$C_3=9$ \\
+9--10 & P2 & P2 完成，$C_2=10$ \\
+10--13 & 空闲 & 就绪队列为空，P1 仍在等页 \\
+13--16 & P1 & P1 页已调入，运行剩余 3 ms，$C_1=16$ \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{tablebox}
-
-\textbf{Need} $=$ Max $-$ Allocation：P0$(7,4,3)$、P1$(1,2,2)$、P2$(6,0,0)$、P3$(0,1,1)$、P4$(4,3,1)$。
-
-\textbf{安全性检测}（Work 初值 $=$ Available $=(3,3,2)$，每完成一个进程把其 Allocation 加回 Work）：
-
-\begin{tablebox}{安全性检测过程}
-\centering
-\small
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-进程 & 判断时 Work & Need & $\leqslant$ Work? & 完成后的 Work \\
-\hline
-P1 & $(3,3,2)$ & $(1,2,2)$ & 是 & $(5,3,2)$ \\
-P3 & $(5,3,2)$ & $(0,1,1)$ & 是 & $(7,4,3)$ \\
-P4 & $(7,4,3)$ & $(4,3,1)$ & 是 & $(7,4,5)$ \\
-P0 & $(7,4,5)$ & $(7,4,3)$ & 是 & $(7,5,5)$ \\
-P2 & $(7,5,5)$ & $(6,0,0)$ & 是 & $(10,5,7)$ \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-\textbf{结论：}所有进程均能依次完成 $\Rightarrow$ 系统处于\textbf{安全状态}，安全序列为 \textbf{P1 $\to$ P3 $\to$ P4 $\to$ P0 $\to$ P2}。\textbf{注意：}安全序列\textbf{不唯一}（如也可先取 P3 再取 P1），只要存在一条即可判定安全；若某些进程的 Need 始终无法满足，则系统\textbf{不安全}，是不安全的充分条件。
-\end{conclusion}
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=5.2cm, minimum height=0.6cm] (a) at (0,0) {(1) Work = Available；Finish[i]=false};
-\node[draw, rectangle, fill=SoftBlue, minimum width=5.2cm, minimum height=0.6cm] (b) at (0,-1.6) {(2) 找 i：Finish[i]=false 且 Need[i] $\le$ Work};
-\node[draw, rectangle, fill=SoftTeal, minimum width=5.2cm, minimum height=0.6cm] (c) at (0,-3.2) {(3) Work += Allocation[i]；Finish[i]=true};
-\node[draw, rectangle, fill=SoftGray, minimum width=5.2cm, minimum height=0.6cm] (d) at (0,-4.8) {(4) 全部 Finish[i]=true？};
-\node[draw, rectangle, fill=SoftTeal, minimum width=5.2cm, minimum height=0.6cm] (e) at (0,-6.4) {(5) 安全：输出安全序列};
-\node[draw, rectangle, fill=SoftAmber, minimum width=3.8cm, minimum height=0.6cm] (f) at (6.4,-1.6) {不安全：恐怕死锁};
-\draw[->] (a) -- (b);
-\draw[->] (b) -- node[left,pos=0.5]{找到} (c);
-\draw[->] (c) -- (d);
-\draw[->] (d) -- node[left,pos=0.5]{是} (e);
-\draw[->] (b.east) -- node[above]{找不到} (f.west);
-\draw[->] (d.west) -- (-4.4,-4.8) -- (-4.4,-1.6) -- (b.west);
-\node[font=\scriptsize, MutedText, anchor=east] at (-4.5,-3.2) {否};
-\node[font=\scriptsize, MutedText] at (0,-7.35) {Work 初值 = Available；Need = Max $-$ Allocation；安全序列 P1$\to$P3$\to$P4$\to$P0$\to$P2};
-\end{tikzpicture}
-\end{center}
+\begin{tikzpicture}[x=0.72cm, y=1cm, font=\scriptsize, >=stealth]
+% 时间轴
+\draw[->, MutedText] (0,0) -- (16.9,0) node[right, font=\scriptsize] {$t$/ms};
+\foreach \t in {0,3,7,9,10,13,16} {
+  \draw[MutedText] (\t,0.06) -- (\t,-0.08);
+  \node[below, font=\scriptsize, text=MutedText] at (\t,0) {\t};
+}
+\foreach \t in {3,7,9,10,13} {
+  \draw[RuleGray, dashed, very thin] (\t,0.15) -- (\t,5.35);
+}
+% 行标签
+\node[anchor=east] at (-0.15,4.7) {P1};
+\node[anchor=east] at (-0.15,3.8) {P2};
+\node[anchor=east] at (-0.15,2.9) {P3};
+\node[anchor=east] at (-0.15,2.0) {磁盘};
+\node[anchor=east] at (-0.15,1.1) {CPU};
 
-\begin{conclusion}{变体一：多资源类型 + 未指定 Max}{banker-variant1}
-\boxed{\textbf{例3}} 系统有 3 类资源 A、B、C，总量分别为 (8, 6, 5)。当前时刻 $T_0$ 的 Allocation 如下：
+% P1
+\fill[Teal!45] (0,4.4) rectangle (3,5.0);
+\draw[RuleGray] (0,4.4) rectangle (3,5.0);
+\node at (1.5,4.7) {运行};
+\fill[Amber!35] (3,4.4) rectangle (13,5.0);
+\draw[RuleGray] (3,4.4) rectangle (13,5.0);
+\node at (8,4.7) {阻塞：调页 10 ms};
+\fill[Teal!45] (13,4.4) rectangle (16,5.0);
+\draw[RuleGray] (13,4.4) rectangle (16,5.0);
+\node at (14.5,4.7) {运行};
 
-\begin{tablebox}{$T_0$ 时刻分配情况}
-\centering
-\begin{tabular}{|c|c|c|c|}
-\hline
-进程 & A & B & C \\
-\hline
-P1 & 2 & 1 & 0 \\
-P2 & 1 & 2 & 1 \\
-P3 & 3 & 0 & 2 \\
-P4 & 0 & 1 & 1 \\
-\hline
-\end{tabular}
-\end{tablebox}
+% P2
+\fill[SoftBlue] (0,3.5) rectangle (3,4.1);
+\draw[RuleGray] (0,3.5) rectangle (3,4.1);
+\node at (1.5,3.8) {就绪};
+\fill[Teal!45] (3,3.5) rectangle (7,4.1);
+\draw[RuleGray] (3,3.5) rectangle (7,4.1);
+\node at (5,3.8) {运行};
+\fill[SoftBlue] (7,3.5) rectangle (9,4.1);
+\draw[RuleGray] (7,3.5) rectangle (9,4.1);
+\node at (8,3.8) {就绪};
+\fill[Teal!45] (9,3.5) rectangle (10,4.1);
+\draw[RuleGray] (9,3.5) rectangle (10,4.1);
+\node at (9.5,3.8) {运行};
+\fill[SoftGray] (10,3.5) rectangle (16,4.1);
+\draw[RuleGray] (10,3.5) rectangle (16,4.1);
+\node at (13,3.8) {完成};
 
-已知 P1 和 P4 各自还需要 (2, 1, 1) 和 (1, 0, 0) 才能完成。P2 和 P3 未声明最大需求，但已知它们\textbf{不会同时需要同种资源的最大量}。
+% P3
+\fill[SoftBlue] (0,2.6) rectangle (7,3.2);
+\draw[RuleGray] (0,2.6) rectangle (7,3.2);
+\node at (3.5,2.9) {就绪};
+\fill[Teal!45] (7,2.6) rectangle (9,3.2);
+\draw[RuleGray] (7,2.6) rectangle (9,3.2);
+\node at (8,2.9) {运行};
+\fill[SoftGray] (9,2.6) rectangle (16,3.2);
+\draw[RuleGray] (9,2.6) rectangle (16,3.2);
+\node at (12.5,2.9) {完成};
 
-\textbf{问：}
-\begin{enumerate}
-    \item[(1)] 计算 Available 数组。
-    \item[(2)] 现有信息能否判断 $T_0$ 时刻是否安全？说明理由。
-    \item[(3)] 若此时 P3 申请 (0, 1, 0)，仅凭现有信息能否决定立即分配？
-\end{enumerate}
+% 磁盘
+\fill[Amber!30] (3,1.7) rectangle (13,2.3);
+\draw[RuleGray] (3,1.7) rectangle (13,2.3);
+\node at (8,2.0) {传输 10 ms};
 
-\textbf{分步求解：}
+% CPU
+\fill[Teal!18] (0,0.8) rectangle (10,1.4);
+\draw[RuleGray] (0,0.8) rectangle (10,1.4);
+\node at (5,1.1) {忙 10 ms};
+\fill[white] (10,0.8) rectangle (13,1.4);
+\draw[RuleGray] (10,0.8) rectangle (13,1.4);
+\node at (11.5,1.1) {空闲};
+\fill[Teal!18] (13,0.8) rectangle (16,1.4);
+\draw[RuleGray] (13,0.8) rectangle (16,1.4);
+\node at (14.5,1.1) {忙};
 
-\textbf{Step 1：Available 计算。}
-已分配总量：A: $2+1+3+0=6$，B: $1+2+0+1=4$，C: $0+1+2+1=4$。
-Available = 总量 $-$ 已分配 = $(8-6, 6-4, 5-4) = (2, 2, 1)$。
-
-\textbf{Step 2：判断信息是否充分。}
-P1 Need = (2, 1, 1)，P4 Need = (1, 0, 0)，但 P2 和 P3 的 Max（或 Need）没有给出。银行家安全性算法必须逐进程判断 $\mathrm{Need}_i\leqslant\mathrm{Work}$；仅知道“P2 和 P3 不会同时需要同种资源的最大量”并不能给出二者的分量上界，也不能确定其中任何一个是否能在当前 Work 下完成。
-
-因此，第 (2) 问\textbf{信息不足，无法判断系统是否安全，也无法给出可靠的安全序列}。即使 P4、P1 可以依次完成，释放资源后的 Work 仍未必满足未知的 P2 或 P3 的剩余最大需求。
-
-\textbf{Step 3：判断 P3 的请求。}
-Request$(0,1,0)\leqslant$Available$(2,2,1)$ 只说明当前有足够资源，这是允许分配的必要条件之一。由于 P3 的 Need 未知，既不能验证 $\mathrm{Request}_3\leqslant\mathrm{Need}_3$，也无法在试分配后完成安全性检测。因此第 (3) 问同样\textbf{不能确定}。要使题目可判定，必须补充 P2、P3 的 Max/Need，或给出足以推出其逐类剩余需求上界的等价条件。
-
-\begin{attention}
-\textbf{银行家算法变体常考形式：}
-\begin{itemize}
-    \item \textbf{部分进程未声明 Max：}通常无法直接应用银行家算法；除非题目另给出足以确定逐类 Need 上界的条件，否则结论应是“信息不足”。
-    \item \textbf{多实例资源}（如 5 台同类打印机）：将资源类型数 $m$ 简化处理。
-    \item \textbf{死锁检测变体}：给定 Allocation 和 Available，判断哪些进程已死锁（无法完成也无法释放资源的循环等待环）。
-\end{itemize}
-\end{attention}
-\end{conclusion}
-
-\begin{conclusion}{变体二：资源分配图化简}{banker-variant2}
-\boxed{\textbf{例4}} 某系统有资源 R1（3 个实例）、R2（2 个实例）、R3（2 个实例）。当前资源分配图如下：
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% 资源（上，矩形）
-\node[draw, rectangle, fill=SoftGray, minimum width=1.4cm, minimum height=0.7cm] (R1) at (0,0) {R1(3)};
-\node[draw, rectangle, fill=SoftGray, minimum width=1.4cm, minimum height=0.7cm] (R2) at (3.8,0) {R2(2)};
-\node[draw, rectangle, fill=SoftGray, minimum width=1.4cm, minimum height=0.7cm] (R3) at (7.6,0) {R3(2)};
-% 进程（下，圆）
-\node[draw, circle, fill=SoftBlue, minimum size=1.0cm] (P1) at (0,-3.8) {P1};
-\node[draw, circle, fill=SoftBlue, minimum size=1.0cm] (P2) at (3.8,-3.8) {P2};
-\node[draw, circle, fill=SoftBlue, minimum size=1.0cm] (P3) at (7.6,-3.8) {P3};
-% 分配边（资源→进程，实线 Navy）
-\draw[->, Navy, thick] (R1) -- node[above, pos=0.3]{分配1} (P1);
-\draw[->, Navy, thick] (R1) -- node[above, pos=0.35]{分配1} (P2);
-\draw[->, Navy, thick] (R2) -- node[above, pos=0.4]{分配1} (P1);
-\draw[->, Navy, thick] (R3) -- node[above, pos=0.3]{分配1} (P3);
-% 请求边（进程→资源，虚线 Amber）
-\draw[->, Amber, dashed, thick] (P1) -- node[below, pos=0.3]{请求1} (R3);
-\draw[->, Amber, dashed, thick] (P2) -- node[below, pos=0.3]{请求1} (R2);
-\draw[->, Amber, dashed, thick] (P2) -- node[below, pos=0.35]{请求1} (R3);
-\draw[->, Amber, dashed, thick] (P3) -- node[below, pos=0.3]{请求1} (R1);
 % 图例
-\node[align=center, font=\scriptsize] at (3.8,-5.2) {\textcolor{Navy}{实线}=分配边；\quad \textcolor{Amber}{虚线}=请求边};
+\fill[Teal!45] (0,-1.15) rectangle (0.55,-0.85);
+\draw[RuleGray] (0,-1.15) rectangle (0.55,-0.85);
+\node[right] at (0.6,-1.0) {运行};
+\fill[Amber!35] (2.2,-1.15) rectangle (2.75,-0.85);
+\draw[RuleGray] (2.2,-1.15) rectangle (2.75,-0.85);
+\node[right] at (2.8,-1.0) {阻塞/调页};
+\fill[SoftBlue] (5.2,-1.15) rectangle (5.75,-0.85);
+\draw[RuleGray] (5.2,-1.15) rectangle (5.75,-0.85);
+\node[right] at (5.8,-1.0) {就绪};
+\fill[SoftGray] (7.4,-1.15) rectangle (7.95,-0.85);
+\draw[RuleGray] (7.4,-1.15) rectangle (7.95,-0.85);
+\node[right] at (8.0,-1.0) {完成};
 \end{tikzpicture}
 \end{center}
 
-\textbf{问：}
-\begin{enumerate}
-    \item[(1)] 分析每个资源的剩余可用实例数。
-    \item[(2)] 用资源分配图化简法判断是否存在死锁。
-    \item[(3)] 若存在死锁，指出死锁进程集合。
-\end{enumerate}
+图里每一行是一个对象，横向看它什么时候处于什么状态。P1 的琥珀色段与 P2、P3 的青色段在时间上重叠，这就是调页 I/O 与 CPU 并行；磁盘行只有一段，说明同一个磁盘不能同时服务两个缺页。
 
-\textbf{分步求解：}
+完成时刻是 $C_1=16$、$C_2=10$、$C_3=9$ ms，周转时间分别为 16、10、9 ms，平均 $35/3\approx11.67$ ms。带权周转时间为 $16/6\approx2.67$、$10/5=2$、$9/2=4.5$，平均约 $3.06$。CPU 忙碌 13 ms，利用率 $13/16=81.25\%$；10--13 ms 的空闲是因为唯一没完成的 P1 还在等页，就绪队列里没有人。
 
-\textbf{Step 1：计算可用实例。}
+若把 10 ms 直接加到 CPU 需求上，会得到 $6+5+2+10=23$ ms；实际是 16 ms。差的 7 ms 正是调页期间 P2、P3 占用的 CPU 时间。综合题的第一处失分点就在这里：设备时间与 CPU 时间可以重叠，不能无条件相加。
+
+把这段推演变成规则，时间线上只有三种区间：进程占用 CPU、进程在就绪队列等待、进程因 I/O 或调页阻塞。设备是另一种资源，同一时刻只服务一个请求。
+
 \begin{itemize}
-    \item R1（3 实例）：已分配给 P1、P2 各 1 个，剩余 1 个；P3 请求的 1 个当前可以满足。
-    \item R2（2实例）：已被分配 1 个（P1），剩余 1 个。P2 请求 1 个——可满足！
-    \item R3（2实例）：已被分配 1 个（P3），剩余 1 个。P1 请求 1 个，P2 也请求 1 个——只能满足一个。
+  \item 缺页只把当前进程从运行态摘下，CPU 立即从就绪队列选下一个；就绪队列为空，CPU 才空闲。
+  \item 磁盘传输与 CPU 并行，同一磁盘上的多个缺页请求要排队。第 $j$ 个请求的完成时刻为
+  \[
+  f_j=\max(a_j,f_{j-1})+t_{\text{trans},j},
+  \]
+  其中 $a_j$ 是请求到达磁盘的时刻，$t_{\text{trans},j}$ 含该请求的寻道、旋转和传输。假设 P2 在 $t=5$ 也缺页（其余条件不变），它的传输只能从 13 ms 开始，完成时刻是 23 ms，而不是 $5+10=15$ ms。
+  \item 调页结束后进程回队首还是队尾、时间片是否续用，题面必须给。没给就按“回队尾、重新计时”处理，并把假设写进解答；这个选择会改变后续的调度顺序。
+  \item 缺页指令没有执行完，调页后要重新执行。重试的访存通常不再另算一个完整访存周期，除非题目明确计入。
+  \item 上下文切换、调度器、缺页处理程序的 CPU 时间默认忽略；题面给出时，把它们作为独立的小区间插入时间线。
 \end{itemize}
 
-\textbf{Step 2：资源分配图化简。}
-初始 Available 为 $(1,1,1)$。P1 只请求 R3 的 1 个实例，当前即可满足；令 P1 完成并释放其持有和刚获得的资源后，系统可用资源进一步增加。随后 P3 请求的 R1 可满足，P3 完成后释放 R3；最后 P2 请求的 R2、R3 均可满足。故图可完全化简。
+PV 操作与时间线的关系也可以放进这套记账里：P 操作造成的阻塞就是一段阻塞区间，V 操作把等待者放回就绪队列。信号量的初值和 P/V 的先后决定谁先进入临界区，也就决定时间线上事件的顺序。
 
-\textbf{Step 3：结论。}
-图可完全化简 $\to$ \textbf{不存在死锁}。一个化简序列为 P1 $\to$ P3 $\to$ P2；P3 $\to$ P1 $\to$ P2 也可行。
+常用指标写成式子：
+\[
+T_i=C_i-A_i,\qquad W_i=\frac{T_i}{S_i},\qquad U=\frac{\sum_i S_i}{C_{\max}}\times100\%.
+\]
+$A_i$ 是到达时刻，$C_i$ 是完成时刻，$S_i$ 是进程实际占用 CPU 的时间（不含阻塞），$C_{\max}$ 是最后一个进程的完成时刻。单 CPU 上 $\sum_i S_i$ 就是 CPU 的忙碌时间。
 
-\begin{attention}
-\textbf{资源分配图化简法的关键技巧：}
-\begin{itemize}
-    \item 只有\textbf{所有请求边均能被满足}的进程才能被化简（模拟其完成并释放所有持有资源）。
-    \item 对多实例资源，图中有环并不是死锁的充分条件；应以是否还能找到“全部当前请求均可满足”的进程继续化简为准。
-    \item 若化简过程停止后仍有进程无法消去，这些剩余进程才是死锁进程；单实例资源图中有环才可直接判定死锁。
-\end{itemize}
-\end{attention}
-\end{conclusion}
+“等待时间”有两种口径：只统计进程在就绪队列里的等待，或者把阻塞时间也算进去。本题中 P1 的就绪等待为 0、阻塞 10 ms；P2 就绪等待 5 ms；P3 就绪等待 7 ms。若题目问作业等待时间，通常用“周转时间减运行时间”，得到的 P1 是 10 ms。解答里写明用的是哪一种，避免同一组数字被读成两个答案。
 
-\subsection{专题四：磁盘调度 + 文件物理结构的组合题}
+\subsection{资源账本：谁占着，谁在等}
 
-\begin{conclusion}{组合题：i-node 混合索引 + 磁盘调度}{disk-file-combo}
-\boxed{\textbf{例5}} 某文件系统采用 UNIX i-node 混合索引结构：每个 i-node 含 10 个直接块指针、1 个一级间接块指针、1 个二级间接块指针。盘块大小 4 KB，每个块指针占 4 字节。磁盘参数：旋转速度 7200 rpm，平均寻道时间 6 ms，每个磁道 256 个扇区（每扇区 512 B）。
+调度题里的资源只有 CPU；综合题里还要同时数页框、磁盘缓冲区、打开文件表和设备。把每种资源的总量、已分配量和可用量列成一张表，进程的状态就可以读成“它持有哪些资源、还在等哪些资源”。
 
-\textbf{问：}
-\begin{enumerate}
-    \item[(1)] 计算该文件系统支持的最大单个文件大小。
-    \item[(2)] 若要访问文件中偏移量为 100 MB 处的数据，需要访问哪些索引块？共需几次磁盘 I/O（假设无缓存）？
-    \item[(3)] 该文件的数据块散布在磁盘上，某时刻的 I/O 请求序列（磁道号）为：45, 120, 15, 85, 200, 70, 155。当前磁头在 60 号磁道，方向为磁道号增大方向。用 SSTF 和 C-LOOK 分别计算磁头移动总磁道数。
-    \item[(4)] 若 SSTF 调度下访问这些盘块，每次访问需读一整块（8 个扇区），估算总数据访问时间。
-\end{enumerate}
+银行家算法在真正分配前先做一次假设分配，再检查剩下的状态能否让所有进程依次完成。检查从一个工作向量 $\mathrm{Work}$ 开始，初值等于当前可用资源 $\mathrm{Available}$；每完成一个进程，就把它持有的资源加回 $\mathrm{Work}$。
 
-\textbf{分步求解：}
+设系统有 A、B、C 三类资源，总量为 $(10,6,7)$，当前分配如下。
 
-\textbf{Step 1：最大文件大小。}
-\begin{itemize}
-    \item 直接块：$10 \times 4\text{ KB} = 40\text{ KB}$
-    \item 一级间接块：一个盘块可存 $4\text{ KB} / 4\text{ B} = 1024$ 个指针 $\to$ $1024 \times 4\text{ KB} = 4\text{ MB}$
-    \item 二级间接块：$1024 \times 1024 \times 4\text{ KB} = 4\text{ GB}$
-    \item 按二进制单位计算，最大文件大小为 $40\text{ KiB}+4\text{ MiB}+4\text{ GiB}=\mathbf{4.0039444\text{ GiB}}$（共 $4\,299\,202\,560$ B）。
-\end{itemize}
-
-\textbf{Step 2：100 MB 偏移量访问路径。}
-\begin{itemize}
-    \item 100 MB $= 100 \times 1024\text{ KB} = 102400\text{ KB}$
-    \item 前 10 个直接块覆盖 $0 \sim 40\text{ KB}$。
-    \item 一级间接块覆盖接下来的 $4096\text{ KiB}$，因此直接块和一级间接块合计覆盖前 $40+4096=4136\text{ KiB}$。
-    \item $100\text{ MiB}=102400\text{ KiB}>4136\text{ KiB}$，故该偏移量位于\textbf{二级间接块}范围；相对于二级间接区起点的偏移为 $102400-4136=98264\text{ KiB}$。
-    \item \textbf{访问路径：} 二级间接块 $\to$ 一级间接块 $\to$ 数据块（i-node 视为文件打开时已调入内存）。
-    \item \textbf{I/O 次数（无缓存）：} 读二级间接块(1) + 一级间接块(1) + 数据块(1) = \textbf{3 次}。
-\end{itemize}
-
-\textbf{Step 3：SSTF 调度。}
-请求序列：45, 120, 15, 85, 200, 70, 155。当前 60。
-
-\begin{tablebox}{SSTF 调度推演}
+\begin{tablebox}{资源账本}
 \centering
-\begin{tabular}{|c|c|c|c|}
+\small
+\begin{tabular}{|c|ccc|ccc|ccc|}
 \hline
-步 & 当前位置 & 最近请求 & 移动距离 \\
+\multirow{2}{*}{进程} & \multicolumn{3}{c|}{Allocation} & \multicolumn{3}{c|}{Max} & \multicolumn{3}{c|}{Need} \\
+ & A & B & C & A & B & C & A & B & C \\
 \hline
-1 & 60 & 70 & 10 \\
-2 & 70 & 85 & 15 \\
-3 & 85 & 120 & 35 \\
-4 & 120 & 155 & 35 \\
-5 & 155 & 200 & 45 \\
-6 & 200 & 45 & 155 \\
-7 & 45 & 15 & 30 \\
+P1 & 2 & 0 & 1 & 5 & 1 & 2 & 3 & 1 & 1 \\
+P2 & 1 & 1 & 0 & 3 & 2 & 2 & 2 & 1 & 2 \\
+P3 & 3 & 1 & 2 & 7 & 3 & 6 & 4 & 2 & 4 \\
+P4 & 0 & 1 & 1 & 2 & 2 & 2 & 2 & 1 & 1 \\
 \hline
 \end{tabular}
 \end{tablebox}
 
-SSTF 总寻道 = $10 + 15 + 35 + 35 + 45 + 155 + 30 = \mathbf{325}$ 个磁道。
+已分配总量为 $(6,3,4)$，所以 $\mathrm{Available}=(10,6,7)-(6,3,4)=(4,3,3)$。Need 一列由 $\mathrm{Max}-\mathrm{Allocation}$ 得到，例如 P3 的 C 类还差 $6-2=4$ 个。
 
-\textbf{C-LOOK 调度}（当前 60，增大方向）：
-\begin{itemize}
-    \item 升序服务：60 $\to$ 70 $\to$ 85 $\to$ 120 $\to$ 155 $\to$ 200
-    \item 跳到最小请求：200 $\to$ 15 $\to$ 45
-    \item 移动距离 $= (70-60) + (85-70) + (120-85) + (155-120) + (200-155) + (200-15) + (45-15) = 10 + 15 + 35 + 35 + 45 + 185 + 30 = \mathbf{355}$
-\end{itemize}
+安全性检测从 $\mathrm{Work}=(4,3,3)$ 开始。P1 的 Need $(3,1,1)$ 不超过 Work，假设它完成并释放 $(2,0,1)$，Work 变成 $(6,3,4)$。接着 P2、P4、P3 都能依次满足。
 
-\textbf{Step 4：数据访问时间估算。}
-每块 = 8 扇区 $\times$ 512 B = 4 KB（恰好一个盘块）。
-
-每次 I/O 访问时间 $= T_{\text{寻道}} + T_{\text{旋转延迟}} + T_{\text{传输}}$。
-
-对一次随机访问：
-\begin{itemize}
-    \item 平均寻道时间 = 6 ms（给定）
-    \item 旋转速度 7200 rpm $\to$ 一转 $= 60/7200 = 8.33$ ms，平均旋转延迟 = 半圈 = 4.17 ms
-    \item 传输时间 = 每块扇区数 / 每道扇区数 $\times$ 单圈时间 = $8/256 \times 8.33 = 0.26$ ms
-    \item 单次随机 I/O $\approx 6 + 4.17 + 0.26 = 10.43$ ms
-\end{itemize}
-
-按题目给出的“每次随机访问平均寻道 6 ms”模型，7 个请求的总访问时间约为
-\[
-7\times(6+4.17+0.26)\text{ ms}\approx\mathbf{73.0\text{ ms}}.
-\]
-这个平均值模型不能利用“总移动 325 个磁道”进一步精确换算寻道时间，因为实际寻道时间与跨越磁道数不是简单线性关系。若要比较 SSTF 与其他调度算法的实际耗时，题目还必须给出寻道时间函数或逐距离查表；仅给平均寻道时间时，只能作上述平均估算。
-
-\begin{attention}
-\textbf{408 磁盘相关题目的命题套路：}
-\begin{itemize}
-    \item 将\textbf{文件索引结构}与\textbf{磁盘调度}绑在一起：先算文件访问需要读哪些块（含索引块），再将块号对应到磁道号，最后用调度算法优化访问顺序。
-    \item 注意\textbf{索引块也要算 I/O}，且索引块本身也占用盘块号（也在磁盘调度队列中）。
-    \item 旋转延迟计算：题目若给出\textbf{扇区号分布}（如连续扇区跨越多个块），可能涉及\textbf{旋转定位}的细节计算。
-\end{itemize}
-\end{attention}
-\end{conclusion}
-
-\subsection{专题五：PV 操作变体题（复杂同步问题）}
-
-\begin{attention}
-\textbf{408 PV 操作命题趋势：}近年来不再是简单的生产者-消费者，而是多个进程、多种约束组合的复杂场景。需要同时处理互斥与同步、多信号量的顺序约束。
-\end{attention}
-
-\begin{conclusion}{变体一：理发师问题}{pv-barber}
-\boxed{\textbf{例6}} 理发店有 1 位理发师、1 张理发椅和 $n$ 把等候椅。若无顾客，理发师睡觉；顾客到来若理发师在睡则唤醒；若理发师正忙且有空椅则坐下等候；若无空椅则离开。用信号量写出理发师和顾客的同步算法。
-
-\textbf{解法：}
-
-\begin{lstlisting}[language=C]
-semaphore mutex = 1;       // 互斥访问 waiting 计数器
-semaphore customer = 0;    // 已到达、尚未被理发师接待的顾客数
-semaphore barber = 0;      // 理发师是否可用
-int waiting = 0;           // 等候椅上的人数
-int CHAIRS = n;            // 等候椅数量
-
-// 理发师进程
-void barber_process() {
-    while (1) {
-        P(&customer);      // 若无顾客则睡觉
-        P(&mutex);
-        waiting--;         // 一位顾客去理发（离开等候椅）
-        V(&barber);        // 通知该顾客可以理发
-        V(&mutex);
-        cut_hair();        // 理发
-    }
-}
-
-// 顾客进程
-void customer_process() {
-    P(&mutex);
-    if (waiting < CHAIRS) {
-        waiting++;         // 占一把等候椅
-        V(&customer);      // 通知理发师有顾客
-        V(&mutex);
-        P(&barber);        // 等理发师空闲（或叫到自己）
-        get_haircut();     // 接受理发
-    } else {
-        V(&mutex);
-        leave();           // 无空椅，离开
-    }
-}
-\end{lstlisting}
-
-\textbf{要点分析：}
-\begin{itemize}
-    \item \texttt{customer} 信号量防止理发师忙等（若无顾客则睡觉）。
-    \item \texttt{barber} 信号量实现「顾客等理发师叫」的同步。
-    \item \texttt{mutex} 保护 \texttt{waiting} 计数器（多个顾客可能同时到达）。
-    \item 顾客必须在持有 \texttt{mutex} 时完成 \texttt{waiting++}，但 \texttt{V(customer)} 与 \texttt{V(mutex)} 的先后在该模型中都可保持正确性：若先唤醒理发师，理发师会暂时阻塞在 \texttt{P(mutex)}；若先释放互斥量，再通知顾客到达，计数信号仍不会丢失。通常采用代码所示顺序，便于把「登记到达并发出通知」视为一个受保护过程。
-\end{itemize}
-\end{conclusion}
-
-\begin{conclusion}{变体二：独木桥问题}{pv-bridge}
-\boxed{\textbf{例7}} 一座独木桥每次只能容一人通过，题目明确要求东向和西向行人\textbf{严格逐人交替}。用信号量实现：
-
-\textbf{严格交替解法：}
-
-\begin{lstlisting}[language=C]
-semaphore east_turn = 1;   // 初始允许一名东向行人
-semaphore west_turn = 0;
-
-// 东向行人
-void east_traveler() {
-    P(&east_turn);
-    cross_bridge_east();
-    V(&west_turn);
-}
-
-// 西向行人
-void west_traveler() {
-    P(&west_turn);
-    cross_bridge_west();
-    V(&east_turn);
-}
-\end{lstlisting}
-
-两个令牌信号量既保证桥上至多一人，也保证方向严格交替。代价是：若轮到的方向没有行人，另一方向即使有人等待也不能继续，这正是「严格交替」这一强约束的含义。若题目只要求互斥而不要求严格交替，应改用一个 \texttt{bridge=1}；若还要求工作保持性和防饥饿，则需增加等待计数与公平的方向切换策略，不能直接套本解法。
-
-\begin{attention}
-\textbf{独木桥问题的核心：}
-\begin{itemize}
-    \item 若只要求互斥：一个信号量 \texttt{bridge = 1} 即可。
-    \item 若要求同向可同时通过：类似读者-写者中的读者共享资源，同向第一人占桥、最后一人释放桥，但更新方向人数时仍需互斥。
-    \item 若要求批次公平且防止饥饿：需要等待计数、当前方向和方向切换机制，明确何时关闭本方向入口。
-    \item \textbf{408 常见问法：}补充代码空缺（P/V 位置）、判断是否存在死锁或饥饿、增加新的约束条件后修改代码。
-\end{itemize}
-\end{attention}
-\end{conclusion}
-
-\begin{conclusion}{变体三：吸烟者问题}{pv-smokers}
-\boxed{\textbf{例8}} 一个供应者和三个吸烟者。供应者每次提供两种材料（共三种材料：烟草、纸、火柴），拥有第三种材料的吸烟者取走并吸烟，完成后供应者继续提供。这是一个典型的\textbf{单生产者多消费者且消费者间互斥}问题。
-
-\begin{lstlisting}[language=C]
-semaphore tobacco_owner = 0; // 纸+火柴已就绪
-semaphore paper_owner = 0;   // 烟草+火柴已就绪
-semaphore match_owner = 0;   // 烟草+纸已就绪
-semaphore done = 0;          // 吸烟完成，通知供应者继续
-
-// 供应者
-void provider() {
-    while (1) {
-        // 随机提供两种材料（三种组合之一）
-        int combo = random() % 3;
-        if (combo == 0) {       // 纸+火柴 $\to$ 有烟草者可吸
-            V(&tobacco_owner);
-        } else if (combo == 1) {// 烟草+火柴 $\to$ 有纸者可吸
-            V(&paper_owner);
-        } else {                // 烟草+纸 $\to$ 有火柴者可吸
-            V(&match_owner);
-        }
-        P(&done);    // 等吸烟者完成
-    }
-}
-
-// 拥有烟草的吸烟者
-void smoker_with_tobacco() {
-    while (1) {
-        P(&tobacco_owner); // 等待「纸+火柴」这一完整组合
-        smoke();
-        V(&done);    // 通知供应者
-    }
-}
-// 另两个吸烟者分别等待 paper_owner 和 match_owner
-\end{lstlisting}
-
-\textbf{注意：} 不能简单地为三种单项材料各设一个信号量，再让每个吸烟者连续执行两次 P。否则两个不匹配的吸烟者可能各取走一种材料并互相等待，形成死锁。这里把「一对材料已就绪」直接编码为对应吸烟者的同步信号，每轮只唤醒唯一能完成工作的吸烟者。
-\end{conclusion}
-
-\begin{conclusion}{变体四：多缓冲区的生产者-消费者}{pv-multibuf}
-\boxed{\textbf{例9}} 有 $M$ 个生产者和 $N$ 个消费者，共享一个环形缓冲区（容量为 $K$）。每个生产者每次生产一个产品放入缓冲区，每个消费者每次取走一个产品。缓冲区满时，继续申请空位的生产者阻塞；缓冲区空时，继续申请产品的消费者阻塞。生产产品和消费产品的耗时操作可以并发，但对共享环形队列及其读写下标的修改必须互斥。
-
-这就是标准的有界缓冲区问题，朴素解法即可满足：
-
-\begin{lstlisting}[language=C]
-semaphore mutex = 1;  // 互斥访问缓冲区
-semaphore empty = K;  // 空位数
-semaphore full = 0;   // 产品数
-
-// 生产者
-void producer(int id) {
-    while (1) {
-        produce_item();
-        P(&empty);       // 申请空位（满则阻塞）
-        P(&mutex);
-        put_item();
-        V(&mutex);
-        V(&full);       // 增加产品
-    }
-}
-
-// 消费者
-void consumer(int id) {
-    while (1) {
-        P(&full);       // 申请产品（空则阻塞）
-        P(&mutex);
-        get_item();
-        V(&mutex);
-        V(&empty);      // 增加空位
-        consume_item();
-    }
-}
-\end{lstlisting}
-
-\textbf{关键问题变体：}
-\begin{itemize}
-    \item \textbf{P 操作顺序能否交换？} 不行。若先 P(mutex) 再 P(empty)，缓冲区满时生产者持有 mutex 阻塞，消费者无法进入释放空位 $\to$ 死锁。
-    \item \textbf{V 操作顺序能否交换？} 可以，但不推荐换。先 V(mutex) 后 V(full/empty) 不影响正确性（因 V 不阻塞）。
-    \item \texttt{put\_item()} 与 \texttt{get\_item()} 在本实现中不能并发，因为二者共享同一个环形队列元数据和 \texttt{mutex}；并发的是临界区外的 \texttt{produce\_item()} 与 \texttt{consume\_item()}。若题目给出读写下标可独立更新的特殊结构，才能进一步拆分锁。
-\end{itemize}
-\end{conclusion}
-
-\subsection{专题六：缺页异常 + 文件内存映射的综合分析}
-
-\begin{conclusion}{mmap + 缺页的完整流程}{mmap-pagefault}
-\boxed{\textbf{例10}} 某进程使用 \texttt{mmap} 将一个 2 MB 的文件映射到虚拟地址空间。系统采用请求分页（Demand Paging），页面大小 4 KB，物理内存共 128 个页框，当前空闲页框为 0。页面置换采用全局 LRU。
-
-进程按以下顺序访问映射区域（以页面为单位，虚拟页号从映射起始页为 0）：
-\[
-0, 1, 2, 3, 0, 1, 4, 2, 3, 0, 1, 4
-\]
-
-\textbf{问：}
-\begin{enumerate}
-    \item[(1)] 若给该进程分配 3 个物理页框，用 LRU 置换时缺页次数是多少？
-    \item[(2)] 若改用 CLOCK 算法（初始访问位全为0，指针指向最早装入的页框），缺页次数是多少？
-    \item[(3)] mmap 映射的文件页面在第一次缺页时从哪里加载数据？后续被换出后又换入时呢？
-\end{enumerate}
-
-\textbf{Step 1：LRU 缺页推演（3 页框）。}
-
-\begin{tablebox}{LRU 页面置换推演}
+\begin{tablebox}{安全性检测}
 \centering
+\small
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-引用 & 页框0 & 页框1 & 页框2 & 缺页？\\
+步骤 & 判断时的 Work & 选中进程 & 该进程 Need & 完成后的 Work \\
 \hline
-0 & 0 & — & — & $\surd$ \\
-1 & 0 & 1 & — & $\surd$ \\
-2 & 0 & 1 & 2 & $\surd$ \\
-3 & 3(LRU=0) & 1 & 2 & $\surd$ \\
-0 & 3 & 0(LRU=1) & 2 & $\surd$ \\
-1 & 3 & 0 & 1(LRU=2) & $\surd$ \\
-4 & 4(LRU=3) & 0 & 1 & $\surd$ \\
-2 & 4 & 2(LRU=0) & 1 & $\surd$ \\
-3 & 4 & 2 & 3(LRU=1) & $\surd$ \\
-0 & 0(LRU=4) & 2 & 3 & $\surd$ \\
-1 & 0 & 1(LRU=2) & 3 & $\surd$ \\
-4 & 0 & 1 & 4(LRU=3) & $\surd$ \\
+1 & $(4,3,3)$ & P1 & $(3,1,1)$ & $(6,3,4)$ \\
+2 & $(6,3,4)$ & P2 & $(2,1,2)$ & $(7,4,4)$ \\
+3 & $(7,4,4)$ & P4 & $(2,1,1)$ & $(7,5,5)$ \\
+4 & $(7,5,5)$ & P3 & $(4,2,4)$ & $(10,6,7)$ \\
 \hline
 \end{tabular}
 \end{tablebox}
 
-LRU 缺页 12 次（每次引用都缺页——Belady 反常未出现，但 3 页框对引用串 0,1,2,3,0,1,4,2,3,0,1,4 确实全部缺页）。
+安全序列是 P1 $\to$ P2 $\to$ P4 $\to$ P3。注意 P3 一开始并不能完成，它的 C 类 Need 是 4，而可用量只有 3；等前面三个进程释放资源后才轮到它。这说明安全序列里的“依次”不等于“任意时刻都满足”，而是每一步在当前 Work 下满足。
 
-\textbf{Step 2：CLOCK 算法推演。}
-
-\begin{tablebox}{CLOCK 置换推演}
-\centering
-\begin{tabular}{|c|c|c|c|c|c|}
-\hline
-引用 & 页框0 & 页框1 & 页框2 & 指针指向 & 缺页？\\
-\hline
-0 & 0(A=1) & — & — & 1 & $\surd$ \\
-1 & 0(A=1) & 1(A=1) & — & 2 & $\surd$ \\
-2 & 0(A=1) & 1(A=1) & 2(A=1) & 0 & $\surd$ \\
-3 & 3(A=1) & 1(A=0) & 2(A=0) & 1 & $\surd$ (0被淘汰) \\
-0 & 3(A=1) & 0(A=1) & 2(A=0) & 2 & $\surd$ (1被淘汰) \\
-1 & 3(A=1) & 0(A=1) & 1(A=1) & 0 & $\surd$ (2被淘汰) \\
-4 & 4(A=1) & 0(A=0) & 1(A=0) & 1 & $\surd$ (3被淘汰) \\
-2 & 4(A=1) & 2(A=1) & 1(A=0) & 2 & $\surd$ (0被淘汰) \\
-3 & 4(A=1) & 2(A=1) & 3(A=1) & 0 & $\surd$ (1被淘汰) \\
-0 & 0(A=1) & 2(A=0) & 3(A=0) & 1 & $\surd$ (4被淘汰) \\
-1 & 0(A=1) & 1(A=1) & 3(A=0) & 2 & $\surd$ (2被淘汰) \\
-4 & 0(A=1) & 1(A=1) & 4(A=1) & 0 & $\surd$ (3被淘汰) \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-CLOCK 也是 12 次缺页（对 3 页框，此引用串两种算法均全部缺页）。
-
-\textbf{Step 3：mmap 页面加载来源。}
-
-\begin{itemize}
-    \item \textbf{第一次缺页}：页面数据从\textbf{磁盘文件}中读入。OS 在页表中建立映射（虚页号 $\to$ 页框号），标记该页为干净（与文件内容一致）。
-    \item \textbf{被换出后再次缺页}：
-    \begin{itemize}
-        \item 若该页未被修改过（干净的）——直接从文件重新读入即可（丢弃旧的页框内容即可，因为与文件一致）。
-        \item 若采用共享文件映射（\texttt{MAP\_SHARED}）且页面被修改，脏页最终写回对应文件；换入时仍以文件为后备存储。
-        \item 若采用私有映射（\texttt{MAP\_PRIVATE}），写入会触发写时复制，修改后的私有页按匿名页处理，换出时通常以交换区为后备存储，不应写回原文件。
-    \end{itemize}
-    \item \textbf{与匿名页（anonymous page）的区别}：匿名页（如 \texttt{malloc} 分配的堆内存）没有文件后备，被换出时写入交换区（swap），换入时从交换区读取。
-\end{itemize}
-
-\begin{attention}
-\textbf{mmap 缺页在 408 中的考点：}
-\begin{itemize}
-    \item 区分\textbf{文件映射页}（file-backed）和\textbf{匿名页}（anonymous）的换入/换出路径。
-    \item 脏页写回：文件映射页写回对应文件，匿名页写回交换区。
-    \item 写时复制（Copy-on-Write）：\texttt{fork} 后父子共享页表且标记为只读，写操作触发缺页，OS 复制页面。
-\end{itemize}
-\end{attention}
+若此时 P2 申请 $(1,0,1)$，先检查 $\mathrm{Request}\le\mathrm{Need}_2=(2,1,2)$ 且 $\mathrm{Request}\le\mathrm{Available}=(4,3,3)$，两项都成立。假设分配后 $\mathrm{Available}=(3,3,2)$，P2 的 Need 变成 $(1,1,1)$。从 $(3,3,2)$ 出发仍能依次完成 P1、P2、P4、P3，所以这次申请可以立即满足。只要有一次试分配后找不到完成顺序，就应让申请者等待，而不是先分配再补救。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=3.6cm, minimum height=0.7cm] (a) at (0,4.2) {(1) CPU 访问虚拟地址 vaddr};
-\node[draw, rectangle, fill=SoftBlue, minimum width=3.6cm, minimum height=0.7cm] (b) at (0,2.8) {(2) 查 TLB / 页表};
-\node[draw, rectangle, rounded corners=3pt, fill=SoftAmber, minimum width=3.4cm, minimum height=0.8cm, align=center] (c) at (0,1.1) {(3) 页表项有效？};
-\node[draw, rectangle, fill=SoftTeal, minimum width=3.4cm, minimum height=0.8cm, align=center] (d) at (6.5,1.1) {得到物理地址\\访问数据};
-\node[draw, rectangle, fill=SoftAmber, minimum width=3.6cm, minimum height=0.7cm] (e) at (0,-0.7) {(4) 缺页异常};
-\node[draw, rectangle, rounded corners=3pt, fill=SoftAmber, minimum width=3.4cm, minimum height=0.8cm, align=center] (f) at (0,-2.3) {(5) 有空闲页框？};
-\node[draw, rectangle, fill=SoftTeal, minimum width=3.6cm, minimum height=0.8cm, align=center] (g) at (6.5,-2.3) {(6) 从文件读入数据\\建立映射};
-\node[draw, rectangle, fill=SoftBlue, minimum width=4.0cm, minimum height=0.9cm, align=center] (h) at (0,-4.1) {(7) 页面置换（LRU/CLOCK）\\ 脏页写回并换入};
-\node[draw, rectangle, fill=SoftTeal, minimum width=3.8cm, minimum height=0.9cm, align=center] (i) at (0,-5.9) {(8) 更新页表 $\to$ 重新执行\ $\to$ 访问数据（完成）};
-\draw[->] (a) -- (b);
-\draw[->] (b) -- (c);
-\draw[->] (c.east) -- node[above]{命中} (d.west);
-\draw[->] (c.south) -- node[left]{缺页} (e.north);
-\draw[->] (e) -- (f);
-\draw[->] (f.east) -- node[above]{有空闲} (g.west);
-\draw[->] (f.south) -- node[left]{无空闲} (h.north);
-\draw[->] (g.south) |- node[right,pos=0.3]{建立映射} (i.east);
-\draw[->] (h) -- (i);
+% (a) 单实例
+\node[draw, rectangle, fill=SoftGray, minimum width=1.1cm, minimum height=0.6cm] (R1a) at (0,0) {$R_1$};
+\node[draw, rectangle, fill=SoftGray, minimum width=1.1cm, minimum height=0.6cm] (R2a) at (4.2,0) {$R_2$};
+\node[draw, circle, fill=SoftBlue, minimum size=0.9cm] (P1a) at (0,-2.4) {$P_1$};
+\node[draw, circle, fill=SoftBlue, minimum size=0.9cm] (P2a) at (4.2,-2.4) {$P_2$};
+\draw[->, Navy, thick] (R1a) -- (P1a) node[midway, right, font=\tiny] {分配};
+\draw[->, Navy, thick] (R2a) -- (P2a) node[midway, right, font=\tiny] {分配};
+\draw[->, Amber, dashed, thick] (P1a) -- (R2a) node[pos=0.18, below right, font=\tiny] {请求};
+\draw[->, Amber, dashed, thick] (P2a) -- (R1a) node[pos=0.18, below left, font=\tiny] {请求};
+\node[font=\scriptsize, text=Navy] at (2.1,1.0) {（a）单实例：有环即死锁};
+
+% (b) 多实例
+\node[draw, rectangle, fill=SoftGray, minimum width=1.3cm, minimum height=0.6cm] (R1b) at (8.6,0) {$R_1(2)$};
+\node[draw, rectangle, fill=SoftGray, minimum width=1.3cm, minimum height=0.6cm] (R2b) at (12.8,0) {$R_2(2)$};
+\node[draw, circle, fill=SoftBlue, minimum size=0.9cm] (P1b) at (8.6,-2.4) {$P_1$};
+\node[draw, circle, fill=SoftBlue, minimum size=0.9cm] (P2b) at (12.8,-2.4) {$P_2$};
+\draw[->, Navy, thick] (R1b) -- (P1b) node[midway, right, font=\tiny] {分配};
+\draw[->, Navy, thick] (R2b) -- (P2b) node[midway, right, font=\tiny] {分配};
+\draw[->, Amber, dashed, thick] (P1b) -- (R2b) node[pos=0.18, below right, font=\tiny] {请求};
+\draw[->, Amber, dashed, thick] (P2b) -- (R1b) node[pos=0.18, below left, font=\tiny] {请求};
+\node[font=\scriptsize, text=Navy] at (10.7,1.0) {（b）多实例：有环未必死锁};
+\node[align=center, font=\tiny, text=MutedText] at (10.7,-3.35) {$R_2$ 还有一个空闲实例，\\$P_1$ 的请求可以满足};
+
+% 图例
+\node[font=\tiny, text=Navy] at (2.1,-4.15) {实线：分配边};
+\node[font=\tiny, text=Amber] at (5.1,-4.15) {虚线：请求边};
 \end{tikzpicture}
 \end{center}
-\end{conclusion}
 
-\newpage
-\section{习题}
+左图的四个节点首尾相接，形成 $P_1\to R_2\to P_2\to R_1\to P_1$ 的环。每类资源只有一个实例，环上的每个进程都在等别人手里的那一个，谁也动不了，这就是死锁。右图同样有环，但 $R_2$ 有两个实例，一个分配给 $P_2$，另一个空闲；$P_1$ 的请求可以立即满足，满足后 $P_1$ 不再请求新资源，能够完成并释放 $R_1$。所以多实例资源的图里，有环只是死锁的必要条件，必须继续化简才能下结论。
 
-\subsection{真题风格与综合训练}
+资源分配图的化简规则：找一个所有请求边都能被当前可用资源满足的进程，假设它完成，删掉它的请求边和分配边，把资源还回可用池；重复这个过程。能删光，系统无死锁；删不动时剩下的进程就是死锁进程集合。单实例资源可以直接看环，多实例必须化简。
 
-\begin{enumerate}
+几个容易混淆的结论：
 
-\item \textbf{（综合题）} 某分页虚拟存储系统，物理内存共 256 MiB，页面大小 4 KiB。进程 P 的虚拟地址空间 4 GiB，当前分配了 8 个物理页框。
+\begin{itemize}
+  \item 安全状态一定没有死锁；死锁状态一定不安全；不安全状态只是“可能将来死锁”，此刻未必已经死锁。
+  \item 安全序列不唯一。上例也可以先完成 P2，再 P1、P4、P3。只要找到一条即可判定安全。
+  \item 安全性检测中任选一个 $\mathrm{Need}\le\mathrm{Work}$ 的进程都不会把安全状态变成不安全，因为完成它只会让 Work 增大。所以不必回溯搜索。
+  \item 银行家算法要求每个进程预先声明最大需求。题目只说“不会同时需要同种资源的最大量”而没有给出 Max 或 Need，信息不足，不能硬套安全性检测。
+  \item 页框不足在 408 的模型里表现为缺页频繁（抖动），不作为死锁处理。除非题目把页框显式建模成可持有、可请求的资源，否则不要把它画进资源分配图。
+\end{itemize}
 
-\begin{enumerate}
-    \item[(1)] 虚拟地址多少位？物理地址多少位？页内偏移多少位？
-    \item[(2)] 若 P 的页表为二级页表（每级各 10 位），一级页表必须常驻内存。当 TLB 缺失时，每次数据访问最多需要几次内存访问？
-    \item[(3)] 某次访问的虚拟地址为 \texttt{0x00456789}，TLB 命中，对应物理页框号为 \texttt{0x1A}，求物理地址。
-\end{enumerate}
+\subsection{一次访存：TLB、页表、Cache 与缺页}
 
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) $4\text{ GiB}=2^{32}$ B，虚拟地址 32 位；$256\text{ MiB}=2^{28}$ B，物理地址 28 位；$4\text{ KiB}=2^{12}$ B，页内偏移 12 位。\par
-(2) 在页表项均有效且不发生缺页的前提下，TLB 缺失后依次访问一级页表、二级页表和目标数据，共 3 次内存访问。\par
-(3) 页内偏移为 \texttt{0x789}，故物理地址为 $(\texttt{0x1A}\ll12)+\texttt{0x789}=\texttt{0x1A789}$。\else \answerarea \fi
+设虚拟地址 32 位，物理地址 30 位，页面大小 4 KiB，两级页表按 $10+10+12$ 位划分。TLB 全相联，共 16 项；Cache 容量 4 KiB，直接映射，共 128 行，每行 32 B。执行 \texttt{mov eax, [0x00403A5C]}，读 4 B。
 
-\item \textbf{（综合题）} 某系统当前资源分配如下，总量：(A,B,C,D) = (8,6,4,5)。
+先把地址拆开。页内偏移占低 12 位，$\texttt{0x00403A5C}$ 的低 12 位是 $\texttt{0xA5C}$，虚页号是 $\texttt{0x00403}$。两级页号分别为
+\[
+\text{L1 index}=\left\lfloor \texttt{0x00403}/2^{10}\right\rfloor=1,\qquad
+\text{L2 index}=\texttt{0x00403}\bmod 2^{10}=3.
+\]
+若 TLB 未命中，硬件从 PDBR 指向的一级页表读出第 1 项，得到二级页表基址；再读二级页表的第 3 项，得到页框号 $\texttt{0x2F1C5}$，有效位为 1。物理地址为
+\[
+\texttt{0x2F1C5}\times2^{12}+\texttt{0xA5C}=\texttt{0x2F1C5A5C}.
+\]
+物理地址 30 位，页框号 18 位、页内偏移 12 位。Cache 的字段划分为：块内偏移 5 位、行号 7 位、标记 18 位。由 $\texttt{0x2F1C5A5C}$ 得块内偏移 $\texttt{0x1C}=28$、行号 $\texttt{0x52}=82$、标记 $\texttt{0x2F1C5}$。读的 4 B 落在第 28--31 字节，正好在一个 32 B 块内，不会跨块。
 
-\begin{tablebox}{当前分配}
+\begin{tablebox}{地址与 Cache 的字段划分}
 \centering
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+\small
+\begin{tabular}{|l|c|c|c|}
 \hline
-进程 & \multicolumn{4}{c|}{Allocation} & \multicolumn{4}{c|}{Max} \\
+层次 & 字段 & 位数 & 本例取值 \\
 \hline
- & A & B & C & D & A & B & C & D \\
-\hline
-P0 & 1 & 2 & 0 & 1 & 3 & 3 & 2 & 2 \\
-P1 & 2 & 0 & 1 & 2 & 4 & 1 & 3 & 3 \\
-P2 & 1 & 1 & 1 & 0 & 2 & 3 & 2 & 1 \\
-P3 & 2 & 1 & 0 & 1 & 4 & 2 & 1 & 2 \\
+虚拟地址 & 虚页号 / 页内偏移 & 20 / 12 & $\texttt{0x00403}$ / $\texttt{0xA5C}$ \\
+物理地址 & 页框号 / 页内偏移 & 18 / 12 & $\texttt{0x2F1C5}$ / $\texttt{0xA5C}$ \\
+Cache & 标记 / 行号 / 块内偏移 & 18 / 7 / 5 & $\texttt{0x2F1C5}$ / $\texttt{0x52}$ / $\texttt{0x1C}$ \\
 \hline
 \end{tabular}
 \end{tablebox}
 
-\begin{enumerate}
-    \item[(1)] 计算 Available 和 Need 矩阵。
-    \item[(2)] 系统当前是否安全？若安全，列出一个安全序列。
-    \item[(3)] P1 请求 (1, 0, 1, 1)，能否立即分配？
-    \item[(4)] 若 P2 请求 (0, 1, 0, 0)，分配后系统还安全吗？
-\end{enumerate}
+这里的 Cache 容量恰好等于一页，行号 7 位加块内偏移 5 位正好是 12 位页内偏移，所以标记字段与页框号数值相同。换成 8 KiB 的 Cache（仍为 128 行），块大小变成 64 B，块内偏移 6 位、行号 7 位，标记要按 $30-7-6=17$ 位重算，不能照抄页框号。
 
-\ifshowsolutions\par\noindent\textbf{答案：}
-Allocation 总和为 $(6,4,2,4)$，故 Available$=(2,2,2,1)$。Need 分别为
-P0$(2,1,2,1)$、P1$(2,1,2,1)$、P2$(1,2,1,1)$、P3$(2,1,1,1)$。初始时四个进程的 Need 均不超过 Available，例如 P0$\to$P1$\to$P2$\to$P3 是安全序列。\par
-P1 请求 $(1,0,1,1)$ 后，Available$=(1,2,1,0)$，P1 剩余 Need$=(1,1,1,0)$，可先完成并释放资源，因此可以立即分配，系统仍安全。\par
-P2 请求 $(0,1,0,0)$ 后，Available$=(2,1,2,1)$，此时 P0 可先完成，随后其余进程均可完成，系统仍安全。\else \answerarea \fi
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=2.4cm, minimum height=0.8cm, align=center] (va) at (-6.4,3.1) {虚拟地址\\{\tiny 20 位虚页号 $\mid$ 12 位偏移}};
+\node[draw, rectangle, fill=SoftBlue, minimum width=1.5cm, minimum height=0.8cm, align=center] (tlb) at (-3.8,3.1) {TLB\\16 项};
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.5cm, minimum height=0.8cm, align=center] (pa) at (-0.7,3.1) {物理地址\\{\tiny 18 位页框号 $\mid$ 12 位偏移}};
+\node[draw, rectangle, fill=SoftAmber, minimum width=2.5cm, minimum height=0.8cm, align=center] (cache) at (2.7,3.1) {Cache\\128 行 $\times$ 32 B};
+\node[draw, rectangle, fill=SoftGray, minimum width=1.7cm, minimum height=0.8cm, align=center] (cpu) at (5.6,3.1) {取 4 B\\数据};
 
-\item \textbf{（综合题）} 某进程的页面引用序列为：1, 2, 3, 4, 2, 1, 5, 6, 2, 1, 2, 3, 7, 6, 3, 2, 1, 2, 3, 6。系统分配给该进程 4 个物理页框。
+\draw[->] (va) -- (tlb);
+\draw[->] (tlb) -- node[above, font=\tiny] {1 ns} (pa);
+\draw[->] (pa) -- (cache);
+\draw[->] (cache) -- node[above, font=\tiny] {2 ns} (cpu);
 
-\begin{enumerate}
-    \item[(1)] 分别用 FIFO 和 LRU 算法计算缺页次数。
-    \item[(2)] 若采用 CLOCK 算法（初始所有访问位为 0，指针指向第一个页框），计算缺页次数。
-    \item[(3)] 再计算 FIFO 在 3 个页框时的缺页次数。页框数从 3 增至 4 时是否出现 Belady 反常？
-\end{enumerate}
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.8cm, minimum height=1.0cm, align=center] (walk) at (-3.8,0.9) {页表遍历\\L1 $\to$ L2\\{\tiny 2 次访存}};
+\draw[->] (tlb) -- node[right, font=\tiny] {未命中} (walk);
+\draw[->] (walk.east) -- node[above left, font=\tiny] {页框号} (pa.south);
 
-\ifshowsolutions\par\noindent\textbf{答案：}
-逐项模拟可得，4 个页框时 FIFO 缺页 14 次、LRU 缺页 10 次、按题设初始条件执行基本 CLOCK 缺页 14 次。FIFO 在 3 个页框时缺页 16 次，增加到 4 个页框后降为 14 次，因此该序列在 3$\to$4 页框的比较中没有出现 Belady 反常。注意 Belady 反常必须比较不同页框数，不能只凭某一个页框数下的结果判断。\else \answerarea \fi
+\node[draw, rectangle, fill=SoftGray, minimum width=2.6cm, minimum height=1.0cm, align=center] (mem) at (2.7,0.9) {主存\\装入 32 B 块};
+\draw[<->] (cache) -- node[right, font=\tiny] {缺失 +100 ns} (mem);
 
-\item \textbf{（综合题）} 某磁盘有 200 个磁道（0--199），当前磁头在 53 号磁道，上一个请求在 45 号磁道（即磁头向减小方向移动）。请求序列为：98, 183, 37, 122, 14, 124, 65, 67。
+\node[draw, rectangle, fill=SoftAmber, minimum width=4.8cm, minimum height=1.2cm, align=center, font=\tiny] (pf) at (-3.8,-1.5) {缺页处理\\选页框 $\to$ 脏页写回 $\to$ 磁盘读入 8 ms\\$\to$ 更新页表/TLB $\to$ 重新执行};
+\draw[->] (walk) -- node[right, font=\tiny] {有效位 $=0$} (pf);
+\end{tikzpicture}
+\end{center}
 
-\begin{enumerate}
-    \item[(1)] 画出 SCAN 算法（向减小方向先）的磁头移动轨迹，计算总寻道长度。
-    \item[(2)] 画出 C-LOOK 算法的磁头移动轨迹，计算总寻道长度。
-    \item[(3)] 若每个磁道有 512 个扇区，每扇区 512 B，旋转速度 10000 rpm，平均寻道时间为 4 ms。忽略控制器开销，求一次 4 KB 连续块访问的平均访问时间。
-\end{enumerate}
+沿上排从左到右走，是一次全部命中的路径：虚拟地址查 TLB 得到页框号，拼成物理地址，再查 Cache。向下拐一次，就多付一次开销：TLB 未命中要读两级页表（两次主存访问），Cache 缺失要从主存装入一个块，页表项无效则进入缺页处理，代价从纳秒跳到毫秒。
 
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) SCAN 向减小方向的轨迹可写为 $53\to37\to14\to0\to65\to67\to98\to122\to124\to183$，总移动 $53+183=236$ 个磁道。\par
-(2) C-LOOK 轨迹为 $53\to37\to14\dashrightarrow183\to124\to122\to98\to67\to65$，把回卷移动计入磁头移动量时，总移动为 $16+23+169+59+2+24+31+2=326$ 个磁道。\par
-(3) 每转用时 $60/10000=6$ ms，平均旋转延迟为 3 ms；4 KB 占 8 个扇区，传输时间为 $(8/512)\times6=0.09375$ ms。平均访问时间约为 $4+3+0.09375=7.094$ ms。\else \answerarea \fi
+设 TLB 访问 1 ns，Cache 访问 2 ns，主存一次 100 ns，缺页处理 8 ms。各种组合的耗时和主存访问次数如下。
 
-\item \textbf{（PV 设计题）} 三个进程 P1、P2、P3 互斥使用一个包含 $N$ 个存储单元的缓冲区。P1 每次用 \texttt{produce()} 生成一个正整数，送入缓冲区某空单元；P2 每次从缓冲区中取出一个奇数并用 \texttt{count\_odd()} 统计；P3 每次取出一个偶数并用 \texttt{count\_even()} 统计。用信号量机制实现三个进程的同步与互斥。
+\begin{tablebox}{一次访存的四条路径}
+\centering
+\small
+\begin{tabular}{|l|c|c|}
+\hline
+情形 & 时间 & 主存访问次数 \\
+\hline
+TLB 命中、Cache 命中 & 3 ns & 0 \\
+TLB 命中、Cache 缺失 & 103 ns & 1 \\
+TLB 未命中、Cache 命中 & 203 ns & 2 \\
+TLB 未命中、Cache 缺失 & 303 ns & 3 \\
+缺页 & 8 ms 起 & 2 次页表 $+$ 磁盘 \\
+\hline
+\end{tabular}
+\end{tablebox}
 
-\ifshowsolutions\par\noindent\textbf{答案：}
-设 \texttt{empty=N} 表示空单元数，\texttt{odd=0}、\texttt{even=0} 分别表示缓冲区中可供对应消费者取走的元素数，\texttt{mutex=1} 保护缓冲区结构。
-\begin{lstlisting}[language=C]
-P1() {
-    while (true) {
-        int x = produce();
-        P(empty); P(mutex);
-        insert(x);
-        V(mutex);
-        if (x % 2) V(odd); else V(even);
-    }
-}
-P2() {
-    while (true) {
-        P(odd); P(mutex);
-        int x = remove_one_odd();
-        V(mutex); V(empty);
-        count_odd(x);
-    }
-}
-P3() {
-    while (true) {
-        P(even); P(mutex);
-        int x = remove_one_even();
-        V(mutex); V(empty);
-        count_even(x);
-    }
-}
-\end{lstlisting}
-必须先等待对应类别计数，再进入互斥区取元素；否则消费者可能进入缓冲区后找不到所需奇偶性的元素。\else \answerarea \fi
-
-\item \textbf{（PV 设计题）} 某博物馆最多容纳 $M$ 名游客同时参观。入口和出口各有一扇旋转门，一次只能通过一人。游客到达后若博物馆已满则在外等候。管理员可在任何时候关闭博物馆（不再放新游客进入，但已在馆内的游客可以继续参观并离开）。用信号量实现游客和管理员的同步。
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-设 \texttt{capacity=M} 控制馆内容量，\texttt{inDoor=1}、\texttt{outDoor=1} 分别保护两扇门，\texttt{state=1} 保护布尔变量 \texttt{closed=false}。将“检查是否关闭并完成入门”放在同一个 \texttt{state} 临界区内，可把关闭操作与最后一个获准进入的游客线性排序。
-\begin{lstlisting}[language=C]
-Visitor() {
-    P(capacity);
-    P(state);
-    if (closed) {
-        V(state); V(capacity);
-        return;                 // 已关闭，不再入馆
-    }
-    P(inDoor); enter(); V(inDoor);
-    V(state);
-
-    visit();
-
-    P(outDoor); leave(); V(outDoor);
-    V(capacity);
-}
-
-Administrator() {
-    P(state);
-    closed = true;
-    V(state);
-}
-\end{lstlisting}
-管理员置位后，新游客即使取得了 \texttt{capacity} 也会检查到关闭并归还容量；已入馆游客不需要取得 \texttt{state} 即可从出口离开。\else \answerarea \fi
-
-\item \textbf{（综合题）} 某文件系统盘块大小 1 KiB，每个块指针占 4 字节。i-node 包含 8 个直接块指针、1 个一级间接块指针和 1 个二级间接块指针。
-
-\begin{enumerate}
-    \item[(1)] 求该文件系统支持的最大文件大小。
-    \item[(2)] 若要访问文件偏移量 5 MiB 处的数据，需访问哪些索引块？最少需几次磁盘 I/O？
-    \item[(3)] 访问 5 MiB 偏移量时，二级间接根块位于磁道 11，所需的下一级索引块位于磁道 12，目标数据块位于磁道 40。当前磁头在磁道 5，且各级索引必须按依赖顺序读取。总磁头移动量是多少？
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-每个间接块可存 $1024/4=256$ 个指针。最大数据块数为 $8+256+256^2=65800$，故最大文件大小为 $65800\text{ KiB}=64.2578125\text{ MiB}=67{,}379{,}200$ B。\par
-5 MiB 已超过直接块与一级间接区合计的 $8+256=264$ KiB，位于二级间接区。若所需索引和数据均未缓存，需依次读取二级间接根块、下一级索引块和数据块，共 3 次磁盘 I/O。\par
-第 (3) 问必须按依赖顺序访问，调度算法不能重排尚未由上级索引解析出的请求。磁头移动量为 $|11-5|+|12-11|+|40-12|=6+1+28=35$ 个磁道。\else \answerarea \fi
-
-\item \textbf{（综合题）} 某 32 位系统按字节编址，采用两级页表，页面大小 4 KB。TLB 共 16 项，采用全相联映射，LRU 替换。Cache 容量 64 KB，采用 4 路组相联，行大小 32 B，共 512 组。系统采用请求分页，页面置换算法为改进的 CLOCK。
-
-\begin{enumerate}
-    \item[(1)] 虚拟地址中，一级页号、二级页号、页内偏移各占多少位？
-    \item[(2)] 若 TLB 初始为空，进程依次访问虚拟地址 \texttt{0x00001000}, \texttt{0x00002000}, \texttt{0x00001004}, \texttt{0x00003000}（均为有效映射，物理页框分别为 100, 200, 100, 300）。写出每次访问的 TLB 命中情况和最终 TLB 内容。
-    \item[(3)] 对第 (2) 问中的第 3 次访问（\texttt{0x00001004}），写出 Cache 访问的组号、标记和块内偏移。
-    \item[(4)] 若访问 \texttt{0xABCDE000} 时 TLB 缺失、页表缺失（二级页表不存在）、最终物理页框为 0x5678，描述完整的缺页处理流程。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) 页面大小为 $2^{12}$ B，页内偏移 12 位；剩余 20 位由两级页号各占 10 位。\par
-(2) 四次访问的虚页号依次为 1、2、1、3，故 TLB 情况为缺失、缺失、命中、缺失。最终包含 $1\mapsto100$、$2\mapsto200$、$3\mapsto300$；虚页 1 是三项中最近再次访问过的项。\par
-(3) 第三次访问的物理地址为 $(100\ll12)+4=\texttt{0x00064004}$。行内偏移为 4，组号为 $(\texttt{0x64004}/32)\bmod512=0$，Tag 为 $\lfloor\texttt{0x64004}/(32\times512)\rfloor=\texttt{0x19}$。\par
-(4) TLB 缺失后硬件/软件开始页表遍历；发现对应一级页表项未指向有效二级页表时触发异常。OS 校验地址合法性，分配或调入二级页表页，建立相应页表项；若目标数据页也不在内存，还需分配页框并从文件/交换区调入或进行按需清零。随后更新 PTE、必要时更新/失效相关 TLB 项并重新执行引发异常的指令。最终页框为 \texttt{0x5678} 时，该页起始物理地址为 \texttt{0x5678000}。\else \answerarea \fi
-
-\item \textbf{（综合题）} 某系统采用索引分配（类似 UNIX i-node），一个 i-node 含 12 个直接块指针，1 个一级间接、1 个二级间接、1 个三级间接。盘块大小 2 KiB，指针占 4 字节。
-
-\begin{enumerate}
-    \item[(1)] 求最大文件大小（以 GiB 为单位，精确到小数点后两位）。
-    \item[(2)] 文件 A 大小为 200 KiB，文件 B 大小为 20 MiB，文件 C 大小为 2 GiB。问三个文件各需要几个索引块（i-node 已调入内存，不算在内）才能访问文件末字节？
-    \item[(3)] 假定一次只处理这一个逻辑访问，各级索引块和数据块所在磁道相互独立且均匀分布在 0--999，初始磁头位置也服从同一分布；忽略旋转和传输时间，寻道时间为磁道差 $\times0.1$ ms。估算访问文件 C 与文件 A 最后一个字节的期望寻道时间差。
-\end{enumerate}
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-每个间接块可存 $2048/4=512$ 个指针。最大文件大小为
+设 TLB 命中率 $h$、Cache 命中率 $c$、页表级数 $k$、缺页率 $p$，一次访问的平均时间为
 \[
-(12+512+512^2+512^3)\times2\text{ KiB}
-=256.500999\text{ GiB}\approx256.50\text{ GiB}.
+\mathrm{EAT}=t_{\mathrm{TLB}}+(1-h)k\,t_m+t_c+(1-c)t_m+p\,t_{pf}.
 \]
-文件 A 的末字节位于一级间接区，访问路径需要 1 个索引块；文件 B 的末字节位于二级间接区，需要二级根块和一个一级索引块，共 2 个索引块；文件 C 的末字节超过直接、一级和二级间接区容量，位于三级间接区，需要 3 个索引块。\par
-两个独立、均匀的 $0\sim999$ 磁道号之间的期望绝对差为 $(1000^2-1)/(3\times1000)\approx333.333$ 个磁道。C 比 A 多经过 2 个索引块，即多 2 段独立寻道，故期望时间差约为 $2\times333.333\times0.1=66.67$ ms。本结论依赖题设的独立均匀模型；有并发请求时 SSTF 的结果还取决于队列，不能仅由文件大小推出。\else \answerarea \fi
+$t_m$ 是一次主存访问，$t_c$ 是 Cache 访问，$t_{pf}$ 是一次缺页处理的总时间（含磁盘 I/O 和操作系统开销）。式子把缺页看成在正常路径上追加 $t_{pf}$，忽略了缺页时尚未完成的那几纳秒，误差不影响量级。
 
-\item \textbf{（综合题）} 考虑单 CPU 系统的如下观察时刻：进程 A 执行 \texttt{read(fd, buf, 4096)} 时发生页缓存未命中，已等待磁盘 I/O；进程 D 的 \texttt{write()} 因管道满而阻塞；进程 C 刚因时间片用完被抢占并进入就绪队列；调度器随后选中进程 B，B 已从 \texttt{malloc(1<<20)} 返回，正准备首次写入新分配区域。
+代入 $h=0.98$、$c=0.95$、$k=2$、$p=10^{-4}$：
+\[
+1+0.02\times2\times100+2+0.05\times100+10^{-4}\times8\times10^{6}
+=1+4+2+5+800=812\ \text{ns}.
+\]
+没有缺页时只要 12 ns；万分之一的缺页率就把它抬到 812 ns。若 $p=1\%$，缺页项是 $80\ \mu$s，约是前四项的 6700 倍。
 
-\begin{enumerate}
-    \item[(1)] 分析四个进程分别处于什么状态（运行/就绪/阻塞）。
-    \item[(2)] 进程 A 的 \texttt{read} 完成需经历哪些 OS 模块的处理？描述完整流程（从系统调用入口到数据返回用户缓冲区）。
-    \item[(3)] \texttt{malloc} 返回和 B 首次写入新区域分别是否必然立即分配物理页？B 首次写入可能触发的异常与 A 等待文件读取有何区别？
-    \item[(4)] 进程 D 何时被唤醒？描述管道写操作与管道满时的阻塞/唤醒机制。
-\end{enumerate}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=11.5cm, height=5.4cm,
+  xlabel={缺页率 $p$（\%）},
+  ylabel={EAT（$\mu$s，对数轴）},
+  xmin=0, xmax=0.1, ymin=0.01, ymax=10,
+  ymode=log, log basis y=10,
+  xtick={0,0.02,0.04,0.06,0.08,0.1},
+  xticklabels={0,0.02,0.04,0.06,0.08,0.1},
+  ytick={0.01,0.1,1,10},
+  yticklabels={0.01,0.1,1,10},
+  grid=major,
+  grid style={RuleGray, very thin},
+  axis lines=left,
+  tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  legend style={font=\scriptsize, draw=RuleGray, at={(0.03,0.97)}, anchor=north west},
+]
+\addplot[Navy, thick, domain=0:0.1, samples=60] {0.012+80*x};
+\addlegendentry{$\mathrm{EAT}$（$t_{pf}=8$ ms）}
+\addplot[Amber, dashed, domain=0:0.1] {0.012};
+\addlegendentry{无缺页时 $0.012\ \mu$s}
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) A 阻塞等待磁盘 I/O；B 是当前运行进程；C 就绪；D 因管道满而阻塞。题干明确了观察时刻，因而不会出现“多个进程同时运行”的歧义。\par
-(2) A 进入系统调用后，VFS/文件系统检查页缓存；未命中时构造块 I/O 请求，经块层、设备驱动和控制器访问磁盘。A 阻塞，调度器运行其他进程；I/O 完成中断使内核完成请求并唤醒 A。A 再次运行后，内核把数据复制或映射到用户缓冲区，更新文件偏移并从系统调用返回。用户缓冲区本身若尚未建立物理映射，复制过程中还可能发生独立的用户页缺页。\par
-(3) 常见的按需分配实现中，\texttt{malloc} 可只扩展虚拟地址空间并返回，不必立刻为全部区域分配物理页；首次写入某页时可能触发匿名的按需清零缺页。它与 A 的文件读取不同：前者为匿名内存建立物理页，后者是显式系统调用导致的文件数据 I/O；A 的用户缓冲区缺页则又是独立的地址转换事件。\par
-(4) 当管道读端取走数据、释放出满足写入条件的空间时，内核唤醒等待写端；D 进入就绪队列，之后获得 CPU 才能继续写入。原子写入边界、非阻塞标志和信号处理等细节若影响结果，必须由题目另行说明。\else \answerarea \fi
+横轴是缺页率，纵轴取了对数。曲线在 $p$ 很小时几乎是水平的，因为 12 ns 的固定开销还在；$p$ 增大后，每 0.01 个百分点就抬高约 0.8 $\mu$s，很快把固定开销压得看不见。缺页率从 0.001\% 涨到 0.1\%，EAT 从约 0.09 $\mu$s 涨到 8 $\mu$s，相差近百倍。
 
-\end{enumerate}
+如果题目不要求纳秒，只问访存次数，就把上表最后一列按 $k$ 改写：TLB 命中不读页表；TLB 未命中读 $k$ 次；Cache 命中不访问主存，缺失才读一次；缺页额外读一次磁盘，牺牲页是脏页时再写一次。多数 408 题默认 Cache 用物理地址索引，必须等地址转换完成；若题面说按虚拟地址索引，TLB 查找和 Cache 索引可以并行，但标记比较仍要等页框号。
 
-\vspace{8pt}
+缺页发生在页表遍历发现有效位为 0 时。CPU 陷入内核，操作系统选一个牺牲页框；若它是脏页，先写回磁盘，再读入所需页；更新页表项和 TLB，返回后重新执行刚才那条指令。缺页是故障（fault），不是终止异常，所以返回地址是当前指令，不是下一条。没有空闲页框时，读入之前必须先置换；脏页写回会让磁盘传输多一次，$t_{pf}$ 要按“写回 $+$ 读入”两次传输估算。
+
+\subsection{文件访问：从偏移量到磁头}
+
+文件系统题给一个字节偏移量，第一步是换成逻辑块号，第二步查索引结构确定要读几个索引块，第三步才是磁盘时间。三步的单位分别是字节、块、毫秒，混在一起就会错。
+
+设 i-node 有 10 个直接指针、1 个一级间接指针、1 个二级间接指针、1 个三级间接指针；盘块 4 KiB，指针 4 B。每个索引块能放 $4096/4=1024$ 个指针。
+
+\begin{tablebox}{混合索引的覆盖范围}
+\centering
+\small
+\begin{tabularx}{\linewidth}{|l|c|X|}
+\hline
+区域 & 逻辑块号 & 字节范围 \\
+\hline
+直接（10 块） & 0--9 & $0$ 到 $40\text{ KiB}-1$ \\
+一级间接 & 10--1033 & $40\text{ KiB}$ 到 $4\text{ MiB}+40\text{ KiB}-1$ \\
+二级间接 & 1034--1\,049\,609 & $4\text{ MiB}+40\text{ KiB}$ 到 $4\text{ GiB}+4\text{ MiB}+40\text{ KiB}-1$ \\
+三级间接 & 1\,049\,610 起 & $4\text{ GiB}+4\text{ MiB}+40\text{ KiB}$ 起，再覆盖 $4\text{ TiB}$ \\
+\hline
+\end{tabularx}
+\end{tablebox}
+
+最大文件为 $4\text{ TiB}+4\text{ GiB}+4\text{ MiB}+40\text{ KiB}=4\,402\,345\,713\,664$ B，约 4.001 TiB。直接区覆盖 10 块，一级间接覆盖 1024 块，二级间接覆盖 $1024^2$ 块，三级间接覆盖 $1024^3$ 块；每一层只比上一层多一次间接寻址，容量却按 1024 倍增长。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize]
+\node[draw, rectangle, fill=SoftGray, minimum width=1.7cm, minimum height=4.8cm, align=center] (inode) at (-6.0,0.0) {i-node\\[3pt]10 直接\\1 一级\\1 二级\\1 三级};
+
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=0.8cm, align=center, font=\tiny] (d) at (-3.4,2.4) {直接 10 块\\0--40 KiB};
+\node[draw, rectangle, fill=SoftGray, minimum width=1.9cm, minimum height=0.8cm, align=center] (d0) at (-0.6,2.4) {数据块 0--9};
+
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=1.0cm, align=center, font=\tiny] (s) at (-3.4,1.1) {一级间接\\40 KiB 起\\约 4 MiB};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.0cm, minimum height=1.0cm, align=center] (s0) at (-0.6,1.1) {数据块\\{\tiny 10--1033}};
+
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=1.1cm, align=center, font=\tiny] (db) at (-3.4,-0.6) {二级间接\\4 MiB+40 KiB 起\\约 4 GiB};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.9cm, align=center] (outer) at (-0.6,-0.6) {外层索引\\{\tiny 1024 项}};
+\node[draw, rectangle, fill=SoftBlue, minimum width=2.0cm, minimum height=0.9cm, align=center] (inner) at (2.0,-0.6) {内层索引\\{\tiny 1024 项}};
+\node[draw, rectangle, fill=SoftGray, minimum width=1.5cm, minimum height=0.9cm, align=center] (db0) at (4.5,-0.6) {数据块};
+
+\node[draw, rectangle, fill=SoftTeal, minimum width=2.6cm, minimum height=1.1cm, align=center, font=\tiny] (tb) at (-3.4,-2.3) {三级间接\\4 GiB 之后\\约 4 TiB};
+\node[draw, rectangle, fill=SoftGray, minimum width=2.0cm, minimum height=1.0cm, align=center] (tb0) at (-0.6,-2.3) {数据块};
+
+\draw[->] (inode.east) -- (d.west);
+\draw[->] (inode.east) -- (s.west);
+\draw[->] (inode.east) -- (db.west);
+\draw[->] (inode.east) -- (tb.west);
+\draw[->] (d) -- (d0);
+\draw[->] (s) -- (s0);
+\draw[->] (db) -- (outer);
+\draw[->] (outer) -- (inner);
+\draw[->] (inner) -- (db0);
+\draw[->] (tb) -- (tb0);
+
+\node[align=center, font=\scriptsize, text=MutedText] at (1.9,-1.6) {2 GiB 处：外层 510、内层 1014，共读 3 个块};
+\end{tikzpicture}
+\end{center}
+
+图中每条横向路径对应一种索引深度。直接块只读数据本身；一级间接多读一个索引块；二级间接多读外层和内层两个索引块。访问越深，索引块占的 I/O 越多，但能覆盖的范围也越大。
+
+访问偏移 2 GiB 处的一个字节。$2\text{ GiB}=2^{31}$ B，逻辑块号为 $2^{31}/2^{12}=2^{19}=524\,288$。直接区和一级间接区一共覆盖 $10+1024=1034$ 块，所以它在二级间接区内的相对块号是 $524\,288-1034=523\,254$。外层下标为 $\lfloor523\,254/1024\rfloor=510$，内层下标为 $523\,254-510\times1024=1014$。
+
+路径是：i-node（已在内存）$\to$ 外层索引块 $\to$ 内层索引块 $\to$ 数据块，共读 3 个磁盘块。若 i-node 不在内存，再算一次读 i-node 的 I/O；若索引块已在缓冲区，只算未命中的那些。题目问“共几次磁盘 I/O”时，这三个假设必须写清楚。
+
+若题目从 \texttt{open()} 开始，还要加上目录项的读入：按路径逐级查目录，每一级目录块可能都要读一次磁盘，找到目录项后才知道 i-node 号。通常题面说“i-node 已在内存”，就表示打开阶段已经完成，后续 \texttt{read()} 只算数据块和索引块。
+
+磁盘时间由寻道、旋转延迟和传输三部分组成：
+\[
+T_{\text{rot}}=\frac{60}{r}\ \text{s},\qquad
+T_{\text{avg rot}}=\frac{T_{\text{rot}}}{2},\qquad
+T_{\text{trans}}=\frac{s}{S_{\text{track}}}\,T_{\text{rot}}.
+\]
+$r$ 是转速（rpm），$s$ 是每块扇区数，$S_{\text{track}}$ 是每道扇区数。设 $r=7200$、每道 400 个扇区、每扇区 512 B、平均寻道 8 ms。一转 $60/7200$ s $=8.333$ ms，平均旋转延迟 4.167 ms；4 KiB 是 8 个扇区，传输 $8/400\times8.333=0.167$ ms。DMA 把整块传完后发一次中断，CPU 处理中断的时间通常忽略。一次随机块读约
+\[
+8+4.167+0.167=12.33\ \text{ms}.
+\]
+前面三个块若都随机分布，约 37 ms；若索引块命中缓冲区，只剩数据块的 12.3 ms；若三块在同一磁道相邻，寻道和旋转只付一次，传输时间叠加。
+
+\begin{center}
+\begin{tikzpicture}[x=0.8cm, y=0.023cm, font=\scriptsize, >=stealth]
+\draw[->, MutedText] (0,0) -- (7.0,0) node[right, font=\scriptsize] {服务次序};
+\draw[->, MutedText] (0,0) -- (0,218) node[above, font=\scriptsize] {磁道号};
+\foreach \y in {0,50,100,150,200} {
+  \draw[RuleGray, very thin] (0,\y) -- (6.6,\y);
+  \node[left, font=\tiny, text=MutedText] at (0,\y) {\y};
+}
+\foreach \x/\lab in {0/起,1/1,2/2,3/3,4/4,5/5,6/6} {
+  \node[below, font=\tiny, text=MutedText] at (\x,0) {\lab};
+}
+\draw[Navy, thick] plot coordinates {(0,80) (1,95) (2,130) (3,180) (4,55) (5,40) (6,20)};
+\draw[Amber, thick, dashed] plot coordinates {(0,80) (1,95) (2,130) (3,180) (4,20) (5,40) (6,55)};
+\node[Navy, font=\tiny] at (1.4,-24) {SSTF：260 道};
+\node[Amber, font=\tiny] at (4.7,-24) {C-LOOK：295 道};
+\end{tikzpicture}
+\end{center}
+
+请求序列是 55、130、20、180、95、40，磁头在 80 号磁道，向磁道号增大的方向移动。SSTF 每次选最近的请求：$80\to95\to130\to180\to55\to40\to20$，移动 $15+35+50+125+15+20=260$ 道。C-LOOK 先沿增大方向服务 95、130、180，再回到最小的 20，依次服务 40、55：$15+35+50+160+20+15=295$ 道。
+
+图中纵轴是磁道号，相邻两点的纵差就是这次寻道的距离。SSTF 在 180 之后直接跳到 55，形成一次 125 道的长跳；C-LOOK 的 180 到 20 是一次 160 道的回程，看起来更长，但它保持单向服务，不会在高低磁道之间反复折返。总寻道量不是唯一指标，题目若问平均等待时间或服务顺序，还要按时间线逐项累加。
+
+\subsection{把口径写进答案}
+
+综合题的最后一步不是再算一遍，而是检查题面给了哪些条件、自己用了哪些假设。下表左边是常见的题面条件，右边是它影响的记账位置。
+
+\begin{tablebox}{条件与计算口径}
+\centering
+\small
+\begin{tabularx}{\linewidth}{|p{0.36\linewidth}|X|}
+\hline
+题面条件 & 对计算的影响 \\
+\hline
+缺页处理程序是否占 CPU & 占则在时间线上插入一段内核处理区间；不占则 CPU 立即切换到就绪进程 \\
+调页磁盘能否并行 & 不能则多个缺页请求排队，后一个的完成时刻取 $\max$，不能各自从缺页时刻加传输时间 \\
+调页后回队首还是队尾、时间片是否续用 & 改变后续调度顺序；题面未给时写明“回队尾、重新计时”的假设 \\
+页框固定还是可变、局部还是全局置换 & 改变缺页次数；全局置换下缺页率还取决于其他进程的行为 \\
+Cache 按虚拟地址还是物理地址索引 & PIPT 必须等地址转换；VIPT 可与 TLB 并行查索引，但标记比较仍要物理页框号 \\
+索引块、目录块是否在缓冲区 & 直接改变文件访问的磁盘 I/O 次数，不能默认每次都读 \\
+磁盘调度是否把索引块也排进请求序列 & 改变请求顺序和总寻道量；只调度数据块时要说明 \\
+GiB 与 GB、ms 与 $\mu$s 与 ns & 单位错是最常见的失分点；$1\text{ GiB}=2^{30}$ B，$1\text{ GB}=10^9$ B \\
+\hline
+\end{tabularx}
+\end{tablebox}
+
+做题时先画时间线或资源表，再代公式。时间线负责顺序和重叠，资源表负责可用量与安全性，地址字段表负责位数，块号表负责 I/O 次数。四张表对上了，最后的结果才有唯一的口径。
+
+\begin{samepage}
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item OSTEP 第 18--22 章「分页」+ 第 26--28 章「并发」——分页地址翻译和并发程序的完整讨论，是综合题的底层逻辑来源；
-    \item OSTEP 第 39--45 章「文件系统实现」——i-node、目录、FAT 和 FFS 的详细实现，涵盖磁盘布局与性能分析；
-    \item 陈海波《现代操作系统：原理与实现》第 5 章「内存管理」+ 第 6 章「进程调度」——现代 OS（Linux）中缺页处理、页面回收和 CFS 调度的实现细节；
-    \item Kurose《计算机网络》第 6 章（仅用于网络 I/O 与 OS 缓冲区的交叉理解）。
+  \item OSTEP 第 18--22 章「分页」与第 26--28 章「并发」：地址转换、TLB、缺页处理和并发程序的完整讨论。
+  \item OSTEP 第 39--45 章「文件系统实现」：i-node、目录、FAT 与 FFS 的磁盘布局和性能分析。
+  \item 陈海波《现代操作系统：原理与实现》第 5--8 章：Linux 的缺页处理、页面回收、CFS 调度和设备驱动模型。
 \end{itemize}
+\end{samepage}
+
+\input{os/exercises/chap6.tex}

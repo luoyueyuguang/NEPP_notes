@@ -1,293 +1,513 @@
 \section{操作系统概述}
 
-\subsection{操作系统的概念与功能}
+终端里敲下 \texttt{./a.out}，程序开始运行。它用 \texttt{fopen} 打开 \texttt{input.txt}，用 \texttt{malloc} 申请一块缓冲区，用 \texttt{printf} 把结果写到屏幕；按下 Ctrl-C，它又会立刻停下。整个过程里，程序没有一条指令直接操作磁盘、内存条或终端控制器。它看到的 \texttt{input.txt} 只是一个名字，\texttt{malloc} 返回的只是一段地址，\texttt{printf} 只是把字节交给了一个叫 stdout 的东西。把这些名字、地址和字节翻译成硬件动作的，是操作系统。
 
-\begin{mydef}{操作系统}{os-def}
-操作系统（Operating System, OS）是管理计算机硬件与软件资源的系统软件，也是用户与计算机之间的接口。它提供：
-\begin{enumerate}
-    \item \textbf{资源管理}：处理器、存储器、I/O设备和文件的分配与调度；
-    \item \textbf{抽象}：将底层硬件细节封装为简洁一致的接口（虚拟化）；
-    \item \textbf{服务}：为用户和应用程序提供运行环境。
-\end{enumerate}
+\begin{mydef}{操作系统}{os1-def}
+操作系统（Operating System，OS）是控制和管理整个计算机系统的硬件与软件资源，合理组织、调度计算机的工作与资源分配，并为用户和其他软件提供方便接口与环境的程序集合。它是最基本的系统软件。
 \end{mydef}
 
-\begin{conclusion}{操作系统的四大功能}{os-four-functions}
-\begin{tablebox}{OS 四大管理功能}
+这个定义里有三个角色，考试和实际系统都绕不开。
+
+第一，操作系统是资源管理者。处理器、主存、磁盘、键盘、网卡都归它分配和回收；多个程序同时要资源时，由它决定谁先拿、拿多少、拿多久。
+
+第二，操作系统是用户与硬件之间的接口。用户通过命令或图形界面使用机器，程序通过系统调用使用机器，两者都不直接碰硬件。
+
+第三，操作系统把裸机改造成一台更好用的“扩充机器”。进程、虚拟地址空间、文件、设备这些概念都不是硬件自带的，是操作系统在硬件之上造出来的抽象。
+
+需要区分操作系统和内核。内核是操作系统最核心的部分，常驻内存，运行在内核态，负责中断处理、进程调度、内存管理和设备驱动等关键工作。shell、图形界面、编译器和各种系统工具通常运行在用户态，它们可能随系统一起安装，但不属于内核。408 的选择题说“操作系统”时，多数情况下指的是内核提供的功能；题目单独提到 shell 时，要看清问的是内核还是整个系统。
+
+操作系统给用户和程序提供的接口分两类。命令接口面向人：联机命令接口像 shell，输入一条命令执行一条；脱机命令接口面向批处理，用户把一批作业写成脚本交给系统。程序接口面向程序，就是系统调用。图形用户界面可以看作命令接口的一种图形化实现，408 一般不在这里出难题。
+
+\subsection{一次运行里，操作系统做了什么}
+
+把刚才那次运行拆开，可以看到四类管理功能各自在什么时候出场。
+
+\begin{tablebox}{一次文件读取涉及的管理功能}
 \centering
-\begin{tabular}{|l|l|l|}
+\small
+\begin{tabularx}{\linewidth}{|p{3.1cm}|p{2.2cm}|X|}
 \hline
-功能 & 管理对象 & 核心问题 \\
+程序的动作 & 管理功能 & 操作系统在背后做什么 \\
 \hline
-进程管理 & CPU & 进程调度、同步、通信、死锁 \\
-内存管理 & 主存 & 分配回收、地址变换、虚拟内存、保护 \\
-文件管理 & 外存 & 文件目录、存储空间、共享保护 \\
-设备管理 & I/O设备 & 缓冲、分配、驱动、SPOOLing \\
+\texttt{fork}、\texttt{exec} & 处理机管理 & 建立进程控制块，分配 PID，装入程序，把进程调入 CPU 运行 \\
 \hline
-\end{tabular}
-\end{tablebox}
-\end{conclusion}
-
-\subsection{操作系统的特征}
-
-\begin{conclusion}{OS 的四个基本特征}{os-features}
-\begin{enumerate}
-    \item \textbf{并发（Concurrency）}：多个程序在同一时间间隔内同时运行（宏观并行、微观串行）。\textbf{与并行（Parallelism）的区别}：并行是同一时刻真正同时执行（需多核）。
-    \item \textbf{共享（Sharing）}：多个进程共享系统资源。分为互斥共享（如打印机）和同时访问（如磁盘）。
-    \item \textbf{虚拟（Virtualization）}：将物理实体映射为多个逻辑对应物（虚拟CPU、虚拟内存、虚拟设备）。
-    \item \textbf{异步（Asynchrony）}：进程以不可预知的速度推进（走走停停），OS 需保证结果可再现。
-\end{enumerate}
-\textbf{并发和共享是 OS 最基本的两个特征}，互为存在条件。
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 常考辨析：并发 vs 并行。} 单核 CPU 通过时间片轮转实现并发，不是并行。多核系统才能实现真正的并行。
-\end{attention}
-
-\subsection{操作系统的发展与分类}
-
-\begin{tablebox}{OS 发展历程}
-\centering
-\begin{tabular}{|l|l|l|}
+访问一个尚未装入的页 & 存储器管理 & 触发缺页异常，分配页框，从磁盘读入页面，更新页表 \\
 \hline
-阶段 & 特征 & 典型系统 \\
+\texttt{read} 读文件 & 文件管理 & 按路径查目录，找到 inode，定位数据块，把数据复制到用户缓冲区 \\
 \hline
-手工操作 & 人机矛盾突出 & — \\
-单道批处理 & 监督程序（Monitor），自动作业过渡 & — \\
-多道批处理 & 多道程序并发，资源利用率高，无交互 & IBM OS/360 \\
-分时系统 & 时间片轮转，交互性强 & UNIX \\
-实时系统 & 严格的响应时间约束 & RTOS \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-\textbf{多道程序设计的核心：} 内存中同时存放多道程序，CPU 在等待 I/O 时切换到另一道程序，提高 CPU 利用率。
-
-\subsection{操作系统内核}
-
-\begin{mydef}{内核}{kernel}
-操作系统最核心的部分，常驻内存。分为两大类型：
-\begin{itemize}
-    \item \textbf{大内核（Monolithic Kernel）}：将 OS 主要功能模块（进程管理、内存管理、文件系统等）都运行在内核态。优点是性能高；缺点是内核庞大，一个模块崩溃可能导致整个系统崩溃。
-    \item \textbf{微内核（Microkernel）}：仅将最基本功能（中断处理、进程调度、进程通信）放入内核，其余（文件系统、设备驱动等）作为用户进程运行。优点是可靠性高、易扩展；缺点是频繁的用户态/内核态切换导致性能开销。
-\end{itemize}
-\end{mydef}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-% ---- panel titles ----
-\node[font=\scriptsize, text=Burgundy, font=\bfseries] at (-3.9,3.9) {大内核（Monolithic Kernel）};
-\node[font=\scriptsize, text=Burgundy, font=\bfseries] at (3.9,3.9) {微内核（Microkernel）};
-% ---- LEFT: 大内核 ----
-\node[draw, rectangle, fill=SoftGray, minimum width=6.6cm, minimum height=0.7cm, rounded corners=2pt] (userL) at (-3.9,2.7) {用户态（User Mode）：用户进程 / 应用};
-\node[draw, rectangle, fill=SoftTeal, minimum width=6.6cm, minimum height=3.3cm, rounded corners=3pt] (kernelL) at (-3.9,0.7) {};
-\node[font=\scriptsize, text=Navy, align=center] at (-3.9,2.05) {\textbf{内核态（Kernel）}\\ 所有功能装入内核};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.25cm, minimum height=0.55cm] (km1) at (-5.25,1.1) {进程管理};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.25cm, minimum height=0.55cm] (km2) at (-3.9,1.1) {内存管理};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.25cm, minimum height=0.55cm] (km3) at (-2.55,1.1) {文件管理};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.25cm, minimum height=0.55cm] (km4) at (-4.55,0.35) {设备管理};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.25cm, minimum height=0.55cm] (km5) at (-3.25,0.35) {网络};
-\node[draw, rectangle, fill=SoftAmber, minimum width=6.6cm, minimum height=0.7cm, rounded corners=2pt] (hwL) at (-3.9,-1.3) {硬件（Hardware）：CPU / 内存 / 设备};
-% ---- RIGHT: 微内核 ----
-\node[draw, rectangle, fill=SoftGray, minimum width=6.6cm, minimum height=2.4cm, rounded corners=3pt] (userR) at (3.9,1.85) {};
-\node[font=\scriptsize, text=Navy, align=center] at (3.9,2.75) {\textbf{用户态（User Mode）}\\ 文件系统 / 设备驱动 / 网络\\ 以用户进程运行};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.3cm, minimum height=0.55cm] (um1) at (2.5,1.35) {文件系统};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.3cm, minimum height=0.55cm] (um2) at (3.9,1.35) {设备驱动};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.3cm, minimum height=0.55cm] (um3) at (5.3,1.35) {网络};
-\node[draw, rectangle, fill=SoftTeal, minimum width=6.6cm, minimum height=1.3cm, rounded corners=3pt] (kernelR) at (3.9,0.0) {};
-\node[font=\scriptsize, text=Navy, align=center] at (3.9,0.35) {\textbf{内核态（Kernel）}\\ 只保留最基本功能};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.4cm, minimum height=0.5cm] (kk1) at (1.65,-0.25) {进程调度};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.4cm, minimum height=0.5cm] (kk2) at (3.15,-0.25) {中断处理};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.4cm, minimum height=0.5cm] (kk3) at (4.65,-0.25) {进程通信};
-\node[draw, rectangle, fill=SoftBlue, minimum width=1.4cm, minimum height=0.5cm] (kk4) at (6.15,-0.25) {内存管理};
-\node[draw, rectangle, fill=SoftAmber, minimum width=6.6cm, minimum height=0.7cm, rounded corners=2pt] (hwR) at (3.9,-1.3) {硬件（Hardware）：CPU / 内存 / 设备};
-% ---- mode boundaries ----
-\draw[dashed, RuleGray] (-7.2,2.35) -- (-0.6,2.35);
-\draw[dashed, RuleGray] (0.6,0.65) -- (7.2,0.65);
-\node[fill=white, inner sep=1pt, font=\scriptsize, text=MutedText] at (-3.9,2.35) {态切换};
-\node[fill=white, inner sep=1pt, font=\scriptsize, text=MutedText] at (3.9,0.65) {态切换};
-% ---- comparison note ----
-\node[font=\scriptsize, text=MutedText, align=center] at (0,-2.6) {大内核：性能高，但内核庞大，一个模块崩溃可能波及整个系统；\\ 微内核：可靠性高、易扩展，但用户态/内核态切换频繁，性能开销较大};
-\end{tikzpicture}
-\end{center}
-
-\subsection{中断与异常}
-
-\begin{conclusion}{中断与异常}{interrupt-exception}
-中断机制是 OS 实现并发的重要基础，尤其是时钟中断使抢占式调度和分时成为可能。进程切换也可能由系统调用、异常、主动让出 CPU 或进程阻塞触发，因此不能把它绝对化为“没有外部中断就没有进程切换”。
-
-\begin{tablebox}{中断与异常对比}
-\centering
-\begin{tabularx}{\linewidth}{|>{\centering\arraybackslash}p{2.3cm}|X|X|}
-\hline
- & 中断（Interrupt）& 异常（Exception）\\
-\hline
-来源 & 外设（硬件）& CPU 内部（指令执行）\\
-与指令的关系 & 异步（与当前指令无关）& 同步（由当前指令触发）\\
-响应方式 & 下一条指令开始前检测 & 指令执行过程中检测\\
-示例 & 时钟中断、I/O完成中断 & 缺页、除零、断点\\
-分类 & 可屏蔽/不可屏蔽 & 故障(Fault)/陷阱(Trap)/终止(Abort)\\
+\texttt{printf} 输出到终端 & 设备管理 & 调用终端驱动，写入设备寄存器，等待中断确认完成 \\
 \hline
 \end{tabularx}
 \end{tablebox}
-\end{conclusion}
+
+处理机管理也叫进程管理，管的是进程的创建、撤销、状态转换、调度、同步、通信和死锁处理。它的核心问题是：CPU 只有一个或几个，而可运行的进程有很多，下一时刻让谁运行。
+
+存储器管理管的是内存的分配与回收、地址变换、内存保护和内存扩充。程序里用的是逻辑地址，硬件和操作系统要把它变成物理地址；进程之间不能互相踩内存；内存不够时，还要用虚拟存储把磁盘当成内存的延伸。
+
+文件管理管的是文件的存储空间、目录结构、读写操作、共享和保护。用户看到的是“按名字打开一个文件”，操作系统看到的是目录项、inode、磁盘块和缓存页。
+
+设备管理管的是设备的分配、缓冲、驱动和虚拟设备。设备的速度比 CPU 慢几个数量级，操作系统用缓冲和中断把这种速度差藏起来；SPOOLing 技术还能把一台独占的打印机虚拟成多台逻辑打印机。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1cm, y=1cm]
+  \node[font=\tiny\bfseries, text=Navy] at (-4.2,4.35) {程序看到的概念};
+  \node[font=\tiny\bfseries, text=Navy] at (4.2,4.35) {内核维护的对象};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, draw=Navy!40, minimum width=3.2cm, minimum height=0.5cm] (p) at (-4.2,3.55) {进程};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, draw=Navy!40, minimum width=3.2cm, minimum height=0.5cm] (v) at (-4.2,2.7) {虚拟地址空间};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, draw=Navy!40, minimum width=3.2cm, minimum height=0.5cm] (f) at (-4.2,1.85) {文件};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, draw=Navy!40, minimum width=3.2cm, minimum height=0.5cm] (d) at (-4.2,1.0) {设备};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, draw=Teal!45, text width=4.4cm, align=left, minimum height=0.5cm] (pcb) at (4.2,3.55) {PCB、调度队列、地址空间};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, draw=Teal!45, text width=4.4cm, align=left, minimum height=0.5cm] (pt) at (4.2,2.7) {页表、页框、TLB};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, draw=Teal!45, text width=4.4cm, align=left, minimum height=0.5cm] (in) at (4.2,1.85) {目录项、inode、磁盘块};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, draw=Teal!45, text width=4.4cm, align=left, minimum height=0.5cm] (dr) at (4.2,1.0) {驱动、缓冲区、中断处理程序};
+  \draw[dashed, MutedText!70] (0,0.55) -- (0,3.95);
+  \node[font=\tiny, fill=white, inner sep=1pt, text=MutedText] at (0,4.0) {抽象边界};
+  \draw[->] (p.east) -- (pcb.west);
+  \draw[->] (v.east) -- (pt.west);
+  \draw[->] (f.east) -- (in.west);
+  \draw[->] (d.east) -- (dr.west);
+\end{tikzpicture}
+\end{center}
+
+图里左边是程序看到的四个概念，右边是内核为它们维护的数据结构。进程对应 PCB 和地址空间，虚拟地址对应页表里的映射，文件对应目录项和 inode 指向的块，设备对应驱动、缓冲区和中断处理程序。抽象把右边这些细节藏起来，系统调用和中断负责在两边搬数据。
+
+这四块在教材里分开讲，在实现里却互相调用。读文件要先经过文件系统，再经过块设备层和驱动，最后靠中断通知完成；缺页异常要文件系统把页面读进来，又要存储器管理分配页框；驱动收到中断后，可能唤醒一个阻塞的进程，这又回到进程管理。这里不展开这些调用关系，是因为它们在第 3 章到第 5 章才会展开；先记住四块的分工和它们共同的目标：把硬件管好，把接口做简单。
+
+\subsection{多道程序：让 CPU 不等 I/O}
+
+早期的单道批处理系统一次只让一道程序进内存。程序发起 I/O 后，CPU 就闲着等设备，等完了再继续算。磁盘、打印机、键盘的速度都远低于 CPU，这种等待浪费了大部分算力。
+
+多道程序设计把多道程序同时放进内存。一道程序等待 I/O 时，操作系统把 CPU 切给另一道程序；等 I/O 完成的中断到来，再把原来的程序唤醒。这样，CPU 和设备可以同时忙。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1cm, y=1cm]
+  % 时间轴
+  \draw[->] (0,0.65) -- (10.5,0.65) node[right, font=\tiny] {ms};
+  \foreach \t in {0,40,80,120,160,200} {
+    \draw (\t/20,0.60) -- (\t/20,0.70);
+    \node[font=\tiny, text=MutedText, below] at (\t/20,0.60) {\t};
+  }
+  % 单道
+  \node[anchor=east, font=\tiny, align=right] at (-0.12,3.9) {单道\\CPU};
+  \filldraw[fill=SoftBlue, draw=Navy!55] (0,3.6) rectangle (2,4.2);
+  \node[font=\tiny] at (1,3.9) {A 计算};
+  \filldraw[fill=SoftGray, draw=RuleGray] (2,3.6) rectangle (5,4.2);
+  \node[font=\tiny, text=MutedText] at (3.5,3.9) {空闲};
+  \filldraw[fill=SoftBlue, draw=Navy!55] (5,3.6) rectangle (7,4.2);
+  \node[font=\tiny] at (6,3.9) {B 计算};
+  \filldraw[fill=SoftGray, draw=RuleGray] (7,3.6) rectangle (10,4.2);
+  \node[font=\tiny, text=MutedText] at (8.5,3.9) {空闲};
+  \node[font=\tiny, text=Amber!85!black] at (3.5,4.45) {A 等 I/O};
+  \node[font=\tiny, text=Amber!85!black] at (8.5,4.45) {B 等 I/O};
+  \draw[<->, MutedText] (0,3.3) -- (10,3.3);
+  \node[font=\tiny, fill=white, inner sep=1pt] at (5,3.3) {总耗时 200 ms，CPU 忙 80 ms};
+  % 多道
+  \node[anchor=east, font=\tiny, align=right] at (-0.12,2.0) {多道\\CPU};
+  \filldraw[fill=SoftBlue, draw=Navy!55] (0,1.7) rectangle (2,2.3);
+  \node[font=\tiny] at (1,2.0) {A 计算};
+  \filldraw[fill=SoftBlue, draw=Navy!55] (2,1.7) rectangle (4,2.3);
+  \node[font=\tiny] at (3,2.0) {B 计算};
+  \filldraw[fill=SoftGray, draw=RuleGray] (4,1.7) rectangle (7,2.3);
+  \node[font=\tiny, text=MutedText] at (5.5,2.0) {空闲};
+  \node[font=\tiny, text=Amber!85!black] at (5.5,1.42) {A、B 都在等 I/O};
+  \draw[<->, MutedText] (0,1.05) -- (7,1.05);
+  \node[font=\tiny, fill=white, inner sep=1pt] at (3.5,1.05) {总耗时 140 ms，CPU 忙 80 ms};
+\end{tikzpicture}
+\end{center}
+
+图里假设两道程序各需要 40 ms 的 CPU 计算和 60 ms 的 I/O，I/O 可以重叠，忽略调度开销。单道执行时，A 计算 40 ms，等 I/O 60 ms，B 再计算 40 ms、等 I/O 60 ms，总共 200 ms，CPU 只忙了 80 ms，利用率 40\%。多道执行时，A 在 40 ms 时开始等 I/O，B 立刻接上 CPU；A 的 I/O 在 100 ms 完成，B 的 I/O 在 140 ms 完成。两道程序总共用 140 ms，CPU 仍然忙 80 ms，利用率升到约 57\%。
+
+设每道程序的计算时间都是 $c$、I/O 时间都是 $t$，忽略开销，$n$ 道程序错开启动后，最后一道的 I/O 在 $nc+t$ 时结束，CPU 忙 $nc$，利用率约为
+\[
+U=\frac{nc}{nc+t}.
+\]
+$n$ 越大，$U$ 越接近 1。这个式子只说明趋势：实际的 I/O 设备有带宽上限，内存容量也有限，道数不可能无限增加；道数太多，调度和切换的开销又会吃掉收益。
+
+多道程序提高的是资源利用率和吞吐量，不缩短每道程序自己的 CPU 时间。图中 A 在单道和多道下都在 100 ms 完成；B 的完成时间从 200 ms 提前到 140 ms。多道还带来了并发，进程之间会争抢资源，于是同步、互斥和死锁问题随之出现，这些是第 2 章的内容。
+
+\subsection{并发不是并行}
+
+并发（concurrency）指两个或多个事件在同一时间间隔内发生。单核 CPU 在 1 秒内轮流执行四个进程，宏观上四个进程都“在跑”，微观上任意时刻只有一个进程占着 CPU。并行（parallelism）指两个或多个事件在同一时刻发生，需要多个处理器或多个核同时执行。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1cm, y=1cm]
+  % 左：单核
+  \node[font=\tiny\bfseries, text=Navy] at (2.2,3.2) {单核：并发};
+  \draw[->] (0,2.65) -- (4.7,2.65) node[right, font=\tiny] {$t$};
+  \filldraw[fill=SoftBlue, draw=Navy!55] (0,1.9) rectangle (1.1,2.5);
+  \node[font=\tiny] at (0.55,2.2) {P1};
+  \filldraw[fill=SoftTeal, draw=Teal!55] (1.1,1.9) rectangle (2.2,2.5);
+  \node[font=\tiny] at (1.65,2.2) {P2};
+  \filldraw[fill=SoftBlue, draw=Navy!55] (2.2,1.9) rectangle (3.3,2.5);
+  \node[font=\tiny] at (2.75,2.2) {P3};
+  \filldraw[fill=SoftTeal, draw=Teal!55] (3.3,1.9) rectangle (4.4,2.5);
+  \node[font=\tiny] at (3.85,2.2) {P4};
+  \draw[dashed, Burgundy!70] (1.65,1.55) -- (1.65,2.85);
+  \node[font=\tiny, text=MutedText, align=center] at (2.2,1.15) {任一时刻只有 1 个进程在 CPU 上\\四个进程依次用完自己的时间片};
+  % 右：双核
+  \node[font=\tiny\bfseries, text=Navy] at (8.7,3.2) {双核：并行};
+  \node[anchor=east, font=\tiny] at (6.75,2.2) {核 0};
+  \node[anchor=east, font=\tiny] at (6.75,1.5) {核 1};
+  \filldraw[fill=SoftBlue, draw=Navy!55] (6.9,1.9) rectangle (8.0,2.5);
+  \node[font=\tiny] at (7.45,2.2) {P1};
+  \filldraw[fill=SoftBlue, draw=Navy!55] (8.0,1.9) rectangle (9.1,2.5);
+  \node[font=\tiny] at (8.55,2.2) {P3};
+  \filldraw[fill=SoftGray, draw=RuleGray] (9.1,1.9) rectangle (10.5,2.5);
+  \node[font=\tiny, text=MutedText] at (9.8,2.2) {空闲};
+  \filldraw[fill=SoftTeal, draw=Teal!55] (6.9,1.2) rectangle (8.0,1.8);
+  \node[font=\tiny] at (7.45,1.5) {P2};
+  \filldraw[fill=SoftTeal, draw=Teal!55] (8.0,1.2) rectangle (9.1,1.8);
+  \node[font=\tiny] at (8.55,1.5) {P4};
+  \filldraw[fill=SoftGray, draw=RuleGray] (9.1,1.2) rectangle (10.5,1.8);
+  \node[font=\tiny, text=MutedText] at (9.8,1.5) {空闲};
+  \draw[dashed, Burgundy!70] (8.05,0.95) -- (8.05,2.85);
+  \node[font=\tiny, text=MutedText, align=center] at (8.7,0.55) {任一时刻有 2 个进程同时运行\\四个进程的完成时间缩短一半};
+\end{tikzpicture}
+\end{center}
+
+图左边是一个核跑四个进程。P1 到 P4 各占一个时间片，任意画一条竖线，只有一个进程在运行。图右边是两个核，每个核跑两个进程；同一时刻 P1 和 P2 可以同时执行，之后 P3 和 P4 也可以同时执行。图中的长度只是示意，不代表真实的时间片长度。
 
 \begin{attention}
-\textbf{中断 vs 异常（内中断 vs 外中断）的辨析：} 缺页异常是典型的 Fault（故障），处理后通常可重新执行引发异常的指令；系统调用（如 \texttt{int 0x80} 或 \texttt{syscall}）是由程序主动触发的 Trap（陷阱）。除零等同步异常的具体 Fault/Abort 归类依赖体系结构和异常处理约定，不能脱离体系结构一概而论。
+单核 CPU 上通过时间片轮转得到的“同时运行”是并发，不是并行。并行要求同一时刻有多个处理器（核）在执行。408 选择题常把“单核也能实现并行”作为干扰项；反过来，“多核系统只有并行、没有并发”也不对，多核上多个进程仍可能分时复用同一个核。
 \end{attention}
+
+\subsection{共享、虚拟与异步}
+
+共享指系统资源可以被多个并发进程共同使用。共享有两种方式。互斥共享的资源一次只允许一个进程访问，比如打印机、共享变量、临界区；同时访问的资源可以在一段时间内被多个进程交替使用，比如磁盘上的文件、只读代码段。磁盘虽然是一个物理设备，但多个进程可以交替读写不同的文件，用户感觉不到排队，所以归入同时访问。
+
+并发和共享互为存在条件。没有并发，进程一个一个串行执行，就不存在争抢资源的问题，共享机制没有意义；没有共享，进程无法交换数据，并发执行也失去了大部分价值。这两个特征是操作系统最基本的特征。
+
+虚拟把物理实体映射成多个逻辑对应物。虚拟处理器让每个进程以为自己独占 CPU，靠的是分时复用；虚拟存储器让每个进程以为自己拥有一段连续的大地址空间，靠的是内存和外存的组合；SPOOLing 把一台独占打印机虚拟成多台逻辑打印机，靠的也是分时复用。408 把虚拟技术分为时分复用和空分复用：虚拟处理器、虚拟设备属于时分复用，虚拟存储器属于空分复用。
+
+异步指进程以不可预知的速度向前推进。进程什么时候被调度、什么时候因 I/O 阻塞、什么时候被中断打断，都不确定，所以每个进程都是“走走停停”。操作系统要保证：只要同步机制写得对，无论执行顺序如何，结果都一致。异步来自并发、共享和中断，没有这三样，程序会一条接一条地确定性执行。
+
+\subsection{从批处理到实时系统}
+
+操作系统的发展阶段按“怎么让多道程序共享机器”来划分，比按年代背更有用。
+
+\begin{tablebox}{操作系统发展阶段与几类系统的对比}
+\centering
+\small
+\begin{tabularx}{\linewidth}{|p{2.1cm}|p{4.0cm}|X|p{3.2cm}|}
+\hline
+类型 & 关键机制 & 优点 & 局限 \\
+\hline
+手工操作 & 用户独占机器，插线或开关设定 & 无需操作系统 & 人机矛盾突出，资源浪费 \\
+\hline
+单道批处理 & 监督程序自动衔接作业，内存中只放一道 & 减少人工干预 & CPU 等 I/O，内存利用率低 \\
+\hline
+多道批处理 & 多道程序驻留内存，等待 I/O 时切换 & 资源利用率高，吞吐量大 & 无交互，作业周转时间长 \\
+\hline
+分时系统 & 时间片轮转，多个终端共享一台主机 & 交互性好，响应及时 & 不适合硬实时，切换有开销 \\
+\hline
+实时系统 & 按优先级调度，强调截止时间 & 及时、可靠 & 资源利用率让位于确定性 \\
+\hline
+\end{tabularx}
+\end{tablebox}
+
+批处理系统把作业成批送入，由监督程序自动调度，减少人工干预。单道批处理一次只放一道程序，CPU 仍然要等 I/O；多道批处理把多道程序同时放进内存，才真正把 CPU 和设备的重叠利用起来。批处理的缺点是用户提交作业后只能等结果，不能中途交互，作业周转时间也长。
+
+分时系统把 CPU 时间切成很短的时间片，轮流分给多个终端用户。用户输入命令后，系统在一个时间片内响应，感觉像独占机器。分时系统有四个特点：多路性，一台主机连接多个终端；独立性，用户之间互不干扰；及时性，响应时间在可接受范围内；交互性，用户可以随时输入命令。若用户数为 $n$、时间片为 $q$，忽略切换开销，一个用户最坏要等其余 $n-1$ 个用户各运行一个时间片，响应时间约为 $nq$。用户越多或时间片越长，响应越慢；时间片太小，切换开销占比又会上升。
+
+实时系统要求系统在规定的截止时间内完成响应。硬实时必须满足截止时间，错过可能造成严重后果，比如飞行控制、工业机器人；软实时偶尔错过可以接受，比如视频播放。实时系统更关心最坏情况下的响应时间，而不是平均吞吐量。
+
+网络操作系统和分布式操作系统都管理多台机器，区别在用户看到什么。网络操作系统让每台机器运行自己的操作系统，用户显式地登录远程机器、访问共享资源；分布式操作系统把多台机器统一成一个系统，用户不需要知道资源在哪台机器上。个人计算机操作系统强调交互和易用，嵌入式操作系统强调资源受限下的实时性和可靠性。
+
+\subsection{内核态与用户态}
+
+CPU 至少有两种运行状态：用户态（目态）和内核态（管态，也叫核心态）。状态由程序状态字（PSW）中的模式位决定。用户态下，CPU 只能执行非特权指令，不能直接访问 I/O 端口、不能修改页表、不能关中断；内核态下，CPU 可以执行全部指令，包括特权指令。
+
+区分两种态的目的是保护。如果用户程序能直接关中断或改页表，一个错误就能让整个系统停摆，其他进程的数据也没有保障。把危险操作收进内核，由内核检查参数和权限，系统才能在多道程序下稳定运行。
+
+\begin{tablebox}{特权指令与非特权指令}
+\centering
+\small
+\begin{tabularx}{\linewidth}{|X|X|}
+\hline
+只能在内核态执行（特权指令） & 用户态也能执行（非特权指令） \\
+\hline
+I/O 指令、关中断、开中断、设置时钟、修改 PSW、设置页表基址、清内存、停机 & 算术运算、逻辑运算、取数、存数、寄存器传送、跳转、压栈、系统调用（陷入） \\
+\hline
+\end{tabularx}
+\end{tablebox}
+
+表里最容易被忽略的是最后一项：系统调用指令本身在用户态执行，它不是特权指令。用户程序执行一条陷入指令，主动把 CPU 交给内核；CPU 进入内核态后执行的是内核的入口代码，用户程序的后续指令不会因此获得特权。把“系统调用在用户态执行”和“系统调用处理程序在内核态执行”分开看，就不会被“系统调用是特权指令”这种说法骗到。
 
 \begin{center}
 \begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (a) at (0,0.4){中断请求};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (b) at (2.3,0.4){中断响应};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (c) at (4.6,0.4){保护现场};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (d) at (6.9,0.4){中断服务};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.7cm,minimum height=0.7cm] (e) at (9.2,0.4){恢复现场};
-  \draw[->] (a) -- (b); \draw[->] (b) -- (c); \draw[->] (c) -- (d); \draw[->] (d) -- (e);
-  \node[font=\scriptsize,black!70] at (9.2,-0.6){返回被中断的程序};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, draw=Navy!45, minimum width=3.4cm, minimum height=1.0cm, align=center] (u) at (-3.1,0) {用户态（目态）\\[2pt] 只能执行非特权指令};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, draw=Teal!55, minimum width=3.4cm, minimum height=1.0cm, align=center] (k) at (3.1,0) {内核态（管态）\\[2pt] 可执行全部指令};
+  \draw[->, Navy!70, line width=0.7pt] (u.35) to[bend left=18]
+    node[above, font=\tiny, text=Navy, align=center] {系统调用（trap）、外中断、异常\\都从这里进入内核} (k.145);
+  \draw[->, Teal!70, line width=0.7pt] (k.250) to[bend right=30] (u.290);
+  \node[font=\tiny, text=TealDark, align=center] at (0,-1.55) {返回指令（iret）：恢复 PSW、PC\\回到用户态};
+  \node[font=\tiny, text=MutedText] at (0,2.0) {PSW 的模式位决定 CPU 当前处于哪一态};
 \end{tikzpicture}
 \end{center}
+
+图里只有两个状态和两条转移边。上面那条边是进入内核的三个常见入口：系统调用是程序主动陷入，外中断是设备或时钟异步打断，异常是当前指令执行出错或需要内核帮忙。下面那条边是内核返回用户态，必须用特权返回指令恢复 PSW 和 PC；用户程序不能自己把模式位改成内核态。
+
+三条入口的性质不同。系统调用是同步的、主动的；外中断是异步的、被动的；异常是同步的、与当前指令有关的。它们共同的效果都是：CPU 保存现场，切换到内核态，跳到内核中对应的处理程序。
+
+内核里放什么？408 常列四项：时钟管理，负责计时和时间片；中断处理，负责中断和异常的入口；原语，指执行期间不可中断的基本操作，比如进程切换、阻塞和唤醒的一部分，常用关中断来实现；系统控制的数据结构及处理，包括进程控制块、页表、文件表、设备表，以及建立在这些结构上的进程管理、存储管理和设备管理。
+
+这里说的“原语不可中断”，指的是原语这段代码执行时不会被中断打断，不是说原语一定很长。关中断只是实现原语的一种手段，原语也可以靠硬件原子指令实现。
+
+\subsection{大内核与微内核}
+
+内核该放多少功能，有两种典型答案。
+
+大内核（宏内核）把进程管理、内存管理、文件系统、设备驱动、网络协议都放进内核地址空间，模块之间直接函数调用。Linux 是典型的大内核。它的优点是性能高：一次文件读只在用户态和内核态之间切换两次，内核内部就是普通的函数调用，没有额外的消息传递。缺点是内核庞大、耦合强，一个驱动里的空指针就可能让整台机器崩溃。
+
+微内核只把最基础的功能留在内核，通常包括中断处理、进程调度与通信、基本的存储管理；文件系统、设备驱动、网络协议作为用户态的服务进程运行，彼此通过进程间通信（IPC）交换消息。微内核的优点是可靠性和可扩展性好：文件服务崩溃了可以重启，不会带崩内核；新增一个服务也不用改内核。缺点是性能开销大：每次服务转发都要经过内核，跨态和消息传递的次数明显增加。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1cm, y=1cm]
+  % 左：大内核
+  \node[font=\tiny\bfseries, text=Burgundy] at (-3.2,5.25) {大内核（宏内核）};
+  \node[draw, rounded corners=2pt, fill=SoftGray, draw=MutedText!45, minimum width=5.8cm, minimum height=0.55cm] at (-3.2,4.6) {用户进程};
+  \draw[dashed, MutedText!70] (-6.1,4.15) -- (-0.3,4.15);
+  \draw[rounded corners=2pt, fill=SoftTeal, draw=Teal!45] (-6.1,1.55) rectangle (-0.3,3.95);
+  \node[font=\tiny, text=TealDark] at (-3.2,3.7) {内核态：所有功能都在内核};
+  \node[draw, fill=white, minimum width=1.45cm, minimum height=0.45cm] (fs) at (-4.85,2.95) {文件系统};
+  \node[draw, fill=white, minimum width=1.45cm, minimum height=0.45cm] (drv) at (-3.2,2.95) {设备驱动};
+  \node[draw, fill=white, minimum width=1.45cm, minimum height=0.45cm] (mm) at (-4.85,2.15) {内存管理};
+  \node[draw, fill=white, minimum width=1.45cm, minimum height=0.45cm] (pm) at (-3.2,2.15) {进程管理};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, draw=Amber!55, minimum width=5.8cm, minimum height=0.55cm] at (-3.2,0.95) {硬件};
+  \draw[->] (-3.2,4.325) -- (-3.2,3.95);
+  \node[font=\tiny, fill=white, inner sep=1pt] at (-2.55,4.15) {系统调用};
+  \draw[->] (fs.east) -- (drv.west);
+  \draw[->] (-2.55,2.95) -- (-2.2,2.95) -- (-2.2,1.55) -- (-2.2,1.225);
+  \node[font=\tiny, text=MutedText, anchor=west] at (-2.1,1.7) {访问设备};
+  % 右：微内核
+  \node[font=\tiny\bfseries, text=Burgundy] at (3.7,5.25) {微内核};
+  \node[draw, rounded corners=2pt, fill=SoftGray, draw=MutedText!45, minimum width=1.6cm, minimum height=0.55cm] (app) at (1.8,4.6) {应用};
+  \node[draw, rounded corners=2pt, fill=SoftGray, draw=MutedText!45, minimum width=1.6cm, minimum height=0.55cm] (ufs) at (3.7,4.6) {文件服务};
+  \node[draw, rounded corners=2pt, fill=SoftGray, draw=MutedText!45, minimum width=1.6cm, minimum height=0.55cm] (udrv) at (5.6,4.6) {驱动服务};
+  \draw[dashed, MutedText!70] (1.0,4.15) -- (6.4,4.15);
+  \draw[rounded corners=2pt, fill=SoftTeal, draw=Teal!45] (1.0,1.55) rectangle (6.4,3.95);
+  \node[font=\tiny, text=TealDark] at (3.7,3.68) {微内核：IPC、调度、中断处理};
+  \node[font=\tiny, text=MutedText] at (3.7,3.38) {只保留最基本的功能};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, draw=Amber!55, minimum width=5.4cm, minimum height=0.55cm] at (3.7,0.95) {硬件};
+  \draw[->] (1.8,4.325) -- (1.8,3.95);
+  \draw[->] (2.9,3.95) -- (2.9,4.325);
+  \draw[->] (4.4,4.325) -- (4.4,3.95);
+  \draw[->] (4.9,3.95) -- (4.9,4.325);
+  \draw[->] (5.9,4.325) -- (5.9,3.95);
+  \draw[->] (3.7,1.55) -- (3.7,1.225);
+  \node[font=\tiny, fill=white, inner sep=1pt] at (3.7,4.15) {IPC 转发};
+\end{tikzpicture}
+\end{center}
+
+左图里，用户进程一次系统调用进入内核，文件系统直接调用设备驱动，设备驱动直接访问硬件，跨态只发生在用户和内核之间。右图里，应用要读文件，先通过 IPC 把请求交给内核，内核再转给文件服务；文件服务要读磁盘，又通过内核转给驱动服务。每一次箭头穿过虚线，都是一次用户态和内核态的切换。微内核把模块解耦了，代价就是这些额外的穿越。
+
+Windows NT 和 macOS 的 XNU 属于混合内核：保留了微内核的模块化思想，又把一部分服务放回内核，以折中性能和可靠性。外核（exokernel）走得更远，内核只负责物理资源的分配和保护，文件系统、网络协议等具体管理交给用户态的库操作系统，优点是灵活、抽象层少，缺点是资源管理复杂，应用之间难以统一。
+
+\subsection{中断与异常}
+
+中断是 CPU 对系统内外事件的一种响应：CPU 暂停当前程序，保存现场，转去执行处理程序，完成后再返回。它是操作系统取得控制权的基础。时钟中断让分时和抢占式调度成为可能；I/O 完成中断让 CPU 不必轮询设备；缺页异常让虚拟存储得以实现；系统调用则通过陷入指令主动进入内核。
+
+408 里“中断”有广义和狭义两种用法。狭义的中断指外中断，来自 CPU 外部；广义的中断还包括异常（内中断），由 CPU 内部在当前指令执行过程中检测到。做题时看到“内中断”，按异常理解；看到“中断”单独出现，先看上下文是广义还是狭义。
+
+外中断与当前指令无关，是异步的。它分两类。可屏蔽中断通过 INTR 引脚请求，受 PSW 中的中断允许位 IF 控制：IF=1 时 CPU 响应，IF=0 时请求挂起，等开中断后再处理。键盘、打印机、时钟、网卡的中断通常属于这一类。不可屏蔽中断通过 NMI 引脚请求，不受 IF 影响，用于电源故障、内存校验错等紧急事件。
+
+异常与当前指令有关，是同步的。按处理后的行为分三类。故障（fault）指由当前指令引发、处理后可以重新执行当前指令的异常，典型例子是缺页：页面装入后，重新执行那条访存指令就能继续。陷阱（trap）指有意触发的异常，处理后返回下一条指令，典型例子是系统调用和调试断点。终止（abort）指严重错误，程序无法继续，典型例子是硬件故障、总线错误。常见口径把缺页、除零、非法操作码、地址越界归入故障；除零虽然归为故障，但通常无法修复，内核会终止进程。不同体系结构对个别异常的归类可能不同，408 按教材口径答题。
+
+\begin{tablebox}{外中断与异常的对比}
+\centering
+\small
+\begin{tabularx}{\linewidth}{|p{3.3cm}|X|X|}
+\hline
+ & 外中断（狭义中断） & 异常（内中断） \\
+\hline
+来源 & CPU 外部，外设或时钟 & CPU 内部，指令执行过程 \\
+\hline
+与当前指令的关系 & 异步，与当前指令无关 & 同步，由当前指令触发 \\
+\hline
+检测时机 & 每条指令执行结束时检查 & 指令执行过程中检测 \\
+\hline
+返回地址 & 下一条指令 & 故障返回当前指令，陷阱返回下一条指令；终止不返回 \\
+\hline
+典型例子 & 时钟中断、I/O 完成、键盘 & 缺页、除零、非法操作码、系统调用、断点 \\
+\hline
+\end{tabularx}
+\end{tablebox}
+
+CPU 响应外中断要满足几个条件：有中断请求；该请求没有被屏蔽（可屏蔽中断要求 IF=1）；当前指令已经执行结束。多个请求同时到达时，由硬件按优先级判优，不可屏蔽中断优先于可屏蔽中断，高优先级优先于低优先级。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1cm, y=1cm]
+  \node[draw, rounded corners=2pt, fill=SoftBlue, draw=Navy!40, text width=7.2cm, align=center, minimum height=0.55cm] (s1) at (0,6.9) {（1） 中断请求到达（外设完成、时钟、键盘等）};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, draw=Navy!40, text width=7.2cm, align=center, minimum height=0.55cm] (s2) at (0,6.0) {（2） 当前指令执行结束，CPU 检查是否有中断};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, draw=Amber!50, text width=7.2cm, align=center, minimum height=0.55cm] (s3) at (0,5.1) {（3） 关中断，保存 PC、PSW（断点）};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, draw=Amber!50, text width=7.2cm, align=center, minimum height=0.55cm] (s4) at (0,4.2) {（4） 取中断类型号，查向量表，转入服务程序};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, draw=Teal!50, text width=7.2cm, align=center, minimum height=0.55cm] (s5) at (0,3.3) {（5） 保护现场，按需开中断，执行服务程序};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, draw=Teal!50, text width=7.2cm, align=center, minimum height=0.55cm] (s6) at (0,2.4) {（6） 关中断，恢复现场};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, draw=Navy!40, text width=7.2cm, align=center, minimum height=0.55cm] (s7) at (0,1.5) {（7） 开中断，执行 iret，恢复 PC、PSW，返回断点};
+  \foreach \a/\b in {s1/s2,s2/s3,s3/s4,s4/s5,s5/s6,s6/s7} {
+    \draw[->] (\a.south) -- (\b.north);
+  }
+  % 硬件、软件分组
+  \draw[MutedText] (-4.25,3.95) -- (-4.25,5.35);
+  \draw[MutedText] (-4.25,5.35) -- (-4.1,5.35);
+  \draw[MutedText] (-4.25,3.95) -- (-4.1,3.95);
+  \node[anchor=east, font=\tiny, text=MutedText, align=right, text width=1.8cm] at (-4.35,4.65) {硬件完成\\（中断隐指令）};
+  \draw[MutedText] (-4.25,2.15) -- (-4.25,3.55);
+  \draw[MutedText] (-4.25,3.55) -- (-4.1,3.55);
+  \draw[MutedText] (-4.25,2.15) -- (-4.1,2.15);
+  \node[anchor=east, font=\tiny, text=MutedText, align=right, text width=1.8cm] at (-4.35,2.85) {服务程序\\（软件）};
+  % 嵌套
+  \draw[->, dashed, Amber!85] (3.75,3.3) -- (4.6,3.3) -- (4.6,5.1) -- (3.75,5.1);
+  \node[anchor=west, font=\tiny, text=Amber!85!black, text width=2.2cm] at (4.7,4.2) {更高优先级的\\中断可嵌套};
+  \node[font=\tiny, text=MutedText, align=center] at (0,0.75) {断点地址：外中断和陷阱保存下一条指令的地址；故障保存当前指令的地址，以便重新执行};
+\end{tikzpicture}
+\end{center}
+
+图里的（1）到（7）是外中断处理的一般流程。异常在指令执行过程中检测，但保存现场、查表、执行处理程序、返回的骨架相同；故障返回当前指令，陷阱返回下一条指令。（1）是中断请求，（2）是 CPU 在指令边界检查中断，（3）和（4）由硬件完成，合称中断隐指令：关中断、保存断点（PC 和 PSW）、引出中断服务程序。注意“隐指令”不是程序里的一条指令，而是硬件在响应中断时自动完成的一串动作。（5）到（7）由软件完成：服务程序先保护通用寄存器，再按需要开中断，然后处理设备；结束时关中断、恢复现场，最后开中断并用 iret 返回。
+
+断点地址决定返回后从哪里继续。外中断发生在指令边界，当前指令已经执行完，断点就是下一条指令的地址；陷阱（比如系统调用）也返回下一条指令；故障（比如缺页）要重新执行当前指令，断点保存的是当前指令的地址。这个区别在 408 选择题里经常出现。
+
+中断向量表存放各类型中断的服务程序入口地址。CPU 取到中断类型号 $n$ 后，用“向量表基址 $+\,n\times$ 表项大小”找到入口。若每个表项 4 字节、基址为 $B$，入口地址就放在 $B+4n$ 处。表中存的是入口地址，不是服务程序的代码。
+
+如果服务程序在处理过程中开中断，并且新来的中断优先级更高，CPU 可以暂停当前服务程序，转去处理新的中断，这就是中断嵌套。嵌套的层次受优先级和屏蔽字控制：屏蔽字决定哪些中断源可以被响应，优先级决定同时到达时先响应谁。嵌套让高优先级事件得到及时处理，但层数太深会耗尽内核栈，所以实际系统会限制嵌套深度。
+
+中断服务程序运行在内核态，被中断的程序可以是用户程序，也可以是内核程序。也就是说，中断可以在用户态发生，也可以在内核态发生；前者会触发一次从用户态到内核态的切换，后者不会。
 
 \subsection{系统调用}
 
-\begin{mydef}{系统调用}{syscall}
-系统调用（System Call）是 OS 提供给用户程序的编程接口，是用户程序主动请求内核服务的规范入口。程序通过体系结构规定的陷入/系统调用机制从用户态进入内核态，执行完毕后返回用户态；中断和其他异常也能使 CPU 进入内核处理流程，但不属于应用主动请求服务的普通接口。
+系统调用是操作系统提供给应用程序的编程接口，是用户程序请求内核服务的规范入口。程序要读文件、创建进程、申请内存、发送网络包，都要通过系统调用把请求交给内核。用户程序不能直接执行 I/O 指令，也不能直接改页表，系统调用是它合法使用这些功能的通道。
 
-常见系统调用：进程控制（\texttt{fork}, \texttt{exit}, \texttt{wait}）、文件操作（\texttt{open}, \texttt{read}, \texttt{write}）、设备管理（\texttt{ioctl}）、通信（\texttt{pipe}, \texttt{shmget}）。
-\end{mydef}
+以 \texttt{read(fd, buf, n)} 为例。C 库里的 \texttt{read} 是一个封装：它把系统调用号放进约定的寄存器，把文件描述符、缓冲区地址、字节数放进参数寄存器，然后执行一条陷入指令。CPU 收到陷入后，从用户态切换到内核态，跳到内核的系统调用入口；内核根据调用号查表，找到 \texttt{sys\_read}，检查参数，访问文件系统，必要时经过设备驱动，把数据复制到用户缓冲区，最后把返回值放回寄存器，执行中断返回指令回到用户态。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, node distance=0.75cm, font=\scriptsize]
-\node[draw, rectangle, fill=SoftGray, minimum width=3.6cm, minimum height=0.6cm] (u) {用户进程（用户态）};
-\node[draw, rectangle, fill=SoftAmber, minimum width=3.6cm, minimum height=0.6cm, below of=u] (t) {陷入（trap / syscall）};
-\node[draw, rectangle, fill=SoftBlue, minimum width=3.6cm, minimum height=0.6cm, below of=t] (k) {内核：系统调用处理程序（内核态）};
-\node[draw, rectangle, fill=SoftGray, minimum width=3.6cm, minimum height=0.6cm, below of=k] (r) {返回用户态，继续执行};
-\draw[->] (u) -- (t);
-\draw[->] (t) -- (k);
-\draw[->] (k) -- (r);
-\node[font=\scriptsize, black!60, align=left, right of=t, node distance=3.5cm] {保护现场（保存寄存器、\\ PC、PSW）};
-\node[font=\scriptsize, black!60, align=left, right of=k, node distance=3.9cm] {执行请求的服务\\（文件、进程、设备等）};
-\node[font=\scriptsize, black!60, align=left, right of=r, node distance=3.7cm] {恢复现场，返回用户态};
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1cm, y=1cm]
+  \node[draw, rounded corners=2pt, fill=SoftGray, draw=MutedText!45, text width=7.8cm, align=center, minimum height=0.55cm] (u1) at (0,7.2) {用户程序调用 \texttt{read(fd, buf, n)}};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, draw=Navy!40, text width=7.8cm, align=center, minimum height=0.55cm] (u2) at (0,6.25) {C 库封装：系统调用号放入约定寄存器，参数放入参数寄存器};
+  \node[draw, rounded corners=2pt, fill=SoftBlue, draw=Navy!40, text width=7.8cm, align=center, minimum height=0.55cm] (u3) at (0,5.3) {执行陷入指令（\texttt{syscall} 或 \texttt{int 0x80}）};
+  \draw[dashed, MutedText!70] (-4.2,4.9) -- (4.2,4.9);
+  \node[font=\tiny, fill=white, inner sep=1pt, text=MutedText] at (2.9,4.9) {陷入内核};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, draw=Amber!50, text width=7.8cm, align=center, minimum height=0.55cm] (k1) at (0,4.3) {硬件：保存 PC、PSW，切换到内核栈，跳转到入口};
+  \node[draw, rounded corners=2pt, fill=SoftAmber, draw=Amber!50, text width=7.8cm, align=center, minimum height=0.55cm] (k2) at (0,3.35) {内核入口：保存通用寄存器，按调用号查系统调用表};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, draw=Teal!50, text width=7.8cm, align=center, minimum height=0.55cm] (k3) at (0,2.4) {服务例程 \texttt{sys\_read}：检查参数，访问文件系统和设备驱动};
+  \node[draw, rounded corners=2pt, fill=SoftTeal, draw=Teal!50, text width=7.8cm, align=center, minimum height=0.55cm] (k4) at (0,1.45) {结果写入用户缓冲区，返回值放入寄存器；恢复现场};
+  \draw[dashed, MutedText!70] (-4.2,1.05) -- (4.2,1.05);
+  \node[font=\tiny, fill=white, inner sep=1pt, text=MutedText] at (-2.9,1.05) {返回用户};
+  \node[draw, rounded corners=2pt, fill=SoftGray, draw=MutedText!45, text width=7.8cm, align=center, minimum height=0.55cm] (u4) at (0,0.45) {执行中断返回指令，回到用户态；\texttt{read} 返回字节数或 $-1$};
+  \foreach \a/\b in {u1/u2,u2/u3,k1/k2,k2/k3,k3/k4} {
+    \draw[->] (\a.south) -- (\b.north);
+  }
+  \draw[->] (u3.south) -- (k1.north);
+  \draw[->] (k4.south) -- (u4.north);
+  \node[anchor=east, font=\tiny, text=TealDark] at (-4.3,7.2) {用户态};
+  \node[anchor=east, font=\tiny, text=TealDark] at (-4.3,4.3) {内核态};
+  \node[anchor=west, font=\tiny, text=MutedText, text width=2.5cm] at (4.3,6.25) {以 Linux x86-64 为例：\texttt{rax} 放调用号，\texttt{rdi}、\texttt{rsi}、\texttt{rdx} 放参数};
+  \node[anchor=west, font=\tiny, text=MutedText, text width=2.5cm] at (4.3,2.4) {可能阻塞：进程让出 CPU，等 I/O 中断把它唤醒};
 \end{tikzpicture}
 \end{center}
 
+图里把系统调用的路径分成用户态和内核态两段。用户态做三件事：调用库函数、准备调用号和参数、执行陷入指令。陷入指令是分界线，它让 CPU 从用户态进入内核态，同时保存返回地址和 PSW。内核态也做三件事：保存现场并按调用号查表、执行服务例程、把结果写回并恢复现场。最后一步执行中断返回指令回到用户态，库函数把内核的返回值交给应用程序。
+
+参数从用户态传到内核态有三种常见方式。参数少时直接放寄存器，x86-64 用 \texttt{rdi}、\texttt{rsi}、\texttt{rdx}、\texttt{r10}、\texttt{r8}、\texttt{r9} 传前六个参数；参数多时压入用户栈，内核从栈上取；参数特别多或长度可变时，在用户内存里建一张参数表，寄存器只传表的首地址。第三种方式要注意：内核不能直接相信用户传来的指针，必须先检查地址范围，再用专门的复制函数把数据搬到内核空间，否则用户程序可以借内核之手读写任意内存。
+
+系统调用号是服务的编号。内核维护一张系统调用表，表项是各服务例程的入口地址；入口程序用调用号做下标，取出地址并跳转。调用号由操作系统规定，应用程序通过库函数或汇编使用它，不能自己编一个号。返回值通常放在寄存器里；Linux 用负数表示错误，库函数再把它转成 \texttt{errno} 并返回 $-1$。
+
+按功能分，系统调用主要有几类：
+
+\begin{tablebox}{常见系统调用的分类}
+\centering
+\small
+\begin{tabularx}{\linewidth}{|p{2.2cm}|X|p{4.6cm}|}
+\hline
+类别 & 作用 & 典型调用 \\
+\hline
+进程控制 & 创建、装入、运行、等待、终止进程 & \texttt{fork}、\texttt{execve}、\texttt{wait}、\texttt{exit} \\
+\hline
+文件管理 & 打开、读、写、定位、关闭文件 & \texttt{open}、\texttt{read}、\texttt{write}、\texttt{lseek}、\texttt{close} \\
+\hline
+设备管理 & 请求设备、读写设备、控制设备 & \texttt{ioctl}、设备文件的 \texttt{read}/\texttt{write} \\
+\hline
+进程通信 & 建立管道、共享内存、消息队列 & \texttt{pipe}、\texttt{shmget}、\texttt{msgget} \\
+\hline
+内存管理 & 扩展堆、映射文件或匿名内存 & \texttt{brk}、\texttt{mmap}、\texttt{munmap} \\
+\hline
+信息维护 & 取进程号、取时间、设置权限 & \texttt{getpid}、\texttt{time}、\texttt{chmod} \\
+\hline
+\end{tabularx}
+\end{tablebox}
+
+系统调用和库函数经常被混为一谈。库函数是用户态的一段代码，可以在用户态完成计算，也可以封装系统调用。\texttt{strlen} 只扫描内存，不进入内核；\texttt{printf} 先把输出放进用户态缓冲区，输出到终端时，缓冲区满或遇到换行才调用 \texttt{write}；\texttt{malloc} 管理堆，堆不够时用 \texttt{brk} 扩展，对大块请求则可能直接用 \texttt{mmap}。因此“调用了库函数”不等于“发生了系统调用”，“系统调用一定通过库函数”也不对，程序可以用汇编直接执行陷入指令。
+
+系统调用和普通函数调用的区别在特权级和栈。普通函数调用在同一特权级内跳转，压栈、跳转、返回都使用调用者的栈；系统调用要切换特权级、切换到内核栈、保存和恢复更多现场，开销明显更大。系统调用和中断的区别在触发方式：系统调用是程序主动执行的陷入指令，属于陷阱，同步；外中断由硬件异步触发，与当前指令无关。两者都会让 CPU 进入内核态，但入口和返回地址不同。
+
+系统调用的开销主要来自保存和恢复现场、切换栈、参数检查和权限检查。频繁的小规模 I/O 会让这些开销超过实际工作，所以标准库用缓冲把多次小规模写合并成一次大规模写；操作系统也用页缓存、批量传输减少陷入次数。这些优化不改变系统调用的语义，只是减少穿越边界的次数。
+
 \subsection{操作系统的体系结构}
 
-\begin{conclusion}{OS 体系结构演化}{os-arch}
-\begin{itemize}
-    \item \textbf{简单结构}（MS-DOS）：无模块划分，用户程序可直接访问硬件。
-    \item \textbf{模块化结构}：按功能划分模块，模块间通过接口调用。
-    \item \textbf{层次结构}：底层为硬件相关，高层为用户接口，每层仅调用相邻下层。
-    \item \textbf{外核结构（Exokernel）}：内核仅负责资源隔离和保护，资源管理策略交给应用程序。
-\end{itemize}
-\end{conclusion}
+除了大内核和微内核，教材还列了几种组织方式。
 
-\subsection{408 高频考点速查}
+简单结构没有明确的模块划分，应用甚至可以直接访问硬件。MS-DOS 是典型例子：用户程序可以绕过操作系统操作屏幕和磁盘，系统没有保护，一个程序出错就可能让整台机器死机。这种结构实现简单，但只适合早期的单用户机器。
 
-\begin{conclusion}{操作系统概述 — 408常考点}{os1-keypoints}
+模块化结构把功能拆成模块，每个模块有明确的接口，模块之间通过接口调用。优点是可以独立开发、独立替换，结构比简单结构清晰；缺点是接口不容易定义好，模块之间可能出现循环依赖，整体行为难以验证。
+
+分层结构把系统排成若干层，每层只允许调用下一层，不能跨层调用。最底层是硬件，往上依次是设备驱动、文件系统、应用接口。分层的好处是每层可以单独调试和验证，替换一层不影响其他层；坏处是请求要穿过多层，开销大，而且层次的边界不容易划清，哪些功能放哪一层常有争议。
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, font=\scriptsize, x=1cm, y=1cm]
+  % 分层
+  \node[font=\tiny\bfseries, text=Navy] at (-3.2,3.85) {分层结构};
+  \node[draw, fill=SoftGray, minimum width=4.0cm, minimum height=0.5cm] (l4) at (-3.2,3.1) {应用接口};
+  \node[draw, fill=SoftBlue, minimum width=4.0cm, minimum height=0.5cm] (l3) at (-3.2,2.3) {文件系统};
+  \node[draw, fill=SoftBlue, minimum width=4.0cm, minimum height=0.5cm] (l2) at (-3.2,1.5) {设备驱动};
+  \node[draw, fill=SoftAmber, minimum width=4.0cm, minimum height=0.5cm] (l1) at (-3.2,0.7) {硬件};
+  \draw[->] (l4.south) -- (l3.north);
+  \draw[->] (l3.south) -- (l2.north);
+  \draw[->] (l2.south) -- (l1.north);
+  \node[font=\tiny, text=MutedText, align=center] at (-3.2,-0.05) {每层只调用下一层\\跨层调用被禁止};
+  % 模块化
+  \node[font=\tiny\bfseries, text=Navy] at (3.5,3.85) {模块化结构};
+  \node[draw, fill=SoftBlue, minimum width=1.8cm, minimum height=0.5cm] (mA) at (2.0,3.1) {模块 A};
+  \node[draw, fill=SoftBlue, minimum width=1.8cm, minimum height=0.5cm] (mB) at (4.8,3.1) {模块 B};
+  \node[draw, fill=SoftBlue, minimum width=1.8cm, minimum height=0.5cm] (mC) at (2.0,1.5) {模块 C};
+  \node[draw, fill=SoftBlue, minimum width=1.8cm, minimum height=0.5cm] (mD) at (4.8,1.5) {模块 D};
+  \draw[->] (mA.east) -- (mB.west);
+  \draw[->] (mB.south) -- (mD.north);
+  \draw[->] (mD.west) -- (mC.east);
+  \draw[->] (mC.north) -- (mA.south);
+  \node[font=\tiny, text=MutedText, align=center] at (3.4,0.55) {模块之间可互相调用\\接口清晰，但可能出现循环依赖};
+\end{tikzpicture}
+\end{center}
+
+图左边是分层结构，箭头只连接相邻两层，请求从应用接口一路向下传到硬件，返回时再一路向上。图右边是模块化结构，四个模块之间可以按需要互相调用，不要求相邻。分层限制调用方向，换来可验证性；模块化放开调用方向，换来灵活性。两种结构都可以和前面的大内核、微内核组合，比如大内核内部常按模块划分，微内核整体上更像一组用户态模块加一个小内核。
+
+外核结构把“资源分配”和“资源管理”分开。内核只负责把物理资源（页框、磁盘块、CPU 时间）分配给应用程序，并保证一个程序不能访问另一个程序的资源；具体怎么用这些资源，由用户态的库操作系统决定。外核减少了抽象层，应用可以按自己的需要组织文件系统和网络协议，适合专用服务器和科研原型。代价是每个应用都要自带一部分操作系统功能，资源管理的复杂度和一致性变差。
+
+\subsection{容易混淆的几组概念}
+
 \begin{enumerate}
-    \item \textbf{并发 vs 并行}：单核 CPU 分时 = 并发；多核 = 并行。
-    \item \textbf{中断 vs 异常}：来源（外 vs 内）、同步性、典型例子。
-    \item \textbf{用户态 vs 内核态}：系统调用/中断/异常触发态切换；特权指令只能在内核态执行。
-    \item \textbf{微内核 vs 大内核}：各有哪些 OS 模块在内核中。
-    \item \textbf{系统调用与库函数的区别}：系统调用需陷入内核；库函数（如 \texttt{printf}）在用户态执行，内部可能调用系统调用（如 \texttt{write}）。
-\end{enumerate}
-\end{conclusion}
-
-\newpage
-\section{习题}
-
-\subsection{基础过关题}
-
-\begin{enumerate}
-
-\item \textbf{（单项选择题）} 操作系统的主要功能是
-\begin{center}
-\begin{tabular}{ll}
-(A) 实现程序并发执行 & (B) 管理计算机系统中的资源 \\[4pt]
-(C) 提供用户界面 & (D) 以上都是
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 操作系统负责资源管理，为程序并发执行提供机制，并向用户和应用提供接口。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\item \textbf{（单项选择题）} 以下关于并发和并行的说法，正确的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 单核 CPU 可以并行执行多个进程 \\[4pt]
-(B) 并发是指同一时刻多个程序同时运行 \\[4pt]
-(C) 同一时刻真正执行多个 CPU 指令流需要多核或多处理器等并行硬件资源 \\[4pt]
-(D) 并发和并行是同一概念
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 并发描述多个任务在同一时间段交替推进；并行描述同一时刻真正同时执行。单核 CPU 可通过切换实现并发，但同一时刻只能执行一个 CPU 指令流。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
-
-\item \textbf{（填空题）} 中断来自 CPU \underline{\qquad} 部，异常来自 CPU \underline{\qquad} 部。系统调用属于 \underline{\qquad}（异常类型）。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 外；内；陷阱（Trap）。外部中断与当前指令异步，异常由指令执行或程序主动触发并与当前指令同步。\else \answerarea \fi
-
-\item \textbf{（简答题）} 简述微内核和大内核的区别，各举一个代表性操作系统。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 大内核把进程管理、内存管理、文件系统和大量驱动等主要服务放在内核态，模块间调用开销低，但故障隔离较弱，代表如传统 UNIX/Linux（Linux 是模块化单体内核）。微内核只保留调度、进程间通信、基本地址空间和中断等最小机制，文件系统和驱动等运行在用户态服务中，隔离和可扩展性较好，但 IPC 与态切换开销更大，代表如 MINIX 3、QNX。具体归类可能因混合内核设计而有边界。\else \answerarea \fi
-
-\item \textbf{（简答题）} 简述操作系统为用户提供的三种用户接口。
-
-\ifshowsolutions\par\noindent\textbf{答案：} 常见教材分类为：命令接口（联机命令/命令解释器和脱机作业控制语言）、图形用户接口，以及供程序请求内核服务的程序接口，即系统调用。前两类面向最终用户，系统调用面向应用程序。\else \answerarea \fi
-
+    \item \textbf{并发与并行。} 并发是同一时间间隔内交替执行，单核就能做到；并行是同一时刻同时执行，需要多核或多处理器。单核上的时间片轮转是并发，不是并行。
+    \item \textbf{外中断与异常。} 外中断来自 CPU 外部，异步，与当前指令无关；异常来自 CPU 内部，同步，由当前指令触发。广义的中断包括异常，狭义的中断只指外中断。
+    \item \textbf{系统调用与库函数。} 系统调用进入内核，库函数通常在用户态；库函数可以封装系统调用，也可以完全不进入内核。\texttt{printf} 最终通过 \texttt{write} 输出，\texttt{strlen} 不调任何系统调用。
+    \item \textbf{用户态、内核态与内核程序、用户程序。} 前两者是 CPU 的状态，后两者是程序的类别。内核程序运行在内核态，用户程序运行在用户态；用户程序执行系统调用后，CPU 进入内核态执行内核代码，用户程序本身并没有获得特权。
+    \item \textbf{特权指令与陷入指令。} I/O、关中断、改页表、停机属于特权指令，只能在内核态执行；陷入指令在用户态执行，用来主动进入内核，不是特权指令。
+    \item \textbf{中断隐指令与中断服务程序。} 前者是硬件在响应中断时自动完成的一串动作：关中断、保存 PC 和 PSW、引出服务程序；后者是软件，负责保护通用寄存器、处理设备、恢复现场。保存 PSW 和 PC 由硬件做，保存通用寄存器由软件做。
+    \item \textbf{大内核与微内核。} 大内核把所有功能放在内核态，性能高但耦合强；微内核只留最基本功能，服务放在用户态，可靠、易扩展，但 IPC 和跨态开销大。
+    \item \textbf{多道批处理与分时。} 多道批处理追求资源利用率和吞吐量，用户不能交互；分时追求响应时间和交互性，用时间片轮转。两者都可能同时运行多道程序，但目标不同。
+    \item \textbf{操作系统与内核。} 内核是操作系统的核心，负责中断、调度、内存管理等；shell、图形界面、编译器等是用户态程序，可能随系统安装，但不属于内核。
 \end{enumerate}
 
-\subsection{真题风格与综合训练}
+\subsection{本章在 408 中的位置}
 
-\begin{enumerate}[resume]
+本章通常出选择题，考概念辨析：并发与并行、外中断与异常、系统调用与库函数、特权指令与陷入指令、大内核与微内核。偶尔会在综合题里作为背景出现，比如给出一段系统调用路径，问某一步发生在用户态还是内核态。
 
-\item \textbf{（真题风格，单项选择题）} 下列事件中，属于中断的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 用户程序执行系统调用 & (B) 除零错误 \\[4pt]
-(C) 缺页异常 & (D) 磁盘 I/O 完成
-\end{tabular}
-\end{center}
+本章的概念是后面五章的共同语言。第 2 章的进程状态转换要用中断和系统调用解释，第 3 章的缺页处理要用异常和中断的概念，第 5 章的设备驱动要用中断和缓冲。把本章的几条路径理顺，后面的图会好懂得多。
 
-\ifshowsolutions\par\noindent\textbf{解析：} 磁盘 I/O 完成由外设控制器异步发出外部中断；系统调用是陷阱，除零和缺页属于同步异常。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
-
-\item \textbf{（真题风格，单项选择题）} 下列指令中，只能在内核态执行的是
-\begin{center}
-\begin{tabular}{ll}
-(A) 读时钟 & (B) 置时钟 \\[4pt]
-(C) 取数指令 & (D) 寄存器清零
-\end{tabular}
-\end{center}
-
-\ifshowsolutions\par\noindent\textbf{解析：} 修改时钟/定时器会影响系统调度和保护，属于特权操作；普通读取、取数和寄存器运算可在用户态按体系结构权限执行。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
-
-\item \textbf{（真题风格，综合题）} 有 3 个同时到达的作业 A、B、C，各自的 CPU 计算时间和 I/O 时间如下：
-\begin{itemize}
-    \item A：计算 30ms，I/O 40ms，计算 10ms
-    \item B：计算 20ms，I/O 30ms，计算 20ms
-    \item C：计算 10ms，I/O 20ms，计算 30ms
-\end{itemize}
-问：(1) 若三道作业按 A$\to$B$\to$C 顺序单道执行，总时间是多少？(2) 若引入多道程序设计，假定内存可同时容纳三道作业，系统只有一个 CPU，CPU 调度采用非抢占 FCFS，初始顺序为 A、B、C；各作业的 I/O 可彼此并行且可与 CPU 重叠，切换开销忽略不计。画出 CPU 甘特图并计算总时间。
-
-\ifshowsolutions\par\noindent\textbf{答案：}
-(1) 单道执行时，CPU 在每个作业 I/O 期间也空闲，总时间为
-\[
-(30+40+10)+(20+30+20)+(10+20+30)=210\text{ ms}.
-\]
-
-(2) CPU 时间线为
-\[
-\begin{array}{c|ccccccc}
-\text{时间段/ms}&0\!\sim\!30&30\!\sim\!50&50\!\sim\!60&60\!\sim\!70&70\!\sim\!80&80\!\sim\!100&100\!\sim\!130\\ \hline
-\text{CPU}&A&B&C&\text{空闲}&A&B&C
-\end{array}
-\]
-A、B、C 的 I/O 分别发生在30--70、50--80、60--80 ms。60 ms 时三者都在等待 I/O，CPU 空闲至70 ms；80 ms 时 B、C 同时就绪，按题设初始 FCFS 次序先运行 B。总时间为130 ms。\else \answerarea \fi
-
-\end{enumerate}
-
-\vspace{8pt}
+\medskip
 \noindent\textbf{拓展阅读：}
 \begin{itemize}
-    \item OSTEP 第 1-2 章「操作系统介绍」和「虚拟化」——经典的 OS 全景图和设计哲学；
-    \item 陈海波《现代操作系统：原理与实现》第 1 章——现代 OS 的架构演变和 ChCore 实验环境。
+    \item OSTEP 第 1、2 章——用“虚拟化 CPU”和“虚拟化内存”两条主线解释操作系统在做什么，例子比教材更具体。
+    \item 汤小丹《计算机操作系统》第 1 章——国内教材的术语体系，处理机管理、存储器管理、设备管理、文件管理的划分与 408 最接近。
+    \item 陈海波《现代操作系统：原理与实现》第 1 章——从微内核、外核到现代 OS 架构的演变，适合把大内核和微内核的取舍放到真实系统里看。
 \end{itemize}
+
+\newpage
+\input{os/exercises/chap1.tex}

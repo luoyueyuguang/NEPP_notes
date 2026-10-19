@@ -1,0 +1,235 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 关于计算机系统的层次结构，下列说法中正确的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X X@{}}
+(A) 汇编语言级（$L_3$）程序由汇编器翻译成机器语言程序后执行，属于解释执行 & (B) 操作系统级（$L_2$）是软件扩充得到的虚拟机器，向上层提供系统调用等抽象 \\[4pt]
+(C) 高级语言级（$L_4$）程序只能经编译器翻译后执行，不能解释执行 & (D) 微程序级（$L_0$）是虚拟机器，传统机器级（$L_1$）是实际机器
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 逐项判断。汇编器把整段汇编源程序转换成等价的机器语言程序，再交给硬件执行，这是\textbf{翻译}而不是解释，(A) 错。操作系统在裸机之上用软件构造出进程、虚拟地址空间、文件等对象，这些对象并非硬件直接提供，因此 $L_2$ 及以上属于虚拟机器，(B) 对。高级语言既可以先编译成目标代码再执行（C/C++），也可以逐条解释执行（Python 的传统实现），(C) 错。微程序级和传统机器级都由硬件直接实现，属于实际机器，(D) 错。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 某程序在计算机上运行。仅考虑下表中的单项措施，一定能使该程序 CPU 执行时间缩短的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X X@{}}
+(A) 主频提高 $20\%$，CPI 与指令条数均不变 & (B) 指令条数减少 $20\%$，CPI 增加 $25\%$ \\[4pt]
+(C) CPI 降低 $20\%$，主频降低 $25\%$ & (D) 主频提高 $10\%$，CPI 提高 $10\%$
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 由 $T_{\text{CPU}}=N\cdot\mathrm{CPI}/f$，执行时间与 $N\cdot\mathrm{CPI}/f$ 成正比，分别比较新旧比值：
+(A) 指令条数与 CPI 不变，主频变为原来的 $1.2$ 倍，$T$ 变为 $1/1.2\approx0.833$ 倍，缩短；
+(B) 比值 $0.8\times1.25=1$，执行时间不变；
+(C) 比值 $0.8/0.75\approx1.067$，执行时间反而变长；
+(D) 比值 $1.1/1.1=1$，执行时间不变。
+只有 (A) 一定缩短。\boxed{\textbf{答案：}(A)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某计算机主频为 $2.0\,\mathrm{GHz}$，运行某程序共执行 $3.2\times10^{9}$ 条指令，平均 CPI 为 $2.5$。则该程序的 CPU 执行时间为 \underline{\qquad\qquad}，该计算机运行此程序时的 MIPS 为 \underline{\qquad\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 主频 $f=2.0\times10^{9}\,\mathrm{Hz}$，时钟周期 $T_{\text{clk}}=1/f=0.5\,\mathrm{ns}$。由
+\[
+T_{\text{CPU}}=\frac{N\cdot\mathrm{CPI}}{f}
+=\frac{3.2\times10^{9}\times2.5}{2.0\times10^{9}}=4.0\ \mathrm{s}.
+\]
+MIPS 指每秒执行的百万条指令数：
+\[
+\text{MIPS}=\frac{f}{\mathrm{CPI}\times10^{6}}
+=\frac{2.0\times10^{9}}{2.5\times10^{6}}=800.
+\]
+也可用 $\text{MIPS}=N/(T_{\text{CPU}}\times10^{6})=3.2\times10^{9}/(4.0\times10^{6})=800$ 校验，两种算法一致。\boxed{\text{\textbf{答案：}$4.0\,\mathrm{s}$；$800$}}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某程序的指令构成如下表。该程序的平均 CPI 为 \underline{\qquad\qquad}；若处理器主频为 $2.3\,\mathrm{GHz}$，则运行该程序时的 MIPS 为 \underline{\qquad\qquad}。
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+指令类型 & 整数 ALU & 取数/存数 & 浮点运算 & 分支跳转 \\
+\midrule
+占比 & $40\%$ & $30\%$ & $20\%$ & $10\%$ \\
+CPI & 1 & 3 & 2 & 6 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 平均 CPI 是按\textbf{指令条数占比}加权的平均值，不是各类 CPI 的算术平均：
+\[
+\mathrm{CPI}_{\text{avg}}=\sum_i p_i\,\mathrm{CPI}_i
+=0.40\times1+0.30\times3+0.20\times2+0.10\times6=2.3.
+\]
+再代入 MIPS 公式：
+\[
+\text{MIPS}=\frac{2.3\times10^{9}}{2.3\times10^{6}}=1000.
+\]
+注意分母的 $10^{6}$ 不能漏掉，否则会把单位错算成“条/秒”。\boxed{\text{\textbf{答案：}$2.3$；$1000$}}\else \answerarea \fi
+
+\item \textbf{（填空题）} 某程序在计算机上运行，总时间的 $30\%$ 用于可被加速的部分，其余部分不能加速。若把该可加速部分的速度提高到原来的 $6$ 倍，则整个程序的加速比约为 \underline{\qquad\qquad}；若该部分加速比趋于无穷大，则整体加速比的上限为 \underline{\qquad\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 设原执行时间为 $1$，可加速部分占 $f=0.3$，加速倍数为 $k=6$。改进后时间为
+\[
+T'=(1-f)+\frac{f}{k}=0.7+\frac{0.3}{6}=0.7+0.05=0.75,
+\]
+故加速比
+\[
+S=\frac{1}{T'}=\frac{1}{0.75}=\frac{4}{3}\approx1.33.
+\]
+当 $k\to\infty$ 时 $f/k\to0$，上限为 $S_{\max}=1/(1-f)=1/0.7\approx1.43$。这说明 Amdahl 定律的限制来自\textbf{不可加速部分}，而不是加速倍数不够大。\boxed{\text{\textbf{答案：}$4/3\approx1.33$；$1/0.7\approx1.43$}}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 下列关于计算机性能指标的说法中，正确的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X X@{}}
+(A) 主频越高的计算机，运行同一程序的执行时间一定越短 & (B) MIPS 是机器本身的固有属性，与所运行的程序无关 \\[4pt]
+(C) 同一程序在两台机器上运行，CPU 执行时间较短的那台性能更高 & (D) CPI 越小的计算机，运行同一程序的执行时间一定越短
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} (A) 错：执行时间还取决于指令条数和 CPI，主频高但 CPI 大幅上升时可能更慢。(B) 错：MIPS 由 $f/\mathrm{CPI}$ 决定，而 CPI 随程序指令混合而变化，同一台机器运行不同程序得到的 MIPS 不同，因此 MIPS 不能跨指令系统直接比较。(C) 对：比较两台机器性能的公平做法是让它们运行\textbf{同一程序}，此时完成时间越短性能越高。(D) 错：CPI 只反映每条指令平均占用的时钟周期数，指令条数和主频同样影响执行时间。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 机器 A 的主频为 $3.0\,\mathrm{GHz}$，运行程序 $P$ 时共执行 $2.0\times10^{9}$ 条指令，平均 CPI 为 $1.5$。机器 B 采用不同的指令系统，运行同一程序 $P$ 时共执行 $1.2\times10^{9}$ 条指令，平均 CPI 为 $2.5$，主频为 $2.0\,\mathrm{GHz}$。忽略 I/O 等其它时间，则
+\begin{center}
+\begin{tabular}{ll}
+(A) A 的性能是 B 的 $1.2$ 倍 & (B) A 的性能是 B 的 $1.5$ 倍 \\[4pt]
+(C) A 的性能是 B 的 $1.8$ 倍 & (D) 两者性能相同
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 性能比较的统一口径是运行同一程序的 CPU 执行时间：
+\[
+T_A=\frac{2.0\times10^{9}\times1.5}{3.0\times10^{9}}=1.0\ \mathrm{s},
+\qquad
+T_B=\frac{1.2\times10^{9}\times2.5}{2.0\times10^{9}}=1.5\ \mathrm{s}.
+\]
+故
+\[
+\frac{\text{性能}_A}{\text{性能}_B}=\frac{T_B}{T_A}=\frac{1.5}{1.0}=1.5.
+\]
+B 的指令条数虽然更少，但 CPI 更高、主频更低，两项都不足以抵消，最终仍比 A 慢。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 某程序在单处理器上运行的时间中，$60\%$ 的部分可以完美并行化，其余 $40\%$ 必须串行执行。忽略并行带来的额外开销和负载不均，使用 $8$ 个处理器时该程序的加速比约为
+\begin{center}
+\begin{tabular}{ll}
+(A) $1.60$ & (B) $2.11$ \\[4pt]
+(C) $2.50$ & (D) $3.20$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 设单处理器执行时间为 $1$，可并行部分占 $p=0.6$，串行部分为 $1-p=0.4$。用 $n=8$ 个处理器时，理想时间为
+\[
+T_8=0.4+\frac{0.6}{8}=0.4+0.075=0.475,
+\]
+加速比
+\[
+S_8=\frac{1}{0.475}\approx2.105\approx2.11.
+\]
+选项 (C) 的 $2.50$ 是处理器个数趋于无穷时的上限 $1/0.4=2.5$，不是 $8$ 个处理器时的值，这是本题最常见的干扰项；$8$ 个处理器不可能把串行部分也并行掉。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（真题风格·综合题）} 某处理器的主频为 $2.5\,\mathrm{GHz}$，其指令系统包含四类指令，各类指令的 CPI 及在某基准程序中的占比见下表。假设以下各问中程序的总指令条数均为 $2.0\times10^{9}$ 条，且指令混合比例不变。
+\begin{tablebox}{基准程序的指令构成}
+\centering
+\begin{tabular}{lcccc}
+\toprule
+指令类型 & 整数 ALU & 取数/存数 & 浮点运算 & 分支跳转 \\
+\midrule
+CPI & 1 & 2 & 4 & 2 \\
+占比 & $40\%$ & $30\%$ & $20\%$ & $10\%$ \\
+\bottomrule
+\end{tabular}
+\end{tablebox}
+
+\begin{enumerate}
+    \item[(1)] 求该程序的平均 CPI，以及在此处理器上运行时的 MIPS。
+    \item[(2)] 求该程序在此处理器上的 CPU 执行时间。
+    \item[(3)] 现做两项改进：把浮点运算的 CPI 由 $4$ 降为 $2$，同时把主频提高到 $3.0\,\mathrm{GHz}$，其余指令的 CPI 和指令构成不变。求改进后的平均 CPI、CPU 执行时间，以及相对改进前的加速比。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 用占比加权：
+\[
+\mathrm{CPI}_{\text{avg}}=0.40\times1+0.30\times2+0.20\times4+0.10\times2
+=0.4+0.6+0.8+0.2=2.0.
+\]
+\[
+\text{MIPS}=\frac{f}{\mathrm{CPI}_{\text{avg}}\times10^{6}}
+=\frac{2.5\times10^{9}}{2.0\times10^{6}}=1250.
+\]
+注意：MIPS 用平均 CPI 计算，不能对四类指令的 MIPS 再作平均。
+
+(2) 由 $T_{\text{CPU}}=N\cdot\mathrm{CPI}_{\text{avg}}/f$：
+\[
+T=\frac{2.0\times10^{9}\times2.0}{2.5\times10^{9}}=1.6\ \mathrm{s}.
+\]
+
+(3) 浮点指令占 $20\%$，其 CPI 减少 $2$，故新的平均 CPI 为
+\[
+\mathrm{CPI}'_{\text{avg}}=2.0-0.20\times(4-2)=2.0-0.4=1.6.
+\]
+指令条数不变，主频提高到 $3.0\times10^{9}\,\mathrm{Hz}$：
+\[
+T'=\frac{2.0\times10^{9}\times1.6}{3.0\times10^{9}}
+=\frac{3.2}{3.0}=\frac{16}{15}\approx1.067\ \mathrm{s}.
+\]
+加速比
+\[
+S=\frac{T}{T'}=\frac{1.6}{16/15}=1.5.
+\]
+也可直接用 CPI 与主频的比值计算：$S=\dfrac{\mathrm{CPI}/\mathrm{CPI}'}{f/f'}$，即
+\[
+S=\frac{2.0/2.5}{1.6/3.0}=\frac{0.8}{0.5333}=1.5,
+\]
+与时间比一致。若只把主频提到 $3.0\,\mathrm{GHz}$ 而 CPI 仍为 $2.0$，加速比只有 $1.2$；两项措施共同作用才达到 $1.5$。
+
+\par\noindent\boxed{\text{\textbf{答案：}(1) $\mathrm{CPI}=2.0$，MIPS $=1250$；}}\par\noindent\boxed{\text{(2) $T=1.6\,\mathrm{s}$；}}\par\noindent\boxed{\text{(3) $\mathrm{CPI}'=1.6$，$T'=16/15\,\mathrm{s}\approx1.067\,\mathrm{s}$，加速比 $1.5$}}\else \answerarea[10] \fi
+
+\item \textbf{（真题风格·综合题）} 某程序在当前机器上运行需 $10.0\,\mathrm{s}$，时间构成如下：访存停顿 $4.0\,\mathrm{s}$，浮点运算 $2.0\,\mathrm{s}$，整数运算及其它 $4.0\,\mathrm{s}$。假设各部分时间可以独立改进，且改进后程序执行的指令条数与访存次数不变。
+
+\begin{enumerate}
+    \item[(1)] 若把访存停顿时间降为原来的一半，把浮点运算时间降为原来的 $1/4$，整数部分不变，求改进后的总执行时间和整体加速比。
+    \item[(2)] 在 (1) 的基础上，若希望整体加速比达到 $2.0$，整数部分需要加速多少倍？
+    \item[(3)] 若访存和浮点两部分都能无限加速（时间趋于 $0$），整体加速比的上限是多少？由此说明什么。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 把总时间按“可改进部分”拆分，是 Amdahl 定律的直接应用。原总时间 $T_0=10.0\,\mathrm{s}$，访存占 $40\%$、浮点占 $20\%$、整数占 $40\%$。
+
+(1) 改进后
+\[
+T_1=\frac{4.0}{2}+\frac{2.0}{4}+4.0=2.0+0.5+4.0=6.5\ \mathrm{s}.
+\]
+整体加速比
+\[
+S_1=\frac{T_0}{T_1}=\frac{10.0}{6.5}=\frac{20}{13}\approx1.54.
+\]
+
+(2) 要求 $S=2.0$，即总时间必须降到
+\[
+T_2=\frac{10.0}{2.0}=5.0\ \mathrm{s}.
+\]
+此时访存与浮点部分合计已固定为 $2.0+0.5=2.5\,\mathrm{s}$，故整数部分必须从 $4.0\,\mathrm{s}$ 降到
+\[
+4.0-(6.5-5.0)=4.0-1.5=2.5\ \mathrm{s},
+\]
+所需加速倍数为
+\[
+k=\frac{4.0}{2.5}=1.6.
+\]
+也就是说，在另外两部分已经改进的前提下，整数部分还要提速 $1.6$ 倍，整体才能达到 $2$ 倍加速。
+
+(3) 当访存与浮点时间都趋于 $0$ 时，只剩整数部分 $4.0\,\mathrm{s}$：
+\[
+S_{\max}=\frac{10.0}{4.0}=2.5=\frac{1}{0.4}.
+\]
+这正是 Amdahl 定律的上限：不可改进部分占总时间的 $40\%$，无论其它部分加速多少倍，整体加速比都不可能超过 $1/0.4=2.5$。因此优化应先针对占比大、加速潜力大的部分。
+
+\par\noindent\boxed{\text{\textbf{答案：}(1) $6.5\,\mathrm{s}$，加速比 $20/13\approx1.54$；}}\par\noindent\boxed{\text{(2) 整数部分需加速 $1.6$ 倍；(3) 上限 $2.5$，受 $40\%$ 不可改进部分限制}}\else \answerarea[10] \fi
+
+\end{enumerate}
+
+\vspace{8pt}

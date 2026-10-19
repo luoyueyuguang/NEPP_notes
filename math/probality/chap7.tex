@@ -1,738 +1,538 @@
 \section{参数估计与假设检验}
 
-\noindent\textbf{考研定位：}点估计、估计量评价标准、正态总体的区间估计与假设检验均属于现行考研数学一主线；双正态总体推断可作为主线知识的综合提高训练。
+\noindent\textbf{考研定位：}点估计、估计量的评价标准、正态总体的区间估计与假设检验是数学一的主线；双正态总体的均值差与方差比可作为综合提高内容。
 
-\subsection{参数估计}
-\begin{mydef}{估计量，估计值与点估计}{estimator, estimate value and point estimate}
-    设总体分布含有未知参数 \(\theta\)，从总体中抽取样本 \(X_1,X_2,\ldots,X_n\)，相应的观测值为 \(x_1,x_2,\ldots,x_n\)。用于估计 \(\theta\) 的统计量
-    \(\widehat{\theta}(X_1,X_2,\ldots,X_n)\)称为 \(\theta\) 的\textbf{估计量}；代入样本观测值所得数值
-    \(\widehat{\theta}(x_1,x_2,\ldots,x_n)\)称为 \(\theta\) 的\textbf{估计值}。用一个数值估计参数的方法称为点估计。
+统计推断要回答两类问题。第一，总体分布的形式已知，但其中几个参数未知，怎样用样本给出数值估计，并说明这个估计有多可靠。第二，对参数已有判断，怎样用样本决定接受还是推翻它。前一问是参数估计，后一问是假设检验。两者都依赖抽样分布，最后还会通过“置信区间与检验的对偶”合流。
+
+\subsection{点估计与矩估计}
+
+某批电子元件的寿命 $X$ 服从参数为 $\lambda$ 的指数分布，密度为 $\lambda e^{-\lambda x}$（$x>0$），$\lambda$ 未知。抽取 $n$ 个元件测得寿命 $x_1,\ldots,x_n$。若样本均值 $\bar x=1200$ 小时，自然会猜
+\[
+\lambda\approx \frac{1}{1200},
+\]
+因为指数分布的均值 $E X=1/\lambda$。把样本均值与总体均值对齐，再反解参数，这就是矩估计的想法。
+
+\begin{mydef}{估计量与估计值}{estimator and estimate}
+设总体分布含未知参数 $\theta$，$X_1,\ldots,X_n$ 为样本。不含未知参数的统计量 $\widehat\theta(X_1,\ldots,X_n)$ 称为 $\theta$ 的\textbf{估计量}；代入观测值得到的数 $\widehat\theta(x_1,\ldots,x_n)$ 称为\textbf{估计值}。用单个数值估计参数，称为点估计。
 \end{mydef}
 
-\begin{mydef}{矩估计}{moment estimate}
-    设总体分布含有 \(k\) 个未知参数。用前 \(k\) 阶样本原点矩替代相应的总体原点矩并解出这些参数，所得统计量称为相应参数的矩估计量。
-    \begin{enumerate}
-        \item 计算总体\(X\)的前\(k\)阶原点矩
-        \item 计算样本\(X_1,X_2,\cdots, X_n\)的前\(k\)阶原点矩，并令相应阶样本矩等于总体矩，即
-              \[
-              \frac{1}{n} \sum_{i=1}^n X_i^j = E(X^j),\qquad j=1,2,\ldots,k.
-              \]
-        \item 求解上述方程, 即可得\(\widehat{\theta}\)的矩估计量.
-    \end{enumerate}
-\end{mydef}
+估计量是随机变量，换一批样本就变；估计值是数。后面谈无偏性、方差、一致性时，对象都是估计量。
+
+一般地，设总体有 $k$ 个未知参数 $\theta_1,\ldots,\theta_k$，且前 $k$ 阶原点矩存在。记
+\[
+\mu_j(\theta_1,\ldots,\theta_k)=E_\theta(X^j),\qquad j=1,\ldots,k.
+\]
+令样本矩等于总体矩：
+\[
+\frac{1}{n}\sum_{i=1}^{n}X_i^j=\mu_j(\widehat\theta_1,\ldots,\widehat\theta_k),
+\qquad j=1,\ldots,k.
+\]
+解出的 $\widehat\theta_1,\ldots,\widehat\theta_k$ 就是矩估计量。
+
+这样做的依据是大数定律：样本矩依概率收敛到总体矩，样本足够大时方程左边的波动会变小。使用时有三个条件要检查。总体矩必须存在；解必须落在参数空间内；方程可能有多个根，要按参数的实际范围挑选。矩估计只用到低阶矩，计算直接，但不一定唯一，也不一定高效。
+
+例如 $X\sim U(a,b)$，$a<b$ 未知。由
+\[
+E X=\frac{a+b}{2},\qquad E X^2=\frac{a^2+ab+b^2}{3},
+\]
+令 $\bar X=(a+b)/2$，$\frac1n\sum X_i^2=(a^2+ab+b^2)/3$。第二式减去第一式的平方，得
+\[
+\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar X)^2=\frac{(b-a)^2}{12}.
+\]
+记 $M_2=\frac1n\sum(X_i-\bar X)^2$，解出
+\[
+\widehat a=\bar X-\sqrt{3M_2},\qquad
+\widehat b=\bar X+\sqrt{3M_2}.
+\]
+这里两个未知参数用了两个方程，解也自动满足 $\widehat a<\widehat b$。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.2cm,
+  xlabel={$x$（小时）}, ylabel={密度},
+  xmin=0, xmax=12, ymin=0, ymax=0.62,
+  xtick={0,2,4,6,8,10,12}, ytick={0,0.2,0.4,0.6},
+  domain=0:12, samples=160,
+  legend pos=north east,
+  legend style={font=\scriptsize, draw=none, fill=none},
+  font=\footnotesize,
+]
+\addplot[blue,thick] {0.5*exp(-0.5*x)};
+\addlegendentry{$\lambda=0.5,\ E X=2$}
+\addplot[orange,thick] {0.3333*exp(-0.3333*x)};
+\addlegendentry{$\lambda=1/3,\ E X=3$}
+\addplot[teal,thick] {0.2*exp(-0.2*x)};
+\addlegendentry{$\lambda=0.2,\ E X=5$}
+\draw[dashed,gray] (axis cs:2,0)--(axis cs:2,0.54);
+\draw[dashed,gray] (axis cs:3,0)--(axis cs:3,0.40);
+\draw[dashed,gray] (axis cs:5,0)--(axis cs:5,0.26);
+\node[font=\scriptsize,above] at (axis cs:2,0.54) {$2$};
+\node[font=\scriptsize,above] at (axis cs:3,0.40) {$3$};
+\node[font=\scriptsize,above] at (axis cs:5,0.26) {$5$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+{\small 图 7.1\quad 指数分布的均值是 $1/\lambda$。三条曲线的均值分别为 $2,3,5$，虚线标出均值的位置。样本均值落在哪条虚线附近，矩估计就把 $\lambda$ 定在对应值附近；均值越大，$\lambda$ 越小。}
+
+\subsection{最大似然估计}
+
+连续抽检 $10$ 件产品，其中 $7$ 件合格，合格率 $p$ 未知。若 $p$ 给定，出现“$7$ 件合格、$3$ 件不合格”的概率是
+\[
+P\{7\text{ 件合格}\}=\binom{10}{7}p^7(1-p)^3.
+\]
+数据已经出现，现在反过来问：哪个 $p$ 使这组数据最可能出现。把上式看作 $p$ 的函数，取对数：
+\[
+\ln L(p)=\ln\binom{10}{7}+7\ln p+3\ln(1-p).
+\]
+求导并令其为零：
+\[
+\frac{7}{p}-\frac{3}{1-p}=0
+\;\Longrightarrow\;
+7(1-p)=3p
+\;\Longrightarrow\;
+p=0.7.
+\]
+二阶导数为 $-7/p^2-3/(1-p)^2<0$，所以 $p=0.7$ 是最大值点。
 
 \begin{mydef}{最大似然估计}{maximum likelihood estimate}
-    设 \(X_1,X_2,\ldots,X_n\) 是来自总体的一个样本，观测值为 \(x_1,x_2,\ldots,x_n\)。记
-    \[
-        L(\theta;x_1,\ldots,x_n)=\prod_{i=1}^n p_\theta(x_i),
-    \]
-    其中 \(p_\theta\) 表示总体的概率质量函数或密度函数。使似然函数在参数空间内达到最大值的参数值
-    \(\widehat\theta(x_1,\ldots,x_n)\)称为最大似然估计值，相应的统计量
-    \(\widehat\theta(X_1,\ldots,X_n)\)称为最大似然估计量。
-    求解步骤为
-    \begin{enumerate}
-        \item 写出\(L(\theta)\)的函数表达式.
-        \item 在参数空间内求 \(L(\theta)\) 或 \(\ln L(\theta)\) 的最大值。驻点法只是候选方法；还须检查参数范围、端点以及样本对分布支持集的限制。
-    \end{enumerate}
+设样本观测值为 $x_1,\ldots,x_n$，总体在参数 $\theta$ 下的概率质量函数或密度为 $p_\theta(x)$。把数据固定，定义
+\[
+L(\theta)=\prod_{i=1}^{n}p_\theta(x_i),\qquad \theta\in\Theta,
+\]
+称为似然函数。使 $L(\theta)$ 达到最大的 $\widehat\theta$ 称为 $\theta$ 的\textbf{最大似然估计值}，对应的统计量 $\widehat\theta(X_1,\ldots,X_n)$ 称为\textbf{最大似然估计量}。
 \end{mydef}
 
-\begin{conclusion}{最大似然估计的性质}{maximum likelihood estimate property}
-    最大似然估计具有不变性：若 $\widehat\theta$ 是 $\theta$ 的最大似然估计，且 $u(\theta)$ 是参数函数，则 $u(\widehat\theta)$ 是 $u(\theta)$ 的最大似然估计。
-    \fbox{\textbf{例}} \\
-    \[
-    \widehat{\sigma^2} = \frac{1}{n}\sum_{i=1}^{n}(X_i - \bar{X})^2
-    \]可得
-    \[
-    \widehat{\sigma} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(X_i - \bar{X})^2}
-    \]
-\end{conclusion}
+$L(\theta)$ 不是 $\theta$ 的概率。$\theta$ 固定但未知，没有分布可言。似然衡量的是：若真参数为 $\theta$，出现眼前这组数据的相对可能性。
 
-\noindent\textbf{拓展（极大似然与学习）:} 最大似然估计 $\widehat{\theta}=\arg\max_{\theta}\prod_{i=1}^{n}p_\theta(x_i)$ 在统计上与“最小化负对数似然”等价；对独立同分布样本取负对数后，它正是监督学习的训练目标——分类问题对应交叉熵损失，高斯噪声回归对应均方误差。贝叶斯估计再引入先验，改为最大化后验 $\widehat{\theta}_{\mathrm{MAP}}=\arg\max_{\theta}\,p(\theta)\prod_{i}p_\theta(x_i)$；当先验取高斯、噪声亦高斯时，MAP 即退化为带 $L_2$ 正则的岭回归。
+实际计算几乎总要先取对数：
+\[
+\ln L(\theta)=\sum_{i=1}^{n}\ln p_\theta(x_i).
+\]
+对数单调递增，最大值位置不变，乘积变成求和，求导容易得多。令 $\partial\ln L/\partial\theta=0$ 得到候选点，再用二阶导、端点值或单调性确认最大值。
 
-\begin{conclusion}{估计量的评选标准}{estimator selection standard}
-    \begin{enumerate}
-        \item 无偏性，即\(E(\widehat{\theta}) = \theta\)
-        \item 有效性：通常在比较同一参数的无偏估计量时，若对所有参数值都有
-              \(D(\widehat{\theta}_1)\leq D(\widehat{\theta}_2)\)，则称 \(\widehat{\theta}_1\) 不劣于 \(\widehat{\theta}_2\)；若至少对一个参数值严格小于，则称 \(\widehat{\theta}_1\) 更有效。
-        \item 一致性，即当\(n \to \infty\)时，\(\widehat{\theta_n}\)
-              依概率收敛于\(\theta\), 则称\(\widehat{\theta_n}\)是\(\theta\)的一个一致估计量.
-    \end{enumerate}
-\end{conclusion}
+支撑集随 $\theta$ 变化时，驻点法可能完全失效。例如 $X$ 的密度为
+\[
+f(x)=e^{-(x-\theta)},\qquad x\ge\theta,
+\]
+这是一个平移指数分布。样本必须满足 $\theta\le X_{(1)}=\min\{X_1,\ldots,X_n\}$，似然函数为
+\[
+L(\theta)=\begin{cases}
+e^{n\theta-\sum_{i=1}^{n}x_i}, & \theta\le X_{(1)},\\
+0, & \theta>X_{(1)}.
+\end{cases}
+\]
+它在 $(-\infty,X_{(1)}]$ 上单调递增，最大值在端点 $X_{(1)}$ 取得。求导得到 $n e^{n\theta-\sum x_i}$，永远为正，说明这里必须回到定义，不能令导数为零。
 
-\begin{mydef}{区间估计}{interval estimate}
-    区间估计是用样本构造随机区间 $I(X_1,\ldots,X_n)$。对固定但未知的参数 $\theta$，若
-    \[
-    P_\theta\{\theta\in I(X_1,\ldots,X_n)\}=1-\alpha,
-    \]
-    则称其为置信水平为 $1-\alpha$ 的置信区间。参数是固定的，随机性来自样本和由样本构造的区间。
-    \begin{enumerate}
-        \item 单侧置信区间 \\
-        对于给定值\(\alpha\), 单侧置信区间为
-        \[
-        P_\theta\{\theta\leq U(X_1,\ldots,X_n)\}=1-\alpha
-        \]
-        \item 双侧置信区间 \\
-        对于给定值\(\alpha\), 双侧置信区间为
-        \[
-        P_\theta\{\theta\in I(X_1,\ldots,X_n)\}=1-\alpha
-        \]即
-        \[
-        P(\theta_1 < \theta < \theta_2) = 1 - \alpha
-        \]
-    \end{enumerate}
-\end{mydef}
+最大似然估计还有不变性：若 $\eta=g(\theta)$ 是参数的函数，则 $\eta$ 的最大似然估计是 $g(\widehat\theta)$。所以 $\sigma^2$ 的估计开方后，就是 $\sigma$ 的估计，不必重新求一次。
 
-\begin{conclusion}{对区间估计的一些理解}{interval estimate understanding}
-    构造正态总体均值或方差的置信区间，关键是选择分布已知且含有待估参数的枢轴量，再把相应概率不等式反解为参数区间。\\
-    \fbox{\textbf{例}} \\
-    当\(\sigma^2\)已知时，使用统计量
-    \[
-    \frac{\overline{X} - \mu}{\frac{\sigma}{\sqrt{n}}}
-     \sim N(0,1)
-    \]
-    当\(\sigma^2\)未知时，使用统计量
-    \[
-    \frac{\overline{X} - \mu}{S/\sqrt{n}}
-    \sim t(n-1)
-    \]
-    设枢轴量为 \(L\)，则根据单侧或双侧置信要求写出
-    \[
-    |L|<k,\qquad L>k,\qquad \text{或}\qquad L<k,
-    \]
-    其中 \(k\) 是相应分布的分位点。下表给出常见的单正态总体均值、方差置信区间；两正态总体的区间应使用相应的双总体枢轴量。
-\end{conclusion}
+对正态总体 $N(\mu,\sigma^2)$，对数似然为
+\[
+\ln L=-\frac n2\ln(2\pi\sigma^2)-\frac{1}{2\sigma^2}\sum_{i=1}^{n}(x_i-\mu)^2.
+\]
+分别对 $\mu$ 和 $\sigma^2$ 求偏导并令其为零，得
+\[
+\widehat\mu=\bar X,\qquad
+\widehat\sigma^2=\frac1n\sum_{i=1}^{n}(X_i-\bar X)^2.
+\]
+注意 $\widehat\sigma^2$ 的分母是 $n$，不是 $n-1$。最大似然只问哪个参数让数据最可能出现，不负责无偏；无偏修正要另加。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.84\linewidth, height=5.4cm,
-  xlabel={$z$}, ylabel={概率密度},
-  xmin=-4, xmax=4, ymin=0, ymax=0.46,
-  xtick={-2,0,2}, ytick={0,0.1,0.2,0.3,0.4},
-  legend pos=north east, font=\footnotesize,
-  domain=-4:4, samples=200,
+  width=0.78\linewidth, height=5.2cm,
+  xlabel={$p$}, ylabel={$L(p)/L(\widehat p)$},
+  xmin=0, xmax=1, ymin=0, ymax=1.12,
+  xtick={0,0.3,0.5,0.7,1},
+  ytick={0,0.5,1},
+  domain=0.001:0.999, samples=240,
+  legend pos=north west,
+  legend style={font=\scriptsize, draw=none, fill=none},
+  font=\footnotesize,
 ]
-\addplot[teal!20,fill=teal!20,draw=none,domain=-1.96:1.96] {0.3989*exp(-x^2/2)} \closedcycle;
-\addplot[blue,thick] {0.3989*exp(-x^2/2)};
-\addlegendentry{$N(0,1)$ 枢轴量}
-\draw[dashed,gray!70] (axis cs:-1.96,0) -- (axis cs:-1.96,0.42);
-\draw[dashed,gray!70] (axis cs:1.96,0) -- (axis cs:1.96,0.42);
-\node[font=\scriptsize] at (axis cs:-1.96,0.02){$-z_{\alpha/2}$};
-\node[font=\scriptsize] at (axis cs:1.96,0.02){$z_{\alpha/2}$};
-\node[font=\scriptsize,teal!70!black] at (axis cs:0,0.42){置信水平 $1-\alpha$};
+\addplot[blue,thick] {(x/0.7)^7*((1-x)/0.3)^3};
+\addlegendentry{$n=10,\ k=7$}
+\addplot[orange,thick] {(x/0.7)^28*((1-x)/0.3)^12};
+\addlegendentry{$n=40,\ k=28$}
+\draw[dashed,gray] (axis cs:0.7,0)--(axis cs:0.7,1.05);
+\fill (axis cs:0.7,1) circle[radius=1.6pt];
 \end{axis}
 \end{tikzpicture}
 \end{center}
 
-\noindent 下表采用上侧分位点记号：$P\{Z>z_\alpha\}=\alpha$，
-$P\{t_\nu>t_\alpha(\nu)\}=\alpha$，$P\{\chi^2_\nu>\chi^2_\alpha(\nu)\}=\alpha$，
-且 $P\{F_{\nu_1,\nu_2}>F_\alpha(\nu_1,\nu_2)\}=\alpha$。
+{\small 图 7.2\quad 两条曲线都归一化到最高点 $1$，峰值都在 $0.7$。$n=40$ 的曲线窄得多：样本越多，似然对参数的约束越强，估计的不确定性越小。}
 
-\begin{tablebox}{常见置信区间}
-    \centering
-    \scalebox{1.2}{
-    \begin{tabular}{|c|c|}
-        \hline
-        条件 & 置信区间 \\
-        \hline
-        \(\sigma^2\)已知，求\(\mu\) & \(
-        \begin{aligned}
-            (\overline{X} - \frac{\sigma}{\sqrt{n}}z_{\frac{\alpha}{2}},
-            \overline{X} + \frac{\sigma}{\sqrt{n}}z_{\frac{\alpha}{2}}
-            )
-        \end{aligned}
-        \) \\
-        \hline
-        \(\sigma^2\)未知，求\(\mu\) & \(
-        \begin{aligned}
-            (\overline{X} - t_{\frac{\alpha}{2}}(n-1)\frac{\sqrt{s^2}}{\sqrt{n}},
-            \overline{X} + t_{\frac{\alpha}{2}}(n-1)\frac{\sqrt{s^2}}{\sqrt{n}}
-            )
-        \end{aligned}
-        \) \\
-        \hline
-        \(\mu\)已知，求\(\sigma^2\) & \(
-        \begin{aligned}
-            (\frac{\sum_{i=1}^n (X_i - \mu)^2}{\chi^2_{\frac{\alpha}{2}}(n)},
-            \frac{\sum_{i=1}^n (X_i - \mu)^2}{\chi^2_{1-\frac{\alpha}{2}}(n)}
-            )
-        \end{aligned}
-        \) \\
-        \hline
-        \(\mu\)未知，求\(\sigma^2\) & \(
-        \begin{aligned}
-            (\frac{(n-1)S^2}{\chi^2_{\frac{\alpha}{2}}(n-1)},
-            \frac{(n-1)S^2}{\chi^2_{1-\frac{\alpha}{2}}(n-1)}
-            )
-        \end{aligned}
-        \) \\
-        \hline
-    \end{tabular}
-    }
-\end{tablebox}
-\subsection{假设检验}
-\begin{mydef}{假设检验}{hypothesis test}
-    假设检验是根据样本信息，按照预先给定的显著性水平，判断关于总体分布或总体参数的原假设是否应被拒绝的统计推断方法。
-\end{mydef}
+\subsection{估计量的评价标准}
 
-\begin{mydef}{原假设与备择假设}{null hypothesis and alternative hypothesis}
-    设参数空间分为互不相交的两部分 \(\Theta_0\) 与 \(\Theta_1\)。原假设记为
-    \(H_0:\theta\in\Theta_0\)，备择假设记为 \(H_1:\theta\in\Theta_1\)；二者应与研究问题和检验方向相对应。
-\end{mydef}
+同一参数往往有很多估计量。比如 $X\sim N(\mu,\sigma^2)$，$\bar X$、$X_1$、样本中位数都能估计 $\mu$。选哪一个，需要可比较的标准。
 
-\begin{mydef}{显著性水平与显著性检验}{significance level and significance test}
-    显著性水平 $\alpha$ 是在原假设为真时检验错误拒绝原假设的概率上限。对简单原假设，若
-    \(P(\text{拒绝 }H_0\mid H_0\text{为真})=\alpha\)，则该检验的显著性水平为 $\alpha$。
-\end{mydef}
+若 $E_\theta(\widehat\theta)=\theta$ 对参数空间中每个 $\theta$ 都成立，称 $\widehat\theta$ 是 $\theta$ 的\textbf{无偏估计}。无偏不等于每次都对，它只说明大量重复抽样后，估计值平均而言不系统偏高或偏低。
 
-\begin{mydef}{两类错误}{type I and type II errors}
-    在假设检验中，可能犯两类错误：
-    \begin{itemize}
-        \item \textbf{第一类错误（弃真错误）}：原假设\(H_0\)为真时，错误地拒绝\(H_0\)。显著性水平 \(\alpha\) 控制第一类错误概率，即
-        \[
-        P_\theta(\text{拒绝 }H_0)\leqslant \alpha,\qquad \theta\in\Theta_0.
-        \]
-        对连续型简单原假设构造的常用精确检验，等号通常成立。
-        \item \textbf{第二类错误（取伪错误）}：原假设\(H_0\)为假时，错误地不拒绝\(H_0\)。对给定的备择参数值 \(\theta\)，其概率记为 \(\beta(\theta)\)，即
-        \[
-            \beta(\theta)=P_\theta(\text{不拒绝 }H_0),\qquad \theta\in\Theta_1.
-        \]
-    \end{itemize}
-    通常，在样本量固定时，减小\(\alpha\)会增大\(\beta\)，二者不可同时减小。在实际应用中，一般控制第一类错误的概率\(\alpha\)，在此基础上尽可能降低\(\beta\)。
-\end{mydef}
+样本方差的分母取 $n-1$ 就是为了无偏。设
+\[
+S^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\bar X)^2.
+\]
+正态总体下
+\[
+\frac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1),
+\]
+而 $\chi^2(n-1)$ 的期望是 $n-1$，所以 $E S^2=\sigma^2$。若分母取 $n$，则
+\[
+E\left[\frac1n\sum_{i=1}^{n}(X_i-\bar X)^2\right]=\frac{n-1}{n}\sigma^2,
+\]
+系统性偏小。
+
+在两个都无偏的估计量之间，若对每个 $\theta$ 都有
+\[
+D(\widehat\theta_1)\le D(\widehat\theta_2),
+\]
+且至少对一个 $\theta$ 严格不等，则称 $\widehat\theta_1$ 比 $\widehat\theta_2$ \textbf{有效}。比较的前提是同为无偏；一个有偏估计量方差再小，也不能直接说它更有效。若一定要把偏差和方差放在一起，可用均方误差
+\[
+E(\widehat\theta-\theta)^2=D(\widehat\theta)+\bigl[E\widehat\theta-\theta\bigr]^2.
+\]
+
+若对任意 $\varepsilon>0$，
+\[
+P\{|\widehat\theta_n-\theta|>\varepsilon\}\to 0\qquad(n\to\infty),
+\]
+则称 $\widehat\theta_n$ 是 $\theta$ 的\textbf{一致估计}。一致性说的是样本量增大时估计量是否靠近参数，属于大样本性质；无偏性说的是固定样本量下估计量的平均位置。两者考察的对象不同，不能互相推出。判断一致性时，通常估计 $P\{|\widehat\theta_n-\theta|>\varepsilon\}$，或对 $\widehat\theta_n-\theta$ 用大数定律、切比雪夫不等式。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.9\linewidth, height=5.4cm,
-  xlabel={$x$}, ylabel={概率密度},
-  xmin=-4, xmax=5, ymin=0, ymax=0.46,
-  xtick={-2,0,1.645,2,4}, ytick={0,0.1,0.2,0.3,0.4},
-  legend pos=north east, font=\footnotesize,
-  domain=-4:5, samples=200,
+  width=0.82\linewidth, height=5.2cm,
+  xlabel={估计值}, ylabel={密度},
+  xmin=-2.6, xmax=3.0, ymin=0, ymax=1.05,
+  domain=-2.6:3.0, samples=240,
+  legend pos=north east,
+  legend style={font=\scriptsize, draw=none, fill=none},
+  font=\footnotesize,
+  xtick={-2,-1,0,1,2,3},
+]
+\addplot[blue,thick] {0.8862*exp(-x^2/(2*0.45^2))};
+\addlegendentry{无偏，方差小}
+\addplot[orange,thick] {0.7979*exp(-(x-0.35)^2/(2*0.5^2))};
+\addlegendentry{有偏，方差小}
+\addplot[teal,thick] {0.4433*exp(-x^2/(2*0.9^2))};
+\addlegendentry{无偏，方差大}
+\draw[dashed,gray] (axis cs:0,0)--(axis cs:0,1.0);
+\node[font=\scriptsize,above] at (axis cs:0,1.0) {$\theta$};
+\draw[<->,red!70!black] (axis cs:0,0.07)--(axis cs:0.35,0.07);
+\node[font=\scriptsize,red!70!black,below] at (axis cs:0.175,0.07) {偏差};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+{\small 图 7.3\quad 蓝色与青色曲线都以 $\theta$ 为中心，蓝色更窄，所以更有效。橙色曲线中心偏右，是有偏估计，不能直接拿它的宽度与蓝色比“有效性”；偏差已经通过均方误差单独计入。}
+
+\subsection{区间估计}
+
+点估计只给一个数，不说明误差有多大。报“平均寿命约 $1200$ 小时”不如报“平均寿命在 $1150$ 到 $1250$ 小时之间，置信水平 $0.95$”有用。区间估计就是用样本造一个随机区间，并控制它覆盖真参数的概率。
+
+做法是找一个枢轴量。它是样本和 $\theta$ 的函数，分布完全已知，且不依赖任何未知参数。
+
+\begin{mydef}{枢轴量}{pivotal quantity}
+设 $X_1,\ldots,X_n$ 来自含参数 $\theta$ 的总体。若 $G(X_1,\ldots,X_n;\theta)$ 的分布与 $\theta$ 无关，则称 $G$ 为枢轴量。若 $G$ 还含有其他未知参数，就不能直接使用。
+\end{mydef}
+
+以正态总体均值为例。$\sigma^2$ 已知时，
+\[
+Z=\frac{\bar X-\mu}{\sigma/\sqrt n}\sim N(0,1)
+\]
+是枢轴量。对给定置信水平 $1-\alpha$，取上侧分位点 $z_{\alpha/2}$，使
+\[
+P\{-z_{\alpha/2}<Z<z_{\alpha/2}\}=1-\alpha.
+\]
+把不等式中的 $\mu$ 解出来：
+\[
+\bar X-z_{\alpha/2}\frac{\sigma}{\sqrt n}
+<\mu<
+\bar X+z_{\alpha/2}\frac{\sigma}{\sqrt n}.
+\]
+这就是 $\mu$ 的置信水平为 $1-\alpha$ 的双侧置信区间。
+
+$\mu$ 是固定的，随机的是区间。置信水平 $0.95$ 描述构造方法的长期表现：重复独立抽样，每次按同一公式造一个区间，约有 $95\%$ 的区间覆盖 $\mu$。单个区间算出来以后，它要么覆盖 $\mu$，要么不覆盖。
+
+单侧区间把全部 $\alpha$ 放在一侧。例如 $\sigma^2$ 已知时，$\mu$ 的置信水平 $1-\alpha$ 的单侧下限为
+\[
+\bar X-z_\alpha\frac{\sigma}{\sqrt n},
+\]
+因为 $P\{Z<z_\alpha\}=1-\alpha$，反解后得到 $P\{\mu>\bar X-z_\alpha\sigma/\sqrt n\}=1-\alpha$。下限用减号，对应的分位点是 $z_\alpha$，不是 $z_{\alpha/2}$。
+
+本章统一使用上侧分位点：
+\[
+P\{Z>z_\alpha\}=\alpha,\quad
+P\{t_\nu>t_\alpha(\nu)\}=\alpha,\quad
+P\{\chi^2_\nu>\chi^2_\alpha(\nu)\}=\alpha.
+\]
+$\chi^2$ 分布不对称，所以区间两端的分位点方向相反。由
+\[
+P\{\chi^2_{1-\alpha/2}(n-1)<Q<\chi^2_{\alpha/2}(n-1)\}=1-\alpha,
+\qquad Q=\frac{(n-1)S^2}{\sigma^2},
+\]
+反解时取倒数，不等号方向翻转：
+\[
+\frac{(n-1)S^2}{\chi^2_{\alpha/2}(n-1)}
+<\sigma^2<
+\frac{(n-1)S^2}{\chi^2_{1-\alpha/2}(n-1)}.
+\]
+左端点除以较大的 $\chi^2_{\alpha/2}$，右端点除以较小的 $\chi^2_{1-\alpha/2}$。
+
+\begin{tablebox}{正态总体均值与方差的置信区间}
+\centering
+\renewcommand{\arraystretch}{1.7}
+{\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+参数 & 条件 & 置信水平 $1-\alpha$ 的置信区间 \\
+\midrule
+$\mu$ & $\sigma^2$ 已知 & $\bar X\pm z_{\alpha/2}\dfrac{\sigma}{\sqrt n}$ \\[6pt]
+$\mu$ & $\sigma^2$ 未知 & $\bar X\pm t_{\alpha/2}(n-1)\dfrac{S}{\sqrt n}$ \\[6pt]
+$\sigma^2$ & $\mu$ 已知 & $\left(\dfrac{\sum_{i=1}^n(X_i-\mu)^2}{\chi^2_{\alpha/2}(n)},\ \dfrac{\sum_{i=1}^n(X_i-\mu)^2}{\chi^2_{1-\alpha/2}(n)}\right)$ \\[8pt]
+$\sigma^2$ & $\mu$ 未知 & $\left(\dfrac{(n-1)S^2}{\chi^2_{\alpha/2}(n-1)},\ \dfrac{(n-1)S^2}{\chi^2_{1-\alpha/2}(n-1)}\right)$ \\
+\bottomrule
+\end{tabular}
+}
+\end{tablebox}
+
+表中前两行的 $\bar X\pm d$ 表示区间 $(\bar X-d,\bar X+d)$。区间长度由分位点和标准误共同决定。置信水平越高，分位点越远，区间越宽；样本量越大，标准误越小，区间越窄。要同时提高置信度和精度，只能增加样本量。
+
+\begin{center}
+\begin{tikzpicture}[x=1.25cm, y=0.24cm, font=\scriptsize]
+\draw[->,gray] (-2.9,0)--(2.9,0) node[right] {$\bar x$};
+\draw[red,thick] (0,-1)--(0,21);
+\node[red,above] at (0,21) {真值 $\mu$};
+\foreach \c/\i in {-0.6/1, 0.4/2, 0.8/3, -0.7/4, 0.1/5, 0.6/6, -0.3/7, 0.5/8, -0.55/9, 0.85/10, -0.2/11, 0.3/12, -0.75/13, 0.7/14, 0.0/15, -0.45/16, 1.2/17, 0.2/18, -0.65/19, 0.4/20} {
+  \draw[blue,thick] (\c-0.9,\i)--(\c+0.9,\i);
+  \fill[blue] (\c,\i) circle[radius=1.2pt];
+}
+\draw[orange,very thick] (0.3,17)--(2.1,17);
+\fill[orange] (1.2,17) circle[radius=1.5pt];
+\node[orange!80!black,right] at (2.15,17) {未覆盖};
+\end{tikzpicture}
+\end{center}
+
+{\small 图 7.4\quad 20 次独立抽样，每次用同一公式造一个置信水平 $0.95$ 的区间（示意图）。其中 19 个覆盖真值 $\mu$，橙色那一个没有。覆盖率描述的是这种长期比例，单个区间是否覆盖无法预先知道。}
+
+\subsection{假设检验的基本逻辑}
+
+某批瓶装水标称每瓶 $550$ mL。抽 $20$ 瓶，样本均值 $\bar x=552$ mL。这 $2$ mL 的差异可能来自抽样波动，也可能说明灌装机整体偏多。假设检验先假定“没有系统偏差”，再看观测结果在这个假定下有多罕见。
+
+把“没有差异”或“符合标准”放在原假设 $H_0$，把希望证明的结论放在备择假设 $H_1$。例如关心是否偏离标称值，取
+\[
+H_0:\mu=550,\qquad H_1:\mu\ne550.
+\]
+只关心是否偏多，取
+\[
+H_0:\mu\le550,\qquad H_1:\mu>550.
+\]
+$H_0$ 通常取保守的一侧，因为拒绝它需要证据。显著性水平 $\alpha$ 控制的是 $H_0$ 为真时错误拒绝它的概率上限：
+\[
+P\{\text{拒绝 }H_0\mid H_0\text{ 为真}\}\le\alpha.
+\]
+
+检验统计量要在 $H_0$ 下分布已知，且不含多余未知参数。$\sigma^2$ 已知时，用
+\[
+Z=\frac{\bar X-\mu_0}{\sigma/\sqrt n}\sim N(0,1).
+\]
+$Z$ 的绝对值很大，说明样本均值离 $\mu_0$ 很远，支持双侧备择假设。双侧检验的拒绝域为
+\[
+|Z|\ge z_{\alpha/2}.
+\]
+若只关心 $\mu>\mu_0$，拒绝域取右尾 $Z\ge z_\alpha$；若只关心 $\mu<\mu_0$，拒绝域取左尾 $Z\le-z_\alpha$。方向由 $H_1$ 决定，不能由样本结果临时决定。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.45\linewidth, height=4.4cm,
+  title={单侧：$H_1:\mu>\mu_0$},
+  xmin=-4, xmax=4, ymin=0, ymax=0.46,
+  xtick={-2,0,1.645}, xticklabels={$-2$,$0$,$z_\alpha$},
+  ytick={0,0.2,0.4},
+  xlabel={$z$},
+  domain=-4:4, samples=200, font=\scriptsize,
+]
+\addplot[red!25,fill=red!25,draw=none,domain=1.645:4] {0.3989*exp(-x^2/2)} \closedcycle;
+\addplot[blue,thick] {0.3989*exp(-x^2/2)};
+\draw[dashed,gray] (axis cs:1.645,0)--(axis cs:1.645,0.44);
+\node[red!60!black,font=\scriptsize] at (axis cs:2.95,0.06) {拒绝域};
+\node[blue!60!black,font=\scriptsize] at (axis cs:-1.9,0.10) {接受域};
+\end{axis}
+\begin{axis}[
+  at={(0.52\linewidth,0)}, anchor=south west,
+  width=0.45\linewidth, height=4.4cm,
+  title={双侧：$H_1:\mu\ne\mu_0$},
+  xmin=-4, xmax=4, ymin=0, ymax=0.46,
+  xtick={-2,0,2}, ytick={0,0.2,0.4},
+  xlabel={$z$},
+  domain=-4:4, samples=200, font=\scriptsize,
+]
+\addplot[red!25,fill=red!25,draw=none,domain=-4:-1.96] {0.3989*exp(-x^2/2)} \closedcycle;
+\addplot[red!25,fill=red!25,draw=none,domain=1.96:4] {0.3989*exp(-x^2/2)} \closedcycle;
+\addplot[blue,thick] {0.3989*exp(-x^2/2)};
+\draw[dashed,gray] (axis cs:-1.96,0)--(axis cs:-1.96,0.44);
+\draw[dashed,gray] (axis cs:1.96,0)--(axis cs:1.96,0.44);
+\node[red!60!black,font=\scriptsize] at (axis cs:-3.1,0.06) {拒绝};
+\node[red!60!black,font=\scriptsize] at (axis cs:3.1,0.06) {拒绝};
+\node[blue!60!black,font=\scriptsize] at (axis cs:0,0.06) {接受域};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+{\small 图 7.5\quad 拒绝域放在 $H_1$ 指示的方向。单侧检验把全部 $\alpha$ 放在一侧；双侧检验把它平分到两端，每端 $\alpha/2$。曲线是 $H_0$ 下检验统计量的分布。}
+
+另一种判断方式是比较 $p$ 值。$p$ 值是在 $H_0$ 下，出现当前样本或更极端结果的概率。若 $p\le\alpha$，拒绝 $H_0$；否则不拒绝。$p$ 值不是“$H_0$ 为真的概率”，它描述的是数据与 $H_0$ 的相容程度。例如观测到 $z=2.10$，双侧 $p$ 值为
+\[
+p=P\{|Z|\ge2.10\}=2(1-\Phi(2.10))\approx0.036.
+\]
+取 $\alpha=0.05$ 时拒绝，取 $\alpha=0.01$ 时不拒绝。同一个样本，结论随显著性水平改变，所以报告结论时要同时写出 $\alpha$。
+
+检验可能犯两类错误。
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+ & $H_0$ 为真 & $H_0$ 为假 \\
+\midrule
+拒绝 $H_0$ & 第一类错误，概率 $\alpha$ & 判断正确 \\
+不拒绝 $H_0$ & 判断正确 & 第二类错误，概率 $\beta$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+第一类错误是“弃真”：$H_0$ 为真却拒绝了它。第二类错误是“取伪”：$H_0$ 为假却没有拒绝它。$\beta$ 一般依赖真实的参数值，备择值离 $\mu_0$ 越近，$\beta$ 越大。
+
+样本量固定时，把拒绝域缩小，$\alpha$ 和 $\beta$ 会朝相反方向变化：$\alpha$ 减小，$\beta$ 增大。实际做法是先限定 $\alpha$（常用 $0.05$ 或 $0.01$），再在可选检验中选 $\beta$ 较小的。要两个都小，只能增大样本量。$1-\beta$ 称为检验的\textbf{功效}，表示 $H_0$ 为假时被正确拒绝的概率。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.0cm,
+  xlabel={$\bar x$}, ylabel={密度},
+  xmin=-3.5, xmax=5, ymin=0, ymax=0.46,
+  domain=-3.5:5, samples=240,
+  legend pos=north east,
+  legend style={font=\scriptsize, draw=none, fill=none},
+  font=\footnotesize,
 ]
 \addplot[blue!20,fill=blue!20,draw=none,domain=1.645:5] {0.3989*exp(-x^2/2)} \closedcycle;
-\addplot[red!20,fill=red!20,draw=none,domain=-4:1.645] {0.3989*exp(-(x-1)^2/2)} \closedcycle;
+\addplot[red!20,fill=red!20,draw=none,domain=-3.5:1.645] {0.3989*exp(-(x-2)^2/2)} \closedcycle;
 \addplot[blue,thick] {0.3989*exp(-x^2/2)};
 \addlegendentry{$H_0:\mu=\mu_0$}
-\addplot[red,thick] {0.3989*exp(-(x-1)^2/2)};
+\addplot[red,thick] {0.3989*exp(-(x-2)^2/2)};
 \addlegendentry{$H_1:\mu=\mu_1$}
-\draw[dashed,gray!70] (axis cs:1.645,0) -- (axis cs:1.645,0.42);
-\node[font=\scriptsize] at (axis cs:1.645,0.015){$c$};
-\node[font=\scriptsize,blue!60!black] at (axis cs:2.7,0.04){$\alpha$};
-\node[font=\scriptsize,red!60!black] at (axis cs:0.9,0.04){$\beta$};
+\draw[dashed,gray] (axis cs:1.645,0)--(axis cs:1.645,0.44);
+\node[font=\scriptsize,above] at (axis cs:1.645,0.44) {$c$};
+\node[blue!60!black,font=\scriptsize] at (axis cs:2.75,0.035) {$\alpha$};
+\node[red!60!black,font=\scriptsize] at (axis cs:0.75,0.05) {$\beta$};
 \end{axis}
 \end{tikzpicture}
 \end{center}
 
-\begin{conclusion}{假设检验的一般步骤}{hypothesis test general steps}
-    \begin{enumerate}
-        \item 确定原假设与备择假设
-        \item 确定显著性水平
-        \item 计算检验统计量
-        \item 确定拒绝区域
-        \item 将统计量与临界值比较，或计算 $p$ 值
-        \item 作出是否拒绝 \(H_0\) 的判断
-    \end{enumerate}
-\end{conclusion}
+{\small 图 7.6\quad 临界值 $c$ 固定时，$\alpha$ 是 $H_0$ 曲线在 $c$ 右侧的面积，$\beta$ 是 $H_1$ 曲线在 $c$ 左侧的面积。把 $c$ 向右移，$\alpha$ 变小，$\beta$ 变大；样本量不变时，无法同时压低两者。}
 
-\begin{conclusion}{对正态总体均值方差检验的理解}{understand of normal mean and variance}
-    假设检验与置信区间具有对偶关系，但作答时仍应明确写出原假设、备择假设、
-    检验统计量及其在原假设下的分布，再由备择假设的方向确定单侧或双侧拒绝域。
-    下表给出常见正态总体均值、方差检验的拒绝域；双正态总体问题应使用相应的双总体枢轴量。
-\end{conclusion}
+做题时按四步走：先写清 $H_0$ 与 $H_1$；再选一个在 $H_0$ 下分布已知的统计量；由 $H_1$ 的方向定拒绝域；最后代入样本值比较，或比较 $p$ 值与 $\alpha$。
+
+\subsection{正态总体的检验}
+
+把上面的框架套到正态总体，只需要换检验统计量。原则不变：$H_0$ 下的分布必须已知，且不含多余未知参数。
+
+$\sigma^2$ 未知时，用样本标准差 $S$ 代替 $\sigma$：
+\[
+T=\frac{\bar X-\mu_0}{S/\sqrt n}\sim t(n-1).
+\]
+从 $Z$ 变成 $T$，原因是分母也含随机性。正态样本下 $\bar X$ 与 $S^2$ 独立，比值服从自由度为 $n-1$ 的 $t$ 分布。自由度少 $1$，来自 $S^2$ 中用 $\bar X$ 代替了 $\mu$。
+
+检验方差时，$H_0:\sigma^2=\sigma_0^2$ 下
+\[
+Q=\frac{(n-1)S^2}{\sigma_0^2}\sim\chi^2(n-1).
+\]
+若 $\mu$ 已知，则用
+\[
+Q=\frac{\sum_{i=1}^{n}(X_i-\mu)^2}{\sigma_0^2}\sim\chi^2(n).
+\]
+$Q$ 偏小说明方差小于 $\sigma_0^2$，偏大说明方差大于 $\sigma_0^2$，所以双侧拒绝域分在两个尾巴。
+
+\begin{tablebox}{正态总体参数的检验（双侧）}
+\centering
+\renewcommand{\arraystretch}{1.8}
+{\small
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}lll@{}}
+\toprule
+检验对象与条件 & 统计量（$H_0$ 下分布） & 拒绝域 \\
+\midrule
+\shortstack{$\mu=\mu_0$\\$\sigma^2$ 已知} &
+\shortstack{$Z=\dfrac{\bar X-\mu_0}{\sigma/\sqrt n}$\\$\sim N(0,1)$} &
+$|Z|\ge z_{\alpha/2}$ \\[10pt]
+\shortstack{$\mu=\mu_0$\\$\sigma^2$ 未知} &
+\shortstack{$T=\dfrac{\bar X-\mu_0}{S/\sqrt n}$\\$\sim t(n-1)$} &
+$|T|\ge t_{\alpha/2}(n-1)$ \\[10pt]
+\shortstack{$\sigma^2=\sigma_0^2$\\$\mu$ 未知} &
+\shortstack{$Q=\dfrac{(n-1)S^2}{\sigma_0^2}$\\$\sim\chi^2(n-1)$} &
+\shortstack{$Q\le\chi^2_{1-\alpha/2}(n-1)$\\$Q\ge\chi^2_{\alpha/2}(n-1)$} \\
+\bottomrule
+\end{tabular}
+}
+\end{tablebox}
+
+单侧检验只改拒绝域，不改统计量。$H_1:\mu>\mu_0$ 时取上尾，拒绝 $Z\ge z_\alpha$；$H_1:\mu<\mu_0$ 时取下尾，拒绝 $Z\le-z_\alpha$。$t$ 检验同理，把 $z$ 换成 $t(n-1)$。方差的单侧检验只保留一个尾巴：$H_1:\sigma^2>\sigma_0^2$ 时拒绝 $Q\ge\chi^2_\alpha(n-1)$；$H_1:\sigma^2<\sigma_0^2$ 时拒绝 $Q\le\chi^2_{1-\alpha}(n-1)$。注意下尾用的是 $1-\alpha$，不是 $\alpha$。
+
+两个正态总体的问题结构相同。比较均值差，方差未知但相等时用
+\[
+T=\frac{(\bar X-\bar Y)-(\mu_1-\mu_2)}{S_w\sqrt{1/n_1+1/n_2}}\sim t(n_1+n_2-2),
+\]
+其中 $S_w^2$ 是合并方差。比较方差比，用
+\[
+F=\frac{S_1^2/\sigma_1^2}{S_2^2/\sigma_2^2}\sim F(n_1-1,n_2-1).
+\]
+公式不必死记，关键是分子、分母各自的自由度与 $H_0$ 下的取值。
+
+双侧检验与置信区间有对偶关系。$H_0:\mu=\mu_0$ 的双侧检验在水平 $\alpha$ 下不拒绝，当且仅当 $\mu_0$ 落在 $\mu$ 的置信水平 $1-\alpha$ 的置信区间内。同一组数据，区间给出参数的可能范围，检验判断某个具体值是否在范围内，两者结论一致。
 
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  width=0.84\linewidth, height=5.4cm,
-  xlabel={$z$}, ylabel={概率密度},
-  xmin=-4, xmax=4, ymin=0, ymax=0.46,
-  xtick={-2,0,2}, ytick={0,0.1,0.2,0.3,0.4},
-  legend pos=north east, font=\footnotesize,
-  domain=-4:4, samples=200,
+  width=0.45\linewidth, height=4.8cm,
+  title={$n=9$},
+  xmin=-2, xmax=3.4, ymin=0, ymax=0.46,
+  xtick={-1,0,1,2,3}, ytick={0,0.2,0.4},
+  xlabel={$\bar x$}, ylabel={密度},
+  domain=-2:3.4, samples=220, font=\scriptsize,
 ]
-\addplot[red!20,fill=red!20,draw=none,domain=-4:-1.96] {0.3989*exp(-x^2/2)} \closedcycle;
-\addplot[red!20,fill=red!20,draw=none,domain=1.96:4] {0.3989*exp(-x^2/2)} \closedcycle;
+\addplot[blue!20,fill=blue!20,draw=none,domain=1.645:3.4] {0.3989*exp(-x^2/2)} \closedcycle;
+\addplot[red!20,fill=red!20,draw=none,domain=-2:1.645] {0.3989*exp(-(x-1)^2/2)} \closedcycle;
 \addplot[blue,thick] {0.3989*exp(-x^2/2)};
-\addlegendentry{检验统计量分布}
-\draw[dashed,gray!70] (axis cs:-1.96,0) -- (axis cs:-1.96,0.42);
-\draw[dashed,gray!70] (axis cs:1.96,0) -- (axis cs:1.96,0.42);
-\node[font=\scriptsize] at (axis cs:-1.96,0.02){$-z_{\alpha/2}$};
-\node[font=\scriptsize] at (axis cs:1.96,0.02){$z_{\alpha/2}$};
-\node[font=\scriptsize,red!70!black] at (axis cs:-3.2,0.10){拒绝 $H_0$};
-\node[font=\scriptsize,red!70!black] at (axis cs:3.2,0.10){拒绝 $H_0$};
-\node[font=\scriptsize,blue!60!black] at (axis cs:0,0.42){不拒绝 $H_0$};
+\addplot[red,thick] {0.3989*exp(-(x-1)^2/2)};
+\draw[dashed,gray] (axis cs:1.645,0)--(axis cs:1.645,0.44);
+\node[font=\scriptsize,above] at (axis cs:1.645,0.44) {$c$};
+\node[blue!60!black,font=\scriptsize] at (axis cs:-0.9,0.30) {$H_0$};
+\node[red!60!black,font=\scriptsize] at (axis cs:2.1,0.22) {$H_1$};
+\node[red!60!black,font=\scriptsize] at (axis cs:0.0,0.05) {$\beta$ 大};
+\end{axis}
+\begin{axis}[
+  at={(0.52\linewidth,0)}, anchor=south west,
+  width=0.45\linewidth, height=4.8cm,
+  title={$n=36$},
+  xmin=-2, xmax=3.4, ymin=0, ymax=0.90,
+  xtick={-1,0,1,2,3}, ytick={0,0.4,0.8},
+  xlabel={$\bar x$},
+  domain=-2:3.4, samples=220, font=\scriptsize,
+]
+\addplot[blue!20,fill=blue!20,draw=none,domain=0.8225:3.4] {0.7979*exp(-2*x^2)} \closedcycle;
+\addplot[red!20,fill=red!20,draw=none,domain=-2:0.8225] {0.7979*exp(-2*(x-1)^2)} \closedcycle;
+\addplot[blue,thick] {0.7979*exp(-2*x^2)};
+\addplot[red,thick] {0.7979*exp(-2*(x-1)^2)};
+\draw[dashed,gray] (axis cs:0.8225,0)--(axis cs:0.8225,0.86);
+\node[font=\scriptsize,above] at (axis cs:0.8225,0.86) {$c$};
+\node[blue!60!black,font=\scriptsize] at (axis cs:-0.9,0.64) {$H_0$};
+\node[red!60!black,font=\scriptsize] at (axis cs:2.0,0.42) {$H_1$};
+\node[red!60!black,font=\scriptsize] at (axis cs:0.25,0.06) {$\beta$ 小};
 \end{axis}
 \end{tikzpicture}
 \end{center}
 
-\begin{tablebox}{常见正态总体均值方差的假设检验}
-    \centering
-    \resizebox{\linewidth}{!}{
-    \begin{tabular}{|c|c|c|}
-        \hline
-        条件 & 假设 & 拒绝域 \\
-        \hline
-        \(\sigma^2\)已知， \(\mu\)未知 &
-        \(H_0: \mu = \mu_0\), \(H_1: \mu \neq \mu_0\) &
-        \(
-        \begin{aligned}
-        &(-\infty, \mu_{0} - \frac{\sigma}{\sqrt{n}}z_{\frac{\alpha}{2}}] \\
-        &\bigcup
-        [ \mu_{0} + \frac{\sigma}{\sqrt{n}}z_{\frac{\alpha}{2}}, +\infty)
-        \end{aligned}
-        \) \\
-        \hline
-        \(\sigma^2\)未知， \(\mu\)未知 &
-        \(H_0: \mu = \mu_0\), \(H_1: \mu \neq \mu_0\) &
-        \(
-        \begin{aligned}
-        &(-\infty, \mu_{0} - t_{\frac{\alpha}{2}}(n-1)\frac{S}{\sqrt{n}}] \\
-        &\bigcup
-        [ \mu_{0} + t_{\frac{\alpha}{2}}(n-1)\frac{S}{\sqrt{n}}, +\infty) \\
-        \end{aligned}\) \\
-        \hline
-        \(\sigma^2\)已知， \(\mu\)未知 &
-        \(H_0: \mu \leq \mu_0\), \(H_1: \mu > \mu_0\) &
-        \([\mu_{0} + \frac{\sigma}{\sqrt{n}}z_{\alpha}, +\infty)\) \\
-        \hline
-        \(\sigma^2\)已知，\(\mu\)未知 &
-        \(H_0: \mu \geq \mu_0\), \(H_1: \mu < \mu_0\) &
-        \((-\infty, \mu_{0} - \frac{\sigma}{\sqrt{n}}z_{\alpha}]\) \\
-        \hline
-        \(\sigma^2\)未知，\(\mu\)未知 &
-        \(H_0: \mu \leq \mu_0\), \(H_1: \mu > \mu_0\) &
-        \([\mu_{0} + t_{\alpha}(n-1)\frac{S}{\sqrt{n}}, +\infty)\) \\
-        \hline
-        \(\sigma^2\)未知，\(\mu\)未知 &
-        \(H_0: \mu \geq \mu_0\), \(H_1: \mu < \mu_0\) &
-        \((-\infty, \mu_{0} - t_{\alpha}(n-1)\frac{S}{\sqrt{n}}]\) \\
-        \hline
-        \(\mu\)未知，检验\(\sigma^2\) &
-        \(H_0: \sigma^2 = \sigma_0^2\), \(H_1: \sigma^2 \neq \sigma_0^2\) &
-        \(
-        \begin{aligned}
-        &[0, \chi_{1-\frac{\alpha}{2}}^{2}(n-1)] \\
-        &\bigcup
-        [\chi_{\frac{\alpha}{2}}^{2}(n-1), +\infty)
-        \end{aligned}
-        \) \\
-        \hline
-        \(\mu_1,\mu_2\)未知，检验\(\sigma_1^2/\sigma_2^2\) &
-        \(H_0: \sigma_1^2 = \sigma_2^2\), \(H_1: \sigma_1^2 \neq \sigma_2^2\) &
-        \(
-        \begin{aligned}
-        &[0, F_{1-\frac{\alpha}{2}}(n_1-1,n_2-1)] \\
-        &\bigcup
-        [F_{\frac{\alpha}{2}}(n_1-1,n_2-1), +\infty)
-        \end{aligned}
-        \) \\
-        \hline
-        \(\mu_1,\mu_2\)未知，检验\(\sigma_1^2/\sigma_2^2\) &
-        \(H_0: \sigma_1^2 \leq \sigma_2^2\), \(H_1: \sigma_1^2 > \sigma_2^2\) &
-        \([F_{\alpha}(n_1-1,n_2-1), +\infty)\) \\
-        \hline
-        \(\mu_1,\mu_2\)未知，检验\(\sigma_1^2/\sigma_2^2\) &
-        \(H_0: \sigma_1^2 \geq \sigma_2^2\), \(H_1: \sigma_1^2 < \sigma_2^2\) &
-        \([0, F_{1-\alpha}(n_1-1,n_2-1)]\) \\
-    \end{tabular}
-    }
-\end{tablebox}
+{\small 图 7.7\quad 取 $\alpha=0.05$，真实均值比 $\mu_0$ 大一个标准差。$n=9$ 时 $\bar X$ 的分布较宽，$H_0$ 与 $H_1$ 重叠多，$\beta$ 大；$n=36$ 时标准误减半，两条曲线分得更开，$\beta$ 明显变小。样本量增大，功效 $1-\beta$ 提高。}
 
-\subsection{基础过关题}
-
-\textbf{1.（矩估计）} 设总体 $X$ 服从参数为 $\lambda > 0$ 的指数分布，其密度函数为
-\[
-f(x;\lambda) = \begin{cases}
-\lambda e^{-\lambda x}, & x > 0,\\
-0, & x \leqslant 0.
-\end{cases}
-\]
-$X_1, X_2, \ldots, X_n$ 为来自总体 $X$ 的一个简单随机样本。求 $\lambda$ 的矩估计量和最大似然估计量。
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{矩估计：} 指数分布 $E(X) = \frac{1}{\lambda}$。令样本均值等于总体均值：
-\[
-\frac{1}{n}\sum_{i=1}^n X_i = \frac{1}{\lambda} \quad\Longrightarrow\quad \widehat{\lambda}_{\text{矩}} = \frac{n}{\sum_{i=1}^n X_i} = \frac{1}{\overline{X}}.
-\]
-
-\textbf{最大似然估计：} 似然函数为
-\[
-L(\lambda) = \prod_{i=1}^n \lambda e^{-\lambda X_i} = \lambda^n \exp\!\left(-\lambda \sum_{i=1}^n X_i\right).
-\]
-取对数：$\ln L(\lambda) = n\ln\lambda - \lambda\sum_{i=1}^n X_i$。求导：
-\[
-\frac{d\ln L}{d\lambda} = \frac{n}{\lambda} - \sum_{i=1}^n X_i = 0 \quad\Longrightarrow\quad \widehat{\lambda}_{\text{MLE}} = \frac{n}{\sum_{i=1}^n X_i} = \frac{1}{\overline{X}}.
-\]
-此处矩估计与 MLE 相同。
-
-\vspace{8pt}
-
-\else \answerarea \fi%
-\textbf{2.（MLE求解）} 设总体 $X \sim U(0, \theta)$，$\theta > 0$ 未知。$X_1, \ldots, X_n$ 为样本。
-\begin{enumerate}[label=(\arabic*)]
-    \item 求 $\theta$ 的矩估计量 $\widehat{\theta}_1$；
-    \item 求 $\theta$ 的最大似然估计量 $\widehat{\theta}_2$；
-    \item 判断 $\widehat{\theta}_1$ 和 $\widehat{\theta}_2$ 是否为无偏估计。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{(1)} $E(X) = \frac{\theta}{2}$。令 $\overline{X} = \frac{\theta}{2}$，得 $\widehat{\theta}_1 = 2\overline{X}$。
-
-\textbf{(2)} 似然函数 $L(\theta) = \prod_{i=1}^n \frac{1}{\theta} \cdot I_{\{0 < X_i \leqslant \theta\}} = \frac{1}{\theta^n} \cdot I_{\{X_{(n)} \leqslant \theta\}}$，其中 $X_{(n)} = \max\{X_1,\ldots,X_n\}$。
-
-$L(\theta)$ 在 $\theta \geqslant X_{(n)}$ 时为正，且关于 $\theta$ 单调递减（分母含 $\theta^n$），故最大值取在 $\theta = X_{(n)}$ 处。$\widehat{\theta}_2 = X_{(n)}$。
-
-\textbf{(3)} 对 $\widehat{\theta}_1 = 2\overline{X}$：
-\[
-E(\widehat{\theta}_1) = 2E(\overline{X}) = 2 \cdot \frac{\theta}{2} = \theta,
-\]
-故 $\widehat{\theta}_1$ 是 $\theta$ 的无偏估计。
-
-对 $\widehat{\theta}_2 = X_{(n)}$：$X_{(n)}$ 的密度为 $f_{(n)}(x) = \frac{n x^{n-1}}{\theta^n}$ ($0 < x < \theta$)。则
-\[
-E(\widehat{\theta}_2) = \int_0^\theta x \cdot \frac{n x^{n-1}}{\theta^n}\,dx = \frac{n}{\theta^n} \cdot \frac{\theta^{n+1}}{n+1} = \frac{n}{n+1}\theta \neq \theta,
-\]
-故 $\widehat{\theta}_2$ 不是无偏估计（但它是渐近无偏的）。
-
-\vspace{8pt}
-
-\else \answerarea \fi%
-\textbf{3.（置信区间）} 从正态总体 $N(\mu, \sigma^2)$ 中抽取容量为 $n = 16$ 的样本，算得样本均值 $\overline{x} = 5.2$，样本标准差 $s = 0.8$。求 $\mu$ 的置信水平为 $0.95$ 的置信区间。（已知 $t_{0.025}(15) = 2.131$）
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-$\sigma^2$ 未知，使用 $t$ 分布。$\overline{X} \sim N(\mu, \sigma^2/n)$，$\frac{\overline{X} - \mu}{s/\sqrt{n}} \sim t(n-1)$。
-
-置信区间为
-\[
-\left(\overline{x} - t_{\alpha/2}(n-1)\frac{s}{\sqrt{n}},\; \overline{x} + t_{\alpha/2}(n-1)\frac{s}{\sqrt{n}}\right).
-\]
-代入：$\overline{x} = 5.2$，$s = 0.8$，$n = 16$，$\alpha = 0.05$，$t_{0.025}(15) = 2.131$。
-\[
-\overline{x} \pm t_{\alpha/2}(n-1)\frac{s}{\sqrt{n}} = 5.2 \pm 2.131 \times \frac{0.8}{4} = 5.2 \pm 0.4262.
-\]
-故 $\mu$ 的 $95\%$ 置信区间为 $(4.774,\; 5.626)$。
-
-\boxed{\textbf{答案：}(4.774,\; 5.626)}
-
-\vspace{8pt}
-
-\else \answerarea \fi%
-\textbf{4.（置信区间）} 某工厂生产的零件长度 $X \sim N(\mu, 0.04)$。现随机抽取 $9$ 个零件，测得平均长度 $\overline{x} = 10.1$（cm）。求 $\mu$ 的置信水平为 $0.95$ 的置信区间。（已知 $z_{0.025} = 1.96$）
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-$\sigma^2 = 0.04$ 已知，$\sigma = 0.2$。使用标准正态分布：
-\[
-\frac{\overline{X} - \mu}{\sigma/\sqrt{n}} \sim N(0,1).
-\]
-置信区间为
-\[
-\left(\overline{x} - z_{\alpha/2}\frac{\sigma}{\sqrt{n}},\; \overline{x} + z_{\alpha/2}\frac{\sigma}{\sqrt{n}}\right).
-\]
-代入：
-\[
-10.1 \pm 1.96 \times \frac{0.2}{3} = 10.1 \pm 0.1307.
-\]
-故 $\mu$ 的 $95\%$ 置信区间为 $(9.969,\; 10.231)$。
-
-\boxed{\textbf{答案：}(9.969,\; 10.231)}
-
-\else \answerarea \fi%
-\newpage
-\subsection{综合提高题}
-
-\textbf{5.（MLE + 一致性证明）} 设总体 $X$ 的密度函数为
-\[
-f(x;\theta) = \begin{cases}
-\frac{2x}{\theta^2}, & 0 < x \leqslant \theta,\\
-0, & \text{其他},
-\end{cases}
-\]
-$\theta > 0$ 未知。$X_1, \ldots, X_n$ 为样本。
-\begin{enumerate}[label=(\arabic*)]
-    \item 求 $\theta$ 的最大似然估计量 $\widehat{\theta}$；
-    \item 证明 $\widehat{\theta}$ 是 $\theta$ 的相合估计（一致估计）。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{(1)} 似然函数
-\[
-L(\theta) = \prod_{i=1}^n \frac{2X_i}{\theta^2} \cdot I_{\{0 < X_i \leqslant \theta\}}
-= \frac{2^n \prod_{i=1}^n X_i}{\theta^{2n}} \cdot I_{\{X_{(n)} \leqslant \theta\}},
-\]
-其中 $X_{(n)} = \max\{X_1,\ldots,X_n\}$。$L(\theta)$ 在 $\theta \geqslant X_{(n)}$ 时关于 $\theta$ 单调递减，故最大值在 $\theta = X_{(n)}$ 处取得。
-\[
-\widehat{\theta} = X_{(n)}.
-\]
-
-\textbf{(2)} 先求 $X_{(n)}$ 的分布。总体分布函数 $F(x) = \int_0^x \frac{2t}{\theta^2}\,dt = \frac{x^2}{\theta^2}$ ($0 < x \leqslant \theta$)。
-\[
-F_{(n)}(x) = P(X_{(n)} \leqslant x) = [F(x)]^n = \left(\frac{x^2}{\theta^2}\right)^n = \frac{x^{2n}}{\theta^{2n}}, \quad 0 < x \leqslant \theta.
-\]
-密度 $f_{(n)}(x) = \frac{2n x^{2n-1}}{\theta^{2n}}$。
-
-对任意 $\varepsilon \in (0, \theta)$：
-\[
-P(|\widehat{\theta} - \theta| \geqslant \varepsilon) = P(\widehat{\theta} \leqslant \theta - \varepsilon) = \left(\frac{(\theta-\varepsilon)^2}{\theta^2}\right)^n = \left(1 - \frac{\varepsilon}{\theta}\right)^{2n} \to 0 \quad (n \to \infty),
-\]
-故 $\widehat{\theta} \xrightarrow{P} \theta$，即 $\widehat{\theta}$ 是 $\theta$ 的相合估计。
-
-\vspace{8pt}
-
-\else \answerarea \fi%
-\textbf{6.（假设检验 — 单正态均值）} 某化肥厂用自动包装机包装化肥，设定的平均包装量为 $50$ kg。某日开工后测得 $9$ 袋重量（单位：kg）为：
-\[
-49.7,\; 49.3,\; 50.1,\; 49.8,\; 50.2,\; 49.6,\; 50.0,\; 49.5,\; 49.9.
-\]
-设袋装重量服从正态分布。问：该日包装机的平均包装量是否显著偏离 $50$ kg？（取显著性水平 $\alpha = 0.05$，已知 $t_{0.025}(8) = 2.306$）
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{Step 1.} 提出假设。
-\[
-H_0: \mu = 50 \quad \text{vs} \quad H_1: \mu \neq 50.
-\]
-
-\textbf{Step 2.} 计算样本统计量。
-\[
-n = 9,\quad \overline{x} = \frac{1}{9}(49.7 + 49.3 + \cdots + 49.9) = \frac{448.1}{9} \approx 49.789,
-\]
-\[
-s^2 = \frac{1}{n-1}\sum_{i=1}^n (x_i - \overline{x})^2.
-\]
-计算得 $\sum x_i^2=22311.09$，从而
-\[
-s^2=\frac{\sum x_i^2-n\overline{x}^{2}}{n-1}\approx0.08611,
-\qquad s\approx0.29345.
-\]
-
-\textbf{Step 3.} 检验统计量（$\sigma^2$ 未知，用 $t$ 检验）：
-\[
-t = \frac{\overline{x} - \mu_0}{s/\sqrt{n}}
-\approx \frac{49.7889 - 50}{0.29345/3} \approx -2.158.
-\]
-
-\textbf{Step 4.} 拒绝域：$|t| > t_{\alpha/2}(n-1) = t_{0.025}(8) = 2.306$。
-
-\textbf{Step 5.} 判断：$|t| \approx 2.158 < 2.306$，未落入拒绝域，故在显著性水平 $\alpha=0.05$ 下\textbf{不拒绝} $H_0$；现有样本不足以说明该日包装机的平均包装量偏离 $50$。
-
-\par\noindent\textbf{结论：不拒绝 $H_0$，尚无充分证据认为平均包装量偏离 $50$。}
-
-\vspace{8pt}
-
-\else \answerarea \fi%
-\textbf{7.（两正态总体均值差检验）} 为比较甲、乙两种灯泡的使用寿命，从甲种中随机抽取 $10$ 只，测得样本均值 $\overline{x} = 1610$（h），样本标准差 $s_1 = 80$（h）；从乙种中随机抽取 $8$ 只，测得样本均值 $\overline{y} = 1550$（h），样本标准差 $s_2 = 70$（h）。设两种灯泡寿命均服从正态分布，且方差相等。问：甲种灯泡的平均寿命是否显著高于乙种？（取 $\alpha = 0.05$，$t_{0.05}(16) = 1.746$）
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{Step 1.} 提出假设。
-\[
-H_0: \mu_1 \leqslant \mu_2 \quad \text{vs} \quad H_1: \mu_1 > \mu_2.
-\]
-
-\textbf{Step 2.} 计算联合样本方差（等方差假设下）：
-\[
-s_w^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2} = \frac{9 \times 6400 + 7 \times 4900}{16} = \frac{57600 + 34300}{16} = 5743.75,
-\]
-$s_w = \sqrt{5743.75} \approx 75.79$。
-
-\textbf{Step 3.} 检验统计量：
-\[
-t = \frac{(\overline{x} - \overline{y})-0}{s_w\sqrt{\frac{1}{n_1} + \frac{1}{n_2}}} = \frac{1610 - 1550}{75.79 \times \sqrt{\frac{1}{10} + \frac{1}{8}}} = \frac{60}{75.79 \times \sqrt{0.225}} \approx \frac{60}{35.95} \approx 1.669.
-\]
-
-\textbf{Step 4.} 拒绝域（右侧检验）：$t > t_\alpha(n_1+n_2-2) = t_{0.05}(16) = 1.746$。
-
-\textbf{Step 5.} 判断：$t = 1.669 < 1.746$，未落入拒绝域，故在显著性水平 $\alpha=0.05$ 下\textbf{不拒绝} $H_0$，尚无充分证据认为甲种灯泡的平均寿命高于乙种。
-
-\par\noindent\textbf{结论：不拒绝 $H_0$，差异未达到统计显著。}
-
-\vspace{8pt}
-
-\else \answerarea \fi%
-\textbf{8.（方差检验 $\chi^2$ 检验）} 某车间生产铜丝，从长期资料知铜丝折断力 $X \sim N(\mu, \sigma^2)$，且 $\sigma^2 = 64$。现从新生产的一批铜丝中抽取 $10$ 根，测得折断力样本方差 $s^2 = 92.5$。问：新生产的铜丝折断力的方差是否较以往显著偏大？（取 $\alpha = 0.05$，已知 $\chi^2_{0.05}(9) = 16.919$）
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{Step 1.} 提出假设。
-\[
-H_0: \sigma^2 \leqslant 64 \quad \text{vs} \quad H_1: \sigma^2 > 64.
-\]
-
-\textbf{Step 2.} 检验统计量：
-\[
-\chi^2 = \frac{(n-1)s^2}{\sigma_0^2} = \frac{9 \times 92.5}{64} = \frac{832.5}{64} \approx 13.008.
-\]
-
-\textbf{Step 3.} 拒绝域（右侧检验）：$\chi^2 > \chi^2_\alpha(n-1) = \chi^2_{0.05}(9) = 16.919$。
-
-\textbf{Step 4.} 判断：$\chi^2 = 13.008 < 16.919$，未落入拒绝域，故在显著性水平 $\alpha=0.05$ 下\textbf{不拒绝} $H_0$，尚无充分证据认为方差较以往偏大。
-
-\par\noindent\textbf{结论：不拒绝 $H_0$，方差未显示出显著偏大。}
-
-\else \answerarea \fi%
-\newpage
-\subsection{真题风格与综合训练}
-
-\textbf{9.（\boxed{\textbf{真题风格}}，MLE + 无偏性 + 一致性）} 设总体 $X$ 的分布律为
-\[
-P(X = k) = \frac{\theta^k}{k!}e^{-\theta}, \quad k = 0, 1, 2, \ldots,
-\]
-其中 $\theta \geqslant 0$ 未知；当 $\theta=0$ 时，约定总体退化在 $0$ 点，即 $P(X=0)=1$。$X_1, \ldots, X_n$ 为来自该总体的样本。
-\begin{enumerate}[label=(\arabic*)]
-    \item 求 $\theta$ 的最大似然估计量 $\widehat{\theta}$；
-    \item 证明 $\widehat{\theta}$ 是 $\theta$ 的无偏估计；
-    \item 证明 $\widehat{\theta}$ 是 $\theta$ 的相合估计（一致估计）。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{(1)} 总体 $X \sim \operatorname{Poisson}(\theta)$。似然函数：
-\[
-L(\theta) = \prod_{i=1}^n \frac{\theta^{X_i}}{X_i!}e^{-\theta} = \frac{\theta^{\sum_{i=1}^n X_i}}{\prod_{i=1}^n X_i!} e^{-n\theta}.
-\]
-记 $T=\sum_{i=1}^nX_i$。若 $T>0$，对 $\theta>0$ 取对数：
-\[
-\ln L(\theta)=T\ln\theta-n\theta-\sum_{i=1}^n\ln(X_i!).
-\]
-\[
-\frac{d\ln L}{d\theta} = \frac{T}{\theta} - n = 0
-\quad\Longrightarrow\quad \widehat{\theta}=\frac{T}{n}=\overline{X}.
-\]
-若 $T=0$，则 $L(\theta)=e^{-n\theta}$，在参数空间端点 $\theta=0$ 处取得最大值。因此两种情形可统一写成 $\widehat\theta=\overline X$。
-
-\textbf{(2)} $E(\widehat{\theta}) = E(\overline{X}) = \frac{1}{n}\sum_{i=1}^n E(X_i) = \frac{1}{n} \cdot n\theta = \theta$，故 $\widehat{\theta}$ 是 $\theta$ 的无偏估计。
-
-\textbf{(3)} 由切比雪夫不等式或大数定律：
-\[
-D(\widehat{\theta}) = D(\overline{X}) = \frac{\theta}{n} \to 0 \quad (n \to \infty).
-\]
-对任意 $\varepsilon > 0$，
-\[
-P(|\widehat{\theta} - \theta| \geqslant \varepsilon) \leqslant \frac{D(\widehat{\theta})}{\varepsilon^2} = \frac{\theta}{n\varepsilon^2} \to 0 \quad (n \to \infty),
-\]
-故 $\widehat{\theta} \xrightarrow{P} \theta$，$\widehat{\theta}$ 是 $\theta$ 的相合估计。
-
-\vspace{8pt}
-
-\else \answerarea \fi%
-\textbf{10.（\boxed{\textbf{真题风格}}，区间估计 + 假设检验综合）} 设总体 $X \sim N(\mu, \sigma^2)$，$\mu, \sigma^2$ 均未知。现从该总体中抽取容量为 $n = 25$ 的样本，算得 $\overline{x} = 3.2$，$s = 0.5$。
-\begin{enumerate}[label=(\arabic*)]
-    \item 求 $\mu$ 的置信水平为 $0.95$ 的置信区间；
-    \item 在显著性水平 $\alpha = 0.05$ 下，检验假设 $H_0: \mu = 3.0$ vs $H_1: \mu \neq 3.0$；
-    \item 比较 (1) 和 (2) 的结果，说明置信区间与假设检验的关系。
-\end{enumerate}
-（已知 $t_{0.025}(24) = 2.064$）
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{(1)} $\sigma^2$ 未知，使用 $t$ 分布法求置信区间：
-\[
-\overline{x} \pm t_{\alpha/2}(n-1) \frac{s}{\sqrt{n}} = 3.2 \pm 2.064 \times \frac{0.5}{5} = 3.2 \pm 0.2064,
-\]
-故 $\mu$ 的 $95\%$ 置信区间为 $(2.994,\; 3.406)$。
-
-\textbf{(2)} 检验 $H_0: \mu = 3.0$ vs $H_1: \mu \neq 3.0$。检验统计量：
-\[
-t = \frac{\overline{x} - \mu_0}{s/\sqrt{n}} = \frac{3.2 - 3.0}{0.5/5} = \frac{0.2}{0.1} = 2.0.
-\]
-拒绝域：$|t| > t_{0.025}(24) = 2.064$。$|t| = 2.0 < 2.064$，故不拒绝 $H_0$。
-
-\textbf{(3)} 关系：$\mu_0 = 3.0$ 落入 $95\%$ 置信区间 $(2.994, 3.406)$ 内，这与在 $\alpha = 0.05$ 水平下不拒绝 $H_0$ 的结论一致。一般地，\textbf{双侧检验不拒绝 $H_0: \mu = \mu_0$ 等价于 $\mu_0$ 落在相应的 $1-\alpha$ 置信区间内}。
-
-\vspace{8pt}
-
-\else \answerarea \fi%
-\textbf{11.（\boxed{\textbf{真题风格}}，MLE不变性 + 区间估计）} 设总体 $X \sim N(\mu, \sigma^2)$，$\mu$ 已知，$\sigma^2 > 0$ 未知。$X_1, \ldots, X_n$ 为样本。
-\begin{enumerate}[label=(\arabic*)]
-    \item 求 $\sigma^2$ 的最大似然估计量 $\widehat{\sigma}^2$；
-    \item 利用 MLE 的不变性，求 $\sigma$ 的最大似然估计量 $\widehat{\sigma}$；
-    \item 构造 $\sigma^2$ 的置信水平为 $1-\alpha$ 的置信区间。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{(1)} $\mu$ 已知时，似然函数为
-\[
-L(\sigma^2) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\!\left(-\frac{(X_i - \mu)^2}{2\sigma^2}\right)
-= (2\pi\sigma^2)^{-n/2} \exp\!\left(-\frac{1}{2\sigma^2}\sum_{i=1}^n (X_i - \mu)^2\right).
-\]
-取对数并对 $\sigma^2$ 求导：
-\[
-\frac{d}{d(\sigma^2)} \ln L = -\frac{n}{2\sigma^2} + \frac{\sum_{i=1}^n (X_i - \mu)^2}{2(\sigma^2)^2} = 0,
-\]
-得
-\[
-\widehat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu)^2.
-\]
-
-\textbf{(2)} 由 MLE 的不变性，$\sigma = \sqrt{\sigma^2}$ 是 $\sigma^2$ 的单调函数，故
-\[
-\widehat{\sigma} = \sqrt{\widehat{\sigma}^2} = \sqrt{\frac{1}{n}\sum_{i=1}^n (X_i - \mu)^2}.
-\]
-
-\textbf{(3)} $\mu$ 已知时，$\frac{\sum_{i=1}^n (X_i - \mu)^2}{\sigma^2} \sim \chi^2(n)$。故
-\[
-P\!\left(\chi^2_{1-\alpha/2}(n) \leqslant \frac{\sum_{i=1}^n (X_i - \mu)^2}{\sigma^2} \leqslant \chi^2_{\alpha/2}(n)\right) = 1 - \alpha.
-\]
-解得 $\sigma^2$ 的 $1-\alpha$ 置信区间为
-\[
-\left(\frac{\sum_{i=1}^n (X_i - \mu)^2}{\chi^2_{\alpha/2}(n)},\; \frac{\sum_{i=1}^n (X_i - \mu)^2}{\chi^2_{1-\alpha/2}(n)}\right).
-\]
-
-\vspace{8pt}
-
-\else \answerarea \fi%
-\textbf{12.（两正态总体方差比 $F$ 检验）} 甲、乙两台机床加工同一种轴，从甲机床加工的轴中随机抽取 $13$ 根，测得直径样本方差 $s_1^2 = 0.0012$；从乙机床加工的轴中随机抽取 $9$ 根，测得直径样本方差 $s_2^2 = 0.0035$。设两台机床加工的轴的直径均服从正态分布。
-\begin{enumerate}[label=(\arabic*)]
-    \item 检验甲、乙两台机床的加工精度（方差）是否有显著差异（取 $\alpha = 0.05$）；
-    \item 若进一步采用两总体方差相等的模型，检验甲机床加工轴的平均直径是否显著小于乙机床。（已知：$F_{0.025}(12,8) \approx 4.200$，$F_{0.975}(12,8) = \frac{1}{F_{0.025}(8,12)} \approx 0.285$；$\overline{x}_1 = 20.00$，$\overline{x}_2 = 20.15$）
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-\textbf{(1)} 检验 $H_0: \sigma_1^2 = \sigma_2^2$ vs $H_1: \sigma_1^2 \neq \sigma_2^2$。
-
-检验统计量：
-\[
-F = \frac{s_1^2}{s_2^2} = \frac{0.0012}{0.0035} \approx 0.3429.
-\]
-拒绝域（双侧）：$F < F_{1-\alpha/2}(n_1-1, n_2-1)$ 或 $F > F_{\alpha/2}(n_1-1, n_2-1)$。
-\[
-F_{0.975}(12,8) \approx 0.285, \quad F_{0.025}(12,8) \approx 4.200.
-\]
-$F = 0.3429$ 满足 $0.285 < 0.3429 < 4.200$，未落入拒绝域，故不拒绝 $H_0$；现有样本未显示两总体方差存在显著差异。
-
-\textbf{(2)} 按本问进一步给出的等方差模型（方差检验不拒绝原假设本身不能证明方差必然相等），使用等方差两样本 $t$ 检验。
-
-$H_0: \mu_1 \geqslant \mu_2$ vs $H_1: \mu_1 < \mu_2$（左侧检验）。
-
-联合样本方差：
-\[
-\begin{aligned}
-s_w^2
-&=\frac{(n_1-1)s_1^2+(n_2-1)s_2^2}{n_1+n_2-2}\\
-&=\frac{12\times0.0012+8\times0.0035}{20}
-=\frac{0.0144+0.028}{20}=0.00212.
-\end{aligned}
-\]
-$s_w = \sqrt{0.00212} \approx 0.04604$。
-
-检验统计量：
-\[
-t = \frac{\overline{x}_1 - \overline{x}_2}{s_w\sqrt{\frac{1}{n_1} + \frac{1}{n_2}}} = \frac{20.00 - 20.15}{0.04604 \times \sqrt{\frac{1}{13} + \frac{1}{9}}} \approx \frac{-0.15}{0.04604 \times 0.4336} \approx \frac{-0.15}{0.01996} \approx -7.51.
-\]
-
-拒绝域（左侧）：$t < -t_\alpha(n_1+n_2-2) = -t_{0.05}(20) \approx -1.725$。
-
-$t \approx -7.51 < -1.725$，落入拒绝域，拒绝 $H_0$，认为在该显著性水平下有充分证据表明甲机床加工轴的平均直径小于乙机床。
-
-\boxed{\textbf{答案：}(1) \text{方差无显著差异；(2) 甲机床平均直径显著小于乙机床。}}
-
-\else \answerarea \fi%
+\input{probality/exercises/chap7.tex}

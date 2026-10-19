@@ -1,1111 +1,459 @@
 \section{向量组}
 
-\subsection{线性组合}
+向量组要研究的问题很朴素：一组向量里，哪些是“多余”的？去掉多余的部分后，还剩几个真正独立的方向？把这些方向当作坐标系，同一个向量又该怎样读数？下面从具体的组合运算开始，一路走到正交基。
+
+\subsection{线性组合与线性表出}
+
+取两个平面向量
+\[
+\boldsymbol{\alpha}_1=(1,1)^{\mathrm T},\qquad \boldsymbol{\alpha}_2=(1,-1)^{\mathrm T}.
+\]
+用系数 $2$ 和 $1$ 把它们拼起来：
+\[
+2\boldsymbol{\alpha}_1+\boldsymbol{\alpha}_2
+=(2,2)^{\mathrm T}+(1,-1)^{\mathrm T}=(3,1)^{\mathrm T}.
+\]
+结果仍是平面上的一个向量。改变系数，终点就跟着变；所有可能的终点构成这两个向量能“够得着”的范围。
 
 \begin{mydef}{线性组合与线性表出}{linear-combination}
-    设 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ 是 $n$ 维向量，$k_1, k_2, \ldots, k_m \in \mathbb{R}$，称向量
-    \[
-    k_1\boldsymbol{\alpha}_1 + k_2\boldsymbol{\alpha}_2 + \cdots + k_m\boldsymbol{\alpha}_m
-    \]
-    为向量组 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ 的一个\textbf{线性组合}，$k_1, k_2, \ldots, k_m$ 称为\textbf{组合系数}。
+设 $\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_m$ 是 $n$ 维向量，$k_1,\ldots,k_m$ 是实数。向量
+\[
+k_1\boldsymbol{\alpha}_1+k_2\boldsymbol{\alpha}_2+\cdots+k_m\boldsymbol{\alpha}_m
+\]
+称为这组向量的一个\textbf{线性组合}，$k_i$ 称为组合系数。
 
-    若向量 $\boldsymbol{\beta}$ 能表示为上述形式，即存在实数 $k_1, k_2, \ldots, k_m$ 使得
-    \[
-    \boldsymbol{\beta} = k_1\boldsymbol{\alpha}_1 + k_2\boldsymbol{\alpha}_2 + \cdots + k_m\boldsymbol{\alpha}_m
-    \]
-    则称 $\boldsymbol{\beta}$ 可由向量组 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ \textbf{线性表出}（或称 $\boldsymbol{\beta}$ 是该向量组的线性组合）。
+若存在实数 $x_1,\ldots,x_m$ 使
+\[
+\boldsymbol{\beta}=x_1\boldsymbol{\alpha}_1+x_2\boldsymbol{\alpha}_2+\cdots+x_m\boldsymbol{\alpha}_m,
+\]
+就说 $\boldsymbol{\beta}$ 可由 $\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_m$ \textbf{线性表出}，$x_i$ 就是表出系数。系数允许为 $0$ 或负数，没有“必须取正”的限制。
 \end{mydef}
 
-线性组合的几何意义：把 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2$ 按系数作平行四边形合成。下例 $\boldsymbol{\beta} = 2\boldsymbol{\alpha}_1 + 3\boldsymbol{\alpha}_2$（$\boldsymbol{\alpha}_1=(1,1)$，$\boldsymbol{\alpha}_2=(1,-1)$，$\boldsymbol{\beta}=(5,-1)$）：
+把向量按列排成矩阵 $A=(\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_m)$，表出式就是线性方程组
+\[
+A\boldsymbol{x}=\boldsymbol{\beta},\qquad \boldsymbol{x}=(x_1,\ldots,x_m)^{\mathrm T}.
+\]
+所以“能否表出”等价于“方程组是否有解”。由线性方程组的理论，
+\[
+\boldsymbol{\beta}\ \text{可被表出}\iff \operatorname{rank}(A)=\operatorname{rank}(A\mid\boldsymbol{\beta}).
+\]
+若还有 $\operatorname{rank}(A)=m$（各列线性无关），则解唯一；若秩小于 $m$，表出方式不唯一，有无穷多组系数。
+
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  axis lines=center,
-  width=0.74\linewidth, height=6.2cm,
+  axis lines=center, axis equal image, clip=false,
+  width=0.62\linewidth, height=6.2cm,
   xlabel={$x_1$}, ylabel={$x_2$},
-  xmin=-0.8, xmax=6.4, ymin=-3.8, ymax=2.8,
-  xtick={1,2,3,4,5}, ytick={-2,-1,1,2},
+  xmin=-0.5, xmax=3.8, ymin=-1.8, ymax=2.8,
+  xtick={1,2,3}, ytick={-1,1,2},
   font=\footnotesize,
 ]
 \draw[->,thick,blue] (axis cs:0,0) -- (axis cs:1,1);
-\draw[->,thick,red] (axis cs:0,0) -- (axis cs:1,-1);
-\draw[->,thick,blue,dashed] (axis cs:0,0) -- (axis cs:2,2);
-\draw[->,thick,red,dashed] (axis cs:0,0) -- (axis cs:3,-3);
-\draw[dashed,gray] (axis cs:2,2) -- (axis cs:5,-1);
-\draw[dashed,gray] (axis cs:3,-3) -- (axis cs:5,-1);
-\draw[->,thick,black] (axis cs:0,0) -- (axis cs:5,-1);
-\node[anchor=south,blue] at (axis cs:1,1) {$\boldsymbol{\alpha}_1$};
-\node[anchor=north,red] at (axis cs:1,-1) {$\boldsymbol{\alpha}_2$};
-\node[anchor=north east,black] at (axis cs:5,-1) {$\boldsymbol{\beta}$};
-\node[blue] at (axis cs:2.1,2.4) {$2\boldsymbol{\alpha}_1$};
-\node[red] at (axis cs:3.6,-3.3) {$3\boldsymbol{\alpha}_2$};
+\draw[->,thick,red]  (axis cs:0,0) -- (axis cs:1,-1);
+\draw[->,thick,blue!60,dashed] (axis cs:0,0) -- (axis cs:2,2);
+\draw[dashed,gray] (axis cs:2,2) -- (axis cs:3,1);
+\draw[dashed,gray] (axis cs:1,-1) -- (axis cs:3,1);
+\draw[->,very thick,black] (axis cs:0,0) -- (axis cs:3,1);
+\node[blue,anchor=south east] at (axis cs:1,1) {$\boldsymbol{\alpha}_1$};
+\node[red,anchor=north west] at (axis cs:1,-1) {$\boldsymbol{\alpha}_2$};
+\node[blue!60,anchor=south] at (axis cs:2,2) {$2\boldsymbol{\alpha}_1$};
+\node[black,anchor=south west] at (axis cs:3,1) {$\boldsymbol{\beta}$};
 \end{axis}
 \end{tikzpicture}
 \end{center}
 
-\begin{conclusion}{线性表出的判定方法}{linear-combination-judgment}
-    判断 $\boldsymbol{\beta}$ 能否由 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ 线性表出，等价于判断线性方程组
-    \[
-    x_1\boldsymbol{\alpha}_1 + x_2\boldsymbol{\alpha}_2 + \cdots + x_m\boldsymbol{\alpha}_m = \boldsymbol{\beta}
-    \]
-    是否有解。具体地：
-    \begin{enumerate}
-        \item 写出以 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 为列向量的矩阵 $A = (\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m)$；
-        \item 解线性方程组 $A\boldsymbol{x} = \boldsymbol{\beta}$；
-        \item 若有解，则 $\boldsymbol{\beta}$ 可被线性表出，且解即为表出系数；若无解，则不可被线性表出。
-    \end{enumerate}
-    等价地，$\boldsymbol{\beta}$ 可被 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性表出 $\Leftrightarrow$ $\operatorname{rank}(A) = \operatorname{rank}(A \mid \boldsymbol{\beta})$。
-\end{conclusion}
-
-\begin{conclusion}{线性表出的传递性}{linear-combination-transitivity}
-    设有三组向量：
-    \begin{enumerate}
-        \item 若向量组 (I) 中每个向量均可由向量组 (II) 线性表出，向量组 (II) 中每个向量均可由向量组 (III) 线性表出，则向量组 (I) 中每个向量均可由向量组 (III) 线性表出。
-        \item 特别地，若 $\boldsymbol{\beta}$ 可由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性表出，而每个 $\boldsymbol{\alpha}_i$ 均可由 $\boldsymbol{\gamma}_1, \ldots, \boldsymbol{\gamma}_s$ 线性表出，则 $\boldsymbol{\beta}$ 可由 $\boldsymbol{\gamma}_1, \ldots, \boldsymbol{\gamma}_s$ 线性表出。
-    \end{enumerate}
-    这一性质称为线性表出的\textbf{传递性}。
-\end{conclusion}
-
-\boxed{\textbf{例}}
-设 $\boldsymbol{\alpha}_1 = (1, 0, 1)^\mathrm{T}$，$\boldsymbol{\alpha}_2 = (0, 1, 1)^\mathrm{T}$，$\boldsymbol{\beta} = (2, 3, 5)^\mathrm{T}$。问 $\boldsymbol{\beta}$ 能否由 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2$ 线性表出？若能，求出表出系数。
-
-\textbf{解} 设 $\boldsymbol{\beta} = x_1\boldsymbol{\alpha}_1 + x_2\boldsymbol{\alpha}_2$，即解方程组
-\[
-x_1\begin{pmatrix} 1 \\ 0 \\ 1 \end{pmatrix} + x_2\begin{pmatrix} 0 \\ 1 \\ 1 \end{pmatrix} = \begin{pmatrix} 2 \\ 3 \\ 5 \end{pmatrix}
-\]
-写出增广矩阵：
-\[
-\left(\begin{array}{cc|c}
-1 & 0 & 2 \\
-0 & 1 & 3 \\
-1 & 1 & 5
-\end{array}\right)
-\xrightarrow{r_3 - r_1 - r_2}
-\left(\begin{array}{cc|c}
-1 & 0 & 2 \\
-0 & 1 & 3 \\
-0 & 0 & 0
-\end{array}\right)
-\]
-得 $x_1 = 2$，$x_2 = 3$。故 $\boldsymbol{\beta} = 2\boldsymbol{\alpha}_1 + 3\boldsymbol{\alpha}_2$，$\boldsymbol{\beta}$ 可由 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2$ 线性表出。
+图中 $\boldsymbol{\beta}=2\boldsymbol{\alpha}_1+\boldsymbol{\alpha}_2$：先沿 $\boldsymbol{\alpha}_1$ 走两倍，再沿 $\boldsymbol{\alpha}_2$ 走一倍，两条虚线围成平行四边形，$\boldsymbol{\beta}$ 是它的对角线。只要两个向量不共线，改变两个系数就能到达平面上任意一点；一旦共线，无论怎么配系数，终点都只能留在同一条直线上。
 
 \subsection{线性相关与线性无关}
 
-\begin{mydef}{线性相关与线性无关}{linear-dependence-independence}
-    对于 $n$ 维向量组 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$，若存在\textbf{不全为零}的实数 $k_1, k_2, \ldots, k_m$ 使得
-    \[
-    k_1\boldsymbol{\alpha}_1 + k_2\boldsymbol{\alpha}_2 + \cdots + k_m\boldsymbol{\alpha}_m = \boldsymbol{0}
-    \]
-    则称向量组 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ \textbf{线性相关}。
+看两个向量
+\[
+\boldsymbol{\alpha}_1=(1,2)^{\mathrm T},\qquad \boldsymbol{\alpha}_2=(2,4)^{\mathrm T}.
+\]
+显然 $\boldsymbol{\alpha}_2=2\boldsymbol{\alpha}_1$，移项得
+\[
+2\boldsymbol{\alpha}_1-\boldsymbol{\alpha}_2=\boldsymbol{0}.
+\]
+系数 $(2,-1)$ 不全为零，却把非零向量组合成了零向量。这说明 $\boldsymbol{\alpha}_2$ 没有提供新方向，是“多余”的。
 
-    若只有当 $k_1 = k_2 = \cdots = k_m = 0$ 时上式才成立（即不存在不全为零的系数使线性组合为零向量），则称向量组 \textbf{线性无关}（或称\textbf{线性独立}）。
+\begin{mydef}{线性相关与线性无关}{linear-dependence}
+对向量组 $\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_m$，若存在\textbf{不全为零}的实数 $k_1,\ldots,k_m$ 使
+\[
+k_1\boldsymbol{\alpha}_1+k_2\boldsymbol{\alpha}_2+\cdots+k_m\boldsymbol{\alpha}_m=\boldsymbol{0},
+\]
+则称该向量组\textbf{线性相关}。若上式只在 $k_1=\cdots=k_m=0$ 时成立，则称它\textbf{线性无关}。
 \end{mydef}
 
-\begin{formula}{线性相关性的代数判定方法}{algebraic-criterion-dependence}
-    设 $A = (\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m)$ 为以所论向量为列向量的矩阵，则：
-    \begin{enumerate}
-        \item \textbf{齐次方程组法}：向量组 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性相关 $\Leftrightarrow$ 齐次线性方程组 $A\boldsymbol{x} = \boldsymbol{0}$ 有非零解；线性无关 $\Leftrightarrow$ 仅有零解。
-        \item \textbf{秩判别法}：向量组 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性无关 $\Leftrightarrow$ $\operatorname{rank}(A) = m$（向量个数）；线性相关 $\Leftrightarrow$ $\operatorname{rank}(A) < m$。
-        \item \textbf{行列式判别法}（当 $m = n$ 时）：$n$ 个 $n$ 维向量 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n$ 线性无关 $\Leftrightarrow$ $\det(\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n) \neq 0$；线性相关 $\Leftrightarrow$ 行列式 $= 0$。
-        \item \textbf{个数-维数关系}：若向量个数 $m$ 大于向量维数 $n$，则这 $m$ 个 $n$ 维向量必然线性相关。
-    \end{enumerate}
+“无关”不等于“任意两个都不成比例”这么简单，它要求整个组没有任何非平凡的零组合。单个向量 $\boldsymbol{\alpha}$ 线性相关当且仅当 $\boldsymbol{\alpha}=\boldsymbol{0}$；含有零向量的向量组一定线性相关，因为让零向量的系数取 $1$、其余取 $0$ 就得到零组合。
+
+\begin{formula}{线性相关性的判定}{dependence-criteria}
+设 $A=(\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_m)$ 是以这些向量为列的 $n\times m$ 矩阵。
+\begin{enumerate}
+  \item 齐次方程法：线性相关 $\iff$ $A\boldsymbol{x}=\boldsymbol{0}$ 有非零解；线性无关 $\iff$ 只有零解。
+  \item 秩判别法：线性相关 $\iff$ $\operatorname{rank}(A)<m$；线性无关 $\iff$ $\operatorname{rank}(A)=m$。
+  \item 行列式法（$m=n$）：$n$ 个 $n$ 维向量线性相关 $\iff$ $\det A=0$。
+  \item 个数与维数：当 $m>n$ 时，$m$ 个 $n$ 维向量必定线性相关。因为 $n$ 维空间里最多只能放下 $n$ 个独立方向。
+\end{enumerate}
 \end{formula}
 
-\begin{conclusion}{线性相关与无关的几何意义}{geometric-meaning-dependence}
-    在 $\mathbb{R}^2$ 和 $\mathbb{R}^3$ 中，线性相关与无关有直观的几何解释：
-    \begin{enumerate}
-        \item 单个向量：$\boldsymbol{\alpha}$ 线性相关 $\Leftrightarrow$ $\boldsymbol{\alpha} = \boldsymbol{0}$；$\boldsymbol{\alpha} \neq \boldsymbol{0}$ 时线性无关。
-        \item 两个向量：$\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2$ 线性相关 $\Leftrightarrow$ 两者共线（成比例）；线性无关 $\Leftrightarrow$ 两者不共线。
-        \item 三个向量（$\mathbb{R}^3$ 中）：$\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3$ 线性相关 $\Leftrightarrow$ 三者共面；线性无关 $\Leftrightarrow$ 三者不共面（构成空间的一组基）。
-        \item 一般地，$m$ 个向量线性无关当且仅当它们张成一个 $m$ 维子空间，任何一个向量都不能由其余向量线性表出。
-    \end{enumerate}
-\end{conclusion}
+几何上，$\mathbb{R}^2$ 中两个向量线性相关就是共线，线性无关就是不共线；$\mathbb{R}^3$ 中三个向量线性相关就是共面，线性无关就是不共面。
 
-线性相关的向量共线，张成一条直线；线性无关的向量不共线，可张成整个平面：
 \begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-  at={(0cm,0cm)},
-  width=5.4cm, height=4.4cm,
-  axis lines=center,
-  xlabel={$x_1$}, ylabel={$x_2$},
-  xmin=-1.4, xmax=1.6, ymin=-1.4, ymax=1.6,
-  xtick={-1,1}, ytick={-1,1},
-  title={线性相关（共线）},
-  title style={font=\scriptsize},
-  font=\scriptsize,
-]
-\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:1,1);
-\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:-0.6,-0.6);
-\node[blue,anchor=south] at (axis cs:1,1) {$\boldsymbol{\alpha}_1$};
-\node[blue,anchor=north] at (axis cs:-0.6,-0.6) {$\boldsymbol{\alpha}_2$};
-\end{axis}
-\begin{axis}[
-  at={(6.2cm,0cm)},
-  width=5.4cm, height=4.4cm,
-  axis lines=center,
-  xlabel={$x_1$}, ylabel={$x_2$},
-  xmin=-1.4, xmax=1.6, ymin=-1.4, ymax=1.6,
-  xtick={-1,1}, ytick={-1,1},
-  title={线性无关（不共线）},
-  title style={font=\scriptsize},
-  font=\scriptsize,
-]
-\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:1.2,0.4);
-\draw[->,thick,red] (axis cs:0,0) -- (axis cs:0.4,1.1);
-\node[blue,anchor=south] at (axis cs:1.2,0.4) {$\boldsymbol{\alpha}_1$};
-\node[red,anchor=west] at (axis cs:0.4,1.1) {$\boldsymbol{\alpha}_2$};
-\end{axis}
+\begin{tikzpicture}[x=1.9cm,y=1.9cm,font=\footnotesize]
+\begin{scope}
+  \draw[->] (-1.5,0) -- (1.55,0) node[below] {$x_1$};
+  \draw[->] (0,-1.5) -- (0,1.55) node[left] {$x_2$};
+  \draw[->,thick,blue] (0,0) -- (1,0.8) node[above right] {$\boldsymbol{\alpha}_1$};
+  \draw[->,thick,blue!60,dashed] (0,0) -- (-0.75,-0.6) node[below left] {$\boldsymbol{\alpha}_2$};
+  \node at (0,1.9) {相关：共线};
+\end{scope}
+\begin{scope}[xshift=7.0cm]
+  \draw[->] (-1.5,0) -- (1.55,0) node[below] {$x_1$};
+  \draw[->] (0,-1.5) -- (0,1.55) node[left] {$x_2$};
+  \draw[->,thick,blue] (0,0) -- (1,0.35) node[above right] {$\boldsymbol{\alpha}_1$};
+  \draw[->,thick,red]  (0,0) -- (0.35,1) node[above right] {$\boldsymbol{\alpha}_2$};
+  \node at (0,1.9) {无关：不共线};
+\end{scope}
 \end{tikzpicture}
 \end{center}
 
-\boxed{\textbf{例}}
-判断下列向量组的线性相关性：
+左图两个箭头落在同一直线上，其中一个必然是另一个的倍数，存在非零系数把它们组合成零；右图两个箭头方向不同，要让组合等于零只能让两个系数都取零。
+
+关于相关与无关，有几条经常直接拿来用的结论。
+
+第一，部分相关则整体相关；反过来，整体无关则任何部分组都无关。原因是：部分组上的非平凡零组合，把其余向量的系数补成 $0$，就成了整个组的非平凡零组合。
+
+第二，设 $\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_m$ 线性无关，而添上 $\boldsymbol{\beta}$ 后变为线性相关，则 $\boldsymbol{\beta}$ 可由原组表出，且表出方式唯一。证明很短：相关给出
+\[
+k_1\boldsymbol{\alpha}_1+\cdots+k_m\boldsymbol{\alpha}_m+k\boldsymbol{\beta}=\boldsymbol{0},
+\]
+其中系数不全为零。若 $k=0$，则原组自己就有非平凡零组合，与无关矛盾，所以 $k\neq0$，解出 $\boldsymbol{\beta}$ 即可。唯一性来自：两种表出相减，会得到原组的一个零组合，系数只能全为零。
+
+第三，无关组添上一个“表不出来的向量”，得到的仍是无关组。这条结论说明无关组可以不断扩充，直到张满整个空间。
+
+第四，若 $\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_r$ 线性无关，且每个 $\boldsymbol{\alpha}_i$ 都能由 $\boldsymbol{\beta}_1,\ldots,\boldsymbol{\beta}_s$ 表出，则 $r\le s$。直观上，$s$ 个向量最多提供 $s$ 个独立方向，装不下 $r$ 个独立方向。这条“数个数”的事实后面会用来证明秩与极大无关组的大小无关。
+
+还要注意：线性相关只保证“至少有一个”向量能由其余向量表出，不保证每一个都能。例如
+\[
+\boldsymbol{\alpha}_1=(1,0)^{\mathrm T},\quad
+\boldsymbol{\alpha}_2=(2,0)^{\mathrm T},\quad
+\boldsymbol{\alpha}_3=(0,1)^{\mathrm T}
+\]
+线性相关，但 $\boldsymbol{\alpha}_3$ 无法由前两个向量表出，因为前两个向量张成的只是一条 $x$ 轴。
+
+\subsection{极大无关组与秩}
+
+在 $\mathbb{R}^3$ 中取四个向量
+\[
+\boldsymbol{\alpha}_1=\begin{pmatrix}1\\0\\1\end{pmatrix},\quad
+\boldsymbol{\alpha}_2=\begin{pmatrix}0\\1\\1\end{pmatrix},\quad
+\boldsymbol{\alpha}_3=\begin{pmatrix}1\\1\\2\end{pmatrix},\quad
+\boldsymbol{\alpha}_4=\begin{pmatrix}1\\0\\0\end{pmatrix}.
+\]
+直接观察发现 $\boldsymbol{\alpha}_3=\boldsymbol{\alpha}_1+\boldsymbol{\alpha}_2$，所以 $\boldsymbol{\alpha}_3$ 没有带来新方向。把它去掉，剩下三个向量
+\[
+\det(\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_4)
+=\begin{vmatrix}1&0&1\\0&1&0\\1&1&0\end{vmatrix}=-1\neq0,
+\]
+线性无关，而且 $\boldsymbol{\alpha}_3$ 已经能用它们表出。因此 $\{\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_4\}$ 是这组向量里“不多不少”的一部分。
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,x=1.1cm,y=1.1cm]
+% 平面 span{α1, α2}
+\fill[blue!8] (0,0) -- (4.2,-0.5) -- (5.4,1.4) -- (1.2,1.9) -- cycle;
+\draw[blue!45] (0,0) -- (4.2,-0.5) -- (5.4,1.4) -- (1.2,1.9) -- cycle;
+% 平面内的三个向量
+\draw[->,thick,red] (0,0) -- (4.2,-0.5) node[below] {$\boldsymbol{\alpha}_1$};
+\draw[->,thick,green!50!black] (0,0) -- (1.2,1.9) node[above left] {$\boldsymbol{\alpha}_2$};
+\draw[->,thick,orange] (0,0) -- (5.4,1.4) node[above right] {$\boldsymbol{\alpha}_3$};
+% 指向平面外的向量
+\draw[->,very thick,blue] (0,0) -- (0,3.0) node[right] {$\boldsymbol{\alpha}_4$\ 平面外};
+\node[blue!55!black] at (3.4,0.85) {$\operatorname{span}\{\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2\}$};
+\end{tikzpicture}
+\end{center}
+
+图中 $\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2$ 张成一个平面，$\boldsymbol{\alpha}_3$ 仍落在这个平面内，所以添上它不增加维数。$\boldsymbol{\alpha}_4$ 指向平面外，张成空间从二维升到三维，秩也从 $2$ 变成 $3$。若只有前两个向量，极大无关组就是它俩；加入 $\boldsymbol{\alpha}_4$ 后，极大无关组需要三个向量。
+
+\begin{mydef}{极大线性无关组与秩}{maximal-independent-set}
+设 $S=\{\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_m\}$。若它的一个部分组 $\boldsymbol{\alpha}_{i_1},\ldots,\boldsymbol{\alpha}_{i_r}$ 满足
 \begin{enumerate}
-    \item[(1)] $\boldsymbol{\alpha}_1 = (1, 2, 3)^\mathrm{T}$，$\boldsymbol{\alpha}_2 = (2, 4, 6)^\mathrm{T}$，$\boldsymbol{\alpha}_3 = (1, 1, 0)^\mathrm{T}$；
-    \item[(2)] $\boldsymbol{\beta}_1 = (1, 0, 0)^\mathrm{T}$，$\boldsymbol{\beta}_2 = (0, 1, 0)^\mathrm{T}$，$\boldsymbol{\beta}_3 = (0, 0, 1)^\mathrm{T}$。
+  \item 自身线性无关；
+  \item 从 $S$ 中再任取一个剩余向量添进去，所得向量组都线性相关，
 \end{enumerate}
+则称它为 $S$ 的一个\textbf{极大线性无关组}，简称极大无关组。
 
-\textbf{解}
-(1) 观察 $\boldsymbol{\alpha}_2 = 2\boldsymbol{\alpha}_1$，即存在不全为零的系数 $(2, -1, 0)$ 使 $2\boldsymbol{\alpha}_1 - \boldsymbol{\alpha}_2 + 0 \cdot \boldsymbol{\alpha}_3 = \boldsymbol{0}$，故向量组\textbf{线性相关}。
-
-或用行列式：
-\[
-\det(\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3) =
-\begin{vmatrix}
-1 & 2 & 1 \\
-2 & 4 & 1 \\
-3 & 6 & 0
-\end{vmatrix}
-= 1 \cdot \begin{vmatrix} 4 & 1 \\ 6 & 0 \end{vmatrix} - 2 \cdot \begin{vmatrix} 2 & 1 \\ 3 & 0 \end{vmatrix} + 1 \cdot \begin{vmatrix} 2 & 4 \\ 3 & 6 \end{vmatrix}
-= (-6) - 2 \cdot (-3) + 0 = 0
-\]
-行列式为零，验证了线性相关。
-
-(2) $\boldsymbol{\beta}_1, \boldsymbol{\beta}_2, \boldsymbol{\beta}_3$ 是标准单位向量，其行列式
-\[
-\begin{vmatrix}
-1 & 0 & 0 \\
-0 & 1 & 0 \\
-0 & 0 & 1
-\end{vmatrix} = 1 \neq 0
-\]
-故\textbf{线性无关}。
-
-\subsection{重要定理}
-
-\begin{conclusion}{定理1：部分与整体的相关性}{thm-part-whole}
-    若向量组中有一部分向量线性相关，则整个向量组也线性相关。
-    等价地：若整个向量组线性无关，则其任何部分组也线性无关。
-\end{conclusion}
-
-\begin{conclusion}{定理2：添加分量的相关性}{thm-extension-dependence}
-    若 $m$ 个 $n$ 维向量线性无关，则在每个向量的末尾添加若干分量后得到的 $m$ 个更高维向量仍线性无关。
-    等价地：若添加分量后的高维向量组线性相关，则添加前的低维向量组也线性相关。
-
-    这一性质在判别线性无关时很实用：若从原向量组中删除相同位置的若干分量后，所得低维向量组仍线性无关，则原向量组必线性无关。反之不成立：截断后相关不能推出原组相关。例如 $(1,0)^{\mathrm T},(1,1)^{\mathrm T}$ 线性无关，但删去第二个分量后得到 $(1),(1)$，它们线性相关。
-\end{conclusion}
-
-\begin{conclusion}{定理3：线性相关与线性表出的关系}{thm-dependence-expression}
-    向量组 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$（$m \geq 2$）线性相关的\textbf{充要条件}是：其中至少有一个向量可以由其余 $m-1$ 个向量线性表出。
-
-    \textbf{注}：不一定每个向量都能由其余向量线性表出，仅要求至少存在一个这样的向量。例如 $\boldsymbol{\alpha}_1 = (1,0)^\mathrm{T}$，$\boldsymbol{\alpha}_2 = (2,0)^\mathrm{T}$，$\boldsymbol{\alpha}_3 = (0,1)^\mathrm{T}$，则 $\boldsymbol{\alpha}_1$ 和 $\boldsymbol{\alpha}_2$ 可互相表出，但 $\boldsymbol{\alpha}_3$ 不能由 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2$ 表出（因 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2$ 张成的是一维直线，无法表出不在该直线上的 $\boldsymbol{\alpha}_3$）。
-\end{conclusion}
-
-\begin{conclusion}{定理4：线性无关组的添加}{thm-independent-extension}
-    设 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性无关，而 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m, \boldsymbol{\beta}$ 线性相关，则 $\boldsymbol{\beta}$ 必可由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性表出，且表出方式唯一。
-
-    证明：由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m, \boldsymbol{\beta}$ 线性相关，存在不全为零的 $k_1, \ldots, k_m, k$ 使得
-    \[
-    k_1\boldsymbol{\alpha}_1 + \cdots + k_m\boldsymbol{\alpha}_m + k\boldsymbol{\beta} = \boldsymbol{0}
-    \]
-    若 $k = 0$，则 $k_1\boldsymbol{\alpha}_1 + \cdots + k_m\boldsymbol{\alpha}_m = \boldsymbol{0}$，由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性无关知 $k_1 = \cdots = k_m = 0$，与「不全为零」矛盾。故 $k \neq 0$，从而
-    \[
-    \boldsymbol{\beta} = -\frac{k_1}{k}\boldsymbol{\alpha}_1 - \cdots - \frac{k_m}{k}\boldsymbol{\alpha}_m
-    \]
-    唯一性：若有两种表出方式，相减即可得 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 的一个零系数的线性组合，由线性无关性即得系数全为零，故表出方式唯一。$\square$
-\end{conclusion}
-
-\begin{conclusion}{定理5：替换定理}{thm-replacement}
-    设向量组 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_r$ 线性无关，且其中每个向量均可由向量组 $\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_s$ 线性表出，则必有 $r \leq s$；并且在 $\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_s$ 中可以用 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_r$ 替换其中 $r$ 个向量，使得替换后得到的向量组与原向量组 $\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_s$ 等价。
-\end{conclusion}
-
-\begin{conclusion}{定理6：向量组秩的唯一性}{thm-rank-uniqueness}
-    向量组的任意两个极大线性无关组所含向量的个数相等。这一公共个数定义为该向量组的\textbf{秩}。
-
-    证明思路：设 $\boldsymbol{\alpha}_{i_1}, \ldots, \boldsymbol{\alpha}_{i_r}$ 和 $\boldsymbol{\alpha}_{j_1}, \ldots, \boldsymbol{\alpha}_{j_t}$ 都是原向量组的极大线性无关组。由定理5（替换定理），$r \leq t$ 且 $t \leq r$，故 $r = t$。$\square$
-\end{conclusion}
-
-\subsection{向量组的秩}
-
-\begin{mydef}{向量组的秩}{rank-of-vector-set}
-    向量组 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ 的\textbf{秩}定义为其极大线性无关组中所含向量的个数，记作
-    \[
-    \operatorname{rank}\{\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m\}
-    \]
-    规定：全由零向量组成的向量组的秩为 $0$。
+极大无关组所含向量的个数称为向量组 $S$ 的\textbf{秩}，记作 $\operatorname{rank}(S)$。只含零向量的向量组规定秩为 $0$。
 \end{mydef}
 
-\begin{formula}{向量组秩的求法}{rank-computation}
-    求向量组的秩，常用以下方法：
-    \begin{enumerate}
-        \item \textbf{矩阵秩法}：以所论向量为行（或列）构成矩阵 $A$，则向量组的秩 $=$ 矩阵 $A$ 的秩。将所有向量按列排成矩阵后进行初等行变换化为行阶梯形，非零行数即为秩。
-        \item \textbf{极大无关组法}：求出向量组的一个极大线性无关组，数其所含向量的个数。
-        \item \textbf{行列式法}（方阵情形）：若 $A$ 是 $n$ 阶方阵，则 $\operatorname{rank}(A) = n \Leftrightarrow \det A \neq 0$；秩小于 $n$ 时可利用非零子式的最高阶数确定。
-    \end{enumerate}
-\end{formula}
+定义中的第二条也可以换成“原向量组中每个向量都能由这 $r$ 个向量表出”。两种说法等价：若每个向量都能被表出，再添任何一个都会变成相关；反之，若添任何一个都相关，由上一节的结论，每个剩余向量都能被表出。
 
-\begin{conclusion}{向量组秩的性质}{rank-properties}
-    \begin{enumerate}
-        \item \textbf{有界性}：$0 \leq \operatorname{rank}\{\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m\} \leq \min\{m, n\}$，其中 $n$ 为向量维数。
-        \item \textbf{线性无关的充要条件}：向量组线性无关 $\Leftrightarrow$ 秩 $=$ 向量个数 $m$。
-        \item \textbf{线性相关的充要条件}：向量组线性相关 $\Leftrightarrow$ 秩 $<$ 向量个数 $m$。
-        \item \textbf{满秩与可逆}：$n$ 阶方阵 $A$ 的列向量组线性无关 $\Leftrightarrow$ $\operatorname{rank}(A) = n$ $\Leftrightarrow$ $A$ 可逆。
-        \item \textbf{秩的单调性}：向量组增加向量，秩不减；去掉部分向量，秩不增。
-        \item \textbf{等秩与等价}：两向量组等价 $\Rightarrow$ 秩相等；反之，秩相等的两向量组未必等价（仅当其中一个可由另一个线性表出时才等价）。
-    \end{enumerate}
-\end{conclusion}
+极大无关组不一定唯一。上例中 $\{\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_4\}$ 是一个，$\{\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_3,\boldsymbol{\alpha}_4\}$ 也是一个，因为 $\boldsymbol{\alpha}_3=\boldsymbol{\alpha}_1+\boldsymbol{\alpha}_2$ 同样能顶替 $\boldsymbol{\alpha}_1$。但所有极大无关组含有的向量个数相同，这个公共个数就是秩。设两个极大无关组分别含 $r$ 和 $t$ 个向量；它们都与原向量组等价，因而彼此可以互相表出。用前面的替换定理分别比较，得到 $r\le t$ 和 $t\le r$，所以 $r=t$。
 
-\subsection{极大线性无关组}
-
-\begin{mydef}{极大线性无关组}{maximal-linearly-independent-subset}
-    设 $S = \{\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m\}$ 是一个向量组，若其部分组 $\boldsymbol{\alpha}_{i_1}, \boldsymbol{\alpha}_{i_2}, \ldots, \boldsymbol{\alpha}_{i_r}$ 满足：
-    \begin{enumerate}
-        \item 该部分组\textbf{线性无关}；
-        \item 从 $S$ 中任意再添加一个向量（若还有剩余向量）到该部分组，所得的新向量组都\textbf{线性相关}。
-    \end{enumerate}
-    则称该部分组为向量组 $S$ 的一个\textbf{极大线性无关组}（简称\textbf{极大无关组}）。
-
-    等价地：极大无关组是向量组中能线性表出该组中所有其他向量的、含向量个数最多的线性无关部分组。
-\end{mydef}
-
-\begin{conclusion}{极大线性无关组的性质}{maximal-independent-properties}
-    \begin{enumerate}
-        \item 向量组的任意两个极大无关组所含向量的个数相同（称为该向量组的秩）。
-        \item 含非零向量的向量组必有极大无关组；仅由零向量组成的向量组没有极大无关组（秩规定为 $0$）。
-        \item 向量组的极大无关组不唯一，但其秩唯一。
-        \item 向量组与其任意极大无关组等价（互相线性表出）。
-        \item 线性无关的向量组的极大无关组即为其自身。
-    \end{enumerate}
-\end{conclusion}
-
-\begin{formula}{极大线性无关组的求法}{maximal-independent-computation}
-    求向量组 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 的一个极大线性无关组，常用以下方法：
-    \begin{enumerate}
-        \item \textbf{列排法}：将向量按列排成矩阵，进行初等\textbf{行}变换化为行阶梯形，阶梯形中主元所在列对应的原向量即构成一个极大无关组。
-        \item \textbf{行排法}：将向量按行排成矩阵，进行初等\textbf{行}变换化为行阶梯形，非零行即构成一个极大无关组（此时每个非零行是原向量组的线性组合，而非原向量本身；若需要原向量组中的向量，应使用列排法）。
-    \end{enumerate}
-\end{formula}
-
-\boxed{\textbf{例}}
-求向量组
-\[
-\boldsymbol{\alpha}_1 = \begin{pmatrix} 1 \\ 1 \\ 3 \\ 2 \end{pmatrix},\;
-\boldsymbol{\alpha}_2 = \begin{pmatrix} -1 \\ 1 \\ -1 \\ 3 \end{pmatrix},\;
-\boldsymbol{\alpha}_3 = \begin{pmatrix} 2 \\ 0 \\ 4 \\ -1 \end{pmatrix},\;
-\boldsymbol{\alpha}_4 = \begin{pmatrix} -1 \\ 3 \\ 1 \\ 5 \end{pmatrix},\;
-\boldsymbol{\alpha}_5 = \begin{pmatrix} 1 \\ 0 \\ 2 \\ -1 \end{pmatrix}
-\]
-的一个极大线性无关组，并将其余向量用该极大无关组线性表出。
-
-\textbf{解} 将向量按列排成矩阵，进行初等行变换：
-\[
-\begin{aligned}
-A &= (\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3, \boldsymbol{\alpha}_4, \boldsymbol{\alpha}_5)
-= \begin{pmatrix}
-1 & -1 & 2 & -1 & 1 \\
-1 & 1 & 0 & 3 & 0 \\
-3 & -1 & 4 & 1 & 2 \\
-2 & 3 & -1 & 5 & -1
-\end{pmatrix} \\
-&\xrightarrow{\substack{r_2 - r_1 \\ r_3 - 3r_1 \\ r_4 - 2r_1}}
-\begin{pmatrix}
-1 & -1 & 2 & -1 & 1 \\
-0 & 2 & -2 & 4 & -1 \\
-0 & 2 & -2 & 4 & -1 \\
-0 & 5 & -5 & 7 & -3
-\end{pmatrix}
-\xrightarrow{\substack{r_3 - r_2 \\ r_4 - \frac{5}{2}r_2}}
-\begin{pmatrix}
-1 & -1 & 2 & -1 & 1 \\
-0 & 2 & -2 & 4 & -1 \\
-0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & -3 & -\frac{1}{2}
-\end{pmatrix} \\
-&\xrightarrow{r_3 \leftrightarrow r_4}
-\begin{pmatrix}
-1 & -1 & 2 & -1 & 1 \\
-0 & 2 & -2 & 4 & -1 \\
-0 & 0 & 0 & -3 & -\frac{1}{2} \\
-0 & 0 & 0 & 0 & 0
-\end{pmatrix}
-\end{aligned}
-\]
-主元位于第 1, 2, 4 列，故 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_4$ 构成一个极大无关组。秩为 $3$。
-
-将 $\boldsymbol{\alpha}_3, \boldsymbol{\alpha}_5$ 用极大无关组表出：由阶梯形可读出
-\[
-\begin{cases}
-x_1 - x_2 + 2x_3 - x_4 + x_5 = 0 \\
-2x_2 - 2x_3 + 4x_4 - x_5 = 0 \\
--3x_4 - \frac{1}{2}x_5 = 0
-\end{cases}
-\]
-对 $\boldsymbol{\alpha}_3$（即解 $A\boldsymbol{x} = \boldsymbol{0}$ 中对应第 3 列为自由变量的情形），也可直接利用线性关系。观察行阶梯形末列系数：
+由此得到几条常用性质：
 \begin{itemize}
-    \item 第 3 列是第 1 列与第 2 列的线性组合，回代得 $\boldsymbol{\alpha}_3 = \boldsymbol{\alpha}_1 - \boldsymbol{\alpha}_2$。
-    \item 第 5 列也可类似求出：$\boldsymbol{\alpha}_5 = \frac{1}{3}\boldsymbol{\alpha}_1 - \frac{5}{6}\boldsymbol{\alpha}_2 + \frac{1}{6}\boldsymbol{\alpha}_4$。
+  \item 向量组与它的任意一个极大无关组等价，也就是可以互相线性表出；
+  \item $\operatorname{rank}(S)=\dim\operatorname{span}(S)$，秩就是这组向量张成的子空间的维数；
+  \item $0\le \operatorname{rank}(S)\le \min\{m,n\}$，其中 $m$ 是向量个数，$n$ 是向量维数；
+  \item 向量组线性无关 $\iff$ 秩等于向量个数 $m$；
+  \item 往向量组里添向量，秩不会减小；删去向量，秩不会增大。
 \end{itemize}
 
-更直接的方法：继续化为行最简形，
+把向量按列排成矩阵，行变换后的主元列如下：
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,x=1.2cm,y=0.68cm]
+% 第 3 列标灰：它不是主元列
+\fill[gray!18] (2,0) rectangle (3,-3);
+% 主元格
+\fill[blue!15] (0,0) rectangle (1,-1);
+\fill[blue!15] (1,-1) rectangle (2,-2);
+\fill[blue!15] (3,-2) rectangle (4,-3);
+\draw[gray!60] (0,0) grid (4,-3);
+\node at (0.5,0.42) {$\boldsymbol{\alpha}_1$};
+\node at (1.5,0.42) {$\boldsymbol{\alpha}_2$};
+\node at (2.5,0.42) {$\boldsymbol{\alpha}_3$};
+\node at (3.5,0.42) {$\boldsymbol{\alpha}_4$};
+\node at (0.5,-0.5) {$1$};
+\node at (1.5,-0.5) {$0$};
+\node at (2.5,-0.5) {$1$};
+\node at (3.5,-0.5) {$0$};
+\node at (0.5,-1.5) {$0$};
+\node at (1.5,-1.5) {$1$};
+\node at (2.5,-1.5) {$1$};
+\node at (3.5,-1.5) {$0$};
+\node at (0.5,-2.5) {$0$};
+\node at (1.5,-2.5) {$0$};
+\node at (2.5,-2.5) {$0$};
+\node at (3.5,-2.5) {$1$};
+\node[anchor=north] at (2,-3.25) {第 3 列 $=$ 第 1 列 $+$ 第 2 列};
+\node[anchor=north] at (2,-3.95) {故 $\boldsymbol{\alpha}_3=\boldsymbol{\alpha}_1+\boldsymbol{\alpha}_2$};
+\end{tikzpicture}
+
+\vspace{0.2em}
+{\footnotesize 行最简形里的主元列：蓝色格子是主元，其列标对应的原向量构成一个极大无关组；灰色第 3 列可由主元列表出。}
+\end{center}
+
+求极大无关组和秩，不必真的去试遍所有部分组。把向量按列排成矩阵 $A$，只做初等行变换，化成行阶梯形或行最简形。行变换相当于在左边乘一个可逆矩阵 $P$，而
 \[
-\xrightarrow{\substack{r_2 / 2 \\ r_3 / (-3)}}
-\begin{pmatrix}
-1 & -1 & 2 & -1 & 1 \\
-0 & 1 & -1 & 2 & -\frac{1}{2} \\
-0 & 0 & 0 & 1 & \frac{1}{6} \\
-0 & 0 & 0 & 0 & 0
+A\boldsymbol{x}=\boldsymbol{0}\iff PA\boldsymbol{x}=\boldsymbol{0},
+\]
+所以列与列之间的线性关系完全不变。化成行最简形后，主元所在列对应的那些\textbf{原向量}就构成一个极大无关组；主元个数就是秩。非主元列的系数可以直接从行最简形读出，用来表出其余向量。
+
+上例的矩阵正是
+\[
+A=(\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_3,\boldsymbol{\alpha}_4)
+=\begin{pmatrix}
+1&0&1&1\\
+0&1&1&0\\
+1&1&2&0
 \end{pmatrix}
-\xrightarrow{\substack{r_1 + r_2 \\ r_2 - 2r_3 \\ r_1 - r_3}}
+\xrightarrow{r_3-r_1-r_2}
 \begin{pmatrix}
-1 & 0 & 1 & 0 & \frac{1}{3} \\
-0 & 1 & -1 & 0 & -\frac{5}{6} \\
-0 & 0 & 0 & 1 & \frac{1}{6} \\
-0 & 0 & 0 & 0 & 0
+1&0&1&1\\
+0&1&1&0\\
+0&0&0&-1
 \end{pmatrix}
 \]
-由此可直接读出：
+再把第三行乘 $-1$，用它消去第一行第四列的 $1$，得到行最简形
 \[
-\boldsymbol{\alpha}_3 = 1 \cdot \boldsymbol{\alpha}_1 + (-1) \cdot \boldsymbol{\alpha}_2 + 0 \cdot \boldsymbol{\alpha}_4, \quad
-\boldsymbol{\alpha}_5 = \frac{1}{3}\boldsymbol{\alpha}_1 - \frac{5}{6}\boldsymbol{\alpha}_2 + \frac{1}{6}\boldsymbol{\alpha}_4
+\begin{pmatrix}
+1&0&1&0\\
+0&1&1&0\\
+0&0&0&1
+\end{pmatrix}.
 \]
-即 $\boldsymbol{\alpha}_3 = \boldsymbol{\alpha}_1 - \boldsymbol{\alpha}_2$，$\boldsymbol{\alpha}_5 = \frac{1}{3}\boldsymbol{\alpha}_1 - \frac{5}{6}\boldsymbol{\alpha}_2 + \frac{1}{6}\boldsymbol{\alpha}_4$。
-
-\subsection{等价向量组}
-
-\begin{mydef}{等价向量组}{equivalent-vector-sets}
-    设有两个 $n$ 维向量组：
-    \begin{align*}
-        \text{(I)}&\quad \boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_r \\
-        \text{(II)}&\quad \boldsymbol{\beta}_1, \boldsymbol{\beta}_2, \ldots, \boldsymbol{\beta}_s
-    \end{align*}
-    若 (I) 中每个向量均可由 (II) 线性表出，且 (II) 中每个向量均可由 (I) 线性表出，则称向量组 (I) 与向量组 (II) \textbf{等价}，记作
-    \[
-    \{\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_r\} \sim \{\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_s\}
-    \]
-\end{mydef}
-
-\begin{conclusion}{等价向量组的性质}{equivalent-vector-properties}
-    \begin{enumerate}
-        \item \textbf{自反性}：任何向量组与自身等价。
-        \item \textbf{对称性}：若 (I) $\sim$ (II)，则 (II) $\sim$ (I)。
-        \item \textbf{传递性}：若 (I) $\sim$ (II)，(II) $\sim$ (III)，则 (I) $\sim$ (III)。
-        \item \textbf{等价向量组等秩}：若两向量组等价，则它们的秩相等。反之不真。
-        \item 向量组与其任一极大线性无关组等价。
-        \item 两向量组等价的充要条件是：它们可以互相线性表出。
-    \end{enumerate}
-\end{conclusion}
-
-\begin{conclusion}{向量组等价的充要条件（矩阵形式）}{equivalence-matrix-condition}
-    设向量组 (I)：$\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_r$ 和 (II)：$\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_s$，构成矩阵
-    \[
-    A = (\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_r), \quad B = (\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_s)
-    \]
-    则 (I) 与 (II) 等价 $\Leftrightarrow$ 存在矩阵 $C_{r \times s}$ 和 $D_{s \times r}$ 使得
-    \[
-    B = AC, \quad A = BD
-    \]
-    此时，两向量组等价的另一充要条件是：
-    \[
-    \operatorname{rank}(A) = \operatorname{rank}(B) = \operatorname{rank}(A \mid B)
-    \]
-    即两矩阵秩相等，且都等于将它们拼在一起后的秩。换言之：两向量组互相线性表出。
-\end{conclusion}
-
-\subsection{向量空间}
-
-\begin{mydef}{向量空间}{vector-space}
-    设 $V$ 是 $n$ 维向量的一个非空集合，若 $V$ 对向量的加法和数乘运算封闭，即满足：
-    \begin{enumerate}
-        \item 对任意 $\boldsymbol{\alpha}, \boldsymbol{\beta} \in V$，有 $\boldsymbol{\alpha} + \boldsymbol{\beta} \in V$；
-        \item 对任意 $\boldsymbol{\alpha} \in V$ 和 $k \in \mathbb{R}$，有 $k\boldsymbol{\alpha} \in V$。
-    \end{enumerate}
-    则称 $V$ 是一个\textbf{向量空间}（或\textbf{线性空间}）。
-
-    全体 $n$ 维实向量的集合 $\mathbb{R}^n$ 在通常的向量加法和数乘下构成向量空间。
-\end{mydef}
-
-\begin{mydef}{子空间}{subspace}
-    设 $V$ 是向量空间，$W \subseteq V$ 且 $W \neq \varnothing$。若 $W$ 对 $V$ 中的加法和数乘也封闭，则称 $W$ 是 $V$ 的一个\textbf{子空间}。
-
-    验证子空间只需验证两条：非空（通常验证 $\boldsymbol{0} \in W$），以及加法和数乘的封闭性。
-\end{mydef}
-
-\begin{mydef}{生成子空间}{span}
-    设 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m \in \mathbb{R}^n$，它们的全部线性组合构成的集合
-    \[
-    \operatorname{span}\{\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m\} = \{k_1\boldsymbol{\alpha}_1 + \cdots + k_m\boldsymbol{\alpha}_m \mid k_i \in \mathbb{R}\}
-    \]
-    是一个子空间，称为由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ \textbf{生成}（或\textbf{张成}）的子空间。
-
-    $\operatorname{span}\{\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m\}$ 的维数等于向量组 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 的秩。
-\end{mydef}
-
-\boxed{\textbf{例}}
-在 $\mathbb{R}^3$ 中，设 $\boldsymbol{\alpha}_1 = (1, 0, 0)^\mathrm{T}$，$\boldsymbol{\alpha}_2 = (0, 1, 0)^\mathrm{T}$，则
+主元在第 $1,2,4$ 列，所以 $\{\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2,\boldsymbol{\alpha}_4\}$ 是极大无关组，秩为 $3$。第 $3$ 列是 $(1,1,0)^{\mathrm T}$，直接读出
 \[
-\operatorname{span}\{\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2\} = \{(x, y, 0)^\mathrm{T} \mid x, y \in \mathbb{R}\}
+\boldsymbol{\alpha}_3=\boldsymbol{\alpha}_1+\boldsymbol{\alpha}_2.
 \]
-即 $xy$-平面，这是 $\mathbb{R}^3$ 的一个二维子空间。
+注意，行最简形里的列已经不是原来的 $\boldsymbol{\alpha}_i$ 了，但列之间的系数关系保持不变；最后写表出式时，要用原向量。
 
-由两个线性无关向量 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2$ 张成的子空间是 $\mathbb{R}^3$ 中过原点的一个平面（下例中即 $xy$-平面）：
+\subsection{基、坐标与基变换}
+
+同一个向量，换一组“尺子”去量，读数会变。取
+\[
+\boldsymbol{\alpha}=(3,1)^{\mathrm T},\qquad
+\boldsymbol{\varepsilon}'_1=(1,1)^{\mathrm T},\qquad
+\boldsymbol{\varepsilon}'_2=(1,-1)^{\mathrm T}.
+\]
+直接验证
+\[
+2\boldsymbol{\varepsilon}'_1+1\boldsymbol{\varepsilon}'_2=(2,2)^{\mathrm T}+(1,-1)^{\mathrm T}=(3,1)^{\mathrm T}=\boldsymbol{\alpha}.
+\]
+所以在标准基 $\boldsymbol{e}_1=(1,0)^{\mathrm T},\boldsymbol{e}_2=(0,1)^{\mathrm T}$ 下，$\boldsymbol{\alpha}$ 的坐标是 $(3,1)^{\mathrm T}$；换到 $\boldsymbol{\varepsilon}'_1,\boldsymbol{\varepsilon}'_2$ 下，坐标变成 $(2,1)^{\mathrm T}$。向量本身没动，变的只是描述方式。
+
+\begin{mydef}{基、维数与坐标}{basis-and-coordinates}
+设 $V$ 是一个向量空间。若 $V$ 中的向量组 $\boldsymbol{\varepsilon}_1,\ldots,\boldsymbol{\varepsilon}_n$ 线性无关，且 $V$ 中每个向量都能由它们线性表出，则称它们为 $V$ 的一组\textbf{基}，$n$ 称为 $V$ 的\textbf{维数}，记作 $\dim V$。零空间 $\{\boldsymbol{0}\}$ 的维数规定为 $0$。
+
+取定一组基后，任意 $\boldsymbol{\alpha}\in V$ 的表出系数是唯一的：
+\[
+\boldsymbol{\alpha}=x_1\boldsymbol{\varepsilon}_1+\cdots+x_n\boldsymbol{\varepsilon}_n,
+\]
+列向量 $(x_1,\ldots,x_n)^{\mathrm T}$ 称为 $\boldsymbol{\alpha}$ 在这组基下的\textbf{坐标}。
+\end{mydef}
+
+坐标的唯一性来自无关性：若有两组系数，相减就得到基向量的一个零组合，系数只能全为零。
+
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-  axis lines=center,
-  xlabel=$x_1$, ylabel=$x_2$, zlabel=$x_3$,
-  xmin=0, xmax=2.2, ymin=0, ymax=2.2, zmin=0, zmax=1.4,
-  xtick={1}, ytick={1}, ztick={1},
-  view={125}{26}, width=7.6cm, height=6.6cm,
-  font=\footnotesize, clip=false,
+  axis lines=center, axis equal image, clip=false,
+  width=0.70\linewidth, height=6.8cm,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-0.5, xmax=3.9, ymin=-1.8, ymax=2.8,
+  xtick={1,2,3}, ytick={-1,1,2},
+  font=\footnotesize,
 ]
-\addplot3[fill=blue!12, draw=blue, opacity=0.65] coordinates {
-  (0,0,0) (2.0,0,0) (2.0,2.0,0) (0,2.0,0) (0,0,0)
-};
-\draw[->,thick,red] (axis cs:0,0,0) -- (axis cs:1.4,0,0);
-\draw[->,thick,green!50!black] (axis cs:0,0,0) -- (axis cs:0,1.4,0);
-\node[red,anchor=north east] at (axis cs:1.4,0,0) {$\boldsymbol{\alpha}_1=(1,0,0)$};
-\node[green!50!black,anchor=north] at (axis cs:0,1.4,0) {$\boldsymbol{\alpha}_2=(0,1,0)$};
-\node[blue] at (axis cs:2.2,1.6,0.5) {$\operatorname{span}\{\boldsymbol{\alpha}_1,\boldsymbol{\alpha}_2\}$};
+\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:1,1);
+\draw[->,thick,red]  (axis cs:0,0) -- (axis cs:1,-1);
+\draw[->,blue!45,thick,dashed] (axis cs:0,0) -- (axis cs:2,2);
+\draw[dashed,gray] (axis cs:2,2) -- (axis cs:3,1);
+\draw[dashed,gray] (axis cs:1,-1) -- (axis cs:3,1);
+\draw[->,very thick,black] (axis cs:0,0) -- (axis cs:3,1);
+\node[blue,anchor=south east] at (axis cs:1,1) {$\boldsymbol{\varepsilon}'_1$};
+\node[red,anchor=north west] at (axis cs:1,-1) {$\boldsymbol{\varepsilon}'_2$};
+\node[blue!50!black,anchor=south west] at (axis cs:2,2) {$2\boldsymbol{\varepsilon}'_1$};
+\node[black,anchor=south west] at (axis cs:3,1) {$\boldsymbol{\alpha}=(3,1)$};
 \end{axis}
 \end{tikzpicture}
 \end{center}
 
-\subsection{基、维数与坐标}
+图中实线箭头是新基的两个向量，虚线平行四边形说明 $\boldsymbol{\alpha}$ 要沿 $\boldsymbol{\varepsilon}'_1$ 走两格、沿 $\boldsymbol{\varepsilon}'_2$ 走一格。于是同一终点在旧基下读作 $(3,1)$，在新基下读作 $(2,1)$。
 
-\begin{mydef}{基}{basis}
-    设 $V$ 是向量空间，若 $V$ 中的向量组 $\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \ldots, \boldsymbol{\varepsilon}_n$ 满足：
-    \begin{enumerate}
-        \item $\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \ldots, \boldsymbol{\varepsilon}_n$ 线性无关；
-        \item $V$ 中任一向量均可由 $\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \ldots, \boldsymbol{\varepsilon}_n$ 线性表出。
-    \end{enumerate}
-    则称 $\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \ldots, \boldsymbol{\varepsilon}_n$ 为 $V$ 的一组\textbf{基}。
+在 $\mathbb{R}^n$ 中，$\boldsymbol{e}_1,\ldots,\boldsymbol{e}_n$（第 $i$ 个位置为 $1$、其余为 $0$）构成\textbf{标准基}。向量 $(a_1,\ldots,a_n)^{\mathrm T}$ 在标准基下的坐标就是它的分量本身。判断 $\mathbb{R}^n$ 中 $n$ 个向量是否构成基，只需看以它们为列的矩阵行列式是否非零；非零则线性无关，而 $n$ 个无关向量自动张满 $\mathbb{R}^n$。
 
-    $V$ 的基所含向量的个数称为 $V$ 的\textbf{维数}，记作 $\dim V$。
-    规定零空间 $\{\boldsymbol{0}\}$ 的维数为 $0$。
-\end{mydef}
-
-\begin{conclusion}{基的判定方法}{basis-criterion}
-    在 $n$ 维向量空间 $V$ 中，以下条件等价：
-    \begin{enumerate}
-        \item $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n$ 是 $V$ 的一组基；
-        \item $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n$ 线性无关；
-        \item $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n$ 可张成 $V$（即 $\operatorname{span}\{\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n\} = V$）；
-        \item 以 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n$ 为列向量的 $n$ 阶矩阵可逆（行列式非零）。
-    \end{enumerate}
-    特别地，在 $n$ 维空间中，任意 $n$ 个线性无关的向量都构成基；任意 $n+1$ 个向量必然线性相关。
-\end{conclusion}
-
-\begin{mydef}{坐标}{coordinates}
-    设 $\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \ldots, \boldsymbol{\varepsilon}_n$ 是 $V$ 的一组基，则对任意 $\boldsymbol{\alpha} \in V$，存在唯一的一组实数 $x_1, x_2, \ldots, x_n$ 使得
-    \[
-    \boldsymbol{\alpha} = x_1\boldsymbol{\varepsilon}_1 + x_2\boldsymbol{\varepsilon}_2 + \cdots + x_n\boldsymbol{\varepsilon}_n
-    \]
-    称 $(x_1, x_2, \ldots, x_n)^\mathrm{T}$ 为 $\boldsymbol{\alpha}$ 在基 $\boldsymbol{\varepsilon}_1, \ldots, \boldsymbol{\varepsilon}_n$ 下的\textbf{坐标}（列向量）。
-\end{mydef}
-
-\begin{mydef}{标准基}{standard-basis}
-    在 $\mathbb{R}^n$ 中，
-    \[
-    \boldsymbol{e}_1 = \begin{pmatrix} 1 \\ 0 \\ 0 \\ \vdots \\ 0 \end{pmatrix},\;
-    \boldsymbol{e}_2 = \begin{pmatrix} 0 \\ 1 \\ 0 \\ \vdots \\ 0 \end{pmatrix},\;
-    \ldots,\;
-    \boldsymbol{e}_n = \begin{pmatrix} 0 \\ 0 \\ \vdots \\ 0 \\ 1 \end{pmatrix}
-    \]
-    构成 $\mathbb{R}^n$ 的一组基，称为\textbf{标准基}（或\textbf{自然基}）。
-    向量 $(a_1, a_2, \ldots, a_n)^\mathrm{T}$ 在标准基下的坐标即为其分量自身。
-\end{mydef}
-
-\noindent\textbf{拓展（表示与嵌入）:} 选定一组基，就是选定了一个\textbf{坐标系}：向量在基下的「坐标」唯一确定，基变则读数变，而向量本身不变。机器学习的对象（文本、图像、用户）被映射到某向量空间 \(\mathbb{R}^n\) 再选基，这正是「嵌入（embedding）」的数学本质——选基即选表示，降维即改用低维基或只保留主要分量。\\
-\subsection{基变换与坐标变换}
-
-\begin{mydef}{过渡矩阵}{transition-matrix}
-    设 $\boldsymbol{\varepsilon}_1, \ldots, \boldsymbol{\varepsilon}_n$（旧基）和 $\boldsymbol{\varepsilon}'_1, \ldots, \boldsymbol{\varepsilon}'_n$（新基）是 $V$ 的两组基。新基中的每个向量都可由旧基线性表出：
-    \[
-    (\boldsymbol{\varepsilon}'_1, \boldsymbol{\varepsilon}'_2, \ldots, \boldsymbol{\varepsilon}'_n) = (\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \ldots, \boldsymbol{\varepsilon}_n) P
-    \]
-    其中 $P = (p_{ij})_{n \times n}$ 称为从旧基到新基的\textbf{过渡矩阵}。
-
-    具体地，$P$ 的第 $j$ 列是 $\boldsymbol{\varepsilon}'_j$ 在旧基下的坐标：
-    \[
-    \boldsymbol{\varepsilon}'_j = p_{1j}\boldsymbol{\varepsilon}_1 + p_{2j}\boldsymbol{\varepsilon}_2 + \cdots + p_{nj}\boldsymbol{\varepsilon}_n
-    \]
-    过渡矩阵必为可逆矩阵（因其列向量为线性无关向量在新基表达下的坐标）。
-\end{mydef}
-
-\begin{formula}{坐标变换公式}{coordinate-transformation}
-    设向量 $\boldsymbol{\alpha}$ 在旧基 $\boldsymbol{\varepsilon}_1, \ldots, \boldsymbol{\varepsilon}_n$ 下的坐标为 $\boldsymbol{x} = (x_1, \ldots, x_n)^\mathrm{T}$，在新基 $\boldsymbol{\varepsilon}'_1, \ldots, \boldsymbol{\varepsilon}'_n$ 下的坐标为 $\boldsymbol{x}' = (x'_1, \ldots, x'_n)^\mathrm{T}$，则
-    \[
-    \boldsymbol{x} = P\boldsymbol{x}', \quad \text{或等价地} \quad \boldsymbol{x}' = P^{-1}\boldsymbol{x}
-    \]
-    其中 $P$ 是从旧基到新基的过渡矩阵。
-
-    推导：
-    \[
-    \boldsymbol{\alpha} = (\boldsymbol{\varepsilon}_1, \ldots, \boldsymbol{\varepsilon}_n)\boldsymbol{x} = (\boldsymbol{\varepsilon}'_1, \ldots, \boldsymbol{\varepsilon}'_n)\boldsymbol{x}' = (\boldsymbol{\varepsilon}_1, \ldots, \boldsymbol{\varepsilon}_n)P\boldsymbol{x}'
-    \]
-    由坐标的唯一性得 $\boldsymbol{x} = P\boldsymbol{x}'$。
-\end{formula}
-
-\begin{conclusion}{过渡矩阵的性质}{transition-matrix-properties}
-    \begin{enumerate}
-        \item 过渡矩阵 $P$ 必为可逆矩阵。
-        \item 若从基 (I) 到基 (II) 的过渡矩阵为 $P$，则从基 (II) 到基 (I) 的过渡矩阵为 $P^{-1}$。
-        \item 若从基 (I) 到基 (II) 的过渡矩阵为 $P$，从基 (II) 到基 (III) 的过渡矩阵为 $Q$，则从基 (I) 到基 (III) 的过渡矩阵为 $PQ$。
-        \item 对于标准基，从标准基到任意基 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n$ 的过渡矩阵就是 $(\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n)$ 本身。
-    \end{enumerate}
-\end{conclusion}
-
-\boxed{\textbf{例}}
-在 $\mathbb{R}^3$ 中，设旧基为标准基 $\boldsymbol{e}_1, \boldsymbol{e}_2, \boldsymbol{e}_3$，新基为
+两组基之间用一个矩阵联系。设旧基为 $\boldsymbol{\varepsilon}_1,\ldots,\boldsymbol{\varepsilon}_n$，新基为 $\boldsymbol{\varepsilon}'_1,\ldots,\boldsymbol{\varepsilon}'_n$。把新基向量用旧基表出：
 \[
-\boldsymbol{\varepsilon}'_1 = \begin{pmatrix} 1 \\ 1 \\ 1 \end{pmatrix},\;
-\boldsymbol{\varepsilon}'_2 = \begin{pmatrix} 1 \\ 1 \\ 0 \end{pmatrix},\;
-\boldsymbol{\varepsilon}'_3 = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}
+(\boldsymbol{\varepsilon}'_1,\ldots,\boldsymbol{\varepsilon}'_n)
+=(\boldsymbol{\varepsilon}_1,\ldots,\boldsymbol{\varepsilon}_n)P.
 \]
-\begin{enumerate}
-    \item[(1)] 求从旧基到新基的过渡矩阵 $P$；
-    \item[(2)] 求向量 $\boldsymbol{\alpha} = (3, 2, 1)^\mathrm{T}$ 在新基下的坐标。
-\end{enumerate}
+矩阵 $P$ 称为从旧基到新基的\textbf{过渡矩阵}。它的第 $j$ 列就是 $\boldsymbol{\varepsilon}'_j$ 在旧基下的坐标。由于新旧两组都是基，$P$ 一定可逆。
 
-\textbf{解}
-(1) 旧基为标准基，故过渡矩阵即为新基向量按列排成的矩阵：
+若同一个向量在旧基下的坐标为 $\boldsymbol{x}$，在新基下的坐标为 $\boldsymbol{x}'$，则
 \[
-P = (\boldsymbol{\varepsilon}'_1, \boldsymbol{\varepsilon}'_2, \boldsymbol{\varepsilon}'_3) = \begin{pmatrix}
-1 & 1 & 1 \\
-1 & 1 & 0 \\
-1 & 0 & 0
-\end{pmatrix}
+\boldsymbol{\alpha}=(\boldsymbol{\varepsilon}_1,\ldots,\boldsymbol{\varepsilon}_n)\boldsymbol{x}
+=(\boldsymbol{\varepsilon}'_1,\ldots,\boldsymbol{\varepsilon}'_n)\boldsymbol{x}'
+=(\boldsymbol{\varepsilon}_1,\ldots,\boldsymbol{\varepsilon}_n)P\boldsymbol{x}'.
 \]
+由坐标唯一性，
+\[
+\boldsymbol{x}=P\boldsymbol{x}',\qquad\text{即}\qquad \boldsymbol{x}'=P^{-1}\boldsymbol{x}.
+\]
+方向不要弄反：$P$ 把新坐标送回旧坐标；要从旧坐标求新坐标，得乘 $P^{-1}$。
 
-(2) 由坐标变换公式 $\boldsymbol{x} = P\boldsymbol{x}'$，故 $\boldsymbol{x}' = P^{-1}\boldsymbol{x}$。先求 $P^{-1}$：
+用上面的例子算一遍。旧基是标准基，所以
 \[
-\begin{aligned}
-(P \mid I) &= \left(\begin{array}{ccc|ccc}
-1 & 1 & 1 & 1 & 0 & 0 \\
-1 & 1 & 0 & 0 & 1 & 0 \\
-1 & 0 & 0 & 0 & 0 & 1
-\end{array}\right)
-\xrightarrow{\substack{r_1 - r_3 \\ r_2 - r_3}}
-\left(\begin{array}{ccc|ccc}
-0 & 1 & 1 & 1 & 0 & -1 \\
-0 & 1 & 0 & 0 & 1 & -1 \\
-1 & 0 & 0 & 0 & 0 & 1
-\end{array}\right) \\
-&\xrightarrow{r_1 - r_2}
-\left(\begin{array}{ccc|ccc}
-0 & 0 & 1 & 1 & -1 & 0 \\
-0 & 1 & 0 & 0 & 1 & -1 \\
-1 & 0 & 0 & 0 & 0 & 1
-\end{array}\right)
-\xrightarrow{\text{交换行}}
-\left(\begin{array}{ccc|ccc}
-1 & 0 & 0 & 0 & 0 & 1 \\
-0 & 1 & 0 & 0 & 1 & -1 \\
-0 & 0 & 1 & 1 & -1 & 0
-\end{array}\right)
-\end{aligned}
-\]
-故
-\[
-P^{-1} = \begin{pmatrix}
-0 & 0 & 1 \\
-0 & 1 & -1 \\
-1 & -1 & 0
-\end{pmatrix}
+P=\begin{pmatrix}1&1\\1&-1\end{pmatrix},\qquad
+P^{-1}=\frac{1}{-2}\begin{pmatrix}-1&-1\\-1&1\end{pmatrix}
+=\begin{pmatrix}\frac12&\frac12\\[2pt]\frac12&-\frac12\end{pmatrix}.
 \]
 于是
 \[
-\boldsymbol{x}' = P^{-1}\boldsymbol{x} = \begin{pmatrix}
-0 & 0 & 1 \\
-0 & 1 & -1 \\
-1 & -1 & 0
-\end{pmatrix}
-\begin{pmatrix} 3 \\ 2 \\ 1 \end{pmatrix}
-= \begin{pmatrix} 1 \\ 1 \\ 1 \end{pmatrix}
+\boldsymbol{x}'=P^{-1}\begin{pmatrix}3\\1\end{pmatrix}
+=\begin{pmatrix}2\\1\end{pmatrix},
 \]
-即 $\boldsymbol{\alpha}$ 在新基下的坐标为 $(1, 1, 1)^\mathrm{T}$。验证：$1 \cdot \boldsymbol{\varepsilon}'_1 + 1 \cdot \boldsymbol{\varepsilon}'_2 + 1 \cdot \boldsymbol{\varepsilon}'_3 = (3, 2, 1)^\mathrm{T} = \boldsymbol{\alpha}$，正确。
+与直接观察一致。若再从新基换到第三组基，过渡矩阵按顺序相乘：旧到新用 $P$，新到第三组用 $Q$，则旧到第三组用 $PQ$。反向的过渡矩阵就是 $P^{-1}$。
 
-\subsection{基础过关题}
+\subsection{内积、正交基与 Schmidt 正交化}
 
-\begin{enumerate}
-
-\item \textbf{（选择题）} 设向量组 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3$ 线性无关，则下列向量组中线性无关的是 \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item $\boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2,\ \boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3,\ \boldsymbol{\alpha}_3 - \boldsymbol{\alpha}_1$
-    \item $\boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2,\ \boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3,\ \boldsymbol{\alpha}_1 + 2\boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3$
-    \item $\boldsymbol{\alpha}_1 + 2\boldsymbol{\alpha}_2,\ 2\boldsymbol{\alpha}_2 + 3\boldsymbol{\alpha}_3,\ 3\boldsymbol{\alpha}_3 + \boldsymbol{\alpha}_1$
-    \item $\boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3,\ 2\boldsymbol{\alpha}_1 - 3\boldsymbol{\alpha}_2 + 22\boldsymbol{\alpha}_3,\ 3\boldsymbol{\alpha}_1 + 5\boldsymbol{\alpha}_2 - 5\boldsymbol{\alpha}_3$
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 (C)。
-
-\textbf{分析：} 以 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3$ 为基（因其线性无关），将各选项中的向量用这组基的坐标表示，再判断坐标矩阵的行列式是否非零。
-
-(A) 坐标矩阵为 $\begin{pmatrix} 1 & 0 & -1 \\ 1 & 1 & 0 \\ 0 & 1 & 1 \end{pmatrix}$，行列式 $= 1 \cdot (1\cdot1 - 0\cdot1) - 0 + (-1)\cdot(1\cdot1 - 1\cdot0) = 1 - 1 = 0$，线性相关。
-
-(B) 第三个向量 $= (\boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2) + (\boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3)$，可由前两个线性表出，故线性相关。
-
-(C) 坐标矩阵为 $\begin{pmatrix} 1 & 0 & 1 \\ 2 & 2 & 0 \\ 0 & 3 & 3 \end{pmatrix}$，行列式 $= 1 \cdot (6 - 0) - 0 + 1 \cdot (6 - 0) = 12 \neq 0$，线性无关。
-
-(D) 坐标矩阵 $\begin{pmatrix} 1 & 2 & 3 \\ 1 & -3 & 5 \\ 1 & 22 & -5 \end{pmatrix}$，第一行 $\times 3$ 减去第三行 $\times 1$ 等操作可验证行列式为零（或观察线性关系），线性相关。
-
-\else \answerarea \fi%
-\item \textbf{（填空题）} 设向量组 $\boldsymbol{\alpha}_1 = (1, 1, 0)^\mathrm{T}$，$\boldsymbol{\alpha}_2 = (1, 0, 1)^\mathrm{T}$，$\boldsymbol{\alpha}_3 = (0, 1, 1)^\mathrm{T}$，则向量 $\boldsymbol{\beta} = (2, -1, 3)^\mathrm{T}$ 在此向量组下的表出系数为 \underline{\qquad}。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 设 $\boldsymbol{\beta} = x_1\boldsymbol{\alpha}_1 + x_2\boldsymbol{\alpha}_2 + x_3\boldsymbol{\alpha}_3$，解方程组：
+坐标一般要解方程组才能得到，但如果基向量两两垂直，坐标可以直接用内积算出来。先看反例。取基
 \[
-\begin{cases}
-x_1 + x_2 = 2 \\
-x_1 + x_3 = -1 \\
-x_2 + x_3 = 3
-\end{cases}
+\boldsymbol{\varepsilon}_1=(1,1)^{\mathrm T},\qquad \boldsymbol{\varepsilon}_2=(1,0)^{\mathrm T},
 \]
-由第一式 $x_2 = 2 - x_1$，第二式 $x_3 = -1 - x_1$，代入第三式：
+它们不垂直。向量 $\boldsymbol{\alpha}=(3,1)^{\mathrm T}$ 的坐标是 $(1,2)^{\mathrm T}$，因为
 \[
-(2 - x_1) + (-1 - x_1) = 3 \Rightarrow 1 - 2x_1 = 3 \Rightarrow x_1 = -1
+1\cdot(1,1)^{\mathrm T}+2\cdot(1,0)^{\mathrm T}=(3,1)^{\mathrm T}.
 \]
-进而 $x_2 = 3$，$x_3 = 0$。故表出系数为 $(-1, 3, 0)^\mathrm{T}$。
-
-验证：$(-1) \cdot (1,1,0)^\mathrm{T} + 3 \cdot (1,0,1)^\mathrm{T} + 0 \cdot (0,1,1)^\mathrm{T} = (2, -1, 3)^\mathrm{T}$。$\square$
-
-\else \answerarea \fi%
-\item \textbf{（计算题）} 求向量组
+但
 \[
-\boldsymbol{\alpha}_1 = (1, 2, 3, 4)^\mathrm{T},\;
-\boldsymbol{\alpha}_2 = (2, 3, 4, 5)^\mathrm{T},\;
-\boldsymbol{\alpha}_3 = (3, 4, 5, 6)^\mathrm{T},\;
-\boldsymbol{\alpha}_4 = (4, 5, 6, 7)^\mathrm{T}
+\frac{(\boldsymbol{\alpha},\boldsymbol{\varepsilon}_1)}{(\boldsymbol{\varepsilon}_1,\boldsymbol{\varepsilon}_1)}
+=\frac{4}{2}=2\neq 1,
 \]
-的秩和一个极大线性无关组。
+直接拿内积作商并得不到第一个坐标。原因是 $\boldsymbol{\varepsilon}_2$ 在 $\boldsymbol{\varepsilon}_1$ 上有分量，内积把这份“串扰”也算了进去。
 
-\ifshowsolutions%
-\boxed{\textbf{解}} 以向量为列排成矩阵，作初等行变换：
+回忆内积
 \[
-\begin{pmatrix}
-1 & 2 & 3 & 4 \\
-2 & 3 & 4 & 5 \\
-3 & 4 & 5 & 6 \\
-4 & 5 & 6 & 7
-\end{pmatrix}
-\xrightarrow{\substack{r_2 - 2r_1 \\ r_3 - 3r_1 \\ r_4 - 4r_1}}
-\begin{pmatrix}
-1 & 2 & 3 & 4 \\
-0 & -1 & -2 & -3 \\
-0 & -2 & -4 & -6 \\
-0 & -3 & -6 & -9
-\end{pmatrix}
-\xrightarrow{\substack{r_3 - 2r_2 \\ r_4 - 3r_2}}
-\begin{pmatrix}
-1 & 2 & 3 & 4 \\
-0 & -1 & -2 & -3 \\
-0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0
-\end{pmatrix}
+(\boldsymbol{\alpha},\boldsymbol{\beta})=\boldsymbol{\alpha}^{\mathrm T}\boldsymbol{\beta}
+=\sum_{i=1}^n a_i b_i,
 \]
-阶梯形有两个非零行，故向量组的秩为 $2$。主元位于第 $1$ 和第 $2$ 列，故 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2$ 是一个极大线性无关组。
+它是对称、线性且正定的。向量长度 $\lVert\boldsymbol{\alpha}\rVert=\sqrt{(\boldsymbol{\alpha},\boldsymbol{\alpha})}$；内积为零时称两个向量\textbf{正交}。一组两两正交的非零向量一定线性无关：若 $\sum k_i\boldsymbol{\beta}_i=\boldsymbol{0}$，两边与 $\boldsymbol{\beta}_j$ 作内积，只剩 $k_j(\boldsymbol{\beta}_j,\boldsymbol{\beta}_j)=0$，故 $k_j=0$。
 
-（也可选 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_3$ 等，极大无关组不唯一。）
-
-\else \answerarea \fi%
-\item \textbf{（证明题）} 设 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ 线性无关，而 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m, \boldsymbol{\beta}$ 线性相关。证明：$\boldsymbol{\beta}$ 必可由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性表出，且表出方式唯一。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}} 由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m, \boldsymbol{\beta}$ 线性相关，存在不全为零的数 $k_1, \ldots, k_m, k$ 使
+若 $\boldsymbol{\varepsilon}_1,\ldots,\boldsymbol{\varepsilon}_n$ 是一组正交基（两两内积为零），则
 \[
-k_1\boldsymbol{\alpha}_1 + \cdots + k_m\boldsymbol{\alpha}_m + k\boldsymbol{\beta} = \boldsymbol{0}
+\boldsymbol{\alpha}=\sum_{i=1}^n
+\frac{(\boldsymbol{\alpha},\boldsymbol{\varepsilon}_i)}{(\boldsymbol{\varepsilon}_i,\boldsymbol{\varepsilon}_i)}
+\boldsymbol{\varepsilon}_i.
 \]
-若 $k = 0$，则 $k_1\boldsymbol{\alpha}_1 + \cdots + k_m\boldsymbol{\alpha}_m = \boldsymbol{0}$。由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性无关，得 $k_1 = \cdots = k_m = 0$，与系数不全为零矛盾。故 $k \neq 0$。
+推导只需两边与 $\boldsymbol{\varepsilon}_j$ 作内积：正交性让所有 $i\neq j$ 的项消失，立刻解出系数。若基还是标准正交基（每个向量长度为 $1$），公式简化为 $x_i=(\boldsymbol{\alpha},\boldsymbol{\varepsilon}_i)$，坐标就是投影长度。
 
-于是
+实际拿到的一组基通常不正交。Schmidt 正交化的做法是逐个“扣掉投影”，把无关组改造成正交组。设 $\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_m$ 线性无关，令
 \[
-\boldsymbol{\beta} = -\frac{k_1}{k}\boldsymbol{\alpha}_1 - \cdots - \frac{k_m}{k}\boldsymbol{\alpha}_m
+\boldsymbol{\beta}_1=\boldsymbol{\alpha}_1,\qquad
+\boldsymbol{\beta}_k=\boldsymbol{\alpha}_k-\sum_{i=1}^{k-1}
+\frac{(\boldsymbol{\alpha}_k,\boldsymbol{\beta}_i)}{(\boldsymbol{\beta}_i,\boldsymbol{\beta}_i)}
+\boldsymbol{\beta}_i,\quad k=2,\ldots,m.
 \]
-即 $\boldsymbol{\beta}$ 可由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性表出。
-
-若存在两种表出方式 $\boldsymbol{\beta} = \sum x_i \boldsymbol{\alpha}_i = \sum y_i \boldsymbol{\alpha}_i$，则相减得 $\sum (x_i - y_i)\boldsymbol{\alpha}_i = \boldsymbol{0}$。由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性无关知 $x_i - y_i = 0$（$i=1,\ldots,m$），故表出方式唯一。$\square$
-
-\else \answerarea \fi%
-\item \textbf{（填空题）} 在 $\mathbb{R}^3$ 中，基 $\boldsymbol{\varepsilon}_1 = (1, 1, 1)^\mathrm{T}$，$\boldsymbol{\varepsilon}_2 = (1, 1, 0)^\mathrm{T}$，$\boldsymbol{\varepsilon}_3 = (1, 0, 0)^\mathrm{T}$ 到标准基的过渡矩阵为 \underline{\qquad}。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 从标准基 $\boldsymbol{e}_1, \boldsymbol{e}_2, \boldsymbol{e}_3$ 到基 $\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \boldsymbol{\varepsilon}_3$ 的过渡矩阵为 $P = (\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \boldsymbol{\varepsilon}_3)$。
-
-从基 $\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \boldsymbol{\varepsilon}_3$ 到标准基的过渡矩阵为 $P^{-1}$。
-
-由前例，$P = \begin{pmatrix} 1 & 1 & 1 \\ 1 & 1 & 0 \\ 1 & 0 & 0 \end{pmatrix}$，$P^{-1} = \begin{pmatrix} 0 & 0 & 1 \\ 0 & 1 & -1 \\ 1 & -1 & 0 \end{pmatrix}$。
-
-故从 $\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \boldsymbol{\varepsilon}_3$ 到标准基的过渡矩阵为 $\begin{pmatrix} 0 & 0 & 1 \\ 0 & 1 & -1 \\ 1 & -1 & 0 \end{pmatrix}$。
-
-\else \answerarea \fi%
-\item \textbf{（选择题）} 设 $A = (\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3, \boldsymbol{\alpha}_4)$ 是 $4$ 阶方阵，且 $\operatorname{rank}(A) = 3$，$\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3$ 线性无关，$\boldsymbol{\alpha}_4 = \boldsymbol{\alpha}_1 + 2\boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3$。则 $A\boldsymbol{x} = \boldsymbol{0}$ 的通解为 \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item $k(1, 2, 1, -1)^\mathrm{T}$
-    \item $k(1, 2, 1, 1)^\mathrm{T}$
-    \item $k(1, 2, -1, 1)^\mathrm{T}$
-    \item $k(1, -2, 1, -1)^\mathrm{T}$
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 (A)。
-
-\textbf{分析：} 由 $\boldsymbol{\alpha}_4 = \boldsymbol{\alpha}_1 + 2\boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3$ 得 $\boldsymbol{\alpha}_1 + 2\boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3 - \boldsymbol{\alpha}_4 = \boldsymbol{0}$，即
+每一步都用 $\boldsymbol{\alpha}_k$ 减去它在已有各方向上的投影，剩下的 $\boldsymbol{\beta}_k$ 就与前面所有 $\boldsymbol{\beta}_i$ 垂直。由于 $\boldsymbol{\alpha}_k$ 不能由前面的向量表出，减完之后不会变成零向量。最后令
 \[
-A\begin{pmatrix} 1 \\ 2 \\ 1 \\ -1 \end{pmatrix} = \boldsymbol{0}
+\boldsymbol{e}_i=\frac{\boldsymbol{\beta}_i}{\lVert\boldsymbol{\beta}_i\rVert},
 \]
-\(\operatorname{rank}(A) = 3\)，故 \(A\boldsymbol{x} = \boldsymbol{0}\) 的解空间维数为 \(4 - 3 = 1\)。上述非零向量即为一个基础解系，通解为 \(k(1, 2, 1, -1)^\mathrm{T}\)。
+就得到标准正交基。正交化不改变张成的子空间，所以 $(\boldsymbol{\beta}_1,\ldots,\boldsymbol{\beta}_m)$ 与 $(\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_m)$ 张成同一个空间。
 
-\boxed{\text{注}} 本题涉及线性方程组解的结构（通解、基础解系），详细内容见第四章。此处可直接由「系数矩阵秩为 \(r\)、未知数 \(n\) 个 \(\Rightarrow\) 解空间维数 \(n-r\)」这一结论得出答案，该结论的推导同样在第四章给出。
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  axis lines=center, axis equal image, clip=false,
+  width=0.62\linewidth, height=6.4cm,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  xmin=-0.3, xmax=1.5, ymin=-0.85, ymax=1.4,
+  xtick={1}, ytick={1},
+  font=\footnotesize,
+]
+\draw[->,thick,blue] (axis cs:0,0) -- (axis cs:1,1);
+\draw[->,thick,red]  (axis cs:0,0) -- (axis cs:1,0);
+\draw[->,thick,green!55!black] (axis cs:0,0) -- (axis cs:0.5,-0.5);
+\draw[dashed,gray] (axis cs:1,0) -- (axis cs:0.5,0.5);
+\fill (axis cs:0.5,0.5) circle (1.6pt);
+\draw (axis cs:0.40,0.40) -- (axis cs:0.50,0.30) -- (axis cs:0.60,0.40);
+\node[blue,anchor=south east] at (axis cs:1,1) {$\boldsymbol{\beta}_1=\boldsymbol{\alpha}_1$};
+\node[red,anchor=north] at (axis cs:1,-0.08) {$\boldsymbol{\alpha}_2$};
+\node[green!55!black,anchor=north west] at (axis cs:0.5,-0.5) {$\boldsymbol{\beta}_2$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
-\else \answerarea \fi%
-\end{enumerate}
+图中 $\boldsymbol{\alpha}_2$ 先投影到 $\boldsymbol{\beta}_1$ 上，得到虚线落点；再从 $\boldsymbol{\alpha}_2$ 减去这段投影，剩下的绿色箭头 $\boldsymbol{\beta}_2$ 与 $\boldsymbol{\beta}_1$ 垂直（小方块标出直角）。如果先处理 $\boldsymbol{\alpha}_1$，它本身就是 $\boldsymbol{\beta}_1$；处理第二个向量时只需扣掉一个投影，向量更多时就逐个扣掉所有已有方向上的投影。
 
-\subsection{综合提高题}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（证明题）} 设向量组 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ 线性无关，求证：
+用前面的例子走一遍。取 $\boldsymbol{\alpha}_1=(1,1)^{\mathrm T}$，$\boldsymbol{\alpha}_2=(1,0)^{\mathrm T}$，则
 \[
-\boldsymbol{\beta}_1 = \boldsymbol{\alpha}_1,\quad
-\boldsymbol{\beta}_2 = \boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2,\quad
-\ldots,\quad
-\boldsymbol{\beta}_m = \boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2 + \cdots + \boldsymbol{\alpha}_m
+\boldsymbol{\beta}_1=(1,1)^{\mathrm T},\qquad
+(\boldsymbol{\alpha}_2,\boldsymbol{\beta}_1)=1,\quad
+(\boldsymbol{\beta}_1,\boldsymbol{\beta}_1)=2,
 \]
-也线性无关。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}} 设 $k_1\boldsymbol{\beta}_1 + k_2\boldsymbol{\beta}_2 + \cdots + k_m\boldsymbol{\beta}_m = \boldsymbol{0}$，代入 $\boldsymbol{\beta}_i$ 的定义：
+所以
 \[
-k_1\boldsymbol{\alpha}_1 + k_2(\boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2) + \cdots + k_m(\boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2 + \cdots + \boldsymbol{\alpha}_m) = \boldsymbol{0}
+\boldsymbol{\beta}_2=(1,0)^{\mathrm T}-\frac12(1,1)^{\mathrm T}
+=\left(\frac12,-\frac12\right)^{\mathrm T}.
 \]
-整理 $\boldsymbol{\alpha}_j$ 的系数（$j = 1, \ldots, m$）：
+单位化后
 \[
-(k_1 + k_2 + \cdots + k_m)\boldsymbol{\alpha}_1 + (k_2 + \cdots + k_m)\boldsymbol{\alpha}_2 + \cdots + k_m\boldsymbol{\alpha}_m = \boldsymbol{0}
+\boldsymbol{e}_1=\frac{1}{\sqrt2}\begin{pmatrix}1\\1\end{pmatrix},\qquad
+\boldsymbol{e}_2=\frac{1}{\sqrt2}\begin{pmatrix}1\\-1\end{pmatrix}.
 \]
-由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_m$ 线性无关，各系数为零：
+这正是上一节用过的新基方向，只是长度被缩放到了 $1$。
+
+现在再算 $\boldsymbol{\alpha}=(3,1)^{\mathrm T}$ 在这组标准正交基下的坐标：
 \[
-\begin{cases}
-k_1 + k_2 + \cdots + k_m = 0 \\
-k_2 + \cdots + k_m = 0 \\
-\quad \vdots \\
-k_m = 0
-\end{cases}
+(\boldsymbol{\alpha},\boldsymbol{e}_1)=\frac{4}{\sqrt2}=2\sqrt2,\qquad
+(\boldsymbol{\alpha},\boldsymbol{e}_2)=\frac{2}{\sqrt2}=\sqrt2.
 \]
-从下往上依次得 $k_m = 0, k_{m-1} = 0, \ldots, k_1 = 0$。故 $\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_m$ 线性无关。$\square$
+坐标为 $(2\sqrt2,\sqrt2)^{\mathrm T}$。它与上一节的 $(2,1)^{\mathrm T}$ 不相等，因为这里的基向量长度是 $1$，而上一节的基向量长度是 $\sqrt2$；把 $(2,1)$ 的每个分量乘以 $\sqrt2$，正好得到 $(2\sqrt2,\sqrt2)$。
 
-\else \answerarea \fi%
-\item \textbf{（证明题）} 设 $A$ 是 $m \times n$ 矩阵，$B$ 是 $n \times s$ 矩阵。证明：
+把 $\boldsymbol{\alpha}_1,\ldots,\boldsymbol{\alpha}_n$ 按列排成矩阵 $A$，Schmidt 正交化的结果可以写成矩阵分解
 \[
-\operatorname{rank}(AB) \leq \min\{\operatorname{rank}(A), \operatorname{rank}(B)\}
+A=QR,
 \]
+其中 $Q$ 的列是标准正交基，$R$ 是上三角矩阵，对角元为 $\lVert\boldsymbol{\beta}_i\rVert$。这个分解要求 $A$ 的列线性无关，否则某一步会出现零向量，$R$ 不可逆。
 
-\ifshowsolutions%
-\boxed{\textbf{证明}} 将 $A$ 按列分块为 $A = (\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n)$，则 $AB$ 的每一列是 $A$ 的列向量的线性组合。具体地，设 $B = (b_{ij})$，则 $AB$ 的第 $j$ 列为
-\[
-b_{1j}\boldsymbol{\alpha}_1 + b_{2j}\boldsymbol{\alpha}_2 + \cdots + b_{nj}\boldsymbol{\alpha}_n
-\]
-因此 $AB$ 的列向量组可由 $A$ 的列向量组线性表出，从而
-\[
-\operatorname{rank}(AB) \leq \operatorname{rank}(A)
-\]
-
-另一方面，$\operatorname{rank}(AB) = \operatorname{rank}((AB)^\mathrm{T}) = \operatorname{rank}(B^\mathrm{T}A^\mathrm{T})$。同理，$B^\mathrm{T}A^\mathrm{T}$ 的列向量组可由 $B^\mathrm{T}$ 的列向量组线性表出，故
-\[
-\operatorname{rank}(AB) \leq \operatorname{rank}(B^\mathrm{T}) = \operatorname{rank}(B)
-\]
-综上，$\operatorname{rank}(AB) \leq \min\{\operatorname{rank}(A), \operatorname{rank}(B)\}$。$\square$
-
-\else \answerarea \fi%
-\item \textbf{（证明题）} 设 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_n$ 是 $n$ 维向量空间 $V$ 的一组基，$\boldsymbol{\beta}_1, \boldsymbol{\beta}_2, \ldots, \boldsymbol{\beta}_n$ 是 $V$ 中任意一组向量，且满足
-\[
-(\boldsymbol{\beta}_1, \boldsymbol{\beta}_2, \ldots, \boldsymbol{\beta}_n) = (\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_n) P
-\]
-证明：$\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_n$ 是 $V$ 的基当且仅当 $P$ 可逆。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}}
-\textbf{充分性：} 若 $P$ 可逆，设 $k_1\boldsymbol{\beta}_1 + \cdots + k_n\boldsymbol{\beta}_n = \boldsymbol{0}$，即
-\[
-(\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_n)\begin{pmatrix} k_1 \\ \vdots \\ k_n \end{pmatrix} = (\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n)P\boldsymbol{k} = \boldsymbol{0}
-\]
-由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n$ 线性无关，得 $P\boldsymbol{k} = \boldsymbol{0}$。$P$ 可逆，故 $\boldsymbol{k} = \boldsymbol{0}$，即 $\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_n$ 线性无关。$n$ 维空间中 $n$ 个线性无关的向量必为基。
-
-\textbf{必要性：} 若 $\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_n$ 是基，则存在矩阵 $Q$ 使得
-\[
-(\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n) = (\boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_n) Q = (\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n) P Q
-\]
-由 $\boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_n$ 线性无关，比较坐标得 $PQ = I$。同理可证 $QP = I$，故 $P$ 可逆，且 $Q = P^{-1}$。$\square$
-
-\else \answerarea \fi%
-\item \textbf{（计算与证明题）} 求向量组
-\[
-\boldsymbol{\alpha}_1 = (1, 0, 2, 1)^\mathrm{T},\;
-\boldsymbol{\alpha}_2 = (2, 0, 1, -1)^\mathrm{T},\;
-\boldsymbol{\alpha}_3 = (1, 1, 1, 1)^\mathrm{T},\;
-\boldsymbol{\alpha}_4 = (3, 1, 0, 3)^\mathrm{T}
-\]
-的所有极大线性无关组。
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 以向量为列排成矩阵，作初等行变换：
-\[
-\begin{pmatrix}
-1 & 2 & 1 & 3 \\
-0 & 0 & 1 & 1 \\
-2 & 1 & 1 & 0 \\
-1 & -1 & 1 & 3
-\end{pmatrix}
-\xrightarrow{\substack{r_3 - 2r_1 \\ r_4 - r_1}}
-\begin{pmatrix}
-1 & 2 & 1 & 3 \\
-0 & 0 & 1 & 1 \\
-0 & -3 & -1 & -6 \\
-0 & -3 & 0 & 0
-\end{pmatrix}
-\xrightarrow{r_2 \leftrightarrow r_4}
-\begin{pmatrix}
-1 & 2 & 1 & 3 \\
-0 & -3 & 0 & 0 \\
-0 & -3 & -1 & -6 \\
-0 & 0 & 1 & 1
-\end{pmatrix}
-\]
-\[
-\xrightarrow{r_3 - r_2}
-\begin{pmatrix}
-1 & 2 & 1 & 3 \\
-0 & -3 & 0 & 0 \\
-0 & 0 & -1 & -6 \\
-0 & 0 & 1 & 1
-\end{pmatrix}
-\xrightarrow{r_4 + r_3}
-\begin{pmatrix}
-1 & 2 & 1 & 3 \\
-0 & -3 & 0 & 0 \\
-0 & 0 & -1 & -6 \\
-0 & 0 & 0 & -5
-\end{pmatrix}
-\]
-秩为 $4$，向量组本身线性无关，故唯一的极大线性无关组即为其自身：$\{\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3, \boldsymbol{\alpha}_4\}$。
-
-（若不放心，可验证行列式
-\[
-\det(\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3, \boldsymbol{\alpha}_4) = \begin{vmatrix}
-1 & 2 & 1 & 3 \\
-0 & 0 & 1 & 1 \\
-2 & 1 & 1 & 0 \\
-1 & -1 & 1 & 3
-\end{vmatrix} \neq 0
-\]
-按第二行展开可快速验证其非零。）
-
-\else \answerarea \fi%
-\item \textbf{（证明题）} 设 $V_1, V_2$ 是向量空间 $V$ 的两个子空间，证明：
-\[
-\dim(V_1 + V_2) = \dim V_1 + \dim V_2 - \dim(V_1 \cap V_2)
-\]
-其中 $V_1 + V_2 = \{\boldsymbol{\alpha} + \boldsymbol{\beta} \mid \boldsymbol{\alpha} \in V_1, \boldsymbol{\beta} \in V_2\}$。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}} 设 $\dim V_1 = r$，$\dim V_2 = s$，$\dim(V_1 \cap V_2) = t$。
-
-取 $V_1 \cap V_2$ 的一组基 $\boldsymbol{\gamma}_1, \ldots, \boldsymbol{\gamma}_t$。由基扩张定理，可将其分别扩张为 $V_1$ 的基和 $V_2$ 的基：
-\begin{align*}
-V_1 &: \boldsymbol{\gamma}_1, \ldots, \boldsymbol{\gamma}_t, \boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_{r-t} \\
-V_2 &: \boldsymbol{\gamma}_1, \ldots, \boldsymbol{\gamma}_t, \boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_{s-t}
-\end{align*}
-
-我们断言：$\boldsymbol{\gamma}_1, \ldots, \boldsymbol{\gamma}_t, \boldsymbol{\alpha}_1, \ldots, \boldsymbol{\alpha}_{r-t}, \boldsymbol{\beta}_1, \ldots, \boldsymbol{\beta}_{s-t}$ 是 $V_1 + V_2$ 的一组基。
-
-\textbf{张成性：} $V_1 + V_2$ 中任一向量可写为 $\boldsymbol{u} + \boldsymbol{v}$（$\boldsymbol{u} \in V_1, \boldsymbol{v} \in V_2$）。$\boldsymbol{u}$ 可由 $V_1$ 的基表出，$\boldsymbol{v}$ 可由 $V_2$ 的基表出，故 $\boldsymbol{u} + \boldsymbol{v}$ 可由上述合并的向量组表出。
-
-\textbf{线性无关性：} 设
-\[
-\sum_{i=1}^{t} c_i \boldsymbol{\gamma}_i + \sum_{j=1}^{r-t} a_j \boldsymbol{\alpha}_j + \sum_{k=1}^{s-t} b_k \boldsymbol{\beta}_k = \boldsymbol{0}
-\]
-令 $\boldsymbol{w} = \sum c_i \boldsymbol{\gamma}_i + \sum a_j \boldsymbol{\alpha}_j = -\sum b_k \boldsymbol{\beta}_k$。左边 $\in V_1$，右边 $\in V_2$，故 $\boldsymbol{w} \in V_1 \cap V_2$。$\boldsymbol{w}$ 可由 $V_1 \cap V_2$ 的基表出：
-\[
-\boldsymbol{w} = \sum_{i=1}^{t} d_i \boldsymbol{\gamma}_i
-\]
-于是 $\sum d_i \boldsymbol{\gamma}_i + \sum b_k \boldsymbol{\beta}_k = \boldsymbol{0}$。由 $\boldsymbol{\gamma}_i, \boldsymbol{\beta}_k$ 线性无关（作为 $V_2$ 的基的一部分），得所有 $d_i = 0$，$b_k = 0$。进而 $\boldsymbol{w} = \boldsymbol{0}$，再由 $V_1$ 的基的无关性得 $c_i = 0$，$a_j = 0$。
-
-故这组向量线性无关，是 $V_1 + V_2$ 的基。其中向量个数为 $t + (r - t) + (s - t) = r + s - t$，即
-\[
-\dim(V_1 + V_2) = \dim V_1 + \dim V_2 - \dim(V_1 \cap V_2)
-\]
-$\square$
-
-\else \answerarea \fi%
-\end{enumerate}
-
-\subsection{真题风格与综合训练}
-
-\begin{enumerate}[resume]
-
-\item \textbf{（\boxed{\textbf{真题风格}}·选择题）} 设 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3$ 是 $\mathbb{R}^3$ 的一组基，则下列向量组中也是 $\mathbb{R}^3$ 的基的是 \underline{\qquad}。
-\begin{enumerate}[label=(\Alph*)]
-    \item $\boldsymbol{\alpha}_1 - \boldsymbol{\alpha}_2,\ \boldsymbol{\alpha}_2 - \boldsymbol{\alpha}_3,\ \boldsymbol{\alpha}_3 - \boldsymbol{\alpha}_1$
-    \item $\boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2,\ \boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3,\ \boldsymbol{\alpha}_3 + \boldsymbol{\alpha}_1$
-    \item $\boldsymbol{\alpha}_1,\ \boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2,\ 2\boldsymbol{\alpha}_1 + 2\boldsymbol{\alpha}_2$
-    \item $\boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2,\ \boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3,\ \boldsymbol{\alpha}_1 - \boldsymbol{\alpha}_3$
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}} 选 \textbf{(B)}。
-
-\textbf{分析：} 将各选项的新向量用原基 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3$ 的坐标表示，判断过渡矩阵是否可逆（行列式是否非零）。
-
-(A) 过渡矩阵 $P = \begin{pmatrix} 1 & 0 & -1 \\ -1 & 1 & 0 \\ 0 & -1 & 1 \end{pmatrix}$，$\det P = 1 \cdot (1 \cdot 1 - 0) - 0 + (-1) \cdot ((-1)\cdot(-1) - 1 \cdot 0) = 1 - 1 = 0$，不是基。
-
-(B) 过渡矩阵 $P = \begin{pmatrix} 1 & 0 & 1 \\ 1 & 1 & 0 \\ 0 & 1 & 1 \end{pmatrix}$，$\det P = 1 \cdot 1 - 0 + 1 \cdot 1 = 2 \neq 0$，是基。
-
-(C) 第三个向量是第二个向量的 $2$ 倍，向量组线性相关，不是基。
-
-(D) 记三个向量依次为 $\boldsymbol{\beta}_1,\boldsymbol{\beta}_2,\boldsymbol{\beta}_3$，则
-$\boldsymbol{\beta}_1-\boldsymbol{\beta}_2-\boldsymbol{\beta}_3=\boldsymbol{0}$，故向量组线性相关，不是基。
-
-\boxed{\text{注}} 判断由一组基线性组合得到的新向量组是否仍为基，只需判断相应坐标矩阵是否可逆；在三阶情形下可直接计算其行列式。
-
-\else \answerarea \fi%
-\item \textbf{（\boxed{\textbf{真题风格}}·计算题）} 在 $\mathbb{R}^3$ 中，设有两组基：
-\begin{align*}
-\text{(I)}&\quad \boldsymbol{\varepsilon}_1 = (1, 1, 1)^\mathrm{T},\; \boldsymbol{\varepsilon}_2 = (1, 1, 0)^\mathrm{T},\; \boldsymbol{\varepsilon}_3 = (1, 0, 0)^\mathrm{T} \\
-\text{(II)}&\quad \boldsymbol{\eta}_1 = (1, 0, -1)^\mathrm{T},\; \boldsymbol{\eta}_2 = (2, 1, 1)^\mathrm{T},\; \boldsymbol{\eta}_3 = (1, 1, 1)^\mathrm{T}
-\end{align*}
-\begin{enumerate}
-    \item[(1)] 求从基 (I) 到基 (II) 的过渡矩阵；
-    \item[(2)] 已知向量 $\boldsymbol{\alpha}$ 在基 (I) 下的坐标为 $(1, -1, 2)^\mathrm{T}$，求 $\boldsymbol{\alpha}$ 在基 (II) 下的坐标。
-\end{enumerate}
-
-\ifshowsolutions%
-\boxed{\textbf{解}}
-(1) 设从标准基 $\boldsymbol{e}_1, \boldsymbol{e}_2, \boldsymbol{e}_3$ 到 (I) 的过渡矩阵为 $P_1 = (\boldsymbol{\varepsilon}_1, \boldsymbol{\varepsilon}_2, \boldsymbol{\varepsilon}_3)$，到 (II) 的过渡矩阵为 $P_2 = (\boldsymbol{\eta}_1, \boldsymbol{\eta}_2, \boldsymbol{\eta}_3)$。
-
-则从 (I) 到 (II) 的过渡矩阵为 $P = P_1^{-1}P_2$。
-
-\[
-P_1 = \begin{pmatrix}
-1 & 1 & 1 \\
-1 & 1 & 0 \\
-1 & 0 & 0
-\end{pmatrix}, \quad
-P_2 = \begin{pmatrix}
-1 & 2 & 1 \\
-0 & 1 & 1 \\
--1 & 1 & 1
-\end{pmatrix}
-\]
-
-由前例，$P_1^{-1} = \begin{pmatrix}
-0 & 0 & 1 \\
-0 & 1 & -1 \\
-1 & -1 & 0
-\end{pmatrix}$。
-
-故
-\[
-P = P_1^{-1}P_2 = \begin{pmatrix}
-0 & 0 & 1 \\
-0 & 1 & -1 \\
-1 & -1 & 0
-\end{pmatrix}
-\begin{pmatrix}
-1 & 2 & 1 \\
-0 & 1 & 1 \\
--1 & 1 & 1
-\end{pmatrix}
-= \begin{pmatrix}
--1 & 1 & 1 \\
-1 & 0 & 0 \\
-1 & 1 & 0
-\end{pmatrix}
-\]
-
-(2) 设 $\boldsymbol{\alpha}$ 在 (I) 下的坐标为 $\boldsymbol{x} = (1, -1, 2)^\mathrm{T}$，在 (II) 下的坐标为 $\boldsymbol{y}$。由坐标变换公式：
-\[
-\boldsymbol{x} = P \boldsymbol{y}
-\]
-故 $\boldsymbol{y} = P^{-1}\boldsymbol{x}$。求 $P^{-1}$：
-\[
-(P \mid I) = \left(\begin{array}{ccc|ccc}
--1 & 1 & 1 & 1 & 0 & 0 \\
-1 & 0 & 0 & 0 & 1 & 0 \\
-1 & 1 & 0 & 0 & 0 & 1
-\end{array}\right)
-\xrightarrow{r_1 \leftrightarrow r_2}
-\left(\begin{array}{ccc|ccc}
-1 & 0 & 0 & 0 & 1 & 0 \\
--1 & 1 & 1 & 1 & 0 & 0 \\
-1 & 1 & 0 & 0 & 0 & 1
-\end{array}\right)
-\]
-\[
-\xrightarrow{\substack{r_2 + r_1 \\ r_3 - r_1}}
-\left(\begin{array}{ccc|ccc}
-1 & 0 & 0 & 0 & 1 & 0 \\
-0 & 1 & 1 & 1 & 1 & 0 \\
-0 & 1 & 0 & 0 & -1 & 1
-\end{array}\right)
-\xrightarrow{r_2 - r_3}
-\left(\begin{array}{ccc|ccc}
-1 & 0 & 0 & 0 & 1 & 0 \\
-0 & 0 & 1 & 1 & 2 & -1 \\
-0 & 1 & 0 & 0 & -1 & 1
-\end{array}\right)
-\]
-\[
-\xrightarrow{r_2 \leftrightarrow r_3}
-\left(\begin{array}{ccc|ccc}
-1 & 0 & 0 & 0 & 1 & 0 \\
-0 & 1 & 0 & 0 & -1 & 1 \\
-0 & 0 & 1 & 1 & 2 & -1
-\end{array}\right)
-\]
-故
-\[
-P^{-1} = \begin{pmatrix}
-0 & 1 & 0 \\
-0 & -1 & 1 \\
-1 & 2 & -1
-\end{pmatrix}
-\]
-于是
-\[
-\boldsymbol{y} = P^{-1}\boldsymbol{x} = \begin{pmatrix}
-0 & 1 & 0 \\
-0 & -1 & 1 \\
-1 & 2 & -1
-\end{pmatrix}
-\begin{pmatrix} 1 \\ -1 \\ 2 \end{pmatrix}
-= \begin{pmatrix} -1 \\ 3 \\ -3 \end{pmatrix}
-\]
-即 $\boldsymbol{\alpha}$ 在基 (II) 下的坐标为 $(-1, 3, -3)^\mathrm{T}$。
-
-验证：$\boldsymbol{\alpha}$ 在标准基下为 $P_1\boldsymbol{x} = (2, 0, 1)^\mathrm{T}$。以 $\boldsymbol{y}$ 用基 (II) 表出：$(-1)\boldsymbol{\eta}_1 + 3\boldsymbol{\eta}_2 + (-3)\boldsymbol{\eta}_3 = (-1, 0, 1)^\mathrm{T} + (6, 3, 3)^\mathrm{T} + (-3, -3, -3)^\mathrm{T} = (2, 0, 1)^\mathrm{T}$，正确。$\square$
-
-\else \answerarea \fi%
-\item \textbf{（真题风格·证明题）} 设 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \ldots, \boldsymbol{\alpha}_m$ 是一组 $n$ 维向量，其秩为 $r$。证明：这 $m$ 个向量中的任意 $r$ 个线性无关的向量都构成该向量组的一个极大线性无关组。
-
-\ifshowsolutions%
-\boxed{\textbf{证明}} 设 $\boldsymbol{\alpha}_{i_1}, \ldots, \boldsymbol{\alpha}_{i_r}$ 是原向量组中任意 $r$ 个线性无关的向量。对原向量组中的任意向量 $\boldsymbol{\alpha}_j$，考虑向量组 $\boldsymbol{\alpha}_{i_1}, \ldots, \boldsymbol{\alpha}_{i_r}, \boldsymbol{\alpha}_j$。
-
-因为原向量组的秩为 $r$，所以其中任意 $r+1$ 个向量必然线性相关。故 $\boldsymbol{\alpha}_{i_1}, \ldots, \boldsymbol{\alpha}_{i_r}, \boldsymbol{\alpha}_j$ 线性相关。由定理 4，$\boldsymbol{\alpha}_j$ 可由 $\boldsymbol{\alpha}_{i_1}, \ldots, \boldsymbol{\alpha}_{i_r}$ 线性表出。
-
-因此原向量组中每个向量均可由这 $r$ 个向量线性表出，而这 $r$ 个向量自身线性无关，故它们构成一个极大线性无关组。$\square$
-
-\boxed{\text{注}} 此结论说明：秩为 $r$ 的向量组中，任何 $r$ 个线性无关的向量自动构成极大无关组。这是寻找所有极大无关组的理论基础：只需枚举所有大小为 $r$ 的线性无关子集即可。
-
-\else \answerarea \fi%
-\end{enumerate}
+\input{algebra/exercises/chap2.tex}

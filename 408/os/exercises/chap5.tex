@@ -1,0 +1,170 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 下列关于 I/O 控制方式的叙述中，正确的是
+\begin{center}
+\begin{tabular}{l}
+(A) 程序直接控制方式下，CPU 在等待设备就绪期间可切换去运行其他进程 \\[4pt]
+(B) 中断驱动方式下，CPU 在中断服务程序中把设备数据寄存器的内容送入内存 \\[4pt]
+(C) DMA 方式下，每传送一个字节，DMA 控制器就向 CPU 发出一次中断 \\[4pt]
+(D) 通道方式下，通道程序由 CPU 逐条取指并执行
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 程序直接控制（轮询）时 CPU 忙等状态寄存器，不能切换进程，(A) 错。中断驱动方式由 CPU 执行中断服务程序完成“设备寄存器 $\to$ 内存”的搬移，(B) 对。DMA 以数据块为单位，整块传送结束后才中断一次，(C) 错。通道有自己的指令系统，通道程序由通道执行，CPU 只负责启动并接收结束中断，(D) 错。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（填空题）} 用户程序调用 \texttt{read()} 读取磁盘文件。负责把逻辑设备名映射为物理设备、并完成缓冲管理与设备分配的是 \underline{\qquad}；把“读第 $n$ 块”这一通用请求翻译成对控制器寄存器的操作序列的是 \underline{\qquad}；设备完成传送后处理中断、唤醒等待进程的是 \underline{\qquad}；SPOOLing 打印守护进程位于 \underline{\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} I/O 软件自底向上为中断处理程序、设备驱动程序、设备独立性软件、用户层 I/O 软件。设备独立性软件做命名、保护、缓冲、分配等与具体设备无关的工作；驱动程序与控制器打交道；中断处理程序负责中断后的收尾；SPOOLing 守护进程以用户进程形式运行。\boxed{\text{答案：设备独立性软件；设备驱动程序；中断处理程序；用户层 I/O 软件}}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 进程以逻辑设备名请求一台设备时，系统依据哪张表取得对应的物理设备名和驱动程序入口？
+\begin{center}
+\begin{tabular}{ll}
+(A) 系统设备表 SDT & (B) 设备控制表 DCT \\[4pt]
+(C) 控制器控制表 COCT & (D) 逻辑设备表 LUT
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} LUT 的表项记录逻辑设备名、物理设备名和驱动程序入口，完成“逻辑设备 $\to$ 物理设备”的映射。SDT 汇总系统中全部设备，DCT 描述单台设备的状态与队列，COCT 描述控制器的状态，它们都不承担按逻辑名查物理设备的职责。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 下列关于 SPOOLing 技术的叙述中，\textbf{错误}的是
+\begin{center}
+\begin{tabular}{l}
+(A) 输出井位于磁盘，用于暂存尚未送到打印机的输出数据 \\[4pt]
+(B) 进程调用打印函数后，必须等打印机把该任务全部输出完毕才能返回 \\[4pt]
+(C) SPOOLing 可把打印机这类独占设备改造为多个进程共享的虚拟设备 \\[4pt]
+(D) 输入进程负责把物理输入设备的数据预先读入输入井
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} SPOOLing 的要点是“用户进程只把数据写入磁盘上的输出井”，写井完成即可返回，真正送到打印机由后台守护进程完成，因此 (B) 错误。输入井、输出井都在磁盘上；预输入进程负责读入井；多个进程的请求在井中排队，由打印机串行服务，从而在逻辑上共享独占设备。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（计算题）} 某系统采用单缓冲，设备把一块数据读入缓冲区的时间 $T=50\,\mu\text{s}$，系统把缓冲区数据搬到用户区的时间 $M=10\,\mu\text{s}$，CPU 处理一块数据的时间 $C=40\,\mu\text{s}$。连续读入并处理 4 块数据，总时间是多少？
+
+\ifshowsolutions\par\noindent\textbf{解析：} 第一块必须依次经历 $T$、$M$、$C$，耗时 $50+10+40=100\,\mu\text{s}$。此后每增加一块，缓冲区被 $M$ 占用后设备才能输入下一块，而下一块的 $T$ 可与当前块的 $C$ 重叠，故稳态每块增加
+\[
+\max(C,T)+M=\max(40,50)+10=60\,\mu\text{s}.
+\]
+4 块总时间为
+\[
+100+(4-1)\times 60=280\,\mu\text{s}.
+\]
+\boxed{\text{答案：}280\,\mu\text{s}}\else \answerarea[8] \fi
+
+\vspace{8pt}
+
+\item \textbf{（填空题）} 缓冲池设置空缓冲队列 emq、输入队列 inq 和输出队列 outq。设备输入数据时，缓冲管理程序先从 \underline{\qquad} 取出一个空缓冲区，装满后把它挂到 \underline{\qquad}；进程从该缓冲区取走数据后，缓冲区被回收并挂回 \underline{\qquad}。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 输入方向的操作是“收容输入”：从 emq 取空缓冲区，设备填入后挂入 inq；进程“提取输入”取走数据，缓冲区重新变为空，挂回 emq。输出方向对称地使用 emq 和 outq。\boxed{\text{答案：emq（空缓冲队列）；inq（输入队列）；emq（空缓冲队列）}}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（单项选择题）} 某文件共 10 块，每块大小等于缓冲区大小。设备把一块读入缓冲区需 $T=100\,\mu\text{s}$，系统把缓冲区数据搬到用户区需 $M=20\,\mu\text{s}$，CPU 处理一块需 $C=80\,\mu\text{s}$。与单缓冲相比，采用双缓冲读入并处理完整个文件可节省
+\begin{center}
+\begin{tabular}{ll}
+(A) $0\,\mu\text{s}$ & (B) $180\,\mu\text{s}$ \\[4pt]
+(C) $200\,\mu\text{s}$ & (D) $900\,\mu\text{s}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 单缓冲总时间
+\[
+T_{\text{单}}=T+M+C+(N-1)\bigl[\max(C,T)+M\bigr]
+=200+9(100+20)=1280\,\mu\text{s}.
+\]
+双缓冲时设备输入与“搬移+处理”两条路径可重叠，总时间
+\[
+T_{\text{双}}=T+M+C+(N-1)\max(T,M+C)
+=200+9\max(100,20+80)=1100\,\mu\text{s}.
+\]
+节省 $1280-1100=180\,\mu\text{s}$。这里双缓冲的并行路径是 $M+C=100\,\mu\text{s}$，恰与 $T$ 相等，不能误写成只比较 $T$ 与 $C$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（单项选择题）} 某磁盘以 1 KB 为一块。若采用中断驱动方式，每传送 1 字节中断一次，每次中断的响应、现场保存与数据搬移共需 50 个时钟周期；若采用 DMA，CPU 只在启动时花 200 个周期初始化，整块传完后花 800 个周期处理完成中断。CPU 主频为 1 GHz。只比较 CPU 用于初始化和中断处理的时间，不计 DMA 占用总线引起的访存等待，则传送一块数据时 DMA 比中断驱动方式节省的 CPU 时间约为
+\begin{center}
+\begin{tabular}{ll}
+(A) $1.0\,\mu\text{s}$ & (B) $50.2\,\mu\text{s}$ \\[4pt]
+(C) $51.2\,\mu\text{s}$ & (D) $40.96\,\mu\text{s}$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 1 KB $=1024$ B。中断驱动需 1024 次中断，共
+\[
+1024\times 50=51200\ \text{周期}=51.2\,\mu\text{s}\quad(1\ \text{周期}=1\ \text{ns}).
+\]
+DMA 共需 $200+800=1000$ 周期 $=1.0\,\mu\text{s}$。节省
+\[
+51.2-1.0=50.2\,\mu\text{s}.
+\]
+\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\vspace{8pt}
+
+\item \textbf{（综合应用题）} 某办公室只有一台打印机，打印速度为 $20\text{ KB/s}$。每个打印任务的数据量均为 $100\text{ KB}$。系统采用 SPOOLing：进程把数据写入磁盘输出井的速率为 $5\text{ MB/s}$，写井请求按提交顺序串行执行，忽略寻道、调度等其他开销。现有 6 个进程在 $t=0$ 几乎同时提交打印任务，此前打印机空闲。按 $1\text{ MB}=1000\text{ KB}$ 计算。
+\begin{enumerate}
+    \item[(1)] 采用 SPOOLing 时，第 6 个进程的打印请求从提交到写井返回需要多久？全部 6 个任务真正打印完成需要多久？
+    \item[(2)] 若不采用 SPOOLing，打印机被一个进程独占至该任务打印完毕，则第 6 个进程从提交到开始使用打印机需要等多久？全部任务打印完成需要多久？
+    \item[(3)] 比较两问结果，说明在这组参数下 SPOOLing 是否提高了打印机的吞吐率，它实际改善的是什么。
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 每个任务写井耗时
+\[
+\frac{100\text{ KB}}{5\text{ MB/s}}=\frac{100}{5000}\,\text{s}=0.02\,\text{s}=20\,\text{ms}.
+\]
+6 个请求串行写井，第 6 个在 $6\times 20=120\,\text{ms}$ 时返回。第一个任务在 $20\,\text{ms}$ 时已全部进入输出井，打印机随即开始，每个任务打印
+\[
+\frac{100\text{ KB}}{20\text{ KB/s}}=5\,\text{s}.
+\]
+因此全部完成时刻为 $0.02+6\times 5=30.02\,\text{s}$。
+
+(2) 无 SPOOLing 时，打印机从 $t=0$ 起被第一个进程占用，每个任务占机 $5\,\text{s}$。第 6 个进程前面有 5 个任务，需等 $5\times 5=25\,\text{s}$ 才开始打印，全部完成于 $6\times 5=30\,\text{s}$。
+
+(3) 两种方式的打印机都是每 $5\,\text{s}$ 完成一个任务，稳态吞吐率同为 $0.2$ 个任务/秒，SPOOLing 没有让打印机变快。由于打印前要先写满输出井，总完成时刻反而多了 $0.02\,\text{s}$ 的流水线填充。SPOOLing 改善的是进程的阻塞时间：第 6 个进程的写请求 $0.12\,\text{s}$ 就返回，而不必等 $25\,\text{s}$；它把“同步等待慢速独占设备”转换为“异步写磁盘”，使进程在打印进行期间仍可继续运行。
+
+\boxed{\text{答案：(1) $120\,\text{ms}$，$30.02\,\text{s}$；(2) $25\,\text{s}$，$30\,\text{s}$；(3) 稳态吞吐率不变，改善的是进程阻塞时间（把同步等待设备变为异步写井）}}\else \answerarea[10] \fi
+
+\vspace{8pt}
+
+\item \textbf{（综合应用题）} 某系统有同类独占设备 4 台。进程 $P_1,P_2,P_3$ 的最大需求量分别为 3、2、2 台，当前已分别占有 1、1、1 台，系统剩余 1 台。采用银行家算法的安全性检查进行设备分配。
+\begin{enumerate}
+    \item[(1)] 当前状态是否安全？若安全，给出一个安全序列并写出检查过程。
+    \item[(2)] 若此时 $P_1$ 再请求 1 台设备，能否立即分配？说明理由。
+    \item[(3)] 一次设备分配要依次检查哪些数据结构？分配成功后需要修改哪些表项？若分配会导致不安全状态，系统应如何处理？
+\end{enumerate}
+
+\ifshowsolutions\par\noindent\textbf{解析：}
+(1) 各进程尚需设备数为
+\[
+\begin{array}{c|ccc}
+ & \text{最大需求} & \text{已分配} & \text{尚需}\\\hline
+P_1 & 3 & 1 & 2\\
+P_2 & 2 & 1 & 1\\
+P_3 & 2 & 1 & 1
+\end{array}
+\]
+当前可用 $Work=1$。$P_2$ 尚需 1 台，可满足，完成后释放其占有的 1 台，$Work=1+1=2$；$P_3$ 尚需 1 台，完成后 $Work=2+1=3$；$P_1$ 尚需 2 台，完成后 $Work=3+1=4$。故存在安全序列 $P_2,P_3,P_1$（交换 $P_2,P_3$ 也可），当前状态安全。
+
+(2) 若分配给 $P_1$，则 $P_1$ 已占 2 台、尚需 1 台，可用数变为 0；而 $P_1,P_2,P_3$ 的尚需量都为 1，均大于 0，没有任何进程能先完成并释放设备，系统进入不安全状态。因此不能立即分配，应让 $P_1$ 阻塞等待。
+
+(3) 分配程序通常先查 SDT 找到设备，再查该设备的 DCT 判断是否空闲，然后查 COCT、CHCT 确认控制器和通道能否接受；对逻辑设备请求还要查 LUT 完成逻辑名到物理名的映射。随后做安全性检查。分配成功要修改 DCT（置忙、记录占用进程）、相应 COCT/CHCT 的已分配计数和 LUT 表项；回收时反向恢复并唤醒等待队列中的进程。若检查结果为不安全，则不真正分配，把请求进程插入该设备的等待队列。
+
+\boxed{\text{答案：(1) 安全，安全序列如 $P_2\to P_3\to P_1$；(2) 不能，分配后可用数为 0 且三个进程尚需均为 1，无可完成进程，进入不安全状态；(3) 依次查 SDT、DCT、COCT、CHCT（逻辑请求再查 LUT），分配后修改 DCT、COCT/CHCT 计数与 LUT，不安全则阻塞请求进程}}\else \answerarea[10] \fi
+
+\end{enumerate}

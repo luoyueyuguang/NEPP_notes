@@ -1,1021 +1,698 @@
 \section{数据的表示与运算}
 
-\subsection{进位计数制}
+同样一串 32 位 \texttt{1111 1111 1111 1111 1111 1111 1111 1111}，说明符写成 \texttt{int} 时它是 $-1$，写成 \texttt{float} 时却落在 NaN 上：阶码全为 1、尾数不全为 0。位串本身没有数值含义，含义来自编码约定。这一章把这些约定拆开来看：整数怎样用补码表示，加减到什么时候算越界，浮点数怎样分配符号、阶码和尾数，以及一个加法器怎样用同一套电路完成加减并给出标志位。
 
-\begin{mydef}{进位计数制}{number-system}
-对于任意 $R$ 进制数 $N = (d_{n-1}d_{n-2}\ldots d_1 d_0.d_{-1}d_{-2}\ldots d_{-m})_R$，其十进制值为按权展开：
+\subsection{进位计数制与常见编码}
+
+先看一个具体的二进制数：
 \[
-N_{10} = \sum_{i=-m}^{n-1} d_i \times R^{i},\qquad d_i\in\{0,1,\ldots,R-1\}.
+10110111.1011_2
+=1\cdot2^7+0\cdot2^6+1\cdot2^5+1\cdot2^4+0\cdot2^3+1\cdot2^2+1\cdot2^1+1\cdot2^0
++1\cdot2^{-1}+0\cdot2^{-2}+1\cdot2^{-3}+1\cdot2^{-4}.
 \]
+这就是“按权展开”：每一位的权是基数的整数次幂，小数点左边从 $2^0$ 起往左递增，右边从 $2^{-1}$ 起往右递减。任意 $R$ 进制同理，第 $i$ 位的权为 $R^i$。
 
-\textbf{常见进制：}
-\begin{itemize}
-    \item 二进制（Binary, B）：$R=2$，数码 $\{0,1\}$，后缀 \texttt{B}。
-    \item 八进制（Octal, O）：$R=8$，数码 $\{0,1,\ldots,7\}$，后缀 \texttt{O} 或前缀 \texttt{0}。
-    \item 十六进制（Hex, H）：$R=16$，数码 $\{0,1,\ldots,9,A,B,C,D,E,F\}$，后缀 \texttt{H} 或前缀 \texttt{0x}。
-    \item 十进制（Decimal, D）：$R=10$。
-\end{itemize}
-\end{mydef}
-
-\begin{conclusion}{进制转换方法}{radix-conversion}
-\textbf{任意进制 $\to$ 十进制：}按权展开求和。
-
-\textbf{十进制 $\to$ $R$ 进制：}
-\begin{itemize}
-    \item 整数部分：除 $R$ 取余，逆序排列（先得低位）；
-    \item 小数部分：乘 $R$ 取整，顺序排列（先得高位）。小数部分可能无限循环，此时需指定精度。
-\end{itemize}
-
-\textbf{二/八/十六进制互转：}二进制是桥梁。
-\begin{itemize}
-    \item 二进制 $\to$ 八进制：从小数点向两侧，每 3 位一组转换为八进制数码（不足补 0）。
-    \item 二进制 $\to$ 十六进制：从小数点向两侧，每 4 位一组转换为十六进制数码。
-    \item 八/十六进制 $\to$ 二进制：每位拆成 3/4 位二进制即可。
-\end{itemize}
-
-\boxed{\textbf{例}} $10110111.1011\text{B} = (10\;110\;111.101\;100)_2 = 267.54\text{O}$（分组时小数部分右侧补两个0）；同理 $= (1011\;0111.1011)_2 = \text{B7.BH}$。
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 常考点：}小数部分除基取余/乘基取整的方向不能混淆——整数除基取余「逆序」，小数乘基取整「顺序」。此外八进制/十六进制与二进制的分组转换是快速解题的核心技巧。
-\end{attention}
-
-\subsection{数据编码、存放与校验}
-
-\begin{conclusion}{字符、BCD 与字节序}{data-encoding-storage}
-\begin{itemize}
-    \item \textbf{ASCII：}标准 ASCII 使用 7 位编码，共 128 个码点；计算机中通常占 1 字节。数字字符 \texttt{'0'}--\texttt{'9'} 连续编码，大小写字母也分别连续编码。
-    \item \textbf{BCD：}用 4 位二进制表示一位十进制数。8421 BCD 中 $59_{10}$ 编码为 \texttt{0101 1001}，不是二进制真值 $111011_2$。
-    \item \textbf{大端方式：}多字节数据的最高有效字节放在低地址；\textbf{小端方式：}最低有效字节放在低地址。设 32 位数 \texttt{0x12345678} 从地址 $a$ 开始存放，大端的 $a$ 单元为 \texttt{12H}，小端为 \texttt{78H}。
-    \item \textbf{边界对齐：}一个 $n$ 字节数据通常从 $n$ 的整数倍地址开始存放。对齐可减少访存次数，但结构体中可能产生填充字节；题目若明确“紧凑存放”，则不得自行加入填充。
-\end{itemize}
-\end{conclusion}
-
-\begin{conclusion}{奇偶校验与海明码}{error-detect-code}
-\begin{itemize}
-    \item \textbf{奇偶校验：}增加 1 位校验位，使码字中 1 的总数为偶数（偶校验）或奇数（奇校验）。能检测任意奇数位错误，不能定位错误，也不能保证检测出偶数位错误。
-    \item \textbf{海明码：}若数据位为 $k$、校验位为 $r$，能够纠正 1 位错误的基本条件是
-    \[
-    2^r \geqslant k+r+1.
-    \]
-    校验位通常放在编号 $1,2,4,8,\ldots$ 的位置。各校验组重新计算得到的校验结果组成\textbf{故障字（syndrome）}；故障字为 0 表示未检出错误，非 0 时其数值给出出错位编号。
-    \item 仅满足上式的普通海明码最小距离为 3，可纠正 1 位错；再增加 1 位全局奇偶校验位可构成 SEC--DED 码，实现“纠正 1 位、检测 2 位”。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-数据的机器表示必须区分三件事：数值编码（补码/IEEE 754）、字节在内存中的排列（大小端）和数据对象的起始地址约束（边界对齐）。大小端只改变字节次序，不改变一个字节内各位的顺序。
-\end{attention}
-
-\subsection{机器数的表示}
-
-\begin{mydef}{真值与机器数}{truth-machine}
-\textbf{真值}是数学上的实际数值（带正负号）；\textbf{机器数}是将符号数值化后在计算机中的编码表示。通常约定最高位为符号位：$0$ 表示正，$1$ 表示负。机器数位数固定（如 8 位、16 位、32 位），超出范围即溢出。
-\end{mydef}
-
-\subsubsection{原码（Sign-Magnitude）}
-
-\begin{formula}{原码的定义}{true-form}
-设机器字长 $n+1$ 位（含符号位），真值 $x$：
-\begin{itemize}
-    \item \textbf{定点整数：}
-    \[
-    [x]_{\text{原}} = \begin{cases}
-    x, & 0 \leqslant x < 2^{n} \\[4pt]
-    2^{n} - x = 2^{n} + |x|, & -2^{n} < x \leqslant 0
-    \end{cases}
-    \]
-    \item \textbf{定点小数：}
-    \[
-    [x]_{\text{原}} = \begin{cases}
-    x, & 0 \leqslant x < 1 \\[4pt]
-    1 - x, & -1 < x \leqslant 0
-    \end{cases}
-    \]
-\end{itemize}
-\end{formula}
-
-\begin{conclusion}{原码的特点}{true-form-props}
-\begin{itemize}
-    \item 表示范围（$n+1$ 位，含符号位）：整数 $[-(2^{n}-1),\; 2^{n}-1]$，小数 $[-(1-2^{-n}),\; 1-2^{-n}]$。
-    \item 零的表示不唯一：$[+0]_{\text{原}} = 0\underbrace{00\ldots0}_{n\text{个}}$，$[-0]_{\text{原}} = 1\underbrace{00\ldots0}_{n\text{个}}$。
-    \item 优点：与真值对应直观，乘除时符号位单独处理。
-    \item 缺点：加减法需判断符号和绝对值大小，电路复杂。
-\end{itemize}
-\end{conclusion}
-
-\subsubsection{反码（Ones' Complement）}
-
-\begin{formula}{反码的定义}{ones-comp}
-设机器字长 $n+1$ 位，真值 $x$：
-\begin{itemize}
-    \item \textbf{定点整数：}
-    \[
-    [x]_{\text{反}} = \begin{cases}
-    x, & 0 \leqslant x < 2^{n} \\[4pt]
-    (2^{n+1}-1)+x, & -2^{n} < x \leqslant 0
-    \end{cases}
-    \]
-    \item \textbf{定点小数：}
-    \[
-    [x]_{\text{反}} = \begin{cases}
-    x, & 0 \leqslant x < 1 \\[4pt]
-    (2-2^{-n})+x, & -1 < x \leqslant 0
-    \end{cases}
-    \]
-\end{itemize}
-\textbf{直观规则：}正数反码与原码相同；负数反码 = 符号位保持 $1$，其余各位按位取反。
-\end{formula}
-
-\begin{attention}
-反码的零也有两种表示：$[+0]_{\text{反}} = 00\ldots0$，$[-0]_{\text{反}} = 11\ldots1$。反码在现代计算机中已不直接使用，但其作为补码的中间过渡具有理论价值，且 TCP/IP 校验和仍用反码加法。
-\end{attention}
-
-\subsubsection{补码（Two's Complement）}
-
-\begin{mydef}{补码的定义}{twos-comp}
-设机器字长 $n+1$ 位，真值 $x$：
-\begin{itemize}
-    \item \textbf{定点整数：}
-    \[
-    [x]_{\text{补}} = \begin{cases}
-    x, & 0 \leqslant x < 2^{n} \\[4pt]
-    2^{n+1}+x, & -2^{n} \leqslant x < 0
-    \end{cases} \pmod{2^{n+1}}
-    \]
-    \item \textbf{定点小数：}
-    \[
-    [x]_{\text{补}} = \begin{cases}
-    x, & 0 \leqslant x < 1 \\[4pt]
-    2+x, & -1 \leqslant x < 0
-    \end{cases} \pmod{2}
-    \]
-\end{itemize}
-\textbf{直观规则：}正数补码 = 原码；负数补码 = 反码末位 $+1$（即「按位取反 $+1$」）。
-\end{mydef}
+十进制转 $R$ 进制时，整数部分除 $R$ 取余、余数逆序排列；小数部分乘 $R$ 取整、整数顺序排列。前者先得到低位，所以最后要反过来读；后者先得到高位，顺着读即可。二进制、八进制、十六进制之间不必绕道十进制，按位分组最快：从小数点向两侧，每 3 位对应 1 个八进制位，每 4 位对应 1 个十六进制位，不足补 0。
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[anchor=east] at (-0.2,1.8){原码};
-  \draw[thick,fill=Amber!15] (0,1.7) rectangle (0.7,2.1);
-  \draw[thick,fill=SoftGray] (0.7,1.7) rectangle (4.4,2.1);
-  \node at (0.35,1.9){1}; \node at (2.55,1.9){0000111};
-  \node[anchor=east] at (-0.2,1.2){反码};
-  \draw[thick,fill=Amber!15] (0,1.1) rectangle (0.7,1.5);
-  \draw[thick,fill=SoftGray] (0.7,1.1) rectangle (4.4,1.5);
-  \node at (0.35,1.3){1}; \node at (2.55,1.3){1111000};
-  \node[anchor=east] at (-0.2,0.6){补码};
-  \draw[thick,fill=Amber!15] (0,0.5) rectangle (0.7,0.9);
-  \draw[thick,fill=SoftGray] (0.7,0.5) rectangle (4.4,0.9);
-  \node at (0.35,0.7){1}; \node at (2.55,0.7){1111001};
-  \node[anchor=east] at (-0.2,0.0){移码};
-  \draw[thick,fill=Amber!15] (0,-0.1) rectangle (0.7,0.3);
-  \draw[thick,fill=SoftGray] (0.7,-0.1) rectangle (4.4,0.3);
-  \node at (0.35,0.1){0}; \node at (2.55,0.1){1111001};
-  \node[font=\scriptsize,black!70,align=center] at (2.3,-0.6){8 位字长下真值 $-7$ 的四种机器数（符号位 1 位 + 数值位 7 位）};
+\begin{tikzpicture}[font=\scriptsize,x=0.55cm,y=0.62cm]
+  \foreach \x/\v in {0/1,1/0,2/1,3/1,5/0,6/1,7/1,8/1}{
+    \draw[thick,fill=SoftGray] (\x,0) rectangle ++(1,0.85);
+    \node at (\x+0.5,0.425) {\v};
+  }
+  \foreach \x/\w in {0/8,1/4,2/2,3/1,5/8,6/4,7/2,8/1}{
+    \node[black!65] at (\x+0.5,1.12) {\w};
+  }
+  \draw[thick] (0,-0.15) -- (0,-0.38) -- (4,-0.38) -- (4,-0.15);
+  \draw[thick] (5,-0.15) -- (5,-0.38) -- (9,-0.38) -- (9,-0.15);
+  \node at (2,-0.68) {十六进制 \texttt{B}};
+  \node at (7,-0.68) {十六进制 \texttt{7}};
 \end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 位串 \texttt{1011 0111} 按 4 位切开，两组分别读作 \texttt{B} 和 \texttt{7}，所以它等于 \texttt{B7H}。组内各位的权从左到右是 $8,4,2,1$；分组必须从小数点开始，向两端进行。}
 \end{center}
 
-\begin{conclusion}{补码的关键性质（408 高频）}{twos-comp-props}
+同一个位串按 3 位切，则 \texttt{010 110 111} 对应八进制 \texttt{267}；小数点后的 \texttt{1011} 要补成 \texttt{101 100}，得到 \texttt{.54}。补 0 只能补在两端，不能插在中间。
+
+BCD 是另一套约定：用 4 位二进制表示一位十进制数，而不是表示这个十进制数的二进制真值。十进制 $59$ 的 8421 BCD 是 \texttt{0101 1001}，而 $59$ 的二进制是 \texttt{0011 1011}，两者不要混。8421 码中 \texttt{1010}--\texttt{1111} 这 6 个编码没有十进制数字对应，属于非法码。ASCII 则是 7 位字符编码，共 128 个码点，存进字节时最高位通常补 0；数字 \texttt{'0'}--\texttt{'9'} 和字母 \texttt{'A'}--\texttt{'Z'}、\texttt{'a'}--\texttt{'z'} 各自连续，这个连续性常用来做字符与数值的转换。
+
+多字节数据放进内存时还有字节次序问题。设 32 位数 \texttt{0x12345678} 从地址 1000 开始存放：
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,x=1.25cm,y=0.9cm]
+  \node[anchor=east] at (-0.15,1.85) {地址};
+  \foreach \i in {0,...,3}{\node at (\i+0.5,1.85) {100\i};}
+  \node[anchor=east] at (-0.15,1.05) {大端};
+  \foreach \i/\v in {0/12,1/34,2/56,3/78}{
+    \draw[thick,fill=SoftBlue] (\i,0.65) rectangle ++(1,0.8);
+    \node at (\i+0.5,1.05) {\texttt{\v}};
+  }
+  \node[anchor=east] at (-0.15,0.05) {小端};
+  \foreach \i/\v in {0/78,1/56,2/34,3/12}{
+    \draw[thick,fill=SoftTeal] (\i,-0.35) rectangle ++(1,0.8);
+    \node at (\i+0.5,0.05) {\texttt{\v}};
+  }
+  \draw[->,Teal] (4.25,-0.55) -- (1.05,-0.55) node[midway,below,black!70]{LSB 在低地址};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 大端把最高有效字节 \texttt{12} 放在最低地址 1000；小端把最低有效字节 \texttt{78} 放在 1000。两种方式只改变字节的排列，不改变一个字节内部 8 个比特的顺序。}
+\end{center}
+
+边界对齐是另一条独立规则：一个 $n$ 字节的数据通常要求起始地址是 $n$ 的倍数，这样一次总线访问就能取完。结构体中因此可能出现填充字节；题目若明确说“紧凑存放”，就不能自行加填充。
+
+\subsection{校验码}
+
+数据在存储或传输时可能有一位翻转，最省的办法是增加冗余位。奇偶校验只加 1 位：偶校验让整个码字中 1 的个数为偶数，奇校验让 1 的个数为奇数。接收方重新数一遍，发现奇偶性不对就知道出错了。它只能发现奇数个位错，不能定位，也无法发现两位同时出错。
+
+要定位错误，冗余位必须携带“哪一位错了”的信息。海明码把校验位放在编号为 $1,2,4,8,\ldots$ 的位置，其余位置放数据位。设数据位 $k$ 个、校验位 $r$ 个，故障字要能表示“无错”以及 $k+r$ 个可能出错的位置，所以需要
+\[
+2^r \ge k+r+1.
+\]
+校验位 $P_1,P_2,P_4,\ldots$ 分别盯住编号二进制中的第 0、1、2、$\ldots$ 位：$P_1$ 覆盖所有奇数编号，$P_2$ 覆盖编号第 1 位为 1 的位置，$P_4$ 覆盖编号第 2 位为 1 的位置。接收方对每组重新计算奇偶性，得到 $r$ 位故障字；故障字为 0 表示没有检出错误，否则它的二进制值就是出错位号。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,x=0.92cm,y=0.78cm]
+  \foreach \i/\v/\col in {1/{$P_1$}/SoftAmber,2/{$P_2$}/SoftAmber,3/{$D_1$}/SoftBlue,4/{$P_4$}/SoftAmber,5/{$D_2$}/SoftBlue,6/{$D_3$}/SoftBlue,7/{$D_4$}/SoftBlue}{
+    \draw[thick,fill=\col] (\i,1.5) rectangle ++(1,0.6);
+    \node at (\i+0.5,1.8) {\v};
+  }
+  \foreach \i in {1,...,7}{
+    \draw[thick,fill=SoftGray] (\i,2.4) rectangle ++(1,0.5);
+    \node at (\i+0.5,2.65) {\i};
+  }
+  \node[anchor=east] at (0.9,2.65) {位号};
+  \node[anchor=east] at (0.9,1.8) {内容};
+  \draw[RuleGray] (1,0.55) rectangle (8,1.0);
+  \draw[RuleGray] (1,-0.05) rectangle (8,0.4);
+  \draw[RuleGray] (1,-0.65) rectangle (8,-0.2);
+  \foreach \i in {1,3,5,7}{\fill[Teal!24] (\i,0.55) rectangle ++(1,0.45);}
+  \foreach \i in {2,3,6,7}{\fill[Teal!24] (\i,-0.05) rectangle ++(1,0.45);}
+  \foreach \i in {4,5,6,7}{\fill[Teal!24] (\i,-0.65) rectangle ++(1,0.45);}
+  \node[anchor=east] at (0.9,0.75) {$G_1$};
+  \node[anchor=east] at (0.9,0.15) {$G_2$};
+  \node[anchor=east] at (0.9,-0.45) {$G_4$};
+  \node[black!65,align=left,anchor=west] at (8.3,1.3) {$G_1$ 覆盖 1,3,5,7；\\$G_2$ 覆盖 2,3,6,7；\\$G_4$ 覆盖 4,5,6,7。};
+  \node[black!65,align=center] at (4.5,-1.1) {第 5 位出错时，$G_1$ 与 $G_4$ 校验失败，故障字为 $101_2=5$};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 以 $k=4$、$r=3$ 为例，$2^3=8\ge4+3+1=8$，7 个位置刚好够用。$P_1,P_2,P_4$ 放在 1、2、4 位，数据位 $D_1$--$D_4$ 放在 3、5、6、7 位。浅色格表示该位置属于对应的校验组；每个位置被哪些组覆盖，由它的编号二进制决定。}
+\end{center}
+
+上面 $k=4,r=3$ 的编码能纠正 1 位错：若第 5 位翻转，$G_1$ 和 $G_4$ 的奇偶性改变，$G_2$ 不变，故障字为 $101_2=5$，直接把第 5 位取反即可。普通海明码的最小距离为 3，只能纠正 1 位错；再增加一位总校验位，就能区分“1 位错”和“2 位错”，构成 SEC-DED（纠一检二）码。
+
+\subsection{补码：把减法变成加法}
+
+墙上挂钟走到 10 点，往前拨 4 小时是 6 点，往后拨 8 小时也是 6 点。在模 12 的意义下，$-4$ 和 $+8$ 是同一件事。计算机的 $n$ 位寄存器就是一个模 $2^n$ 的计数器，补码正是把这个现象固定成编码规则。
+
+8 位寄存器里，$-7$ 用 $249$ 的二进制 \texttt{1111 1001} 表示：$249+7=256$，两者相加会自然溢出丢掉最高位，留下 0。一般地，$n$ 位补码中
+\[
+[x]_{\text{补}}=2^n+x\qquad(-2^{n-1}\le x<0).
+\]
+这里的加法都在模 $2^n$ 意义下进行，超出 $n$ 位的进位直接丢弃。把 $2^n-|x|$ 拆成 $(2^n-1-|x|)+1$，而 $2^n-1-|x|$ 恰好是把 $|x|$ 的 $n$ 位逐位取反，所以负数补码的实用求法是“绝对值按位取反，末位加 1”，记作 $\sim|x|+1$。
+
+\begin{center}
+\begin{tikzpicture}[font=\tiny,scale=0.95]
+  \draw[thick] (0,0) circle (2.4);
+  \foreach \k/\bin/\val in {
+    0/0000/0,1/0001/1,2/0010/2,3/0011/3,
+    4/0100/4,5/0101/5,6/0110/6,7/0111/7,
+    8/1000/-8,9/1001/-7,10/1010/-6,11/1011/-5,
+    12/1100/-4,13/1101/-3,14/1110/-2,15/1111/-1}{
+    \pgfmathsetmacro{\ang}{90-\k*22.5}
+    \draw (\ang:2.3) -- (\ang:2.5);
+    \node at (\ang:2.88) {\bin};
+    \node at (\ang:1.9) {$\val$};
+  }
+  \draw[->,Burgundy,thick] (-67:2.4) arc (-67:-88:2.4);
+  \node[Burgundy,anchor=west,font=\scriptsize] at (0.2,-3.15) {7 的下一位是 $-8$};
+  \node[align=center,black!65] at (0,0) {4 位补码\\外圈：编码\\内圈：真值};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 16 个编码按顺时针排列。外圈是 4 位二进制，内圈是按补码解释的真值：\texttt{0000}--\texttt{0111} 是 $0$ 到 $7$，接下来 \texttt{1000} 不是 $+8$，而是 $-8$，然后 \texttt{1001}--\texttt{1111} 对应 $-7$ 到 $-1$。顺时针加 1 在 \texttt{0111} 处跨过符号位，数值从最大正数跳到最小负数。}
+\end{center}
+
+把位串 $b_{n-1}b_{n-2}\cdots b_0$ 按权展开，补码的数值公式可以写成
+\[
+x=-b_{n-1}2^{n-1}+\sum_{i=0}^{n-2}b_i2^i .
+\]
+最高位的权是负的 $-2^{n-1}$，其余位仍是正的。这个式子比“符号位加绝对值”好用：它直接解释了为什么 \texttt{1000 0000} 表示 $-128$，也解释了为什么补码的零只有一种写法——全 0 的按权展开就是 0。
+
+8 位补码的范围是 $[-128,127]$，比原码和反码多出一个 $-128$。原码的 \texttt{1000 0000} 表示 $-0$，补码把这个编码征用为 $-128$；代价是它没有对应的正数，所以 \texttt{abs(INT\_MIN)} 无法得到可表示的正值。下表把同一个真值 $-7$ 在四种机器数中的写法放在一起：
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,x=1cm,y=0.9cm]
+  \def\encrow#1#2#3#4#5#6#7#8#9{%
+    \draw[thick,fill=Burgundy!16] (0,#1) rectangle ++(0.46,0.62);
+    \node at (0.23,#1+0.31) {#2};
+    \foreach \i/\v in {1/#3,2/#4,3/#5,4/#6,5/#7,6/#8,7/#9}{%
+      \draw[thick,fill=SoftGray] (\i*0.46,#1) rectangle ++(0.46,0.62);
+      \node at (\i*0.46+0.23,#1+0.31) {\v};
+    }
+  }
+  \encrow{3}{1}{0}{0}{0}{0}{1}{1}{1}
+  \encrow{2}{1}{1}{1}{1}{1}{0}{0}{0}
+  \encrow{1}{1}{1}{1}{1}{1}{0}{0}{1}
+  \encrow{0}{0}{1}{1}{1}{1}{0}{0}{1}
+  \node[anchor=east] at (-0.12,3.31) {原码};
+  \node[anchor=east] at (-0.12,2.31) {反码};
+  \node[anchor=east] at (-0.12,1.31) {补码};
+  \node[anchor=east] at (-0.12,0.31) {移码};
+  \node[anchor=west,black!70] at (4.2,2.62) {负数：数值位逐位取反};
+  \node[anchor=west,black!70] at (4.2,1.62) {末位加 1};
+  \node[anchor=west,black!70] at (4.2,0.62) {符号位取反};
+  \draw[->,Teal] (4.05,2.9) -- (4.05,2.15);
+  \draw[->,Teal] (4.05,1.9) -- (4.05,1.15);
+  \draw[->,Teal] (4.05,0.9) -- (4.05,0.15);
+  \node[black!55] at (1.8,-0.55) {真值 $-7$ 的 8 位编码（首格为符号位）};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 红色格是符号位。原码到反码只改数值位；反码到补码是末位加 1，进位会向高位传播；补码到移码只把符号位翻转。移码的最高位为 1 表示非负，为 0 表示负，所以无符号比较移码的大小就等于比较真值的大小。}
+\end{center}
+
+反码在现代通用计算机里基本不再直接使用，但它的“逐位取反”仍是补码求负的中间步骤；移码则专门服务于浮点数的阶码，因为浮点运算经常需要比较两个阶码的大小，而带符号的补码不能直接按无符号数比较。
+
+四种编码的对照如下（8 位）：
+
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+真值 & 原码 & 反码 & 补码 & 移码 \\
+\midrule
+$+7$  & \texttt{0000 0111} & \texttt{0000 0111} & \texttt{0000 0111} & \texttt{1000 0111} \\
+$+0$  & \texttt{0000 0000} & \texttt{0000 0000} & \texttt{0000 0000} & \texttt{1000 0000} \\
+$-0$  & \texttt{1000 0000} & \texttt{1111 1111} & \texttt{0000 0000} & \texttt{1000 0000} \\
+$-7$  & \texttt{1000 0111} & \texttt{1111 1000} & \texttt{1111 1001} & \texttt{0111 1001} \\
+$-8$  & 无 & 无 & \texttt{1000 0000} & \texttt{0111 1000} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+8 位移码的偏置量是 $2^{7}=128$，即 $[x]_{\text{移}}=x+128$。它不是另一套独立的数值系统，只是把补码的符号位翻了过来：补码 \texttt{1111 1001}（$-7$）翻符号位得 \texttt{0111 1001}，正是 $-7$ 的移码。
+
+补码扩展位数时，正数在高位补 0，负数在高位补 1，称为符号扩展。8 位的 $-100$ 是 \texttt{1001 1100}，扩展到 16 位为 \texttt{1111 1111 1001 1100}，即 \texttt{FF9CH}；直接在高位补 0 会把它变成 $+156$，这是常见的错误。
+
+\subsection{定点数与溢出}
+
+定点数就是小数点位置事先约定不变的数。约定小数点固定在最低位之后，就是定点整数；约定它固定在符号位之后、数值位之前，就是定点小数。硬件并不真的存一个小数点，它只是编程者对齐权重的约定。下图用同一串 8 位 \texttt{1011 0000} 说明这件事：
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,x=1cm,y=1cm]
+  \foreach \i/\b/\w in {0/1/{$-2^7$},1/0/{$2^6$},2/1/{$2^5$},3/1/{$2^4$},4/0/{$2^3$},5/0/{$2^2$},6/0/{$2^1$},7/0/{$2^0$}}{
+    \draw[thick,fill=SoftGray] (\i*0.75,1.6) rectangle ++(0.62,0.6);
+    \node at (\i*0.75+0.31,1.9) {\b};
+    \node[black!70] at (\i*0.75+0.31,1.15) {\w};
+  }
+  \node[anchor=east] at (-0.1,1.9) {定点整数};
+  \fill (6.0,1.9) circle (1.4pt);
+  \node[anchor=west,black!70] at (6.1,2.05) {小数点};
+  \node[anchor=west,black!70] at (6.1,1.3) {$=-128+32+16=-80$};
+
+  \foreach \i/\b/\w in {0/1/{$-1$},1/0/{$2^{-1}$},2/1/{$2^{-2}$},3/1/{$2^{-3}$},4/0/{$2^{-4}$},5/0/{$2^{-5}$},6/0/{$2^{-6}$},7/0/{$2^{-7}$}}{
+    \draw[thick,fill=SoftBlue] (\i*0.75,0.0) rectangle ++(0.62,0.6);
+    \node at (\i*0.75+0.31,0.3) {\b};
+    \node[black!70] at (\i*0.75+0.31,-0.45) {\w};
+  }
+  \node[anchor=east] at (-0.1,0.3) {定点小数};
+  \fill (0.75,0.3) circle (1.4pt);
+  \node[anchor=north,black!70] at (0.75,-0.95) {小数点};
+  \node[anchor=west,black!70] at (6.1,0.3) {$=-1+\tfrac14+\tfrac18=-0.625$};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 同一串 \texttt{1011 0000}，按定点整数读是 $-80$，按定点小数读是 $-0.625$。区别只在符号位和其余位的权：整数最低位权为 $2^0$，小数最低位权为 $2^{-7}$。}
+\end{center}
+
+补码的加减法可以统一成一条式子。设字长为 $n$，则
+\[
+[x+y]_{\text{补}}=[x]_{\text{补}}+[y]_{\text{补}}\pmod{2^n},\qquad
+[x-y]_{\text{补}}=[x]_{\text{补}}+[-y]_{\text{补}}\pmod{2^n},
+\]
+其中 $[-y]_{\text{补}}$ 是把 $[y]_{\text{补}}$ 连同符号位一起取反再加 1。符号位不需要单独处理，最高位产生的进位直接丢掉。这正是补码比原码省事的地方：减法被改写成了加法。
+
+溢出是另一回事。两个 8 位数 $90$ 和 $100$ 相加：
+\[
+90=\texttt{0101 1010},\quad 100=\texttt{0110 0100},\quad
+\texttt{0101 1010}+\texttt{0110 0100}=\texttt{1011 1110}.
+\]
+按无符号数是 $190$，没有超过 255，结果正确；按补码读，\texttt{1011 1110} 是 $-66$，显然不对，因为 $90+100$ 已经超出 $[-128,127]$。同一个加法，对无符号数没溢出，对有符号数溢出了。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,x=1cm,y=0.9cm]
+  \fill[Teal!12] (0,1.35) rectangle (127*0.046,1.72);
+  \fill[Burgundy!12] (127*0.046,1.35) rectangle (255*0.046,1.72);
+  \draw[thick,->] (0,1.35) -- (11.9,1.35);
+  \draw[dashed,Burgundy] (127*0.046,0.25) -- (127*0.046,2.3);
+  \foreach \v in {0,190,255}{
+    \draw (\v*0.046,1.28) -- (\v*0.046,1.42);
+    \node[below] at (\v*0.046,1.18) {\v};
+  }
+  \node[below,anchor=east] at (127*0.046,1.18) {127};
+  \node[below,anchor=west] at (128*0.046,1.18) {128};
+  \node[below,TealDark] at (63*0.046,0.82) {按无符号读：$0\sim127$};
+  \node[below,Burgundy] at (191*0.046,0.82) {按补码读：$-128\sim-1$};
+  \node[below,Burgundy] at (190*0.046,0.42) {$-66$};
+  \node[below,Burgundy,anchor=west] at (128*0.046,0.42) {$-128$};
+  \fill (90*0.046,1.35) circle (1.5pt);
+  \fill (100*0.046,1.35) circle (1.5pt);
+  \node[above] at (90*0.046,1.5) {90};
+  \node[above] at (100*0.046,1.85) {100};
+  \draw[->,Burgundy,thick] (90*0.046,2.0) .. controls (110*0.046,2.85) and (180*0.046,2.85) .. (190*0.046,2.05);
+  \node[Burgundy,above] at (140*0.046,2.65) {$90+100=190$};
+  \node[black!65,align=center] at (6.0,-0.35) {编码 190 落在补码负半区，按有符号数解释就是 $190-256=-66$};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 横轴是 8 位编码 $0$ 到 $255$。上半轴标无符号值，下半轴标同一编码的补码值；$127$ 与 $128$ 之间的虚线就是符号位翻转的位置。$90+100$ 的编码是 190，它在无符号轴上合法，在补码轴上却已经越过边界，落到负半区。}
+\end{center}
+
+判断溢出有三种等价说法，考场上按题目给的条件选用：
+
 \begin{enumerate}
-    \item \textbf{零唯一：}$[+0]_{\text{补}} = [-0]_{\text{补}} = 00\ldots0$。
-    \item 表示范围不对称（$n+1$ 位）：整数 $[-2^{n},\; 2^{n}-1]$，小数 $[-1,\; 1-2^{-n}]$。\textbf{注意 $-2^{n}$（或 $-1$）的补码就是其自身 $1\underbrace{00\ldots0}_{n\text{个}}$，没有对应的原码。}
-    \item \textbf{符号位参与运算：}补码加减法符号位与数值位统一处理，结果是模 $2^{n+1}$（或模 $2$）意义下的正确结果。
-    \item \textbf{由补码求真值：}符号位为 $0$$\to$正数，直接按权展开；符号位为 $1$$\to$负数，再次求补（取反$+1$）后加负号。
-    \item \textbf{扩展：}正数高位补 $0$，负数高位补 $1$（符号扩展）。
-\end{enumerate}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频：}$n+1$ 位补码整数的表示范围为 $[-2^n, 2^n-1]$，比原码/反码多一个最小负数。例如 8 位补码范围 $[-128, 127]$。这也是 C 中 \texttt{abs(INT\_MIN)} 无法得到可表示正值的根本原因。
-\end{attention}
-
-\subsubsection{移码（Biased Notation）}
-
-\begin{formula}{移码的定义}{biased}
-设机器字长 $n+1$ 位，真值 $x$：
-\[
-[x]_{\text{移}} = 2^{n} + x,\qquad -2^{n} \leqslant x < 2^{n}.
-\]
-\textbf{直观规则：}将真值沿数轴平移 $2^{n}$（偏置量），使得所有编码变为非负数，数值大小关系与编码大小关系一致。
-
-移码与补码的关系：\textbf{符号位取反即为移码}（$[x]_{\text{移}} = [x]_{\text{补}}$ 的符号位翻转）。
-表示范围与补码相同，但零唯一：$[+0]_{\text{移}} = [-0]_{\text{移}} = 100\ldots0$。
-\end{formula}
-
-\begin{conclusion}{四种机器数速查表}{four-repr-table}
-设字长 $n+1=5$ 位（1 位符号 $+$ 4 位数值），整数表示：
-\begin{tablebox}{四种机器数对比（5位字长）}
-\centering
-\begin{tabular}{|c|c|c|c|c|c|}
-\hline
-真值（十进制） & 真值（二进制） & 原码 & 反码 & 补码 & 移码 \\
-\hline
-$+7$ & $+0111$ & 0,0111 & 0,0111 & 0,0111 & 1,0111 \\
-$+0$ & $+0000$ & 0,0000 & 0,0000 & 0,0000 & 1,0000 \\
-$-0$ & $-0000$ & 1,0000 & 1,1111 & 0,0000 & 1,0000 \\
-$-7$ & $-0111$ & 1,0111 & 1,1000 & 1,1001 & 0,1001 \\
-$-8$ & $-1000$ & — & — & 1,1000 & 0,1000 \\
-\hline
-\end{tabular}
-\end{tablebox}
-（逗号仅用于分隔符号位和数值位，实际存储中无此分隔。）
-\end{conclusion}
-
-\subsection{移位运算}
-
-\begin{conclusion}{逻辑移位与算术移位}{shift-operations}
-\begin{itemize}
-    \item \textbf{逻辑移位：}移出的位丢弃，空位一律补 0，通常用于无符号数。
-    \item \textbf{算术左移：}低位补 0；在不溢出的前提下相当于乘 2。若移位前后的有效符号特征被破坏，则发生溢出。
-    \item \textbf{算术右移：}高位补原符号位，近似相当于除 2；对负数舍入方向取决于机器和语言规定，不能简单等同于向 0 截断。
-    \item \textbf{循环移位：}移出的位回填到另一端；带进位循环移位还把进位标志位纳入循环链。
-\end{itemize}
-\textbf{补码算术右移的核心：}正数高位补 0，负数高位补 1；逻辑右移则无论符号都补 0。
-\end{conclusion}
-
-\subsection{定点数}
-
-\begin{mydef}{定点表示法}{fixed-point}
-小数点位置固定不变的表示法。分为：
-\begin{itemize}
-    \item \textbf{定点整数：}小数点固定在最低位之后（纯整数）。
-    \item \textbf{定点小数：}小数点固定在符号位之后、数值位之前（纯小数，绝对值 $<1$）。
-\end{itemize}
-二者在硬件上无本质区别——同一套加法器、同一套规则，仅是编程者对小数的位置约定不同。
-\end{mydef}
-
-\begin{conclusion}{$n+1$ 位定点数的补码表示范围}{fixed-point-range}
-\begin{tablebox}{定点数补码表示范围}
-\centering
-\begin{tabular}{|l|c|c|}
-\hline
-类型 & 最小值 & 最大值 \\
-\hline
-定点整数（$n+1$ 位补码） & $-2^{n}$ & $2^{n}-1$ \\
-定点小数（$n+1$ 位补码） & $-1$ & $1-2^{-n}$ \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-\textbf{例：}16 位补码定点整数范围 $[-32768,\; 32767]$；32 位补码定点小数精度为 $2^{-31}$。
-\end{conclusion}
-
-\begin{attention}
-现代通用计算机多采用浮点表示，定点主要用于嵌入式 DSP 和无 FPU 的微控制器。408 考试中定点数是浮点数理解的基础。
-\end{attention}
-
-\subsection{浮点数——IEEE 754 标准}
-
-\subsubsection{浮点数的一般形式}
-
-\begin{mydef}{浮点数的数学形式}{float-general}
-任意实数 $N$ 可表示为：
-\[
-N = (-1)^{S} \times M \times R^{E},
-\]
-其中 $S$ 为数符（sign），$M$ 为尾数（mantissa/significand），$R$ 为基数（radix），$E$ 为阶码（exponent）。
-
-IEEE 754 标准规定 $R=2$，并约定尾数为\textbf{纯小数}（规格化时 $1 \leqslant |M| < 2$）。
-\end{mydef}
-
-\subsubsection{IEEE 754 格式}
-
-\begin{formula}{IEEE 754 单精度与双精度格式}{ieee754-format}
-单精度（float, 32 位）和双精度（double, 64 位）的位分配：
-
-\medskip
-\begin{center}
-\fbox{\texttt{S(1)} \quad \texttt{E(8)} \quad \texttt{M(23)}}
-\qquad（单精度，总 32 位）\\[8pt]
-\fbox{\texttt{S(1)} \quad \texttt{E(11)} \quad \texttt{M(52)}}
-\qquad（双精度，总 64 位）
-\end{center}
-\medskip
-
-\begin{itemize}
-    \item \textbf{数符 $S$：}0 正 1 负。
-    \item \textbf{阶码 $E$：}用\textbf{移码}表示，偏置值（bias）$= 2^{k-1}-1$（$k$ 为阶码位数）。单精度 bias $= 127$，双精度 bias $= 1023$。真指数 $e = E - \text{bias}$。
-    \item \textbf{尾数 $M$：}存储的是尾数的小数部分。规格化数有\textbf{隐藏位}：整数部分隐含为 $1$（即尾数真值 $= 1.M$），故 23/52 位小数部分实际表示 24/53 位精度。
-\end{itemize}
-
-数值公式（规格化数）：
-\[
-N = (-1)^{S} \times (1.M) \times 2^{E-\text{bias}}.
-\]
-\end{formula}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.3cm, y=0.85cm]
-  % 单精度 32 位布局：S(1) | E(8) | M(23)
-  \draw[thick,fill=Burgundy!15] (0,0) rectangle (1,1) node[midway]{S};
-  \draw[thick,fill=Navy!12] (1,0) rectangle (9,1) node[midway]{E（移码）};
-  \draw[thick,fill=Teal!12] (9,0) rectangle (32,1) node[midway]{M（尾数小数部分）};
-  % 位号（下方）
-  \node[align=center] at (0.5,-0.45){31\\1 位};
-  \node[align=center] at (5,-0.45){30--23\\8 位};
-  \node[align=center] at (20.5,-0.45){22--0\\23 位};
-  \node[align=center,black!70] at (16.5,1.7){\textbf{单精度（float）32 位}};
-\end{tikzpicture}
-\end{center}
-
-\begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize, x=0.22cm, y=0.85cm]
-  \draw[thick,fill=Burgundy!15] (0,0) rectangle (1,1) node[midway]{S};
-  \draw[thick,fill=Navy!12] (1,0) rectangle (12,1) node[midway]{E（移码）};
-  \draw[thick,fill=Teal!12] (12,0) rectangle (64,1) node[midway]{M（尾数小数部分）};
-  \node[align=center] at (0.5,-0.45){63\\1 位};
-  \node[align=center] at (6.5,-0.45){62--52\\11 位};
-  \node[align=center] at (38,-0.45){51--0\\52 位};
-  \node[align=center,black!70] at (32,1.7){\textbf{双精度（double）64 位}};
-\end{tikzpicture}
-\end{center}
-
-\begin{conclusion}{IEEE 754 特殊值编码}{ieee754-special}
-阶码全 0 或全 1 用于表示特殊值：
-
-\begin{tablebox}{IEEE 754 特殊值}
-\centering
-\begin{tabular}{|c|c|c|c|}
-\hline
-类型 & 阶码 $E$ & 尾数 $M$ & 表示的数值 \\
-\hline
-$\pm 0$ & 全 0 & 全 0 & $(-1)^{S} \times 0$ \\
-非规格化数 & 全 0 & $\neq 0$ & $(-1)^{S} \times (0.M) \times 2^{1-\text{bias}}$ \\
-规格化数 & $1\sim 2^{k}-2$ & 任意 & $(-1)^{S} \times (1.M) \times 2^{E-\text{bias}}$ \\
-$\pm\infty$ & 全 1 & 全 0 & $(-1)^{S} \times \infty$ \\
-NaN & 全 1 & $\neq 0$ & Not a Number \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-\textbf{说明：}
-\begin{itemize}
-    \item 非规格化数用于表示绝对值极小的数，填补 $0$ 与最小规格化数之间的间隙（gradual underflow）。此时隐藏位变为 $0$，指数固定为 $1-\text{bias}$。
-    \item 单精度规格化数的实际指数范围：$[-126,\; +127]$；双精度：$[-1022,\; +1023]$。
-    \item NaN 分为 quiet NaN（不触发异常）和 signaling NaN（触发异常）。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 核心考点——IEEE 754 真值与编码互转：}
-\begin{enumerate}
-    \item \textbf{真值 $\to$ 编码：}(1) 转为二进制科学计数法 $(-1)^{S}\times (1.M)\times 2^{e}$；(2) $E = e + \text{bias}$；(3) 依次填入 $S$、$E$ 的二进制、$M$ 的小数部分（高位补 0 至指定位数）。
-    \item \textbf{编码 $\to$ 真值：}(1) 分离 $S$、$E$、$M$；(2) 判断是否特殊值；(3) 规格化数用 $(-1)^{S}\times (1.M)\times 2^{E-\text{bias}}$ 计算。
+  \item \textbf{进位判断。}记 $C_n$ 为符号位向外的进位，$C_{n-1}$ 为最高数值位向符号位的进位，则
+  \[
+  \text{OF}=C_n\oplus C_{n-1}.
+  \]
+  两个进位不同，说明符号位被“顶”反了。注意 $C_n$ 同时是无符号加法的进位标志 CF。
+  \item \textbf{双符号位。}运算时把符号位扩成两位，正数用 $00$、负数用 $11$。结果符号为 $00$ 或 $11$ 正常，$01$ 是正溢出，$10$ 是负溢出。两位符号不同就溢出。
+  \item \textbf{操作数符号。}两个同号数相加，若结果符号与它们不同，则溢出；异号数相加不可能溢出。减法 $x-y$ 看成 $x+(-y)$，再用同一条规则。
 \end{enumerate}
 
-\boxed{\textbf{例}} 将 $-6.625$ 表示为 IEEE 754 单精度浮点数（十六进制）。
-\begin{itemize}
-    \item $6.625 = 110.101_2 = 1.10101 \times 2^{2}$，$S=1$。
-    \item $e=2$，$E = 2+127 = 129 = 1000\;0001_2$。
-    \item $M$（23位小数）= $10101\;00000\;00000\;00000\;000$。
-    \item 拼接：\texttt{1 10000001 10101000000000000000000} $\to$ \texttt{C0D40000H}。
-\end{itemize}
-\end{attention}
+上面 $90+100$ 的例子中，$C_8=0$（没有无符号进位），$C_7=1$（最高数值位向符号位有进位），$0\oplus1=1$，所以 OF 为 1；而 CF 为 0。CF 和 OF 回答的是两个不同的问题：CF 看无符号数是否越界，OF 看补码是否越界。做减法时，加法器的 $C_n$ 为 1 表示“没有借位”，所以借位标志是 $\overline{C_n}$。
 
-\subsection{定点运算}
-
-\subsubsection{补码加减法}
-
-\begin{formula}{补码加减法基本公式}{twos-addsub}
-设 $[x]_{\text{补}}$ 和 $[y]_{\text{补}}$，则：
-\begin{align*}
-[x+y]_{\text{补}} &= [x]_{\text{补}} + [y]_{\text{补}} \pmod{2^{n+1}}\\
-[x-y]_{\text{补}} &= [x]_{\text{补}} + [-y]_{\text{补}} \pmod{2^{n+1}}
-\end{align*}
-其中 $[-y]_{\text{补}}$ 的求法：将 $[y]_{\text{补}}$ \textbf{连同符号位在内}按位取反，末位 $+1$。
-\end{formula}
-
-\begin{conclusion}{补码加减法溢出判断的三种方法}{overflow-detect}
-当两个同号数相加（或异号数相减）结果符号与操作数符号不同时，发生溢出。408 考三种判断方法：
-
-\medskip
-\noindent\textbf{方法一：单符号位（进位判断法）}
-\[
-\text{溢出} = C_n \oplus C_{n-1}
-\]
-即符号位进位 $C_n$ 与最高数值位进位 $C_{n-1}$ 异或。$C_n \neq C_{n-1}$ 时溢出。
-
-\noindent\textbf{方法二：双符号位（变形补码）}
-用两位符号位，正数符号 $00$，负数符号 $11$。运算结果：
-\begin{itemize}
-    \item 符号位为 $00$ 或 $11$：无溢出，正常结果；
-    \item 符号位为 $01$：正溢出（结果 $>$ 最大正数）；
-    \item 符号位为 $10$：负溢出（结果 $<$ 最小负数）。
-\end{itemize}
-即两符号位不同则溢出。
-
-\noindent\textbf{方法三：操作数符号判断法}
-设 $S_x, S_y, S_r$ 分别为 $[x]_{\text{补}}, [y]_{\text{补}},$ 结果的符号位：
-\[
-\text{溢出} = (\overline{S_x}\cdot\overline{S_y}\cdot S_r) + (S_x\cdot S_y\cdot\overline{S_r})
-\]
-含义：两正相加得负（正溢），两负相加得正（负溢）。
-
-\boxed{\textbf{例}} 8位补码，$(-100)+(-90)$：$[x]_{\text{补}}=10011100$, $[y]_{\text{补}}=10100110$，相加得 $01000010$（正）。$C_7=1, C_6=0$，$1\oplus 0 = 1$，溢出。——$-190$ 超出 $[-128,127]$。
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 高频陷阱：}$C_n \oplus C_{n-1}$ 方法中 $C_n$ 是符号位的进位输出，$C_{n-1}$ 是最高数值位向符号位的进位，顺序不能搞反。另外，无符号数加法用 $C_n$（即进位标志 CF）判断溢出，有符号数才用 $C_n \oplus C_{n-1}$（即溢出标志 OF）。
-\end{attention}
-
-\subsubsection{原码乘法}
-
-\begin{conclusion}{原码一位乘法}{true-multiply}
-设 $[x]_{\text{原}} = x_s.x_1x_2\ldots x_n$，$[y]_{\text{原}} = y_s.y_1y_2\ldots y_n$：
-\begin{enumerate}
-    \item 符号位单独处理：$P_s = x_s \oplus y_s$（异或）。
-    \item 数值部分做无符号乘法。每次看乘数最低位 $y_n$：
-    \begin{itemize}
-        \item $y_n=1$：部分积 $+ |x|$，然后右移一位；
-        \item $y_n=0$：部分积 $+0$，然后右移一位。
-    \end{itemize}
-    共 $n$ 次加法、$n$ 次移位。
-    \item 最终乘积 $= P_s$ 拼接数值积（$2n$ 位）。
-\end{enumerate}
-
-\begin{lstlisting}[language=C]
-// 原码一位乘——演示原理（n位）
-unsigned int TrueMul(unsigned int x, unsigned int y, int n) {
-    unsigned int acc = 0;            // 部分积（高位）
-    for (int i = 0; i < n; i++) {
-        if (y & 1) acc += x;         // 乘数最低位=1，加被乘数
-        y >>= 1;                     // 乘数右移
-        // 部分积右移，最低位进入乘数寄存器的空位
-        y |= (acc & 1) << (n - 1);
-        acc >>= 1;
-    }
-    return (acc << n) | y;           // 拼接 2n 位积
-}
-\end{lstlisting}
-\end{conclusion}
-
-\subsubsection{补码乘法——Booth 算法}
-
-\begin{conclusion}{Booth 算法（补码一位乘）}{booth-mul}
-设 $[x]_{\text{补}}$（被乘数）和 $[y]_{\text{补}}$（乘数），Booth 算法一次处理乘数的一位，根据当前位 $y_i$ 和上一位 $y_{i-1}$（初始 $y_{-1}=0$）的差值决定操作：
-
-\begin{tablebox}{Booth 算法操作表}
-\centering
-\begin{tabular}{|c|c|c|}
-\hline
-$y_i$ & $y_{i-1}$ & 操作 \\
-\hline
-0 & 0 & 部分积 $+0$，右移一位 \\
-0 & 1 & 部分积 $+[x]_{\text{补}}$，右移一位 \\
-1 & 0 & 部分积 $+[-x]_{\text{补}}$，右移一位 \\
-1 & 1 & 部分积 $+0$，右移一位 \\
-\hline
-\end{tabular}
-\end{tablebox}
-
-算法共进行 $n$ 个迭代周期；每个周期根据 $(Q_0,Q_{-1})$ 决定加、减或不操作，然后对 $(A,Q,Q_{-1})$ 做一次算术右移。加、减并非每轮都发生。
-
-\textbf{核心思想：}将乘数中连续的 $1$ 串转化为一次减法和一次加法。$011\ldots10$ 的处理：首位 $1$ 做减法，末位后做加法。$n$ 位补码乘法得到 $2n$ 位积（含符号扩展）。
-
-\boxed{\textbf{例}} $[x]_{\text{补}}=1101\,(-3)$，$[y]_{\text{补}}=0011\,(+3)$，4位Booth（结果8位）：
-\begin{itemize}
-    \item 初值：$A=0000$，$Q=0011$，$Q_{-1}=0$。
-    \item 第1步（$Q_0Q_{-1}=10$）：$A \leftarrow A+[-x]_{\text{补}} = 0000+0011=0011$，算术右移 $\to A=0001,\; Q=1001,\; Q_{-1}=1$。
-    \item 第2步（$Q_0Q_{-1}=11$）：$A \leftarrow A+0 = 0001$，算术右移 $\to A=0000,\; Q=1100,\; Q_{-1}=1$。
-    \item 第3步（$Q_0Q_{-1}=01$）：$A \leftarrow A+[x]_{\text{补}} = 0000+1101=1101$，算术右移 $\to A=1110,\; Q=1110,\; Q_{-1}=0$。
-    \item 第4步（$Q_0Q_{-1}=00$）：$A \leftarrow A+0 = 1110$，算术右移 $\to A=1111,\; Q=0111,\; Q_{-1}=0$。
-    \item 结果 $A\!:\!Q = 1111\,0111$，即 $-9$ 的 8 位补码。$(-3)\times 3 = -9$，正确。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-Booth 算法的优势在于：当乘数中连续 $1$ 较多时减少加法次数。但 408 主要考察手工模拟过程，理解「当前位与上一位比较」的查表逻辑即可。
-\end{attention}
-
-\subsubsection{原码除法——加减交替法}
-
-\begin{conclusion}{原码除法（不恢复余数法/加减交替法）}{true-division}
-设 $x,y$ 为被除数和除数的\textbf{无符号数值部分}，且 $y\ne 0$；$n$ 为商的位数。符号位单独处理，以下只说明数值部分：
-\begin{enumerate}
-    \item 初始余数 $R=0$，按从被除数最高位到最低位的顺序逐位移入。
-    \item 第 $i$ 次迭代（从高位到低位）：先执行 $R\leftarrow 2R+x_i$，其中 $x_i$ 是当前移入的被除数位；若原余数非负则减去 $y$，若原余数为负则加上 $y$。
-    \item 根据本次运算后的余数符号确定商位：余数非负时商位置 1，否则置 0。
-    \begin{itemize}
-        \item 原余数 $R\geqslant 0$：$R\leftarrow R-y$；
-        \item 原余数 $R<0$：$R\leftarrow R+y$。
-    \end{itemize}
-    \item 最后若余数为负，做一次恢复：$R \leftarrow R + y$。
-\end{enumerate}
-\textbf{核心：}上一轮余数非负，本轮移位后减除数；上一轮余数为负，本轮移位后加除数。再按本轮结果的符号确定商位，从而避免每轮都先恢复负余数。
-
-\begin{lstlisting}[language=C]
-// 原码加减交替除法（无符号数值部分，n 位商）
-#include <stdbool.h>
-#include <stdint.h>
-
-// 成功返回 true；失败时不写输出参数。
-bool TrueDiv(uint32_t x, uint32_t y, unsigned int n,
-             uint32_t *quot, uint32_t *rem) {
-    if (n == 0 || n > 32 || y == 0 || !quot || !rem) {
-        return false;
-    }
-    uint64_t limit = UINT64_C(1) << n;
-    if ((uint64_t)x >= limit || (uint64_t)y >= limit) {
-        return false;                // x、y 必须能用 n 位表示
-    }
-
-    int64_t R = 0;                   // 余数允许为负
-    uint32_t Q = 0;
-    for (int i = (int)n - 1; i >= 0; --i) {
-        bool was_nonnegative = (R >= 0);
-        uint32_t bit = (x >> (unsigned int)i) & UINT32_C(1);
-        R = 2 * R + (int64_t)bit;    // 不左移负的有符号整数
-        if (was_nonnegative) {
-            R -= (int64_t)y;
-        } else {
-            R += (int64_t)y;
-        }
-
-        Q <<= 1;
-        if (R >= 0) {
-            Q |= UINT32_C(1);
-        }
-    }
-    if (R < 0) {
-        R += (int64_t)y;             // 最后恢复
-    }
-    *quot = Q;
-    *rem = (uint32_t)R;
-    return true;
-}
-\end{lstlisting}
-接口约定 $1\leqslant n\leqslant32$、$y\ne0$，且 $x,y$ 都能用 $n$ 位无符号数表示；仅在返回 \texttt{true} 时读取输出。迭代后有 $-y\leqslant R<y$，故上述 32 位输入模型中的 \texttt{2 * R + bit} 可由 \texttt{int64\_t} 安全表示。
-\end{conclusion}
-
-\begin{attention}
-\textbf{408 常考对比：}原码恢复余数法 vs 不恢复余数法。前者每次减去除数，若余数为负则加回（恢复），再上商 $0$——恢复步骤多一次加法。后者将负余数按算法左移一位（数值上乘 2）后加除数，省去逐轮恢复操作，速度更快；这不表示 C 程序可以对负的有符号整数直接使用左移运算符。
-\end{attention}
-
-\subsection{浮点运算}
-
-\begin{conclusion}{浮点数加减法步骤}{float-addsub}
-设两浮点数 $X = M_x \times 2^{E_x}$，$Y = M_y \times 2^{E_y}$（尾数均含隐藏位，已规格化）。加减法五步：
-
-\medskip
-\noindent\textbf{步骤1：对阶（Exponent Alignment）}
-「小阶向大阶看齐」：比较 $E_x$ 与 $E_y$。设 $\Delta E = |E_x - E_y|$，将阶码较小的数的尾数右移 $\Delta E$ 位（算术右移），阶码增加到与大阶一致。每一步右移会丢失低位，产生舍入误差。
-
-\noindent\textbf{步骤2：尾数加减}
-对阶后两数阶码相同，直接对尾数做有符号加减：$M \leftarrow M_x \pm M_y$。
-
-\noindent\textbf{步骤3：结果规格化}
-加减后尾数 $M$ 可能不满足 $1 \leqslant |M| < 2$：
-\begin{itemize}
-    \item 若 $|M| \geqslant 2$（溢出）：\textbf{右规}——尾数右移一位，阶码 $+1$；
-    \item 若 $|M| < 1$（非规格化）：\textbf{左规}——尾数左移直至最高位为 $1$，阶码同步减小。可能需要多次左规。
-\end{itemize}
-
-\noindent\textbf{步骤4：舍入（Rounding）}
-右规或对阶过程中，被移出的低位需处理。IEEE 754 规定四种舍入模式（见下表），默认\textbf{就近舍入到偶数}（Round to Nearest Even）。
-
-\noindent\textbf{步骤5：溢出判断}
-规格化后检查阶码：
-\begin{itemize}
-    \item 阶码 $\geqslant 255$（单精度）/ $\geqslant 2047$（双精度）：\textbf{上溢}（overflow），置 $\pm\infty$；
-    \item 阶码 $\leqslant 0$（不满足规格化范围）：\textbf{下溢}（underflow），结果可能为非规格化数或 $0$。
-\end{itemize}
-\end{conclusion}
+四个常用标志位可以放在一张表里：
 
 \begin{center}
-\begin{tikzpicture}[>=stealth, font=\scriptsize]
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.75cm,minimum height=0.7cm] (s1) at (0,0.45){对阶};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.75cm,minimum height=0.7cm] (s2) at (2.4,0.45){尾数加减};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.75cm,minimum height=0.7cm] (s3) at (4.8,0.45){规格化};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.75cm,minimum height=0.7cm] (s4) at (7.2,0.45){舍入};
-  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=1.75cm,minimum height=0.7cm] (s5) at (9.6,0.45){溢出判断};
-  \draw[->] (s1) -- (s2); \draw[->] (s2) -- (s3); \draw[->] (s3) -- (s4); \draw[->] (s4) -- (s5);
-  \node[align=center,font=\scriptsize,black!70] at (0,-0.5){小阶向大阶看齐\\尾数右移 $\Delta E$ 位};
-  \node[align=center,font=\scriptsize,black!70] at (2.4,-0.5){对阶后尾数\\直接加减};
-  \node[align=center,font=\scriptsize,black!70] at (4.8,-0.5){右规（+1 阶）\\或左规（-1 阶）};
-  \node[align=center,font=\scriptsize,black!70] at (7.2,-0.5){处理移出的低位\\就近舍入到偶数};
-  \node[align=center,font=\scriptsize,black!70] at (9.6,-0.5){上溢 $\to \pm\infty$\\下溢 $\to$ 非规格化/0};
-\end{tikzpicture}
+\begin{tabular}{lll}
+\toprule
+标志 & 含义 & 典型产生方式 \\
+\midrule
+CF & 无符号进位/借位 & 加法取 $C_n$；减法取 $\overline{C_n}$ \\
+OF & 有符号溢出 & $C_n\oplus C_{n-1}$ \\
+SF & 结果符号 & 结果最高位 \\
+ZF & 结果为零 & 结果各位全 0 \\
+\bottomrule
+\end{tabular}
 \end{center}
 
-\begin{formula}{IEEE 754 四种舍入模式}{rounding-modes}
-\begin{tablebox}{舍入模式}
-\centering
-\begin{tabularx}{\linewidth}{|p{0.30\linewidth}|X|}
-\hline
+移位运算要区分逻辑移位和算术移位。逻辑移位不管符号，空位一律补 0；算术移位要保持符号，右移时空位补原来的符号位。左移两者相同，都是低位补 0。下图以 $-5$ 为例：
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,x=1cm,y=0.9cm]
+  \def\shiftrow#1#2#3#4#5#6#7#8#9{%
+    \foreach \i/\v in {0/#2,1/#3,2/#4,3/#5,4/#6,5/#7,6/#8,7/#9}{%
+      \draw[thick,fill=SoftGray] (\i*0.62,#1) rectangle ++(0.55,0.62);
+      \node at (\i*0.62+0.275,#1+0.31) {\v};
+    }
+  }
+  \shiftrow{2.2}{1}{1}{1}{1}{1}{0}{1}{1}
+  \shiftrow{1.0}{0}{1}{1}{1}{1}{1}{0}{1}
+  \shiftrow{-0.2}{1}{1}{1}{1}{1}{1}{0}{1}
+  \node[anchor=east] at (-0.12,2.51) {初值};
+  \node[anchor=east] at (-0.12,1.31) {逻辑右移};
+  \node[anchor=east] at (-0.12,0.11) {算术右移};
+  \node[anchor=west,black!70] at (5.15,2.51) {$-5$：\texttt{1111 1011}};
+  \node[anchor=west,black!70] at (5.15,1.31) {$+125$：最高位补 0};
+  \node[anchor=west,black!70] at (5.15,0.11) {$-3$：最高位补符号 1};
+  \node[black!55,align=center] at (2.5,-0.75) {最低位在移位中丢弃};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 初值 \texttt{1111 1011} 是 $-5$。逻辑右移一位，最高位补 0，得到 \texttt{0111 1101}，即 $+125$；算术右移一位，最高位补符号 1，得到 \texttt{1111 1101}，即 $-3$。$-5/2$ 的精确值是 $-2.5$，算术右移给出 $-3$，是向下取整而不是向 0 截断。}
+\end{center}
+
+算术左移在不溢出的前提下等于乘 2；如果移位前后符号位发生变化，就说明结果超出了补码范围。例如 8 位的 $+100$ 左移一位得到 \texttt{1100 1000}，按补码是 $-56$，已经溢出。C 语言中有符号负数的右移在历史上由实现定义，常见平台采用算术右移，但写可移植代码时不应依赖这一点。
+
+\subsection{IEEE 754 浮点数}
+
+定点数的范围太窄。要同时表示 $6.02\times10^{23}$ 和 $1.6\times10^{-19}$，必须让小数点浮动，这就是浮点表示。先看一个具体转换：把 $-6.625$ 写成单精度浮点数。
+
+$6.625=110.101_2$，规格化后是 $1.10101_2\times2^2$。符号位 $S=1$；阶码真值 $e=2$，加上偏置 127 得 $E=129=\texttt{1000 0001}_2$；尾数域只存小数点后的 23 位，即 \texttt{1010 1000 0000 0000 0000 000}。拼起来：
+\[
+\underbrace{1}_{S}\ \underbrace{1000\,0001}_{E}\ \underbrace{1010\,1000\,0000\,0000\,0000\,000}_{M}
+\;=\;\texttt{C0D4 0000H}.
+\]
+把十六进制展开核对：\texttt{1100 0000 1101 0100} 后接 16 个 0，前 9 位正是 $S$ 和 $E$。
+
+单精度和双精度的字段宽度不同，但含义一致：
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+  % single
+  \draw[thick,fill=Burgundy!16] (0,2.6) rectangle (0.38,3.55);
+  \draw[thick,fill=Navy!12] (0.38,2.6) rectangle (3.42,3.55);
+  \draw[thick,fill=Teal!12] (3.42,2.6) rectangle (12.16,3.55);
+  \node at (1.9,3.075) {阶码 $E$（8 位）};
+  \node at (7.79,3.075) {尾数域 $M$（23 位）};
+  \node[above] at (0.19,3.55) {$S$};
+  \node[below] at (0.19,2.52) {31};
+  \node[below] at (1.9,2.52) {30--23};
+  \node[below] at (7.79,2.52) {22--0};
+  \node[above,font=\scriptsize\bfseries] at (6.08,4.15) {单精度（32 位，bias $=127$）};
+
+  % double
+  \draw[thick,fill=Burgundy!16] (0,0.3) rectangle (0.19,1.25);
+  \draw[thick,fill=Navy!12] (0.19,0.3) rectangle (2.28,1.25);
+  \draw[thick,fill=Teal!12] (2.28,0.3) rectangle (12.16,1.25);
+  \node at (1.235,0.775) {阶码 $E$（11 位）};
+  \node at (7.22,0.775) {尾数域 $M$（52 位）};
+  \node[above] at (0.095,1.25) {$S$};
+  \node[below] at (0.095,0.22) {63};
+  \node[below] at (1.235,0.22) {62--52};
+  \node[below] at (7.22,0.22) {51--0};
+  \node[above,font=\scriptsize\bfseries] at (6.08,1.7) {双精度（64 位，bias $=1023$）};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 两行画成同样的总宽度，所以双精度的每一位更窄。$S$ 占 1 位；$E$ 用移码，单精度 8 位、双精度 11 位；$M$ 只存规格化尾数的小数部分，小数点前的 1 不存，是隐藏位。}
+\end{center}
+
+规格化数的值为
+\[
+(-1)^S\times(1.M)\times2^{E-\text{bias}}.
+\]
+单精度的真指数范围是 $-126\sim+127$，不是 $-127\sim+128$。原因是 $E$ 的两个端点被特殊值占用了：$E=0$ 留给零和非规格化数，$E=255$ 留给无穷和 NaN。于是 $E=1$ 对应 $e=1-127=-126$，$E=254$ 对应 $e=254-127=+127$。
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,x=1cm,y=0.9cm]
+  \fill[Burgundy!14] (0,1.2) rectangle (2.2,1.55);
+  \fill[Teal!12] (2.2,1.2) rectangle (10.2,1.55);
+  \fill[Amber!22] (10.2,1.2) rectangle (11.8,1.55);
+  \draw[thick] (0,1.2) -- (11.8,1.2);
+  \foreach \x/\lab in {0/0,2.2/1,6.2/127,10.2/254,11.8/255}{
+    \draw (\x,1.12) -- (\x,1.28);
+    \node[below] at (\x,1.05) {$E=\lab$};
+  }
+  \node[above,align=center,Burgundy] at (1.1,1.6) {零/非规格化};
+  \node[above,align=center,TealDark] at (6.2,1.6) {规格化数（$1\le E\le254$）};
+  \node[above,align=center,Amber!80!black] at (11.0,1.6) {无穷/NaN};
+  \draw[<->,Navy] (0.1,0.6) -- (2.1,0.6);
+  \node[below,Navy] at (1.1,0.55) {$e=-126$};
+  \draw[dotted,thick] (6.2,1.15) -- (6.2,0.5);
+  \draw[dotted,thick] (10.2,1.15) -- (10.2,0.5);
+  \node[below,Navy] at (6.2,0.48) {$e=0$};
+  \node[below,Navy] at (10.2,0.48) {$e=+127$};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape $E$ 的 256 个编码被分成三段。中间的 1 到 254 是正常规格化数，真指数从 $-126$ 单调增加到 $+127$；两端各留一个编码给特殊值。注意 $E=0$ 的非规格化数沿用 $e=-126$，只是尾数前不再补 1。}
+\end{center}
+
+特殊编码的完整规定如下：
+
+\begin{center}
+\begin{tabular}{cccl}
+\toprule
+$E$ & $M$ & 含义 & 数值 \\
+\midrule
+全 0 & 全 0 & $\pm0$ & $(-1)^S\times0$ \\
+全 0 & 非 0 & 非规格化数 & $(-1)^S\times(0.M)\times2^{1-\text{bias}}$ \\
+$1\sim254$ & 任意 & 规格化数 & $(-1)^S\times(1.M)\times2^{E-\text{bias}}$ \\
+全 1 & 全 0 & $\pm\infty$ & $(-1)^S\times\infty$ \\
+全 1 & 非 0 & NaN & 不是数 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+非规格化数填补 0 与最小规格化数之间的空隙。单精度最小规格化正数是 $2^{-126}\approx1.18\times10^{-38}$，最小非规格化正数是 $2^{-149}\approx1.40\times10^{-45}$，两者之间靠尾数域逐级细分。最大规格化数约为 $(2-2^{-23})\times2^{127}\approx3.40\times10^{38}$。单精度有 24 位有效二进制位（1 位隐藏位加 23 位尾数），约相当于 7 位十进制有效数字；双精度 53 位，约 16 位十进制有效数字。
+
+浮点数不能精确表示大多数十进制小数。$0.1$ 的二进制是 $0.0001100110011\cdots_2$，规格化后为 $1.100110011\cdots_2\times2^{-4}$。单精度只能保留 24 位，舍入后尾数域为 \texttt{10011001100110011001101}，编码是 \texttt{3DCC CCCDH}。它并不等于 $0.1$，只是最接近 $0.1$ 的可表示值。这就是 \texttt{0.1+0.2 != 0.3} 的来源，不是编译器算错，而是二进制浮点的固有精度限制。
+
+舍入发生在尾数被截短的时候。IEEE 754 定义了四种模式：
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
 模式 & 规则 \\
-\hline
-就近舍入（Ties to Even） & 舍入到最近的可表示值；恰在中间时取最低有效位为 $0$（偶数）\\
-向 $+\infty$ 舍入 & 始终向上舍入（ceil）\\
-向 $-\infty$ 舍入 & 始终向下舍入（floor）\\
-向 $0$ 舍入 & 截断（truncate）\\
-\hline
-\end{tabularx}
-\end{tablebox}
-默认模式为就近舍入到偶数。设置\textbf{保护位}（guard bit）、\textbf{舍入位}（round bit）和\textbf{粘滞位}（sticky bit）辅助舍入决策。
-\end{formula}
+\midrule
+就近舍入到偶数 & 取最近的可表示值；正好在中间时取最低有效位为 0 的那个 \\
+向 $+\infty$ 舍入 & 总向上取 \\
+向 $-\infty$ 舍入 & 总向下取 \\
+向 0 舍入 & 截断，向绝对值小的方向取 \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-\begin{attention}
-\textbf{408 高频考点：浮点数加减五步骤。}选择题常给两个 IEEE 754 编码，要求写出加减结果编码。必须熟练掌握：(1) 分离阶码与尾数并补隐藏位，(2) 对阶时小阶对大阶，(3) 右规/左规的条件，(4) 溢出判断标准。阶码全 1 或全 0 归为特殊值处理。
-\end{attention}
+默认是“就近舍入到偶数”。判断“中间”需要额外的位：保护位 $G$ 保存要保留部分之后的第一位，舍入位 $R$ 保存第二位，粘滞位 $S$ 是其余所有位的或。$G=1,R=0,S=0$ 表示恰好一半；$G=1$ 且 $R$ 或 $S$ 非零表示比一半多；$G=0$ 表示不到一半。硬件不必真的保存无限多位，三个附加位就足以决定一次舍入。
 
-\subsection{ALU 基本结构}
+\subsection{浮点加减运算}
 
-\begin{mydef}{算术逻辑单元（ALU）}{alu}
-ALU 是 CPU 中执行算术运算（加、减、乘、除）和逻辑运算（与、或、非、异或）的核心部件。ALU 的核心是加法器，减法通过补码加法实现，乘法/除法可分解为多次加法和移位。
-\end{mydef}
+浮点加减不能直接把尾数相加，因为两个数的阶码通常不同。以 $X=1.101000_2\times2^5$、$Y=1.001100_2\times2^2$ 为例，二者分别是 $52$ 和 $4.75$。计算分五步：
 
-\begin{conclusion}{加法器结构}{adder-structure}
-\noindent\textbf{一位全加器（Full Adder, FA）：}
-\[
-\text{Sum}_i = A_i \oplus B_i \oplus C_i,\qquad
-C_{i+1} = A_i B_i + (A_i \oplus B_i) C_i.
-\]
-其中 $C_i$ 为进位输入，$C_{i+1}$ 为进位输出。
-
-\medskip
-\noindent\textbf{串行进位加法器（Ripple-Carry Adder）：}
-将 $n$ 个 FA 级联，低位进位输出接高位进位输入。结构简单但延迟 $O(n)$——最坏情况下进位从最低位传到最高位。
-
-\medskip
-\noindent\textbf{先行进位加法器（Carry Lookahead Adder, CLA）：}
-定义进位生成 $G_i = A_i B_i$，进位传播 $P_i = A_i \oplus B_i$（或 $A_i + B_i$），则：
-\[
-C_{i+1} = G_i + P_i C_i.
-\]
-展开得：
-\[
-\begin{aligned}
-C_1 &= G_0 + P_0 C_0,\\
-C_2 &= G_1 + P_1 G_0 + P_1 P_0 C_0,\\
-C_3 &= G_2 + P_2 G_1 + P_2 P_1 G_0 + P_2 P_1 P_0 C_0,\quad\ldots
-\end{aligned}
-\]
-所有进位可并行计算，延迟 $O(\log n)$。但门电路扇入随位数增长，实际采用分组并行（如4位一组CLA，组间串行或再加一级CLA）。
-
-\medskip
-\noindent\textbf{ALU 的整体结构：}
-\begin{itemize}
-    \item 核心：$n$ 位加法器（通常为 CLA 或其变体）。
-    \item 前端：多路选择器根据控制信号选择操作数（及是否取反以做减法）。
-    \item 输出：结果、进位标志（CF）、溢出标志（OF）、零标志（ZF）、符号标志（SF）。
-    \item 逻辑运算：按位与/或/非/异或等通常通过旁路加法器实现。
-\end{itemize}
-\end{conclusion}
-
-\begin{attention}
-408 对 ALU 的考察通常以「SN74181（4位ALU芯片）」「先行进位原理」「标志位的产生逻辑」为主。重点理解进位链中 $G_i$ 和 $P_i$ 的含义，以及 CF 和 OF 的区别。
-\end{attention}
-
-% =============================
-% 基础过关题
-% =============================
-\subsection{基础过关题}
-
-\begin{enumerate}[leftmargin=*]
-
-    \item \textbf{（基础题）} 32 位数 \texttt{0x12345678} 从地址 \texttt{0x1000} 开始按字节存放。若 \texttt{0x1000} 单元的内容为 \texttt{78H}，则机器采用大端还是小端方式？
-
-    \ifshowsolutions\par\noindent\textbf{答案：}小端。最低有效字节 \texttt{78H} 位于最低地址。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（基础题）} 8 位补码 \texttt{10010110} 算术右移一位和逻辑右移一位的结果分别是什么？
-
-    \ifshowsolutions\par\noindent\textbf{答案：}算术右移保留符号位，结果为 \texttt{11001011}；逻辑右移高位补 0，结果为 \texttt{01001011}。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（基础题）} 采用偶校验时，数据位 \texttt{1011001} 的校验位应取何值？若传输后有两位同时翻转，偶校验是否一定能检出？
-
-    \ifshowsolutions\par\noindent\textbf{答案：}数据中有 4 个 1，校验位取 0；两位同时翻转不会改变 1 的奇偶性，因此不一定能检出。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（基础题）} 对 16 位数据构造可纠正一位错误的海明码，至少需要多少个校验位？
-
-    \ifshowsolutions\par\noindent\textbf{答案：}至少 5 位。$r=4$ 时 $2^4=16<16+4+1$；$r=5$ 时 $2^5=32\geqslant16+5+1$。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（真题风格·选择题）} float 型数据通常用 IEEE 754 单精度浮点数格式表示。若编译器将 float 型变量 $x$ 分配在一个 32 位浮点寄存器 FR1 中，且 $x=-8.25$，则 FR1 的内容是（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item C104 0000H
-        \item C242 0000H
-        \item C184 0000H
-        \item C1C2 0000H
-    \end{enumerate}
-
-    \ifshowsolutions\par\noindent\textbf{答案：}(A)
-
-    \textbf{解析：} $-8.25 = -(1000.01)_2 = -(1.00001)_2 \times 2^{3}$。$S=1$，$e=3$，$E = 3+127 = 130 = 1000\;0010_2$。$M$（23 位小数部分）$\;= 00001\;00000\;00000\;00000\;000$。拼接：\texttt{1 10000010 00001000000000000000000} $\to$ \texttt{C1040000H}。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（真题风格·选择题）} 32 位补码所能表示的整数范围是（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item $-2^{32} \sim 2^{31}-1$
-        \item $-2^{31} \sim 2^{31}-1$
-        \item $-2^{32} \sim 2^{32}-1$
-        \item $-2^{31} \sim 2^{32}-1$
-    \end{enumerate}
-
-    \ifshowsolutions\par\noindent\textbf{答案：}(B)
-
-    \textbf{解析：} $n+1$ 位补码整数的表示范围为 $[-2^{n}, 2^{n}-1]$。32 位补码中 $n=31$（含 1 位符号位），故范围为 $[-2^{31}, 2^{31}-1]$。注意补码比原码/反码多一个最小负数 $(-2^{31})$，这是因为补码的零唯一，没有「$-0$」占用编码空间。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（真题风格·选择题）} 若 short 型变量 $x=-8190$，则 $x$ 的机器数为（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item E002H
-        \item E001H
-        \item 9FFFH
-        \item 9FFEH
-    \end{enumerate}
-
-    \ifshowsolutions\par\noindent\textbf{答案：}(A)
-
-    \textbf{解析：} short 型占 16 位，用补码表示。$8190_{10} = 1\;1111\;1111\;1110_2 = \text{1FFEH}$。$-8190$ 的补码 = 按位取反 $+1$：$\sim\text{1FFEH} = \text{E001H}$，$+1 = \text{E002H}$。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（真题风格·选择题）} IEEE 754 单精度浮点格式表示的数中，最小的规格化正数是（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item $1.0 \times 2^{-126}$
-        \item $1.0 \times 2^{-127}$
-        \item $1.0 \times 2^{-128}$
-        \item $1.0 \times 2^{-149}$
-    \end{enumerate}
-
-    \ifshowsolutions\par\noindent\textbf{答案：}(A)
-
-    \textbf{解析：} IEEE 754 单精度阶码 $E$ 占 8 位，偏置量 bias = 127。规格化数要求 $E \in [1, 254]$。最小规格化数：$E=1$，真指数 $e = 1-127 = -126$，尾数 $M$ 全 0（即尾数真值 $1.0$）。故最小规格化正数为 $1.0 \times 2^{-126}$。选项 (D) $1.0 \times 2^{-149}$ 是最小非规格化正数。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（真题风格·选择题）} $-0.4375$ 的 IEEE 754 单精度浮点数表示为（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item BEE0 0000H
-        \item BF60 0000H
-        \item BF70 0000H
-        \item C0E0 0000H
-    \end{enumerate}
-
-    \ifshowsolutions\par\noindent\textbf{答案：}(A)
-
-    \textbf{解析：} $-0.4375 = -(0.0111)_2 = -(1.11)_2 \times 2^{-2}$。$S=1$，$e=-2$，$E = -2+127 = 125 = 0111\;1101_2$。$M$（尾数小数部分 23 位）= $110\;0000\;0000\;0000\;0000\;0000$。拼接：\texttt{1 01111101 11000000000000000000000} $\to$ \texttt{BEE00000H}。验证：$-(1.11)_2 \times 2^{-2} = -1.75 \times 0.25 = -0.4375$。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（真题风格·选择题）} float 类型（即 IEEE 754 单精度浮点数格式）能表示的最大正整数是（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item $2^{127} - 2^{104}$
-        \item $2^{127} - 2^{103}$
-        \item $2^{128} - 2^{104}$
-        \item $2^{128} - 2^{103}$
-    \end{enumerate}
-
-    \ifshowsolutions\par\noindent\textbf{答案：}(C)
-
-    \textbf{解析：} 最大规格化正数：$S=0$，$E=254$（全 1 保留给 $\infty$ 和 NaN，故最大 $E$ 为 254），$M$ 全 1。真指数 $e = 254-127 = 127$。尾数真值 = $1.11\ldots1$（23 个 1 在小数部分）= $2 - 2^{-23}$。数值 $= (2 - 2^{-23}) \times 2^{127} = 2^{128} - 2^{104}$。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（真题风格·选择题）} 某 IEEE 754 单精度浮点数的机器码为 42E4 8000H，则它的真值为（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item 114.25
-        \item 57.125
-        \item 228.5
-        \item 113.25
-    \end{enumerate}
-
-    \ifshowsolutions\par\noindent\textbf{答案：}(A)
-
-    \textbf{解析：} \texttt{42E48000H} = \texttt{0100 0010 1110 0100 1000 0000 0000 0000}。$S=0$（正数），$E = 1000\;0101_2 = 133$，$e = 133-127 = 6$。$M$ 小数部分 = \texttt{110 0100 1000 0000 0000 0000}。尾数真值 $= 1.11001001_2$。数值 $= 1.11001001_2 \times 2^{6} = 1110010.01_2 = 114.25_{10}$。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（真题风格·选择题）} 浮点数加减运算过程中，「对阶」操作的原则是（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item 将较小的阶码对齐到较大的阶码
-        \item 将较大的阶码对齐到较小的阶码
-        \item 将被加（减）数的阶码对齐到加（减）数的阶码
-        \item 无须对阶
-    \end{enumerate}
-
-    \ifshowsolutions\par\noindent\textbf{答案：}(A)
-
-    \textbf{解析：} 对阶的原则是「小阶向大阶看齐」——将阶码较小的操作数的尾数右移（阶码 $+1$，尾数右移一位），直到两个操作数的阶码相等。这样做的原因是高位丢失造成的误差远小于低位丢失。若大阶向小阶看齐（尾数左移），高位有效数字会被移出，造成巨大的精度损失。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（真题风格·选择题）} 假定变量 $i$、$f$ 和 $d$ 的数据类型分别为 int、float 和 double（int 用补码表示，float 和 double 分别用 IEEE 754 单精度和双精度浮点数格式表示），已知 $i=785$，$f=1.5678\text{e}3$，$d=1.5\text{e}100$。若在 32 位机器中执行下列关系表达式，则结果为「真」的是（\quad）。
-    \begin{center}
-    I.\; $i == (\text{int})(\text{float})i$ \qquad
-    II.\; $f == (\text{float})(\text{int})f$ \\
-    III.\; $f == (\text{float})(\text{double})f$ \qquad
-    IV.\; $(d+f)-d == f$
-    \end{center}
-    \begin{enumerate}[label=(\Alph*)]
-        \item 仅 I 和 II
-        \item 仅 I 和 III
-        \item 仅 II 和 III
-        \item 仅 III 和 IV
-    \end{enumerate}
-
-    \ifshowsolutions\par\noindent\textbf{答案：}(B)
-
-    \textbf{解析：}
-    \textbf{I：}$785 = 1100010001_2$（10 位有效位），float 尾数有 24 位精度（含隐藏位），$785 \to \text{float} \to \text{int}$ 精确保持。\textbf{正确。}
-    \textbf{II：}$f = 1567.8$，$(\text{int})f = 1567$（截断），$(\text{float})1567 = 1567.0 \neq 1567.8$。\textbf{错误。}
-    \textbf{III：}float $\to$ double 无精度损失，double $\to$ float 虽然可能损失精度，但原值本就在 float 表示范围内，故往返不丢失信息。\textbf{正确。}
-    \textbf{IV：}$d \approx 1.5 \times 10^{100}$ 远大于 $f \approx 1567.8$，$d+f$ 中 $f$ 的贡献远小于 double 尾数的最低有效位，$d+f$ 舍入后 $\approx d$，$(d+f)-d \approx 0 \neq f$。\textbf{错误。}
-    故仅 I 和 III 为真。\else \answerarea \fi
-
-\vspace{10pt}
-
-    \item \textbf{（真题风格·选择题）} 下列有关 IEEE 754 浮点数的叙述中，正确的是（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item 规格化数的尾数部分隐含了整数位 $1$，故 23 位尾数实际实现了 24 位精度
-        \item 非规格化数的阶码为全 0，隐藏位为 $1$，用于表示接近 $0$ 的极小值
-        \item IEEE 754 单精度浮点数的阶码采用补码表示，偏置值为 128
-        \item 当阶码全 1 且尾数全 0 时，表示的数与符号位 $S$ 无关
-    \end{enumerate}
-
-    \ifshowsolutions\par\noindent\textbf{答案：}(A)
-
-    \textbf{解析：} (A) 正确——规格化数有隐藏位 $1$，尾数真值 $= 1.M$，23 位小数部分实现 24 位有效精度。(B) 错误——非规格化数的隐藏位为 $0$ 而非 $1$，数值公式为 $(-1)^S \times (0.M) \times 2^{1-\text{bias}}$。(C) 错误——阶码采用\textbf{移码}，偏置值 $= 2^{8-1}-1 = 127$，不是 128。(D) 错误——阶码全 1 且尾数全 0 表示 $\pm\infty$，$S=0$ 为 $+\infty$，$S=1$ 为 $-\infty$，二者不同。\else \answerarea \fi
-
+\begin{enumerate}
+  \item \textbf{对阶。}比较阶码，小阶向大阶看齐。这里 $\Delta E=3$，把 $Y$ 的尾数算术右移 3 位，阶码改成 5。右移时低位不能直接丢，要送进 $G,R,S$。
+  \item \textbf{尾数加减。}阶码相同后，对尾数做带符号加减。
+  \item \textbf{规格化。}结果可能大于等于 2（需要右规，阶码加 1）或小于 1（需要左规，阶码减 1，可能连续左移多位）。
+  \item \textbf{舍入。}按选定模式处理 $G,R,S$，舍入本身可能产生进位，若进位到整数部分，还要再做一次右规。
+  \item \textbf{溢出判断。}检查阶码是否超出范围：太大是上溢，结果置 $\pm\infty$；太小是下溢，结果变成非规格化数或 0。
 \end{enumerate}
 
-% =============================
-% 真题风格综合训练
-% =============================
-\subsection{真题风格综合训练}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,x=1cm,y=0.95cm]
+  \def\frow#1#2#3#4#5#6#7#8#9{%
+    \foreach \i/\v in {0/#1,1/#2,2/#3,3/#4,4/#5,5/#6,6/#7,7/#8,8/#9}{%
+      \draw[thick,fill=SoftGray] (\i*0.46,\rowy) rectangle ++(0.42,0.6);
+      \node at (\i*0.46+0.21,\rowy+0.3) {\v};
+    }
+  }
+  \fill[Teal!10] (3.22,-0.5) rectangle (4.56,3.5);
+  \def\rowy{2.9}\frow{1}{1}{0}{1}{0}{0}{0}{0}{0}
+  \def\rowy{1.7}\frow{1}{0}{0}{1}{1}{0}{0}{0}{0}
+  \def\rowy{0.7}\frow{0}{0}{0}{1}{0}{0}{1}{1}{0}
+  \def\rowy{-0.5}\frow{1}{1}{1}{0}{0}{0}{1}{1}{0}
+  \node[anchor=east] at (-0.1,3.2) {$X$};
+  \node[anchor=east] at (-0.1,2.0) {$Y$};
+  \node[anchor=east] at (-0.1,1.0) {$Y$ 对阶后};
+  \node[anchor=east] at (-0.1,-0.2) {和};
+  \node[anchor=west,black!70] at (4.8,3.2) {$e=5$};
+  \node[anchor=west,black!70] at (4.8,2.0) {$e=2$};
+  \node[anchor=west,black!70] at (4.8,1.0) {$e=5$，右移 3 位};
+  \node[anchor=west,black!70] at (4.8,-0.2) {舍入前};
+  \draw[dashed] (0.42,3.55) -- (0.42,-0.75);
+  \node[above,black!65] at (0.42,3.58) {小数点};
+  \node[above,TealDark] at (3.43,3.58) {$G$};
+  \node[above,TealDark] at (3.89,3.58) {$R$};
+  \node[above,TealDark] at (4.35,3.58) {$S$};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 每行前 7 格是“1 位隐藏位 + 6 位尾数”，后 3 格是保护位、舍入位、粘滞位。$Y$ 的尾数 $1.001100$ 右移 3 位变成 $0.001001\,100$：前 6 位小数是 $001001$，后面 $100$ 进入 $G,R,S$。$X$ 的尾数后面补 3 个 0，不改变值。}
+\end{center}
 
-\begin{enumerate}[leftmargin=*]
+把附加位一起相加：
+\[
+1.101000\,000+0.001001\,100=1.110001\,100.
+\]
+保留的 6 位小数是 $110001$，余下 $100$。$G=1,R=0,S=0$ 表示恰好是一半；按“就近舍入到偶数”，保留部分末位为 1（奇数），要向上进 1，得到 $1.110010\times2^5$，即 $57.0$。真实和是 $56.75$，正好夹在 $56.5$ 和 $57.0$ 中间，舍入误差为半个 ulp（$0.25$）。如果末位本来是 0，就会舍去余下的 $100$，结果保持偶数。
 
-    \item \textbf{（真题风格·选择题）} 已知带符号整数用补码表示，float 型数据用 IEEE 754 标准表示，假定变量 $x$ 的类型只能是 int 或 float。当 $x$ 的机器数为 C800 0000H 时，$x$ 的值可能是（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item $-7 \times 2^{27}$
-        \item $-2^{126}$
-        \item $-2^{27}$
-        \item $-7 \times 2^{25}$
-    \end{enumerate}
+规格化的两个方向用两个小例子记住：
+\[
+1.111+0.001=10.000\;\longrightarrow\;1.000\times2^{e+1},
+\]
+这是右规，尾数和产生进位，右移一位、阶码加 1；
+\[
+1.010-1.001=0.001\;\longrightarrow\;1.000\times2^{e-3},
+\]
+这是左规，两个相近的数相减导致高位抵消，要连续左移直到最高位为 1，阶码相应减小。左规可能移很多位，所以浮点减法有时比加法慢。
 
-    \ifshowsolutions\par\noindent\textbf{答案：}(A)
+上溢和下溢的界线要分清。规格化数的阶码超过最大允许值（单精度 $E>254$）是上溢，结果置 $\pm\infty$；结果的真实指数小于 $-126$ 时进入非规格化区，这是下溢，精度逐渐损失，直到变成 0。下溢不一定立刻变成 0，IEEE 754 的渐进下溢就是靠非规格化数保留这部分信息。
 
-    \textbf{解析：} 此题的关键是 $x$ 的类型未知，需分别考虑 int 和 float 两种解释。
+乘除法比对阶简单。乘法把阶码相加再减去一个偏置（$E_x+E_y-\text{bias}$），尾数相乘后规格化、舍入，符号为 $S_x\oplus S_y$；除法把阶码相减再加上偏置（$E_x-E_y+\text{bias}$），尾数相除。除数为 0 时，非零数除以 0 得到 $\pm\infty$，$0/0$ 得到 NaN。
 
-    \textbf{若 $x$ 为 int（补码）：}
-    $\text{C8000000H} = 1100\;1000\;\ldots\;0000_2$。符号位为 1（负数）。取反 $+1$：$\sim\text{C8000000H} + 1 = 37\text{FFFFFFH} + 1 = 38000000\text{H}$。$38000000\text{H} = (0011\;1000\;\ldots)_2 = 3 \times 2^{28} + 2^{27} = (3 \times 2 + 1) \times 2^{27} = 7 \times 2^{27}$。故 $x = -7 \times 2^{27}$。
+\subsection{乘除运算}
 
-    \textbf{若 $x$ 为 float（IEEE 754）：}
-    $S=1$，$E = 1001\;0000_2 = 144$，$e = 144 - 127 = 17$。$M$ 全 0，尾数真值 $=1.0$。故 $x = -1.0 \times 2^{17} = -131072$，不在选项中。因此 $x$ 的类型只能为 int，值为 $-7 \times 2^{27}$。\else \answerarea \fi
+定点乘法可以用“逐位看乘数、加部分积、右移”实现。原码一位乘把符号位单独异或，数值部分做无符号乘法：乘数最低位为 1 就加被乘数，为 0 就加 0，然后部分积右移一位，重复 $n$ 次，得到 $2n$ 位积。
 
-\vspace{10pt}
+补码乘法常用 Booth 算法，它不需要先把负数转成原码。做法是在乘数 $Q$ 的最低位右边附加一位 $Q_{-1}$，初始为 0，每轮看 $(Q_0,Q_{-1})$：
 
-    \item \textbf{（真题风格·选择题）} 已知 float 型变量用 IEEE 754 单精度浮点数格式表示。若 float 型变量 $x$ 的机器数为 4730 0000H，则 $x$ 的值为（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item $0.375 \times 2^{14}$
-        \item $1.375 \times 2^{14}$
-        \item $0.375 \times 2^{15}$
-        \item $1.375 \times 2^{15}$
-    \end{enumerate}
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$Q_0$ & $Q_{-1}$ & 本轮操作 \\
+\midrule
+0 & 0 & 部分积加 0 \\
+0 & 1 & 部分积加 $M$ \\
+1 & 0 & 部分积减 $M$ \\
+1 & 1 & 部分积加 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-    \ifshowsolutions\par\noindent\textbf{答案：}(D)
+每轮操作后，把 $A,Q,Q_{-1}$ 作为一个整体做算术右移。它的依据是把乘数中连续的 1 串 $011\cdots10$ 改写成 $100\cdots0-010\cdots0$：一串 $k$ 个 1 的加法可以用一次减法和一次加法代替，所以 1 多的时候反而更快。
 
-    \textbf{解析：}$47300000\text{H}=0\mid10001110\mid011000\ldots0$，故 $S=0$，阶码 $E=142$，真指数 $e=142-127=15$；尾数真值为 $1.011_2=1.375$。因此 $x=1.375\times2^{15}$。\else \answerarea \fi
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=3.4cm,minimum height=0.8cm] (look) at (0,2.2) {查看 $Q_0,Q_{-1}$};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=4.2cm,minimum height=0.8cm] (op) at (5.0,2.2) {按表加 $M$、减 $M$ 或加 0};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=3.6cm,minimum height=0.8cm] (shift) at (5.0,0.4) {$(A,Q,Q_{-1})$ 算术右移一位};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=3.4cm,minimum height=0.8cm] (init) at (0,0.4) {初始化 $A=0,\ Q_{-1}=0$};
+  \draw[->] (look) -- (op);
+  \draw[->] (op) -- (shift);
+  \draw[->] (shift) -- (init);
+  \draw[->] (init) -- (look);
+  \node[black!65] at (2.5,0.7) {重复 $n$ 轮};
+  \node[black!65,align=center] at (2.5,-0.55) {结束后 $A\!:\!Q$ 即 $2n$ 位积};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape Booth 算法一轮的流程。先看 $Q_0,Q_{-1}$ 决定加 $M$、减 $M$ 还是加 0，再把 $A,Q,Q_{-1}$ 联合算术右移一位；循环 $n$ 轮后 $A\!:\!Q$ 就是 $2n$ 位积。}
+\end{center}
 
-\vspace{10pt}
+以 4 位补码 $M=-3=\texttt{1101}$、$Q=+3=\texttt{0011}$ 为例，$A$ 初值 0，$Q_{-1}=0$：
 
-    \item \textbf{（真题风格·选择题）} 假设 8 位字长的计算机中，两个带符号整数 $x$ 和 $y$ 的补码表示分别为 $[x]_{\text{补}} = 6\text{AH}$，$[y]_{\text{补}} = 9\text{FH}$。则 $x+y$ 的结果和溢出情况是（\quad）。
-    \begin{enumerate}[label=(\Alph*)]
-        \item 结果为 09H，无溢出
-        \item 结果为 09H，有溢出
-        \item 结果为 F5H，无溢出
-        \item 结果为 F5H，有溢出
-    \end{enumerate}
+\begin{center}
+\begin{tabular}{cccccl}
+\toprule
+轮次 & $Q_0Q_{-1}$ & 操作后 $A$ & 右移后 $A$ & 右移后 $Q$ & 说明 \\
+\midrule
+1 & 10 & 0011 & 0001 & 1001 & $A\leftarrow A-M$ \\
+2 & 11 & 0001 & 0000 & 1100 & 不操作 \\
+3 & 01 & 1101 & 1110 & 1110 & $A\leftarrow A+M$ \\
+4 & 00 & 1110 & 1111 & 0111 & 不操作 \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-    \ifshowsolutions\par\noindent\textbf{答案：}(A)
+最终 $A\!:\!Q=\texttt{1111\,0111}$，即 $-9$，与 $(-3)\times3$ 相符。
 
-    \textbf{解析：} 
-    $[x]_{\text{补}} = 6\text{AH} = 0110\;1010_2$，符号位 $0$，$x = +106$。
-    $[y]_{\text{补}} = 9\text{FH} = 1001\;1111_2$，符号位 $1$。$[y]_{\text{补}}$ 取反 $+1$：$\sim 1001\;1111 + 1 = 0110\;0000 + 1 = 0110\;0001 = 97$，故 $y = -97$。
-    $x+y = 106 + (-97) = 9$，8 位补码范围内可表示，结果为 09H。
+除法也可以用补码或原码做。原码恢复余数法每轮先减除数，如果余数为负就加回来恢复，再上商 0；不恢复余数法（加减交替法）不恢复，而是让负余数继续参与下一轮，下一轮改成加除数。设当前余数为 $R$，本轮移入被除数的下一位 $x_i$，规则是：
 
-    \textbf{溢出判断：} 用进位异或法——最高位进位 $C_s$ 和次高位进位 $C_{s-1}$ 异或：
-    $0110\;1010 + 1001\;1111$：bit 6$\to$7 有进位（$1+1=10$），bit 7$\to$溢出位有进位（$0+1+1=10$）。$C_s=1$，$C_{s-1}=1$，$1 \oplus 1 = 0$，无溢出。
+\[
+R\leftarrow 2R+x_i,\qquad
+\begin{cases}
+R\leftarrow R-y, & \text{上一轮 }R\ge0,\\
+R\leftarrow R+y, & \text{上一轮 }R<0,
+\end{cases}
+\]
+然后根据更新后的 $R$ 的符号上商：$R\ge0$ 商位为 1，否则为 0。做完 $n$ 位后若余数仍为负，再加一次 $y$ 恢复。这个规则可以画成两个状态：
 
-    用符号位法也可立即判断：正数与负数相加不可能发生有符号溢出。因此结果为 $09\text{H}$，无溢出。\else \answerarea \fi
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth,node distance=3.2cm]
+  \node[draw,circle,thick,fill=SoftBlue,minimum size=1.9cm,align=center] (pos) at (-2.2,0) {$R\ge0$};
+  \node[draw,circle,thick,fill=SoftAmber,minimum size=1.9cm,align=center] (neg) at (2.2,0) {$R<0$};
+  \draw[->,thick] (-4.6,0) -- (pos.west) node[midway,above]{$R=0$};
+  \draw[->,thick] (pos) to[loop above] node[above,align=center]{$R\leftarrow2R+x_i-y$\\$q_i=[R\ge0]$} (pos);
+  \draw[->,thick] (neg) to[loop above] node[above,align=center]{$R\leftarrow2R+x_i+y$\\$q_i=[R\ge0]$} (neg);
+  \draw[->,thick] (pos) to[bend left=20] node[above]{$R<0$} (neg);
+  \draw[->,thick] (neg) to[bend left=20] node[below]{$R\ge0$} (pos);
+  \node[black!65,align=center] at (0,-2.0) {每轮移入一位被除数并上商一位；$n$ 轮后若 $R<0$，再执行 $R\leftarrow R+y$};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 左状态表示当前余数非负，下一轮做减法；右状态表示余数为负，下一轮做加法。两状态之间的转移由更新后的余数符号决定，商位 $q_i$ 在每次更新后立即确定。}
+\end{center}
 
-\vspace{10pt}
+用 $7\div3$、3 位商手工走一遍：$R$ 初值 0。第 1 位 $x_1=1$，$2R+x_1=1$，上一轮 $R\ge0$ 所以减 3 得 $-2$，商位 0，转入负状态。第 2 位 $x_2=1$，$2(-2)+1=-3$，上一轮 $R<0$ 所以加 3 得 0，商位 1，转回正状态。第 3 位 $x_3=1$，$2\cdot0+1=1$，减 3 得 $-2$，商位 0。最后余数为负，加 3 恢复为 1。商为 $010_2=2$，余数 1，与 $7=2\times3+1$ 一致。
 
-    \item \textbf{（综合）IEEE 754 浮点数编解码。}
-    已知 IEEE 754 单精度浮点数 $X$ 的十六进制表示为 $\mathtt{C2280000H}$，$Y$ 的十六进制表示为 $\mathtt{42A40000H}$。
-    \begin{enumerate}
-        \item 分别写出 $X$ 和 $Y$ 的十进制真值；
-        \item 按照 IEEE 754 浮点加减法步骤，计算 $X+Y$（写出对阶、尾数加减、规格化、舍入过程），并给出最终结果的十六进制编码。
-    \end{enumerate}
+\subsection{算术逻辑单元}
 
-    \ifshowsolutions\par\noindent\textbf{答案：}
+算术逻辑单元（ALU）的核心是加法器。一位全加器有三个输入 $A_i,B_i,C_i$，两个输出：
+\[
+S_i=A_i\oplus B_i\oplus C_i,\qquad
+C_{i+1}=A_iB_i+(A_i\oplus B_i)C_i.
+\]
+把 $n$ 个全加器串起来，低位进位接高位进位，就是串行进位加法器。它结构最简单，但最坏情况下进位要从最低位一路传到最高位，延迟与位数成正比。
 
-    \textbf{(1) 解码：}
-    $X = \mathtt{C2280000H} = 1100\;0010\;0010\;1000\;\ldots\;0000_2$。
-    $S_X=1$，$E_X = 1000\;0100_2 = 132$，$e_X = 132-127 = 5$，$M_X = .010\;1000\;\ldots$。尾数真值 $= 1.0101_2 = 1.3125$。
-    $X = -1.3125 \times 2^{5} = -1.3125 \times 32 = -42.0$。
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  \foreach \i/\x in {0/0,1/3.0,2/6.0,3/9.0}{
+    \draw[thick,fill=SoftGray,rounded corners=2pt] (\x,0) rectangle ++(1.7,1.3);
+    \node at (\x+0.85,0.65) {FA$_{\i}$};
+    \node[above] at (\x+0.5,1.3) {$A_{\i}$};
+    \node[above] at (\x+1.2,1.3) {$B_{\i}$};
+    \node[below] at (\x+0.85,0) {$S_{\i}$};
+  }
+  \draw[->] (-0.9,0.65) -- (0,0.65) node[midway,above]{$C_0$};
+  \draw[->,Burgundy,very thick] (1.7,0.65) -- (3.0,0.65);
+  \draw[->,Burgundy,very thick] (4.7,0.65) -- (6.0,0.65);
+  \draw[->,Burgundy,very thick] (7.7,0.65) -- (9.0,0.65);
+  \draw[->,Burgundy,very thick] (10.7,0.65) -- (11.7,0.65);
+  \node[right,Burgundy] at (11.7,0.65) {$C_4$};
+  \node[black!65,align=center] at (5.35,-0.75) {最坏路径：$C_0$ 依次穿过 4 个全加器，位数越多延迟越大};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 每个 FA 的进位输出接下一个 FA 的进位输入。红色路径是 $C_0$ 到 $C_4$ 的最坏延迟路径；结果的 $S_i$ 要等对应进位到达后才能稳定。}
+\end{center}
 
-    $Y = \mathtt{42A40000H} = 0100\;0010\;1010\;0100\;\ldots\;0000_2$。
-    $S_Y=0$，$E_Y = 1000\;0101_2 = 133$，$e_Y = 133-127 = 6$，$M_Y = .010\;0100\;\ldots$。尾数真值 $= 1.01001_2 = 1.28125$。
-    $Y = +1.28125 \times 2^{6} = 1.28125 \times 64 = 82.0$。
+先行进位（CLA）把进位提前算出来。定义进位生成和传播
+\[
+G_i=A_iB_i,\qquad P_i=A_i+B_i,
+\]
+则
+\[
+C_{i+1}=G_i+P_iC_i.
+\]
+反复代入，得到只含 $G,P,C_0$ 的展开式：
+\begin{align*}
+C_1&=G_0+P_0C_0,\\
+C_2&=G_1+P_1G_0+P_1P_0C_0,\\
+C_3&=G_2+P_2G_1+P_2P_1G_0+P_2P_1P_0C_0,\\
+C_4&=G_3+P_3G_2+P_3P_2G_1+P_3P_2P_1G_0+P_3P_2P_1P_0C_0.
+\end{align*}
+所有进位都只经过两级门（与门算乘积项，或门求和），不再逐级等待。位数一多，展开式的项数会爆炸，所以实际芯片分组处理：先算 4 位一组的组生成 $G_{i:j}$ 和组传播 $P_{i:j}$，再用同样的公式在组间先行进位。
 
-    \textbf{(2) 浮点加法 $X+Y$：}
-    \begin{itemize}
-        \item \textbf{对阶：}$|e_X| = 5$，$|e_Y| = 6$。$X$ 的阶码小，$X$ 尾数右移 1 位，阶码 $+1$：$X$ 的尾数变为 $0.10101_2 \times 2^{6}$（注意右移时舍入）。
-        \item \textbf{尾数相加：}$X_{\text{尾}} = -0.10101_2$，$Y_{\text{尾}} = +1.01001_2$。和 $= +0.10100_2$（即 $1.01001 - 0.10101 = 0.10100$）。
-        \item \textbf{规格化：}结果尾数 $0.10100_2 \times 2^{6}$，需左规 1 位：尾数 $\to 1.0100_2$，阶码 $-1 \to 5$。
-        \item \textbf{舍入：}尾数末位为 0，无舍入。
-    \end{itemize}
-    最终结果：$S=0$，$e=5$，$E=5+127=132=1000\;0100_2$，$M=0100\;0000\;\ldots$。编码 $= \mathtt{42200000H}$。
-    验证真值：$1.01_2 \times 2^{5} = 1.25 \times 32 = 40.0 = -42.0 + 82.0$。\else \answerarea \fi
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  \foreach \y/\lab in {3.0/{$G_0,P_0$},2.2/{$G_1,P_1$},1.4/{$G_2,P_2$},0.6/{$G_3,P_3$}}{
+    \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.5cm] at (0,\y) {\lab};
+  }
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.6cm] (g10) at (3.6,2.6) {$G_{1:0},P_{1:0}$};
+  \node[draw,rounded corners=2pt,fill=SoftTeal,minimum width=2.6cm] (g32) at (3.6,1.0) {$G_{3:2},P_{3:2}$};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.6cm] (g30) at (7.6,1.8) {$G_{3:0},P_{3:0}$};
+  \draw[->] (0.8,3.0) -- (g10.west);
+  \draw[->] (0.8,2.2) -- (g10.west);
+  \draw[->] (0.8,1.4) -- (g32.west);
+  \draw[->] (0.8,0.6) -- (g32.west);
+  \draw[->] (g10.east) -- (g30.west);
+  \draw[->] (g32.east) -- (g30.west);
+  \draw[->] (g30.east) -- ++(0.8,0) node[right,align=left]{$C_4=G_{3:0}+P_{3:0}C_0$};
+  \node[black!65,align=center] at (4.0,-0.35) {合并公式：$G_{i:j}=G_{i:k}+P_{i:k}G_{k-1:j}$，\ $P_{i:j}=P_{i:k}P_{k-1:j}$};
+  \node[black!65,align=center] at (4.0,-0.95) {树高 $\lceil\log_2 n\rceil$，同时产生各级前缀可得到 $C_1,C_2,C_3$};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 4 位的组生成/组传播树。底层两两合并，得到 $G_{1:0},P_{1:0}$ 和 $G_{3:2},P_{3:2}$；再合并成 $G_{3:0},P_{3:0}$，最后用 $C_4=G_{3:0}+P_{3:0}C_0$ 得到最高位进位。每一层只做与、或，层数是对数级的。}
+\end{center}
 
-\vspace{10pt}
+ALU 还要完成减法、逻辑运算和标志位。减法不另造一套电路，而是把 $B$ 取反后送进加法器，并令最低位进位 $C_0=1$：
+\[
+A-B=A+\overline{B}+1\pmod{2^n}.
+\]
+控制信号 $\text{Sub}=1$ 时，$B$ 的每一位先与 Sub 异或（等于取反），同时 $C_0=1$；$\text{Sub}=0$ 时 $B$ 原样送入，$C_0=0$，做加法。
 
-    \item \textbf{（综合）补码运算与溢出判断。}
-    设字长 8 位（含符号位），$x = -85$，$y = -64$。
-    \begin{enumerate}
-        \item 写出 $x$ 和 $y$ 的补码；
-        \item 用补码加法计算 $x+y$，分别用进位异或法、双符号位法和操作数符号法判断是否溢出；
-        \item 用补码加法计算 $x-y$，判断是否溢出。
-    \end{enumerate}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize,>=stealth]
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.2cm,minimum height=0.7cm] (a) at (-5.0,1.9) {$A$};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.2cm,minimum height=0.7cm] (b) at (-5.0,0.5) {$B$};
+  \node[draw,circle,thick,fill=SoftAmber,minimum size=0.55cm] (xor) at (-3.2,0.5) {$\oplus$};
+  \node[draw,rounded corners=2pt,fill=SoftGray,minimum width=2.2cm,minimum height=1.2cm] (add) at (-0.6,1.2) {加法器};
+  \node[draw,rounded corners=2pt,fill=SoftBlue,minimum width=1.1cm,minimum height=0.7cm] (res) at (2.8,1.2) {结果};
+  \node[draw,rounded corners=2pt,fill=SoftAmber,minimum width=2.4cm,minimum height=0.7cm] (psw) at (1.0,-1.4) {标志寄存器};
 
-    \ifshowsolutions\par\noindent\textbf{答案：}
+  \draw[->] (a.east) -- (-1.7,1.7);
+  \draw[->] (b.east) -- (xor.west);
+  \draw[->] (xor.east) -- (-1.7,0.7);
+  \draw[->] (add.east) -- (res.west);
+  \draw[->,Burgundy] (add.south) -- (-0.6,-1.4) -- (psw.west);
+  \node[Burgundy,anchor=west,fill=white,inner sep=1pt] at (-0.5,-0.9) {$C_n,C_{n-1}$};
+  \draw[->,Teal] (res.south) -- (2.8,-1.4) -- (psw.east);
+  \node[Teal,anchor=west,fill=white,inner sep=1pt] at (2.35,-1.75) {SF/ZF};
+  \draw[->] (-3.2,-1.4) -- (xor.south);
+  \draw[->] (-3.2,-1.4) -- (-1.0,-1.4) -- (-1.0,0.6);
+  \node[below] at (-3.2,-1.5) {Sub};
+  \node[below] at (-2.0,-1.3) {$C_0=\text{Sub}$};
+\end{tikzpicture}
+\par\vspace{2pt}
+{\footnotesize\itshape 减法数据通路。$B$ 先与 Sub 异或：$\text{Sub}=1$ 时逐位取反，同时加法器的 $C_0=1$；$\text{Sub}=0$ 时 $B$ 原样送入，$C_0=0$，执行加法。加法器的 $C_n$ 与 $C_{n-1}$ 送标志寄存器产生 CF/OF，结果送 SF/ZF。ALU 的逻辑单元与结果选择 MUX 未画出，它们与加法器并联。}
+\end{center}
 
-    \textbf{(1) 补码：}
-    $85 = 0101\;0101_2$，$[x]_{\text{补}} = 1010\;1011 = \text{ABH}$（取反+1）。
-    $64 = 0100\;0000_2$，$[y]_{\text{补}} = 1100\;0000 = \text{C0H}$。
+标志位的产生逻辑可以写在 ALU 图旁边记：
 
-    \textbf{(2) $x+y$：}
-    $1010\;1011 + 1100\;0000 = [1]\;0110\;1011$（模 $2^8$ 丢弃进位得 $0110\;1011 = 6\text{BH} = 107$）。
-    真值 $x+y = -85 + (-64) = -149$，而 8 位补码范围 $[-128, 127]$，$-149 < -128$，\textbf{溢出}。
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+标志 & 逻辑 \\
+\midrule
+CF & 加法取 $C_n$；减法借位取 $\overline{C_n}$（合并写作 $C_n\oplus\text{Sub}$） \\
+OF & $C_n\oplus C_{n-1}$ \\
+SF & 结果的最高位 \\
+ZF & 结果各位或非 \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-    \textbf{溢出判断三法：}
-    \begin{itemize}
-        \item \textbf{进位异或法：}最高位进位 $C_s = 1$，次高位进位 $C_{s-1} = 0$（bit 6$\to$7：$1+0=0+$进位 0 = 0，无进位）。$C_s \oplus C_{s-1} = 1 \oplus 0 = 1$，溢出。
-        \item \textbf{双符号位法：}扩展为双符号位后计算：$11\;010\;1011 + 11\;100\;0000 = [1]10\;110\;1011$。双符号位为 $10$（不一致），溢出。
-        \item \textbf{操作数符号法：}两个负数相加，结果为正数（$0110\;1011$ 符号位为 0），溢出。
-    \end{itemize}
+这里 $C_n$ 是符号位向外的进位，$C_{n-1}$ 是最高数值位向符号位的进位。减法时 OF 仍用同一个异或式，因为 $A+\overline{B}+1$ 已经是一个普通的补码加法，溢出规则不变。CF 和 OF 的区别在上一节已经说过：CF 面向无符号数，OF 面向有符号数。
 
-    \textbf{(3) $x-y$：}
-    $[x-y]_{\text{补}} = [x]_{\text{补}} + [-y]_{\text{补}} = 1010\;1011 + 0100\;0000 = 1110\;1011 = \text{EBH}$。
-    结果符号位为 1（负数），真值 $= -(0001\;0101) = -21$。$x-y = -85 - (-64) = -21$，在 $[-128, 127]$ 内，\textbf{无溢出}。
-    进位异或：$C_s = 0$，$C_{s-1} = 0$（$1+0=1$ 无进位，$0+1=1$ 无进位），$0 \oplus 0 = 0$，无溢出。操作数符号：负数 $+$ 正数不会溢出。\else \answerarea \fi
+实际的 4 位 ALU 芯片（如 74181）内部带有先行进位，并向外提供组生成 $G$ 和组传播 $P$ 信号；把四片 74181 与一片 74182 先行进位部件级联，就能组成 16 位 ALU。408 考题常要求根据 74181 的功能表判断某组控制信号执行什么运算，或者计算多片级联时的进位延迟，抓住“组内先行、组间先行”这个结构即可。
 
-\vspace{10pt}
-
-    \item \textbf{（综合）四种机器数对比。}
-    设某机器字长 6 位（含 1 位符号位），给出下列真值分别对应的原码、反码、补码和移码（采用 6 位二进制表示）。
-    \begin{enumerate}
-        \item $+23$
-        \item $-15$
-        \item $-0$（若存在）
-    \end{enumerate}
-    并回答：(1) 原码中为何 $+0$ 和 $-0$ 编码不同？(2) 补码的最小负数为何比原码多一个？
-
-    \ifshowsolutions\par\noindent\textbf{答案：}
-
-    字长 6 位，偏置量 $= 2^{5} = 32$。
-
-    \begin{center}
-    \begin{tabular}{|c|c|c|c|c|}
-    \hline
-    真值 & 原码 & 反码 & 补码 & 移码 \\
-    \hline
-    $+23$ ($+10111_2$) & 0,10111 & 0,10111 & 0,10111 & 1,10111 \\
-    $-15$ ($-01111_2$) & 1,01111 & 1,10000 & 1,10001 & 0,10001 \\
-    $-0$ & 1,00000 & 1,11111 & 0,00000 & 1,00000 \\
-    \hline
-    \end{tabular}
-    \end{center}
-
-    \textbf{(1)} 原码用最高位表示符号、其余位表示绝对值。$+0$ 的符号位为 0 数值位全 0，$-0$ 的符号位为 1 数值位全 0，二者语义不同但数学值相同，编码不同。这是原码的固有问题。
-
-    \textbf{(2)} 原码中 $\pm 0$ 占用了两个编码，因此 6 位原码仅有 $2^{6}-1=63$ 个不同的值，范围 $[-31, 31]$。补码中零唯一（全 0），多出的一个编码（$100000$）被用作最小负数。6 位补码范围 $[-32, 31]$，恰好比原码多一个 $-32$。\else \answerarea \fi
-
-\end{enumerate}
-
-% =============================
-% 拓展阅读
-% =============================
-\subsection{拓展阅读}
-
-\begin{itemize}
-    \item \textbf{Patterson \& Hennessy《计算机组成与设计（RISC-V版）》}第 3 章「计算机的算术运算」——3.2 加法和减法，3.3 乘法（Booth 算法），3.4 除法（恢复余数法和不恢复余数法），3.5 浮点数（IEEE 754 标准的完整论述，含舍入模式与精度分析），可用于补充理解浮点运算。
-
-    \item \textbf{Bryant \& O'Hallaron《深入理解计算机系统》（CS:APP）}第 2 章「信息的表示和处理」——2.1 信息存储，2.2 整数表示（补码编码的完整处理），2.3 整数运算（溢出判断的底层原理），2.4 浮点数（IEEE 754 细节与非规格化数）。\textbf{CS:APP 的整数与浮点章节论述严密，适合补充理解 P\&H 中省略的编码细节。}
-
-    \item \textbf{唐朔飞《计算机组成原理》}第 6 章「计算机的运算方法」——6.1 无符号数和有符号数，6.2 定点运算，6.3 浮点四则运算，6.4 算术逻辑单元。不同版本的章节号和个别符号可能有差异，复习时应与所用大纲和教材版本对照。
-
-    \item \textbf{延伸思考：}IEEE 754-2008 标准扩展了 16 位半精度（binary16）和 128 位四精度（binary128）格式，本质与单/双精度一致。此外，十进制浮点（decimal floating-point）格式用于金融计算，避免二进制浮点的舍入偏差。感兴趣者可从 P\&H 3.10 节（历史与扩展阅读）入手。
-\end{itemize}
+\input{co/exercises/chap2.tex}

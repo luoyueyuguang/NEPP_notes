@@ -1,0 +1,465 @@
+\section{习题}
+
+\subsection{本章速览}
+
+\begin{itemize}
+\item \textbf{初等行变换：}倍乘（乘非零数）、倍加、对换三种操作不改变方程组的解集。把矩阵化为行阶梯形后，非零行的行数就是矩阵的秩 \(r(A)\)。
+\item \textbf{矩阵乘法：}左矩阵的列数必须等于右矩阵的行数，且 \(c_{ij}\) 是 \(A\) 的第 \(i\) 行与 \(B\) 的第 \(j\) 列的内积。矩阵乘法一般不可交换、不可消去；转置要反序：\((AB)^{\mathrm T}=B^{\mathrm T}A^{\mathrm T}\)。
+\item \textbf{方阵的幂：}若 \(A=I+N\) 且 \(N^k=O\)，则 \(A^n=I+nN+\binom n2N^2+\cdots+N^n\)，因为 \(I\) 与 \(N\) 可交换，二项式展开成立。
+\item \textbf{齐次方程组 \(A\boldsymbol x=\boldsymbol 0\)：}必有零解；只有零解 \(\iff r(A)=n\)；有非零解 \(\iff r(A)<n\)，此时基础解系含 \(n-r(A)\) 个向量，通解是它们的线性组合。
+\item \textbf{非齐次方程组 \(A\boldsymbol x=\boldsymbol b\)：}有解 \(\iff r(A)=r(A\mid\boldsymbol b)\)。设此公共秩为 \(r\)：唯一解 \(\iff r=n\)；无穷多解 \(\iff r<n\)；通解 \(=\) 一个特解 \(+\) 对应齐次方程组的通解。
+\item \textbf{含参讨论：}先做不含除法的行变换，把主元保留成含参数的因式；再按“主元为零”与“主元非零”分支讨论，切勿默认参数非零而约去。
+\end{itemize}
+
+\subsection{基础过关题}
+
+\textbf{1.} 设
+\[
+A=\begin{pmatrix}1&2\\0&1\end{pmatrix},\qquad
+B=\begin{pmatrix}1&0\\3&1\end{pmatrix}.
+\]
+求 \(AB\)，\(BA\)，\(A^2\)，并验证 \((AB)^{\mathrm T}=B^{\mathrm T}A^{\mathrm T}\)。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}按“行乘列”逐元素计算；转置验证时先分别求 \(B^{\mathrm T}\)、\(A^{\mathrm T}\)，再按相反顺序相乘。
+
+\[
+AB=\begin{pmatrix}1\cdot1+2\cdot3&1\cdot0+2\cdot1\\0\cdot1+1\cdot3&0\cdot0+1\cdot1\end{pmatrix}
+=\begin{pmatrix}7&2\\3&1\end{pmatrix},
+\]
+\[
+BA=\begin{pmatrix}1\cdot1+0\cdot0&1\cdot2+0\cdot1\\3\cdot1+1\cdot0&3\cdot2+1\cdot1\end{pmatrix}
+=\begin{pmatrix}1&2\\3&7\end{pmatrix},
+\]
+\[
+A^2=\begin{pmatrix}1&2\\0&1\end{pmatrix}\begin{pmatrix}1&2\\0&1\end{pmatrix}
+=\begin{pmatrix}1&4\\0&1\end{pmatrix}.
+\]
+又
+\[
+B^{\mathrm T}A^{\mathrm T}
+=\begin{pmatrix}1&3\\0&1\end{pmatrix}\begin{pmatrix}1&0\\2&1\end{pmatrix}
+=\begin{pmatrix}1+6&3\\0+2&1\end{pmatrix}
+=\begin{pmatrix}7&3\\2&1\end{pmatrix}
+=(AB)^{\mathrm T}.
+\]
+这里 \(AB\neq BA\)，说明矩阵乘法一般不满足交换律。
+
+\boxed{\text{答案：}AB=\begin{pmatrix}7&2\\3&1\end{pmatrix},\quad BA=\begin{pmatrix}1&2\\3&7\end{pmatrix},\quad A^2=\begin{pmatrix}1&4\\0&1\end{pmatrix}}
+\else \answerarea[8] \fi%
+
+\textbf{2.} 用初等行变换将
+\[
+A=\begin{pmatrix}1&2&1&3\\2&4&3&7\\3&6&4&10\end{pmatrix}
+\]
+化为行最简形矩阵，并求 \(r(A)\)。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}先用第一行消去第二、三行的首元，再把主元化为 \(1\) 并向上消元。行最简形的非零行数即为秩。
+
+\[
+A\xrightarrow[r_3-3r_1]{r_2-2r_1}
+\begin{pmatrix}1&2&1&3\\0&0&1&1\\0&0&1&1\end{pmatrix}
+\xrightarrow{r_3-r_2}
+\begin{pmatrix}1&2&1&3\\0&0&1&1\\0&0&0&0\end{pmatrix}.
+\]
+第二行主元已为 \(1\)，用它消去第一行第三列的元素：
+\[
+\xrightarrow{r_1-r_2}
+\begin{pmatrix}1&2&0&2\\0&0&1&1\\0&0&0&0\end{pmatrix}.
+\]
+此即行最简形矩阵。非零行有 \(2\) 行，故 \(r(A)=2\)。
+
+\boxed{\text{答案：}\text{行最简形为}\begin{pmatrix}1&2&0&2\\0&0&1&1\\0&0&0&0\end{pmatrix},\ r(A)=2}
+\else \answerarea[8] \fi%
+
+\textbf{3.} 求齐次线性方程组
+\[
+\begin{cases}
+x_1+2x_2-x_3+x_4=0,\\
+2x_1+4x_2-2x_3+2x_4=0,\\
+x_1+x_2+x_3+2x_4=0
+\end{cases}
+\]
+的基础解系与通解。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}对系数矩阵作行变换化为行最简形，非主元未知量取自由参数，回代写出基础解系。自由未知量的个数等于 \(n-r(A)\)。
+
+系数矩阵为
+\[
+\begin{pmatrix}1&2&-1&1\\2&4&-2&2\\1&1&1&2\end{pmatrix}.
+\]
+第二行是第一行的 \(2\) 倍，先消去；第三行减去第一行：
+\[
+\xrightarrow[r_3-r_1]{r_2-2r_1}
+\begin{pmatrix}1&2&-1&1\\0&0&0&0\\0&-1&2&1\end{pmatrix}
+\xrightarrow[r_2\times(-1)]{r_2\leftrightarrow r_3}
+\begin{pmatrix}1&2&-1&1\\0&1&-2&-1\\0&0&0&0\end{pmatrix}.
+\]
+再用第二行消去第一行的第二个元素：
+\[
+\xrightarrow{r_1-2r_2}
+\begin{pmatrix}1&0&3&3\\0&1&-2&-1\\0&0&0&0\end{pmatrix}.
+\]
+故 \(r(A)=2\)，自由未知量为 \(x_3,x_4\)，且
+\[
+x_1=-3x_3-3x_4,\qquad x_2=2x_3+x_4.
+\]
+令 \((x_3,x_4)=(1,0)\)，得 \(\boldsymbol\xi_1=(-3,2,1,0)^{\mathrm T}\)；令 \((x_3,x_4)=(0,1)\)，得 \(\boldsymbol\xi_2=(-3,1,0,1)^{\mathrm T}\)。二者线性无关，构成基础解系。
+
+\boxed{\text{答案：}\boldsymbol\xi_1=(-3,2,1,0)^{\mathrm T},\ \boldsymbol\xi_2=(-3,1,0,1)^{\mathrm T};\ \boldsymbol x=c_1\boldsymbol\xi_1+c_2\boldsymbol\xi_2\ (c_1,c_2\in\mathbb R)}
+\else \answerarea[10] \fi%
+
+\textbf{4.} 求非齐次线性方程组
+\[
+\begin{cases}
+x_1+2x_2+x_3=3,\\
+2x_1+4x_2+3x_3=7,\\
+3x_1+6x_2+4x_3=10
+\end{cases}
+\]
+的通解，并写出对应齐次方程组的基础解系。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}对增广矩阵消元，先判断是否相容；相容后用行最简形读出特解与齐次通解。
+
+\[
+\left(\begin{array}{ccc|c}
+1&2&1&3\\2&4&3&7\\3&6&4&10
+\end{array}\right)
+\xrightarrow[r_3-3r_1]{r_2-2r_1}
+\left(\begin{array}{ccc|c}
+1&2&1&3\\0&0&1&1\\0&0&1&1
+\end{array}\right)
+\xrightarrow[r_3-r_2]{r_1-r_2}
+\left(\begin{array}{ccc|c}
+1&2&0&2\\0&0&1&1\\0&0&0&0
+\end{array}\right).
+\]
+无矛盾行，故方程组有解，且 \(r(A)=r(A\mid\boldsymbol b)=2<3\)，有无穷多解。由行最简形得
+\[
+x_1=2-2x_2,\qquad x_3=1,
+\]
+其中 \(x_2\) 为自由未知量。取 \(x_2=0\) 得特解 \(\boldsymbol\eta=(2,0,1)^{\mathrm T}\)；对应齐次方程组满足 \(x_1=-2x_2,\ x_3=0\)，基础解系为 \(\boldsymbol\xi=(-2,1,0)^{\mathrm T}\)。
+
+\boxed{\text{答案：}\text{通解}\ \boldsymbol x=(2,0,1)^{\mathrm T}+t(-2,1,0)^{\mathrm T}\ (t\in\mathbb R);\ \text{齐次基础解系}\ \boldsymbol\xi=(-2,1,0)^{\mathrm T}}
+\else \answerarea[10] \fi%
+
+\textbf{5.} 设 \(A\) 为 \(m\times n\) 矩阵，\(\boldsymbol b\in\mathbb R^m\)。下列命题中一定正确的是（\quad）
+\begin{center}
+\begin{tabular}{l}
+(A) 若 \(A\boldsymbol x=\boldsymbol 0\) 只有零解，则 \(A\boldsymbol x=\boldsymbol b\) 有唯一解；\\[3pt]
+(B) 若 \(A\boldsymbol x=\boldsymbol b\) 有两个不同的解，则 \(A\boldsymbol x=\boldsymbol 0\) 有非零解；\\[3pt]
+(C) 若 \(A\boldsymbol x=\boldsymbol b\) 无解，则 \(A\boldsymbol x=\boldsymbol 0\) 只有零解；\\[3pt]
+(D) 若 \(r(A)=r(A\mid\boldsymbol b)\)，则 \(A\boldsymbol x=\boldsymbol b\) 有唯一解。
+\end{tabular}
+\end{center}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}逐项找反例或证明。(B) 的关键是把两个解相减。
+
+设 \(\boldsymbol\eta_1\neq\boldsymbol\eta_2\) 都是 \(A\boldsymbol x=\boldsymbol b\) 的解，则
+\[
+A(\boldsymbol\eta_1-\boldsymbol\eta_2)=A\boldsymbol\eta_1-A\boldsymbol\eta_2=\boldsymbol b-\boldsymbol b=\boldsymbol 0,
+\]
+且 \(\boldsymbol\eta_1-\boldsymbol\eta_2\neq\boldsymbol 0\)，故 \(A\boldsymbol x=\boldsymbol 0\) 有非零解，(B) 正确。
+
+其余各项的反例：
+(A) 取 \(A=\begin{pmatrix}1\\0\end{pmatrix}\)，\(\boldsymbol b=\begin{pmatrix}0\\1\end{pmatrix}\)。此时 \(A\boldsymbol x=\boldsymbol 0\) 只有 \(x=0\)，但 \(A\boldsymbol x=\boldsymbol b\) 即 \(0=1\)，无解。
+(C) 取 \(A=\begin{pmatrix}1&0\\0&0\end{pmatrix}\)，\(\boldsymbol b=\begin{pmatrix}0\\1\end{pmatrix}\)。此时 \(A\boldsymbol x=\boldsymbol 0\) 有非零解 \((0,1)^{\mathrm T}\)，而 \(A\boldsymbol x=\boldsymbol b\) 的第二行给出 \(0=1\)，无解。
+(D) 秩相等只保证有解；当公共秩小于未知数个数 \(n\) 时仍有无穷多解。例如 \(A=\begin{pmatrix}1&0\\0&0\end{pmatrix}\)，\(\boldsymbol b=\boldsymbol 0\)，秩相等且 \(x_2\) 任意。
+
+\boxed{\text{答案：}(B)}
+\else \answerarea[8] \fi%
+
+\subsection{综合提高题}
+
+\textbf{6.} 讨论参数 \(a\) 取何值时，方程组
+\[
+\begin{cases}
+ax_1+x_2+x_3=1,\\
+x_1+ax_2+x_3=1,\\
+x_1+x_2+ax_3=1
+\end{cases}
+\]
+有唯一解、无解、无穷多解；在有解时求出其解。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}先把首行换成常数项为 \(1\) 的行便于消元，所有行变换都不除以含 \(a\) 的式子；把参数因子保留到最后一行的主元上，再按它是否为零讨论。
+
+将三个方程相加，得
+\[
+(a+2)(x_1+x_2+x_3)=3.
+\]
+由此可预判：\(a=-2\) 时左端为 \(0\)、右端为 \(3\)，必无解。下面用消元法完整讨论。
+
+对增广矩阵作变换：
+\[
+\left(\begin{array}{ccc|c}
+a&1&1&1\\1&a&1&1\\1&1&a&1
+\end{array}\right)
+\xrightarrow{r_1\leftrightarrow r_3}
+\left(\begin{array}{ccc|c}
+1&1&a&1\\1&a&1&1\\a&1&1&1
+\end{array}\right)
+\xrightarrow[r_3-ar_1]{r_2-r_1}
+\left(\begin{array}{ccc|c}
+1&1&a&1\\0&a-1&1-a&0\\0&1-a&1-a^2&1-a
+\end{array}\right),
+\]
+\[
+\xrightarrow{r_3+r_2}
+\left(\begin{array}{ccc|c}
+1&1&a&1\\0&a-1&1-a&0\\0&0&(1-a)(a+2)&1-a
+\end{array}\right).
+\]
+第三行即
+\[
+(1-a)(a+2)x_3=1-a.
+\]
+分情况讨论：
+
+当 \(a=1\) 时，第二、三行全为零，只剩 \(x_1+x_2+x_3=1\)，秩为 \(1\)，有两个自由未知量，故有无穷多解。
+
+当 \(a\neq1\) 时，可除以 \(1-a\)，第三行化为 \((a+2)x_3=1\)。若 \(a=-2\)，得 \(0=1\)，无解；若 \(a\neq-2\)，则 \(x_3=\dfrac1{a+2}\)。此时第二行给出
+\[
+(a-1)x_2+(1-a)x_3=0\ \Longrightarrow\ x_2=x_3=\frac1{a+2},
+\]
+第一行给出
+\[
+x_1=1-x_2-ax_3=1-\frac{1+a}{a+2}=\frac1{a+2}.
+\]
+所以三个未知数相等，均为 \(\dfrac1{a+2}\)。
+
+\boxed{\text{答案：}\begin{array}{l}
+a\neq1,-2:\ x_1=x_2=x_3=\dfrac1{a+2};\\[4pt]
+a=1:\ \boldsymbol x=(1,0,0)^{\mathrm T}+s(-1,1,0)^{\mathrm T}+t(-1,0,1)^{\mathrm T}\ (s,t\in\mathbb R);\\[4pt]
+a=-2:\ \text{无解}.
+\end{array}}
+\else \answerarea[10] \fi%
+
+\textbf{7.} 问 \(\lambda\) 取何值时，齐次线性方程组
+\[
+\begin{cases}
+x_1+x_2+x_3=0,\\
+x_1+2x_2+\lambda x_3=0,\\
+x_1+4x_2+\lambda^2x_3=0
+\end{cases}
+\]
+有非零解？在有非零解时，求其基础解系。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}齐次方程组有非零解等价于系数矩阵的秩小于 \(3\)。对系数矩阵消元，看最后一行何时变为零行。
+
+\[
+\begin{pmatrix}1&1&1\\1&2&\lambda\\1&4&\lambda^2\end{pmatrix}
+\xrightarrow[r_3-r_1]{r_2-r_1}
+\begin{pmatrix}1&1&1\\0&1&\lambda-1\\0&3&\lambda^2-1\end{pmatrix}
+\xrightarrow{r_3-3r_2}
+\begin{pmatrix}1&1&1\\0&1&\lambda-1\\0&0&\lambda^2-3\lambda+2\end{pmatrix}.
+\]
+而
+\[
+\lambda^2-3\lambda+2=(\lambda-1)(\lambda-2).
+\]
+所以当且仅当 \(\lambda=1\) 或 \(\lambda=2\) 时，最后一行全为零，秩小于 \(3\)，方程组有非零解。
+
+当 \(\lambda=1\) 时，行最简形为
+\[
+\begin{pmatrix}1&0&1\\0&1&0\\0&0&0\end{pmatrix},
+\]
+即 \(x_2=0,\ x_1=-x_3\)，基础解系为 \(\boldsymbol\xi=(-1,0,1)^{\mathrm T}\)。
+
+当 \(\lambda=2\) 时，由行阶梯形继续化简：
+\[
+\begin{pmatrix}1&1&1\\0&1&1\\0&0&0\end{pmatrix}
+\xrightarrow{r_1-r_2}
+\begin{pmatrix}1&0&0\\0&1&1\\0&0&0\end{pmatrix},
+\]
+即 \(x_1=0,\ x_2=-x_3\)，基础解系为 \(\boldsymbol\xi=(0,1,-1)^{\mathrm T}\)。
+
+\boxed{\text{答案：}\begin{array}{l}
+\lambda\neq1,2:\ \text{只有零解};\\
+\lambda=1:\ \boldsymbol x=c(-1,0,1)^{\mathrm T};\\
+\lambda=2:\ \boldsymbol x=c(0,1,-1)^{\mathrm T}\quad(c\in\mathbb R).
+\end{array}}
+\else \answerarea[10] \fi%
+
+\textbf{8.} 设 \(4\) 元非齐次线性方程组 \(A\boldsymbol x=\boldsymbol b\) 的系数矩阵满足 \(r(A)=3\)，且
+\[
+\boldsymbol\eta_1=(1,0,1,0)^{\mathrm T},\quad
+\boldsymbol\eta_2=(2,-1,3,0)^{\mathrm T},\quad
+\boldsymbol\eta_3=(3,-2,5,0)^{\mathrm T}
+\]
+都是它的解。求 \(A\boldsymbol x=\boldsymbol b\) 的通解。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}两个非齐次解之差是齐次解；未知数个数减去秩，得到齐次解空间的维数，由此确定通解中自由参数的个数。
+
+因为 \(\boldsymbol\eta_1,\boldsymbol\eta_2,\boldsymbol\eta_3\) 都是 \(A\boldsymbol x=\boldsymbol b\) 的解，所以
+\[
+\boldsymbol\xi_1=\boldsymbol\eta_2-\boldsymbol\eta_1=(1,-1,2,0)^{\mathrm T},\qquad
+\boldsymbol\xi_2=\boldsymbol\eta_3-\boldsymbol\eta_2=(1,-1,2,0)^{\mathrm T}
+\]
+都满足 \(A\boldsymbol\xi=\boldsymbol 0\)，且二者相等、非零。
+
+另一方面，\(n=4\)，\(r(A)=3\)，故齐次方程组 \(A\boldsymbol x=\boldsymbol 0\) 的解空间维数为
+\[
+n-r(A)=4-3=1.
+\]
+因此所有齐次解都是 \(\boldsymbol\xi=(1,-1,2,0)^{\mathrm T}\) 的倍数，通解为
+\[
+\boldsymbol x=\boldsymbol\eta_1+t\boldsymbol\xi
+=(1+t,\,-t,\,1+2t,\,0)^{\mathrm T},\qquad t\in\mathbb R.
+\]
+
+\boxed{\text{答案：}\boldsymbol x=(1+t,-t,1+2t,0)^{\mathrm T}\ (t\in\mathbb R)}
+\else \answerarea[8] \fi%
+
+\textbf{9.} 设
+\[
+A=\begin{pmatrix}1&1&0\\0&1&1\\0&0&1\end{pmatrix},
+\]
+求 \(A^n\)（\(n\) 为正整数）。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}把 \(A\) 写成 \(I+N\)，其中 \(N\) 是幂零矩阵。因为 \(I\) 与任何矩阵都可交换，二项式展开成立，且只需算到 \(N\) 变为零矩阵为止。
+
+令
+\[
+N=A-I=\begin{pmatrix}0&1&0\\0&0&1\\0&0&0\end{pmatrix}.
+\]
+直接计算：
+\[
+N^2=\begin{pmatrix}0&0&1\\0&0&0\\0&0&0\end{pmatrix},\qquad
+N^3=O.
+\]
+由于 \(A=I+N\) 且 \(I,N\) 可交换，
+\[
+A^n=(I+N)^n=I+nN+\binom n2N^2.
+\]
+代入得
+\[
+A^n=\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\end{pmatrix}
++n\begin{pmatrix}0&1&0\\0&0&1\\0&0&0\end{pmatrix}
++\frac{n(n-1)}2\begin{pmatrix}0&0&1\\0&0&0\\0&0&0\end{pmatrix}
+=\begin{pmatrix}1&n&\dfrac{n(n-1)}2\\0&1&n\\0&0&1\end{pmatrix}.
+\]
+例如 \(n=2\) 时得 \(\begin{pmatrix}1&2&1\\0&1&2\\0&0&1\end{pmatrix}\)，与直接相乘 \(A^2\) 一致。
+
+\boxed{\text{答案：}A^n=\begin{pmatrix}1&n&\dfrac{n(n-1)}2\\0&1&n\\0&0&1\end{pmatrix}}
+\else \answerarea[8] \fi%
+
+\subsection{真题风格与综合训练}
+
+\textbf{10.} 设 \(A\) 为 \(m\times n\) 矩阵，\(\boldsymbol b\in\mathbb R^m\)。下列命题中正确的是（\quad）
+\begin{center}
+\begin{tabular}{l}
+(A) 对 \(A\) 作初等行变换可能改变矩阵的秩；\\[3pt]
+(B) 若 \(r(A)=r(A\mid\boldsymbol b)=2\) 且 \(n=3\)，则 \(A\boldsymbol x=\boldsymbol b\) 有无穷多解；\\[3pt]
+(C) 若 \(A\boldsymbol x=\boldsymbol 0\) 有非零解，则 \(A\boldsymbol x=\boldsymbol b\) 必有无穷多解；\\[3pt]
+(D) 若 \(A\boldsymbol x=\boldsymbol b\) 有两个不同的解，则 \(r(A)=n\)。
+\end{tabular}
+\end{center}
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}抓住两条判定：初等行变换是可逆变换，不改变秩；非齐次方程组有解且秩小于未知数个数时才有无穷多解。
+
+(A) 错误。初等行变换相当于左乘可逆矩阵，不改变矩阵的秩。
+
+(B) 正确。\(r(A)=r(A\mid\boldsymbol b)=2\)，说明方程组相容；又未知数个数 \(n=3>2\)，自由未知量有 \(3-2=1\) 个，故有无穷多解。
+
+(C) 错误。齐次方程组有非零解只说明 \(r(A)<n\)，但非齐次方程组可能不相容。例如
+\(A=\begin{pmatrix}1&0\\0&0\end{pmatrix}\)，\(\boldsymbol b=\begin{pmatrix}0\\1\end{pmatrix}\)，此时 \(A\boldsymbol x=\boldsymbol 0\) 有非零解，而 \(A\boldsymbol x=\boldsymbol b\) 无解。
+
+(D) 错误。两个不同解意味着有无穷多解，从而 \(r(A)<n\)。
+
+\boxed{\text{答案：}(B)}
+\else \answerarea[8] \fi%
+
+\textbf{11.} 设
+\[
+A=\begin{pmatrix}1&1&1\\0&1&2\\1&3&a\end{pmatrix}.
+\]
+若 \(r(A)=2\)，则 \(a=\underline{\qquad}\)。
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}用第三行减去第一行、再减去第二行的适当倍数，把含 \(a\) 的元素孤立到最后一行的主元位置。
+
+对 \(A\) 作初等行变换：
+\[
+A\xrightarrow{r_3-r_1}
+\begin{pmatrix}1&1&1\\0&1&2\\0&2&a-1\end{pmatrix}
+\xrightarrow{r_3-2r_2}
+\begin{pmatrix}1&1&1\\0&1&2\\0&0&a-5\end{pmatrix}.
+\]
+前两行线性无关，因此要使 \(r(A)=2\)，必须且只需最后一行是零行，即
+\[
+a-5=0\ \Longrightarrow\ a=5.
+\]
+当 \(a=5\) 时矩阵化为 \(\begin{pmatrix}1&1&1\\0&1&2\\0&0&0\end{pmatrix}\)，秩确为 \(2\)。
+
+\boxed{\text{答案：}5}
+\else \answerarea[6] \fi%
+
+\textbf{12.} 讨论 \(\lambda\) 的取值，并求解线性方程组
+\[
+\begin{cases}
+x_1+x_2+x_3=1,\\
+x_1+\lambda x_2+x_3=2,\\
+x_1+x_2+\lambda^2x_3=1.
+\end{cases}
+\]
+
+\ifshowsolutions%
+\boxed{\textbf{解}}
+\textbf{思路：}对增广矩阵只作不含除法的行变换，把参数留在第二、三行的主元上；然后按 \(\lambda-1\) 与 \(\lambda^2-1\) 是否为零分支讨论。
+
+对增广矩阵作变换：
+\[
+\left(\begin{array}{ccc|c}
+1&1&1&1\\1&\lambda&1&2\\1&1&\lambda^2&1
+\end{array}\right)
+\xrightarrow[r_3-r_1]{r_2-r_1}
+\left(\begin{array}{ccc|c}
+1&1&1&1\\0&\lambda-1&0&1\\0&0&\lambda^2-1&0
+\end{array}\right).
+\]
+第二行给出 \((\lambda-1)x_2=1\)，第三行给出 \((\lambda^2-1)x_3=0\)。
+
+当 \(\lambda=1\) 时，第二行变为 \(0=1\)，方程组无解。
+
+当 \(\lambda=-1\) 时，第二行为 \(-2x_2=1\)，即 \(x_2=-\dfrac12\)；第三行为 \(0=0\)，不限制 \(x_3\)。第一行给出
+\[
+x_1+x_3=1-x_2=\frac32.
+\]
+令 \(x_3=t\)，得 \(x_1=\dfrac32-t\)，故有无穷多解。
+
+当 \(\lambda\neq\pm1\) 时，\(\lambda-1\neq0\) 且 \(\lambda^2-1\neq0\)，于是
+\[
+x_2=\frac1{\lambda-1},\qquad x_3=0,
+\]
+再由第一行得
+\[
+x_1=1-x_2=\frac{\lambda-2}{\lambda-1}.
+\]
+此时方程组有唯一解。
+
+\boxed{\text{答案：}\begin{array}{l}
+\lambda\neq\pm1:\ \left(\dfrac{\lambda-2}{\lambda-1},\dfrac1{\lambda-1},0\right)^{\mathrm T};\\[5pt]
+\lambda=1:\ \text{无解};\\[3pt]
+\lambda=-1:\ \boldsymbol x=\left(\dfrac32,-\dfrac12,0\right)^{\mathrm T}+t(-1,0,1)^{\mathrm T}\ (t\in\mathbb R).
+\end{array}}
+\else \answerarea[10] \fi%

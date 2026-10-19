@@ -1,0 +1,288 @@
+\section{习题}
+
+\subsection{基础过关题}
+
+\begin{enumerate}
+
+\item \textbf{（单项选择题）} 某分治算法将规模为 $n$ 的问题划分为 $3$ 个规模为 $n/2$ 的子问题，合并这些子问题的解需要 $O(n)$ 时间。该算法的时间复杂度为
+\begin{center}
+\begin{tabular}{ll}
+(A) $\Theta(n\log n)$ & (B) $\Theta\!\left(n^{\log_2 3}\right)$ \\[6pt]
+(C) $\Theta(n^2)$ & (D) $\Theta(n)$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 设运行时间为 $T(n)$，则
+\[
+T(n)=3T\!\left(\frac n2\right)+O(n),\qquad T(1)=\Theta(1).
+\]
+这是主定理的标准形式，其中 $a=3$、$b=2$、$f(n)=\Theta(n)$。因为
+\[
+\log_b a=\log_2 3\approx 1.585>1,
+\]
+而 $f(n)=\Theta(n)=O\!\left(n^{\log_2 3-\varepsilon}\right)$（取 $\varepsilon=0.5$ 即可），属于主定理的第一种情形，所以
+\[
+T(n)=\Theta\!\left(n^{\log_2 3}\right).
+\]
+它比 $n\log n$ 增长更快，也不是 $n^2$。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 关于贪心算法，下列说法正确的是
+\begin{center}
+\begin{tabularx}{0.96\linewidth}{@{}X@{}}
+(A) 只要每一步都选取当前看来最好的方案，贪心算法就一定能得到全局最优解 \\[4pt]
+(B) 求解 0-1 背包问题时，按“单位重量价值最大”的顺序优先选取物品，一定能得到最优解 \\[4pt]
+(C) 贪心算法通常需要证明问题具有贪心选择性质和最优子结构 \\[4pt]
+(D) 贪心算法的时间复杂度一定低于动态规划
+\end{tabularx}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 贪心法只做当前最优选择，只有问题同时具备贪心选择性质和最优子结构时，局部最优的连续选择才保证全局最优，故 (C) 正确。
+
+(A) 错在把“局部最优”直接当成“全局最优”。(B) 的反例：背包容量 $W=10$，三件物品 $(w,v)$ 分别为 $(6,30)$、$(5,24)$、$(5,24)$，单位重量价值分别为 $5,4.8,4.8$。按单位价值贪心先取第一件，剩余容量 $4$ 放不下任何一件，总价值 $30$；而取后两件可得 $24+24=48$，所以该贪心策略不是最优。(D) 也不对，例如 0-1 背包的动态规划为 $O(nW)$，而按单位价值排序只需 $O(n\log n)$，贪心不一定更慢，只是可能得不到正确答案。\boxed{\textbf{答案：}(C)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 用一维数组 $f[0\ldots W]$ 求 0-1 背包的最大价值，其中 $f[j]$ 表示背包容量不超过 $j$ 时能获得的最大价值。外层按物品 $i=1,2,\ldots,n$ 枚举，内层枚举容量 $j$。为保证每件物品至多使用一次，内层应
+\begin{center}
+\begin{tabular}{ll}
+(A) 令 $j$ 从 $0$ 递增到 $W$ & (B) 令 $j$ 从 $W$ 递减到 $w_i$ \\[4pt]
+(C) 令 $j$ 从 $w_i$ 递增到 $W$ & (D) 任意顺序均可
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 一维写法把原来的二维状态压缩到一行：
+\[
+f[j]=\max\{f[j],\;f[j-w_i]+v_i\}.
+\]
+若 $j$ 从小到大递增，则计算 $f[j]$ 时，$f[j-w_i]$ 可能已经在本轮物品 $i$ 中被更新过，相当于又把物品 $i$ 放了一次，退化成完全背包。令 $j$ 从 $W$ 递减到 $w_i$，此时 $f[j-w_i]$ 尚未被本轮修改，仍是“只考虑前 $i-1$ 件物品”的旧值，因而每件物品最多选一次。\boxed{\textbf{答案：}(B)}\else \answerarea \fi
+
+\item \textbf{（填空题）} 回溯法按深度优先策略搜索解空间树，若判定当前结点不可能导出可行解或最优解，就停止深入它的子树，这一操作称为 \underline{\qquad\qquad}。用回溯法求解 $n$ 个正整数的子集和问题时，解空间树是一棵 \underline{\qquad\qquad}，在完全不剪枝的情况下最多有 \underline{\qquad\qquad} 个结点（含根结点）。
+
+\ifshowsolutions\par\noindent\textbf{解析：} 回溯法在解空间树上做深度优先搜索，发现当前部分解已经不可能补全为合法解或更优解时立即返回，这个动作叫剪枝。
+
+子集和问题对每个元素只有“选”与“不选”两种决策，因此解空间树是一棵子集树：根为空集，第 $i$ 层决定第 $i$ 个元素是否入选，树深为 $n$。完全二叉树第 $0$ 层到第 $n$ 层的结点数依次为 $1,2,4,\ldots,2^n$，总和为
+\[
+1+2+\cdots+2^n=2^{n+1}-1.
+\]
+实际剪枝后访问的结点会更少，但上界仍是这个数。\boxed{\textbf{答案：}\text{剪枝；子集树；}2^{n+1}-1}\else \answerarea \fi
+
+\item \textbf{（填空题）} 阅读下面的程序段，其中 $n$ 为正整数。
+\begin{lstlisting}[language=C]
+int s = 0;
+for (int i = 1; i <= n; i *= 2)
+    for (int j = 1; j <= i; j++)
+        s++;
+\end{lstlisting}
+语句 \texttt{s++} 的执行次数为 \underline{\qquad\qquad}。若把外层循环改成 \texttt{for (int i = 1; i <= n; i++)}，内层不变，则执行次数为 \underline{\qquad\qquad}。（均用 $\Theta$ 记号表示。）
+
+\ifshowsolutions\par\noindent\textbf{解析：} 原程序中 $i$ 依次取
+\[
+1,2,4,\ldots,2^k,\qquad 2^k\le n<2^{k+1}.
+\]
+内层对固定的 $i$ 执行 $i$ 次，所以总次数为等比数列之和
+\[
+1+2+4+\cdots+2^k=2^{k+1}-1.
+\]
+由 $2^k\le n$ 得 $2^{k+1}\le 2n$，又显然总次数不小于 $n$，故总次数为 $\Theta(n)$。
+
+外层改成每次加 $1$ 后，内层执行次数为
+\[
+1+2+\cdots+n=\frac{n(n+1)}{2}=\Theta(n^2).
+\]
+\boxed{\textbf{答案：}\Theta(n)\text{；}\Theta(n^2)}\else \answerarea \fi
+
+\item \textbf{（单项选择题）} 下列问题中，通常不以分治策略作为主要求解框架的是
+\begin{center}
+\begin{tabular}{ll}
+(A) 归并排序 & (B) 有序数组上的二分查找 \\[4pt]
+(C) 快速排序 & (D) Dijkstra 单源最短路径算法
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 归并排序把序列分成两半，分别排序后再合并；二分查找把查找区间缩小一半后只在其中一半继续；快速排序按枢轴划分成左右两段后递归处理。三者都以“分解—求解—合并”为框架。
+
+Dijkstra 算法维护一个已确定最短距离的顶点集合，每轮用贪心策略选出当前距离最小的未确定顶点，再用它松弛邻边，属于贪心法，而不是把原问题分成若干个同类子问题。\boxed{\textbf{答案：}(D)}\else \answerarea \fi
+
+\end{enumerate}
+
+\subsection{真题风格与综合训练}
+
+\begin{enumerate}[resume]
+
+\item \textbf{（真题风格·单项选择题）} 有 $7$ 个活动，占用时间段（左闭右开）如下表所示。
+\begin{center}
+\begin{tabular}{c|ccccccc}
+\hline
+活动 & $a_1$ & $a_2$ & $a_3$ & $a_4$ & $a_5$ & $a_6$ & $a_7$\\
+\hline
+时间段 & $[1,4)$ & $[2,5)$ & $[3,6)$ & $[5,8)$ & $[7,10)$ & $[8,11)$ & $[9,12)$\\
+\hline
+\end{tabular}
+\end{center}
+若按“结束时间最早，且开始时间不早于上一个已选活动的结束时间”的贪心策略安排，最多能安排的活动个数为
+\begin{center}
+\begin{tabular}{ll}
+(A) $2$ & (B) $3$ \\[4pt]
+(C) $4$ & (D) $5$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 先按结束时间升序排列：
+\[
+a_1(4),\;a_2(5),\;a_3(6),\;a_4(8),\;a_5(10),\;a_6(11),\;a_7(12),
+\]
+括号内为结束时间。按贪心规则依次检查：
+
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+活动 & 时间段 & 开始时间是否不早于上一活动结束 & 决策\\
+\hline
+$a_1$ & $[1,4)$ & 首个活动 & 选\\
+$a_2$ & $[2,5)$ & $2<4$ & 跳过\\
+$a_3$ & $[3,6)$ & $3<4$ & 跳过\\
+$a_4$ & $[5,8)$ & $5\ge 4$ & 选\\
+$a_5$ & $[7,10)$ & $7<8$ & 跳过\\
+$a_6$ & $[8,11)$ & $8\ge 8$ & 选\\
+$a_7$ & $[9,12)$ & $9<11$ & 跳过\\
+\hline
+\end{tabular}
+\end{center}
+
+最终选中 $a_1,a_4,a_6$，共 $3$ 个。区间调度问题按结束时间最早贪心具有贪心选择性质，所得个数就是最大值。\boxed{\textbf{答案：}(B)}\else \answerarea[8] \fi
+
+\item \textbf{（真题风格·单项选择题）} 设 $X=\text{ABCB}$，$Y=\text{BDCA}$，用动态规划求两者最长公共子序列（LCS）的长度，结果为
+\begin{center}
+\begin{tabular}{ll}
+(A) $1$ & (B) $2$ \\[4pt]
+(C) $3$ & (D) $4$
+\end{tabular}
+\end{center}
+
+\ifshowsolutions\par\noindent\textbf{解析：} 设 $dp[i][j]$ 为 $X$ 的前 $i$ 个字符与 $Y$ 的前 $j$ 个字符的最长公共子序列长度，则
+\[
+dp[i][j]=
+\begin{cases}
+dp[i-1][j-1]+1, & X_i=Y_j,\\
+\max\{dp[i-1][j],\,dp[i][j-1]\}, & X_i\ne Y_j.
+\end{cases}
+\]
+逐行计算（空串用 $\varepsilon$ 表示）：
+\begin{center}
+\begin{tabular}{c|ccccc}
+\hline
+$dp$ & $\varepsilon$ & B & D & C & A\\
+\hline
+$\varepsilon$ & 0 & 0 & 0 & 0 & 0\\
+A & 0 & 0 & 0 & 0 & 1\\
+B & 0 & 1 & 1 & 1 & 1\\
+C & 0 & 1 & 1 & 2 & 2\\
+B & 0 & 1 & 1 & 2 & 2\\
+\hline
+\end{tabular}
+\end{center}
+右下角为 $2$。也可直接验证：$\text{BC}$ 和 $\text{BA}$ 都是长度为 $2$ 的公共子序列；而 $Y$ 的长度为 $3$ 的子序列只有 $\text{BDC},\text{BDA},\text{BCA},\text{DCA}$，其中 $\text{BDC}$、$\text{BDA}$、$\text{DCA}$ 含 $X$ 中没有的 D，$\text{BCA}$ 在 $X$ 中要求 A 出现在 C 之后，不成立。因此长度不可能为 $3$。\boxed{\textbf{答案：}(B)}\else \answerarea[8] \fi
+
+\item \textbf{（真题风格·综合题）} 给定长度为 $n$ 的整数数组 $A[0\ldots n-1]$，其中 $n\ge 1$，元素可正可负。设计分治算法求连续子数组的最大和。假定所有可能的子段和都在 \texttt{int} 范围内。要求：
+\textbf{(1)} 说明如何划分问题，以及最大子段跨越中点时如何计算；
+\textbf{(2)} 给出 C 语言实现；
+\textbf{(3)} 写出时间复杂度的递推式并求解，同时说明递归栈空间。
+
+\ifshowsolutions\par\noindent\textbf{解析：} \textbf{(1)} 取中点 $mid=\lfloor (lo+hi)/2\rfloor$，把区间 $[lo,hi]$ 分成左半 $[lo,mid]$ 与右半 $[mid+1,hi]$。最优子段只有三种可能：
+\begin{itemize}
+\item 完全落在左半，递归求左半最大子段和；
+\item 完全落在右半，递归求右半最大子段和；
+\item 跨越中点，即形如 $A[i\ldots mid]$ 接上 $A[mid+1\ldots j]$。
+\end{itemize}
+第三种情形可分别计算“以 $mid$ 结尾的最大后缀和”和“以 $mid+1$ 开头的最大前缀和”，两者相加。由于左右两段在位置上是独立的，固定中点后要使总和最大，只需各自取最大，不会互相影响。
+
+\textbf{(2)} 实现如下：
+\begin{lstlisting}[language=C]
+int MaxCrossing(int A[], int lo, int mid, int hi) {
+    int sum = 0, leftMax = A[mid];
+    for (int i = mid; i >= lo; --i) {   // 从 mid 向左扫描
+        sum += A[i];
+        if (sum > leftMax) leftMax = sum;
+    }
+    sum = 0;
+    int rightMax = A[mid + 1];
+    for (int j = mid + 1; j <= hi; ++j) { // 从 mid+1 向右扫描
+        sum += A[j];
+        if (sum > rightMax) rightMax = sum;
+    }
+    return leftMax + rightMax;
+}
+
+int MaxSubArray(int A[], int lo, int hi) {
+    if (lo == hi) return A[lo];         // 只有一个元素
+    int mid = lo + (hi - lo) / 2;
+    int lmax = MaxSubArray(A, lo, mid);
+    int rmax = MaxSubArray(A, mid + 1, hi);
+    int cmax = MaxCrossing(A, lo, mid, hi);
+    int best = (lmax > rmax) ? lmax : rmax;
+    return (cmax > best) ? cmax : best;
+}
+\end{lstlisting}
+调用 \texttt{MaxSubArray(A, 0, n-1)} 即可。基例取单个元素，因此全为负数时也能正确返回最大的那个负数，不会把空段的和 $0$ 误当成答案。
+
+\textbf{(3)} 设处理长度为 $n$ 的区间所需时间为 $T(n)$。两次递归各处理约 $n/2$ 的规模，跨中点扫描以及常数次比较为 $\Theta(n)$，故
+\[
+T(n)=2T\!\left(\frac n2\right)+\Theta(n),\qquad T(1)=\Theta(1).
+\]
+由主定理，$a=2$、$b=2$、$\log_b a=1$，且 $f(n)=\Theta(n)$，属于第二种情形，因此
+\[
+T(n)=\Theta(n\log n).
+\]
+递归深度为 $O(\log n)$，每层只保存常数个局部变量，故递归栈空间为 $O(\log n)$；除输入数组外不需要额外的 $O(n)$ 辅助数组。\boxed{\textbf{答案：}\Theta(n\log n)\text{ 时间，}O(\log n)\text{ 递归栈空间。}}\else \answerarea[14] \fi
+
+\item \textbf{（真题风格·综合题）} 给定 $n$ 个正整数 $a[0\ldots n-1]$ 和目标值 $S$，数组已按非递增次序排列。设计回溯算法判断是否存在一个子集，其元素之和恰好为 $S$；若存在，输出其中一个子集。要求：
+\textbf{(1)} 说明解空间树的形态、搜索顺序以及你使用的剪枝条件；
+\textbf{(2)} 给出 C 语言实现，找到一个解即可；
+\textbf{(3)} 分析最坏情况下的时间复杂度和辅助空间。
+
+\ifshowsolutions\par\noindent\textbf{解析：} \textbf{(1)} 解空间树是子集树：第 $i$ 层决定是否选取 $a[i]$，左分支表示“选”，右分支表示“不选”，树深为 $n$。按深度优先顺序搜索，先尝试选取当前元素，再尝试不选；一旦当前部分和等于 $S$ 就立即成功返回。
+
+设 \texttt{cur} 为已选元素之和，\texttt{remain} 为从当前下标 $i$ 到末尾所有元素之和。使用三个剪枝条件：
+\begin{itemize}
+\item \texttt{cur == S}：已经凑出目标，直接返回成功；
+\item \texttt{cur > S}：所有元素为正，继续选只会让和更大，不可能再等于 $S$；
+\item \texttt{cur + remain < S}：即使把当前及后面所有元素全选上也不够 $S$，该子树不可能有解。
+\end{itemize}
+此外，由于数组按非递增排列，较大的数先被尝试，能更早触发“超过 $S$”的剪枝。
+
+\textbf{(2)} 实现如下：
+\begin{lstlisting}[language=C]
+static bool dfs(const int a[], int n, int i,
+                int cur, int remain, int target, bool pick[]) {
+    if (cur == target) return true;               // 找到一个解
+    if (i == n || cur > target || cur + remain < target)
+        return false;                            // 越界或两种剪枝
+    pick[i] = true;                               // 先尝试选取 a[i]
+    if (cur + a[i] <= target &&
+        dfs(a, n, i + 1, cur + a[i], remain - a[i], target, pick))
+        return true;
+    pick[i] = false;                              // 回溯，尝试不选
+    if (dfs(a, n, i + 1, cur, remain - a[i], target, pick))
+        return true;
+    return false;
+}
+
+bool SubsetSum(int a[], int n, int target, bool pick[]) {
+    int total = 0;
+    for (int i = 0; i < n; ++i) {
+        total += a[i];
+        pick[i] = false;
+    }
+    if (target > total) return false;             // 总和都不够
+    return dfs(a, n, 0, 0, total, target, pick);
+}
+\end{lstlisting}
+若返回 \texttt{true}，\texttt{pick[i]} 为 \texttt{true} 的下标就构成一个和为 $S$ 的子集。若 $S=0$，空集即为一个解，函数在根结点直接返回成功。
+
+\textbf{(3)} 最坏情况下剪枝都不起作用，需要遍历整棵子集树。深度为 $n$ 的满二叉树结点数为
+\[
+1+2+\cdots+2^n=2^{n+1}-1,
+\]
+每个结点做常数次判断，因此时间复杂度为 $O(2^n)$。递归深度不超过 $n$，\texttt{pick} 数组长度为 $n$，故辅助空间为 $O(n)$。\boxed{\textbf{答案：}\text{最坏 }O(2^n)\text{ 时间，}O(n)\text{ 辅助空间。}}\else \answerarea[14] \fi
+
+\end{enumerate}
+
+\vspace{8pt}
